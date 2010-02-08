@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+	package="org.montrealtransit.android" android:versionName="BETA 2010-02-07"
+	android:versionCode="9">
+
+	<application android:icon="@drawable/icon" android:label="@string/app_name"
+		android:description="@string/app_desc" android:theme="@android:style/Theme.NoTitleBar"
+		android:debuggable="false">
+		<!-- PROVIDERs -->
+		<provider android:name=".provider.DataProvider"
+			android:authorities="org.montrealtransit.android.data" />
+		<provider android:name=".provider.StmProvider"
+			android:authorities="org.montrealtransit.android" />
+		<!-- MAIN SCREEN -->
+		<activity android:name=".activity.MainScreen" android:label="@string/app_name">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+		</activity>
+		<!-- LIVE FOLDER -->
+		<activity android:name=".activity.FavListLiveFolder"
+			android:label="@string/favorite_live_folder_name_in_the_menu">
+			<intent-filter>
+				<action android:name="android.intent.action.CREATE_LIVE_FOLDER" />
+				<category android:name="android.intent.category.DEFAULT" />
+			</intent-filter>
+		</activity>
+		<activity android:name=".activity.FavListTab" />
+		<activity android:name=".activity.BusStopCodeTab" />
+		<activity android:name=".activity.BusLineListTab" />
+		<activity android:name=".activity.BusLineInfo" />
+		<activity android:name=".activity.BusStopInfo">
+			<intent-filter android:label="@string/viewBusStopInfo"
+				android:launchMode="singleTask">
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data
+					android:mimeType="vnd.android.cursor.item/vnd.org.montrealtransit.android.provider.busstopslivefolder" />
+			</intent-filter>
+		</activity>
+		<activity android:name=".activity.SubwayStationInfo" />
+		<activity android:name=".activity.SubwayLinesListTab" />
+		<activity android:name=".activity.SubwayLineInfo" />
+
+	</application>
+	<uses-sdk android:minSdkVersion="3" />
+	<!--
+		NEED A BRANCH for Android 1.5 and the trunk for Android 1.6 and higher
+		android:targetSdkVersion="4"
+	-->
+	<uses-permission android:name="android.permission.INTERNET" />
+</manifest> 
