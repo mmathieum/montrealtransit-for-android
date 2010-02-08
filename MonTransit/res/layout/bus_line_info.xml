@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	android:orientation="vertical">
+
+	<!-- BUS LINE INFORMATIONS -->
+	<RelativeLayout android:id="@+id/banner"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:orientation="horizontal" android:background="@android:drawable/title_bar_tall"
+		android:paddingRight="5dip" android:paddingLeft="5dip"
+		android:gravity="center_vertical">
+
+		<!-- BUS IMG -->
+		<ImageView android:id="@+id/bus" android:layout_width="40dip"
+			android:layout_height="40dip" android:layout_alignParentTop="true"
+			android:layout_alignParentLeft="true" android:layout_marginRight="7dip"
+			android:layout_marginLeft="5dip" android:layout_marginTop="5dip"
+			android:gravity="center" android:scaleType="centerInside"
+			android:background="@drawable/bus_blue_big" />
+
+		<!-- BUS LINE -->
+		<TextView android:id="@+id/line_number" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:layout_marginRight="5dip"
+			android:layout_alignParentTop="true" android:layout_toRightOf="@id/bus"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:textStyle="bold" />
+
+		<TextView android:id="@+id/line_name" android:layout_width="fill_parent"
+			android:layout_height="wrap_content" android:layout_toRightOf="@id/line_number"
+			android:layout_alignBaseline="@id/line_number"
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:singleLine="true" android:ellipsize="marquee"
+			android:focusable="true" android:gravity="center_vertical|left" />
+
+		<!-- DIRECTION LINE -->
+		<TextView android:id="@+id/direction_string"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_marginRight="5dip" android:layout_toRightOf="@id/bus"
+			android:layout_below="@id/line_number" android:textAppearance="?android:attr/textAppearanceMedium"
+			android:text="@string/direction" />
+		<TextView android:id="@+id/direction_main"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:layout_alignBaseline="@id/direction_string"
+			android:layout_toRightOf="@id/direction_string" />
+
+		<!-- DIRECTION DETAILS LINE -->
+		<TextView android:id="@+id/direction_detail"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_marginRight="5dip" android:layout_below="@id/direction_string"
+			android:layout_toRightOf="@id/bus" android:visibility="gone"
+			android:textAppearance="?android:attr/textAppearanceMedium" />
+
+		<!-- BUS TYPE IMG -->
+		<ImageView android:id="@+id/bus_type" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:layout_below="@id/bus"
+			android:layout_marginRight="5dip" android:layout_marginLeft="5dip"
+			android:layout_marginTop="3dip" android:layout_alignParentLeft="true"
+			android:layout_toLeftOf="@id/direction_string" android:gravity="center"
+			android:scaleType="centerInside" />
+
+	</RelativeLayout>
+
+	<!-- BUS STOPS  -->
+	<FrameLayout android:layout_width="fill_parent"
+		android:layout_height="0dip" android:layout_weight="1">
+
+		<include layout="@layout/bus_line_info_stops_list" />
+
+	</FrameLayout>
+</LinearLayout>

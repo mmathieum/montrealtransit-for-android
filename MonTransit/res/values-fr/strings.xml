@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MonTransit</string>
+    <string name="app_desc">BETA privée de MonTransit pour Android.</string>
+    
+    <string name="bus">Autobus</string>
+    <string name="subway">Métro</string>
+    <string name="favorite">Favoris</string>
+    <string name="stop_code">Code d\'arrêt</string>
+    
+    <string name="stop_code_hint">Entrer un code d\'arrêt.</string>
+    <string name="please_enter_a_stop_code">Veuillez entrer un code d\'arrêt.</string>
+    <string name="no_history">Historique vide.</string>
+    <string name="clear_history">Supprimer tout l\'historique.</string>
+    
+    <string name="select_bus_direction">Direction</string>
+    <string name="direction">Direction</string>
+    <string name="change_direction">Autres directions</string>
+    <string name="see_bus_line_plan">Plan de la ligne</string>
+    
+    <string name="hours_string">Horaires</string>
+    
+    <string name="subway_line">Ligne</string>
+    <string name="subway_lines">Lignes</string>
+    
+    <string name="bus_lines">Ligne d\'autobus</string>
+    <string name="bus_lines_connecting">Ligne d\'autobus en correspondance</string>
+    <string name="no_bus_line">Aucune ligne de bus !</string>
+    <string name="no_subway_line">Aucune ligne de métro !</string>
+    <string name="line">Ligne</string>
+    <string name="green_line">Ligne Verte</string>
+	<string name="orange_line">Ligne Orange</string>
+	<string name="yellow_line">Ligne Jaune</string>
+	<string name="blue_line">Ligne Bleue</string>
+	<string name="select_subway_direction">Direction</string>
+	<string name="first_trains">Premiers départs</string>
+	<string name="last_trains">Derniers départs</string>
+	<string name="next_bus_stops">Prochains passages</string>
+	<string name="other_bus_line">Autre(s) Ligne(s) de Bus</string>
+	<string name="subway_station">Station de Métro</string>
+    
+    <string name="group_by_bus_line_no_group">Ne pas grouper</string>
+	<string name="group_by_bus_line_type">Grouper par type de ligne</string>
+	<string name="group_by_bus_line_number">Grouper par numéro de ligne</string>
+	
+    <string name="bus_line_string">Lignes</string>
+    <string name="to">à</string>
+    
+    <string name="see_in_stm_mobile_web_site">Voir l\'arrêt dans m.stm.info</string>
+    <string name="show_map_from_stm_website">Plan du Métro (stm.info)</string>
+    <string name="refresh_next_bus_stop">Rafraîchir prochains passages</string>
+    
+    <string name="alphabetical_order">Ordre A-Z</string>
+    
+    <string name="unknow_line_name">Ligne de bus inconnue</string>
+    <string name="unknow_stop_place">Arrêt de bus inconnu</string>
+    <string name="unknow_direction">Direction inconnue</string>
+    
+    <string name="in">dans</string>
+    <string name="yes">Oui</string>
+    <string name="no">Non</string>
+    <string name="warning">Attention</string>
+    
+    <string name="wrong_stop_code_before">Le code d\'arrêt \'</string>
+    <string name="wrong_stop_code_after">\' n\'est pas enregistrée dans l'application. Voulez-vous essayer de télécharger les prochains passages depuis Internet?</string>
+    <string name="wrong_line_number_before">La ligne de bus numéro \'</string>
+    <string name="wrong_line_number_after">\' n\'existe pas.</string>
+    
+    <string name="north">Nord</string>
+    <string name="south">Sud</string>
+    <string name="east">Est</string>
+    <string name="west">Ouest</string>
+    <string name="am_route">Trajet du matin</string>
+    <string name="pm_route">Trajet de l\'après-midi</string>
+    <string name="post_9pm_route">Trajet après 21h</string>
+    <string name="evening_route">Trajet du soir</string>
+    <string name="morning_route">Trajet du matin</string>
+    <string name="regular_route">Trajet principal</string>
+    <string name="route_by_way_of_fairmount">Trajet par la rue Fairmount</string>
+    <string name="route_leading_to_timberlea">Trajet jusqu\'à la rue Timberlea</string>
+    <string name="weekday_bus_route">Trajet du lundi au vendredi</string>
+    <string name="saturday_and_sunday_bus_route">Trajet du samedi et du dimanche</string>
+    <string name="route_by_way_of_westhill">Trajet par la rue Westhill</string>
+    <string name="monday_to_friday_between_9am_and_330pm">Lundi au vendredi, de 9 h à 15 h 30</string>
+    <string name="route_leading_to_henri_bourassa_station">Trajet terminus au métro Henri-Bourassa</string>
+    <string name="route_after_8pm_by_way_of_ridgewood">Trajet après 20 h, par la rue Ridgewood</string>
+    <string name="route_by_way_of_pepiniere">Trajet par la rue de la Pépinière</string>
+    <string name="route_during_off_peak_periods">Trajet hors des heures de pointe</string>
+    <string name="rush_hour_route">Trajet aux heures de pointe</string>
+    <string name="am_route_peak_period">Trajet à l'heure de pointe du matin</string>
+	<string name="pm_route_peak_period">Trajet à l'heure de pointe de l'après-midi</string>
+	<string name="route_off_peak_periods">Trajet hors de heures de pointe</string>
+	<string name="am_route_peak_period_and_off_peaks_periods">Trajet à l'heure de pointe du matin et hors-pointe</string>
+	<string name="to_the_old_montreal">Vers le Vieux-Montréal</string>
+	<string name="to_the_old_port_of_montreal">Vers le Vieux-Port de Montéal</string>
+	
+	<string name="bus_type_soleil">Service régulier de jour</string>
+	<string name="bus_type_hot">Service en période de pointe AM et PM seulement</string>
+	<string name="bus_type_mbus">Service Métrobus</string>
+	<string name="bus_type_tbus">Trainbus</string>
+	<string name="bus_type_snuit">Service de nuit</string>
+	<string name="bus_type_express">Service Express</string>
+	<string name="bus_type_voieres">Service en voies réservées</string>
+	
+	<string name="no_more_stops">Service terminé.</string>
+	<string name="no_more_stops_for_this_bus_line">Service terminé pour la ligne de bus</string>
+    
+    <string name="remove_fav">Supprimer le favori.</string>
+    <string name="no_fav">Pas de favoris.</string>
+    <string name="no_fav_message">Aucun favori. Pour ajouter un arrêt de bus favori, parcourez les différentes lignes de bus ou chercher l\'arrêt à partir de son code d'arrêt. Ensuite, cliquez l\'étoile pour ajouter le favori.</string>
+    <string name="favorite_removed">Favori supprimé.</string>
+    <string name="favorite_added">Favori ajouté.</string>
+    
+    <string name="cancel">Annuler</string>
+    <string name="done">Terminé</string>
+    <string name="downloading_data_from">Téléchargement des données depuis</string>
+    <string name="processing_data">Traitement des données</string>
+    <string name="please_wait">Veuillez patienter ...</string>
+    <string name="ellipsis"> ...</string>
+    <string name="error">Erreur</string>
+    <string name="loading">Chargement...</string>
+    
+    <string name="search_label">MonTransit</string>
+    <string name="search_settings_description">Code d\'arrêt MonTransit.</string>
+    
+    <string name="viewBusStopInfo">Voir l\'arrêt de bus</string>
+    
+    <string name="favorite_live_folder_name">Favoris</string>
+    <string name="favorite_live_folder_name_in_the_menu">Favoris MonTransit</string>
+    <string name="favorite_live_folder_need_to_add_fav">Vous devez ajouter des favoris avant d\'utiliser ce dossier actif.</string>
+</resources>

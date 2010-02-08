@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:paddingTop="2dip"
+    android:paddingBottom="2dip"
+    android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft"
+	android:paddingRight="3dip">
+	
+	<ImageView android:id="@+id/bus_type_img"
+		android:layout_width="wrap_content"
+		android:layout_height="fill_parent"
+		android:layout_alignParentRight="true"
+		android:textAppearance="?android:attr/textAppearanceLarge"
+		android:gravity="center_horizontal" />
+		<!-- android:layout_marginLeft="5dip"
+		android:layout_toRightOf="@id/bus_line_string" -->
+		
+		<TextView android:id="@+id/bus_type_string"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:layout_alignParentLeft="true"
+		android:layout_toLeftOf="@id/bus_type_img"
+		android:singleLine="true"
+		android:ellipsize="marquee"
+		android:gravity="center_vertical|left"
+		android:textAppearance="?android:attr/textAppearanceLarge" />
+		<!-- android:gravity="center_vertical"  -->
+
+</RelativeLayout>

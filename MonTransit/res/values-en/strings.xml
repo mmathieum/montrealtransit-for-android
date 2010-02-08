@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MonTransit</string>
+    <string name="app_desc">Private BETA of MonTransit for Android.</string>
+    
+    <string name="bus">Bus</string>
+    <string name="subway">Subway</string>
+    <string name="favorite">Favorites</string>
+    <string name="stop_code">Stop code</string>
+    
+    <string name="stop_code_hint">Enter a bus stop code.</string>
+    <string name="please_enter_a_stop_code">Please, enter a stop code.</string>
+    <string name="no_history">No history.</string>
+    <string name="clear_history">Clear the history.</string>
+    
+    <string name="select_bus_direction">Direction</string>
+    <string name="direction">Direction</string>
+    <string name="change_direction">Other directions</string>
+    <string name="see_bus_line_plan">Bus route map</string>
+    
+    <string name="hours_string">Schedule</string>
+    
+    <string name="subway_line">Line</string>
+    <string name="subway_lines">Lines</string>
+    
+    <string name="bus_lines">Bus lines</string>
+    <string name="bus_lines_connecting">Bus lines connecting</string>
+    <string name="no_bus_line">No bus line!</string>
+    <string name="no_subway_line">No subway line!</string>
+    <string name="line">Line</string>
+    <string name="green_line">Green line</string>
+	<string name="orange_line">Orange line</string>
+	<string name="yellow_line">Yellow line</string>
+	<string name="blue_line">Blue line</string>
+	<string name="select_subway_direction">Direction</string>
+	<string name="first_trains">First trains</string>
+	<string name="last_trains">Last trains</string>
+	<string name="next_bus_stops">Next passing</string>
+	<string name="other_bus_line">Other bus line(s)</string>
+	<string name="subway_station">Subway station</string>
+	
+	<string name="group_by_bus_line_no_group">Don't group</string>
+	<string name="group_by_bus_line_type">Group by Line Type</string>
+	<string name="group_by_bus_line_number">Group by Line Number</string>
+	
+	<string name="bus_line_string">Lines</string>
+	<string name="to">to</string>
+	
+	<string name="see_in_stm_mobile_web_site">See the stop in m.stm.info</string>
+	<string name="show_map_from_stm_website">Subway Map (stm.info)</string>
+	<string name="refresh_next_bus_stop">Refresh next bus info</string>
+	
+	<string name="alphabetical_order">A-Z order</string>
+	
+	<string name="unknow_line_name">Unknown line</string>
+	<string name="unknow_stop_place">Unknown bus stop</string>
+	<string name="unknow_direction">Unknown direction</string>
+    
+    <string name="in">in</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="warning">Warning</string>
+    
+    <string name="wrong_stop_code_before">The bus stop code \'</string>
+    <string name="wrong_stop_code_after">\' is not registered in the application.\nDo you want to try to load the next stops from Internet?</string>
+    <string name="wrong_line_number_before">The bus line number \'</string>
+    <string name="wrong_line_number_after">\' doesn\'t exist.</string>
+    
+    <string name="north">North</string>
+    <string name="south">South</string>
+    <string name="east">East</string>
+    <string name="west">West</string>
+    <string name="am_route">Morning route</string>
+    <string name="pm_route">Afternoon route</string>
+    <string name="post_9pm_route">Route after 9pm</string>
+    <string name="evening_route">Evening route</string>
+    <string name="morning_route">Morning route</string>
+    <string name="regular_route">Regular route</string>
+    <string name="route_by_way_of_fairmount">Route by way of Fairmount</string>
+    <string name="route_leading_to_timberlea">Route leading to Timberlea</string>
+    <string name="weekday_bus_route">Weekday bus route</string>
+    <string name="saturday_and_sunday_bus_route">Saturday and Sunday bus route</string>
+    <string name="route_by_way_of_westhill">Route by way of Westhill</string>
+    <string name="monday_to_friday_between_9am_and_330pm">Monday to Friday, between 9am and 3:30pm</string>
+    <string name="route_leading_to_henri_bourassa_station">Route leading to Henri-Bourassa station</string>
+    <string name="route_after_8pm_by_way_of_ridgewood">Route after 8 p.m. by way of Ridgewood</string>
+    <string name="route_by_way_of_pepiniere">Route by way of Pépiniére</string>
+    <string name="route_during_off_peak_periods">Route during off-peak periods</string>
+    <string name="rush_hour_route">Rush hour route</string>
+    <string name="am_route_peak_period">Route for the morning peak period</string>
+	<string name="pm_route_peak_period">Route for the afternoon peak period</string>
+	<string name="route_off_peak_periods">Route during off-peak periods</string>
+	<string name="am_route_peak_period_and_off_peaks_periods">Route for the morning peak and off-peak periods</string>
+	<string name="to_the_old_montreal">To the Old Montreal</string>
+	<string name="to_the_old_port_of_montreal">To the Old Port of Montreal</string>
+    
+    <string name="bus_type_soleil">Regular Service</string>
+	<string name="bus_type_hot">Rush-Hour Service</string>
+	<string name="bus_type_mbus">Metrobus Service</string>
+	<string name="bus_type_tbus">Trainbus</string>
+	<string name="bus_type_snuit">Night Service</string>
+	<string name="bus_type_express">Express Service</string>
+	<string name="bus_type_voieres">Reserved Lane Service</string>
+	
+	<string name="no_more_stops">Service ended.</string>
+	<string name="no_more_stops_for_this_bus_line">Service ended for the bus line</string>
+	
+    <string name="remove_fav">Remove favorite.</string>
+    <string name="no_fav">No favorite.</string>
+    <string name="no_fav_message">No favorite. To add a favorite bus stop, browse the bus lines or search the bus stop from its stop code. Then, click on the star to add the favourite.</string>
+    <string name="favorite_removed">Favorite removed.</string>
+    <string name="favorite_added">Favorite added.</string>
+    
+    <string name="cancel">Cancel</string>
+    <string name="done">Done</string>
+    <string name="downloading_data_from">Downloading data from</string>
+    <string name="processing_data">Processing the data</string>
+    <string name="please_wait">Please wait...</string>
+    <string name="ellipsis"> ...</string>
+    <string name="error">Error</string>
+    <string name="loading">Loading...</string>
+    
+    <string name="search_label">MonTransit</string>
+    <string name="search_settings_description">MonTransit stop code.</string>
+    
+    <string name="viewBusStopInfo">View Bus Stop</string>
+    
+    <string name="favorite_live_folder_name">Favorites</string>
+    <string name="favorite_live_folder_name_in_the_menu">MonTransit favorites</string>
+    <string name="favorite_live_folder_need_to_add_fav">You need to add favorites before using this live folder.</string>
+</resources>
