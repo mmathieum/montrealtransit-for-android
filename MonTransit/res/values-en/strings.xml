@@ -46,9 +46,11 @@
 	<string name="bus_line_string">Lines</string>
 	<string name="to">to</string>
 	
-	<string name="see_in_stm_mobile_web_site">See the stop in m.stm.info</string>
+	<string name="see_in_stm_mobile_web_site">View in m.stm.info</string>
 	<string name="show_map_from_stm_website">Subway Map (stm.info)</string>
-	<string name="refresh_next_bus_stop">Refresh next bus info</string>
+	<string name="refresh_next_bus_stop">Refresh next passing</string>
+	<string name="show_in_map">View map</string>
+	<string name="show_in_map_exp">View map (BETA)</string>
 	
 	<string name="alphabetical_order">A-Z order</string>
 	
