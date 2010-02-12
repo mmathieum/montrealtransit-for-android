@@ -524,6 +524,10 @@ public class BusStopInfo extends Activity implements OnClickListener, NextStopLi
 	 * The menu item for showing the m.stm.info page of this bus stop.
 	 */
 	private static final int MENU_SHOW_STM_MOBILE_WEBSITE = 2;
+	/**
+	 * Menu for showing the bus stop in Maps.
+	 */
+	private static final int MENU_SHOW_SUBWAY_STATION_IN_MAPS = 3;
 
 	/**
 	 * {@inheritDoc}
@@ -533,6 +537,7 @@ public class BusStopInfo extends Activity implements OnClickListener, NextStopLi
 		// TODO use refresh icon from android.R.drawable... => bug Android 1.5 SDK !!!
 		menu.add(0, MENU_SHOW_REFRESH_NEXT_STOP, 0, R.string.refresh_next_bus_stop).setIcon(R.drawable.ic_menu_refresh);
 		menu.add(0, MENU_SHOW_STM_MOBILE_WEBSITE, 0, R.string.see_in_stm_mobile_web_site).setIcon(R.drawable.stmmobile);
+		menu.add(0, MENU_SHOW_SUBWAY_STATION_IN_MAPS, 0, R.string.show_in_map_exp).setIcon(android.R.drawable.ic_menu_mapmode);
 		return true;
 	}
 
@@ -549,6 +554,14 @@ public class BusStopInfo extends Activity implements OnClickListener, NextStopLi
 		case MENU_SHOW_REFRESH_NEXT_STOP:
 			reloadNextBusStops();
 			break;
+		case MENU_SHOW_SUBWAY_STATION_IN_MAPS:
+			try {
+				// Montreal 45.504181,-73.620758
+				Uri uri = Uri.parse("geo:0,0?q=" + this.busStop.getPlace());
+				startActivity(new Intent(android.content.Intent.ACTION_VIEW, uri));
+			} catch (Exception e) {
+				MyLog.e(TAG, "Error while launching map", e);
+			}
 		default:
 			MyLog.d(TAG, "Unknow menu action:" + item.getItemId() + ".");
 		}

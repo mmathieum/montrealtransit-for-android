@@ -15,7 +15,10 @@ import org.montrealtransit.android.provider.StmStore.SubwayLine;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ExpandableListAdapter;
@@ -269,6 +272,42 @@ public class SubwayStationInfo extends Activity implements /* ViewBinder, */OnCh
 			startActivityForResult(i, ACTIVITY_VIEW_BUS_STOP);
 			return true;
 		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Menu for showing the subway station in Maps.
+	 */
+	private static final int MENU_SHOW_SUBWAY_STATION_IN_MAPS = 1;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add(0, MENU_SHOW_SUBWAY_STATION_IN_MAPS, 0, R.string.show_in_map).setIcon(android.R.drawable.ic_menu_mapmode);
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case MENU_SHOW_SUBWAY_STATION_IN_MAPS:
+			try {
+				// + "?q=Station " + this.subwayStation.getName()
+				Uri uri = Uri.parse("geo:" + this.subwayStation.getLat() + "," + this.subwayStation.getLng());
+				startActivity(new Intent(android.content.Intent.ACTION_VIEW, uri));
+				return true;
+			} catch (Exception e) {
+				MyLog.e(TAG, "Error while launching map", e);
+				return false;
+			}
+		default:
+			MyLog.d(TAG, "Unknow menu id: " + item.getItemId() + ".");
 			return false;
 		}
 	}

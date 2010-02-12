@@ -46,9 +46,11 @@
     <string name="bus_line_string">Lignes</string>
     <string name="to">à</string>
     
-    <string name="see_in_stm_mobile_web_site">Voir l\'arrêt dans m.stm.info</string>
+    <string name="see_in_stm_mobile_web_site">Voir dans m.stm.info</string>
     <string name="show_map_from_stm_website">Plan du Métro (stm.info)</string>
     <string name="refresh_next_bus_stop">Rafraîchir prochains passages</string>
+    <string name="show_in_map">Voir la carte</string>
+    <string name="show_in_map_exp">Voir la carte (BETA)</string>
     
     <string name="alphabetical_order">Ordre A-Z</string>
     
