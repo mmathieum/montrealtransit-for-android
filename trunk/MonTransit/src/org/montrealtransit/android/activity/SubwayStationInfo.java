@@ -144,51 +144,56 @@ public class SubwayStationInfo extends Activity implements /* ViewBinder, */OnCh
 		MyLog.v(TAG, "getBusStopsEAdapter()");
 		List<StmStore.BusStop> busStopList = StmManager.findSubwayStationBusStopsExtendedList(getContentResolver(), this.subwayStation.getId());
 
-		List<Map<String, String>> groupData = new ArrayList<Map<String, String>>();
-		this.currentGroupData = new ArrayList<Map<String, StmStore.BusLine>>();
-		this.currentChildData = new ArrayList<List<Map<String, String>>>();
+		if (busStopList != null && busStopList.size() > 0) {
 
-		String currentLine = null;
-		List<Map<String, String>> currrentChildren = null;
-		for (StmStore.BusStop busStop : busStopList) {
-			// IF this is a bus stop of a new bus line DO
-			if (!busStop.getLineNumber().equals(currentLine)) {
-				// create a new group for this bus line
-				Map<String, StmStore.BusLine> curGroupBusLineMap = new HashMap<String, StmStore.BusLine>();
-				Map<String, String> curGroupMap = new HashMap<String, String>();
-				currentLine = busStop.getLineNumber();
-				BusLine busLine = new BusLine();
-				busLine.setNumber(busStop.getLineNumber());
-				busLine.setName(busStop.getLineNameOrNull());
-				busLine.setHours(busStop.getLineHoursOrNull());
-				busLine.setType(busStop.getLineTypeOrNull());
-				curGroupBusLineMap.put(BUS_LINE, busLine);
-				curGroupMap.put(BUS_LINE_NUMBER, busLine.getNumber());
-				this.currentGroupData.add(curGroupBusLineMap);
-				groupData.add(curGroupMap);
-				// create the children list
-				currrentChildren = new ArrayList<Map<String, String>>();
-				this.currentChildData.add(currrentChildren);
+			List<Map<String, String>> groupData = new ArrayList<Map<String, String>>();
+			this.currentGroupData = new ArrayList<Map<String, StmStore.BusLine>>();
+			this.currentChildData = new ArrayList<List<Map<String, String>>>();
 
+			String currentLine = null;
+			List<Map<String, String>> currrentChildren = null;
+			for (StmStore.BusStop busStop : busStopList) {
+				// IF this is a bus stop of a new bus line DO
+				if (!busStop.getLineNumber().equals(currentLine)) {
+					// create a new group for this bus line
+					Map<String, StmStore.BusLine> curGroupBusLineMap = new HashMap<String, StmStore.BusLine>();
+					Map<String, String> curGroupMap = new HashMap<String, String>();
+					currentLine = busStop.getLineNumber();
+					BusLine busLine = new BusLine();
+					busLine.setNumber(busStop.getLineNumber());
+					busLine.setName(busStop.getLineNameOrNull());
+					busLine.setHours(busStop.getLineHoursOrNull());
+					busLine.setType(busStop.getLineTypeOrNull());
+					curGroupBusLineMap.put(BUS_LINE, busLine);
+					curGroupMap.put(BUS_LINE_NUMBER, busLine.getNumber());
+					this.currentGroupData.add(curGroupBusLineMap);
+					groupData.add(curGroupMap);
+					// create the children list
+					currrentChildren = new ArrayList<Map<String, String>>();
+					this.currentChildData.add(currrentChildren);
+
+				}
+				Map<String, String> curChildMap = new HashMap<String, String>();
+				curChildMap.put(StmStore.BusStop.STOP_CODE, busStop.getCode());
+				curChildMap.put(StmStore.BusStop.STOP_DIRECTION_ID, busStop.getDirectionId());
+				curChildMap.put(StmStore.BusStop.STOP_LINE_NUMBER, busStop.getLineNumber());
+				curChildMap.put(StmStore.BusStop.STOP_PLACE, busStop.getPlace());
+				curChildMap.put(StmStore.BusStop.STOP_SUBWAY_STATION_ID, busStop.getSubwayStationId());
+				curChildMap.put(StmStore.BusStop.LINE_NAME, busStop.getLineNameOrNull());
+				currrentChildren.add(curChildMap);
 			}
-			Map<String, String> curChildMap = new HashMap<String, String>();
-			curChildMap.put(StmStore.BusStop.STOP_CODE, busStop.getCode());
-			curChildMap.put(StmStore.BusStop.STOP_DIRECTION_ID, busStop.getDirectionId());
-			curChildMap.put(StmStore.BusStop.STOP_LINE_NUMBER, busStop.getLineNumber());
-			curChildMap.put(StmStore.BusStop.STOP_PLACE, busStop.getPlace());
-			curChildMap.put(StmStore.BusStop.STOP_SUBWAY_STATION_ID, busStop.getSubwayStationId());
-			curChildMap.put(StmStore.BusStop.LINE_NAME, busStop.getLineNameOrNull());
-			currrentChildren.add(curChildMap);
+
+			String[] groupFrom = new String[] { BUS_LINE_NUMBER, BUS_LINE_NUMBER, BUS_LINE_NUMBER };
+			int[] groupTo = new int[] { R.id.line_number, R.id.line_name, R.id.line_type };
+			String[] childFrom = new String[] { StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE, StmStore.BusStop.STOP_DIRECTION_ID };
+			int[] childTo = new int[] { R.id.stop_code, R.id.label, R.id.direction_main };
+
+			MySimpleExpandableListAdapter mAdapter = new MySimpleExpandableListAdapter(this, groupData, R.layout.subway_station_info_bus_stop_list_group_item,
+			        groupFrom, groupTo, this.currentChildData, R.layout.subway_station_info_bus_stop_list_item, childFrom, childTo);
+			return mAdapter;
+		} else {
+			return null;
 		}
-
-		String[] groupFrom = new String[] { BUS_LINE_NUMBER, BUS_LINE_NUMBER, BUS_LINE_NUMBER };
-		int[] groupTo = new int[] { R.id.line_number, R.id.line_name, R.id.line_type };
-		String[] childFrom = new String[] { StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE, StmStore.BusStop.STOP_DIRECTION_ID };
-		int[] childTo = new int[] { R.id.stop_code, R.id.label, R.id.direction_main };
-
-		MySimpleExpandableListAdapter mAdapter = new MySimpleExpandableListAdapter(this, groupData, R.layout.subway_station_info_bus_stop_list_group_item,
-		        groupFrom, groupTo, this.currentChildData, R.layout.subway_station_info_bus_stop_list_item, childFrom, childTo);
-		return mAdapter;
 	}
 
 	/**
