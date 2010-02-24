@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">MonTransit</string>
-    <string name="app_desc">BETA privée de MonTransit pour Android.</string>
+    <string name="app_desc">BETA de MonTransit pour Android.</string>
     
     <string name="bus">Autobus</string>
     <string name="subway">Métro</string>
