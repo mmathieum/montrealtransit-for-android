@@ -1,0 +1,8 @@
+#labels Phase-Support
+Changelog of the app
+
+ * BETA 2010-02-24
+  * bug fixes
+
+ * BETA 2010-02-07
+  * initial public release
