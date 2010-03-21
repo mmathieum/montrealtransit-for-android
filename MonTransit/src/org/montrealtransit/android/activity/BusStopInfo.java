@@ -7,6 +7,7 @@ import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.BusStopHours;
+import org.montrealtransit.android.dialog.NoRadarInstalled;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.StmManager;
@@ -14,14 +15,18 @@ import org.montrealtransit.android.provider.StmStore;
 import org.montrealtransit.android.provider.StmStore.BusLine;
 import org.montrealtransit.android.provider.StmStore.BusLineDirection;
 import org.montrealtransit.android.provider.StmStore.SubwayLine;
+import org.montrealtransit.android.service.ReverseGeocodeTask;
+import org.montrealtransit.android.service.ReverseGeocodeTaskListener;
 import org.montrealtransit.android.services.nextstop.NextStopListener;
 import org.montrealtransit.android.services.nextstop.StmInfoTask;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.location.Address;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
@@ -528,6 +533,10 @@ public class BusStopInfo extends Activity implements OnClickListener, NextStopLi
 	 * Menu for showing the bus stop in Maps.
 	 */
 	private static final int MENU_SHOW_SUBWAY_STATION_IN_MAPS = 3;
+	/**
+	 * Menu for using a radar to get to the subway station.
+	 */
+	private static final int MENU_USE_RADAR_TO_THE_SUBWAY_STATION = 4;
 
 	/**
 	 * {@inheritDoc}
@@ -538,6 +547,7 @@ public class BusStopInfo extends Activity implements OnClickListener, NextStopLi
 		menu.add(0, MENU_SHOW_REFRESH_NEXT_STOP, 0, R.string.refresh_next_bus_stop).setIcon(R.drawable.ic_menu_refresh);
 		menu.add(0, MENU_SHOW_STM_MOBILE_WEBSITE, 0, R.string.see_in_stm_mobile_web_site).setIcon(R.drawable.stmmobile);
 		menu.add(0, MENU_SHOW_SUBWAY_STATION_IN_MAPS, 0, R.string.show_in_map_exp).setIcon(android.R.drawable.ic_menu_mapmode);
+		menu.add(0, MENU_USE_RADAR_TO_THE_SUBWAY_STATION, 0, R.string.use_radar).setIcon(android.R.drawable.ic_menu_compass);
 		return true;
 	}
 
@@ -556,12 +566,62 @@ public class BusStopInfo extends Activity implements OnClickListener, NextStopLi
 			break;
 		case MENU_SHOW_SUBWAY_STATION_IN_MAPS:
 			try {
-				// Montreal 45.504181,-73.620758
-				Uri uri = Uri.parse("geo:0,0?q=" + this.busStop.getPlace());
-				startActivity(new Intent(android.content.Intent.ACTION_VIEW, uri));
+				// Finding the location of the bus stop
+				new ReverseGeocodeTask(this, 1, new ReverseGeocodeTaskListener() {
+					@Override
+                    public void processLocation(List<Address> addresses) {
+						if (addresses != null && addresses.size() > 0 && addresses.get(0)!=null) {
+							double lat = addresses.get(0).getLatitude();
+							double lng = addresses.get(0).getLongitude();
+							MyLog.d(TAG, "Bus stop GPS > lat:"+lat+", lng:"+lng);
+							// Launch the map activity
+							Uri uri = Uri.parse("geo:"+lat+","+lng+""); // geo:0,0?q="+busStop.getPlace()
+							startActivity(new Intent(android.content.Intent.ACTION_VIEW, uri));
+						} else {
+							Utils.notifyTheUser(BusStopInfo.this, getResources().getString(R.string.bus_stop_location_not_found));
+						}
+                    }
+					
+				}).execute(this.busStop.getPlace());
+				return true;
 			} catch (Exception e) {
 				MyLog.e(TAG, "Error while launching map", e);
+				return false;
 			}
+		case MENU_USE_RADAR_TO_THE_SUBWAY_STATION:
+			// IF the a radar activity is available DO
+			if (!Utils.isIntentAvailable(this, "com.google.android.radar.SHOW_RADAR")) {
+				// tell the user he needs to install a radar library.
+				NoRadarInstalled noRadar = new NoRadarInstalled(this);
+				noRadar.showDialog();
+			} else {
+				// Finding the location of the bus stop
+				new ReverseGeocodeTask(this, 1, new ReverseGeocodeTaskListener() {
+					@Override
+                    public void processLocation(List<Address> addresses) {
+						if (addresses != null && addresses.size() > 0 && addresses.get(0)!=null) {
+							float lat = (float) addresses.get(0).getLatitude();
+							float lng = (float) addresses.get(0).getLongitude();
+							MyLog.d(TAG, "Bus stop GPS > lat:"+lat+", lng:"+lng);
+							// Launch the radar activity
+					        Intent i = new Intent("com.google.android.radar.SHOW_RADAR");
+					        i.putExtra("latitude", (float) lat);
+					        i.putExtra("longitude", (float) lng);
+					        try {
+					            startActivity(i);
+					        } catch (ActivityNotFoundException ex) {
+					        	MyLog.w(TAG, "Radar activity not found.");
+					        	NoRadarInstalled noRadar = new NoRadarInstalled(BusStopInfo.this);
+								noRadar.showDialog();
+					        }
+						} else {
+							Utils.notifyTheUser(BusStopInfo.this, getResources().getString(R.string.bus_stop_location_not_found));
+						}
+                    }
+					
+				}).execute(this.busStop.getPlace());
+			}
+            return true;
 		default:
 			MyLog.d(TAG, "Unknow menu action:" + item.getItemId() + ".");
 		}

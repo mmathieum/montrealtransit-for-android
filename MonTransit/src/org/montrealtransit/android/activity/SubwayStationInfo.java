@@ -8,12 +8,14 @@ import java.util.Map;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
+import org.montrealtransit.android.dialog.NoRadarInstalled;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
 import org.montrealtransit.android.provider.StmStore.BusLine;
 import org.montrealtransit.android.provider.StmStore.SubwayLine;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -285,6 +287,11 @@ public class SubwayStationInfo extends Activity implements /* ViewBinder, */OnCh
 	 * Menu for showing the subway station in Maps.
 	 */
 	private static final int MENU_SHOW_SUBWAY_STATION_IN_MAPS = 1;
+	
+	/**
+	 * Menu for using a radar to get to the subway station.
+	 */
+	private static final int MENU_USE_RADAR_TO_THE_SUBWAY_STATION = 2;
 
 	/**
 	 * {@inheritDoc}
@@ -292,6 +299,7 @@ public class SubwayStationInfo extends Activity implements /* ViewBinder, */OnCh
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(0, MENU_SHOW_SUBWAY_STATION_IN_MAPS, 0, R.string.show_in_map).setIcon(android.R.drawable.ic_menu_mapmode);
+		menu.add(0, MENU_USE_RADAR_TO_THE_SUBWAY_STATION, 0, R.string.use_radar).setIcon(android.R.drawable.ic_menu_compass);
 		return true;
 	}
 
@@ -311,6 +319,26 @@ public class SubwayStationInfo extends Activity implements /* ViewBinder, */OnCh
 				MyLog.e(TAG, "Error while launching map", e);
 				return false;
 			}
+		case MENU_USE_RADAR_TO_THE_SUBWAY_STATION:
+			// IF the a radar activity is available DO
+			if (!Utils.isIntentAvailable(this, "com.google.android.radar.SHOW_RADAR")) {
+				// tell the user he needs to install a radar library.
+				NoRadarInstalled noRadar = new NoRadarInstalled(this);
+				noRadar.showDialog();
+			} else {
+				// Launch the radar activity
+	            Intent i = new Intent("com.google.android.radar.SHOW_RADAR");
+	            i.putExtra("latitude", (float) this.subwayStation.getLat());
+	            i.putExtra("longitude", (float) this.subwayStation.getLng());
+	            try {
+	                startActivity(i);
+	            } catch (ActivityNotFoundException ex) {
+	            	MyLog.w(TAG, "Radar activity not found.");
+	            	NoRadarInstalled noRadar = new NoRadarInstalled(this);
+					noRadar.showDialog();
+	            }
+			}
+            return true;
 		default:
 			MyLog.d(TAG, "Unknow menu id: " + item.getItemId() + ".");
 			return false;
