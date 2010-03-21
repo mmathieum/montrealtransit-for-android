@@ -49,8 +49,16 @@
 	<string name="see_in_stm_mobile_web_site">View in m.stm.info</string>
 	<string name="show_map_from_stm_website">Subway Map (stm.info)</string>
 	<string name="refresh_next_bus_stop">Refresh next passing</string>
-	<string name="show_in_map">View map</string>
-	<string name="show_in_map_exp">View map (BETA)</string>
+	<string name="show_in_map">View Maps</string>
+	<string name="show_in_map_exp">View Maps (BETA)</string>
+
+	<string name="reverse_geocoding_1">Reverse geocoding of</string>
+	<string name="bus_stop_location_not_found">Bus stop location not found.</string>
+
+	<string name="use_radar">Use a radar</string>
+	<string name="no_radar_title">No radar installed.</string>
+	<string name="download_radar_app">Download the free Radar app (Market).</string>
+	<string name="search_for_other_radar_app">Search for another app (Market).</string>
 	
 	<string name="alphabetical_order">A-Z order</string>
 	
