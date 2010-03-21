@@ -16,6 +16,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -33,7 +35,7 @@ public class Utils {
 	 * The log tag.
 	 */
 	private static final String TAG = Utils.class.getSimpleName();
-	
+
 	/**
 	 * Read the input stream and write the stream to the output stream file.
 	 * @param is the input stream
@@ -381,7 +383,7 @@ public class Utils {
 		// CyanogenMod 4.2.x & CursorSenceROM => French (Canada) => format is 24
 		// but value:null ???
 		String hourSetting = Settings.System.getString(context.getContentResolver(), Settings.System.TIME_12_24);
-		//TODO MyLog.d(TAG, "hour setting:" + hourSetting + ".");
+		// TODO MyLog.d(TAG, "hour setting:" + hourSetting + ".");
 		String result = "";
 		if (hourSetting != null && hourSetting.equals("24")) {
 			// 24
@@ -415,7 +417,7 @@ public class Utils {
 	 * @return the formatted 2 hours string
 	 */
 	public static String getFormatted2Hours(Context context, String shours, String splitBy) {
-		//MyLog.v(TAG, "getFormatted2Hours(" + shours + ", " + splitBy + ")");
+		// MyLog.v(TAG, "getFormatted2Hours(" + shours + ", " + splitBy + ")");
 		String startHour = shours.substring(0, shours.indexOf(splitBy)).trim();
 		String endHour = shours.substring(shours.indexOf(splitBy) + 1).trim();
 		return Utils.formatHours(context, startHour) + " - " + Utils.formatHours(context, endHour);
@@ -577,7 +579,7 @@ public class Utils {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Return the day of the week
 	 * @return the day of the week
@@ -670,7 +672,7 @@ public class Utils {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Parse the bus line list to extract the bus line numbers.
 	 * @param otherBusLine the bus line list
@@ -719,9 +721,25 @@ public class Utils {
 			PackageInfo packageInfo = context.getPackageManager().getPackageInfo(Constant.PKG, 0);
 			String versionName = packageInfo.versionName;
 			int versionCode = packageInfo.versionCode;
-			MyLog.i(TAG, context.getResources().getString(R.string.app_name)+" \""+versionName+"\" (v"+versionCode+")");
+			MyLog.i(TAG, context.getResources().getString(R.string.app_name) + " \"" + versionName + "\" (v" + versionCode + ")");
 		} catch (NameNotFoundException e) {
-			MyLog.w(TAG, "No VERSION for "+context.getResources().getString(R.string.app_name)+"!", e);
+			MyLog.w(TAG, "No VERSION for " + context.getResources().getString(R.string.app_name) + "!", e);
 		}
-    }
+	}
+
+	/**
+	 * Indicates whether the specified action can be used as an intent. This method queries the package manager for installed packages that can respond to an
+	 * intent with the specified action. If no suitable package is found, this method returns false.
+	 * 
+	 * @param context The application's environment.
+	 * @param action The Intent action to check for availability.
+	 * 
+	 * @return True if an Intent with the specified action can be sent and responded to, false otherwise.
+	 */
+	public static boolean isIntentAvailable(Context context, String action) {
+		final PackageManager packageManager = context.getPackageManager();
+		final Intent intent = new Intent(action);
+		List<ResolveInfo> list = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+		return list.size() > 0;
+	}
 }
