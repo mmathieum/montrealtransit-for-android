@@ -4,8 +4,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +25,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.widget.Toast;
 
 /**
@@ -373,38 +375,23 @@ public class Utils {
 	/**
 	 * Format the hours according to the device settings.
 	 * @param context the context used to get the device settings
-	 * @param shour the original hours string
+	 * @param noFormatHour the original hours string
 	 * @return the formatted hour string
 	 */
-	public static String formatHours(Context context, String shour) {
-		// MyLog.v(TAG, "formatHours(" + shour + ")");
-		// TODO propose an option to specify the format in the application
-		// because this global settings may not works sometimes
-		// CyanogenMod 4.2.x & CursorSenceROM => French (Canada) => format is 24
-		// but value:null ???
-		String hourSetting = Settings.System.getString(context.getContentResolver(), Settings.System.TIME_12_24);
-		// TODO MyLog.d(TAG, "hour setting:" + hourSetting + ".");
+	public static String formatHours(Context context, String noFormatHour) {
+		// MyLog.v(TAG, "formatHours(" + noFormatHour + ")");
 		String result = "";
-		if (hourSetting != null && hourSetting.equals("24")) {
-			// 24
-			String hour = shour.substring(0, shour.indexOf("h")).trim();
-			String minute = shour.substring(shour.indexOf("h") + 1).trim();
-			result = hour + ":" + minute;
-		} else {
-			// 12
-			boolean isPM = false;
-			String minuteS = shour.substring(shour.indexOf("h") + 1).trim();
-			int hour = Integer.valueOf(shour.substring(0, shour.indexOf("h")).trim());
-			if (hour > 12) {
-				isPM = true;
-				hour = hour - 12;
-			}
-			if (!isPM && hour == 0) {
-				hour = 12;
-			}
-			String hourS = String.valueOf(hour);
-			String ampm = isPM ? "PM" : "AM";
-			result = hourS + ":" + minuteS + " " + ampm;
+		try {
+			String[] hourMinute = noFormatHour.split("h");
+			int hour = Integer.valueOf(hourMinute[0]);
+			int minute = Integer.valueOf(hourMinute[1]);
+			GregorianCalendar gregorianCalendar = new GregorianCalendar(0, 0, 0, hour, minute);
+			Date date = gregorianCalendar.getTime();
+			DateFormat df = android.text.format.DateFormat.getTimeFormat(context);
+			result = df.format(date);
+		} catch (Exception e) {
+			MyLog.w(TAG, "Error while formatting the date.", e);
+			result = noFormatHour;
 		}
 		return result;
 	}
@@ -412,15 +399,16 @@ public class Utils {
 	/**
 	 * Format a string containing 2 hours strings.
 	 * @param context the context use by the {@link Utils#formatHours(Context, String)} method
-	 * @param shours the 2 hours string to format
+	 * @param noFormatHours the 2 hours string to format
 	 * @param splitBy the separator between the 2 hours string in the source string
 	 * @return the formatted 2 hours string
 	 */
-	public static String getFormatted2Hours(Context context, String shours, String splitBy) {
-		// MyLog.v(TAG, "getFormatted2Hours(" + shours + ", " + splitBy + ")");
-		String startHour = shours.substring(0, shours.indexOf(splitBy)).trim();
-		String endHour = shours.substring(shours.indexOf(splitBy) + 1).trim();
-		return Utils.formatHours(context, startHour) + " - " + Utils.formatHours(context, endHour);
+	public static String getFormatted2Hours(Context context, String noFormatHours, String splitBy) {
+		// MyLog.v(TAG, "getFormatted2Hours(" + noFormatHour + ", " + splitBy + ")");
+		String[] twoNoFormatHours = noFormatHours.split(splitBy);
+		String firstNoFormatHour = twoNoFormatHours[0].trim();
+		String secondNoFormatHour = twoNoFormatHours[1].trim();
+		return Utils.formatHours(context, firstNoFormatHour) + " - " + Utils.formatHours(context, secondNoFormatHour);
 	}
 
 	/**
