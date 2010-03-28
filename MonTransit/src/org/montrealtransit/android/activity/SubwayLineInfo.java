@@ -7,6 +7,8 @@ import java.util.Map;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
+import org.montrealtransit.android.dialog.SubwayLineSelectDirection;
+import org.montrealtransit.android.dialog.SubwayLineSelectDirectionDialogListener;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
 import org.montrealtransit.android.provider.StmStore.SubwayStation;
