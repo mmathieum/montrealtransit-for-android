@@ -15,8 +15,8 @@ import org.montrealtransit.android.provider.StmStore;
 import org.montrealtransit.android.provider.StmStore.BusLine;
 import org.montrealtransit.android.provider.StmStore.BusLineDirection;
 import org.montrealtransit.android.provider.StmStore.SubwayLine;
-import org.montrealtransit.android.service.ReverseGeocodeTask;
-import org.montrealtransit.android.service.ReverseGeocodeTaskListener;
+import org.montrealtransit.android.services.ReverseGeocodeTask;
+import org.montrealtransit.android.services.ReverseGeocodeTaskListener;
 import org.montrealtransit.android.services.nextstop.NextStopListener;
 import org.montrealtransit.android.services.nextstop.StmInfoTask;
 

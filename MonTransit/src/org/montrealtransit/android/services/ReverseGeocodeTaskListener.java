@@ -1,4 +1,4 @@
-package org.montrealtransit.android.service;
+package org.montrealtransit.android.services;
 
 import java.util.List;
 
