@@ -106,7 +106,7 @@
 	<string name="to_the_old_port_of_montreal">Vers le Vieux-Port de Montéal</string>
 	
 	<string name="bus_type_soleil">Service régulier de jour</string>
-	<string name="bus_type_hot">Service en période de pointe AM et PM seulement</string>
+	<string name="bus_type_hot">Service en période de pointe</string>
 	<string name="bus_type_mbus">Service Métrobus</string>
 	<string name="bus_type_tbus">Trainbus</string>
 	<string name="bus_type_snuit">Service de nuit</string>
