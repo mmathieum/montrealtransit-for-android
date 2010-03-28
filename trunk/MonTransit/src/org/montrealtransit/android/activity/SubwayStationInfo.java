@@ -164,7 +164,7 @@ public class SubwayStationInfo extends Activity implements /* ViewBinder, */OnCh
 					BusLine busLine = new BusLine();
 					busLine.setNumber(busStop.getLineNumber());
 					busLine.setName(busStop.getLineNameOrNull());
-					busLine.setHours(busStop.getLineHoursOrNull());
+					//busLine.setHours(busStop.getLineHoursOrNull());
 					busLine.setType(busStop.getLineTypeOrNull());
 					curGroupBusLineMap.put(BUS_LINE, busLine);
 					curGroupMap.put(BUS_LINE_NUMBER, busLine.getNumber());
