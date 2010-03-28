@@ -39,9 +39,10 @@
 	<string name="other_bus_line">Other bus line(s)</string>
 	<string name="subway_station">Subway station</string>
 	
+	<string name="select_group_by">Display</string>
 	<string name="group_by_bus_line_no_group">Don't group</string>
-	<string name="group_by_bus_line_type">Group by Line Type</string>
-	<string name="group_by_bus_line_number">Group by Line Number</string>
+	<string name="group_by_bus_line_type">Group by Type</string>
+	<string name="group_by_bus_line_number">Group by Number</string>
 	
 	<string name="bus_line_string">Lines</string>
 	<string name="to">to</string>

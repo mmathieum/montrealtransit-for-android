@@ -15,9 +15,11 @@ import org.montrealtransit.android.provider.StmStore;
 
 import android.app.Activity;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -50,6 +52,11 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	private List<List<Map<String, String>>> currentChildData;
 
 	/**
+	 * This object contains the current list adapter.
+	 */
+	private Object currentAdapter;
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -58,9 +65,7 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 		super.onCreate(savedInstanceState);
 		// set the UI
 		setContentView(R.layout.bus_line_list_tab);
-		((ExpandableListView) findViewById(R.id.elist)).setEmptyView(findViewById(R.id.elist_empty));
 		((ExpandableListView) findViewById(R.id.elist)).setOnChildClickListener(this);
-		((ListView) findViewById(R.id.list)).setEmptyView(findViewById(R.id.list_empty));
 		((ListView) findViewById(R.id.list)).setOnItemClickListener(this);
 		// refresh the bus list
 		refreshAll();
@@ -71,23 +76,41 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	 */
 	private void refreshAll() {
 		MyLog.v(TAG, "refreshAll()");
-		setBusList(getBusListGroupByFromPreferences());
+		if (getBusListGroupByFromPreferences().equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)
+		        || getBusListGroupByFromPreferences().equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
+			showEListView();
+			new SetBusEListTask().execute(getBusListGroupByFromPreferences());
+		} else {
+			showListView();
+			((ListView) findViewById(R.id.list)).setAdapter(getAdapterFromSettings(getBusListGroupByFromPreferences()));
+		}
 	}
 
 	/**
-	 * Set the bus list from the preferences.
-	 * @param busListGroupBy the bus line group by preference value
+	 * This task create the expandable list adapter in a other thread.
+	 * @author Mathieu Méa
 	 */
-	private void setBusList(String busListGroupBy) {
-		MyLog.v(TAG, "setBusList(" + busListGroupBy + ")");
-		// show the right bus list
-		if (busListGroupBy.equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER) || busListGroupBy.equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
-			showEListView();
-			((ExpandableListView) findViewById(R.id.elist)).setAdapter(getEAdapterFromSettings(busListGroupBy));
-		} else {
-			showListView();
-			((ListView) findViewById(R.id.list)).setAdapter(getAdapterFromSettings(busListGroupBy));
+	private class SetBusEListTask extends AsyncTask<String, String, Object> {
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		protected Object doInBackground(String... arg0) {
+			String busListGroupBy = arg0[0];
+			// load the adapter
+			return getEAdapterFromSettings(busListGroupBy);
 		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		protected void onPostExecute(Object result) {
+			((ExpandableListView) findViewById(R.id.elist)).setAdapter((ExpandableListAdapter) result);
+			super.onPostExecute(result);
+		}
+
 	}
 
 	/**
@@ -96,6 +119,7 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	private void showEListView() {
 		((ExpandableListView) findViewById(R.id.elist)).setVisibility(View.VISIBLE);
 		((TextView) findViewById(R.id.elist_empty)).setVisibility(View.VISIBLE);
+		((ExpandableListView) findViewById(R.id.elist)).setEmptyView(findViewById(R.id.elist_empty));
 
 		((ListView) findViewById(R.id.list)).setVisibility(View.GONE);
 		((TextView) findViewById(R.id.list_empty)).setVisibility(View.GONE);
@@ -110,16 +134,19 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 
 		((ListView) findViewById(R.id.list)).setVisibility(View.VISIBLE);
 		((TextView) findViewById(R.id.list_empty)).setVisibility(View.VISIBLE);
+		((ListView) findViewById(R.id.list)).setEmptyView(findViewById(R.id.list_empty));
 	}
 
+	private static final int MENU_GROUP_BY_GROUP = 1;
+	private static final int MENU_GROUP_BY = 2;
 	/**
 	 * The menu item to show the list without group by.
 	 */
-	private static final int MENU_GROUP_BY_NO_GROUP_BY = 1;
+	private static final int MENU_GROUP_BY_NO_GROUP_BY = 4;
 	/**
 	 * The menu item to show the list group by type.
 	 */
-	private static final int MENU_GROUP_BY_TYPE = 2;
+	private static final int MENU_GROUP_BY_TYPE = 5;
 	/**
 	 * The menu item to show the list group by number.
 	 */
@@ -130,11 +157,43 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// TODO don't show the current group by?
-		menu.add(0, MENU_GROUP_BY_NO_GROUP_BY, 0, R.string.group_by_bus_line_no_group);
-		menu.add(0, MENU_GROUP_BY_TYPE, 0, R.string.group_by_bus_line_type);
-		menu.add(0, MENU_GROUP_BY_NUMBER, 0, R.string.group_by_bus_line_number);
+		SubMenu subMenu = menu.addSubMenu(MENU_GROUP_BY_GROUP, MENU_GROUP_BY, 0, R.string.select_group_by).setIcon(
+		        android.R.drawable.ic_menu_view);
+		subMenu.add(MENU_GROUP_BY_GROUP, MENU_GROUP_BY_TYPE, 0, R.string.group_by_bus_line_type);
+		subMenu.add(MENU_GROUP_BY_GROUP, MENU_GROUP_BY_NUMBER, 0, R.string.group_by_bus_line_number);
+		subMenu.add(MENU_GROUP_BY_GROUP, MENU_GROUP_BY_NO_GROUP_BY, 0, R.string.group_by_bus_line_no_group);
+		subMenu.setGroupCheckable(MENU_GROUP_BY_GROUP, true, true);
 		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		// MyLog.v(TAG, "onPrepareOptionsMenu()");
+		if (super.onPrepareOptionsMenu(menu)) {
+			SubMenu subMenu = menu.findItem(MENU_GROUP_BY).getSubMenu();
+			for (int i = 0; i < subMenu.size(); i++) {
+				if (subMenu.getItem(i).getItemId() == MENU_GROUP_BY_NO_GROUP_BY
+				        && getBusListGroupByFromPreferences().equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP)) {
+					subMenu.getItem(i).setChecked(true);
+					break;
+				} else if (subMenu.getItem(i).getItemId() == MENU_GROUP_BY_TYPE
+				        && getBusListGroupByFromPreferences().equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
+					subMenu.getItem(i).setChecked(true);
+					break;
+				} else if (subMenu.getItem(i).getItemId() == MENU_GROUP_BY_NUMBER
+				        && getBusListGroupByFromPreferences().equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)) {
+					subMenu.getItem(i).setChecked(true);
+					break;
+				}
+			}
+			return true;
+		} else {
+			MyLog.w(TAG, "Error in onPrepareOptionsMenu().");
+			return false;
+		}
 	}
 
 	/**
@@ -145,33 +204,46 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 		switch (item.getItemId()) {
 		case MENU_GROUP_BY_NO_GROUP_BY:
 			if (!getBusListGroupByFromPreferences().equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP)) {
-				Utils.saveSharedPreferences(this, Constant.PREFS_BUS_LINE_LIST_GROUP_BY, Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP);
+				Utils.saveSharedPreferences(this, Constant.PREFS_BUS_LINE_LIST_GROUP_BY,
+				        Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP);
 				refreshAll();
 			}
-			break;
+			return true;
 		case MENU_GROUP_BY_TYPE:
 			if (!getBusListGroupByFromPreferences().equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
-				Utils.saveSharedPreferences(this, Constant.PREFS_BUS_LINE_LIST_GROUP_BY, Constant.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE);
+				Utils.saveSharedPreferences(this, Constant.PREFS_BUS_LINE_LIST_GROUP_BY,
+				        Constant.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE);
 				refreshAll();
 			}
-			break;
+			return true;
 		case MENU_GROUP_BY_NUMBER:
 			if (!getBusListGroupByFromPreferences().equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)) {
-				Utils.saveSharedPreferences(this, Constant.PREFS_BUS_LINE_LIST_GROUP_BY, Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER);
+				Utils.saveSharedPreferences(this, Constant.PREFS_BUS_LINE_LIST_GROUP_BY,
+				        Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER);
 				refreshAll();
 			}
-			break;
+			return true;
 		default:
 			MyLog.w(TAG, "Unknow menu action:" + item.getItemId() + ".");
+			return false;
 		}
-		return false;
 	}
 
 	/**
 	 * @return the bus list "group by" preference.
 	 */
 	private String getBusListGroupByFromPreferences() {
-		return Utils.getSharedPreferences(this, Constant.PREFS_BUS_LINE_LIST_GROUP_BY, Constant.PREFS_BUS_LINE_LIST_GROUP_BY_DEFAULT);
+		return Utils.getSharedPreferences(this, Constant.PREFS_BUS_LINE_LIST_GROUP_BY,
+		        Constant.PREFS_BUS_LINE_LIST_GROUP_BY_DEFAULT);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Object onRetainNonConfigurationInstance() {
+		// save the current list adapter
+		return this.currentAdapter;
 	}
 
 	/**
@@ -182,7 +254,11 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	 */
 	private ExpandableListAdapter getEAdapterFromSettings(String busListGroupBy) {
 		MyLog.v(TAG, "getEAdapterFromSettings(" + busListGroupBy + ")");
-		if (busListGroupBy.equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)) {
+		final Object data = getLastNonConfigurationInstance();
+		if (data != null) {
+			this.currentAdapter = data;
+			return (ExpandableListAdapter) data;
+		} else if (busListGroupBy.equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)) {
 			return getAdapterByNumber();
 		} else if (busListGroupBy.equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
 			return getAdapterByType();
@@ -200,7 +276,11 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	 */
 	private ListAdapter getAdapterFromSettings(String busListGroupBy) {
 		MyLog.v(TAG, "getAdapterFromSettings(" + busListGroupBy + ")");
-		if (busListGroupBy.equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP)) {
+		final Object data = getLastNonConfigurationInstance();
+		if (data != null) {
+			this.currentAdapter = data;
+			return (ListAdapter) data;
+		} else if (busListGroupBy.equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP)) {
 			return getAdapterNoGroupBy();
 		} else {
 			MyLog.w(TAG, "Unknow list adapter \"" + busListGroupBy + "\"");
@@ -213,12 +293,15 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	 * @return the list adapter
 	 */
 	private ListAdapter getAdapterNoGroupBy() {
+		MyLog.v(TAG, "getAdapterNoGroupBy()");
 		Cursor cursor = StmManager.findAllBusLines(this.getContentResolver());
-		String[] from = new String[] { StmStore.BusLine.LINE_NUMBER, StmStore.BusLine.LINE_NAME, StmStore.BusLine.LINE_HOURS, StmStore.BusLine.LINE_TYPE };
+		String[] from = new String[] { StmStore.BusLine.LINE_NUMBER, StmStore.BusLine.LINE_NAME,
+		        StmStore.BusLine.LINE_HOURS, StmStore.BusLine.LINE_TYPE };
 		int[] to = new int[] { R.id.line_number, R.id.line_name, R.id.hours, R.id.line_type };
-		SimpleCursorAdapter busLines = new SimpleCursorAdapter(this, R.layout.bus_line_list_item, cursor, from, to);
-		busLines.setViewBinder(this);
-		return busLines;
+		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.bus_line_list_item, cursor, from, to);
+		adapter.setViewBinder(this);
+		this.currentAdapter = adapter;
+		return adapter;
 	}
 
 	/**
@@ -232,10 +315,7 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 			return true;
 		} else if (columnIndex == cursor.getColumnIndex(StmStore.BusLine.LINE_HOURS)) {
 			String shours = cursor.getString(cursor.getColumnIndex(StmStore.BusLine.LINE_HOURS));
-			String startHour = shours.substring(0, shours.indexOf("-")).trim();
-			String endHour = shours.substring(shours.indexOf("-") + 1).trim();
-			String result = Utils.formatHours(this, startHour) + " - " + Utils.formatHours(this, endHour);
-			((TextView) view).setText(result);
+			((TextView) view).setText(Utils.getFormatted2Hours(this, shours, "-"));
 			return true;
 		}
 		return false;
@@ -246,6 +326,7 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	 * @return the expandable list adapter
 	 */
 	private ExpandableListAdapter getAdapterByNumber() {
+		MyLog.v(TAG, "getAdapterByNumber()");
 		List<StmStore.BusLine> busLineList = StmManager.findAllBusLinesList(this.getContentResolver());
 
 		List<Map<String, String>> groupData = new ArrayList<Map<String, String>>();
@@ -260,8 +341,8 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 				Map<String, String> curGroupMap = new HashMap<String, String>();
 				currentGroup = getBusLineGroup(busLine.getNumber());
 				int currentGroupI = Integer.valueOf(String.valueOf(currentGroup) + "00");
-				curGroupMap.put("lines", getResources().getString(R.string.bus_line_string) + " " + currentGroupI + " " + getResources().getString(R.string.to)
-				        + " " + (currentGroupI + 99));
+				curGroupMap.put("lines", getResources().getString(R.string.bus_line_string) + " " + currentGroupI + " "
+				        + getResources().getString(R.string.to) + " " + (currentGroupI + 99));
 				groupData.add(curGroupMap);
 				// create the children list
 				currrentChildren = new ArrayList<Map<String, String>>();
@@ -278,10 +359,13 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 
 		String[] fromGroup = new String[] { "lines" };
 		int[] toGroup = new int[] { android.R.id.text1 };
-		String[] fromChild = new String[] { StmStore.BusLine.LINE_NUMBER, StmStore.BusLine.LINE_NAME, StmStore.BusLine.LINE_HOURS, StmStore.BusLine.LINE_TYPE };
+		String[] fromChild = new String[] { StmStore.BusLine.LINE_NUMBER, StmStore.BusLine.LINE_NAME,
+		        StmStore.BusLine.LINE_HOURS, StmStore.BusLine.LINE_TYPE };
 		int[] toChild = new int[] { R.id.line_number, R.id.line_name, R.id.hours, R.id.line_type };
-		MySimpleExpandableListAdapter mAdapter = new MySimpleExpandableListAdapter(this, groupData, android.R.layout.simple_expandable_list_item_1, fromGroup,
-		        toGroup, this.currentChildData, R.layout.bus_line_list_item, fromChild, toChild);
+		MySimpleExpandableListAdapter mAdapter = new MySimpleExpandableListAdapter(this, groupData,
+		        android.R.layout.simple_expandable_list_item_1, fromGroup, toGroup, this.currentChildData,
+		        R.layout.bus_line_list_item, fromChild, toChild);
+		this.currentAdapter = mAdapter;
 		return mAdapter;
 	}
 
@@ -307,16 +391,19 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 		/**
 		 * @see {@link SimpleExpandableListAdapter}
 		 */
-		public MySimpleExpandableListAdapter(BusLineListTab expandableBusListTab, List<Map<String, String>> groupData, int simpleExpandableListItem1,
-		        String[] strings, int[] is, List<List<Map<String, String>>> childData, int busLineListItem, String[] childFrom, int[] childTo) {
-			super(expandableBusListTab, groupData, simpleExpandableListItem1, strings, is, childData, busLineListItem, childFrom, childTo);
+		public MySimpleExpandableListAdapter(BusLineListTab expandableBusListTab, List<Map<String, String>> groupData,
+		        int simpleExpandableListItem1, String[] strings, int[] is, List<List<Map<String, String>>> childData,
+		        int busLineListItem, String[] childFrom, int[] childTo) {
+			super(expandableBusListTab, groupData, simpleExpandableListItem1, strings, is, childData, busLineListItem,
+			        childFrom, childTo);
 		}
 
 		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
+		public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView,
+		        ViewGroup parent) {
 			View v;
 			if (convertView == null) {
 				v = newChildView(isLastChild, parent);
@@ -336,7 +423,8 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 			((TextView) view.findViewById(R.id.line_number)).setText(data.get(StmStore.BusLine.LINE_NUMBER));
 			((TextView) view.findViewById(R.id.line_name)).setText(data.get(StmStore.BusLine.LINE_NAME));
 			((TextView) view.findViewById(R.id.hours)).setText(data.get(StmStore.BusLine.LINE_HOURS));
-			((ImageView) view.findViewById(R.id.line_type)).setImageResource(Utils.getBusLineTypeImgFromType(data.get(StmStore.BusLine.LINE_TYPE)));
+			((ImageView) view.findViewById(R.id.line_type)).setImageResource(Utils.getBusLineTypeImgFromType(data
+			        .get(StmStore.BusLine.LINE_TYPE)));
 		}
 	}
 
@@ -345,9 +433,11 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	 */
 	@Override
 	public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-		MyLog.v(TAG, "onChildClick(" + parent.getId() + "," + v.getId() + "," + groupPosition + "," + childPosition + "," + id + ")");
+		MyLog.v(TAG, "onChildClick(" + parent.getId() + "," + v.getId() + "," + groupPosition + "," + childPosition
+		        + "," + id + ")");
 		if (parent.getId() == R.id.elist) {
-			String lineNumber = this.currentChildData.get(groupPosition).get(childPosition).get(StmStore.BusLine.LINE_NUMBER);
+			String lineNumber = this.currentChildData.get(groupPosition).get(childPosition).get(
+			        StmStore.BusLine.LINE_NUMBER);
 			MyLog.v(TAG, "bus line number:" + lineNumber + ".");
 			BusLineSelectDirection busLineSelectDirection = new BusLineSelectDirection(this, lineNumber);
 			busLineSelectDirection.showDialog();
@@ -389,7 +479,7 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	 * @return the expandable list adapter
 	 */
 	private ExpandableListAdapter getAdapterByType() {
-
+		MyLog.v(TAG, "getAdapterByType()");
 		List<StmStore.BusLine> busLineList = StmManager.findAllBusLinesList(this.getContentResolver());
 
 		List<String> busLineType = new ArrayList<String>();
@@ -428,11 +518,14 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 
 		String[] fromGroup = new String[] { BUS_TYPE, BUS_TYPE };
 		int[] toGroup = new int[] { R.id.bus_type_string, R.id.bus_type_img };
-		String[] fromChild = new String[] { StmStore.BusLine.LINE_NUMBER, StmStore.BusLine.LINE_NAME, StmStore.BusLine.LINE_HOURS, StmStore.BusLine.LINE_TYPE };
+		String[] fromChild = new String[] { StmStore.BusLine.LINE_NUMBER, StmStore.BusLine.LINE_NAME,
+		        StmStore.BusLine.LINE_HOURS, StmStore.BusLine.LINE_TYPE };
 		int[] toChild = new int[] { R.id.line_number, R.id.line_name, R.id.hours, R.id.line_type };
 
-		MySimpleExpandableListAdapterType mAdapter = new MySimpleExpandableListAdapterType(this, this.currentGroupData, R.layout.bus_line_list_group_item_type,
-		        fromGroup, toGroup, this.currentChildData, R.layout.bus_line_list_item, fromChild, toChild);
+		MySimpleExpandableListAdapterType mAdapter = new MySimpleExpandableListAdapterType(this, this.currentGroupData,
+		        R.layout.bus_line_list_group_item_type, fromGroup, toGroup, this.currentChildData,
+		        R.layout.bus_line_list_item, fromChild, toChild);
+		this.currentAdapter = mAdapter;
 		return mAdapter;
 	}
 
@@ -445,9 +538,11 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 		/**
 		 * @see MySimpleExpandableListAdapter#MySimpleExpandableListAdapter(BusLineListTab, List, int, String[], int[], List, int, String[], int[])
 		 */
-		public MySimpleExpandableListAdapterType(BusLineListTab expandableBusListTab, List<Map<String, String>> groupData, int simpleExpandableListItem1,
-		        String[] strings, int[] is, List<List<Map<String, String>>> childData, int busLineListItem, String[] childFrom, int[] childTo) {
-			super(expandableBusListTab, groupData, simpleExpandableListItem1, strings, is, childData, busLineListItem, childFrom, childTo);
+		public MySimpleExpandableListAdapterType(BusLineListTab expandableBusListTab,
+		        List<Map<String, String>> groupData, int simpleExpandableListItem1, String[] strings, int[] is,
+		        List<List<Map<String, String>>> childData, int busLineListItem, String[] childFrom, int[] childTo) {
+			super(expandableBusListTab, groupData, simpleExpandableListItem1, strings, is, childData, busLineListItem,
+			        childFrom, childTo);
 		}
 
 		/**

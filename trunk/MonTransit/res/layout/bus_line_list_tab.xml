@@ -3,14 +3,17 @@
 	android:layout_width="fill_parent" android:layout_height="fill_parent">
 
 	<!-- LIST NO GROUP BY -->
-	<ListView android:id="@+id/list" android:layout_width="fill_parent"
-		android:layout_height="fill_parent" />
-	<TextView android:id="@+id/list_empty" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:text="@string/no_bus_line" />
+	<ListView android:id="@+id/list"
+		android:layout_width="fill_parent" android:layout_height="fill_parent" />
+	<!-- TODO enable android:textFilterEnabled="true" on the list -->
+	<TextView android:id="@+id/list_empty" android:text="@string/please_wait"
+		android:layout_width="wrap_content" android:layout_height="wrap_content" />
+
 	<!-- LIST GROUP BY -->
 	<ExpandableListView android:id="@+id/elist"
 		android:layout_width="fill_parent" android:layout_height="fill_parent" />
-	<TextView android:id="@+id/elist_empty" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:text="@string/no_bus_line" />
+
+	<TextView android:id="@+id/elist_empty" android:text="@string/please_wait"
+		android:layout_width="wrap_content" android:layout_height="wrap_content" />
 
 </LinearLayout>

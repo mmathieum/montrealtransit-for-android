@@ -39,9 +39,10 @@
 	<string name="other_bus_line">Autre(s) Ligne(s) de Bus</string>
 	<string name="subway_station">Station de Métro</string>
     
+    <string name="select_group_by">Affichage</string>
     <string name="group_by_bus_line_no_group">Ne pas grouper</string>
-	<string name="group_by_bus_line_type">Grouper par type de ligne</string>
-	<string name="group_by_bus_line_number">Grouper par numéro de ligne</string>
+	<string name="group_by_bus_line_type">Grouper par type</string>
+	<string name="group_by_bus_line_number">Grouper par numéro</string>
 	
     <string name="bus_line_string">Lignes</string>
     <string name="to">à</string>
