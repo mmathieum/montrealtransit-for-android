@@ -11,7 +11,7 @@ public class MyLog {
 	/**
 	 * Use this boolean to enable full LOG (VERBOSE)
 	 */
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	
 	/**
 	 * @see Log#v(String, String)
