@@ -73,7 +73,8 @@
     <string name="warning">Warning</string>
     
     <string name="wrong_stop_code_before">The bus stop code \'</string>
-    <string name="wrong_stop_code_after">\' is not registered in the application.\nDo you want to try to load the next stops from Internet?</string>
+    <string name="wrong_stop_code_after">\' is not registered in the application.</string>
+    <string name="wrong_stop_code_after_internet">Do you want to try to load the next stops from Internet?</string>
     <string name="wrong_line_number_before">The bus line number \'</string>
     <string name="wrong_line_number_after">\' doesn\'t exist.</string>
     
