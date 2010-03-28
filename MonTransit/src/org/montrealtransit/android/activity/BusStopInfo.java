@@ -36,7 +36,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.ImageView;
@@ -52,8 +51,8 @@ import android.widget.SimpleCursorAdapter.ViewBinder;
  * This activity show information about a bus stop.
  * @author Mathieu Méa
  */
-public class BusStopInfo extends Activity implements OnClickListener, NextStopListener,
-        android.content.DialogInterface.OnClickListener, OnItemClickListener, ViewBinder {
+public class BusStopInfo extends Activity implements NextStopListener, View.OnClickListener,
+        DialogInterface.OnClickListener, OnItemClickListener, ViewBinder {
 
 	/**
 	 * The extra ID for the bus stop code.
@@ -124,16 +123,6 @@ public class BusStopInfo extends Activity implements OnClickListener, NextStopLi
 				        BusStopInfo.EXTRA_STOP_LINE_NUMBER);
 				showNewBusStop(stopCode, lineNumber);
 			}
-		}
-	}
-
-	/**
-	 * Check if the bus stop is in the current app database.
-	 * @param stopCode the bus stop code
-	 */
-	private void checkStopCode(String stopCode) {
-		if (StmManager.findBusStop(this.getContentResolver(), stopCode) == null) {
-			showAlertDialog(stopCode);
 		}
 	}
 
@@ -323,25 +312,6 @@ public class BusStopInfo extends Activity implements OnClickListener, NextStopLi
 	}
 
 	/**
-	 * Show the dialog about the unknown bus stop id.
-	 * @param wrongStopCode
-	 */
-	private void showAlertDialog(String wrongStopCode) {
-		MyLog.v(TAG, "showAlertDialog()");
-		MyLog.w(TAG, "StopPlaceName not found. Wrong StopCode '" + wrongStopCode + "'?");
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setIcon(android.R.drawable.ic_dialog_alert);
-		builder.setTitle(R.string.warning);
-		String message = getResources().getString(R.string.wrong_stop_code_before) + wrongStopCode
-		        + getResources().getString(R.string.wrong_stop_code_after);
-		builder.setMessage(message);
-		builder.setPositiveButton(R.string.yes, this);
-		builder.setNegativeButton(R.string.no, this);
-		AlertDialog alert = builder.create();
-		alert.show();
-	}
-
-	/**
 	 * Set the bus stop info basic UI.
 	 */
 	private void refreshBusStopInfo() {
@@ -527,28 +497,68 @@ public class BusStopInfo extends Activity implements OnClickListener, NextStopLi
 		MyLog.v(TAG, "showNewBusStop(" + newStopCode + ", " + newLineNumber + ")");
 		if ((this.busStop == null)
 		        || (!this.busStop.getCode().equals(newStopCode) || !this.busStop.getLineNumber().equals(newLineNumber))) {
-			MyLog.v(TAG, "New bus stop " + newStopCode + " line " + newLineNumber + ".");
+			MyLog.v(TAG, "New bus stop '" + newStopCode + "' line '" + newLineNumber + "'.");
+			setStopCode(newStopCode);
+			checkStopCode(newStopCode);
+
 			if (newLineNumber == null) {
 				// get the bus lines for this bus stop
 				List<BusLine> busLines = StmManager.findBusStopLinesList(getContentResolver(), newStopCode);
 				if (busLines == null) {
+					// no bus line found
 					// TODO HERE handle unknown bus stop code
-				} else if (busLines.size() == 1) {
-					// use the only bus line available for this bus stop
-					newLineNumber = busLines.get(0).getNumber();
+					String message = getResources().getString(R.string.wrong_stop_code_before) + newStopCode
+					        + getResources().getString(R.string.wrong_stop_code_after);
+					Utils.notifyTheUser(this, message);
+					this.finish();
 				} else {
-					// TODO show a bus line selector to the user
-					// for now, select the first result
-					newLineNumber = busLines.get(0).getNumber();
+					// at least one bus line found
+					if (busLines.size() == 1) {
+						// use the only bus line available for this bus stop
+						newLineNumber = busLines.get(0).getNumber();
+					} else {
+						// TODO show a bus line selector to the user
+						// for now, select the first result
+						newLineNumber = busLines.get(0).getNumber();
+					}
 				}
 			}
-
-			setStopCode(newStopCode);
-			checkStopCode(newStopCode);
-			this.busStop = StmManager.findBusLineStop(this.getContentResolver(), newStopCode, newLineNumber);
-			this.busLine = StmManager.findBusLine(this.getContentResolver(), this.busStop.getLineNumber());
-			refreshAll();
+			if (newStopCode != null && newLineNumber != null) {
+				this.busStop = StmManager.findBusLineStop(this.getContentResolver(), newStopCode, newLineNumber);
+				this.busLine = StmManager.findBusLine(this.getContentResolver(), this.busStop.getLineNumber());
+				refreshAll();
+			}
 		}
+	}
+
+	/**
+	 * Check if the bus stop is in the current app database.
+	 * @param stopCode the bus stop code
+	 */
+	private void checkStopCode(String stopCode) {
+		if (StmManager.findBusStop(this.getContentResolver(), stopCode) == null) {
+			showAlertDialog(stopCode);
+		}
+	}
+
+	/**
+	 * Show the dialog about the unknown bus stop id.
+	 * @param wrongStopCode
+	 */
+	private void showAlertDialog(String wrongStopCode) {
+		MyLog.v(TAG, "showAlertDialog()");
+		MyLog.w(TAG, "Wrong StopCode '" + wrongStopCode + "'?");
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setIcon(android.R.drawable.ic_dialog_alert);
+		builder.setTitle(R.string.warning);
+		String message = getResources().getString(R.string.wrong_stop_code_before) + wrongStopCode
+		        + getResources().getString(R.string.wrong_stop_code_after) + "\n"
+		        + getResources().getString(R.string.wrong_stop_code_after_internet);
+		builder.setMessage(message);
+		builder.setPositiveButton(R.string.yes, this);
+		builder.setNegativeButton(R.string.no, this);
+		AlertDialog alert = builder.create();
+		alert.show();
 	}
 
 	/**
