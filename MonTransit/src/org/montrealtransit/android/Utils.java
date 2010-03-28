@@ -7,9 +7,9 @@ import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.montrealtransit.android.provider.StmStore;
@@ -37,6 +37,15 @@ public class Utils {
 	 * The log tag.
 	 */
 	private static final String TAG = Utils.class.getSimpleName();
+	
+	/**
+	 * The date formatter.
+	 */
+	private static DateFormat dateFormatter;
+	/**
+	 * The current language/country.
+	 */
+	private static Locale currentLocale;
 
 	/**
 	 * Read the input stream and write the stream to the output stream file.
@@ -293,7 +302,7 @@ public class Utils {
 	 * @return the image ID
 	 */
 	public static int getBusLineTypeImgFromType(String type) {
-		MyLog.v(TAG, "getBusLineTypeImgFromType(" + type + ")");
+		//MyLog.v(TAG, "getBusLineTypeImgFromType(" + type + ")");
 		if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_REGULAR_SERVICE)) {
 			return R.drawable.bus_type_soleil;
 		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_RUSH_HOUR_SERVICE)) {
@@ -320,7 +329,7 @@ public class Utils {
 	 * @return the bus line type string ID
 	 */
 	public static int getBusStringFromType(String type) {
-		MyLog.v(TAG, "getBusStringFromType(" + type + ")");
+		//MyLog.v(TAG, "getBusStringFromType(" + type + ")");
 		if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_REGULAR_SERVICE)) {
 			return R.string.bus_type_soleil;
 		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_RUSH_HOUR_SERVICE)) {
@@ -385,16 +394,30 @@ public class Utils {
 			String[] hourMinute = noFormatHour.split("h");
 			int hour = Integer.valueOf(hourMinute[0]);
 			int minute = Integer.valueOf(hourMinute[1]);
-			GregorianCalendar gregorianCalendar = new GregorianCalendar(0, 0, 0, hour, minute);
-			Date date = gregorianCalendar.getTime();
-			DateFormat df = android.text.format.DateFormat.getTimeFormat(context);
-			result = df.format(date);
+			result = getDateFormatter(context).format((new GregorianCalendar(0, 0, 0, hour, minute)).getTime());
 		} catch (Exception e) {
 			MyLog.w(TAG, "Error while formatting the date.", e);
 			result = noFormatHour;
 		}
 		return result;
 	}
+
+	/**
+	 * Use a static field to store the DateFormatter for improve the performance.
+	 * @param context the context used to get the device settings
+	 * @return the date formatter matching the device settings
+	 */
+	private static DateFormat getDateFormatter(Context context) {
+		// IF no current local OR no current data formatter OR the country/language has changed DO
+		if (currentLocale==null || dateFormatter == null
+				|| currentLocale!=context.getResources().getConfiguration().locale) {
+			// get the current language/country
+			currentLocale = context.getResources().getConfiguration().locale;
+			// get the current date formatter
+			dateFormatter = android.text.format.DateFormat.getTimeFormat(context);
+		}
+	    return dateFormatter;
+    }
 
 	/**
 	 * Format a string containing 2 hours strings.
@@ -406,9 +429,7 @@ public class Utils {
 	public static String getFormatted2Hours(Context context, String noFormatHours, String splitBy) {
 		// MyLog.v(TAG, "getFormatted2Hours(" + noFormatHour + ", " + splitBy + ")");
 		String[] twoNoFormatHours = noFormatHours.split(splitBy);
-		String firstNoFormatHour = twoNoFormatHours[0].trim();
-		String secondNoFormatHour = twoNoFormatHours[1].trim();
-		return Utils.formatHours(context, firstNoFormatHour) + " - " + Utils.formatHours(context, secondNoFormatHour);
+		return Utils.formatHours(context, twoNoFormatHours[0].trim()) + " - " + Utils.formatHours(context, twoNoFormatHours[1].trim());
 	}
 
 	/**
@@ -696,7 +717,7 @@ public class Utils {
 	 * @return the preference value
 	 */
 	public static String getSharedPreferences(Context context, String prefKey, String defaultValue) {
-		MyLog.v(TAG, "saveSharedPreferences(" + prefKey + ", " + defaultValue + ")");
+		MyLog.v(TAG, "getSharedPreferences(" + prefKey + ", " + defaultValue + ")");
 		SharedPreferences settings = context.getSharedPreferences(Constant.PREFS_NAME, Context.MODE_PRIVATE);
 		return settings.getString(prefKey, defaultValue);
 	}
