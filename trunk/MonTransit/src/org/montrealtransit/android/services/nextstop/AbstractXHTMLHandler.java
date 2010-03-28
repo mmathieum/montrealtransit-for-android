@@ -33,6 +33,7 @@ public abstract class AbstractXHTMLHandler extends DefaultHandler implements Con
 	protected static final String A = "a";
 	protected static final String B = "b";
 	protected static final String IMG = "img";
+	protected static final String SPAN = "span";
 
 	/**
 	 * The HTML NUMBER & ID value.
@@ -61,6 +62,8 @@ public abstract class AbstractXHTMLHandler extends DefaultHandler implements Con
 	protected int id_b = 0;
 	protected int nb_img = 0;
 	protected int id_img = 0;
+	protected int nb_span = 0;
+	protected int id_span = 0;
 
 	protected int pIndex = 0;
 
@@ -106,6 +109,9 @@ public abstract class AbstractXHTMLHandler extends DefaultHandler implements Con
 		} else if (isTag(IMG, localName)) {
 			nb_img++;
 			id_img++;
+		} else if (isTag(SPAN, localName)) {
+			nb_span++;
+			id_span++;
 		} else {
 			MyLog.d(TAG, "localName+" + localName + ".");
 		}
@@ -140,6 +146,8 @@ public abstract class AbstractXHTMLHandler extends DefaultHandler implements Con
 		result += B + ":" + nb_b + "." + id_b;
 		result += "|";
 		result += IMG + ":" + nb_img + "." + id_img;
+		result += "|";
+		result += SPAN + ":" + nb_span + "." + id_span;
 		result += "]";
 		return result;
 	}
@@ -174,6 +182,8 @@ public abstract class AbstractXHTMLHandler extends DefaultHandler implements Con
 			nb_b--;
 		} else if (isTag(IMG, localName)) {
 			nb_img--;
+		} else if (isTag(SPAN, localName)) {
+			nb_span--;
 		} else {
 			MyLog.d(TAG, "localName-" + localName + ".");
 		}

@@ -44,7 +44,7 @@ public class StmInfoTask extends AbstractNextStopProvider {
 	/**
 	 * The source name
 	 */
-	private static final String SOURCE_NAME = "stm.info";
+	public static final String SOURCE_NAME = "stm.info";
 	/**
 	 * The URL.
 	 */
@@ -82,26 +82,29 @@ public class StmInfoTask extends AbstractNextStopProvider {
 		String lineNumber = busStops[0].getLineNumber();
 		Utils.logAppVersion(this.context);
 		try {
-			publishProgress(this.context.getResources().getString(R.string.downloading_data_from) + " " + StmInfoTask.SOURCE_NAME
-			        + this.context.getResources().getString(R.string.ellipsis));
+			publishProgress(this.context.getResources().getString(R.string.downloading_data_from) + " "
+			        + StmInfoTask.SOURCE_NAME + this.context.getResources().getString(R.string.ellipsis));
 			URL url = new URL(URL + stopCode);
 			// download the the page.
-			Utils.getInputStreamToFile(url.openStream(), this.context.openFileOutput(FILE1, Context.MODE_WORLD_READABLE));
+			Utils.getInputStreamToFile(url.openStream(), this.context.openFileOutput(Constant.FILE1,
+			        Context.MODE_WORLD_READABLE));
 			publishProgress(this.context.getResources().getString(R.string.processing_data));
 			// remove useless code from the page
-			removeUselessCode(this.context.openFileInput(FILE1), this.context.openFileOutput(FILE2, Context.MODE_WORLD_READABLE), lineNumber);
+			removeUselessCode(this.context.openFileInput(Constant.FILE1), this.context.openFileOutput(Constant.FILE2,
+			        Context.MODE_WORLD_READABLE), lineNumber);
 			// remove useless HTML codes from the page
-			removeHtmlCodes(this.context.openFileInput(FILE2), this.context.openFileOutput(FILE3, Context.MODE_WORLD_READABLE));
+			removeHtmlCodes(this.context.openFileInput(Constant.FILE2), this.context.openFileOutput(Constant.FILE3,
+			        Context.MODE_WORLD_READABLE));
 			// Get a SAX Parser from the SAX PArser Factory
 			SAXParserFactory spf = SAXParserFactory.newInstance();
 			SAXParser sp = spf.newSAXParser();
 			// Get the XML Reader of the SAX Parser we created
 			XMLReader xr = sp.getXMLReader();
 			// Create a new ContentHandler and apply it to the XML-Reader
-			BusStopHandler busStopHandler = new BusStopHandler(lineNumber);
+			StmInfoHandler busStopHandler = new StmInfoHandler(lineNumber);
 			xr.setContentHandler(busStopHandler);
 			MyLog.v(TAG, "Parsing data ...");
-			InputSource inputSource = new InputSource(this.context.openFileInput(FILE3));
+			InputSource inputSource = new InputSource(this.context.openFileInput(Constant.FILE3));
 			xr.parse(inputSource);
 			MyLog.v(TAG, "Parsing data... DONE");
 			publishProgress(this.context.getResources().getString(R.string.done));
@@ -225,7 +228,7 @@ public class StmInfoTask extends AbstractNextStopProvider {
 				}
 				line = reader.readLine();
 			}
-			writer.write("</html>");
+			writer.write(Constant.HTML_TAG_END);
 		} catch (IOException ioe) {
 			MyLog.e(TAG, "Error while removing useless code.", ioe);
 		} finally {
@@ -245,7 +248,7 @@ public class StmInfoTask extends AbstractNextStopProvider {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected String getTag() {
+	public String getTag() {
 		return TAG;
 	}
 }

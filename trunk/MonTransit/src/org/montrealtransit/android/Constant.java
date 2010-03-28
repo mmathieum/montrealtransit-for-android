@@ -40,6 +40,23 @@ public class Constant {
 	 */
 	public static final String PREFS_BUS_LINE_LIST_GROUP_BY_DEFAULT = PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP;
 
+	/**
+	 * The preference key for the next stop provider.
+	 */
+	public static final String PREFS_NEXT_STOP_PROVIDER = "pNextStopProvider";
+	/**
+	 * The preference value for the next stop provider stm.info.
+	 */
+	public static final String PREFS_NEXT_STOP_PROVIDER_STM_INFO = "stminfo";
+	/**
+	 * The preference value for the next stop provider m.stm.info.
+	 */
+	public static final String PREFS_NEXT_STOP_PROVIDER_STM_MOBILE = "stmmobile";
+	/**
+	 * The default value for the bus lines display.
+	 */
+	public static final String PREFS_NEXT_STOP_PROVIDER_DEFAULT = PREFS_NEXT_STOP_PROVIDER_STM_MOBILE;
+	
 	public static final String PLACE_CHAR_DE = "de ";
 	public static final int PLACE_CHAR_DE_LENGTH = PLACE_CHAR_DE.length();
 
@@ -69,5 +86,19 @@ public class Constant {
 	public static final CharSequence HTML_A_1 = "<a";
 	public static final String HTML_TABLE_END = "</table>";
 	public static final String HTML_TAG = "<html>";
+	public static final String HTML_TAG_END = "</html>";
 	public static final String NEW_LINE = "\n";
+	
+	/**
+	 * The temporary file 1 where the service can store data.
+	 */
+	public static final String FILE1 = "temp1.xhtml";
+	/**
+	 * The temporary file 2 where the service can store data.
+	 */
+	public static final String FILE2 = "temp2.xhtml";
+	/**
+	 * The temporary file 3 where the service can store data.
+	 */
+	public static final String FILE3 = "temp3.xhtml";
 }

@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.net.URLConnection;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
@@ -40,7 +42,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	/**
 	 * The source name.
 	 */
-	private static final String SOURCE_NAME = "m.stm.info";
+	public static final String SOURCE_NAME = "m.stm.info";
 	/**
 	 * The URL part 1 with the bus stop code
 	 */
@@ -62,45 +64,39 @@ public class StmMobileTask extends AbstractNextStopProvider {
 			URLString += URL_PART_2_BEFORE_LINE_NUMBER + lineNumber;
 		}
 		try {
-			/*
-			 * HttpParams httpparams = new BasicHttpParams(); HttpConnectionParams.setConnectionTimeout(httpparams, 60*1000);
-			 * HttpConnectionParams.setSoTimeout(httpparams, 60*1000); DefaultHttpClient httpclient = new DefaultHttpClient(httpparams);
-			 * 
-			 * // Make request HttpGet httpget = new HttpGet(URLString); HttpResponse response = httpclient.execute(httpget);
-			 * 
-			 * // Read JSON response InputStream instream = response.getEntity().getContent(); String result = convertStreamToString(instream);
-			 * 
-			 * MyTrace.d(TAG, "result:"+result.length());
-			 */
-
-			publishProgress(this.context.getResources().getString(R.string.downloading_data_from) + " " + StmMobileTask.SOURCE_NAME
-			        + this.context.getResources().getString(R.string.ellipsis));
+			publishProgress(this.context.getResources().getString(R.string.downloading_data_from) + " "
+			        + StmMobileTask.SOURCE_NAME + this.context.getResources().getString(R.string.ellipsis));
 			URL url = new URL(URLString);
+			// use an URLConnection to fake a real browser
+			URLConnection urlc = url.openConnection();
+			urlc.setRequestProperty("Accept", "application/xhtml+xml");
+			urlc.setRequestProperty("Accept-Charset", "iso-8859-1");
+			urlc.setRequestProperty("Accept-Encoding", "gzip");
+			urlc.setRequestProperty("Accept-Language", "en-CA, en-US");
+			urlc.setRequestProperty("User-Agent", "Android");
 			MyLog.v(TAG, "URL created:" + url.toString());
-			Utils.getInputStreamToFile(url.openStream(), this.context.openFileOutput(FILE1, Context.MODE_WORLD_READABLE)/* , this.from */);
+			Utils.getInputStreamToFile(urlc.getInputStream(), this.context.openFileOutput(Constant.FILE1,
+			        Context.MODE_WORLD_READABLE)/* , this.from */);
 			publishProgress(this.context.getResources().getString(R.string.processing_data));
-
-			SAXParserFactory spf = SAXParserFactory.newInstance();
-			SAXParser sp = spf.newSAXParser();
-			// MyTrace.d(TAG, "sax parser instiate");
+			SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+			SAXParser parser = parserFactory.newSAXParser();
+			// MyTrace.d(TAG, "SAX parser initiate");
 			// Get the XMLReader of the SAXParser we created.
-			XMLReader xr = sp.getXMLReader();
+			XMLReader xmlReader = parser.getXMLReader();
 			// Create a new ContentHandler and apply it to the XML-Reader
-			BusStopHandler busStopHandler = new BusStopHandler(lineNumber);
-			xr.setContentHandler(busStopHandler);
-			// MyTrace.d(TAG, "content handler instanciate");
+			StmMobileHandler stmMobileHandler = new StmMobileHandler();
+			xmlReader.setContentHandler(stmMobileHandler);
+			// MyTrace.d(TAG, "content handler instantiate");
 			MyLog.d(TAG, "Parsing data ...");
-			InputSource inputSource = new InputSource(this.context.openFileInput(FILE1));
-			xr.parse(inputSource);
+			InputSource inputSource = new InputSource(this.context.openFileInput(Constant.FILE1));
+			xmlReader.parse(inputSource);
 			MyLog.d(TAG, "Parsing data ... OK");
 			publishProgress(this.context.getResources().getString(R.string.done));
-			return busStopHandler.getHours();
-
+			return stmMobileHandler.getHours();
 		} catch (Exception e) {
-			// TODO: handle exception
+			MyLog.e(TAG, "INTERNAL ERROR: Unknown Exception", e);
 		}
-
-		// TODO Auto-generated method stub
+		publishProgress(this.context.getResources().getString(R.string.error));
 		return null;
 	}
 
@@ -108,7 +104,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected String getTag() {
+	public String getTag() {
 		return TAG;
 	}
 

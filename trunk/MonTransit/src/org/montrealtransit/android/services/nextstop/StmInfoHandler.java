@@ -5,15 +5,15 @@ import org.montrealtransit.android.data.BusStopHours;
 import org.xml.sax.SAXException;
 
 /**
- * This class handle bus stops page parsing.
+ * This class handle stm.info page parsing.
  * @author Mathieu Méa
  */
-public class BusStopHandler extends AbstractXHTMLHandler {
+public class StmInfoHandler extends AbstractXHTMLHandler {
 	
 	/**
 	 * The log tag.
 	 */
-	private static final String TAG = AbstractXHTMLHandler.class.getSimpleName();
+	private static final String TAG = StmInfoHandler.class.getSimpleName();
 	
 	/**
 	 * The bus stop hours.
@@ -40,7 +40,7 @@ public class BusStopHandler extends AbstractXHTMLHandler {
 	 * The default constructor.
 	 * @param lineNumber the bus line number to match.
 	 */
-	public BusStopHandler(String lineNumber) {
+	public StmInfoHandler(String lineNumber) {
 		this.lineNumber = lineNumber;
 	}
 
@@ -60,7 +60,7 @@ public class BusStopHandler extends AbstractXHTMLHandler {
 	public void characters(char[] ch, int start, int length) throws SAXException {
 		String string = new String(ch, start, length).trim();
 		if (string.length()>0) {
-			MyLog.v(TAG, ""+getTagTable()+">"+string/*+"("+lineNumber+")."*/);
+			//MyLog.v(TAG, ""+getTagTable()+">"+string/*+"("+lineNumber+")."*/);
 			if (string.equalsIgnoreCase(lineNumber)) {
 				isIn = true;
 				this.int_id_table = id_table;
@@ -68,7 +68,7 @@ public class BusStopHandler extends AbstractXHTMLHandler {
 			}
 			if (isIn & isInInterestedArea()) {
 				hours.addSHour(string);
-				MyLog.v(TAG, "+"+string+".");
+				MyLog.v(TAG, "new hour:"+string+".");
 			}
 		}
 		super.characters(ch, start, length);
