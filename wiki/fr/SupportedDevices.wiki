@@ -20,3 +20,5 @@
 || 2010 || Bell || Motorola || Dext || 1.5 || || ||
 || 2010 || Telus || Motorola || Backflip || 1.5 || || ||
 || 2010 || ? || Motorola || Quench || 1.5 || || ||
+
+_This page is also available in English, but your browser is configured to display the French version._
