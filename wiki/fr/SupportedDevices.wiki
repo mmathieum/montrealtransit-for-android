@@ -1,0 +1,22 @@
+#labels Phase-Support,Phase-Requirements
+= Appareils Android supportés =
+
+|| *Date de sortie* || *Opérateur* || *Constructeur* || *Modèle* || *Version Android* || *Prochaine mise à jour* || *Notes* ||
+|| juin 2009 || Rogers || HTC || Dream || 1.5 || ? || ||
+|| juin 2009 || Rogers || HTC || Magic+ || 1.5 || 2.1 || Interface HTC Sense ||
+|| novembre 2009 || Telus || HTC || Hero || 1.5 || 2.1 || Interface HTC Sense ||
+|| novembre 2009 || Rogers || LG || Eve (GW620) || 1.5 || 1.6? || Interface LG ||
+|| décembre 2009 || Bell || Samsung || Galaxy || 1.5 || 1.6? || ||
+|| février 2010 || Telus || Motorola || Milestone || 2.0.1 || 2.1 || ||
+|| mars 2010 || Rogers || Samsung || Spica || 1.5 || 2.1 || ||
+|| mars 2010 || Rogers/Telus/Bell || HTC || Nexus One || 2.1 || || Le premier téléphone Google ||
+
+= Appareils Android à venir =
+
+|| *Date de sortie* || *Opérateur* || *Constructeur* || *Modèle* || *Version Android* || *Prochaine mise à jour* || *Notes* ||
+|| 2010 || Rogers || Sony Ericsson || X10 || 1.6 || 2.1? || Interface Sony Ericsson ||
+|| 2010 || Rogers || Acer || Liquid E || 2.1? || || ||
+|| 2010 || Rogers || LG || GT540 || 2.x? || || ||
+|| 2010 || Bell || Motorola || Dext || 1.5 || || ||
+|| 2010 || Telus || Motorola || Backflip || 1.5 || || ||
+|| 2010 || ? || Motorola || Quench || 1.5 || || ||
