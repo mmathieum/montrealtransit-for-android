@@ -11,6 +11,7 @@
 || mars 2010 || Rogers || Samsung || Spica || 1.5 || 2.1 || ||
 || mars 2010 || Rogers/Telus/Bell || HTC || Nexus One || 2.1 || || Le premier téléphone Google ||
 
+
 = Appareils Android à venir : =
 || *Date de sortie* || *Opérateur* || *Constructeur* || *Modèle* || *Version Android* || *Prochaine mise à jour* || *Notes* ||
 || 2010 || Rogers || Sony Ericsson || X10 || 1.6 || 2.1? || Interface Sony Ericsson ||
