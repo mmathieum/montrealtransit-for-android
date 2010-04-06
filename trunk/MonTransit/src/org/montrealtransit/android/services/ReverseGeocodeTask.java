@@ -3,6 +3,7 @@ package org.montrealtransit.android.services;
 import java.io.IOException;
 import java.util.List;
 
+import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
@@ -62,7 +63,7 @@ public class ReverseGeocodeTask extends AsyncTask<String, String, List<Address>>
 			        + this.context.getResources().getString(R.string.ellipsis));
 			MyLog.v(TAG, "Reverse geocode: " + locationName + ".");
 			Geocoder geocoder = new Geocoder(this.context);
-			return geocoder.getFromLocationName(locationName, this.maxResults);
+			return geocoder.getFromLocationName(locationName, this.maxResults, Constant.STM_LOWER_LEFT_LAT, Constant.STM_LOWER_LEFT_LNG, Constant.STM_UPPER_RIGHT_LAT, Constant.STM_UPPER_RIGHT_LNG);
 		} catch (IOException e) {
 			MyLog.e(TAG, "INTERNAL ERROR: the network is unavailable or any other I/O problem occurs", e);
 		} catch (Exception e) {
