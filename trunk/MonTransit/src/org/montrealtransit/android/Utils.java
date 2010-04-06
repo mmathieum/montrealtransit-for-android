@@ -37,7 +37,7 @@ public class Utils {
 	 * The log tag.
 	 */
 	private static final String TAG = Utils.class.getSimpleName();
-	
+
 	/**
 	 * The date formatter.
 	 */
@@ -81,7 +81,8 @@ public class Utils {
 	public static List<Integer> getBusLineDirectionStringIdFromId(String busLineDirectionString) {
 		MyLog.v(TAG, "getBusLineDirectionStringIdFromId(" + busLineDirectionString + ")");
 		String lineId = busLineDirectionString.substring(0, busLineDirectionString.length() - 3);
-		String otherChar = busLineDirectionString.substring(busLineDirectionString.length() - 3, busLineDirectionString.length() - 1);
+		String otherChar = busLineDirectionString.substring(busLineDirectionString.length() - 3, busLineDirectionString
+		        .length() - 1);
 		String lastChar = busLineDirectionString.substring(busLineDirectionString.length() - 1);
 
 		List<Integer> results = new ArrayList<Integer>();
@@ -302,7 +303,7 @@ public class Utils {
 	 * @return the image ID
 	 */
 	public static int getBusLineTypeImgFromType(String type) {
-		//MyLog.v(TAG, "getBusLineTypeImgFromType(" + type + ")");
+		// MyLog.v(TAG, "getBusLineTypeImgFromType(" + type + ")");
 		if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_REGULAR_SERVICE)) {
 			return R.drawable.bus_type_soleil;
 		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_RUSH_HOUR_SERVICE)) {
@@ -329,7 +330,7 @@ public class Utils {
 	 * @return the bus line type string ID
 	 */
 	public static int getBusStringFromType(String type) {
-		//MyLog.v(TAG, "getBusStringFromType(" + type + ")");
+		// MyLog.v(TAG, "getBusStringFromType(" + type + ")");
 		if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_REGULAR_SERVICE)) {
 			return R.string.bus_type_soleil;
 		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_RUSH_HOUR_SERVICE)) {
@@ -396,7 +397,7 @@ public class Utils {
 			int minute = Integer.valueOf(hourMinute[1]);
 			result = getDateFormatter(context).format((new GregorianCalendar(0, 0, 0, hour, minute)).getTime());
 		} catch (Exception e) {
-			MyLog.w(TAG, "Error while formatting the date.", e);
+			MyLog.w(TAG, "Error while formatting '" + noFormatHour + "'.", e);
 			result = noFormatHour;
 		}
 		return result;
@@ -409,15 +410,15 @@ public class Utils {
 	 */
 	private static DateFormat getDateFormatter(Context context) {
 		// IF no current local OR no current data formatter OR the country/language has changed DO
-		if (currentLocale==null || dateFormatter == null
-				|| currentLocale!=context.getResources().getConfiguration().locale) {
+		if (currentLocale == null || dateFormatter == null
+		        || currentLocale != context.getResources().getConfiguration().locale) {
 			// get the current language/country
 			currentLocale = context.getResources().getConfiguration().locale;
 			// get the current date formatter
 			dateFormatter = android.text.format.DateFormat.getTimeFormat(context);
 		}
-	    return dateFormatter;
-    }
+		return dateFormatter;
+	}
 
 	/**
 	 * Format a string containing 2 hours strings.
@@ -428,8 +429,14 @@ public class Utils {
 	 */
 	public static String getFormatted2Hours(Context context, String noFormatHours, String splitBy) {
 		// MyLog.v(TAG, "getFormatted2Hours(" + noFormatHour + ", " + splitBy + ")");
-		String[] twoNoFormatHours = noFormatHours.split(splitBy);
-		return Utils.formatHours(context, twoNoFormatHours[0].trim()) + " - " + Utils.formatHours(context, twoNoFormatHours[1].trim());
+		try {
+			String[] twoNoFormatHours = noFormatHours.split(splitBy);
+			return Utils.formatHours(context, twoNoFormatHours[0].trim()) + " - "
+			        + Utils.formatHours(context, twoNoFormatHours[1].trim());
+		} catch (Exception e) {
+			MyLog.w(TAG, "Error while formatting '" + noFormatHours + "'.");
+			return noFormatHours;
+		}
 	}
 
 	/**
@@ -647,7 +654,8 @@ public class Utils {
 		int utm = (int) Math.floor(1440.0 * (day - Math.floor(day) - uth / 24.0));
 		double uts = 86400.0 * (day - Math.floor(day) - uth / 24.0 - utm / 1440.0);
 		// TODO remove unnecessary code.
-		MyLog.v(TAG, "[" + yearS + "]-[" + monthS + "]-[" + dayS + "] " + "[" + uth + "]:[" + utm + "]:[" + String.valueOf(uts) + "].");
+		MyLog.v(TAG, "[" + yearS + "]-[" + monthS + "]-[" + dayS + "] " + "[" + uth + "]:[" + utm + "]:["
+		        + String.valueOf(uts) + "].");
 		String hourS = String.valueOf(uth);
 		String minuteS = String.valueOf(utm);
 		while (minuteS.length() < 2) {
@@ -730,7 +738,8 @@ public class Utils {
 			PackageInfo packageInfo = context.getPackageManager().getPackageInfo(Constant.PKG, 0);
 			String versionName = packageInfo.versionName;
 			int versionCode = packageInfo.versionCode;
-			MyLog.i(TAG, context.getResources().getString(R.string.app_name) + " \"" + versionName + "\" (v" + versionCode + ")");
+			MyLog.i(TAG, context.getResources().getString(R.string.app_name) + " \"" + versionName + "\" (v"
+			        + versionCode + ")");
 		} catch (NameNotFoundException e) {
 			MyLog.w(TAG, "No VERSION for " + context.getResources().getString(R.string.app_name) + "!", e);
 		}
