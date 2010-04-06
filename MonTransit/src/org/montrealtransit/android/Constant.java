@@ -101,4 +101,12 @@ public class Constant {
 	 * The temporary file 3 where the service can store data.
 	 */
 	public static final String FILE3 = "temp3.xhtml";
+	
+	/**
+	 * STM coverage area.
+	 */
+	public static final double STM_UPPER_RIGHT_LAT = 45.7278;
+	public static final double STM_UPPER_RIGHT_LNG = -73.4738;
+	public static final double STM_LOWER_LEFT_LNG = 45.4038;
+	public static final double STM_LOWER_LEFT_LAT = -73.9943;
 }
