@@ -511,7 +511,7 @@ public class Utils {
 			return R.drawable.blue;
 		default:
 			MyLog.w(TAG, "Unknown image for subway line number \"" + number + "\".");
-			return R.drawable.icon;
+			return R.drawable.yellow;
 		}
 	}
 
