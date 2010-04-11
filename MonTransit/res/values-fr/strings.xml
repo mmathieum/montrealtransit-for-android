@@ -141,4 +141,8 @@
     <string name="favorite_live_folder_name">Favoris</string>
     <string name="favorite_live_folder_name_in_the_menu">Favoris MonTransit</string>
     <string name="favorite_live_folder_need_to_add_fav">Vous devez ajouter des favoris avant d\'utiliser ce dossier actif.</string>
+
+    <string name="update_stm_db_ok">Données (autobus, métro) mises à jour.</string>
+    <string name="update_stm_db_error">Erreur pendant la mise à jour des données (autobus, métro).</string>
+    <string name="update_stm_db_error_next">Veuillez désinstaller puis re-installer l'application.</string>
 </resources>
