@@ -51,13 +51,15 @@ public class MainScreen extends TabActivity {
 
 		TabHost mTabHost = getTabHost();
 		mTabHost.addTab(mTabHost.newTabSpec(TAB_FAV).setIndicator(getResources().getString(R.string.favorite),
-		        getResources().getDrawable(R.drawable.tab_starred)).setContent(new Intent(this, FavListTab.class)));
+		        getResources().getDrawable(R.drawable.ic_tab_starred)).setContent(new Intent(this, FavListTab.class)));
 		mTabHost.addTab(mTabHost.newTabSpec(TAB_STOP_CODE).setIndicator(getResources().getString(R.string.stop_code),
-		        getResources().getDrawable(R.drawable.tab_stop_code)).setContent(new Intent(this, BusStopCodeTab.class)));
-		mTabHost.addTab(mTabHost.newTabSpec(TAB_BUS).setIndicator(getResources().getString(R.string.bus), getResources().getDrawable(R.drawable.tab_bus))
-		        .setContent(new Intent(this, BusLineListTab.class)));
+		        getResources().getDrawable(R.drawable.ic_tab_stop_code)).setContent(
+		        new Intent(this, BusStopCodeTab.class)));
+		mTabHost.addTab(mTabHost.newTabSpec(TAB_BUS).setIndicator(getResources().getString(R.string.bus),
+		        getResources().getDrawable(R.drawable.ic_tab_bus)).setContent(new Intent(this, BusLineListTab.class)));
 		mTabHost.addTab(mTabHost.newTabSpec(TAB_SUBWAY).setIndicator(getResources().getString(R.string.subway),
-		        getResources().getDrawable(R.drawable.tab_subway)).setContent(new Intent(this, SubwayLinesListTab.class)));
+		        getResources().getDrawable(R.drawable.ic_tab_subway)).setContent(
+		        new Intent(this, SubwayLinesListTab.class)));
 		try {
 			if (Utils.getCursorSize(DataManager.findAllFavs(this.getContentResolver())) == 0) {
 				mTabHost.setCurrentTab(1); // show bus stop code search tab
