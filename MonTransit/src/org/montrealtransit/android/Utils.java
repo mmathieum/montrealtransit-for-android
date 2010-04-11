@@ -667,7 +667,7 @@ public class Utils {
 	}
 
 	/**
-	 * Simple method to display a message (toast) to the user. {@link Toast}
+	 * Simple method to display a <b>short</b> message (toast) to the user. {@link Toast}
 	 * @param context the activity displaying the message
 	 * @param message the message to display.
 	 */
@@ -676,6 +676,18 @@ public class Utils {
 		Toast toast = Toast.makeText(context, message, duration);
 		toast.show();
 	}
+	
+	/**
+	 * Simple method to display a <b>long</b> message (toast) to the user. {@link Toast}
+	 * @param context the activity displaying the message
+	 * @param message the message to display.
+	 */
+	public static void notifyTheUserLong(Context context, String message) {
+		int duration = Toast.LENGTH_LONG;
+		Toast toast = Toast.makeText(context, message, duration);
+		toast.show();
+	}
+	
 
 	/**
 	 * Parse the subway line list to extract the subway line numbers.
