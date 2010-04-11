@@ -13,8 +13,8 @@
 = Upcoming Android devices: =
 || *Release Date* || *Carrier* || *Manufacturer* || *Name* || *Android Version* || *Upcoming update* || *Notes* ||
 || 2010 || Rogers || Sony Ericsson || X10 || 1.6 || 2.1? || SE custom UI ||
-|| 2010 || Rogers || Acer || Liquid E || 2.1? || || ||
-|| 2010 || Rogers || LG || GT540 || 2.x? || || ||
+|| 2010 || Rogers || Acer || Liquid E || 2.1? || ? || ||
+|| 2010 || Rogers || LG || GT540 || 2.x? || ? || ||
 || 2010 || Bell || Motorola || Dext || 1.5 || ? || MOTOBLUR UI ||
 || 2010 || Telus || Motorola || Backflip || 1.5 || ? || MOTOBLUR UI ||
 || 2010 || Rogers || Motorola || Quench || 1.5 || ? || MOTOBLUR UI ||
