@@ -8,7 +8,7 @@
 || December 2009 || Bell || Samsung || Galaxy || 1.5 || 1.6? || ||
 || February 2010 || Telus || Motorola || Milestone || 2.0.1 || 2.1 || ||
 || March 2010 || Rogers || Samsung || Spica || 1.5 || 2.1 || ||
-|| March 2010 || Rogers/Telus/Bell || HTC || Nexus One || 2.1 || || The first Google Phone ||
+|| March 2010 || Rogers/Telus/Bell || HTC || Nexus One || 2.1 || ? || The first Google Phone ||
 
 = Upcoming Android devices: =
 || *Release Date* || *Carrier* || *Manufacturer* || *Name* || *Android Version* || *Upcoming update* || *Notes* ||
