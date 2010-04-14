@@ -99,10 +99,10 @@
     <string name="route_by_way_of_pepiniere">Trajet par la rue de la Pépinière</string>
     <string name="route_during_off_peak_periods">Trajet hors des heures de pointe</string>
     <string name="rush_hour_route">Trajet aux heures de pointe</string>
-    <string name="am_route_peak_period">Trajet à l'heure de pointe du matin</string>
-	<string name="pm_route_peak_period">Trajet à l'heure de pointe de l'après-midi</string>
+    <string name="am_route_peak_period">Trajet à l\'heure de pointe du matin</string>
+	<string name="pm_route_peak_period">Trajet à l\'heure de pointe de l'après-midi</string>
 	<string name="route_off_peak_periods">Trajet hors de heures de pointe</string>
-	<string name="am_route_peak_period_and_off_peaks_periods">Trajet à l'heure de pointe du matin et hors-pointe</string>
+	<string name="am_route_peak_period_and_off_peaks_periods">Trajet à l\'heure de pointe du matin et hors-pointe</string>
 	<string name="to_the_old_montreal">Vers le Vieux-Montréal</string>
 	<string name="to_the_old_port_of_montreal">Vers le Vieux-Port de Montéal</string>
 	
