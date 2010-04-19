@@ -49,6 +49,8 @@
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
 			android:layout_marginRight="5dip" android:layout_below="@id/direction_string"
 			android:layout_toRightOf="@id/bus" android:visibility="gone"
+			android:singleLine="true" android:ellipsize="marquee"
+			android:focusable="true"
 			android:textAppearance="?android:attr/textAppearanceMedium" />
 
 		<!-- BUS TYPE IMG -->
