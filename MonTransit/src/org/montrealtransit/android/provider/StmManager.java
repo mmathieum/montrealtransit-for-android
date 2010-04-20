@@ -36,13 +36,13 @@ public class StmManager {
 	 * Represents the fields the content provider will return for a bus stop.
 	 */
 	private static final String[] PROJECTION_BUS_STOP = new String[] { StmStore.BusStop._ID, StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE,
-	        StmStore.BusStop.STOP_DIRECTION_ID, StmStore.BusStop.STOP_LINE_NUMBER, StmStore.BusStop.STOP_SUBWAY_STATION_ID };
+	        StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID, StmStore.BusStop.STOP_LINE_NUMBER, StmStore.BusStop.STOP_SUBWAY_STATION_ID };
 
 	/**
 	 * Represents the fields the content provider will return for an extended bus stop (including bus line info).
 	 */
 	private static final String[] PROJECTION_BUS_STOP_EXTENDED = new String[] { StmStore.BusStop._ID, StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE,
-	        StmStore.BusStop.STOP_DIRECTION_ID, StmStore.BusStop.STOP_LINE_NUMBER, StmStore.BusStop.LINE_NAME, StmStore.BusStop.LINE_TYPE,
+	        StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID, StmStore.BusStop.STOP_LINE_NUMBER, StmStore.BusStop.LINE_NAME, StmStore.BusStop.LINE_TYPE,
 	        StmStore.BusStop.LINE_HOURS, StmStore.BusStop.STOP_SUBWAY_STATION_ID };
 
 	/**
@@ -254,24 +254,91 @@ public class StmManager {
 		return contentResolver.query(Uri.withAppendedPath(StmStore.BusLine.CONTENT_URI, busLineIdsS), PROJECTION_BUS_LINE, null, null,
 		        StmStore.BusLine.DEFAULT_SORT_ORDER);
 	}
-
+	
 	/**
-	 * Find a extended bus stops (with bus lines info) matching the favorite list.
+	 * Find distinct (group by bus line number) extended (with bus lines info) bus stops matching the bus stop IDs.
 	 * @param contentResolver the content resolver
-	 * @param favList the favorite list
+	 * @param busStopIdsString the bus stop IDs
 	 * @return the extended bus stops
 	 */
-	public static Cursor findBusStopsExtended(ContentResolver contentResolver, List<DataStore.Fav> favList) {
-		MyLog.v(TAG, "findBusStops(" + favList.size() + ")");
-		String favIdsS = "";
-		for (DataStore.Fav favId : favList) {
-			if (favIdsS.length() > 0) {
-				favIdsS += "+";
-			}
-			favIdsS += favId.getFkId() + "-" + favId.getFkId2();
-		}
-		return contentResolver.query(Uri.withAppendedPath(StmStore.BusStop.CONTENT_URI, favIdsS), PROJECTION_BUS_STOP_EXTENDED, null, null,
+	public static Cursor findBusStops(ContentResolver contentResolver, String busStopIdsString) {
+		MyLog.v(TAG, "findBusStops(" + busStopIdsString + ")");
+		return contentResolver.query(Uri.withAppendedPath(StmStore.BusStop.CONTENT_URI, busStopIdsString), PROJECTION_BUS_STOP, null, null,
 		        StmStore.BusStop.ORDER_BY_LINE_CODE);
+	}
+	
+	/**
+	 * Find a list of distinct (group by bus line number) extended (with bus lines info) bus stops matching the bus stop IDs.
+	 * @param contentResolver the content resolver
+	 * @param busStopIdsString the bus stop IDs
+	 * @return the extended bus stops list
+	 */
+	public static List<StmStore.BusStop> findBusStopsList(ContentResolver contentResolver, String busStopIdsString) {
+		MyLog.v(TAG, "findBusStopsList(" + busStopIdsString + ")");
+		List<StmStore.BusStop> result = null;
+		Cursor c = null;
+		try {
+			c = findBusStops(contentResolver, busStopIdsString);
+			if (c.getCount() > 0) {
+				if (c.moveToFirst()) {
+					result = new ArrayList<StmStore.BusStop>();
+					do {
+						result.add(StmStore.BusStop.fromCursor(c));
+					} while (c.moveToNext());
+				} else {
+					MyLog.w(TAG, "No result found for bus stops \"" + busStopIdsString + "\"");
+				}
+			} else {
+				MyLog.w(TAG, "No result found for bus stops \"" + busStopIdsString + "\"");
+			}
+		} finally {
+			if (c != null)
+				c.close();
+		}
+		return result;
+	}
+	
+	/**
+	 * Find distinct (group by bus line number) extended (with bus lines info) bus stops matching the bus stop IDs.
+	 * @param contentResolver the content resolver
+	 * @param busStopIdsString the bus stop IDs
+	 * @return the extended bus stops
+	 */
+	public static Cursor findBusStopsExtended(ContentResolver contentResolver, String busStopIdsString) {
+		MyLog.v(TAG, "findBusStopsExtended(" + busStopIdsString + ")");
+		return contentResolver.query(Uri.withAppendedPath(StmStore.BusStop.CONTENT_URI, busStopIdsString), PROJECTION_BUS_STOP_EXTENDED, null, null,
+		        StmStore.BusStop.ORDER_BY_LINE_CODE);
+	}
+	
+	/**
+	 * Find a list of distinct (group by bus line number) extended (with bus lines info) bus stops matching the bus stop IDs.
+	 * @param contentResolver the content resolver
+	 * @param busStopIdsString the bus stop IDs
+	 * @return the extended bus stops list
+	 */
+	public static List<StmStore.BusStop> findBusStopsExtendedList(ContentResolver contentResolver, String busStopIdsString) {
+		MyLog.v(TAG, "findBusStopsExtendedList(" + busStopIdsString + ")");
+		List<StmStore.BusStop> result = null;
+		Cursor c = null;
+		try {
+			c = findBusStopsExtended(contentResolver, busStopIdsString);
+			if (c.getCount() > 0) {
+				if (c.moveToFirst()) {
+					result = new ArrayList<StmStore.BusStop>();
+					do {
+						result.add(StmStore.BusStop.fromCursor(c));
+					} while (c.moveToNext());
+				} else {
+					MyLog.w(TAG, "No result found for bus stops \"" + busStopIdsString + "\"");
+				}
+			} else {
+				MyLog.w(TAG, "No result found for bus stops \"" + busStopIdsString + "\"");
+			}
+		} finally {
+			if (c != null)
+				c.close();
+		}
+		return result;
 	}
 
 	/**

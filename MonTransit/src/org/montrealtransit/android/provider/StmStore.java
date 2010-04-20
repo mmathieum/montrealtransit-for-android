@@ -308,6 +308,10 @@ public class StmStore {
 		 */
 		private String directionId;
 		/**
+		 * The bus line simple direction ID (E,O,S,N).
+		 */
+		private String simpleDirectionId;
+		/**
 		 * The bus stop place
 		 */
 		private String place;
@@ -335,7 +339,12 @@ public class StmStore {
 		public static BusStop fromCursor(Cursor c) {
 			final BusStop busStop = new BusStop();
 			busStop.code = c.getString(c.getColumnIndexOrThrow(BusStopsColumns.STOP_CODE));
-			busStop.directionId = c.getString(c.getColumnIndexOrThrow(BusStopsColumns.STOP_DIRECTION_ID));
+			if (c.getColumnIndex(BusStopsColumns.STOP_DIRECTION_ID) != -1) {
+				busStop.directionId = c.getString(c.getColumnIndexOrThrow(BusStopsColumns.STOP_DIRECTION_ID));
+			}
+			if (c.getColumnIndex(BusStopsColumns.STOP_SIMPLE_DIRECTION_ID) != -1) {
+				busStop.simpleDirectionId = c.getString(c.getColumnIndexOrThrow(BusStopsColumns.STOP_SIMPLE_DIRECTION_ID));
+			}
 			busStop.lineNumber = c.getString(c.getColumnIndexOrThrow(BusStopsColumns.STOP_LINE_NUMBER));
 			busStop.place = c.getString(c.getColumnIndexOrThrow(BusStopsColumns.STOP_PLACE));
 			busStop.subwayStationId = c.getString(c.getColumnIndexOrThrow(BusStopsColumns.STOP_SUBWAY_STATION_ID));
@@ -388,6 +397,13 @@ public class StmStore {
 		}
 
 		/**
+		 * @return the simple direction ID
+		 */
+		public String getSimpleDirectionId() {
+	        return simpleDirectionId;
+        }
+		
+		/**
 		 * @return the bus stop place
 		 */
 		public String getPlace() {
@@ -428,6 +444,7 @@ public class StmStore {
 		public static final String STOP_CODE = StmDbHelper.T_BUS_STOPS_K_CODE;
 		public static final String STOP_PLACE = StmDbHelper.T_BUS_STOPS_K_PLACE;
 		public static final String STOP_DIRECTION_ID = StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID;
+		public static final String STOP_SIMPLE_DIRECTION_ID = StmDbHelper.T_BUS_STOPS_A_SIMPLE_DIRECTION_ID;
 		public static final String STOP_LINE_NUMBER = StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER;
 		public static final String STOP_SUBWAY_STATION_ID = StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID;
 		public static final String STOPS_ORDER = StmDbHelper.T_BUS_STOPS_K_STOPS_ORDER;

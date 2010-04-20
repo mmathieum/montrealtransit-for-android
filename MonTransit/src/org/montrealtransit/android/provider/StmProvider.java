@@ -91,6 +91,10 @@ public class StmProvider extends ContentProvider {
 	 * Projection for bus stops extended (with bus lines info).
 	 */
 	private static final HashMap<String, String> sBusStopsExtendedProjectionMap;
+	/**
+	 * Projection for bus stops extended (with bus lines info).
+	 */
+	private static final HashMap<String, String> sBusStopsProjectionMap;
 	static {
 		URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 		URI_MATCHER.addURI(AUTHORITY, "buslines", BUS_LINES);
@@ -181,15 +185,29 @@ public class StmProvider extends ContentProvider {
 		map.put(LiveFolders.DESCRIPTION, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + "||\" \"||" + StmDbHelper.T_BUS_STOPS + "."
 		        + StmDbHelper.T_BUS_STOPS_K_CODE + " AS " + LiveFolders.DESCRIPTION);
 		sBusStopsLiveFolderProjectionMap = map;
+		
+		map = new HashMap<String, String>();
+		map.put(StmStore.BusStop._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS " + StmStore.BusStop._ID);
+		map.put(StmStore.BusStop.STOP_CODE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS " + StmStore.BusStop.STOP_CODE);
+		map.put(StmStore.BusStop.STOP_PLACE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " AS " + StmStore.BusStop.STOP_PLACE);
+		map.put(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID, "substr(" + StmDbHelper.T_BUS_STOPS + "."
+		        + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + ",length(" + StmDbHelper.T_BUS_STOPS + "."
+		        + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + "))" + " AS " + StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID);
+		map.put(StmStore.BusStop.STOP_LINE_NUMBER, StmDbHelper.T_BUS_STOPS + "."
+		        + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS " + StmStore.BusStop.STOP_LINE_NUMBER);
+		map.put(StmStore.BusStop.STOP_SUBWAY_STATION_ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + " AS "
+		        + StmStore.BusStop.STOP_SUBWAY_STATION_ID);
+		sBusStopsProjectionMap = map;
 
 		map = new HashMap<String, String>();
 		map.put(StmStore.BusStop._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS " + StmStore.BusStop._ID);
 		map.put(StmStore.BusStop.STOP_CODE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS " + StmStore.BusStop.STOP_CODE);
 		map.put(StmStore.BusStop.STOP_PLACE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " AS " + StmStore.BusStop.STOP_PLACE);
-		map.put(StmStore.BusStop.STOP_DIRECTION_ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + " AS "
-		        + StmStore.BusStop.STOP_DIRECTION_ID);
-		map.put(StmStore.BusStop.STOP_LINE_NUMBER, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS "
-		        + StmStore.BusStop.STOP_LINE_NUMBER);
+		map.put(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID, "substr(" + StmDbHelper.T_BUS_STOPS + "."
+		        + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + ",length(" + StmDbHelper.T_BUS_STOPS + "."
+		        + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + "))" + " AS " + StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID);
+		map.put(StmStore.BusStop.STOP_LINE_NUMBER, StmDbHelper.T_BUS_STOPS + "."
+		        + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS " + StmStore.BusStop.STOP_LINE_NUMBER);
 		map.put(StmStore.BusStop.LINE_NAME, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NAME + " AS " + StmStore.BusStop.LINE_NAME);
 		map.put(StmStore.BusStop.LINE_TYPE, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_TYPE + " AS " + StmStore.BusStop.LINE_TYPE);
 		map.put(StmStore.BusStop.LINE_HOURS, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_HOURS + " AS " + StmStore.BusStop.LINE_HOURS);
@@ -295,6 +313,7 @@ public class StmProvider extends ContentProvider {
 		case BUS_LINE_ID_DIRECTION_ID_STOPS:
 			MyLog.v(TAG, "query>BUS_LINE_DIRECTION_STOPS");
 			qb.setTables(StmDbHelper.T_BUS_STOPS);
+			qb.setProjectionMap(sBusStopsProjectionMap);
 			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + "=");
 			String lineId = uri.getPathSegments().get(1);
 			qb.appendWhere(lineId);
@@ -309,6 +328,7 @@ public class StmProvider extends ContentProvider {
 			break;
 		case BUS_STOPS_IDS:
 			MyLog.v(TAG, "query>BUS_STOPS_IDS");
+			qb.setDistinct(true);
 			qb.setTables(BUS_STOP_LINES_JOIN);
 			qb.setProjectionMap(sBusStopsExtendedProjectionMap);
 			String[] tmp = new String[2];

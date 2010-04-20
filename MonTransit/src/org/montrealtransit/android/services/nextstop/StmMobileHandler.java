@@ -38,8 +38,24 @@ public class StmMobileHandler extends AbstractXHTMLHandler {
 		if (string.length() > 0) {
 			//MyLog.v(TAG, "" + getTagTable() + ">" + string/* +"("+lineNumber+")." */);
 			if (isInInterestedArea()) {
-				hours.addSHour(string);
-				MyLog.v(TAG, "new hour:"+string+".");
+				// check if it's an hour
+				try {
+					Integer.valueOf(string.trim().substring(0,2));
+					// considering 00h00 the standard (instead of the 00:00 provided by m.stm.info in English)
+					string = string.replaceAll(":", "h");
+					hours.addSHour(string);
+					MyLog.v(TAG, "new hour:"+string+".");
+				} catch (NumberFormatException nfe) {
+					// it's not an hour!
+					MyLog.d(TAG,"'"+string+"' is not an hour.");
+				}
+			}
+			if (isInStmErrorMessage1Area()) {
+				hours.addMessageString(string);
+				MyLog.d(TAG, "message1:"+string);
+			} else if (isInStmErrorMessage2Area()) {
+				hours.addMessage2String(string);
+				MyLog.d(TAG, "message2:"+string);
 			}
 		}
 		super.characters(ch, start, length);
@@ -50,6 +66,14 @@ public class StmMobileHandler extends AbstractXHTMLHandler {
 	 */
 	private boolean isInInterestedArea() {
 		return nb_div == 1 && id_div == 6 && nb_span == 1;
+	}
+	
+	private boolean isInStmErrorMessage1Area(){
+		return nb_div == 1 && id_div == 5 && nb_span == 1;
+	}
+	
+	private boolean isInStmErrorMessage2Area(){
+		return nb_div == 1 && id_div == 7 && nb_span == 1;
 	}
 
 	/**

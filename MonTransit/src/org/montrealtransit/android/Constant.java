@@ -83,6 +83,8 @@ public class Constant {
 	public static final int PLACE_CHAR_PARENTHESE_STATION_LENGTH = PLACE_CHAR_PARENTHESE_STATION.length();
 
 	public static final CharSequence HTML_CODE_SPACE = "&nbsp;";
+	public static final String HTML_CODE_EACUTE = "&eacute;";
+	public static final String HTML_CODE_ECIRC = "&ecirc;";
 	public static final CharSequence HTML_A_1 = "<a";
 	public static final String HTML_TABLE_END = "</table>";
 	public static final String HTML_TAG = "<html>";
