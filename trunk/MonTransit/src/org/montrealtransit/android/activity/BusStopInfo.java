@@ -2,6 +2,7 @@ package org.montrealtransit.android.activity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 
 import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
@@ -83,9 +84,9 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	 */
 	private StmStore.SubwayStation subwayStation;
 	/**
-	 * Store the current hours.
+	 * Store the current hours (including messages).
 	 */
-	private List<String> hours;
+	private BusStopHours hours;
 
 	/**
 	 * {@inheritDoc}
@@ -152,7 +153,7 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 		// try to retrieve the last configuration instance
 		final Object data = getLastNonConfigurationInstance();
 		if (data != null) {
-			this.hours = (List<String>) data;
+			this.hours = (BusStopHours) data;
 			setNextStops();
 		} else {
 			showProgressBar();
@@ -177,6 +178,7 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 
 		((ProgressBar) findViewById(R.id.progress_bar)).setVisibility(View.VISIBLE);
 		((TextView) findViewById(R.id.progress_bar_please_wait)).setVisibility(View.VISIBLE);
+		((TextView) findViewById(R.id.progress_bar_please_wait)).setText(R.string.please_wait);
 		((TextView) findViewById(R.id.progress_bar_text)).setVisibility(View.VISIBLE);
 	}
 
@@ -197,15 +199,14 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	@Override
 	public void onPostExectute(BusStopHours result) {
 		MyLog.v(TAG, "onPostExectute()");
-		hideProgressBar();
-		this.hours = result.getFormattedHours(this);
+		this.hours = result;
 		setNextStops();
 	}
 
 	/**
 	 * Hide the progress bar and show the next bus stop text views.
 	 */
-	private void hideProgressBar() {
+	private void showNextBusStop() {
 		((ProgressBar) findViewById(R.id.progress_bar)).setVisibility(View.GONE);
 		((TextView) findViewById(R.id.progress_bar_text)).setVisibility(View.GONE);
 		((TextView) findViewById(R.id.progress_bar_please_wait)).setVisibility(View.GONE);
@@ -216,36 +217,65 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	}
 
 	/**
+	 * Hide the progress bar and show the next bus stop text views.
+	 */
+	private void showNextBusStopMessage() {
+		((ProgressBar) findViewById(R.id.progress_bar)).setVisibility(View.GONE);
+		((TextView) findViewById(R.id.the_next_stop)).setVisibility(View.GONE);
+		((TextView) findViewById(R.id.the_second_next_stop)).setVisibility(View.GONE);
+		((TextView) findViewById(R.id.other_stops)).setVisibility(View.GONE);
+
+		((TextView) findViewById(R.id.progress_bar_text)).setVisibility(View.VISIBLE);
+		((TextView) findViewById(R.id.progress_bar_please_wait)).setVisibility(View.VISIBLE);
+	}
+
+	/**
 	 * Set the next bus stops hours.
 	 */
 	private void setNextStops() {
-		MyLog.v(TAG, "setNextStops(" + Utils.toStringListOfString(hours) + ")");
-		// clear the last value
-		((TextView) findViewById(R.id.the_next_stop)).setText(null);
-		((TextView) findViewById(R.id.other_stops)).setText(null);
-		((TextView) findViewById(R.id.the_second_next_stop)).setText(null);
-		if (hours.size() > 0) {
+		MyLog.v(TAG, "setNextStops(" + hours.getSHours() + ")");
+		if (hours.getSHours().size() > 0) {
+			List<String> fHours = hours.getFormattedHours(this);
+			showNextBusStop();
+			// clear the last value
+			((TextView) findViewById(R.id.the_next_stop)).setText(null);
+			((TextView) findViewById(R.id.other_stops)).setText(null);
+			((TextView) findViewById(R.id.the_second_next_stop)).setText(null);
 			// show the bus stops
-			((TextView) findViewById(R.id.the_next_stop)).setText(hours.get(0));
-			if (hours.size() > 1) {
-				((TextView) findViewById(R.id.the_second_next_stop)).setText(hours.get(1));
-				if (hours.size() > 2) {
+			((TextView) findViewById(R.id.the_next_stop)).setText(fHours.get(0));
+			if (fHours.size() > 1) {
+				((TextView) findViewById(R.id.the_second_next_stop)).setText(fHours.get(1));
+				if (fHours.size() > 2) {
 					String hoursS = "";
-					for (int i = 2; i < hours.size(); i++) {
+					for (int i = 2; i < fHours.size(); i++) {
 						if (hoursS.length() > 0) {
 							hoursS += ", ";
 						}
-						hoursS += hours.get(i);
+						hoursS += fHours.get(i);
 					}
 					((TextView) findViewById(R.id.other_stops)).setText(hoursS);
 				}
 			}
 		} else {
-			// no more bus stop for this bus line
-			((TextView) findViewById(R.id.the_second_next_stop)).setText(getResources().getString(
-			        R.string.no_more_stops_for_this_bus_line)
-			        + " " + this.busLine.getNumber());
-			// TODO, show the message from stm.info
+			showNextBusStopMessage();
+			// clear the last value
+			((TextView) findViewById(R.id.progress_bar_please_wait)).setText(null);
+			((TextView) findViewById(R.id.progress_bar_text)).setText(null);
+			// IF there is a message from the STM
+			if (this.hours.getMessage() != null && this.hours.getMessage().length() > 0) {
+				((TextView) findViewById(R.id.progress_bar_please_wait)).setText(hours.getMessage());
+				if (this.hours.getMessage2() != null && this.hours.getMessage2().length() > 0) {
+					((TextView) findViewById(R.id.progress_bar_text)).setText(hours.getMessage2());
+				} else {
+					((TextView) findViewById(R.id.progress_bar_text)).setVisibility(View.GONE);
+				}
+			} else {
+				// DEFAULT MESSAGE > no more bus stop for this bus line
+				String defaultMessage = getResources().getString(R.string.no_more_stops_for_this_bus_line) + " "
+				        + this.busLine.getNumber();
+				((TextView) findViewById(R.id.progress_bar_please_wait)).setText(defaultMessage);
+				((TextView) findViewById(R.id.progress_bar_text)).setVisibility(View.GONE);
+			}
 		}
 	}
 
@@ -334,11 +364,6 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 		        .getDirectionId());
 		List<Integer> busLineDirectionIds = Utils.getBusLineDirectionStringIdFromId(busLineDirection.getId());
 		((TextView) findViewById(R.id.direction_main)).setText(getResources().getString(busLineDirectionIds.get(0)));
-		if (busLineDirectionIds.size() >= 2) {
-			TextView tvDirectionDetails = (TextView) findViewById(R.id.direction_detail);
-			tvDirectionDetails.setVisibility(View.VISIBLE);
-			tvDirectionDetails.setText(getResources().getString(busLineDirectionIds.get(1)));
-		}
 		// set the favorite star
 		setTheStar();
 	}
@@ -386,14 +411,22 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	 */
 	private void refreshOtherBusLinesInfo() {
 		MyLog.v(TAG, "setOtherBusLines()");
-		List<String> otherBusLines = Utils.extractBusLineNumbersFromBusLine(StmManager.findBusStopLinesList(this
-		        .getContentResolver(), this.busStop.getCode()));
-		otherBusLines.remove(this.busLine.getNumber());
-		if (otherBusLines.size() > 0) {
+		List<BusLine> allBusLines = StmManager.findBusStopLinesList(this
+		        .getContentResolver(), this.busStop.getCode());
+		// remove all bus line with the same line number
+		ListIterator<BusLine> it = allBusLines.listIterator();
+		while (it.hasNext()) {
+			BusLine busLine = it.next(); 
+			if (busLine.getNumber().equals(this.busLine.getNumber())) {
+				it.remove();
+			}
+		}
+		if (allBusLines.size() > 0) {
 			((TextView) findViewById(R.id.other_bus_line)).setVisibility(View.VISIBLE);
 			((TextView) findViewById(R.id.empty_other_bus_line_list)).setVisibility(View.VISIBLE);
 			((ListView) findViewById(R.id.other_bus_line_list)).setVisibility(View.VISIBLE);
 			((ListView) findViewById(R.id.other_bus_line_list)).setOnItemClickListener(this);
+			List<String> otherBusLines = Utils.extractBusLineNumbersFromBusLine(allBusLines);
 			((ListView) findViewById(R.id.other_bus_line_list)).setAdapter(getBusLineAdapter(otherBusLines));
 		} else {
 			((TextView) findViewById(R.id.other_bus_line)).setVisibility(View.GONE);

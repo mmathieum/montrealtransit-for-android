@@ -12,7 +12,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.StmStore;
+import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.StmStore.BusLine;
 
 import android.content.Context;
@@ -51,14 +53,17 @@ public class Utils {
 	 * Read the input stream and write the stream to the output stream file.
 	 * @param is the input stream
 	 * @param os the output steam
+	 * @param encoding encoding
 	 */
-	public static void getInputStreamToFile(InputStream is, FileOutputStream os) {
+	public static void getInputStreamToFile(InputStream is, FileOutputStream os, String encoding) {
 		MyLog.v(TAG, "getInputStreamToFile()");
 		OutputStreamWriter writer = new OutputStreamWriter(os);
 		byte[] b = new byte[4096];
 		try {
 			for (int n; (n = is.read(b)) != -1;) {
-				writer.write(new String(b, 0, n));
+				String string = new String(b, 0, n, encoding);
+				MyLog.d(TAG,"os.w:"+string);
+				writer.write(string);
 			}
 		} catch (IOException ioe) {
 			MyLog.e(TAG, "Error while reading the input stream and writing into the file.", ioe);
@@ -75,224 +80,225 @@ public class Utils {
 
 	/**
 	 * Return a list of 2 R.string.<ID> for the bus line direction string.
-	 * @param busLineDirectionString the direction string
+	 * @param directionId the direction string
 	 * @return the 2 R.string.<ID>
 	 */
-	public static List<Integer> getBusLineDirectionStringIdFromId(String busLineDirectionString) {
-		MyLog.v(TAG, "getBusLineDirectionStringIdFromId(" + busLineDirectionString + ")");
-		String lineId = busLineDirectionString.substring(0, busLineDirectionString.length() - 3);
-		String otherChar = busLineDirectionString.substring(busLineDirectionString.length() - 3, busLineDirectionString
-		        .length() - 1);
-		String lastChar = busLineDirectionString.substring(busLineDirectionString.length() - 1);
+	public static List<Integer> getBusLineDirectionStringIdFromId(String directionId) {
+		MyLog.v(TAG, "getBusLineDirectionStringIdFromId(" + directionId + ")");
+		int directionIdLength = directionId.length();
+		String mainDirection = directionId.substring(directionIdLength - 1);
 
 		List<Integer> results = new ArrayList<Integer>();
-		if (lastChar.equalsIgnoreCase("N")) {
+		if (mainDirection.equalsIgnoreCase("N")) {
 			results.add(R.string.north);
-		} else if (lastChar.equalsIgnoreCase("S")) {
+		} else if (mainDirection.equalsIgnoreCase("S")) {
 			results.add(R.string.south);
-		} else if (lastChar.equalsIgnoreCase("E")) {
+		} else if (mainDirection.equalsIgnoreCase("E")) {
 			results.add(R.string.east);
-		} else if (lastChar.equalsIgnoreCase("O")) {
+		} else if (mainDirection.equalsIgnoreCase("O")) {
 			results.add(R.string.west);
 		} else {
 			results.add(0);
 		}
-		int lineNumber = Integer.valueOf(lineId);
-		switch (lineNumber) {
-		case 11:
-			if (otherChar.equals("SO")) {
-				results.add(R.string.post_9pm_route);
+		if (directionIdLength > 1) {
+			String extraDirectionInfo = directionId.substring(directionIdLength - 3, directionIdLength - 1);
+			int lineNumber = Integer.valueOf(directionId.substring(0, directionIdLength - 3));
+			switch (lineNumber) {
+			case 11:
+				if (extraDirectionInfo.equals("SO")) {
+					results.add(R.string.post_9pm_route);
+				}
+				break;
+			case 15:
+				if (directionId.equals("15SOE")) {
+					results.add(R.string.evening_route);
+				}
+				break;
+			case 33:
+				if (extraDirectionInfo.equals("SO")) {
+					results.add(R.string.evening_route);
+				} else if (extraDirectionInfo.equals("JO")) {
+					results.add(R.string.morning_route);
+				}
+				break;
+			case 46:
+				if (directionId.startsWith("46AB")) {
+					results.add(R.string.regular_route);
+				} else if (directionId.equals("46AC0")) {
+					results.add(R.string.route_by_way_of_fairmount);
+				}
+				break;
+			case 52:
+				if (extraDirectionInfo.equals("AM")) {
+					results.add(R.string.am_route);
+				} else if (extraDirectionInfo.equals("PM")) {
+					results.add(R.string.pm_route);
+				}
+				break;
+			case 68:
+				if (extraDirectionInfo.equals("AB")) {
+					results.add(R.string.regular_route);
+				} else if (extraDirectionInfo.equals("AC")) {
+					results.add(R.string.route_leading_to_timberlea);
+				}
+				break;
+			case 70:
+				if (extraDirectionInfo.equals("AB")) {
+					results.add(R.string.saturday_and_sunday_bus_route);
+				} else if (extraDirectionInfo.equals("AC")) {
+					results.add(R.string.weekday_bus_route);
+				}
+				break;
+			case 103:
+				if (directionId.equals("103ACO")) {
+					results.add(R.string.route_by_way_of_westhill);
+				} else if (directionId.equals("103JOO")) {
+					results.add(R.string.regular_route);
+				}
+				break;
+			case 115:
+				if (extraDirectionInfo.equals("AM")) {
+					results.add(R.string.am_route);
+				} else if (extraDirectionInfo.equals("PM")) {
+					results.add(R.string.pm_route);
+				}
+				break;
+			case 131:
+				if (directionId.equals("131HPS") || directionId.equals("131HPN")) {
+					results.add(R.string.monday_to_friday_between_9am_and_330pm);
+				}
+				break;
+			case 135:
+				if (extraDirectionInfo.equals("AM")) {
+					results.add(R.string.am_route);
+				} else if (extraDirectionInfo.equals("PM")) {
+					results.add(R.string.pm_route);
+				}
+				break;
+			case 143:
+				if (extraDirectionInfo.equals("AM")) {
+					results.add(R.string.am_route);
+				} else if (extraDirectionInfo.equals("PM")) {
+					results.add(R.string.pm_route);
+				}
+				break;
+			case 146:
+				if (extraDirectionInfo.equals("SW")) {
+					results.add(R.string.route_leading_to_henri_bourassa_station);
+				}
+				break;
+			case 148:
+				if (extraDirectionInfo.equals("AM")) {
+					results.add(R.string.am_route);
+				} else if (extraDirectionInfo.equals("PM")) {
+					results.add(R.string.pm_route);
+				}
+				break;
+			case 166:
+				if (extraDirectionInfo.equals("L2")) {
+					results.add(R.string.route_after_8pm_by_way_of_ridgewood);
+				}
+				break;
+			case 182:
+				if (extraDirectionInfo.equals("AM")) {
+					results.add(R.string.am_route);
+				} else if (extraDirectionInfo.equals("PM")) {
+					results.add(R.string.pm_route);
+				}
+				break;
+			case 184:
+				if (extraDirectionInfo.equals("AM")) {
+					results.add(R.string.am_route);
+				} else if (extraDirectionInfo.equals("PM")) {
+					results.add(R.string.pm_route);
+				}
+				break;
+			case 188:
+				if (extraDirectionInfo.equals("AM")) {
+					results.add(R.string.am_route);
+				} else if (extraDirectionInfo.equals("PM")) {
+					results.add(R.string.pm_route);
+				}
+				break;
+			case 194:
+				if (extraDirectionInfo.equals("AM")) {
+					results.add(R.string.am_route_peak_period);
+				} else if (extraDirectionInfo.equals("PM")) {
+					results.add(R.string.pm_route_peak_period);
+				} else if (extraDirectionInfo.equals("HC")) {
+					results.add(R.string.route_off_peak_periods);
+				}
+				break;
+			case 197:
+				if (extraDirectionInfo.equals("JO")) {
+					results.add(R.string.regular_route);
+				} else if (directionId.equals("197HPE")) {
+					results.add(R.string.route_by_way_of_pepiniere);
+				}
+				break;
+			case 199:
+				if (extraDirectionInfo.equals("PM")) {
+					results.add(R.string.pm_route_peak_period);
+				} else if (directionId.equals("199AMN")) {
+					results.add(R.string.am_route_peak_period);
+				} else if (directionId.equals("199AMS")) {
+					results.add(R.string.am_route_peak_period_and_off_peaks_periods);
+				} else if (directionId.equals("199HCN")) {
+					results.add(R.string.route_off_peak_periods);
+				}
+				break;
+			case 204:
+				if (extraDirectionInfo.equals("JO")) {
+					results.add(R.string.rush_hour_route);
+				} else if (extraDirectionInfo.equals("HP")) {
+					results.add(R.string.route_during_off_peak_periods);
+				}
+				break;
+			case 214:
+				if (extraDirectionInfo.equals("AM")) {
+					results.add(R.string.am_route);
+				} else if (extraDirectionInfo.equals("PM")) {
+					results.add(R.string.pm_route);
+				}
+				break;
+			case 261:
+				if (extraDirectionInfo.equals("AM")) {
+					results.add(R.string.am_route);
+				} else if (extraDirectionInfo.equals("PM")) {
+					results.add(R.string.pm_route);
+				}
+				break;
+			case 410:
+				if (extraDirectionInfo.equals("AM")) {
+					results.add(R.string.am_route);
+				} else if (extraDirectionInfo.equals("PM")) {
+					results.add(R.string.pm_route);
+				}
+				break;
+			case 460:
+				if (extraDirectionInfo.equals("AM")) {
+					results.add(R.string.am_route);
+				} else if (extraDirectionInfo.equals("PM")) {
+					results.add(R.string.pm_route);
+				}
+				break;
+			case 505:
+				if (extraDirectionInfo.equals("AM")) {
+					results.add(R.string.am_route);
+				} else if (extraDirectionInfo.equals("TP")) {
+					results.add(R.string.pm_route);
+				}
+				break;
+			case 515:
+				if (directionId.equals("51501E")) {
+					results.add(R.string.to_the_old_montreal);
+				} else if (directionId.equals("51501O")) {
+					results.add(R.string.to_the_old_port_of_montreal);
+				}
+				break;
+			default:
+				break;
 			}
-			break;
-		case 15:
-			if (busLineDirectionString.equals("15SOE")) {
-				results.add(R.string.evening_route);
-			}
-			break;
-		case 33:
-			if (otherChar.equals("SO")) {
-				results.add(R.string.evening_route);
-			} else if (otherChar.equals("JO")) {
-				results.add(R.string.morning_route);
-			}
-			break;
-		case 46:
-			if (busLineDirectionString.startsWith("46AB")) {
-				results.add(R.string.regular_route);
-			} else if (busLineDirectionString.equals("46AC0")) {
-				results.add(R.string.route_by_way_of_fairmount);
-			}
-			break;
-		case 52:
-			if (otherChar.equals("AM")) {
-				results.add(R.string.am_route);
-			} else if (otherChar.equals("PM")) {
-				results.add(R.string.pm_route);
-			}
-			break;
-		case 68:
-			if (otherChar.equals("AB")) {
-				results.add(R.string.regular_route);
-			} else if (otherChar.equals("AC")) {
-				results.add(R.string.route_leading_to_timberlea);
-			}
-			break;
-		case 70:
-			if (otherChar.equals("AB")) {
-				results.add(R.string.saturday_and_sunday_bus_route);
-			} else if (otherChar.equals("AC")) {
-				results.add(R.string.weekday_bus_route);
-			}
-			break;
-		case 103:
-			if (busLineDirectionString.equals("103ACO")) {
-				results.add(R.string.route_by_way_of_westhill);
-			} else if (busLineDirectionString.equals("103JOO")) {
-				results.add(R.string.regular_route);
-			}
-			break;
-		case 115:
-			if (otherChar.equals("AM")) {
-				results.add(R.string.am_route);
-			} else if (otherChar.equals("PM")) {
-				results.add(R.string.pm_route);
-			}
-			break;
-		case 131:
-			if (busLineDirectionString.equals("131HPS") || busLineDirectionString.equals("131HPN")) {
-				results.add(R.string.monday_to_friday_between_9am_and_330pm);
-			}
-			break;
-		case 135:
-			if (otherChar.equals("AM")) {
-				results.add(R.string.am_route);
-			} else if (otherChar.equals("PM")) {
-				results.add(R.string.pm_route);
-			}
-			break;
-		case 143:
-			if (otherChar.equals("AM")) {
-				results.add(R.string.am_route);
-			} else if (otherChar.equals("PM")) {
-				results.add(R.string.pm_route);
-			}
-			break;
-		case 146:
-			if (otherChar.equals("SW")) {
-				results.add(R.string.route_leading_to_henri_bourassa_station);
-			}
-			break;
-		case 148:
-			if (otherChar.equals("AM")) {
-				results.add(R.string.am_route);
-			} else if (otherChar.equals("PM")) {
-				results.add(R.string.pm_route);
-			}
-			break;
-		case 166:
-			if (otherChar.equals("L2")) {
-				results.add(R.string.route_after_8pm_by_way_of_ridgewood);
-			}
-			break;
-		case 182:
-			if (otherChar.equals("AM")) {
-				results.add(R.string.am_route);
-			} else if (otherChar.equals("PM")) {
-				results.add(R.string.pm_route);
-			}
-			break;
-		case 184:
-			if (otherChar.equals("AM")) {
-				results.add(R.string.am_route);
-			} else if (otherChar.equals("PM")) {
-				results.add(R.string.pm_route);
-			}
-			break;
-		case 188:
-			if (otherChar.equals("AM")) {
-				results.add(R.string.am_route);
-			} else if (otherChar.equals("PM")) {
-				results.add(R.string.pm_route);
-			}
-			break;
-		case 194:
-			if (otherChar.equals("AM")) {
-				results.add(R.string.am_route_peak_period);
-			} else if (otherChar.equals("PM")) {
-				results.add(R.string.pm_route_peak_period);
-			} else if (otherChar.equals("HC")) {
-				results.add(R.string.route_off_peak_periods);
-			}
-			break;
-		case 197:
-			if (otherChar.equals("JO")) {
-				results.add(R.string.regular_route);
-			} else if (busLineDirectionString.equals("197HPE")) {
-				results.add(R.string.route_by_way_of_pepiniere);
-			}
-			break;
-		case 199:
-			if (otherChar.equals("PM")) {
-				results.add(R.string.pm_route_peak_period);
-			} else if (busLineDirectionString.equals("199AMN")) {
-				results.add(R.string.am_route_peak_period);
-			} else if (busLineDirectionString.equals("199AMS")) {
-				results.add(R.string.am_route_peak_period_and_off_peaks_periods);
-			} else if (busLineDirectionString.equals("199HCN")) {
-				results.add(R.string.route_off_peak_periods);
-			}
-			break;
-		case 204:
-			if (otherChar.equals("JO")) {
-				results.add(R.string.rush_hour_route);
-			} else if (otherChar.equals("HP")) {
-				results.add(R.string.route_during_off_peak_periods);
-			}
-			break;
-		case 214:
-			if (otherChar.equals("AM")) {
-				results.add(R.string.am_route);
-			} else if (otherChar.equals("PM")) {
-				results.add(R.string.pm_route);
-			}
-			break;
-		case 261:
-			if (otherChar.equals("AM")) {
-				results.add(R.string.am_route);
-			} else if (otherChar.equals("PM")) {
-				results.add(R.string.pm_route);
-			}
-			break;
-		case 410:
-			if (otherChar.equals("AM")) {
-				results.add(R.string.am_route);
-			} else if (otherChar.equals("PM")) {
-				results.add(R.string.pm_route);
-			}
-			break;
-		case 460:
-			if (otherChar.equals("AM")) {
-				results.add(R.string.am_route);
-			} else if (otherChar.equals("PM")) {
-				results.add(R.string.pm_route);
-			}
-			break;
-		case 505:
-			if (otherChar.equals("AM")) {
-				results.add(R.string.am_route);
-			} else if (otherChar.equals("TP")) {
-				results.add(R.string.pm_route);
-			}
-			break;
-		case 515:
-			if (busLineDirectionString.equals("51501E")) {
-				results.add(R.string.to_the_old_montreal);
-			} else if (busLineDirectionString.equals("51501O")) {
-				results.add(R.string.to_the_old_port_of_montreal);
-			}
-			break;
-		default:
-			break;
 		}
 		return results;
 	}
@@ -772,4 +778,27 @@ public class Utils {
 		List<ResolveInfo> list = packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
 		return list.size() > 0;
 	}
+
+	/**
+	 * @return the user language (fr/en/...)
+	 */
+	public static String getUserLocale() {
+	    return Locale.getDefault().getLanguage();
+    }
+	
+	/**
+	 * Extract the bus stop IDs (bus stop code - bus line number) from the favorite list
+	 * @param favList the favorite list
+	 * @return the bus stop IDs string
+	 */
+	public static String extractBusStopIDsFromFavList(List<Fav> favList) {
+		String favIdsS = "";
+		for (DataStore.Fav favId : favList) {
+			if (favIdsS.length() > 0) {
+				favIdsS += "+";
+			}
+			favIdsS += favId.getFkId() + "-" + favId.getFkId2();
+		}
+	    return favIdsS;
+    }
 }

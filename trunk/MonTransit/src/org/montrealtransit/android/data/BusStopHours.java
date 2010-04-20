@@ -17,6 +17,14 @@ public class BusStopHours {
 	 * The bus stop hours.
 	 */
 	private List<String> sHours;
+	/**
+	 * The first message from the STM.
+	 */
+	private String message;
+	/**
+	 * The second message from the STM.
+	 */
+	private String message2;
 
 	/**
 	 * @return the bus stop hours
@@ -32,6 +40,8 @@ public class BusStopHours {
 	 * Clear the bus stop hours list.
 	 */
 	public void clear() {
+		this.message = "";
+		this.message2 = "";
 		this.getSHours().clear();
 	}
 
@@ -53,5 +63,35 @@ public class BusStopHours {
 			result.add(Utils.formatHours(context, shour));
 		}
 		return result;
+	}
+
+	/**
+	 * Add the string to the message 1.
+	 * @param string the string to add
+	 */
+	public void addMessageString(String string) {
+	    this.message += string;
+    }
+	
+	/**
+	 * Add the string to the message 2.
+	 * @param string the string to add.
+	 */
+	public void addMessage2String(String string) {
+	    this.message2 += string;
+    }
+	
+	/**
+	 * @return the message 1.
+	 */
+	public String getMessage() {
+	    return message;
+    }
+	
+	/**
+	 * @return the message 2.
+	 */
+	public String getMessage2(){
+		return message2;
 	}
 }

@@ -14,9 +14,9 @@
 		<ImageView android:id="@+id/img"
 			android:layout_alignParentLeft="true" android:layout_width="45dip"
 			android:layout_height="45dip" android:layout_marginRight="5dip"
-			android:layout_marginLeft="5dip"
-			android:layout_marginTop="7dip" android:gravity="center"
-			android:scaleType="centerInside" android:background="@drawable/bus_stop_blue" />
+			android:layout_marginLeft="5dip" android:layout_marginTop="7dip"
+			android:gravity="center" android:scaleType="centerInside"
+			android:background="@drawable/bus_stop_blue" />
 
 		<!-- BUS STOP CODE -->
 		<TextView android:id="@+id/stop_code" android:layout_width="wrap_content"
@@ -60,14 +60,6 @@
 			android:textAppearance="?android:attr/textAppearanceMedium"
 			android:layout_toRightOf="@id/img" android:layout_marginLeft="5dip"
 			android:layout_below="@id/line_number" android:text="@string/unknow_direction" />
-		<!-- DIRECTION DETAILS LINE -->
-		<TextView android:id="@+id/direction_detail"
-			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:layout_toRightOf="@id/direction_main"
-			android:layout_alignBaseline="@id/direction_main"
-			android:layout_marginLeft="5dip" android:singleLine="true"
-			android:ellipsize="marquee" android:gravity="center_vertical|left"
-			android:visibility="gone" android:textAppearance="?android:attr/textAppearanceMedium" />
 
 	</RelativeLayout>
 
@@ -98,8 +90,7 @@
 			android:layout_below="@id/progress_bar_please_wait"
 			android:layout_alignWithParentIfMissing="true"
 			android:textAppearance="?android:attr/textAppearanceSmall"
-			android:singleLine="true" android:ellipsize="marquee"
-			android:gravity="center_vertical|left" android:visibility="gone" />
+			android:visibility="gone" />
 
 		<TextView android:id="@+id/the_next_stop"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"

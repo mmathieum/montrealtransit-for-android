@@ -76,9 +76,9 @@ public class FavListTab extends Activity implements ViewBinder, OnItemClickListe
 	private ListAdapter getAdapter(List<DataStore.Fav> favList) {
 		MyLog.v(TAG, "getAdapter(" + Utils.getListSize(favList) + ")");
 		if (Utils.getListSize(favList) > 0) {
-			Cursor cursor = StmManager.findBusStopsExtended(this.getContentResolver(), favList);
+			Cursor cursor = StmManager.findBusStopsExtended(this.getContentResolver(), Utils.extractBusStopIDsFromFavList(favList));
 			String[] from = new String[] { StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE, StmStore.BusStop.STOP_LINE_NUMBER,
-			        StmStore.BusStop.LINE_NAME, StmStore.BusStop.STOP_DIRECTION_ID };
+			        StmStore.BusStop.LINE_NAME, StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID };
 			int[] to = new int[] { R.id.stop_code, R.id.label, R.id.line_number, R.id.line_name, R.id.line_direction };
 			SimpleCursorAdapter busStops = new SimpleCursorAdapter(this, R.layout.fav_list_tab_bus_stop_item, cursor, from, to);
 			busStops.setViewBinder(this);
@@ -93,9 +93,9 @@ public class FavListTab extends Activity implements ViewBinder, OnItemClickListe
 	 */
 	@Override
 	public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-		if (view.getId() == R.id.line_direction && columnIndex == cursor.getColumnIndex(StmStore.BusStop.STOP_DIRECTION_ID)) {
+		if (view.getId() == R.id.line_direction && columnIndex == cursor.getColumnIndex(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID)) {
 			((TextView) view).setText(getResources().getString(
-			        Utils.getBusLineDirectionStringIdFromId(cursor.getString(cursor.getColumnIndex(StmStore.BusStop.STOP_DIRECTION_ID))).get(0)));
+			        Utils.getBusLineDirectionStringIdFromId(cursor.getString(cursor.getColumnIndex(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID))).get(0)));
 			return true;
 		} else if (view.getId() == R.id.label && columnIndex == cursor.getColumnIndex(StmStore.BusStop.STOP_PLACE)) {
 			((TextView) view).setText(Utils.cleanBusStopPlace(cursor.getString(cursor.getColumnIndex(StmStore.BusStop.STOP_PLACE))));

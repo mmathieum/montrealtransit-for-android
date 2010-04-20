@@ -9,12 +9,12 @@ import org.xml.sax.SAXException;
  * @author Mathieu Méa
  */
 public class StmInfoHandler extends AbstractXHTMLHandler {
-	
+
 	/**
 	 * The log tag.
 	 */
 	private static final String TAG = StmInfoHandler.class.getSimpleName();
-	
+
 	/**
 	 * The bus stop hours.
 	 */
@@ -35,7 +35,7 @@ public class StmInfoHandler extends AbstractXHTMLHandler {
 	 * The id of the HTML tr tag.
 	 */
 	private int int_id_tr;
-	
+
 	/**
 	 * The default constructor.
 	 * @param lineNumber the bus line number to match.
@@ -52,23 +52,31 @@ public class StmInfoHandler extends AbstractXHTMLHandler {
 		hours.clear();
 		super.startDocument();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void characters(char[] ch, int start, int length) throws SAXException {
 		String string = new String(ch, start, length).trim();
-		if (string.length()>0) {
-			//MyLog.v(TAG, ""+getTagTable()+">"+string/*+"("+lineNumber+")."*/);
+		if (string.length() > 0) {
+			//MyLog.v(TAG, "" + getTagTable() + ">" + string/* +"("+lineNumber+")." */);
 			if (string.equalsIgnoreCase(lineNumber)) {
 				isIn = true;
 				this.int_id_table = id_table;
 				this.int_id_tr = id_tr;
 			}
 			if (isIn & isInInterestedArea()) {
-				hours.addSHour(string);
-				MyLog.v(TAG, "new hour:"+string+".");
+				// check if it's an hour
+				try {
+					Integer.valueOf(string.trim().substring(0, 2));
+					hours.addSHour(string);
+					MyLog.v(TAG, "new hour:" + string + ".");
+				} catch (NumberFormatException nfe) {
+					// it's not an hour!
+					MyLog.d(TAG, "'" + string + "' is not an hour.");
+					hours.addMessageString(string);
+				}
 			}
 		}
 		super.characters(ch, start, length);
@@ -78,9 +86,9 @@ public class StmInfoHandler extends AbstractXHTMLHandler {
 	 * @return true is the parser is currently in the interesting part of the document.
 	 */
 	private boolean isInInterestedArea() {
-		return nb_table==1&&id_table==int_id_table && nb_tr==1&&id_tr==int_id_tr && nb_td==1 && nb_b==0;
+		return nb_table == 1 && id_table == int_id_table && nb_tr == 1 && id_tr == int_id_tr && nb_td == 1 && nb_b == 0;
 	}
-	
+
 	/**
 	 * @return the hours.
 	 */
