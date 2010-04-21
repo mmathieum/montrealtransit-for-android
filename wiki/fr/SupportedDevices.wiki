@@ -6,7 +6,7 @@
 || novembre 2009 || Telus || HTC || Hero || 1.5 || 2.1 || Interface HTC Sense ||
 || novembre 2009 || Rogers || LG || Eve (GW620) || 1.5 || 1.6? || Interface LG ||
 || décembre 2009 || Bell || Samsung || Galaxy || 1.5 || 1.6? || ||
-|| février 2010 || Telus || Motorola || Milestone || 2.0.1 || 2.1 || ||
+|| février 2010 || Telus || Motorola || Milestone || 2.1 || ? || ||
 || mars 2010 || Rogers || Samsung || Spica || 1.5 || 2.1 || ||
 || mars 2010 || Rogers/Telus/Bell || HTC || Nexus One || 2.1 || || Le premier téléphone Google ||
 || avril 2010 || Rogers || Sony Ericsson || X10 || 1.6 || 2.1? || Interface Sony Ericsson ||
