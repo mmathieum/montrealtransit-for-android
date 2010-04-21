@@ -1,8 +1,20 @@
 #labels Phase-Support
 Changelog of the app
 
+ * BETA 2010-04-21
+  * new icon matching the [http://developer.android.com/guide/practices/ui_guidelines/icon_design.html Icon Design Guidelines, Android 2.0] r53
+  * improvement of the data loading from stm.info and m.stm.info r52
+  * the STM messages (from stm.info and m.stm.info) are now displayed (in the UI language) r52
+  * as requested in issue #14, the default language is now English r49
+  * fix bug when the same bus stop + bus line appears multiple time r52
+  * fix bug on the bus line view when line direction is too long r51
+  * fix bug in the database r50
+  * fix bug in the French UI for some bus line destination details r48
+
  * BETA 2010-02-24
   * bug fixes
 
  * BETA 2010-02-07
   * initial public release
+
+_Cette page n'est pas encore disponible en français, désolé._
