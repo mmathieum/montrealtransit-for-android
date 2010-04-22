@@ -12,7 +12,7 @@
   * fix bug in the French UI for some bus line destination details r48
 
  * BETA 04-11-2010
-  * update the database to match the new service ([http://stm.info/English/info/a-pastec1003.htm "More service this spring", STM]) - Thanks Ian Cloutier r33
+  * update the database to match the new service ([http://stm.info/English/info/a-pastec1003.htm "More service this spring", STM]) - Thanks to Ian Cloutier r33
   * improve reverse geocoding results r35
   * renaming images files to match the [http://developer.android.com/guide/practices/ui_guidelines/icon_design.html Icon Design Guidelines, Android 2.0] r38
   * improve the database upgrade process r40
