@@ -92,7 +92,7 @@ public class StmProvider extends ContentProvider {
 	 */
 	private static final HashMap<String, String> sBusStopsExtendedProjectionMap;
 	/**
-	 * Projection for bus stops extended (with bus lines info).
+	 * Projection for bus stops.
 	 */
 	private static final HashMap<String, String> sBusStopsProjectionMap;
 	static {
@@ -119,7 +119,6 @@ public class StmProvider extends ContentProvider {
 		URI_MATCHER.addURI(AUTHORITY, "subwaystations/#/subwaylines", SUBWAY_STATION_ID_LINES);
 		URI_MATCHER.addURI(AUTHORITY, "subwaystations/#/busstops", SUBWAY_STATION_ID_BUS_STOPS);
 		URI_MATCHER.addURI(AUTHORITY, "subwaystations/#/buslines", SUBWAY_STATION_ID_BUS_LINES);
-		URI_MATCHER.addURI(AUTHORITY, "subwaystations/#/busstops", SUBWAY_STATION_ID_BUS_STOPS);
 		URI_MATCHER.addURI(AUTHORITY, "subwaystations/*", SUBWAY_STATIONS_IDS);
 
 		HashMap<String, String> map = new HashMap<String, String>();
@@ -427,6 +426,7 @@ public class StmProvider extends ContentProvider {
 			break;
 		case SUBWAY_STATION_ID_BUS_STOPS:
 			MyLog.v(TAG, "query>SUBWAY_STATION_ID_BUS_STOPS");
+			qb.setDistinct(true);
 			qb.setTables(BUS_STOP_LINES_JOIN);
 			qb.setProjectionMap(sBusStopsExtendedProjectionMap);
 			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + "=");
