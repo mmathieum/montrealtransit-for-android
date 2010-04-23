@@ -177,7 +177,7 @@ public class SubwayStationInfo extends Activity implements /* ViewBinder, */OnCh
 				}
 				Map<String, String> curChildMap = new HashMap<String, String>();
 				curChildMap.put(StmStore.BusStop.STOP_CODE, busStop.getCode());
-				curChildMap.put(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID, busStop.getDirectionId());
+				curChildMap.put(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID, busStop.getSimpleDirectionId());
 				curChildMap.put(StmStore.BusStop.STOP_LINE_NUMBER, busStop.getLineNumber());
 				curChildMap.put(StmStore.BusStop.STOP_PLACE, busStop.getPlace());
 				curChildMap.put(StmStore.BusStop.STOP_SUBWAY_STATION_ID, busStop.getSubwayStationId());
@@ -235,9 +235,10 @@ public class SubwayStationInfo extends Activity implements /* ViewBinder, */OnCh
 		 */
 		private void bindView(View view, Map<String, String> data) {
 			((TextView) view.findViewById(R.id.stop_code)).setText(data.get(StmStore.BusStop.STOP_CODE));
-			((TextView) view.findViewById(R.id.label)).setText(Utils.cleanBusStopPlace(data.get(StmStore.BusStop.STOP_PLACE)));
-			((TextView) view.findViewById(R.id.direction_main)).setText(getResources().getString(
-			        Utils.getBusLineDirectionStringIdFromId(data.get(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID)).get(0)));
+			((TextView) view.findViewById(R.id.label)).setText(Utils.cleanBusStopPlace(data
+			        .get(StmStore.BusStop.STOP_PLACE)));
+			((TextView) view.findViewById(R.id.direction_main)).setText(Utils.getBusLineDirectionStringIdFromId(
+			        data.get(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID)).get(0));
 		}
 
 		/**
