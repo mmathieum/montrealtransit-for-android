@@ -19,6 +19,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -155,34 +156,38 @@ public class SubwayStationInfo extends Activity implements /* ViewBinder, */OnCh
 			String currentLine = null;
 			List<Map<String, String>> currrentChildren = null;
 			for (StmStore.BusStop busStop : busStopList) {
-				// IF this is a bus stop of a new bus line DO
-				if (!busStop.getLineNumber().equals(currentLine)) {
-					// create a new group for this bus line
-					Map<String, StmStore.BusLine> curGroupBusLineMap = new HashMap<String, StmStore.BusLine>();
-					Map<String, String> curGroupMap = new HashMap<String, String>();
-					currentLine = busStop.getLineNumber();
-					BusLine busLine = new BusLine();
-					busLine.setNumber(busStop.getLineNumber());
-					busLine.setName(busStop.getLineNameOrNull());
-					//busLine.setHours(busStop.getLineHoursOrNull());
-					busLine.setType(busStop.getLineTypeOrNull());
-					curGroupBusLineMap.put(BUS_LINE, busLine);
-					curGroupMap.put(BUS_LINE_NUMBER, busLine.getNumber());
-					this.currentGroupData.add(curGroupBusLineMap);
-					groupData.add(curGroupMap);
-					// create the children list
-					currrentChildren = new ArrayList<Map<String, String>>();
-					this.currentChildData.add(currrentChildren);
-
+				// IF the bus stop isn't a terminus (has a stop code) DO
+				if (!TextUtils.isEmpty(busStop.getCode())) {
+					// IF this is a bus stop of a new bus line DO
+					if (!busStop.getLineNumber().equals(currentLine)) {
+						// create a new group for this bus line
+						Map<String, StmStore.BusLine> curGroupBusLineMap = new HashMap<String, StmStore.BusLine>();
+						Map<String, String> curGroupMap = new HashMap<String, String>();
+						// save the current bus line
+						currentLine = busStop.getLineNumber();
+						BusLine busLine = new BusLine();
+						busLine.setNumber(busStop.getLineNumber());
+						busLine.setName(busStop.getLineNameOrNull());
+						//busLine.setHours(busStop.getLineHoursOrNull());
+						busLine.setType(busStop.getLineTypeOrNull());
+						curGroupBusLineMap.put(BUS_LINE, busLine);
+						curGroupMap.put(BUS_LINE_NUMBER, busLine.getNumber());
+						this.currentGroupData.add(curGroupBusLineMap);
+						groupData.add(curGroupMap);
+						// create the children list
+						currrentChildren = new ArrayList<Map<String, String>>();
+						this.currentChildData.add(currrentChildren);
+	
+					}
+					Map<String, String> curChildMap = new HashMap<String, String>();
+					curChildMap.put(StmStore.BusStop.STOP_CODE, busStop.getCode());
+					curChildMap.put(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID, busStop.getSimpleDirectionId());
+					curChildMap.put(StmStore.BusStop.STOP_LINE_NUMBER, busStop.getLineNumber());
+					curChildMap.put(StmStore.BusStop.STOP_PLACE, busStop.getPlace());
+					curChildMap.put(StmStore.BusStop.STOP_SUBWAY_STATION_ID, busStop.getSubwayStationId());
+					curChildMap.put(StmStore.BusStop.LINE_NAME, busStop.getLineNameOrNull());
+					currrentChildren.add(curChildMap);
 				}
-				Map<String, String> curChildMap = new HashMap<String, String>();
-				curChildMap.put(StmStore.BusStop.STOP_CODE, busStop.getCode());
-				curChildMap.put(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID, busStop.getSimpleDirectionId());
-				curChildMap.put(StmStore.BusStop.STOP_LINE_NUMBER, busStop.getLineNumber());
-				curChildMap.put(StmStore.BusStop.STOP_PLACE, busStop.getPlace());
-				curChildMap.put(StmStore.BusStop.STOP_SUBWAY_STATION_ID, busStop.getSubwayStationId());
-				curChildMap.put(StmStore.BusStop.LINE_NAME, busStop.getLineNameOrNull());
-				currrentChildren.add(curChildMap);
 			}
 
 			String[] groupFrom = new String[] { BUS_LINE_NUMBER, BUS_LINE_NUMBER, BUS_LINE_NUMBER };
