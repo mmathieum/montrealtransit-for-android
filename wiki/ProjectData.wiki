@@ -1,0 +1,7 @@
+#summary Some data about the project
+#labels Phase-Support
+
+<wiki:gadget url="http://www.ohloh.net/p/468409/widgets/project_languages.xml" border="1" height="200" width="320" />
+<wiki:gadget url="http://www.ohloh.net/p/468409/widgets/project_basic_stats.xml" border="1" height="230" width="320" />
+<wiki:gadget url="http://www.ohloh.net/p/468409/widgets/project_factoids.xml" border="0" height="160" width="320" />
+<wiki:gadget url="http://www.ohloh.net/p/468409/widgets/project_cocomo.xml" height="240" border="0" height="260" width="320" />
