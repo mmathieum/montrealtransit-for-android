@@ -60,13 +60,12 @@ public class Utils {
 	 * @param encoding encoding
 	 */
 	public static void getInputStreamToFile(InputStream is, FileOutputStream os, String encoding) {
-		MyLog.v(TAG, "getInputStreamToFile()");
+		MyLog.v(TAG, "getInputStreamToFile("+encoding+")");
 		OutputStreamWriter writer = new OutputStreamWriter(os);
 		byte[] b = new byte[4096];
 		try {
 			for (int n; (n = is.read(b)) != -1;) {
 				String string = new String(b, 0, n, encoding);
-				MyLog.d(TAG,"os.w:"+string);
 				writer.write(string);
 			}
 		} catch (IOException ioe) {
