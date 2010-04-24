@@ -1,11 +1,12 @@
 #summary Changes made to the app
 #labels Phase-Support
 
- * Next Release (soon)
+ * BETA 04-24-2010 ([http://montrealtransit-for-android.googlecode.com/files/MonTransit_BETA_2010-04-24.apk download])
   * Fix bug in Subway station view r63
   * Clean the bus lines connections in the subway station view r64
+  * ...
 
- * BETA 04-21-2010 ([http://montrealtransit-for-android.googlecode.com/files/MonTransit_BETA_2010-04-21.apk download])
+ * BETA 04-21-2010
   * new icon matching the [http://developer.android.com/guide/practices/ui_guidelines/icon_design.html Icon Design Guidelines, Android 2.0] r53
   * improvements of the data loading from stm.info and m.stm.info r52
   * the STM messages (from stm.info and m.stm.info) are now displayed (in the UI language) r52
