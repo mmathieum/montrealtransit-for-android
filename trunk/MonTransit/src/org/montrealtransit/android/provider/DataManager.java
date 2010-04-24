@@ -78,20 +78,20 @@ public class DataManager {
 	 */
 	public static List<String> findAllHistoryList(ContentResolver contentResolver) {
 		List<String> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findAllHistory(contentResolver);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findAllHistory(contentResolver);
+			if (cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<String>();
 					do {
-						result.add(DataStore.History.fromCursor(c).getValue());
-					} while (c.moveToNext());
+						result.add(DataStore.History.fromCursor(cursor).getValue());
+					} while (cursor.moveToNext());
 				}
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -103,20 +103,20 @@ public class DataManager {
 	 */
 	public static List<DataStore.Fav> findAllFavsList(ContentResolver contentResolver) {
 		List<DataStore.Fav> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findAllFavs(contentResolver);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findAllFavs(contentResolver);
+			if (cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<DataStore.Fav>();
 					do {
-						result.add(DataStore.Fav.fromCursor(c));
-					} while (c.moveToNext());
+						result.add(DataStore.Fav.fromCursor(cursor));
+					} while (cursor.moveToNext());
 				}
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}

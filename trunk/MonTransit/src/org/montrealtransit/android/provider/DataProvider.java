@@ -203,8 +203,9 @@ public class DataProvider extends ContentProvider {
 			String fkId = selectionArgs[0];
 			String fkId2 = selectionArgs[1];
 			String favType = selectionArgs[2];
-			String mSlection = DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND " + DataDbHelper.T_FAVS_K_FK_ID_2 + "=" + fkId2 + " AND "
+			String whereClause = DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND " + DataDbHelper.T_FAVS_K_FK_ID_2 + "=" + fkId2 + " AND "
 			        + DataDbHelper.T_FAVS_K_TYPE + "=" + favType;
+			count = db.delete(DataDbHelper.T_FAVS, whereClause, null);
 			break;
 		case FAV_ID:
 			MyLog.v(TAG, "DELETE>FAV_ID");
