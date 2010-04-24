@@ -7,25 +7,23 @@
 	<RelativeLayout android:id="@+id/banner"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		android:padding="5dip"
-		android:orientation="horizontal" android:gravity="fill_horizontal"
+		android:orientation="horizontal" android:gravity="center_vertical"
 		android:background="@android:drawable/title_bar_tall">
-
-		<!-- SUBWAY IMG -->
+		<!-- SUBWAY LOGO -->
 		<ImageView android:id="@+id/img"
-			android:layout_alignParentLeft="true" android:layout_width="45dip"
-			android:layout_height="45dip" android:layout_marginRight="7dip"
-			android:layout_marginTop="7dip" android:gravity="center"
-			android:scaleType="centerInside" android:background="@drawable/subway_blue_big"
-			android:layout_alignParentTop="true" />
-
+			android:layout_alignParentLeft="true"
+			android:layout_width="40dip" android:layout_height="40dip"
+			android:layout_marginRight="7dip" android:layout_marginTop="7dip"
+			android:gravity="center" android:scaleType="centerInside"
+			android:background="@drawable/subway_blue_big" />
 		<!-- STATION NAME -->
 		<TextView android:id="@+id/station_name"
-			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:layout_toRightOf="@id/img" android:textAppearance="?android:attr/textAppearanceLarge"
-			android:textStyle="bold" android:singleLine="true" android:ellipsize="marquee"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:layout_toRightOf="@id/img" android:layout_alignParentTop="true"
+			android:singleLine="true" android:ellipsize="marquee"
 			android:focusable="true" android:gravity="center_vertical|left"
+			android:textAppearance="?android:attr/textAppearanceLarge" android:textStyle="bold"
 			android:text="@string/unknow_stop_place" />
-
 		<!-- SUBWAY LINES COLORS -->
 		<TextView android:id="@+id/subway_line_string"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"

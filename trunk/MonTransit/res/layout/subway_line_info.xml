@@ -20,9 +20,9 @@
         <TextView android:id="@+id/line_name"
         	android:layout_width="fill_parent" android:layout_height="wrap_content"
     		android:layout_toRightOf="@id/subway" android:layout_alignParentTop="true"
-    		android:textAppearance="?android:attr/textAppearanceLarge" android:textStyle="bold"
     		android:singleLine="true" android:ellipsize="marquee"
-    		android:focusable="true" android:gravity="center_vertical|left"  />
+    		android:focusable="true" android:gravity="center_vertical|left"
+    		android:textAppearance="?android:attr/textAppearanceLarge" android:textStyle="bold" />
     	<!-- SUWBAY STATIONS DISPLAY ORDER -->
         <TextView android:id="@+id/order_main"
         	android:layout_width="fill_parent" android:layout_height="wrap_content"
