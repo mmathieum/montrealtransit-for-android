@@ -5,9 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -48,7 +48,11 @@ public class Utils {
 	 * The current language/country.
 	 */
 	private static Locale currentLocale;
-
+	/**
+	 * The date formatter use to parse HH:mm into Date.
+	 */
+	private static final SimpleDateFormat simpleDateFormatter = new SimpleDateFormat("HH:mm");
+	
 	/**
 	 * Read the input stream and write the stream to the output stream file.
 	 * @param is the input stream
@@ -398,10 +402,7 @@ public class Utils {
 		// MyLog.v(TAG, "formatHours(" + noFormatHour + ")");
 		String result = "";
 		try {
-			String[] hourMinute = noFormatHour.split("h");
-			int hour = Integer.valueOf(hourMinute[0]);
-			int minute = Integer.valueOf(hourMinute[1]);
-			result = getDateFormatter(context).format((new GregorianCalendar(0, 0, 0, hour, minute)).getTime());
+			result = getDateFormatter(context).format(simpleDateFormatter.parse(noFormatHour.replace("h", ":")));
 		} catch (Exception e) {
 			MyLog.w(TAG, "Error while formatting '" + noFormatHour + "'.", e);
 			result = noFormatHour;
@@ -436,9 +437,10 @@ public class Utils {
 	public static String getFormatted2Hours(Context context, String noFormatHours, String splitBy) {
 		// MyLog.v(TAG, "getFormatted2Hours(" + noFormatHour + ", " + splitBy + ")");
 		try {
-			String[] twoNoFormatHours = noFormatHours.split(splitBy);
-			return Utils.formatHours(context, twoNoFormatHours[0].trim()) + " - "
-			        + Utils.formatHours(context, twoNoFormatHours[1].trim());
+			int indexOfH = noFormatHours.indexOf(splitBy);
+			String noFormatHour1 = noFormatHours.substring(0, indexOfH);
+			String noFormatHour2 = noFormatHours.substring(indexOfH + splitBy.length());
+			return Utils.formatHours(context, noFormatHour1) + " - " + Utils.formatHours(context, noFormatHour2);
 		} catch (Exception e) {
 			MyLog.w(TAG, "Error while formatting '" + noFormatHours + "'.");
 			return noFormatHours;
