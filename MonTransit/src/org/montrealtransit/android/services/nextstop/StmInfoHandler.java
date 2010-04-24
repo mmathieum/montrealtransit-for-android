@@ -41,6 +41,7 @@ public class StmInfoHandler extends AbstractXHTMLHandler {
 	 * @param lineNumber the bus line number to match.
 	 */
 	public StmInfoHandler(String lineNumber) {
+		MyLog.v(TAG, "StmInfoHandler("+lineNumber+")");
 		this.lineNumber = lineNumber;
 	}
 

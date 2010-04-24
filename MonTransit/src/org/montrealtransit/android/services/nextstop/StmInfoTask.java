@@ -1,7 +1,6 @@
 package org.montrealtransit.android.services.nextstop;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -67,9 +66,10 @@ public class StmInfoTask extends AbstractNextStopProvider {
 	/**
 	 * Some HTML codes marks.
 	 */
-	public static final String TABLE_WEB_GRILLE = "<table cellspacing=\"0\" border=\"0\" id=\"webGrille\" width=\"450\">";
 	public static final String TD_B_1 = "<td width=\"30\"><b>";
 	public static final String TD_B_2 = "</b></td>";
+	public static final String TABLE_WEB_GRILLE = "<table cellspacing=\"0\" border=\"0\" id=\"webGrille\" width=\"450\">";
+	public static final String TABLE_WEB_GRILLE_MES = "<table cellspacing=\"0\" border=\"0\" id=\"webGrilleMes\" width=\"450\">";
 	public static final String TABLE_WEB_GRILLE_NUIT = "<table cellspacing=\"0\" border=\"0\" id=\"webGrilleNuit\" width=\"450\">";
 	public static final String TABLE_WEB_GRILLE_NUIT_MES = "<table cellspacing=\"0\" border=\"0\" id=\"webGrilleNuitMes\" width=\"450\">";
 	public static final String DOCTYPE_TAG = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
@@ -130,6 +130,72 @@ public class StmInfoTask extends AbstractNextStopProvider {
 	}
 
 	/**
+	 * Clean the HTML code.
+	 * @param is the source file
+	 * @param os the result file
+	 * @param lineNumber the bus line number used to clean the code.
+	 */
+	public static void cleanHtmlCodes(FileInputStream is, FileOutputStream os, String lineNumber) {
+		MyLog.v(TAG, "cleanHtmlCodes("+lineNumber+")");
+		boolean isIn = false;
+		boolean isOK = false;
+		String mustInclude = StmInfoTask.TD_B_1 + lineNumber + StmInfoTask.TD_B_2;
+		String startString = StmInfoTask.TABLE_WEB_GRILLE;
+		String startString2 = StmInfoTask.TABLE_WEB_GRILLE_MES;
+		String startString3 = StmInfoTask.TABLE_WEB_GRILLE_NUIT;
+		String startString4 = StmInfoTask.TABLE_WEB_GRILLE_NUIT_MES;
+		String stopString = Constant.HTML_TABLE_END;
+		BufferedReader reader = new BufferedReader(new InputStreamReader(is), 4096);
+		OutputStreamWriter writer = new OutputStreamWriter(os);
+		try {
+			writer.write(StmInfoTask.DOCTYPE_TAG);
+			writer.write(Constant.NEW_LINE);
+			writer.write(Constant.HTML_TAG);
+			String line = reader.readLine();
+            while (line != null) {
+				if (line.contains(startString)) {
+					isIn = true;
+				}
+				if (!isOK && line.contains(startString2)) {
+					isIn = true;
+				}
+				if (!isOK && line.contains(startString3)) {
+					isIn = true;
+				}
+				if (!isOK && line.contains(startString4)) {
+					isIn = true;
+				}
+				if (line.contains(stopString)) {
+					if (isIn) {
+						writer.write(stopString);
+						writer.write(Constant.NEW_LINE);
+					}
+					isIn = false;
+				}
+				if (isIn) {
+					writer.write(removeHref(line.trim()));
+					writer.write(Constant.NEW_LINE);
+				}
+				if (line.contains(mustInclude)) {
+					isOK = true;
+				}
+				line = reader.readLine();
+			}
+			writer.write(Constant.HTML_TAG_END);
+		} catch (IOException ioe) {
+			MyLog.e(TAG, "Error while removing useless code.", ioe);
+		} finally {
+			try {
+				writer.flush();
+				writer.close();
+				is.close();
+			} catch (IOException ioe) {
+				MyLog.w(TAG, "Error while closing the file.", ioe);
+			}
+		}
+	}
+	
+	/**
 	 * Remove HTML useless codes from the string
 	 * @param string the string
 	 * @return the cleaned string
@@ -162,69 +228,6 @@ public class StmInfoTask extends AbstractNextStopProvider {
 			// TODO use the extra information about the bus line stop ?
 		}
 		return string;
-	}
-
-	/**
-	 * Clean the HTML code.
-	 * @param is the source file
-	 * @param os the result file
-	 * @param lineNumber the bus line number used to clean the code.
-	 */
-	public static void cleanHtmlCodes(FileInputStream is, FileOutputStream os, String lineNumber) {
-		boolean isIn = false;
-		boolean isOK = false;
-		String startString = StmInfoTask.TABLE_WEB_GRILLE;
-		String mustInclude = StmInfoTask.TD_B_1 + lineNumber + StmInfoTask.TD_B_2;
-		String startString2 = StmInfoTask.TABLE_WEB_GRILLE_NUIT;
-		String startString3 = StmInfoTask.TABLE_WEB_GRILLE_NUIT_MES;
-		String stopString = Constant.HTML_TABLE_END;
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os));
-		try {
-			writer.write(StmInfoTask.DOCTYPE_TAG);
-			writer.write(Constant.NEW_LINE);
-			writer.write(Constant.HTML_TAG);
-			String line = reader.readLine();
-			while (line != null) {
-				if (line.contains(startString)) {
-					isIn = true;
-				}
-				if (!isOK && line.contains(startString2)) {
-					isIn = true;
-				}
-				if (!isOK && line.contains(startString3)) {
-					isIn = true;
-				}
-				if (line.contains(stopString)) {
-					if (isIn) {
-						writer.write(stopString);
-						writer.newLine();
-					}
-					isIn = false;
-				}
-				if (isIn) {
-					writer.write(removeHref(line.trim()));
-					writer.newLine();
-				}
-				if (line.contains(mustInclude)) {
-					isOK = true;
-				}
-				line = reader.readLine();
-			}
-			writer.write(Constant.HTML_TAG_END);
-		} catch (IOException ioe) {
-			MyLog.e(TAG, "Error while removing useless code.", ioe);
-		} finally {
-			try {
-				writer.flush();
-				writer.close();
-				os.flush();
-				os.close();
-				is.close();
-			} catch (IOException ioe) {
-				MyLog.w(TAG, "Error while closing the file.", ioe);
-			}
-		}
 	}
 
 	/**
