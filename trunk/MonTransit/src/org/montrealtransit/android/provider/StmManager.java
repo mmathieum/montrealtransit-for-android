@@ -28,10 +28,6 @@ public class StmManager {
 	private static final String[] PROJECTION_SUBWAY_STATION = new String[] { StmStore.SubwayStation._ID, StmStore.SubwayStation.STATION_ID,
 	        StmStore.SubwayStation.STATION_NAME, StmStore.SubwayStation.STATION_LNG, StmStore.SubwayStation.STATION_LAT };
 
-	private static final String[] PROJECTION_SUBWAY_STATION_EXTENDED = new String[] { StmStore.SubwayStation._ID, StmStore.SubwayStation.STATION_ID,
-	        StmStore.SubwayStation.STATION_NAME, StmStore.SubwayStation.STATION_LNG, StmStore.SubwayStation.STATION_LAT, StmStore.SubwayStation.LINE_NUMBER,
-	        StmStore.SubwayStation.LINE_NAME };
-
 	/**
 	 * Represents the fields the content provider will return for a bus stop.
 	 */
@@ -89,12 +85,11 @@ public class StmManager {
 
 	/**
 	 * Find the subway station from its ID.
-	 * @deprecated Use {@link StmManager#findSubwayLine(ContentResolver, Uri)} instead.
+	 * @see {@link StmManager#findSubwayLine(ContentResolver, Uri)}
 	 * @param contentResolver the content resolver
 	 * @param subwayStationId the subway station ID
 	 * @return the subway station
 	 */
-	@Deprecated
 	public static StmStore.SubwayStation findSubwayStation(ContentResolver contentResolver, String subwayStationId) {
 		return findSubwayStation(contentResolver, Uri.withAppendedPath(StmStore.SubwayStation.CONTENT_URI, subwayStationId));
 	}
@@ -125,25 +120,23 @@ public class StmManager {
 
 	/**
 	 * <b>WARNING</b> May not return the expected bus stop since multiple bus stop can share a stop code.
-	 * @deprecated Use {@link StmManager#findBusStop(ContentResolver, Uri)} instead.
+	 * @see {@link StmManager#findBusStop(ContentResolver, Uri)}
 	 * @param contentResolver the content resolver
 	 * @param busStopCode the bus stop code.
 	 * @return the first bus stop found with this stop code.
 	 */
-	@Deprecated
 	public static StmStore.BusStop findBusStop(ContentResolver contentResolver, String busStopCode) {
 		return findBusStop(contentResolver, Uri.withAppendedPath(StmStore.BusStop.CONTENT_URI, busStopCode));
 	}
 
 	/**
 	 * Find a bus stop matching the bus stop code and the bus line number.
-	 * @deprecated Use {@link StmManager#findBusLine(ContentResolver, Uri)}
+	 * @see {@link StmManager#findBusStop(ContentResolver, Uri)}
 	 * @param contentResolver the content resolver
 	 * @param busStopCode the bus stop code
 	 * @param busLineNumber the bus line number
 	 * @return a bus stop
 	 */
-	@Deprecated
 	public static StmStore.BusStop findBusLineStop(ContentResolver contentResolver, String busStopCode, String busLineNumber) {
 		// MyTrace.v(TAG, "findBusLineStop("+busStopCode+", "+busLineNumber+")");
 		Uri busLineUri = Uri.withAppendedPath(StmStore.BusLine.CONTENT_URI, busLineNumber);
@@ -226,12 +219,11 @@ public class StmManager {
 	
 	/**
 	 * Find bus line direction.
-	 * @deprecated Use {@link StmManager#findBusLineDirection(ContentResolver, Uri)} instead.
+	 * @see {@link StmManager#findBusLineDirection(ContentResolver, Uri)}
 	 * @param contentResolver the content resolver
 	 * @param busLineDirectionId the bus line direction ID
 	 * @return the bus line direction
 	 */
-	@Deprecated
 	public static StmStore.BusLineDirection findBusLineDirection(ContentResolver contentResolver, String busLineDirectionId) {
 		// MyTrace.v(TAG, "findBusLineDirection("+busLineDirectionId+")");
 		return findBusLineDirection(contentResolver, Uri.withAppendedPath(StmStore.BusLineDirection.CONTENT_URI, busLineDirectionId));
@@ -239,7 +231,7 @@ public class StmManager {
 
 	/**
 	 * Find a subway line
-	 * @deprecated Use {@link StmManager#findSubwayLine(ContentResolver, Uri)} instead
+	 * @see {@link StmManager#findSubwayLine(ContentResolver, Uri)}
 	 * @param contentResolver the content resolver
 	 * @param subwayLineId the subway line ID
 	 * @return a subway line
@@ -373,12 +365,11 @@ public class StmManager {
 
 	/**
 	 * Find a bus line
-	 * @deprecated Use {@link StmManager#findBusLine(ContentResolver, Uri)} instead.
+	 * @see {@link StmManager#findBusLine(ContentResolver, Uri)}
 	 * @param contentResolver the content resolver
 	 * @param busLineId the bus line ID
 	 * @return the bus line
 	 */
-	@Deprecated
 	public static StmStore.BusLine findBusLine(ContentResolver contentResolver, String busLineId) {
 		MyLog.v(TAG, "findBusLine(" + busLineId + ")");
 		return findBusLine(contentResolver, Uri.withAppendedPath(StmStore.BusLine.CONTENT_URI, busLineId));

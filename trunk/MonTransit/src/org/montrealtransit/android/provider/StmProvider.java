@@ -68,10 +68,6 @@ public class StmProvider extends ContentProvider {
 	 */
 	private static final HashMap<String, String> sSubwayStationsProjectionMap;
 	/**
-	 * Projection for subway station extended (with subway lines info).
-	 */
-	private static final HashMap<String, String> sSubwayStationsExtendedProjectionMap;
-	/**
 	 * Projection for subway line.
 	 */
 	private static final HashMap<String, String> sSubwayLinesProjectionMap;
@@ -134,21 +130,6 @@ public class StmProvider extends ContentProvider {
 		        + StmStore.SubwayStation.STATION_LNG);
 		sSubwayStationsProjectionMap = map;
 		
-		map = new HashMap<String, String>();
-		map.put(StmStore.SubwayStation._ID, StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID + " AS "
-		        + StmStore.SubwayStation._ID);
-		map.put(StmStore.SubwayStation.STATION_ID, StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID + " AS "
-		        + StmStore.SubwayStation.STATION_ID);
-		map.put(StmStore.SubwayStation.STATION_NAME, StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME + " AS "
-		        + StmStore.SubwayStation.STATION_NAME);
-		map.put(StmStore.SubwayStation.STATION_LAT, StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LAT + " AS "
-		        + StmStore.SubwayStation.STATION_LAT);
-		map.put(StmStore.SubwayStation.STATION_LNG, StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LNG + " AS "
-		        + StmStore.SubwayStation.STATION_LNG);
-		map.put(StmStore.SubwayStation.LINE_NAME, StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NAME + " AS " + StmStore.SubwayStation.LINE_NAME);
-		map.put(StmStore.SubwayStation.LINE_NUMBER, StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + " AS " + StmStore.SubwayStation.LINE_NUMBER);
-		sSubwayStationsExtendedProjectionMap = map;
-
 		map = new HashMap<String, String>();
 		map.put(StmStore.SubwayLine._ID, StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + " AS " + StmStore.SubwayLine._ID);
 		map.put(StmStore.SubwayLine.LINE_NUMBER, StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + " AS "
