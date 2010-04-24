@@ -66,6 +66,11 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	private Map<String, List<String>> subwayStationOtherLines;
 
 	/**
+	 * The cursor used to display the subway station.
+	 */
+	private Cursor cursor;
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -113,6 +118,8 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		// subway line direction
 		this.lastSubwayStation = StmManager.findSubwayLineLastSubwayStation(this.getContentResolver(), this.subwayLine.getNumber(), this.orderId);
 		((TextView) findViewById(R.id.order_main)).setText(getDirectionText());
+		SubwayLineSelectDirection selectSubwayStationOrder = new SubwayLineSelectDirection(this, this.subwayLine.getNumber(), this);
+		((TextView) findViewById(R.id.order_main)).setOnClickListener(selectSubwayStationOrder);
 	}
 
 	/**
@@ -149,11 +156,11 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 */
 	private SimpleCursorAdapter getAdapter() {
 		MyLog.v(TAG, "getAdapter()");
-		Cursor cursor = StmManager.findSubwayLineStations(this.getContentResolver(), this.subwayLine.getNumber(), this.orderId);
+		this.cursor = StmManager.findSubwayLineStations(this.getContentResolver(), this.subwayLine.getNumber(), this.orderId);
 		String[] from = new String[] { StmStore.SubwayStation.STATION_ID, StmStore.SubwayStation.STATION_ID, StmStore.SubwayStation.STATION_ID,
-		        StmStore.SubwayStation.STATION_NAME /* , StmDbHelper.SUBWAY_HOUR_KEY_HOUR */};
-		int[] to = new int[] { R.id.subway_img_1, R.id.subway_img_2, R.id.subway_img_3, R.id.station_name /* , R.id.hours */};
-		SimpleCursorAdapter subwayStations = new SimpleCursorAdapter(this, R.layout.subway_line_info_stations_list_item, cursor, from, to);
+		        StmStore.SubwayStation.STATION_NAME };
+		int[] to = new int[] { R.id.subway_img_1, R.id.subway_img_2, R.id.subway_img_3, R.id.station_name };
+		SimpleCursorAdapter subwayStations = new SimpleCursorAdapter(this, R.layout.subway_line_info_stations_list_item, this.cursor, from, to);
 		subwayStations.setViewBinder(this);
 		return subwayStations;
 	}
@@ -250,5 +257,15 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 			this.subwayLine = StmManager.findSubwayLine(getContentResolver(), newLineNumber);
 			refreshAll();
 		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onDestroy() {
+		MyLog.v(TAG, "onDestroy()");
+		if (this.cursor!=null) {this.cursor.close(); }
+	    super.onDestroy();
 	}
 }

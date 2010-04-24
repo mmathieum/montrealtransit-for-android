@@ -34,6 +34,11 @@ public class SubwayLinesListTab extends Activity implements ViewBinder, OnItemCl
 	 * The log tag.
 	 */
 	private static final String TAG = SubwayLinesListTab.class.getSimpleName();
+	
+	/**
+	 * The cursor used to display the subway lines.
+	 */
+	private Cursor cursor;
 
 	/**
 	 * {@inheritDoc}
@@ -54,10 +59,10 @@ public class SubwayLinesListTab extends Activity implements ViewBinder, OnItemCl
 	 * @return the subway line list adapter
 	 */
 	private ListAdapter getAdapter() {
-		Cursor cursor = StmManager.findAllSubwayLines(this.getContentResolver());
+		this.cursor = StmManager.findAllSubwayLines(this.getContentResolver());
 		String[] from = new String[] { StmStore.SubwayLine.LINE_NUMBER };
 		int[] to = new int[] { R.id.line_name };
-		SimpleCursorAdapter subwayLines = new SimpleCursorAdapter(this, R.layout.subway_line_list_tab_item, cursor, from, to);
+		SimpleCursorAdapter subwayLines = new SimpleCursorAdapter(this, R.layout.subway_line_list_tab_item, this.cursor, from, to);
 		subwayLines.setViewBinder(this);
 		return subwayLines;
 	}
@@ -134,5 +139,15 @@ public class SubwayLinesListTab extends Activity implements ViewBinder, OnItemCl
 			MyLog.d(TAG, "Unknow menu action:" + item.getItemId() + ".");
 		}
 		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onDestroy() {
+		MyLog.v(TAG, "onDestroy()");
+		if (this.cursor!=null) {this.cursor.close(); }
+	    super.onDestroy();
 	}
 }

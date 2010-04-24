@@ -32,7 +32,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.location.Address;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -87,6 +89,18 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	 * Store the current hours (including messages).
 	 */
 	private BusStopHours hours;
+	/**
+	 * The cursor used to display the subway station(s).
+	 */
+	private Cursor cursorSubwayStations;
+	/**
+	 * The cursor used to display the bus lines.
+	 */
+	private Cursor cursorBusLines;
+	/**
+	 * The task used to load the next bus stops.
+	 */
+	private AsyncTask<StmStore.BusStop, String, BusStopHours> task;
 
 	/**
 	 * {@inheritDoc}
@@ -158,12 +172,15 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 		} else {
 			showProgressBar();
 			if (getNextStopProviderFromPreferences().equals(Constant.PREFS_NEXT_STOP_PROVIDER_STM_INFO)) {
-				new StmInfoTask(this, this.getApplicationContext()).execute(this.busStop);
+				this.task = new StmInfoTask(this, this.getApplicationContext());
+				this.task.execute(this.busStop);
 			} else if (getNextStopProviderFromPreferences().equals(Constant.PREFS_NEXT_STOP_PROVIDER_STM_MOBILE)) {
-				new StmMobileTask(this, this.getApplicationContext()).execute(this.busStop);
+				this.task = new StmMobileTask(this, this.getApplicationContext());
+				this.task.execute(this.busStop);
 			} else {
 				MyLog.w(TAG, "Unknow next stop provider \"" + getNextStopProviderFromPreferences() + "\"");
-				new StmMobileTask(this, this.getApplicationContext()).execute(this.busStop); // default stm mobile
+				this.task = new StmMobileTask(this, this.getApplicationContext()); // default stm mobile
+				this.task.execute(this.busStop);
 			}
 		}
 	}
@@ -225,8 +242,8 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 		((TextView) findViewById(R.id.the_second_next_stop)).setVisibility(View.GONE);
 		((TextView) findViewById(R.id.other_stops)).setVisibility(View.GONE);
 
-		((TextView) findViewById(R.id.progress_bar_text)).setVisibility(View.VISIBLE);
 		((TextView) findViewById(R.id.progress_bar_please_wait)).setVisibility(View.VISIBLE);
+		((TextView) findViewById(R.id.progress_bar_text)).setVisibility(View.GONE);
 	}
 
 	/**
@@ -249,7 +266,7 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 					String hoursS = "";
 					for (int i = 2; i < fHours.size(); i++) {
 						if (hoursS.length() > 0) {
-							hoursS += ", ";
+							hoursS += " ";
 						}
 						hoursS += fHours.get(i);
 					}
@@ -261,14 +278,18 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 			// clear the last value
 			((TextView) findViewById(R.id.progress_bar_please_wait)).setText(null);
 			((TextView) findViewById(R.id.progress_bar_text)).setText(null);
-			// IF there is a message from the STM
-			if (this.hours.getMessage() != null && this.hours.getMessage().length() > 0) {
-				((TextView) findViewById(R.id.progress_bar_please_wait)).setText(hours.getMessage());
-				if (this.hours.getMessage2() != null && this.hours.getMessage2().length() > 0) {
-					((TextView) findViewById(R.id.progress_bar_text)).setText(hours.getMessage2());
-				} else {
-					((TextView) findViewById(R.id.progress_bar_text)).setVisibility(View.GONE);
+			// IF there is a secondary message from the STM DO
+			if (!TextUtils.isEmpty(this.hours.getMessage2())) {
+				((TextView) findViewById(R.id.progress_bar_please_wait)).setText(hours.getMessage2());
+				// IF there is also an error message from the STM DO
+				if (!TextUtils.isEmpty(this.hours.getMessage())) {
+					((TextView) findViewById(R.id.progress_bar_text)).setVisibility(View.VISIBLE);
+					((TextView) findViewById(R.id.progress_bar_text)).setText(hours.getMessage());
 				}
+			// ELSE IF there is only an error message from the STM DO
+			} else if (!TextUtils.isEmpty(this.hours.getMessage())) {
+				((TextView) findViewById(R.id.progress_bar_please_wait)).setText(hours.getMessage());
+			// ELSE
 			} else {
 				// DEFAULT MESSAGE > no more bus stop for this bus line
 				String defaultMessage = getResources().getString(R.string.no_more_stops_for_this_bus_line) + " "
@@ -396,12 +417,12 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	 */
 	private ListAdapter getSubwayListAdapter(List<String> subwayStationsId) {
 		MyLog.v(TAG, "getSubwayListAdapter(" + Utils.toStringListOfString(subwayStationsId) + ")");
-		Cursor cursor = StmManager.findSubwayStations(this.getContentResolver(), subwayStationsId);
+		this.cursorSubwayStations = StmManager.findSubwayStations(this.getContentResolver(), subwayStationsId);
 		String[] from = new String[] { StmStore.SubwayStation.STATION_ID, StmStore.SubwayStation.STATION_ID,
-		        StmStore.SubwayStation.STATION_ID, StmStore.SubwayStation.STATION_NAME /* , StmDbHelper.SUBWAY_HOUR_KEY_HOUR */};
-		int[] to = new int[] { R.id.subway_img_1, R.id.subway_img_2, R.id.subway_img_3, R.id.station_name /* , R.id.hours */};
+		        StmStore.SubwayStation.STATION_ID, StmStore.SubwayStation.STATION_NAME };
+		int[] to = new int[] { R.id.subway_img_1, R.id.subway_img_2, R.id.subway_img_3, R.id.station_name };
 		SimpleCursorAdapter subwayStations = new SimpleCursorAdapter(this,
-		        R.layout.bus_stop_info_subway_line_list_item, cursor, from, to);
+		        R.layout.bus_stop_info_subway_line_list_item, this.cursorSubwayStations, from, to);
 		subwayStations.setViewBinder(this);
 		return subwayStations;
 	}
@@ -442,11 +463,11 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	 */
 	private ListAdapter getBusLineAdapter(List<String> otherBusLineNumbers) {
 		MyLog.v(TAG, "getBusLineAdapter(" + Utils.toStringListOfString(otherBusLineNumbers) + ")");
-		Cursor cursor = StmManager.findBusLines(this.getContentResolver(), otherBusLineNumbers);
+		this.cursorBusLines = StmManager.findBusLines(this.getContentResolver(), otherBusLineNumbers);
 		String[] from = new String[] { StmStore.BusLine.LINE_NUMBER, StmStore.BusLine.LINE_NAME,
 		        StmStore.BusLine.LINE_HOURS, StmStore.BusLine.LINE_TYPE };
 		int[] to = new int[] { R.id.line_number, R.id.line_name, R.id.hours, R.id.line_type };
-		SimpleCursorAdapter busLines = new SimpleCursorAdapter(this, R.layout.bus_stop_info_bus_line_list_item, cursor,
+		SimpleCursorAdapter busLines = new SimpleCursorAdapter(this, R.layout.bus_stop_info_bus_line_list_item, this.cursorBusLines,
 		        from, to);
 		busLines.setViewBinder(this);
 		return busLines;
@@ -598,10 +619,10 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	 * Refresh all the UI (based on the bus stop).
 	 */
 	private void refreshAll() {
+		reloadNextBusStops();
 		refreshBusStopInfo();
 		refreshOtherBusLinesInfo();
 		refreshSubwayStationInfo();
-		reloadNextBusStops();
 		setFocusToTheBusStopPlace();
 	}
 
@@ -796,5 +817,23 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	private String getNextStopProviderFromPreferences() {
 		return Utils.getSharedPreferences(this, Constant.PREFS_NEXT_STOP_PROVIDER,
 		        Constant.PREFS_NEXT_STOP_PROVIDER_DEFAULT);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onDestroy() {
+		MyLog.v(TAG, "onDestroy()");
+		if (this.task != null) {
+			this.task.cancel(true);
+		}
+		if (this.cursorBusLines != null) {
+			this.cursorBusLines.close();
+		}
+		if (this.cursorSubwayStations != null) {
+			this.cursorSubwayStations.close();
+		}
+		super.onDestroy();
 	}
 }

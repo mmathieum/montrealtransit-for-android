@@ -41,6 +41,10 @@ public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDi
 	 */
 	private StmStore.BusLineDirection busLineDirection;
 	/**
+	 * The cursor used to display the bus line stops.
+	 */
+	private Cursor cursor;
+	/**
 	 * The view bus stop activity code.
 	 */
 	private static final int ACTIVITY_VIEW_BUS_STOP = 1;
@@ -111,15 +115,16 @@ public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDi
 		((ImageView) findViewById(R.id.bus_type)).setImageResource(Utils.getBusLineTypeImgFromType(this.busLine.getType()));
 		
 		// bus line direction
-		((TextView) findViewById(R.id.direction_string)).setOnClickListener(new BusLineSelectDirection(this, this.busLine.getNumber(), this));
+		BusLineSelectDirection selectBusLineDirection = new BusLineSelectDirection(this, this.busLine.getNumber(), this);
+		((TextView) findViewById(R.id.direction_string)).setOnClickListener(selectBusLineDirection);
 		List<Integer> busLineDirection = Utils.getBusLineDirectionStringIdFromId(this.busLineDirection.getId());
 		((TextView) findViewById(R.id.direction_main)).setText(getResources().getString(busLineDirection.get(0)));
-		((TextView) findViewById(R.id.direction_main)).setOnClickListener(new BusLineSelectDirection(this, this.busLine.getNumber(), this));
+		((TextView) findViewById(R.id.direction_main)).setOnClickListener(selectBusLineDirection);
 		// bus line direction details
 		if (busLineDirection.size() >= 2) {
 			((TextView) findViewById(R.id.direction_detail)).setVisibility(View.VISIBLE);
 			((TextView) findViewById(R.id.direction_detail)).setText(getResources().getString(busLineDirection.get(1)));
-			((TextView) findViewById(R.id.direction_detail)).setOnClickListener(new BusLineSelectDirection(this, this.busLine.getNumber(), this));
+			((TextView) findViewById(R.id.direction_detail)).setOnClickListener(selectBusLineDirection);
 		}
 	}
 
@@ -135,10 +140,10 @@ public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDi
 	 * @return the bus stops list adapter.
 	 */
 	private SimpleCursorAdapter getAdapter() {
-		Cursor cursor = StmManager.findBusLineStops(this.getContentResolver(), this.busLine.getNumber(), this.busLineDirection.getId());
+		this.cursor = StmManager.findBusLineStops(this.getContentResolver(), this.busLine.getNumber(), this.busLineDirection.getId());
 		String[] from = new String[] { StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE, StmStore.BusStop.STOP_SUBWAY_STATION_ID };
 		int[] to = new int[] { R.id.stop_code, R.id.place, R.id.subway_img };
-		SimpleCursorAdapter busStops = new SimpleCursorAdapter(this, R.layout.bus_line_info_stops_list_item, cursor, from, to);
+		SimpleCursorAdapter busStops = new SimpleCursorAdapter(this, R.layout.bus_line_info_stops_list_item, this.cursor, from, to);
 		busStops.setViewBinder(this);
 		return busStops;
 	}
@@ -213,5 +218,15 @@ public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDi
 			break;
 		}
 		return false;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onDestroy() {
+		MyLog.v(TAG, "onDestroy()");
+		if (this.cursor!=null) {this.cursor.close(); }
+	    super.onDestroy();
 	}
 }
