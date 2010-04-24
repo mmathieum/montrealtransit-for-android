@@ -19,38 +19,41 @@
 			android:background="@drawable/bus_stop_blue" />
 
 		<!-- BUS STOP CODE -->
-		<TextView android:id="@+id/stop_code" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:singleLine="true"
-			android:textStyle="bold" android:layout_alignParentLeft="true"
-			android:layout_below="@id/img" android:padding="3dip"
-			android:textAppearance="?android:attr/textAppearanceMedium" />
+		<TextView android:id="@+id/stop_code"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_alignParentLeft="true" android:layout_below="@id/img"
+			android:singleLine="true" android:padding="3dip"
+			android:textAppearance="?android:attr/textAppearanceMedium" android:textStyle="bold" />
 
 		<!-- FAVORITE ICON -->
-		<CheckBox android:id="@+id/star" style="?android:attr/starStyle"
+		<CheckBox android:id="@+id/star"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:layout_alignParentTop="true" android:layout_alignParentRight="true" />
+			android:layout_alignParentTop="true" android:layout_alignParentRight="true"
+			style="?android:attr/starStyle" />
 
 		<!-- BUS STOP PLACE -->
 		<TextView android:id="@+id/bus_stop_place"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
 			android:layout_marginRight="5dip" android:layout_alignParentTop="true"
 			android:layout_toRightOf="@id/img" android:layout_toLeftOf="@id/star"
-			android:layout_marginLeft="5dip" android:textAppearance="?android:attr/textAppearanceLarge"
-			android:textStyle="bold" android:singleLine="true" android:ellipsize="marquee"
+			android:layout_marginLeft="5dip"
+			android:textAppearance="?android:attr/textAppearanceLarge" android:textStyle="bold"
+			android:singleLine="true" android:ellipsize="marquee"
 			android:focusable="true" android:gravity="center_vertical|left"
 			android:text="@string/unknow_stop_place" />
 
 		<!-- BUS LINE -->
-		<TextView android:id="@+id/line_number" android:layout_width="wrap_content"
-			android:layout_height="wrap_content" android:layout_below="@id/bus_stop_place"
-			android:layout_toRightOf="@id/img" android:layout_marginRight="5dip"
-			android:layout_marginLeft="5dip" android:textAppearance="?android:attr/textAppearanceMedium"
-			android:text="00" />
-		<TextView android:id="@+id/line_name" android:layout_width="fill_parent"
-			android:layout_height="wrap_content" android:layout_toRightOf="@id/line_number"
+		<TextView android:id="@+id/line_number"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_below="@id/bus_stop_place" android:layout_toRightOf="@id/img"
+			android:layout_marginRight="5dip" android:layout_marginLeft="5dip"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:text="000" />
+		<TextView android:id="@+id/line_name"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:layout_toRightOf="@id/line_number" android:layout_alignBaseline="@id/line_number"
 			android:singleLine="true" android:ellipsize="marquee"
 			android:gravity="center_vertical|left" android:focusable="true"
-			android:layout_alignBaseline="@id/line_number"
 			android:textAppearance="?android:attr/textAppearanceMedium"
 			android:text="@string/unknow_line_name" />
 
@@ -66,63 +69,59 @@
 	<!-- NEXT BUS STOPS  -->
 	<TextView android:id="@+id/next_stops_string"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:text="@string/next_bus_stops" android:background="#666"
-		android:textColor="#fff" android:paddingLeft="5dp" />
+		style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
+		android:text="@string/next_bus_stops" />
 	<RelativeLayout android:id="@+id/next_stops_group"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:orientation="horizontal" android:paddingRight="5dip"
-		android:paddingLeft="5dip" android:gravity="center_vertical">
+		android:orientation="horizontal" android:gravity="center_vertical"
+		android:padding="5dip" >
 
 		<ProgressBar android:id="@+id/progress_bar"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
 			android:layout_alignParentTop="true" android:layout_alignParentLeft="true"
-			android:indeterminate="true" android:layout_alignWithParentIfMissing="true"
-			android:visibility="gone" />
+			android:layout_alignWithParentIfMissing="true"
+			android:indeterminate="true" android:visibility="gone" />
 		<TextView android:id="@+id/progress_bar_please_wait"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
 			android:layout_alignParentTop="true" android:layout_alignParentRight="true"
-			android:layout_alignWithParentIfMissing="true"
-			android:layout_toRightOf="@id/progress_bar" android:textAppearance="?android:attr/textAppearanceMedium"
-			android:text="@string/please_wait" android:visibility="gone" />
+			android:layout_alignWithParentIfMissing="true" android:layout_toRightOf="@id/progress_bar"
+			android:textAppearance="?android:attr/textAppearanceMedium" android:visibility="gone"
+			android:text="@string/please_wait" />
 		<TextView android:id="@+id/progress_bar_text"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:layout_alignParentRight="true" android:layout_toRightOf="@id/progress_bar"
-			android:layout_below="@id/progress_bar_please_wait"
-			android:layout_alignWithParentIfMissing="true"
-			android:textAppearance="?android:attr/textAppearanceSmall"
-			android:visibility="gone" />
+			android:layout_toRightOf="@id/progress_bar" android:layout_below="@id/progress_bar_please_wait"
+			android:layout_alignParentRight="true" android:layout_alignWithParentIfMissing="true"
+			android:textAppearance="?android:attr/textAppearanceSmall" android:visibility="gone" />
 
 		<TextView android:id="@+id/the_next_stop"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
 			android:layout_below="@id/progress_bar"
-			android:layout_alignParentLeft="true"
-			android:layout_alignWithParentIfMissing="true"
-			android:layout_marginRight="5dip" android:singleLine="true"
-			android:ellipsize="marquee" android:textAppearance="?android:attr/textAppearanceLarge"
-			android:textStyle="bold" />
+			android:layout_alignParentLeft="true" android:layout_alignWithParentIfMissing="true"
+			android:layout_marginRight="5dip"
+			android:singleLine="true" android:ellipsize="marquee"
+			android:textAppearance="?android:attr/textAppearanceLarge" android:textStyle="bold" />
 		<TextView android:id="@+id/the_second_next_stop"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:layout_toRightOf="@id/the_next_stop"
-			android:layout_alignBottom="@id/the_next_stop"
-			android:layout_alignWithParentIfMissing="true" android:singleLine="true"
-			android:ellipsize="marquee" android:gravity="center_vertical|left"
-			android:textAppearance="?android:attr/textAppearanceMedium"
-			android:textStyle="bold" />
-		<TextView android:id="@+id/other_stops" android:layout_width="fill_parent"
-			android:layout_height="wrap_content" android:layout_toRightOf="@id/the_second_next_stop"
-			android:layout_alignBottom="@id/the_second_next_stop"
+			android:layout_toRightOf="@id/the_next_stop" android:layout_alignBottom="@id/the_next_stop"
 			android:layout_alignWithParentIfMissing="true"
-			android:layout_marginLeft="5dip" android:textAppearance="?android:attr/textAppearanceSmall"
-			android:textStyle="bold" android:singleLine="true" android:focusable="true"
-			android:ellipsize="marquee" android:gravity="center_vertical|left" />
+			android:singleLine="true" android:ellipsize="marquee" android:gravity="center_vertical|left"
+			android:textAppearance="?android:attr/textAppearanceMedium" android:textStyle="bold" />
+		<TextView android:id="@+id/other_stops"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:layout_toRightOf="@id/the_second_next_stop" android:layout_alignBottom="@id/the_second_next_stop"
+			android:layout_alignWithParentIfMissing="true"
+			android:layout_marginLeft="5dip"
+			android:singleLine="true" android:focusable="true"
+			android:ellipsize="marquee" android:gravity="center_vertical|left"
+			android:textAppearance="?android:attr/textAppearanceSmall" android:textStyle="bold"  />
 	</RelativeLayout>
 
 	<!-- OTHER BUS LINE -->
 	<TextView android:id="@+id/other_bus_line"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:text="@string/other_bus_line" android:background="#666"
-		android:textColor="#fff" android:visibility="gone"
-		android:paddingLeft="5dp" />
+		style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
+		android:visibility="gone"
+		android:text="@string/other_bus_line" />
 	<ListView android:id="@+id/other_bus_line_list"
 		android:layout_width="fill_parent" android:layout_height="wrap_content" />
 	<TextView android:id="@+id/empty_other_bus_line_list"
@@ -132,9 +131,9 @@
 	<!-- SUBWAY STATION -->
 	<TextView android:id="@+id/subway_station"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:text="@string/subway_station" android:background="#666"
-		android:textColor="#fff" android:focusable="false" android:visibility="gone"
-		android:paddingLeft="5dp" />
+		style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
+		android:visibility="gone"
+		android:text="@string/subway_station" />
 	<ListView android:id="@+id/subway_station_list"
 		android:layout_width="fill_parent" android:layout_height="wrap_content" />
 	<TextView android:id="@+id/empty_subway_station_list"

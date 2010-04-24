@@ -1,26 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent"
-	android:layout_height="wrap_content"
-	android:paddingLeft="3dip"
-	android:paddingRight="3dip">
-	
-	<TextView android:id="@+id/bus_line_string"
-		android:layout_width="wrap_content"
-		android:layout_height="?android:attr/listPreferredItemHeight"
-		android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft"
-		android:textAppearance="?android:attr/textAppearanceLarge"
-		android:gravity="center_vertical"
-		android:text="@string/bus_line_string" />
+	android:layout_width="fill_parent" android:layout_height="?android:attr/listPreferredItemHeight"
+	android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft"
+	android:paddingRight="5dip" android:paddingTop="5dip" android:paddingBottom="5dip">
 
-	<TextView android:id="@+id/lines"
-		android:layout_width="wrap_content"
-		android:layout_height="?android:attr/listPreferredItemHeight"
-		android:layout_toRightOf="@id/bus_line_string"
-		android:layout_alignParentBottom="true"
-		android:layout_marginLeft="5dip"
-		android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft"
+	<!-- LINES -->
+	<TextView android:id="@+id/bus_line_string" android:layout_marginRight="5dip"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
 		android:textAppearance="?android:attr/textAppearanceLarge"
-		android:gravity="center_vertical" />
-               
+		android:gravity="center_vertical" android:text="@string/bus_line_string" />
+	<!-- X to Y -->
+	<TextView android:id="@+id/lines" 
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:layout_toRightOf="@id/bus_line_string" android:layout_alignParentBottom="true" 
+		android:textAppearance="?android:attr/textAppearanceLarge" android:gravity="center_vertical" />
+
 </RelativeLayout>
