@@ -2,11 +2,12 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="wrap_content">
 
+	<!-- OK BUTTON  -->
 	<ImageButton android:id="@+id/ok" android:layout_width="wrap_content"
 		android:layout_height="wrap_content" android:layout_alignParentRight="true"
 		android:layout_alignParentTop="true" android:layout_marginLeft="0dip"
 		android:src="@android:drawable/ic_search_category_default" />
-
+	<!-- SEARCH FIELD -->
 	<AutoCompleteTextView android:id="@+id/field"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		android:layout_alignParentTop="true" android:layout_alignParentLeft="true"
@@ -15,7 +16,6 @@
 		android:textStyle="bold" android:lines="1" android:ellipsize="end"
 		android:marqueeRepeatLimit="1" android:singleLine="true"
 		android:maxLines="1" android:maxLength="5" android:imeOptions="actionSearch" />
-	<!-- android:textAppearance="?android:attr/textAppearanceLarge" -->
 
 	<!-- HISTORY LIST -->
 	<ListView android:id="@+id/list" android:layout_width="fill_parent"

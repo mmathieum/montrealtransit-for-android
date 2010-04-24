@@ -4,35 +4,34 @@
 	android:paddingLeft="3dip" android:paddingRight="3dip">
 
 	<!-- SUBWAY LINE IMG -->
-	<ImageView android:id="@+id/subway_img_1" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:gravity="center_horizontal"
-		android:layout_alignWithParentIfMissing="true"
+	<ImageView android:id="@+id/subway_img_1"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true" android:layout_alignWithParentIfMissing="true"
 		android:layout_alignParentTop="true" android:layout_alignParentLeft="true"
 		android:layout_marginLeft="3dip" android:layout_marginRight="3dip"
-		android:layout_alignParentBottom="true" />
+		android:gravity="center_horizontal" />
 
 	<!-- PLACE -->
-	<TextView android:id="@+id/station_name" android:layout_width="fill_parent"
-		android:layout_height="wrap_content" android:layout_alignParentBottom="true"
-		android:layout_alignParentRight="true" android:layout_alignParentTop="true"
-		android:layout_toRightOf="@id/subway_img_1" android:gravity="center_vertical"
-		android:singleLine="true" android:ellipsize="marquee" android:layout_marginLeft="3dip"
+	<TextView android:id="@+id/station_name"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true" android:layout_alignParentRight="true"
+		android:layout_alignParentTop="true" android:layout_toRightOf="@id/subway_img_1"
+		android:gravity="center_vertical" android:singleLine="true" android:ellipsize="marquee"
+		android:layout_marginLeft="3dip"
 		android:textAppearance="?android:attr/textAppearanceLarge" />
 	
 	<!-- OTHER SUBWAY LINEs -->	
 	<ImageView android:id="@+id/subway_img_2"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:gravity="center_horizontal"
-		android:layout_alignWithParentIfMissing="true"
+		android:layout_alignParentTop="true" android:layout_alignParentBottom="true"
+		android:layout_alignParentRight="true" android:layout_alignWithParentIfMissing="true"
 		android:layout_marginLeft="3dip" android:layout_marginRight="3dip"
-		android:layout_alignParentTop="true" android:layout_alignParentRight="true"
-		android:layout_alignParentBottom="true" />
+		android:gravity="center_horizontal" />
 	<ImageView android:id="@+id/subway_img_3"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:gravity="center_horizontal"
-		android:layout_alignWithParentIfMissing="true"
+		android:layout_alignParentTop="true" android:layout_alignParentBottom="true"
+		android:layout_toLeftOf="@id/subway_img_2" android:layout_alignWithParentIfMissing="true"
 		android:layout_marginLeft="3dip" android:layout_marginRight="3dip"
-		android:layout_alignParentTop="true" android:layout_toLeftOf="@id/subway_img_2"
-		android:layout_alignParentBottom="true" />
+		android:gravity="center_horizontal" />
 
 </RelativeLayout>
