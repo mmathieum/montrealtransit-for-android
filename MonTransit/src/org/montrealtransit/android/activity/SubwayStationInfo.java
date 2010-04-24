@@ -88,7 +88,6 @@ public class SubwayStationInfo extends Activity implements /* ViewBinder, */OnCh
 	 */
 	private void refreshAll() {
 		refreshSubwayStationInfo();
-		// TODO set bus line direction info
 		refreshBusLines();
 	}
 
@@ -240,10 +239,10 @@ public class SubwayStationInfo extends Activity implements /* ViewBinder, */OnCh
 		 */
 		private void bindView(View view, Map<String, String> data) {
 			((TextView) view.findViewById(R.id.stop_code)).setText(data.get(StmStore.BusStop.STOP_CODE));
-			((TextView) view.findViewById(R.id.label)).setText(Utils.cleanBusStopPlace(data
-			        .get(StmStore.BusStop.STOP_PLACE)));
-			((TextView) view.findViewById(R.id.direction_main)).setText(Utils.getBusLineDirectionStringIdFromId(
-			        data.get(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID)).get(0));
+			String busStopPlace = Utils.cleanBusStopPlace(data.get(StmStore.BusStop.STOP_PLACE));
+			((TextView) view.findViewById(R.id.label)).setText(busStopPlace);
+			Integer simpleBusLineDirectionId = Utils.getBusLineDirectionStringIdFromId(data.get(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID)).get(0);
+			((TextView) view.findViewById(R.id.direction_main)).setText(simpleBusLineDirectionId);
 		}
 
 		/**

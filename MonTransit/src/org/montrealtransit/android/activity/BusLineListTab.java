@@ -57,6 +57,11 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	private Object currentAdapter;
 
 	/**
+	 * The cursor used to display the bus lines list (in no group mode).
+	 */
+	private Cursor cursor;
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -294,11 +299,11 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	 */
 	private ListAdapter getAdapterNoGroupBy() {
 		MyLog.v(TAG, "getAdapterNoGroupBy()");
-		Cursor cursor = StmManager.findAllBusLines(this.getContentResolver());
+		this.cursor = StmManager.findAllBusLines(this.getContentResolver());
 		String[] from = new String[] { StmStore.BusLine.LINE_NUMBER, StmStore.BusLine.LINE_NAME,
 		        StmStore.BusLine.LINE_HOURS, StmStore.BusLine.LINE_TYPE };
 		int[] to = new int[] { R.id.line_number, R.id.line_name, R.id.hours, R.id.line_type };
-		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.bus_line_list_item, cursor, from, to);
+		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.bus_line_list_item, this.cursor, from, to);
 		adapter.setViewBinder(this);
 		this.currentAdapter = adapter;
 		return adapter;
@@ -353,7 +358,7 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 			curChildMap.put(StmStore.BusLine.LINE_NUMBER, busLine.getNumber());
 			curChildMap.put(StmStore.BusLine.LINE_NAME, busLine.getName());
 			curChildMap.put(StmStore.BusLine.LINE_TYPE, busLine.getType());
-			curChildMap.put(StmStore.BusLine.LINE_HOURS, Utils.getFormatted2Hours(this, busLine.getHours(), "-"));
+			curChildMap.put(StmStore.BusLine.LINE_HOURS, busLine.getHours());
 			currrentChildren.add(curChildMap);
 		}
 
@@ -422,9 +427,10 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 		private void bindView(View view, Map<String, String> data) {
 			((TextView) view.findViewById(R.id.line_number)).setText(data.get(StmStore.BusLine.LINE_NUMBER));
 			((TextView) view.findViewById(R.id.line_name)).setText(data.get(StmStore.BusLine.LINE_NAME));
-			((TextView) view.findViewById(R.id.hours)).setText(data.get(StmStore.BusLine.LINE_HOURS));
-			((ImageView) view.findViewById(R.id.line_type)).setImageResource(Utils.getBusLineTypeImgFromType(data
-			        .get(StmStore.BusLine.LINE_TYPE)));
+			String hours = Utils.getFormatted2Hours(BusLineListTab.this, data.get(StmStore.BusLine.LINE_HOURS), "-");
+			((TextView) view.findViewById(R.id.hours)).setText(hours);
+			int busImg = Utils.getBusLineTypeImgFromType(data.get(StmStore.BusLine.LINE_TYPE));
+			((ImageView) view.findViewById(R.id.line_type)).setImageResource(busImg);
 		}
 	}
 
@@ -512,7 +518,7 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 			curChildMap.put(StmStore.BusLine.LINE_NUMBER, busLine.getNumber());
 			curChildMap.put(StmStore.BusLine.LINE_NAME, busLine.getName());
 			curChildMap.put(StmStore.BusLine.LINE_TYPE, busLine.getType());
-			curChildMap.put(StmStore.BusLine.LINE_HOURS, Utils.getFormatted2Hours(this, busLine.getHours(), "-"));
+			curChildMap.put(StmStore.BusLine.LINE_HOURS, busLine.getHours());
 			this.currentChildData.get(childrenId.get(busLine.getType())).add(curChildMap);
 		}
 
@@ -561,5 +567,15 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 			((ImageView) v.findViewById(R.id.bus_type_img)).setImageResource(Utils.getBusLineTypeImgFromType(type));
 			return v;
 		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onDestroy() {
+		MyLog.v(TAG, "onDestroy()");
+		if (this.cursor!=null) {this.cursor.close(); }
+	    super.onDestroy();
 	}
 }
