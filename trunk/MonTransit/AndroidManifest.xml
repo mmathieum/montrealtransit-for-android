@@ -12,7 +12,8 @@
 		<provider android:name=".provider.StmProvider"
 			android:authorities="org.montrealtransit.android" />
 		<!-- MAIN SCREEN -->
-		<activity android:name=".activity.MainScreen" android:label="@string/app_name">
+		<activity android:name=".activity.MainScreen" android:label="@string/app_name"
+            android:configChanges="orientation|keyboardHidden">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
