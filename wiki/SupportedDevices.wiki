@@ -10,6 +10,7 @@
 || March 2010 || Rogers || Samsung || Spica || 1.5 || 2.1 || ||
 || March 2010 || Rogers/TELUS/Bell/WIND || HTC || Nexus One || 2.1 || ? || The first Google Phone ||
 || April 2010 || Rogers || Sony Ericsson || Xperia X10 || 1.6 || 2.1? || SE custom UI ||
+|| 2010 || X || Archos || 5 IT || 1.6 || ? || Archos custom UI ||
 
 = Upcoming Android devices: =
 || *Release Date* || *Carrier* || *Manufacturer* || *Name* || *Android Version* || *Upcoming update* || *Notes* ||
