@@ -52,11 +52,6 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	private List<List<Map<String, String>>> currentChildData;
 
 	/**
-	 * This object contains the current list adapter.
-	 */
-	private Object currentAdapter;
-
-	/**
 	 * The cursor used to display the bus lines list (in no group mode).
 	 */
 	private Cursor cursor;
@@ -243,15 +238,6 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	}
 
 	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Object onRetainNonConfigurationInstance() {
-		// save the current list adapter
-		return this.currentAdapter;
-	}
-
-	/**
 	 * Return the expandable list adapter from the bus list "group by" preference.</br> <b>WARING:</b> use {@link BusLineListTab#getAdapterFromSettings(String)}
 	 * for the list view.
 	 * @param busListGroupBy the bus list "group by" preference.
@@ -259,11 +245,7 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	 */
 	private ExpandableListAdapter getEAdapterFromSettings(String busListGroupBy) {
 		MyLog.v(TAG, "getEAdapterFromSettings(" + busListGroupBy + ")");
-		final Object data = getLastNonConfigurationInstance();
-		if (data != null) {
-			this.currentAdapter = data;
-			return (ExpandableListAdapter) data;
-		} else if (busListGroupBy.equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)) {
+		if (busListGroupBy.equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)) {
 			return getAdapterByNumber();
 		} else if (busListGroupBy.equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
 			return getAdapterByType();
@@ -281,11 +263,7 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	 */
 	private ListAdapter getAdapterFromSettings(String busListGroupBy) {
 		MyLog.v(TAG, "getAdapterFromSettings(" + busListGroupBy + ")");
-		final Object data = getLastNonConfigurationInstance();
-		if (data != null) {
-			this.currentAdapter = data;
-			return (ListAdapter) data;
-		} else if (busListGroupBy.equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP)) {
+		if (busListGroupBy.equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP)) {
 			return getAdapterNoGroupBy();
 		} else {
 			MyLog.w(TAG, "Unknow list adapter \"" + busListGroupBy + "\"");
@@ -305,7 +283,6 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 		int[] to = new int[] { R.id.line_number, R.id.line_name, R.id.hours, R.id.line_type };
 		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.bus_line_list_item, this.cursor, from, to);
 		adapter.setViewBinder(this);
-		this.currentAdapter = adapter;
 		return adapter;
 	}
 
@@ -367,11 +344,10 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 		String[] fromChild = new String[] { StmStore.BusLine.LINE_NUMBER, StmStore.BusLine.LINE_NAME,
 		        StmStore.BusLine.LINE_HOURS, StmStore.BusLine.LINE_TYPE };
 		int[] toChild = new int[] { R.id.line_number, R.id.line_name, R.id.hours, R.id.line_type };
-		MySimpleExpandableListAdapter mAdapter = new MySimpleExpandableListAdapter(this, groupData,
+		MySimpleExpandableListAdapter adapter = new MySimpleExpandableListAdapter(this, groupData,
 		        android.R.layout.simple_expandable_list_item_1, fromGroup, toGroup, this.currentChildData,
 		        R.layout.bus_line_list_item, fromChild, toChild);
-		this.currentAdapter = mAdapter;
-		return mAdapter;
+		return adapter;
 	}
 
 	/**
@@ -528,11 +504,10 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 		        StmStore.BusLine.LINE_HOURS, StmStore.BusLine.LINE_TYPE };
 		int[] toChild = new int[] { R.id.line_number, R.id.line_name, R.id.hours, R.id.line_type };
 
-		MySimpleExpandableListAdapterType mAdapter = new MySimpleExpandableListAdapterType(this, this.currentGroupData,
+		MySimpleExpandableListAdapterType adapter = new MySimpleExpandableListAdapterType(this, this.currentGroupData,
 		        R.layout.bus_line_list_group_item_type, fromGroup, toGroup, this.currentChildData,
 		        R.layout.bus_line_list_item, fromChild, toChild);
-		this.currentAdapter = mAdapter;
-		return mAdapter;
+		return adapter;
 	}
 
 	/**
