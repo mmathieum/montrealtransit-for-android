@@ -61,10 +61,11 @@ public class MainScreen extends TabActivity {
 		        getResources().getDrawable(R.drawable.ic_tab_subway)).setContent(
 		        new Intent(this, SubwayLinesListTab.class)));
 		try {
-			if (Utils.getCursorSize(DataManager.findAllFavs(this.getContentResolver())) == 0) {
-				mTabHost.setCurrentTab(1); // show bus stop code search tab
-			} else {
+			// IF there is one or more favorites DO
+			if (Utils.getCursorSize(DataManager.findAllFavs(this.getContentResolver())) > 0) {
 				mTabHost.setCurrentTab(0); // show favorite tab
+			} else {
+				mTabHost.setCurrentTab(1); // show bus stop code search tab
 			}
 		} catch (Exception e) {
 			MyLog.w(TAG, "Error while determing the select tab", e);
