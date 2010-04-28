@@ -11,13 +11,13 @@
 || March 2010 || Rogers/TELUS/Bell/WIND || HTC || Nexus One || 2.1 || ? || The first Google Phone ||
 || April 2010 || Rogers || Sony Ericsson || Xperia X10 || 1.6 || 2.1? || SE custom UI ||
 || 2010 || X || Archos || 5 IT || 1.6 || ? || Archos custom UI ||
+|| April 2010 || TELUS || Motorola || Backflip || 1.5 || 2.1? || MOTOBLUR UI ||
 
 = Upcoming Android devices: =
 || *Release Date* || *Carrier* || *Manufacturer* || *Name* || *Android Version* || *Upcoming update* || *Notes* ||
 || 2010 || Rogers || Acer || Liquid E || 2.1? || ? || ||
 || 2010 || Rogers || LG || GT540 || 2.x? || ? || ||
 || 2010 || Bell || Motorola || Dext || 1.5 || ? || MOTOBLUR UI ||
-|| 2010 || TELUS || Motorola || Backflip || 1.5 || ? || MOTOBLUR UI ||
 || 2010 || Rogers || Motorola || Quench || 1.5 || ? || MOTOBLUR UI ||
 || 2010 || Rogers || Sony Ericsson|| Xperia X10 Mini || ? || ? || SE custom UI ||
 || 2010 || Rogers || Sony Ericsson|| Xperia X10 Mini Pro || ? || ? || SE custom UI ||
