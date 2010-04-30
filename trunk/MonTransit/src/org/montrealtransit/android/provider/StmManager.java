@@ -593,7 +593,23 @@ public class StmManager {
 		MyLog.v(TAG, "subwayLineStationsUri>" + subwayLineStationsUri.getPath());
 		return contentResolver.query(subwayLineStationsUri, PROJECTION_SUBWAY_STATION, null, null, order);
 	}
-	
+
+	/**
+	 * Return the subway line stations matching the subway line number and the search (subway line name).
+	 * @param contentResolver the content resolver
+	 * @param subwayLineNumber the subway line number
+	 * @param order the order
+	 * @param search the search
+	 * @return the subway stations
+	 */
+	public static Cursor searchSubwayLineStations(ContentResolver contentResolver, int subwayLineNumber, String order, String search) {
+		Uri subwayLineUri = ContentUris.withAppendedId(StmStore.SubwayLine.CONTENT_URI, subwayLineNumber);
+		Uri subwayLineStationsUri = Uri.withAppendedPath(subwayLineUri, StmStore.SubwayLine.SubwayStations.CONTENT_DIRECTORY);
+		Uri searchSubwayLineStationsUri = Uri.withAppendedPath(Uri.withAppendedPath(subwayLineStationsUri, "search"), search);
+		MyLog.v(TAG, "searchSubwayLineStationsUri>" + searchSubwayLineStationsUri.getPath());
+		return contentResolver.query(searchSubwayLineStationsUri, PROJECTION_SUBWAY_STATION, null, null, order);
+	}
+
 	/**
 	 * Return the subway line stations list in the specified order.
 	 * @param contentResolver the content resolver

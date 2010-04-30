@@ -58,6 +58,7 @@ public class StmProvider extends ContentProvider {
 	private static final int SUBWAY_STATION_ID_BUS_LINES = 22;
 	private static final int SUBWAY_STATION_ID_BUS_STOPS = 23;
 	private static final int SUBWAY_STATIONS_IDS = 24;
+	private static final int SUBWAY_LINE_ID_STATIONS_SEARCH = 26;
 
 	/**
 	 * The URI marcher.
@@ -110,6 +111,7 @@ public class StmProvider extends ContentProvider {
 		URI_MATCHER.addURI(AUTHORITY, "subwaylines", SUBWAY_LINES);
 		URI_MATCHER.addURI(AUTHORITY, "subwaylines/#", SUBWAY_LINE_ID);
 		URI_MATCHER.addURI(AUTHORITY, "subwaylines/#/subwaystations", SUBWAY_LINE_ID_STATIONS);
+		URI_MATCHER.addURI(AUTHORITY, "subwaylines/#/subwaystations/search/*", SUBWAY_LINE_ID_STATIONS_SEARCH);
 		URI_MATCHER.addURI(AUTHORITY, "subwaystations", SUBWAY_STATIONS);
 		URI_MATCHER.addURI(AUTHORITY, "subwaystations/#", SUBWAY_STATION_ID);
 		URI_MATCHER.addURI(AUTHORITY, "subwaystations/#/subwaylines", SUBWAY_STATION_ID_LINES);
@@ -375,6 +377,16 @@ public class StmProvider extends ContentProvider {
 			qb.appendWhere(StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + "=");
 			qb.appendWhere(uri.getPathSegments().get(1));
 			break;
+		case SUBWAY_LINE_ID_STATIONS_SEARCH:
+			MyLog.v(TAG, "query>SUBWAY_LINE_ID_STATIONS_SEARCH");
+			qb.setTables(SUBWAY_LINE_STATIONS_JOIN);
+			qb.setProjectionMap(sSubwayStationsProjectionMap);
+			qb.appendWhere(StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + "="
+			        + uri.getPathSegments().get(1));
+			qb.appendWhere(" AND ");
+			qb.appendWhere(StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME
+			        + " LIKE '%" + uri.getPathSegments().get(4) + "%'");
+			break;
 		case SUBWAY_STATIONS:
 			MyLog.v(TAG, "query>SUBWAY_STATIONS");
 			qb.setTables(StmDbHelper.T_SUBWAY_STATIONS);
@@ -447,6 +459,8 @@ public class StmProvider extends ContentProvider {
 				break;
 			case SUBWAY_STATIONS:
 			case SUBWAY_STATION_ID:
+			case SUBWAY_LINE_ID_STATIONS:
+			case SUBWAY_LINE_ID_STATIONS_SEARCH:
 				orderBy = StmStore.SubwayStation.DEFAULT_SORT_ORDER;
 				break;
 			default:
@@ -497,6 +511,8 @@ public class StmProvider extends ContentProvider {
 			return StmStore.SubwayLine.CONTENT_ITEM_TYPE;
 		case SUBWAY_STATIONS:
 		case SUBWAY_STATIONS_IDS:
+		case SUBWAY_LINE_ID_STATIONS:
+		case SUBWAY_LINE_ID_STATIONS_SEARCH:
 			return StmStore.SubwayStation.CONTENT_TYPE;
 		case SUBWAY_STATION_ID:
 			return StmStore.SubwayStation.CONTENT_ITEM_TYPE;

@@ -21,6 +21,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.FilterQueryProvider;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -32,7 +33,8 @@ import android.widget.SimpleCursorAdapter.ViewBinder;
  * The subway line info activity.
  * @author Mathieu Méa
  */
-public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectionDialogListener, OnItemClickListener, ViewBinder {
+public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectionDialogListener, OnItemClickListener,
+        ViewBinder, FilterQueryProvider {
 
 	/**
 	 * The log tag.
@@ -52,7 +54,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 */
 	private StmStore.SubwayLine subwayLine;
 	/**
-	 * The subway station.
+	 * The subway line direction.
 	 */
 	private StmStore.SubwayStation lastSubwayStation;
 	/**
@@ -112,7 +114,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 */
 	private void refreshSubwayLineInfo() {
 		// subway line name
-		((TextView) findViewById(R.id.line_name)).setText(getResources().getString(Utils.getSubwayLineName(subwayLine.getNumber())));
+		((TextView) findViewById(R.id.line_name)).setText(Utils.getSubwayLineName(subwayLine.getNumber()));
 		((TextView) findViewById(R.id.line_name)).setTextColor(Utils.getSubwayLineColor(subwayLine.getNumber()));
 
 		// subway line direction
@@ -162,7 +164,19 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		int[] to = new int[] { R.id.subway_img_1, R.id.subway_img_2, R.id.subway_img_3, R.id.station_name };
 		SimpleCursorAdapter subwayStations = new SimpleCursorAdapter(this, R.layout.subway_line_info_stations_list_item, this.cursor, from, to);
 		subwayStations.setViewBinder(this);
+		subwayStations.setFilterQueryProvider(this);
 		return subwayStations;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Cursor runQuery(CharSequence constraint) {
+		MyLog.v(TAG, "runQuery(" + constraint + ")");
+		int subwayLineNumber = SubwayLineInfo.this.subwayLine.getNumber();
+		return StmManager.searchSubwayLineStations(this.getContentResolver(), subwayLineNumber, this.orderId,
+		        constraint.toString());
 	}
 
 	/**
