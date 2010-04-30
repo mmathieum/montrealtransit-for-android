@@ -59,6 +59,7 @@ public class StmProvider extends ContentProvider {
 	private static final int SUBWAY_STATION_ID_BUS_STOPS = 23;
 	private static final int SUBWAY_STATIONS_IDS = 24;
 	private static final int SUBWAY_LINE_ID_STATIONS_SEARCH = 26;
+	private static final int BUS_LINES_SEARCH = 27;
 
 	/**
 	 * The URI marcher.
@@ -95,6 +96,7 @@ public class StmProvider extends ContentProvider {
 	static {
 		URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 		URI_MATCHER.addURI(AUTHORITY, "buslines", BUS_LINES);
+		URI_MATCHER.addURI(AUTHORITY, "buslines/search/*", BUS_LINES_SEARCH);
 		URI_MATCHER.addURI(AUTHORITY, "buslines/#", BUS_LINE_ID);
 		URI_MATCHER.addURI(AUTHORITY, "buslines/#/busstops", BUS_LINE_ID_STOPS);
 		URI_MATCHER.addURI(AUTHORITY, "buslines/#/busstops/#", BUS_LINE_ID_STOP_ID);
@@ -240,6 +242,13 @@ public class StmProvider extends ContentProvider {
 		case BUS_LINES:
 			MyLog.v(TAG, "query>BUS_LINES");
 			qb.setTables(StmDbHelper.T_BUS_LINES);
+			break;
+		case BUS_LINES_SEARCH:
+			MyLog.v(TAG, "query>BUS_LINES_SEARCH");
+			qb.setTables(StmDbHelper.T_BUS_LINES);
+			qb.appendWhere(StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER + " LIKE '%" + uri.getPathSegments().get(2)+ "%'");
+			qb.appendWhere(" OR ");
+			qb.appendWhere(StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NAME + " LIKE '%" + uri.getPathSegments().get(2)+ "%'");
 			break;
 		case BUS_LINES_IDS:
 			MyLog.v(TAG, "query>BUS_LINES_IDS");
@@ -433,6 +442,7 @@ public class StmProvider extends ContentProvider {
 		if (TextUtils.isEmpty(sortOrder)) {
 			switch (URI_MATCHER.match(uri)) {
 			case BUS_LINES:
+			case BUS_LINES_SEARCH:
 			case SUBWAY_STATION_ID_BUS_STOPS:
 			case SUBWAY_STATION_ID_BUS_LINES:
 			case BUS_LINES_IDS:
@@ -487,6 +497,7 @@ public class StmProvider extends ContentProvider {
 		case BUS_LINES_IDS:
 		case SUBWAY_STATION_ID_BUS_LINES:
 		case BUS_LINES:
+		case BUS_LINES_SEARCH:
 			return StmStore.BusLine.CONTENT_TYPE;
 		case BUS_LINE_ID:
 			return StmStore.BusLine.CONTENT_ITEM_TYPE;

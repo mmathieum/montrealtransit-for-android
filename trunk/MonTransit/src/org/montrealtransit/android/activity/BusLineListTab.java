@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.FilterQueryProvider;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -39,7 +40,8 @@ import android.widget.SimpleCursorAdapter.ViewBinder;
  * This activity show a list of the bus lines. They can be grouped by number or name.
  * @author Mathieu Méa
  */
-public class BusLineListTab extends Activity implements OnChildClickListener, OnItemClickListener, ViewBinder {
+public class BusLineListTab extends Activity implements OnChildClickListener, OnItemClickListener, ViewBinder,
+        FilterQueryProvider {
 
 	/**
 	 * The log tag.
@@ -283,7 +285,17 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 		int[] to = new int[] { R.id.line_number, R.id.line_name, R.id.hours, R.id.line_type };
 		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.bus_line_list_item, this.cursor, from, to);
 		adapter.setViewBinder(this);
+		adapter.setFilterQueryProvider(this);
 		return adapter;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Cursor runQuery(CharSequence constraint) {
+		MyLog.v(TAG, "runQuery(" + constraint + ")");
+		return StmManager.searchAllBusLines(this.getContentResolver(), constraint.toString());
 	}
 
 	/**
