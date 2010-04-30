@@ -21,6 +21,10 @@ public class StmStore {
 	 * The provider authority.
 	 */
 	public static final String AUTHORITY = StmProvider.AUTHORITY;
+	/**
+	 * The content URI for bus line.
+	 */
+	public static final String SEARCH_URI = "search";
 
 	/**
 	 * Represent a bus line.

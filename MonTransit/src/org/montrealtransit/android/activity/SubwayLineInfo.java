@@ -174,9 +174,8 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	@Override
 	public Cursor runQuery(CharSequence constraint) {
 		MyLog.v(TAG, "runQuery(" + constraint + ")");
-		int subwayLineNumber = SubwayLineInfo.this.subwayLine.getNumber();
-		return StmManager.searchSubwayLineStations(this.getContentResolver(), subwayLineNumber, this.orderId,
-		        constraint.toString());
+		return StmManager.searchSubwayLineStations(this.getContentResolver(), this.subwayLine.getNumber(),
+		        this.orderId, constraint.toString());
 	}
 
 	/**
