@@ -60,6 +60,7 @@ public class StmProvider extends ContentProvider {
 	private static final int SUBWAY_STATIONS_IDS = 24;
 	private static final int SUBWAY_LINE_ID_STATIONS_SEARCH = 26;
 	private static final int BUS_LINES_SEARCH = 27;
+	private static final int BUS_LINE_ID_DIRECTION_ID_STOPS_SEARCH = 28;
 
 	/**
 	 * The URI marcher.
@@ -102,6 +103,7 @@ public class StmProvider extends ContentProvider {
 		URI_MATCHER.addURI(AUTHORITY, "buslines/#/busstops/#", BUS_LINE_ID_STOP_ID);
 		URI_MATCHER.addURI(AUTHORITY, "buslines/#/buslinedirections", BUS_LINE_ID_DIRECTIONS);
 		URI_MATCHER.addURI(AUTHORITY, "buslines/#/buslinedirections/*/busstops", BUS_LINE_ID_DIRECTION_ID_STOPS);
+		URI_MATCHER.addURI(AUTHORITY, "buslines/#/buslinedirections/*/busstops/search/*", BUS_LINE_ID_DIRECTION_ID_STOPS_SEARCH);
 		URI_MATCHER.addURI(AUTHORITY, "buslines/*", BUS_LINES_IDS);
 		URI_MATCHER.addURI(AUTHORITY, "busstops", BUS_STOPS);
 		URI_MATCHER.addURI(AUTHORITY, "busstopslivefolder/*", BUS_STOPS_LIVE_FOLDER);
@@ -246,9 +248,21 @@ public class StmProvider extends ContentProvider {
 		case BUS_LINES_SEARCH:
 			MyLog.v(TAG, "query>BUS_LINES_SEARCH");
 			qb.setTables(StmDbHelper.T_BUS_LINES);
-			qb.appendWhere(StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER + " LIKE '%" + uri.getPathSegments().get(2)+ "%'");
-			qb.appendWhere(" OR ");
-			qb.appendWhere(StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NAME + " LIKE '%" + uri.getPathSegments().get(2)+ "%'");
+			if (!TextUtils.isEmpty(uri.getPathSegments().get(2))) {
+				String[] keywords = uri.getPathSegments().get(2).split(" ");
+				String inWhere = "";
+				for (String keyword : keywords) {
+					if (inWhere.length() > 0) {
+						inWhere += " AND ";
+					}
+					inWhere += "(" + StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER + " LIKE '%"
+					        + keyword + "%'";
+					inWhere += " OR ";
+					inWhere += StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NAME + " LIKE '%" + keyword
+					        + "%')";
+				}
+				qb.appendWhere(inWhere);
+			}
 			break;
 		case BUS_LINES_IDS:
 			MyLog.v(TAG, "query>BUS_LINES_IDS");
@@ -312,6 +326,27 @@ public class StmProvider extends ContentProvider {
 			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + "=");
 			String directionId = uri.getPathSegments().get(3);
 			qb.appendWhere("\"" + directionId + "\"");
+			break;
+		case BUS_LINE_ID_DIRECTION_ID_STOPS_SEARCH:
+			MyLog.v(TAG, "query>BUS_LINE_ID_DIRECTION_ID_STOPS_SEARCH");
+			qb.setTables(StmDbHelper.T_BUS_STOPS);
+			qb.setProjectionMap(sBusStopsProjectionMap);
+			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + "="
+			        + uri.getPathSegments().get(1));
+			qb.appendWhere(" AND ");
+			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + "=\""
+			        + uri.getPathSegments().get(3) + "\"");
+			if (!TextUtils.isEmpty(uri.getPathSegments().get(6))) {
+				String[] keywords = uri.getPathSegments().get(6).split(" ");
+				for (String keyword : keywords) {
+					qb.appendWhere(" AND ");
+					qb.appendWhere("(" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " LIKE '%"
+					        + keyword + "%'");
+					qb.appendWhere(" OR ");
+					qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " LIKE '%"
+					        + keyword + "%')");
+				}
+			}
 			break;
 		case BUS_STOPS:
 			MyLog.v(TAG, "query>BUS_STOPS");
@@ -392,9 +427,14 @@ public class StmProvider extends ContentProvider {
 			qb.setProjectionMap(sSubwayStationsProjectionMap);
 			qb.appendWhere(StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + "="
 			        + uri.getPathSegments().get(1));
-			qb.appendWhere(" AND ");
-			qb.appendWhere(StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME
-			        + " LIKE '%" + uri.getPathSegments().get(4) + "%'");
+			if (!TextUtils.isEmpty(uri.getPathSegments().get(4))) {
+				String[] keywords = uri.getPathSegments().get(4).split(" ");
+				for (String keyword : keywords) {
+					qb.appendWhere(" AND ");
+					qb.appendWhere(StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME
+					        + " LIKE '%" + keyword + "%'");
+				}
+			}
 			break;
 		case SUBWAY_STATIONS:
 			MyLog.v(TAG, "query>SUBWAY_STATIONS");
@@ -451,6 +491,7 @@ public class StmProvider extends ContentProvider {
 				orderBy = StmStore.BusLine.DEFAULT_SORT_ORDER;
 				break;
 			case BUS_LINE_ID_DIRECTION_ID_STOPS:
+			case BUS_LINE_ID_DIRECTION_ID_STOPS_SEARCH:
 			case BUS_STOPS:
 			case BUS_STOPS_IDS:
 			case BUS_LINE_ID_STOP_ID:
@@ -504,6 +545,7 @@ public class StmProvider extends ContentProvider {
 		case BUS_STOPS_LIVE_FOLDER:
 			return StmStore.BusStop.CONTENT_TYPE_LIVE_FOLDER;
 		case BUS_LINE_ID_DIRECTION_ID_STOPS:
+		case BUS_LINE_ID_DIRECTION_ID_STOPS_SEARCH:
 		case BUS_STOPS_IDS:
 		case SUBWAY_STATION_ID_BUS_STOPS:
 		case BUS_STOPS:
