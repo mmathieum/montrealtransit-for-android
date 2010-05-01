@@ -7,6 +7,7 @@
 
 	<TextView android:id="@+id/list_empty"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:text="@string/no_fav_message" />
+		android:text="@string/no_fav_message"
+		android:textAppearance="?android:attr/textAppearanceMedium" />
 
 </LinearLayout>
