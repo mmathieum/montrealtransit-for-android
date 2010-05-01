@@ -274,7 +274,7 @@ public class StmStore {
 	 * A bus line stop.
 	 * @author Mathieu Méa
 	 */
-	public static class BusStop implements BaseColumns, BusLinesColumns, BusStopsColumns {
+	public static class BusStop implements BaseColumns, SubwayStationsColumns, BusLinesColumns, BusStopsColumns {
 		/**
 		 * The content URI for a bus stop.
 		 */

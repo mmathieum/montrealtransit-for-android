@@ -145,8 +145,8 @@ public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDi
 		this.cursor = StmManager.findBusLineStops(this.getContentResolver(), this.busLine.getNumber(),
 		        this.busLineDirection.getId());
 		String[] from = new String[] { StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE,
-		        StmStore.BusStop.STOP_SUBWAY_STATION_ID };
-		int[] to = new int[] { R.id.stop_code, R.id.place, R.id.subway_img };
+				StmStore.BusStop.STATION_NAME, StmStore.BusStop.STOP_SUBWAY_STATION_ID };
+		int[] to = new int[] { R.id.stop_code, R.id.place, R.id.station_name, R.id.subway_img };
 		SimpleCursorAdapter busStops = new SimpleCursorAdapter(this, R.layout.bus_line_info_stops_list_item,
 		        this.cursor, from, to);
 		busStops.setViewBinder(this);

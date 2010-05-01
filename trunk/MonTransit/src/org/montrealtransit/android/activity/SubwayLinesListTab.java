@@ -16,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.FilterQueryProvider;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -28,7 +29,8 @@ import android.widget.SimpleCursorAdapter.ViewBinder;
  * Display a list of subway line.
  * @author Mathieu Méa
  */
-public class SubwayLinesListTab extends Activity implements ViewBinder, OnItemClickListener, OnItemLongClickListener {
+public class SubwayLinesListTab extends Activity implements ViewBinder, OnItemClickListener, OnItemLongClickListener,
+        FilterQueryProvider {
 
 	/**
 	 * The log tag.
@@ -64,7 +66,16 @@ public class SubwayLinesListTab extends Activity implements ViewBinder, OnItemCl
 		int[] to = new int[] { R.id.line_name };
 		SimpleCursorAdapter subwayLines = new SimpleCursorAdapter(this, R.layout.subway_line_list_tab_item, this.cursor, from, to);
 		subwayLines.setViewBinder(this);
+		subwayLines.setFilterQueryProvider(this);
 		return subwayLines;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Cursor runQuery(CharSequence constraint) {
+	    return StmManager.searchAllSubwayLines(this.getContentResolver(), constraint.toString());
 	}
 
 	/**
