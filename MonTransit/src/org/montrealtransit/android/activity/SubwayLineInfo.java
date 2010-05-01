@@ -141,6 +141,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 */
 	private void refreshSubwayStationsList() {
 		((ListView) findViewById(R.id.list)).setAdapter(getAdapter());
+		// store other subway lines IDs for the the subway stations with multiple subway lines
 		this.subwayStationOtherLines = new HashMap<String, List<String>>();
 		List<SubwayStation> subwayStationsList = StmManager.findSubwayLineStationsList(this.getContentResolver(), this.subwayLine.getNumber(), this.orderId);
 		for (SubwayStation subwayStation : subwayStationsList) {
@@ -150,7 +151,6 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 				this.subwayStationOtherLines.put(subwayStation.getId(), otherSubwayLinesIds);
 			}
 		}
-		MyLog.d(TAG,"[>]"+subwayStationOtherLines.size());
 	}
 	
 	/**

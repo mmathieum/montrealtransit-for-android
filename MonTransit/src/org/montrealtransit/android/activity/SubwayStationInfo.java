@@ -24,6 +24,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
@@ -35,7 +36,7 @@ import android.widget.ExpandableListView.OnChildClickListener;
  * Show information about a subway station.
  * @author Mathieu Méa
  */
-public class SubwayStationInfo extends Activity implements /* ViewBinder, */OnChildClickListener {
+public class SubwayStationInfo extends Activity implements OnChildClickListener, OnClickListener {
 
 	/**
 	 * Extra for the subway station ID.
@@ -65,6 +66,10 @@ public class SubwayStationInfo extends Activity implements /* ViewBinder, */OnCh
 		setContentView(R.layout.subway_station_info);
 		((ExpandableListView) findViewById(R.id.bus_line_list)).setEmptyView(findViewById(R.id.empty_bus_line_list));
 		((ExpandableListView) findViewById(R.id.bus_line_list)).setOnChildClickListener(this);
+		((TextView) findViewById(R.id.subway_line_string)).setOnClickListener(this);
+		((ImageView) findViewById(R.id.subway_line_1)).setOnClickListener(this);
+		((ImageView) findViewById(R.id.subway_line_2)).setOnClickListener(this);
+		((ImageView) findViewById(R.id.subway_line_3)).setOnClickListener(this);
 
 		showNewSubwayStation(Utils.getSavedStringValue(this.getIntent(), savedInstanceState, SubwayStationInfo.EXTRA_STATION_ID));
 	}
@@ -98,11 +103,11 @@ public class SubwayStationInfo extends Activity implements /* ViewBinder, */OnCh
 		MyLog.v(TAG, "refreshSubwayStationInfo()");
 		((TextView) findViewById(R.id.station_name)).setText(this.subwayStation.getName());
 		if (this.subwayLines.size() > 0) {
-			((TextView) findViewById(R.id.subway_line_string)).setText(getResources().getString(R.string.subway_line));
+			((TextView) findViewById(R.id.subway_line_string)).setText(R.string.subway_line);
 			((ImageView) findViewById(R.id.subway_line_1)).setVisibility(View.VISIBLE);
 			((ImageView) findViewById(R.id.subway_line_1)).setImageResource(Utils.getSubwayLineImg(this.subwayLines.get(0).getNumber()));
 			if (this.subwayLines.size() > 1) {
-				((TextView) findViewById(R.id.subway_line_string)).setText(getResources().getString(R.string.subway_lines));
+				((TextView) findViewById(R.id.subway_line_string)).setText(R.string.subway_lines);
 				((ImageView) findViewById(R.id.subway_line_2)).setVisibility(View.VISIBLE);
 				((ImageView) findViewById(R.id.subway_line_2)).setImageResource(Utils.getSubwayLineImg(this.subwayLines.get(1).getNumber()));
 				if (this.subwayLines.size() > 2) {
@@ -112,6 +117,26 @@ public class SubwayStationInfo extends Activity implements /* ViewBinder, */OnCh
 			}
 		}
 		// TODO bus line colors ?
+	}
+
+	/**
+	 * The view subway station info activity.
+	 */
+	private static final int ACTIVITY_VIEW_STATION_INFO = 1;
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onClick(View v) {
+		if (this.subwayLines.size() == 1) {
+			Intent intent = new Intent(this, SubwayLineInfo.class);
+			intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, String.valueOf(this.subwayLines.get(0).getNumber()));
+			intent.putExtra(SubwayLineInfo.EXTRA_ORDER_ID, StmStore.SubwayLine.DEFAULT_SORT_ORDER);
+			startActivityForResult(intent, ACTIVITY_VIEW_STATION_INFO);
+		} else {
+			//TODO show subway lines selector
+		}
 	}
 
 	/**

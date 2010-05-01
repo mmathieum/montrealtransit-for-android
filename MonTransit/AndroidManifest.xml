@@ -30,8 +30,10 @@
 		<activity android:name=".activity.FavListTab" />
 		<activity android:name=".activity.BusStopCodeTab" />
 		<activity android:name=".activity.BusLineListTab" />
-		<activity android:name=".activity.BusLineInfo" />
-		<activity android:name=".activity.BusStopInfo">
+		<activity android:name=".activity.BusLineInfo"
+			android:configChanges="orientation|keyboardHidden" />
+		<activity android:name=".activity.BusStopInfo"
+			android:configChanges="orientation|keyboardHidden">
 			<intent-filter android:label="@string/viewBusStopInfo"
 				android:launchMode="singleTask">
 				<action android:name="android.intent.action.VIEW" />
@@ -40,9 +42,11 @@
 					android:mimeType="vnd.android.cursor.item/vnd.org.montrealtransit.android.provider.busstopslivefolder" />
 			</intent-filter>
 		</activity>
-		<activity android:name=".activity.SubwayStationInfo" />
+		<activity android:name=".activity.SubwayStationInfo"
+			android:configChanges="orientation|keyboardHidden" />
 		<activity android:name=".activity.SubwayLinesListTab" />
-		<activity android:name=".activity.SubwayLineInfo" />
+		<activity android:name=".activity.SubwayLineInfo"
+			android:configChanges="orientation|keyboardHidden" />
 
 	</application>
 	<uses-sdk android:minSdkVersion="3" />
