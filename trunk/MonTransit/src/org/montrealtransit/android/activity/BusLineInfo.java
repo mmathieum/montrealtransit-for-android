@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.FilterQueryProvider;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -30,7 +31,8 @@ import android.widget.SimpleCursorAdapter.ViewBinder;
  * This activity display information about a bus line.
  * @author Mathieu Méa
  */
-public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDirectionDialogListener, OnItemClickListener {
+public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDirectionDialogListener,
+        OnItemClickListener, FilterQueryProvider {
 
 	/**
 	 * The current bus line.
@@ -140,12 +142,25 @@ public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDi
 	 * @return the bus stops list adapter.
 	 */
 	private SimpleCursorAdapter getAdapter() {
-		this.cursor = StmManager.findBusLineStops(this.getContentResolver(), this.busLine.getNumber(), this.busLineDirection.getId());
-		String[] from = new String[] { StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE, StmStore.BusStop.STOP_SUBWAY_STATION_ID };
+		this.cursor = StmManager.findBusLineStops(this.getContentResolver(), this.busLine.getNumber(),
+		        this.busLineDirection.getId());
+		String[] from = new String[] { StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE,
+		        StmStore.BusStop.STOP_SUBWAY_STATION_ID };
 		int[] to = new int[] { R.id.stop_code, R.id.place, R.id.subway_img };
-		SimpleCursorAdapter busStops = new SimpleCursorAdapter(this, R.layout.bus_line_info_stops_list_item, this.cursor, from, to);
+		SimpleCursorAdapter busStops = new SimpleCursorAdapter(this, R.layout.bus_line_info_stops_list_item,
+		        this.cursor, from, to);
 		busStops.setViewBinder(this);
+		busStops.setFilterQueryProvider(this);
 		return busStops;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Cursor runQuery(CharSequence constraint) {
+		return StmManager.searchBusLineStops(this.getContentResolver(), this.busLine.getNumber(), this.busLineDirection
+		        .getId(), constraint.toString());
 	}
 
 	/**

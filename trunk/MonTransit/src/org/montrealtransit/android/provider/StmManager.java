@@ -9,6 +9,7 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
+import android.text.TextUtils;
 
 /**
  * This manager provide methods to access STM static information about bus stops, bus lines, subway lines, subway stations. Use the content provider
@@ -602,12 +603,19 @@ public class StmManager {
 	 * @param search the search
 	 * @return the subway stations
 	 */
-	public static Cursor searchSubwayLineStations(ContentResolver contentResolver, int subwayLineNumber, String order, String search) {
-		Uri subwayLineUri = ContentUris.withAppendedId(StmStore.SubwayLine.CONTENT_URI, subwayLineNumber);
-		Uri subwayLineStationsUri = Uri.withAppendedPath(subwayLineUri, StmStore.SubwayLine.SubwayStations.CONTENT_DIRECTORY);
-		Uri searchSubwayLineStationsUri = Uri.withAppendedPath(Uri.withAppendedPath(subwayLineStationsUri, StmStore.SEARCH_URI), search);
-		MyLog.v(TAG, "searchSubwayLineStationsUri>" + searchSubwayLineStationsUri.getPath());
-		return contentResolver.query(searchSubwayLineStationsUri, PROJECTION_SUBWAY_STATION, null, null, order);
+	public static Cursor searchSubwayLineStations(ContentResolver contentResolver, int subwayLineNumber, String order,
+	        String search) {
+		if (!TextUtils.isEmpty(search)) {
+			Uri subwayLineUri = ContentUris.withAppendedId(StmStore.SubwayLine.CONTENT_URI, subwayLineNumber);
+			Uri subwayLineStationsUri = Uri.withAppendedPath(subwayLineUri,
+			        StmStore.SubwayLine.SubwayStations.CONTENT_DIRECTORY);
+			Uri searchSubwayLineStationsUri = Uri.withAppendedPath(Uri.withAppendedPath(subwayLineStationsUri,
+			        StmStore.SEARCH_URI), search);
+			MyLog.v(TAG, "searchSubwayLineStationsUri>" + searchSubwayLineStationsUri.getPath());
+			return contentResolver.query(searchSubwayLineStationsUri, PROJECTION_SUBWAY_STATION, null, null, order);
+		} else {
+			return findSubwayLineStations(contentResolver, subwayLineNumber, order);
+		}
 	}
 
 	/**
@@ -671,6 +679,31 @@ public class StmManager {
 		Uri busStopsUri = Uri.withAppendedPath(busLineDirectionUri, StmStore.BusLine.BusLineDirections.BusStops.CONTENT_DIRECTORY);
 		MyLog.v(TAG, "busStopsUri>" + busStopsUri.getPath());
 		return contentResolver.query(busStopsUri, PROJECTION_BUS_STOP, null, null, null);
+	}
+	
+	/**
+	 * Search bus line stops matching the bus line number and the direction ID.
+	 * @param contentResolver the content resolver
+	 * @param busLineNumber the bus line number
+	 * @param directionId the direction ID
+	 * @param search the search
+	 * @return the bus stops
+	 */
+	public static Cursor searchBusLineStops(ContentResolver contentResolver, String busLineNumber, String directionId,
+	        String search) {
+		if (!TextUtils.isEmpty(search)) {
+			Uri busLineUri = Uri.withAppendedPath(StmStore.BusLine.CONTENT_URI, busLineNumber);
+			Uri busLineDirectionsUri = Uri.withAppendedPath(busLineUri,
+			        StmStore.BusLine.BusLineDirections.CONTENT_DIRECTORY);
+			Uri busLineDirectionUri = Uri.withAppendedPath(busLineDirectionsUri, directionId);
+			Uri busStopsUri = Uri.withAppendedPath(busLineDirectionUri,
+			        StmStore.BusLine.BusLineDirections.BusStops.CONTENT_DIRECTORY);
+			Uri searchUri = Uri.withAppendedPath(Uri.withAppendedPath(busStopsUri, StmStore.SEARCH_URI), search);
+			MyLog.v(TAG, "searchUri>" + searchUri.getPath());
+			return contentResolver.query(searchUri, PROJECTION_BUS_STOP, null, null, null);
+		} else {
+			return findBusLineStops(contentResolver, busLineNumber, directionId);
+		}
 	}
 
 	/**
@@ -743,9 +776,14 @@ public class StmManager {
 	 * @return the bus lines
 	 */
 	public static Cursor searchAllBusLines(ContentResolver contentResolver, String search) {
-		Uri searchUri = Uri.withAppendedPath(Uri.withAppendedPath(StmStore.BusLine.CONTENT_URI, StmStore.SEARCH_URI), search);
-		MyLog.v(TAG, "searchUri>" + searchUri.getPath());
-		return contentResolver.query(searchUri, PROJECTION_BUS_LINE, null, null, null);
+		if (!TextUtils.isEmpty(search)) {
+			Uri searchUri = Uri.withAppendedPath(Uri
+			        .withAppendedPath(StmStore.BusLine.CONTENT_URI, StmStore.SEARCH_URI), search);
+			MyLog.v(TAG, "searchUri>" + searchUri.getPath());
+			return contentResolver.query(searchUri, PROJECTION_BUS_LINE, null, null, null);
+		} else {
+			return findAllBusLines(contentResolver);
+		}
 	}
 
 	/**
