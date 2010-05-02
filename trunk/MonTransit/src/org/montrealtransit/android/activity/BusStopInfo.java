@@ -637,35 +637,35 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	/**
 	 * The menu item for refreshing the next bus stops.
 	 */
-	private static final int MENU_SHOW_REFRESH_NEXT_STOP = 1;
+	private static final int MENU_SHOW_REFRESH_NEXT_STOP = Menu.FIRST;
 	/**
 	 * The menu item for showing the m.stm.info page of this bus stop.
 	 */
-	private static final int MENU_SHOW_STM_MOBILE_WEBSITE = 2;
+	private static final int MENU_SHOW_STM_MOBILE_WEBSITE = Menu.FIRST + 1;
 	/**
 	 * Menu for showing the bus stop in Maps.
 	 */
-	private static final int MENU_SHOW_SUBWAY_STATION_IN_MAPS = 3;
+	private static final int MENU_SHOW_IN_MAPS = Menu.FIRST + 2;
 	/**
-	 * Menu for using a radar to get to the subway station.
+	 * Menu for using a radar to get to the bus stop.
 	 */
-	private static final int MENU_USE_RADAR_TO_THE_SUBWAY_STATION = 4;
-	/**
-	 * Menu for selecting the next stop data provider.
-	 */
-	private static final int MENU_SELECT_NEXT_STOP_PROVIDER_GROUP = 5;
+	private static final int MENU_USE_RADAR = Menu.FIRST + 3;
 	/**
 	 * Menu for selecting the next stop data provider.
 	 */
-	private static final int MENU_SELECT_NEXT_STOP_PROVIDER = 6;
+	private static final int MENU_SELECT_NEXT_STOP_PROVIDER_GROUP = Menu.FIRST + 4;
 	/**
 	 * Menu for selecting the next stop data provider.
 	 */
-	private static final int MENU_SELECT_NEXT_STOP_PROVIDER_STM_MOBILE = 7;
+	private static final int MENU_SELECT_NEXT_STOP_PROVIDER = Menu.FIRST + 5;
 	/**
 	 * Menu for selecting the next stop data provider.
 	 */
-	private static final int MENU_SELECT_NEXT_STOP_PROVIDER_STM_INFO = 8;
+	private static final int MENU_SELECT_NEXT_STOP_PROVIDER_STM_MOBILE = Menu.FIRST + 6;
+	/**
+	 * Menu for selecting the next stop data provider.
+	 */
+	private static final int MENU_SELECT_NEXT_STOP_PROVIDER_STM_INFO = Menu.FIRST + 7;
 
 	/**
 	 * {@inheritDoc}
@@ -673,16 +673,21 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// MyLog.v(TAG, "onCreateOptionsMenu()");
-		// TODO use refresh icon from android.R.drawable... => bug Android 1.5 SDK !!!
-		menu.add(0, MENU_SHOW_REFRESH_NEXT_STOP, 0, R.string.refresh_next_bus_stop).setIcon(R.drawable.ic_menu_refresh);
-		menu.add(0, MENU_SHOW_STM_MOBILE_WEBSITE, 0, R.string.see_in_stm_mobile_web_site).setIcon(R.drawable.stmmobile);
-		menu.add(0, MENU_SHOW_SUBWAY_STATION_IN_MAPS, 0, R.string.show_in_map_exp).setIcon(
-		        android.R.drawable.ic_menu_mapmode);
-		menu.add(0, MENU_USE_RADAR_TO_THE_SUBWAY_STATION, 0, R.string.use_radar).setIcon(
-		        android.R.drawable.ic_menu_compass);
+		MenuItem menuRefresh = menu.add(0, MENU_SHOW_REFRESH_NEXT_STOP, 0, R.string.refresh_next_bus_stop);
+		menuRefresh.setIcon(R.drawable.ic_menu_refresh); // TODO use refresh icon from android.R.drawable (bug SDK 1.5)
+		menuRefresh.setAlphabeticShortcut('r');
+		MenuItem menuStmMobile = menu.add(0, MENU_SHOW_STM_MOBILE_WEBSITE, 0, R.string.see_in_stm_mobile_web_site);
+		menuStmMobile.setIcon(R.drawable.stmmobile);
+		menuStmMobile.setAlphabeticShortcut('s');
+		MenuItem menuMaps = menu.add(0, MENU_SHOW_IN_MAPS, 0, R.string.show_in_map_exp);
+		menuMaps.setIcon(android.R.drawable.ic_menu_mapmode);
+		menuMaps.setAlphabeticShortcut('m');
+		MenuItem menuRadar = menu.add(0, MENU_USE_RADAR, 0, R.string.use_radar);
+		menuRadar.setIcon(android.R.drawable.ic_menu_compass);
 
 		SubMenu subMenu = menu.addSubMenu(MENU_SELECT_NEXT_STOP_PROVIDER_GROUP, MENU_SELECT_NEXT_STOP_PROVIDER, 0,
-		        R.string.select_next_stop_data_source).setIcon(android.R.drawable.ic_menu_preferences);
+		        R.string.select_next_stop_data_source);
+		subMenu.setIcon(android.R.drawable.ic_menu_preferences);
 		subMenu.add(MENU_SELECT_NEXT_STOP_PROVIDER_GROUP, MENU_SELECT_NEXT_STOP_PROVIDER_STM_MOBILE, 0,
 		        StmMobileTask.SOURCE_NAME);
 		subMenu.add(MENU_SELECT_NEXT_STOP_PROVIDER_GROUP, MENU_SELECT_NEXT_STOP_PROVIDER_STM_INFO, 0,
@@ -731,7 +736,7 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 		case MENU_SHOW_REFRESH_NEXT_STOP:
 			reloadNextBusStops();
 			return true;
-		case MENU_SHOW_SUBWAY_STATION_IN_MAPS:
+		case MENU_SHOW_IN_MAPS:
 			try {
 				// Finding the location of the bus stop
 				new ReverseGeocodeTask(this, 1, new ReverseGeocodeTaskListener() {
@@ -756,7 +761,7 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 				MyLog.e(TAG, "Error while launching map", e);
 				return false;
 			}
-		case MENU_USE_RADAR_TO_THE_SUBWAY_STATION:
+		case MENU_USE_RADAR:
 			// IF the a radar activity is available DO
 			if (!Utils.isIntentAvailable(this, "com.google.android.radar.SHOW_RADAR")) {
 				// tell the user he needs to install a radar library.
