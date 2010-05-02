@@ -128,10 +128,12 @@
     <string name="downloading_data_from">Téléchargement des données depuis</string>
     <string name="processing_data">Traitement des données</string>
     <string name="please_wait">Veuillez patienter ...</string>
-    <string name="ellipsis"> ...</string>
+    <string name="ellipsis">&#160;...</string>
+    <string name="colon">&#160;:&#160;</string>
     <string name="error">Erreur</string>
-    <string name="loading">Chargement...</string>
+    <string name="loading">Chargement ...</string>
     <string name="select_next_stop_data_source">Choisir source</string>
+    <string name="data_source">Source</string>
     
     <string name="search_label">MonTransit</string>
     <string name="search_settings_description">Code d\'arrêt MonTransit.</string>
