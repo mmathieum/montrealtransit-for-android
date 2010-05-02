@@ -164,6 +164,7 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	 */
 	private void reloadNextBusStops() {
 		MyLog.v(TAG, "reloadNextBusStop()");
+		((TextView) findViewById(R.id.next_stops_string)).setText(R.string.next_bus_stops);
 		// try to retrieve the last configuration instance
 		final Object data = getLastNonConfigurationInstance();
 		if (data != null) {
@@ -251,6 +252,10 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	 */
 	private void setNextStops() {
 		MyLog.v(TAG, "setNextStops(" + hours.getSHours() + ")");
+		String nextBusStop = getResources().getString(R.string.next_bus_stops) + " ("
+		        + getResources().getString(R.string.data_source) + getResources().getString(R.string.colon)
+		        + this.hours.getSourceName() + ")";
+		((TextView) findViewById(R.id.next_stops_string)).setText(nextBusStop);
 		if (hours.getSHours().size() > 0) {
 			List<String> fHours = hours.getFormattedHours(this);
 			showNextBusStop();

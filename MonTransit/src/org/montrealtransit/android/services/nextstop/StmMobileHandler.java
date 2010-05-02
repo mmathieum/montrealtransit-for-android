@@ -18,7 +18,7 @@ public class StmMobileHandler extends AbstractXHTMLHandler {
 	/**
 	 * The bus stop hours.
 	 */
-	private BusStopHours hours = new BusStopHours();
+	private BusStopHours hours = new BusStopHours(StmMobileTask.SOURCE_NAME);
 
 	/**
 	 * {@inheritDoc}

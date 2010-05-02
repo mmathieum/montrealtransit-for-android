@@ -25,6 +25,18 @@ public class BusStopHours {
 	 * The second message from the STM.
 	 */
 	private String message2;
+	/**
+	 * The source name to display.
+	 */
+	private String sourceName;
+
+	/**
+	 * Default constructor.
+	 * @param sourceName the source name.
+	 */
+	public BusStopHours(String sourceName) {
+	    this.sourceName = sourceName;
+    }
 
 	/**
 	 * @return the bus stop hours
@@ -94,4 +106,11 @@ public class BusStopHours {
 	public String getMessage2(){
 		return message2;
 	}
+	
+	/**
+	 * @return the source name.
+	 */
+	public String getSourceName() {
+	    return sourceName;
+    }
 }

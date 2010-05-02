@@ -18,7 +18,7 @@ public class StmInfoHandler extends AbstractXHTMLHandler {
 	/**
 	 * The bus stop hours.
 	 */
-	private BusStopHours hours = new BusStopHours();
+	private BusStopHours hours = new BusStopHours(StmInfoTask.SOURCE_NAME);
 	/**
 	 * The bus line number to match.
 	 */
