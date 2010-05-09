@@ -273,26 +273,31 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 			// clear the last value
 			((TextView) findViewById(R.id.progress_bar_please_wait)).setText(null);
 			((TextView) findViewById(R.id.progress_bar_text)).setText(null);
-			// IF there is a secondary message from the STM DO
-			if (!TextUtils.isEmpty(this.hours.getMessage2())) {
-				((TextView) findViewById(R.id.progress_bar_please_wait)).setText(hours.getMessage2());
-				Linkify.addLinks((TextView) findViewById(R.id.progress_bar_please_wait), Linkify.ALL);
-				// IF there is also an error message from the STM DO
-				if (!TextUtils.isEmpty(this.hours.getMessage())) {
-					((TextView) findViewById(R.id.progress_bar_text)).setVisibility(View.VISIBLE);
-					((TextView) findViewById(R.id.progress_bar_text)).setText(hours.getMessage());
-					Linkify.addLinks((TextView) findViewById(R.id.progress_bar_please_wait), Linkify.ALL);
-				}
-			// ELSE IF there is only an error message from the STM DO
-			} else if (!TextUtils.isEmpty(this.hours.getMessage())) {
-				((TextView) findViewById(R.id.progress_bar_please_wait)).setText(hours.getMessage());
-			// ELSE
+			// IF an error occurs during the process DO
+			if (hours.isError()) {
+				((TextView) findViewById(R.id.progress_bar_please_wait)).setText(R.string.error);
 			} else {
-				// DEFAULT MESSAGE > no more bus stop for this bus line
-				String defaultMessage = getResources().getString(R.string.no_more_stops_for_this_bus_line) + " "
-				        + this.busLine.getNumber();
-				((TextView) findViewById(R.id.progress_bar_please_wait)).setText(defaultMessage);
-				((TextView) findViewById(R.id.progress_bar_text)).setVisibility(View.GONE);
+				// IF there is a secondary message from the STM DO
+				if (!TextUtils.isEmpty(this.hours.getMessage2())) {
+					((TextView) findViewById(R.id.progress_bar_please_wait)).setText(hours.getMessage2());
+					Linkify.addLinks((TextView) findViewById(R.id.progress_bar_please_wait), Linkify.ALL);
+					// IF there is also an error message from the STM DO
+					if (!TextUtils.isEmpty(this.hours.getMessage())) {
+						((TextView) findViewById(R.id.progress_bar_text)).setVisibility(View.VISIBLE);
+						((TextView) findViewById(R.id.progress_bar_text)).setText(hours.getMessage());
+						Linkify.addLinks((TextView) findViewById(R.id.progress_bar_please_wait), Linkify.ALL);
+					}
+				// ELSE IF there is only an error message from the STM DO
+				} else if (!TextUtils.isEmpty(this.hours.getMessage())) {
+					((TextView) findViewById(R.id.progress_bar_please_wait)).setText(hours.getMessage());
+				// ELSE
+				} else {
+					// DEFAULT MESSAGE > no more bus stop for this bus line
+					String defaultMessage = getResources().getString(R.string.no_more_stops_for_this_bus_line) + " "
+					        + this.busLine.getNumber();
+					((TextView) findViewById(R.id.progress_bar_please_wait)).setText(defaultMessage);
+					((TextView) findViewById(R.id.progress_bar_text)).setVisibility(View.GONE);
+				}
 			}
 		}
 	}

@@ -111,7 +111,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 		} catch (Exception e) {
 			MyLog.e(TAG, "INTERNAL ERROR: Unknown Exception", e);
 			publishProgress(this.context.getResources().getString(R.string.error));
-			return null;
+			return new BusStopHours(StmInfoTask.SOURCE_NAME, true);
 		}
 	}
 
