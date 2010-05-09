@@ -65,78 +65,80 @@
 			android:layout_below="@id/line_number" android:text="@string/unknow_direction" />
 
 	</RelativeLayout>
-
-	<!-- NEXT BUS STOPS  -->
-	<TextView android:id="@+id/next_stops_string"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
-		android:text="@string/next_bus_stops" />
-	<RelativeLayout android:id="@+id/next_stops_group"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:orientation="horizontal" android:gravity="center_vertical"
-		android:padding="5dip" >
-
-		<ProgressBar android:id="@+id/progress_bar"
-			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:layout_alignParentTop="true" android:layout_alignParentLeft="true"
-			android:layout_alignWithParentIfMissing="true"
-			android:indeterminate="true" android:visibility="gone" />
-		<TextView android:id="@+id/progress_bar_please_wait"
+	
+	<ScrollView
+		android:layout_width="fill_parent" android:layout_height="wrap_content">
+		<LinearLayout
+			android:layout_width="fill_parent" android:layout_height="fill_parent"
+			android:orientation="vertical">
+		<!-- NEXT BUS STOPS  -->
+		<TextView android:id="@+id/next_stops_string"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:layout_alignParentTop="true" android:layout_alignParentRight="true"
-			android:layout_alignWithParentIfMissing="true" android:layout_toRightOf="@id/progress_bar"
-			android:textAppearance="?android:attr/textAppearanceMedium" android:visibility="gone"
-			android:text="@string/please_wait" />
-		<TextView android:id="@+id/progress_bar_text"
+			style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
+			android:text="@string/next_bus_stops" />
+		<RelativeLayout android:id="@+id/next_stops_group"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:layout_toRightOf="@id/progress_bar" android:layout_below="@id/progress_bar_please_wait"
-			android:layout_alignParentRight="true" android:layout_alignWithParentIfMissing="true"
-			android:textAppearance="?android:attr/textAppearanceSmall" android:visibility="gone" />
-
-		<TextView android:id="@+id/the_next_stop"
-			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:layout_below="@id/progress_bar"
-			android:layout_alignParentLeft="true" android:layout_alignWithParentIfMissing="true"
-			android:layout_marginRight="5dip"
-			android:singleLine="true" android:ellipsize="marquee"
-			android:textAppearance="?android:attr/textAppearanceLarge" android:textStyle="bold" />
-		<TextView android:id="@+id/the_second_next_stop"
-			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:layout_toRightOf="@id/the_next_stop" android:layout_alignBottom="@id/the_next_stop"
-			android:layout_alignWithParentIfMissing="true"
-			android:singleLine="true" android:ellipsize="marquee" android:gravity="center_vertical|left"
-			android:textAppearance="?android:attr/textAppearanceMedium" android:textStyle="bold" />
-		<TextView android:id="@+id/other_stops"
+			android:orientation="horizontal" android:gravity="center_vertical"
+			android:padding="5dip" >
+	
+			<ProgressBar android:id="@+id/progress_bar"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:layout_alignParentTop="true" android:layout_alignParentLeft="true"
+				android:layout_alignWithParentIfMissing="true"
+				android:indeterminate="true" android:visibility="gone" />
+			<TextView android:id="@+id/progress_bar_please_wait"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				android:layout_alignParentTop="true" android:layout_alignParentRight="true"
+				android:layout_alignWithParentIfMissing="true" android:layout_toRightOf="@id/progress_bar"
+				android:textAppearance="?android:attr/textAppearanceMedium" android:visibility="gone"
+				android:text="@string/please_wait" />
+			<TextView android:id="@+id/progress_bar_text"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				android:layout_toRightOf="@id/progress_bar" android:layout_below="@id/progress_bar_please_wait"
+				android:layout_alignParentRight="true" android:layout_alignWithParentIfMissing="true"
+				android:textAppearance="?android:attr/textAppearanceSmall" android:visibility="gone" />
+	
+			<TextView android:id="@+id/the_next_stop"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:layout_below="@id/progress_bar"
+				android:layout_alignParentLeft="true" android:layout_alignWithParentIfMissing="true"
+				android:layout_marginRight="5dip"
+				android:singleLine="true" android:ellipsize="marquee"
+				android:textAppearance="?android:attr/textAppearanceLarge" android:textStyle="bold" />
+			<TextView android:id="@+id/the_second_next_stop"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:layout_toRightOf="@id/the_next_stop" android:layout_alignBottom="@id/the_next_stop"
+				android:layout_alignWithParentIfMissing="true"
+				android:singleLine="true" android:ellipsize="marquee" android:gravity="center_vertical|left"
+				android:textAppearance="?android:attr/textAppearanceMedium" android:textStyle="bold" />
+			<TextView android:id="@+id/other_stops"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				android:layout_toRightOf="@id/the_second_next_stop" android:layout_alignBottom="@id/the_second_next_stop"
+				android:layout_alignWithParentIfMissing="true"
+				android:layout_marginLeft="5dip"
+				android:singleLine="true" android:focusable="true"
+				android:ellipsize="marquee" android:gravity="center_vertical|left"
+				android:textAppearance="?android:attr/textAppearanceSmall" android:textStyle="bold"  />
+		</RelativeLayout>
+	
+		<!-- OTHER BUS LINE -->
+		<TextView android:id="@+id/other_bus_line"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:layout_toRightOf="@id/the_second_next_stop" android:layout_alignBottom="@id/the_second_next_stop"
-			android:layout_alignWithParentIfMissing="true"
-			android:layout_marginLeft="5dip"
-			android:singleLine="true" android:focusable="true"
-			android:ellipsize="marquee" android:gravity="center_vertical|left"
-			android:textAppearance="?android:attr/textAppearanceSmall" android:textStyle="bold"  />
-	</RelativeLayout>
-
-	<!-- OTHER BUS LINE -->
-	<TextView android:id="@+id/other_bus_line"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
-		android:visibility="gone"
-		android:text="@string/other_bus_line" />
-	<ListView android:id="@+id/other_bus_line_list"
-		android:layout_width="fill_parent" android:layout_height="wrap_content" />
-	<TextView android:id="@+id/empty_other_bus_line_list"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:text="@string/no_bus_line" />
-
-	<!-- SUBWAY STATION -->
-	<TextView android:id="@+id/subway_station"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
-		android:visibility="gone"
-		android:text="@string/subway_station" />
-	<ListView android:id="@+id/subway_station_list"
-		android:layout_width="fill_parent" android:layout_height="wrap_content" />
-	<TextView android:id="@+id/empty_subway_station_list"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:text="@string/no_subway_line" />
+			style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
+			android:visibility="gone"
+			android:text="@string/other_bus_line" />
+		<LinearLayout android:id="@+id/other_bus_line_list"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:orientation="vertical" />
+	
+		<!-- SUBWAY STATION -->
+		<TextView android:id="@+id/subway_station"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
+			android:visibility="gone"
+			android:text="@string/subway_station" />
+		<include android:id="@+id/the_subway_station"
+			layout="@layout/bus_stop_info_subway_line_list_item" />
+		</LinearLayout>
+	</ScrollView>
 </LinearLayout>
