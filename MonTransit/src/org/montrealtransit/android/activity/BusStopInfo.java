@@ -1,6 +1,5 @@
 package org.montrealtransit.android.activity;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -35,27 +34,24 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.util.Linkify;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
-import android.widget.ListView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.SimpleCursorAdapter;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.SimpleCursorAdapter.ViewBinder;
 
 /**
  * This activity show information about a bus stop.
  * @author Mathieu Méa
  */
 public class BusStopInfo extends Activity implements NextStopListener, View.OnClickListener,
-        DialogInterface.OnClickListener, OnItemClickListener, ViewBinder {
+        DialogInterface.OnClickListener {
 
 	/**
 	 * The extra ID for the bus stop code.
@@ -82,10 +78,6 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	 */
 	private StmStore.BusLine busLine;
 	/**
-	 * The subway station close to the bus stop (if there is one).
-	 */
-	private StmStore.SubwayStation subwayStation;
-	/**
 	 * Store the current hours (including messages).
 	 */
 	private BusStopHours hours;
@@ -111,8 +103,6 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 		super.onCreate(savedInstanceState);
 		// set the UI
 		setContentView(R.layout.bus_stop_info);
-		((ListView) findViewById(R.id.other_bus_line_list)).setEmptyView(findViewById(R.id.empty_other_bus_line_list));
-		((ListView) findViewById(R.id.subway_station_list)).setEmptyView(findViewById(R.id.empty_subway_station_list));
 
 		getBusStopFromIntent(savedInstanceState);
 	}
@@ -286,10 +276,12 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 			// IF there is a secondary message from the STM DO
 			if (!TextUtils.isEmpty(this.hours.getMessage2())) {
 				((TextView) findViewById(R.id.progress_bar_please_wait)).setText(hours.getMessage2());
+				Linkify.addLinks((TextView) findViewById(R.id.progress_bar_please_wait), Linkify.ALL);
 				// IF there is also an error message from the STM DO
 				if (!TextUtils.isEmpty(this.hours.getMessage())) {
 					((TextView) findViewById(R.id.progress_bar_text)).setVisibility(View.VISIBLE);
 					((TextView) findViewById(R.id.progress_bar_text)).setText(hours.getMessage());
+					Linkify.addLinks((TextView) findViewById(R.id.progress_bar_please_wait), Linkify.ALL);
 				}
 			// ELSE IF there is only an error message from the STM DO
 			} else if (!TextUtils.isEmpty(this.hours.getMessage())) {
@@ -326,17 +318,18 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	private static final int ACTIVITY_VIEW_STATION_INFO = 1;
 
 	/**
+	 * The line number index in the the view.
+	 */
+	private static final int LINE_NUMBER_VIEW_INDEX = 1;
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void onClick(View v) {
 		MyLog.v(TAG, "onClick(" + v.getId() + ")");
-		if (v.getId() == R.id.station_name) {
-			// show subway station info
-			Intent i = new Intent(this, SubwayStationInfo.class);
-			i.putExtra(SubwayStationInfo.EXTRA_STATION_ID, this.subwayStation.getId());
-			startActivityForResult(i, ACTIVITY_VIEW_STATION_INFO);
-		} else {
+		switch (v.getId()) {
+		case R.id.star:
 			// manage favorite star click
 			if (DataManager.findFav(this.getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP, this.busStop
 			        .getCode(), this.busStop.getLineNumber()) != null) {
@@ -355,6 +348,25 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 				Utils.notifyTheUser(this, getResources().getString(R.string.favorite_added));
 			}
 			setTheStar(); // TODO is remove useless?
+			break;
+		case R.id.the_subway_station:
+			// IF there is a subway station DO
+			if (!TextUtils.isEmpty(this.busStop.getSubwayStationId())) {
+				// show subway station info
+				Intent i = new Intent(this, SubwayStationInfo.class);
+				i.putExtra(SubwayStationInfo.EXTRA_STATION_ID, this.busStop.getSubwayStationId());
+				startActivityForResult(i, ACTIVITY_VIEW_STATION_INFO);
+			}
+			break;
+		case R.id.bus_line_view:
+			TextView lineNumberTextView = (TextView) ((RelativeLayout) v).getChildAt(LINE_NUMBER_VIEW_INDEX);
+			String lineNumber = lineNumberTextView.getText().toString();
+			MyLog.d(TAG, "bus line number:" + lineNumber);
+			showNewBusStop(this.busStop.getCode(), lineNumber);
+			break;
+		default:
+			MyLog.d(TAG, "Unknown view ID " + v.getId() + " (" + v.getClass().getSimpleName() + ")");
+			break;
 		}
 	}
 
@@ -379,15 +391,14 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 		((CheckBox) findViewById(R.id.star)).setOnClickListener(this);
 		// set bus line number
 		((TextView) findViewById(R.id.line_number)).setText(this.busLine.getNumber());
-		((TextView) findViewById(R.id.line_number)).setOnClickListener(new BusLineSelectDirection(this, this.busLine
-		        .getNumber()));
+		BusLineSelectDirection busLineSelectDirection = new BusLineSelectDirection(this, this.busLine.getNumber());
+		((TextView) findViewById(R.id.line_number)).setOnClickListener(busLineSelectDirection);
 		// set bus line name
 		((TextView) findViewById(R.id.line_name)).setText(this.busLine.getName());
-		((TextView) findViewById(R.id.line_name)).setOnClickListener(new BusLineSelectDirection(this, this.busLine
-		        .getNumber()));
+		((TextView) findViewById(R.id.line_name)).setOnClickListener(busLineSelectDirection);
 		// set bus line direction
-		BusLineDirection busLineDirection = StmManager.findBusLineDirection(this.getContentResolver(), this.busStop
-		        .getDirectionId());
+		String directionId = this.busStop.getDirectionId();
+		BusLineDirection busLineDirection = StmManager.findBusLineDirection(this.getContentResolver(), directionId);
 		List<Integer> busLineDirectionIds = Utils.getBusLineDirectionStringIdFromId(busLineDirection.getId());
 		((TextView) findViewById(R.id.direction_main)).setText(getResources().getString(busLineDirectionIds.get(0)));
 		// set the favorite star
@@ -399,37 +410,44 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	 */
 	private void refreshSubwayStationInfo() {
 		MyLog.v(TAG, "setSubwayStations()");
-		if (this.busStop.getSubwayStationId() != null && this.busStop.getSubwayStationId().length() > 0) {
+		if (!TextUtils.isEmpty(this.busStop.getSubwayStationId())) {
 			MyLog.d(TAG, "SubwayStationId:" + this.busStop.getSubwayStationId() + ".");
 			((TextView) findViewById(R.id.subway_station)).setVisibility(View.VISIBLE);
-			((TextView) findViewById(R.id.empty_subway_station_list)).setVisibility(View.VISIBLE);
-			((ListView) findViewById(R.id.subway_station_list)).setVisibility(View.VISIBLE);
-			((ListView) findViewById(R.id.subway_station_list)).setOnItemClickListener(this);
-			List<String> subwayStationIds = new ArrayList<String>();
-			subwayStationIds.add(this.busStop.getSubwayStationId());
-			((ListView) findViewById(R.id.subway_station_list)).setAdapter(getSubwayListAdapter(subwayStationIds));
-		} else {
-			((TextView) findViewById(R.id.empty_subway_station_list)).setVisibility(View.GONE);
-			((TextView) findViewById(R.id.subway_station)).setVisibility(View.GONE);
-			((ListView) findViewById(R.id.subway_station_list)).setVisibility(View.GONE);
-		}
-	}
+			((RelativeLayout) findViewById(R.id.the_subway_station)).setVisibility(View.VISIBLE);
+			((RelativeLayout) findViewById(R.id.the_subway_station)).setOnClickListener(this);
+			((RelativeLayout) findViewById(R.id.the_subway_station)).setFocusable(true);
 
-	/**
-	 * Return the subway list adapter (should contain maximum one subway station).
-	 * @param subwayStationsId the subway stations ID (should contains only one station ID).
-	 * @return the subway list adapter
-	 */
-	private ListAdapter getSubwayListAdapter(List<String> subwayStationsId) {
-		MyLog.v(TAG, "getSubwayListAdapter(" + Utils.toStringListOfString(subwayStationsId) + ")");
-		this.cursorSubwayStations = StmManager.findSubwayStations(this.getContentResolver(), subwayStationsId);
-		String[] from = new String[] { StmStore.SubwayStation.STATION_ID, StmStore.SubwayStation.STATION_ID,
-		        StmStore.SubwayStation.STATION_ID, StmStore.SubwayStation.STATION_NAME };
-		int[] to = new int[] { R.id.subway_img_1, R.id.subway_img_2, R.id.subway_img_3, R.id.station_name };
-		SimpleCursorAdapter subwayStations = new SimpleCursorAdapter(this,
-		        R.layout.bus_stop_info_subway_line_list_item, this.cursorSubwayStations, from, to);
-		subwayStations.setViewBinder(this);
-		return subwayStations;
+			StmStore.SubwayStation subwayStation = StmManager.findSubwayStation(this.getContentResolver(), this.busStop
+			        .getSubwayStationId());
+			((TextView) findViewById(R.id.station_name)).setText(subwayStation.getName());
+
+			List<SubwayLine> subwayLines = StmManager.findSubwayStationLinesList(getContentResolver(), subwayStation
+			        .getId());
+			if (subwayLines != null && subwayLines.size() > 0) {
+				int subwayLineImg0 = Utils.getSubwayLineImg(subwayLines.get(0).getNumber());
+				((ImageView) findViewById(R.id.subway_img_1)).setImageResource(subwayLineImg0);
+				if (subwayLines.size() > 1) {
+					int subwayLineImg1 = Utils.getSubwayLineImg(subwayLines.get(1).getNumber());
+					((ImageView) findViewById(R.id.subway_img_2)).setImageResource(subwayLineImg1);
+					if (subwayLines.size() > 2) {
+						int subwayLineImg2 = Utils.getSubwayLineImg(subwayLines.get(2).getNumber());
+						((ImageView) findViewById(R.id.subway_img_3)).setImageResource(subwayLineImg2);
+					} else {
+						((ImageView) findViewById(R.id.subway_img_3)).setVisibility(View.GONE);
+					}
+				} else {
+					((ImageView) findViewById(R.id.subway_img_2)).setVisibility(View.GONE);
+					((ImageView) findViewById(R.id.subway_img_3)).setVisibility(View.GONE);
+				}
+			} else {
+				((ImageView) findViewById(R.id.subway_img_1)).setVisibility(View.GONE);
+				((ImageView) findViewById(R.id.subway_img_2)).setVisibility(View.GONE);
+				((ImageView) findViewById(R.id.subway_img_3)).setVisibility(View.GONE);
+			}
+		} else {
+			((TextView) findViewById(R.id.subway_station)).setVisibility(View.GONE);
+			((RelativeLayout) findViewById(R.id.the_subway_station)).setVisibility(View.GONE);
+		}
 	}
 
 	/**
@@ -437,113 +455,37 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	 */
 	private void refreshOtherBusLinesInfo() {
 		MyLog.v(TAG, "setOtherBusLines()");
-		List<BusLine> allBusLines = StmManager.findBusStopLinesList(this
-		        .getContentResolver(), this.busStop.getCode());
+		List<BusLine> allBusLines = StmManager.findBusStopLinesList(this.getContentResolver(), this.busStop.getCode());
 		// remove all bus line with the same line number
 		ListIterator<BusLine> it = allBusLines.listIterator();
 		while (it.hasNext()) {
-			BusLine busLine = it.next(); 
+			BusLine busLine = it.next();
 			if (busLine.getNumber().equals(this.busLine.getNumber())) {
 				it.remove();
 			}
 		}
+		LinearLayout otherBusLinesList = (LinearLayout) findViewById(R.id.other_bus_line_list);
+		otherBusLinesList.removeAllViews();
 		if (allBusLines.size() > 0) {
 			((TextView) findViewById(R.id.other_bus_line)).setVisibility(View.VISIBLE);
-			((TextView) findViewById(R.id.empty_other_bus_line_list)).setVisibility(View.VISIBLE);
-			((ListView) findViewById(R.id.other_bus_line_list)).setVisibility(View.VISIBLE);
-			((ListView) findViewById(R.id.other_bus_line_list)).setOnItemClickListener(this);
-			List<String> otherBusLines = Utils.extractBusLineNumbersFromBusLine(allBusLines);
-			((ListView) findViewById(R.id.other_bus_line_list)).setAdapter(getBusLineAdapter(otherBusLines));
+			otherBusLinesList.setVisibility(View.VISIBLE);
+			for (StmStore.BusLine busLine : allBusLines) {
+				if (otherBusLinesList.getChildCount() > 0) {
+					otherBusLinesList.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+				}
+				View view = getLayoutInflater().inflate(R.layout.bus_stop_info_bus_line_list_item, null);
+				int busLineTypeImg = Utils.getBusLineTypeImgFromType(busLine.getType());
+				((ImageView) view.findViewById(R.id.line_type)).setImageResource(busLineTypeImg);
+				((TextView) view.findViewById(R.id.line_number)).setText(busLine.getNumber());
+				((TextView) view.findViewById(R.id.line_name)).setText(busLine.getName());
+				String formattedHours = Utils.getFormatted2Hours(this, busLine.getHours(), "-");
+				((TextView) view.findViewById(R.id.hours)).setText(formattedHours);
+				view.setOnClickListener(this);
+				otherBusLinesList.addView(view);
+			}
 		} else {
 			((TextView) findViewById(R.id.other_bus_line)).setVisibility(View.GONE);
-			((TextView) findViewById(R.id.empty_other_bus_line_list)).setVisibility(View.GONE);
-			((ListView) findViewById(R.id.other_bus_line_list)).setVisibility(View.GONE);
-		}
-	}
-
-	/**
-	 * Return the bus lines list adapter for other bus lines.
-	 * @param otherBusLineNumbers the other bus lines number.
-	 * @return the bus lines list adapter
-	 */
-	private ListAdapter getBusLineAdapter(List<String> otherBusLineNumbers) {
-		MyLog.v(TAG, "getBusLineAdapter(" + Utils.toStringListOfString(otherBusLineNumbers) + ")");
-		this.cursorBusLines = StmManager.findBusLines(this.getContentResolver(), otherBusLineNumbers);
-		String[] from = new String[] { StmStore.BusLine.LINE_NUMBER, StmStore.BusLine.LINE_NAME,
-		        StmStore.BusLine.LINE_HOURS, StmStore.BusLine.LINE_TYPE };
-		int[] to = new int[] { R.id.line_number, R.id.line_name, R.id.hours, R.id.line_type };
-		SimpleCursorAdapter busLines = new SimpleCursorAdapter(this, R.layout.bus_stop_info_bus_line_list_item, this.cursorBusLines,
-		        from, to);
-		busLines.setViewBinder(this);
-		return busLines;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-		MyLog.v(TAG, "setViewValue(" + view.getId() + ", " + columnIndex + ")");
-		if (view.getId() == R.id.line_type && columnIndex == cursor.getColumnIndex(StmStore.BusLine.LINE_TYPE)) {
-			String type = cursor.getString(cursor.getColumnIndex(StmStore.BusLine.LINE_TYPE));
-			((ImageView) view).setImageResource(Utils.getBusLineTypeImgFromType(type));
-			return true;
-		} else if (view.getId() == R.id.hours && columnIndex == cursor.getColumnIndex(StmStore.BusLine.LINE_HOURS)) {
-			String result = Utils.getFormatted2Hours(this, cursor.getString(cursor
-			        .getColumnIndex(StmStore.BusLine.LINE_HOURS)), "-");
-			((TextView) view).setText(result);
-			return true;
-		} else if (view.getId() == R.id.subway_img_1
-		        && columnIndex == cursor.getColumnIndex(StmStore.SubwayStation.STATION_ID)) {
-			String subwayStationID = cursor.getString(cursor.getColumnIndex(StmStore.SubwayStation.STATION_ID));
-			List<SubwayLine> subwayLines = StmManager.findSubwayStationLinesList(getContentResolver(), subwayStationID);
-			if (subwayLines != null && subwayLines.size() > 0) {
-				((ImageView) view).setImageResource(Utils.getSubwayLineImg(subwayLines.get(0).getNumber()));
-			} else {
-				((ImageView) view).setVisibility(View.GONE);
-			}
-			return true;
-		} else if (view.getId() == R.id.subway_img_2
-		        && columnIndex == cursor.getColumnIndex(StmStore.SubwayStation.STATION_ID)) {
-			String subwayStationID = cursor.getString(cursor.getColumnIndex(StmStore.SubwayStation.STATION_ID));
-			List<SubwayLine> subwayLines = StmManager.findSubwayStationLinesList(getContentResolver(), subwayStationID);
-			if (subwayLines.size() > 1) {
-				((ImageView) view).setImageResource(Utils.getSubwayLineImg(subwayLines.get(1).getNumber()));
-			} else {
-				((ImageView) view).setVisibility(View.GONE);
-			}
-			return true;
-		} else if (view.getId() == R.id.subway_img_3
-		        && columnIndex == cursor.getColumnIndex(StmStore.SubwayStation.STATION_ID)) {
-			String subwayStationID = cursor.getString(cursor.getColumnIndex(StmStore.SubwayStation.STATION_ID));
-			List<SubwayLine> subwayLines = StmManager.findSubwayStationLinesList(getContentResolver(), subwayStationID);
-			if (subwayLines.size() > 2) {
-				((ImageView) view).setImageResource(Utils.getSubwayLineImg(subwayLines.get(2).getNumber()));
-			} else {
-				((ImageView) view).setVisibility(View.GONE);
-			}
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		MyLog.v(TAG, "onItemClick(" + parent.getId() + "," + view.getId() + ", " + position + ", " + id + ")");
-		if (parent.getId() == R.id.subway_station_list) {
-			if (id > 0) {
-				Intent i = new Intent(this, SubwayStationInfo.class);
-				i.putExtra(SubwayStationInfo.EXTRA_STATION_ID, String.valueOf(id));
-				startActivityForResult(i, ACTIVITY_VIEW_STATION_INFO);
-			}
-		} else if (parent.getId() == R.id.other_bus_line_list) {
-			showNewBusStop(this.busStop.getCode(), String.valueOf(id));
-		} else {
-			MyLog.w(TAG, "unknown parent.ID:" + parent.getId());
+			otherBusLinesList.setVisibility(View.GONE);
 		}
 	}
 
@@ -828,7 +770,7 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 		return Utils.getSharedPreferences(this, Constant.PREFS_NEXT_STOP_PROVIDER,
 		        Constant.PREFS_NEXT_STOP_PROVIDER_DEFAULT);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
