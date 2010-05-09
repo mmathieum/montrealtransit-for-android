@@ -56,24 +56,40 @@ public class StmMobileHandler extends AbstractXHTMLHandler {
 			} else if (isInStmErrorMessage2Area()) {
 				hours.addMessage2String(string);
 				MyLog.d(TAG, "message2:"+string);
+			} else if (isInStmErrorMessage3Area()) {
+				hours.addMessageString(string);
+				MyLog.d(TAG, "message3:"+string);
 			}
 		}
 		super.characters(ch, start, length);
 	}
 
 	/**
-	 * @return true is the parser is currently in the interesting part of the document.
+	 * @return true is the parser is currently in the part of document containing the hours.
 	 */
 	private boolean isInInterestedArea() {
 		return nb_div == 1 && id_div == 6 && nb_span == 1;
 	}
 	
+	/**
+	 * @return true if the parser is currently in the part of the document containing the first message.
+	 */
 	private boolean isInStmErrorMessage1Area(){
 		return nb_div == 1 && id_div == 5 && nb_span == 1;
 	}
 	
+	/**
+	 * @return true if the parser is currently in the part of the document containing the second message.
+	 */
 	private boolean isInStmErrorMessage2Area(){
 		return nb_div == 1 && id_div == 7 && nb_span == 1;
+	}
+	
+	/**
+	 * @return true if the parser is currently in the part of the document containing the m.stm.info service unavailable message.
+	 */
+	private boolean isInStmErrorMessage3Area(){
+		return nb_div == 1 && id_div == 3 && nb_span == 1 && id_span == 2;
 	}
 
 	/**
