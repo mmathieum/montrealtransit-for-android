@@ -6,11 +6,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -21,7 +19,6 @@ import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.BusStopHours;
 import org.montrealtransit.android.provider.StmStore;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 import android.content.Context;
@@ -114,19 +111,11 @@ public class StmInfoTask extends AbstractNextStopProvider {
 			MyLog.v(TAG, "Parsing data... DONE");
 			publishProgress(this.context.getResources().getString(R.string.done));
 			return busStopHandler.getHours();
-		} catch (MalformedURLException e) {
-			MyLog.e(TAG, "INTERNAL ERROR: Malformed URL Exception", e);
-		} catch (ParserConfigurationException e) {
-			MyLog.e(TAG, "INTERNAL ERROR: Parser Configuration Exception", e);
-		} catch (SAXException e) {
-			MyLog.e(TAG, "INTERNAL ERROR: SAX Exception", e);
-		} catch (IOException e) {
-			MyLog.e(TAG, "INTERNAL ERROR: I/O Exception", e);
 		} catch (Exception e) {
 			MyLog.e(TAG, "INTERNAL ERROR: Unknown Exception", e);
+			publishProgress(this.context.getResources().getString(R.string.error));
+			return new BusStopHours(StmInfoTask.SOURCE_NAME, true);
 		}
-		publishProgress(this.context.getResources().getString(R.string.error));
-		return null;
 	}
 
 	/**

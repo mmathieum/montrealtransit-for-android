@@ -29,6 +29,11 @@ public class BusStopHours {
 	 * The source name to display.
 	 */
 	private String sourceName;
+	
+	/**
+	 * True if there was an error.
+	 */
+	private boolean error = false;
 
 	/**
 	 * Default constructor.
@@ -36,6 +41,16 @@ public class BusStopHours {
 	 */
 	public BusStopHours(String sourceName) {
 	    this.sourceName = sourceName;
+    }
+
+	/**
+	 * An other constructor to specify if there was an error.
+	 * @param sourceName the source name
+	 * @param error true if there was an error
+	 */
+	public BusStopHours(String sourceName, boolean error) {
+		this.sourceName = sourceName;
+		this.error  = error;
     }
 
 	/**
@@ -112,5 +127,12 @@ public class BusStopHours {
 	 */
 	public String getSourceName() {
 	    return sourceName;
+    }
+	
+	/**
+	 * @return true if there was an error.
+	 */
+	public boolean isError() {
+	    return error;
     }
 }
