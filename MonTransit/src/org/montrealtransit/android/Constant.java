@@ -56,7 +56,24 @@ public class Constant {
 	 * The default value for the bus lines display.
 	 */
 	public static final String PREFS_NEXT_STOP_PROVIDER_DEFAULT = PREFS_NEXT_STOP_PROVIDER_STM_MOBILE;
-	
+
+	/**
+	 * The preference key for the search.
+	 */
+	public static final String PREFS_SEARCH = "pSearch";
+	/**
+	 * The preference value for the search simple.
+	 */
+	public static final String PREFS_SEARCH_SIMPLE = "simple";
+	/**
+	 * The preference value for the search extended.
+	 */
+	public static final String PREFS_SEARCH_EXTENDED = "extended";
+	/**
+	 * The default value for the search simple.
+	 */
+	public static final String PREFS_SEARCH_DEFAULT = PREFS_SEARCH_SIMPLE;
+
 	public static final String PLACE_CHAR_DE = "de ";
 	public static final int PLACE_CHAR_DE_LENGTH = PLACE_CHAR_DE.length();
 
@@ -111,4 +128,9 @@ public class Constant {
 	public static final double STM_UPPER_RIGHT_LNG = -73.4738;
 	public static final double STM_LOWER_LEFT_LNG = 45.4038;
 	public static final double STM_LOWER_LEFT_LAT = -73.9943;
+	
+	/**
+	 * The max number of search results.
+	 */
+	public static final int NB_SEARCH_RESULT = 7;
 }
