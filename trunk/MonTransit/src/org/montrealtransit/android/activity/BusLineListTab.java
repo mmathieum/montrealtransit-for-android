@@ -92,13 +92,13 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	 * This task create the expandable list adapter in a other thread.
 	 * @author Mathieu Méa
 	 */
-	private class SetBusEListTask extends AsyncTask<String, String, Object> {
+	private class SetBusEListTask extends AsyncTask<String, String, ExpandableListAdapter> {
 
 		/**
 		 * {@inheritDoc}
 		 */
 		@Override
-		protected Object doInBackground(String... arg0) {
+		protected ExpandableListAdapter doInBackground(String... arg0) {
 			String busListGroupBy = arg0[0];
 			// load the adapter
 			return getEAdapterFromSettings(busListGroupBy);
@@ -108,7 +108,7 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 		 * {@inheritDoc}
 		 */
 		@Override
-		protected void onPostExecute(Object result) {
+		protected void onPostExecute(ExpandableListAdapter result) {
 			((ExpandableListView) findViewById(R.id.elist)).setAdapter((ExpandableListAdapter) result);
 			super.onPostExecute(result);
 		}
