@@ -3,6 +3,7 @@ package org.montrealtransit.android.provider;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.Utils;
 
+import android.app.SearchManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
@@ -25,6 +26,12 @@ public class StmStore {
 	 * The content URI for bus line.
 	 */
 	public static final String SEARCH_URI = "search";
+
+	/**
+	 * The standard SEARCH URI.
+	 */
+	public static final Uri GLOBAL_SEARCH_URI = Uri.parse("content://" + AUTHORITY + "/"
+	        + SearchManager.SUGGEST_URI_PATH_QUERY);
 
 	/**
 	 * Represent a bus line.
@@ -283,6 +290,10 @@ public class StmStore {
 		 * The content URI for the live folder.
 		 */
 		public static final Uri CONTENT_URI_FAV = Uri.parse("content://" + AUTHORITY + "/busstopslivefolder");
+		/**
+		 * The content URI for the search.
+		 */
+		public static final Uri CONTENT_URI_SEARCH = Uri.parse("content://" + AUTHORITY + "/busstopssearch");
 		/**
 		 * The MIME type of {@link #CONTENT_URI} providing a directory of bus stops.
 		 */

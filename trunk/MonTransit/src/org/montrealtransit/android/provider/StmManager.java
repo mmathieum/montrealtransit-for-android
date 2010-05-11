@@ -835,4 +835,28 @@ public class StmManager {
 		}
 		return result;
 	}
+
+	/**
+	 * Reproduce the standard SEARCH.
+	 * @param contentResolver the content resolver
+	 * @param searchTerm the search term
+	 * @return the cursor with the search results
+	 */
+	public static Cursor search(ContentResolver contentResolver, String searchTerm) {
+		MyLog.v(TAG, "search(" + searchTerm + ")");
+		Uri searchQuery = Uri.withAppendedPath(StmStore.GLOBAL_SEARCH_URI, searchTerm);
+	    return contentResolver.query(searchQuery, null, null, null, null); 
+    }
+	
+	/**
+	 * Find distinct extended bus stop matching the search terms.
+	 * @param contentResolver the content resolver
+	 * @param searchTerm the search term
+	 * @return the extended bus stops matching the search term
+	 */
+	public static Cursor searchResult(ContentResolver contentResolver, String searchTerm) {
+		MyLog.v(TAG, "searchResult(" + searchTerm + ")");
+		Uri searchQuery = Uri.withAppendedPath(StmStore.BusStop.CONTENT_URI_SEARCH, searchTerm);
+		return contentResolver.query(searchQuery, PROJECTION_BUS_STOP_EXTENDED, null, null, StmStore.BusStop.ORDER_BY_LINE_CODE);
+	}
 }

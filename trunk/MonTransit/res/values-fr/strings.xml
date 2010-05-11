@@ -136,7 +136,10 @@
     <string name="data_source">Source</string>
     
     <string name="search_label">MonTransit</string>
-    <string name="search_settings_description">Code d\'arrêt MonTransit.</string>
+    <string name="search_hint">Recherche arrêts d\'autobus.</string>
+    <string name="search_settings_description">Arrêts d\'autobus (MonTransit)</string>
+    <string name="search_no_result">Aucun arrêts d\'autobus ne correspond aux termes de recherche spécifiés</string>
+    <string name="search_result_for">Recherche</string>
     
     <string name="viewBusStopInfo">Voir l\'arrêt de bus</string>
     
