@@ -21,5 +21,6 @@
 || 2010 || Rogers || Motorola || Quench || 1.5 || ? || MOTOBLUR UI ||
 || 2010 || Rogers || Sony Ericsson|| Xperia X10 Mini || ? || ? || SE custom UI ||
 || 2010 || Rogers || Sony Ericsson|| Xperia X10 Mini Pro || ? || ? || SE custom UI ||
+|| 2010 || TELUS || HTC || Triumph (Desire) || 2.1 || ? || HTC Sense UI ||
 
 _Cette page est également disponible en français mais votre navigateur est configuré pour afficher la version en anglais._
