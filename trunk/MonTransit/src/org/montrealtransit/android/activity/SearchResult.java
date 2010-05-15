@@ -12,6 +12,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.RelativeLayout;
@@ -153,18 +155,13 @@ public class SearchResult extends ListActivity implements ViewBinder, OnItemClic
 	public void onItemClick(AdapterView<?> l, View v, int position, long id) {
 		MyLog.v(TAG, "onItemClick(" + v.getId() + "," + v.getId() + "," + position + "," + id + ")");
 		if (id > 0) {
-			Intent i = new Intent(this, BusStopInfo.class);
+			Intent intent = new Intent(this, BusStopInfo.class);
 			TextView lineNumberTextView = (TextView) ((RelativeLayout) v).getChildAt(LINE_NUMBER_VIEW_INDEX);
-			i.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, lineNumberTextView.getText().toString());
-			i.putExtra(BusStopInfo.EXTRA_STOP_CODE, String.valueOf(id));
-			startActivityForResult(i, ACTIVITY_VIEW_BUS_STOP);
+			intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, lineNumberTextView.getText().toString());
+			intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, String.valueOf(id));
+			startActivity(intent);
 		}
 	}
-
-	/**
-	 * The activity to show the bus stop info.
-	 */
-	private static final int ACTIVITY_VIEW_BUS_STOP = 1;
 
 	/**
 	 * Launch the view bus stop info activity.
@@ -174,10 +171,41 @@ public class SearchResult extends ListActivity implements ViewBinder, OnItemClic
 		MyLog.v(TAG, "showBusStop(" + selectedSearchResultId + ")");
 		String[] ids = selectedSearchResultId.split("-");
 		if (ids.length >= 2) {
-			Intent i = new Intent(this, BusStopInfo.class);
-			i.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, ids[1]);
-			i.putExtra(BusStopInfo.EXTRA_STOP_CODE, ids[0]);
-			startActivityForResult(i, ACTIVITY_VIEW_BUS_STOP);
+			Intent intent = new Intent(this, BusStopInfo.class);
+			intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, ids[1]);
+			intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, ids[0]);
+			startActivity(intent);
 		}
+	}
+	
+	/**
+	 * The menu used to show the user preferences.
+	 */
+	private static final int MENU_PREFERENCES = Menu.FIRST;
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
+		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
+	    return true;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    switch (item.getItemId()) {
+        case MENU_PREFERENCES:
+            startActivity(new Intent(this, UserPreferences.class));
+	        break;
+        default:
+        	MyLog.d(TAG, "Unknown option menu action: "+item.getItemId() + ".");
+	        break;
+        }
+	    return true;
 	}
 }

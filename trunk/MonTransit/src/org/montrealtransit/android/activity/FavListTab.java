@@ -125,11 +125,6 @@ public class FavListTab extends Activity implements ViewBinder, OnItemClickListe
 	}
 
 	/**
-	 * The activity to show the bus stop info.
-	 */
-	private static final int ACTIVITY_VIEW_BUS_STOP = 1;
-	
-	/**
 	 * The line number index in the the view.
 	 */
 	private static final int LINE_NUMBER_VIEW_INDEX = 1;
@@ -141,11 +136,11 @@ public class FavListTab extends Activity implements ViewBinder, OnItemClickListe
 	public void onItemClick(AdapterView<?> l, View v, int position, long id) {
 		MyLog.v(TAG, "onItemClick(" + v.getId() + "," + v.getId() + "," + position + "," + id + ")");
 		if (id > 0) {
-			Intent i = new Intent(this, BusStopInfo.class);
+			Intent intent = new Intent(this, BusStopInfo.class);
 			TextView lineNumberTextView = (TextView) ((RelativeLayout) v).getChildAt(LINE_NUMBER_VIEW_INDEX);
-			i.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, lineNumberTextView.getText().toString());
-			i.putExtra(BusStopInfo.EXTRA_STOP_CODE, String.valueOf(id));
-			startActivityForResult(i, ACTIVITY_VIEW_BUS_STOP);
+			intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, lineNumberTextView.getText().toString());
+			intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, String.valueOf(id));
+			startActivity(intent);
 		}
 	}
 
@@ -181,6 +176,37 @@ public class FavListTab extends Activity implements ViewBinder, OnItemClickListe
 		// refresh the UI
 		forceRefresh();
 		return super.onContextItemSelected(item);
+	}
+	
+	/**
+	 * The menu used to show the user preferences.
+	 */
+	private static final int MENU_PREFERENCES = Menu.FIRST;
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
+		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
+	    return true;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    switch (item.getItemId()) {
+        case MENU_PREFERENCES:
+            startActivity(new Intent(this, UserPreferences.class));
+	        break;
+        default:
+        	MyLog.d(TAG, "Unknown option menu action: "+item.getItemId() + ".");
+	        break;
+        }
+	    return true;
 	}
 
 	/**

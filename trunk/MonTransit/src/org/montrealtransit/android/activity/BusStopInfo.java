@@ -3,7 +3,6 @@ package org.montrealtransit.android.activity;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
@@ -28,11 +27,14 @@ import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.location.Address;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.text.util.Linkify;
 import android.view.Menu;
@@ -51,7 +53,7 @@ import android.widget.TextView;
  * @author Mathieu Méa
  */
 public class BusStopInfo extends Activity implements NextStopListener, View.OnClickListener,
-        DialogInterface.OnClickListener {
+        DialogInterface.OnClickListener, OnSharedPreferenceChangeListener {
 
 	/**
 	 * The extra ID for the bus stop code.
@@ -103,6 +105,7 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 		super.onCreate(savedInstanceState);
 		// set the UI
 		setContentView(R.layout.bus_stop_info);
+		PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
 
 		getBusStopFromIntent(savedInstanceState);
 	}
@@ -162,10 +165,10 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 			setNextStops();
 		} else {
 			showProgressBar();
-			if (getNextStopProviderFromPreferences().equals(Constant.PREFS_NEXT_STOP_PROVIDER_STM_INFO)) {
+			if (getNextStopProviderFromPreferences().equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_INFO)) {
 				this.task = new StmInfoTask(this, this.getApplicationContext());
 				this.task.execute(this.busStop);
-			} else if (getNextStopProviderFromPreferences().equals(Constant.PREFS_NEXT_STOP_PROVIDER_STM_MOBILE)) {
+			} else if (getNextStopProviderFromPreferences().equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_MOBILE)) {
 				this.task = new StmMobileTask(this, this.getApplicationContext());
 				this.task.execute(this.busStop);
 			} else {
@@ -318,11 +321,6 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	}
 
 	/**
-	 * The activity to show subway station info.
-	 */
-	private static final int ACTIVITY_VIEW_STATION_INFO = 1;
-
-	/**
 	 * The line number index in the the view.
 	 */
 	private static final int LINE_NUMBER_VIEW_INDEX = 1;
@@ -358,9 +356,9 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 			// IF there is a subway station DO
 			if (!TextUtils.isEmpty(this.busStop.getSubwayStationId())) {
 				// show subway station info
-				Intent i = new Intent(this, SubwayStationInfo.class);
-				i.putExtra(SubwayStationInfo.EXTRA_STATION_ID, this.busStop.getSubwayStationId());
-				startActivityForResult(i, ACTIVITY_VIEW_STATION_INFO);
+				Intent intent = new Intent(this, SubwayStationInfo.class);
+				intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, this.busStop.getSubwayStationId());
+				startActivity(intent);
 			}
 			break;
 		case R.id.bus_line_view:
@@ -618,6 +616,10 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	 * Menu for selecting the next stop data provider.
 	 */
 	private static final int MENU_SELECT_NEXT_STOP_PROVIDER_STM_INFO = Menu.FIRST + 7;
+	/**
+	 * The menu used to show the user preferences.
+	 */
+	private static final int MENU_PREFERENCES = Menu.FIRST + 8;
 
 	/**
 	 * {@inheritDoc}
@@ -645,6 +647,9 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 		subMenu.add(MENU_SELECT_NEXT_STOP_PROVIDER_GROUP, MENU_SELECT_NEXT_STOP_PROVIDER_STM_INFO, 0,
 		        StmInfoTask.SOURCE_NAME);
 		subMenu.setGroupCheckable(MENU_SELECT_NEXT_STOP_PROVIDER_GROUP, true, true);
+		
+		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
+		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
 		return true;
 	}
 
@@ -658,11 +663,11 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 			SubMenu subMenu = menu.findItem(MENU_SELECT_NEXT_STOP_PROVIDER).getSubMenu();
 			for (int i = 0; i < subMenu.size(); i++) {
 				if (subMenu.getItem(i).getItemId() == MENU_SELECT_NEXT_STOP_PROVIDER_STM_INFO
-				        && getNextStopProviderFromPreferences().equals(Constant.PREFS_NEXT_STOP_PROVIDER_STM_INFO)) {
+				        && getNextStopProviderFromPreferences().equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_INFO)) {
 					subMenu.getItem(i).setChecked(true);
 					break;
 				} else if (subMenu.getItem(i).getItemId() == MENU_SELECT_NEXT_STOP_PROVIDER_STM_MOBILE
-				        && getNextStopProviderFromPreferences().equals(Constant.PREFS_NEXT_STOP_PROVIDER_STM_MOBILE)) {
+				        && getNextStopProviderFromPreferences().equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_MOBILE)) {
 					subMenu.getItem(i).setChecked(true);
 					break;
 				}
@@ -729,11 +734,11 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 							float lng = (float) addresses.get(0).getLongitude();
 							MyLog.d(TAG, "Bus stop GPS > lat:" + lat + ", lng:" + lng);
 							// Launch the radar activity
-							Intent i = new Intent("com.google.android.radar.SHOW_RADAR");
-							i.putExtra("latitude", (float) lat);
-							i.putExtra("longitude", (float) lng);
+							Intent intent = new Intent("com.google.android.radar.SHOW_RADAR");
+							intent.putExtra("latitude", (float) lat);
+							intent.putExtra("longitude", (float) lng);
 							try {
-								startActivity(i);
+								startActivity(intent);
 							} catch (ActivityNotFoundException ex) {
 								MyLog.w(TAG, "Radar activity not found.");
 								NoRadarInstalled noRadar = new NoRadarInstalled(BusStopInfo.this);
@@ -749,31 +754,44 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 			}
 			return true;
 		case MENU_SELECT_NEXT_STOP_PROVIDER_STM_INFO:
-			if (!getNextStopProviderFromPreferences().equals(Constant.PREFS_NEXT_STOP_PROVIDER_STM_INFO)) {
-				Utils.saveSharedPreferences(this, Constant.PREFS_NEXT_STOP_PROVIDER,
-				        Constant.PREFS_NEXT_STOP_PROVIDER_STM_INFO);
+			if (!getNextStopProviderFromPreferences().equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_INFO)) {
+				Utils.saveSharedPreferences(this, UserPreferences.PREFS_NEXT_STOP_PROVIDER,
+						UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_INFO);
 				// reloadNextBusStops();
 			}
 			return true;
 		case MENU_SELECT_NEXT_STOP_PROVIDER_STM_MOBILE:
-			if (!getNextStopProviderFromPreferences().equals(Constant.PREFS_NEXT_STOP_PROVIDER_STM_MOBILE)) {
-				Utils.saveSharedPreferences(this, Constant.PREFS_NEXT_STOP_PROVIDER,
-				        Constant.PREFS_NEXT_STOP_PROVIDER_STM_MOBILE);
+			if (!getNextStopProviderFromPreferences().equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_MOBILE)) {
+				Utils.saveSharedPreferences(this, UserPreferences.PREFS_NEXT_STOP_PROVIDER,
+						UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_MOBILE);
 				// reloadNextBusStops();
 			}
 			return true;
+		case MENU_PREFERENCES:
+            startActivity(new Intent(this, UserPreferences.class));
+	        return true;
 		default:
 			MyLog.d(TAG, "Unknow menu action:" + item.getItemId() + ".");
 			return false;
 		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+	    if (key.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER)) {
+	    	// reloadNextBusStops();
+	    }
 	}
 
 	/**
 	 * @return the bus list "group by" preference.
 	 */
 	private String getNextStopProviderFromPreferences() {
-		return Utils.getSharedPreferences(this, Constant.PREFS_NEXT_STOP_PROVIDER,
-		        Constant.PREFS_NEXT_STOP_PROVIDER_DEFAULT);
+		return Utils.getSharedPreferences(this, UserPreferences.PREFS_NEXT_STOP_PROVIDER,
+				UserPreferences.PREFS_NEXT_STOP_PROVIDER_DEFAULT);
 	}
 
 	/**

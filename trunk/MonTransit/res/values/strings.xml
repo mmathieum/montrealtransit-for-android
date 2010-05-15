@@ -39,6 +39,17 @@
 	<string name="other_bus_line">Other bus line(s)</string>
 	<string name="subway_station">Subway station</string>
 	
+	<string name="display_pref_cat_title">Display preferences</string>
+	<string name="data_pref_cat_title">Data source</string>
+	<string name="advanced_pref_cat_title">Advanced settings</string>
+	
+	<string name="group_by_pref_title">Bus Lines Display</string>
+	<string name="group_by_pref_summary">How the bus lines are displayed in the bus line list.</string>
+	<string name="group_by_pref_dialog_title">Group bus lines</string>
+	<string name="group_by_pref_no_group">don't group</string>
+	<string name="group_by_pref_type">by type</string>
+	<string name="group_by_pref_number">by line number</string>
+	
 	<string name="select_group_by">Display</string>
 	<string name="group_by_bus_line_no_group">Don\'t group</string>
 	<string name="group_by_bus_line_type">Group by Type</string>
@@ -135,11 +146,23 @@
     <string name="select_next_stop_data_source">Select source</string>
     <string name="data_source">Source</string>
     
+    <string name="next_stop_pref_title">Next bus stops</string>
+    <string name="next_stop_pref_summary">Data source used to display the next bus stops.</string>
+    <string name="next_stop_pref_dialog_title">Data source</string>
+    <string name="next_stop_pref_stmmobile">m.stm.info</string>
+    <string name="next_stop_pref_stminfo">stm.info</string>
+    
     <string name="search_label">MonTransit</string>
     <string name="search_hint">Search bus stops.</string>
     <string name="search_settings_description">Bus stops (MonTransit).</string>
     <string name="search_no_result">Your search did not match any bus stops.</string>
     <string name="search_result_for">Search</string>
+    
+    <string name="search_pref_title">Search</string>
+    <string name="search_pref_summary">Simple(fast) or complete(slow) search.</string>
+    <string name="search_pref_dialog_title">Search type</string>
+    <string name="search_pref_simple">Simple (fast)</string>
+    <string name="search_pref_extended">Complete (slow)</string>
     
     <string name="viewBusStopInfo">View Bus Stop</string>
     
@@ -150,4 +173,6 @@
     <string name="update_stm_db_ok">Data (bus, subway) updated.</string>
     <string name="update_stm_db_error">Error while updating the data (bus, subway).</string>
     <string name="update_stm_db_error_next">Please, remove and re-install the application.</string>
+    
+    <string name="menu_preferences">Settings</string>
 </resources>

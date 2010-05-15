@@ -120,11 +120,6 @@ public class SubwayStationInfo extends Activity implements OnChildClickListener,
 	}
 
 	/**
-	 * The view subway station info activity.
-	 */
-	private static final int ACTIVITY_VIEW_STATION_INFO = 1;
-	
-	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -133,7 +128,7 @@ public class SubwayStationInfo extends Activity implements OnChildClickListener,
 			Intent intent = new Intent(this, SubwayLineInfo.class);
 			intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, String.valueOf(this.subwayLines.get(0).getNumber()));
 			intent.putExtra(SubwayLineInfo.EXTRA_ORDER_ID, StmStore.SubwayLine.DEFAULT_SORT_ORDER);
-			startActivityForResult(intent, ACTIVITY_VIEW_STATION_INFO);
+			startActivity(intent);
 		} else {
 			//TODO show subway lines selector
 		}
@@ -290,11 +285,6 @@ public class SubwayStationInfo extends Activity implements OnChildClickListener,
 	}
 
 	/**
-	 * The activity view bus stop info.
-	 */
-	private static final int ACTIVITY_VIEW_BUS_STOP = 1;
-
-	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -303,10 +293,10 @@ public class SubwayStationInfo extends Activity implements OnChildClickListener,
 		String busLineNumber = this.currentChildData.get(groupPosition).get(childPosition).get(StmStore.BusStop.STOP_LINE_NUMBER);
 		String busStopCode = this.currentChildData.get(groupPosition).get(childPosition).get(StmStore.BusStop.STOP_CODE);
 		if (busStopCode != null && busStopCode.length() > 0) {
-			Intent i = new Intent(this, BusStopInfo.class);
-			i.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, busLineNumber);
-			i.putExtra(BusStopInfo.EXTRA_STOP_CODE, busStopCode);
-			startActivityForResult(i, ACTIVITY_VIEW_BUS_STOP);
+			Intent intent = new Intent(this, BusStopInfo.class);
+			intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, busLineNumber);
+			intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, busStopCode);
+			startActivity(intent);
 			return true;
 		} else {
 			return false;
@@ -316,20 +306,27 @@ public class SubwayStationInfo extends Activity implements OnChildClickListener,
 	/**
 	 * Menu for showing the subway station in Maps.
 	 */
-	private static final int MENU_SHOW_SUBWAY_STATION_IN_MAPS = 1;
-	
+	private static final int MENU_SHOW_SUBWAY_STATION_IN_MAPS = Menu.FIRST;
 	/**
 	 * Menu for using a radar to get to the subway station.
 	 */
-	private static final int MENU_USE_RADAR_TO_THE_SUBWAY_STATION = 2;
+	private static final int MENU_USE_RADAR_TO_THE_SUBWAY_STATION = Menu.FIRST + 1;
+	/**
+	 * The menu used to show the user preferences.
+	 */
+	private static final int MENU_PREFERENCES = Menu.FIRST + 2;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(0, MENU_SHOW_SUBWAY_STATION_IN_MAPS, 0, R.string.show_in_map).setIcon(android.R.drawable.ic_menu_mapmode);
-		menu.add(0, MENU_USE_RADAR_TO_THE_SUBWAY_STATION, 0, R.string.use_radar).setIcon(android.R.drawable.ic_menu_compass);
+		MenuItem menuShowMaps = menu.add(0, MENU_SHOW_SUBWAY_STATION_IN_MAPS, Menu.NONE, R.string.show_in_map);
+		menuShowMaps.setIcon(android.R.drawable.ic_menu_mapmode);
+		MenuItem menuUseRadar = menu.add(0, MENU_USE_RADAR_TO_THE_SUBWAY_STATION, Menu.NONE, R.string.use_radar);
+		menuUseRadar.setIcon(android.R.drawable.ic_menu_compass);
+		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
+		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
 		return true;
 	}
 
@@ -357,11 +354,11 @@ public class SubwayStationInfo extends Activity implements OnChildClickListener,
 				noRadar.showDialog();
 			} else {
 				// Launch the radar activity
-	            Intent i = new Intent("com.google.android.radar.SHOW_RADAR");
-	            i.putExtra("latitude", (float) this.subwayStation.getLat());
-	            i.putExtra("longitude", (float) this.subwayStation.getLng());
+	            Intent intent = new Intent("com.google.android.radar.SHOW_RADAR");
+	            intent.putExtra("latitude", (float) this.subwayStation.getLat());
+	            intent.putExtra("longitude", (float) this.subwayStation.getLng());
 	            try {
-	                startActivity(i);
+	                startActivity(intent);
 	            } catch (ActivityNotFoundException ex) {
 	            	MyLog.w(TAG, "Radar activity not found.");
 	            	NoRadarInstalled noRadar = new NoRadarInstalled(this);
@@ -369,6 +366,9 @@ public class SubwayStationInfo extends Activity implements OnChildClickListener,
 	            }
 			}
             return true;
+		case MENU_PREFERENCES:
+            startActivity(new Intent(this, UserPreferences.class));
+	        return true;
 		default:
 			MyLog.d(TAG, "Unknow menu id: " + item.getItemId() + ".");
 			return false;

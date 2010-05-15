@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- GROUP BY PREFERENCES -->
+	<string-array name="group_by_pref_entries">
+		<item>@string/group_by_pref_number</item>
+		<item>@string/group_by_pref_type</item>
+		<item>@string/group_by_pref_no_group</item>
+	</string-array>
+	<string-array name="group_by_pref_values">
+		<item>number</item>
+		<item>type</item>
+		<item>no</item>
+	</string-array>
+	
+	<!-- NEXT BUS STOP PROVIDER PREFERENCES -->
+	<string-array name="next_stop_pref_entries">
+		<item>@string/next_stop_pref_stmmobile</item>
+		<item>@string/next_stop_pref_stminfo</item>
+	</string-array>
+	<string-array name="next_stop_pref_values">
+		<item>stmmobile</item>
+		<item>stminfo</item>
+	</string-array>
+	
+	<!-- SEARCH PREFERENCES -->
+	<string-array name="search_pref_entries">
+		<item>@string/search_pref_simple</item>
+		<item>@string/search_pref_extended</item>
+	</string-array>
+	<string-array name="search_pref_values">
+		<item>simple</item>
+		<item>extended</item>
+	</string-array>
+</resources>
