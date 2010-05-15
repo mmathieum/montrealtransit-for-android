@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<!-- DISPLAY -->
+	<PreferenceCategory android:title="@string/display_pref_cat_title" />
+	<ListPreference android:key="pBusLineListGroupBy"
+		android:title="@string/group_by_pref_title" android:summary="@string/group_by_pref_summary"
+		android:entries="@array/group_by_pref_entries" android:entryValues="@array/group_by_pref_values"
+		android:dialogTitle="@string/group_by_pref_dialog_title"
+		android:defaultValue="no" />
+	<!-- DATA -->
+	<PreferenceCategory android:title="@string/data_pref_cat_title" />
+	<ListPreference android:key="pNextStopProvider"
+		android:title="@string/next_stop_pref_title" android:summary="@string/next_stop_pref_summary"
+		android:entries="@array/next_stop_pref_entries" android:entryValues="@array/next_stop_pref_values"
+		android:dialogTitle="@string/next_stop_pref_dialog_title"
+		android:defaultValue="stmmobile" />
+	<!-- ADVANCED -->
+	<PreferenceCategory android:title="@string/advanced_pref_cat_title" />
+	<ListPreference android:key="pSearch"
+		android:title="@string/search_pref_title" android:summary="@string/search_pref_summary"
+		android:entries="@array/search_pref_entries" android:entryValues="@array/search_pref_values"
+		android:dialogTitle="@string/search_pref_dialog_title"
+		android:defaultValue="simple" />
+</PreferenceScreen>

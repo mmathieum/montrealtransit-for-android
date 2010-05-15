@@ -6,6 +6,7 @@ import java.util.HashMap;
 import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.Utils;
+import org.montrealtransit.android.activity.UserPreferences;
 
 import android.app.SearchManager;
 import android.content.ContentProvider;
@@ -653,8 +654,8 @@ public class StmProvider extends ContentProvider {
 		case SEARCH:
 			MyLog.v(TAG, "query>SEARCH");
 			// IF simple search DO
-			if (Utils.getSharedPreferences(getContext(), Constant.PREFS_SEARCH, Constant.PREFS_SEARCH_DEFAULT).equals(
-			        Constant.PREFS_SEARCH_SIMPLE)) {
+			if (Utils.getSharedPreferences(getContext(), UserPreferences.PREFS_SEARCH, UserPreferences.PREFS_SEARCH_DEFAULT).equals(
+					UserPreferences.PREFS_SEARCH_SIMPLE)) {
 				qb.setTables(StmDbHelper.T_BUS_STOPS);
 				qb.setProjectionMap(sSearchSimpleProjectionMap);
 				qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "!=''");

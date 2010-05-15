@@ -39,6 +39,17 @@
 	<string name="other_bus_line">Autre(s) Ligne(s) de Bus</string>
 	<string name="subway_station">Station de Métro</string>
     
+    <string name="display_pref_cat_title">Préférences d\'affichage</string>
+    <string name="data_pref_cat_title">Source de données</string>
+    <string name="advanced_pref_cat_title">Paramètres avancés</string>
+    
+	<string name="group_by_pref_title">Affichage des lignes de bus</string>
+	<string name="group_by_pref_summary">Comment les lignes de bus sont affichées dans la liste des lignes de bus.</string>
+	<string name="group_by_pref_dialog_title">Grouper les lignes de bus</string>
+	<string name="group_by_pref_no_group">ne pas grouper</string>
+	<string name="group_by_pref_type">par catégorie</string>
+	<string name="group_by_pref_number">par numéro de ligne</string>
+	
     <string name="select_group_by">Affichage</string>
     <string name="group_by_bus_line_no_group">Ne pas grouper</string>
 	<string name="group_by_bus_line_type">Grouper par type</string>
@@ -135,11 +146,23 @@
     <string name="select_next_stop_data_source">Choisir source</string>
     <string name="data_source">Source</string>
     
+    <string name="next_stop_pref_title">Prochains passages de bus</string>
+    <string name="next_stop_pref_summary">Source de données utilisée pour obtenir les prochains passages à un arrêt de bus.</string>
+    <string name="next_stop_pref_dialog_title">Source de données</string>
+    <string name="next_stop_pref_stmmobile">m.stm.info</string>
+    <string name="next_stop_pref_stminfo">stm.info</string>
+    
     <string name="search_label">MonTransit</string>
     <string name="search_hint">Recherche arrêts d\'autobus.</string>
     <string name="search_settings_description">Arrêts d\'autobus (MonTransit)</string>
     <string name="search_no_result">Aucun arrêts d\'autobus ne correspond aux termes de recherche spécifiés</string>
     <string name="search_result_for">Recherche</string>
+    
+    <string name="search_pref_title">Recherche</string>
+    <string name="search_pref_summary">Recherche simple (rapide) ou complète (lent).</string>
+    <string name="search_pref_dialog_title">Type de recherche</string>
+    <string name="search_pref_simple">simple (rapide)</string>
+    <string name="search_pref_extended">complète (lent)</string>
     
     <string name="viewBusStopInfo">Voir l\'arrêt de bus</string>
     
@@ -150,4 +173,6 @@
     <string name="update_stm_db_ok">Données (autobus, métro) mises à jour.</string>
     <string name="update_stm_db_error">Erreur pendant la mise à jour des données (autobus, métro).</string>
     <string name="update_stm_db_error_next">Veuillez désinstaller puis re-installer l'application.</string>
+    
+    <string name="menu_preferences">Paramètres</string>
 </resources>

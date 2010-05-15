@@ -42,11 +42,6 @@ public class BusStopCodeTab extends Activity implements OnKeyListener, OnClickLi
 	private static final String TAG = BusStopCodeTab.class.getSimpleName();
 
 	/**
-	 * The view bus stop activity code.
-	 */
-	private int ACTIVITY_VIEW_BUS_STOP = 3;
-
-	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -123,9 +118,9 @@ public class BusStopCodeTab extends Activity implements OnKeyListener, OnClickLi
 	 * @param stopCode the bus stop code
 	 */
 	private void showBusStopInfo(String stopCode) {
-		Intent i = new Intent(this, BusStopInfo.class);
-		i.putExtra(BusStopInfo.EXTRA_STOP_CODE, stopCode);
-		startActivityForResult(i, ACTIVITY_VIEW_BUS_STOP);
+		Intent intent = new Intent(this, BusStopInfo.class);
+		intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, stopCode);
+		startActivity(intent);
 	}
 
 	/**
@@ -162,14 +157,22 @@ public class BusStopCodeTab extends Activity implements OnKeyListener, OnClickLi
 	/**
 	 * Menu item for clearing the history.
 	 */
-	private static final int MENU_CLEAR_HISTOTY = 1;
+	private static final int MENU_CLEAR_HISTOTY = Menu.FIRST;
+	
+	/**
+	 * The menu used to show the user preferences.
+	 */
+	private static final int MENU_PREFERENCES = Menu.FIRST + 1;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(0, MENU_CLEAR_HISTOTY, 0, R.string.clear_history).setIcon(android.R.drawable.ic_menu_delete);
+		MenuItem menuClearHistory = menu.add(0, MENU_CLEAR_HISTOTY, Menu.NONE, R.string.clear_history);
+		menuClearHistory.setIcon(android.R.drawable.ic_menu_delete);
+		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
+		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
 		return true;
 	}
 
@@ -182,6 +185,9 @@ public class BusStopCodeTab extends Activity implements OnKeyListener, OnClickLi
 		case MENU_CLEAR_HISTOTY:
 			DataManager.deleteHistory(this.getContentResolver());
 			break;
+		case MENU_PREFERENCES:
+            startActivity(new Intent(this, UserPreferences.class));
+	        break;
 		default:
 			MyLog.d(TAG, "Unknow menu action:" + item.getItemId() + ".");
 		}

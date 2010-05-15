@@ -213,14 +213,21 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	/**
 	 * Menu for changing the direction of the bus line.
 	 */
-	private static final int MENU_CHANGE_DIRECTION = 2;
+	private static final int MENU_CHANGE_DIRECTION = Menu.FIRST;
+	/**
+	 * The menu used to show the user preferences.
+	 */
+	private static final int MENU_PREFERENCES = Menu.FIRST + 1;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(0, MENU_CHANGE_DIRECTION, 0, R.string.change_direction).setIcon(android.R.drawable.ic_menu_compass);
+		MenuItem menuDirection = menu.add(0, MENU_CHANGE_DIRECTION, 0, R.string.change_direction);
+		menuDirection.setIcon(android.R.drawable.ic_menu_compass);
+		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
+		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
 		return true;
 	}
 
@@ -234,16 +241,14 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 			SubwayLineSelectDirection select = new SubwayLineSelectDirection(this, this.subwayLine.getNumber(), this);
 			select.showDialog();
 			return true;
+		case MENU_PREFERENCES:
+            startActivity(new Intent(this, UserPreferences.class));
+            return true;
 		default:
 			MyLog.d(TAG, "Unknow menu id: " + item.getItemId() + ".");
 			return false;
 		}
 	}
-
-	/**
-	 * The view subway station info activity.
-	 */
-	private static final int ACTIVITY_VIEW_STATION_INFO = 1;
 
 	/**
 	 * {@inheritDoc}
@@ -252,9 +257,9 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	public void onItemClick(AdapterView<?> l, View v, int position, long id) {
 		MyLog.v(TAG, "onItemClick(" + v.getId() + "," + v.getId() + "," + position + "," + id + ")");
 		if (id > 0) {
-			Intent i = new Intent(this, SubwayStationInfo.class);
-			i.putExtra(SubwayStationInfo.EXTRA_STATION_ID, String.valueOf(id));
-			startActivityForResult(i, ACTIVITY_VIEW_STATION_INFO);
+			Intent intent = new Intent(this, SubwayStationInfo.class);
+			intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, String.valueOf(id));
+			startActivity(intent);
 		}
 	}
 

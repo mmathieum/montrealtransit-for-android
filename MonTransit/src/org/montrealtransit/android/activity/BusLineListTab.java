@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
@@ -14,9 +13,13 @@ import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -41,7 +44,7 @@ import android.widget.SimpleCursorAdapter.ViewBinder;
  * @author Mathieu Méa
  */
 public class BusLineListTab extends Activity implements OnChildClickListener, OnItemClickListener, ViewBinder,
-        FilterQueryProvider {
+        FilterQueryProvider, OnSharedPreferenceChangeListener {
 
 	/**
 	 * The log tag.
@@ -67,6 +70,7 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 		super.onCreate(savedInstanceState);
 		// set the UI
 		setContentView(R.layout.bus_line_list_tab);
+		PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
 		((ExpandableListView) findViewById(R.id.elist)).setOnChildClickListener(this);
 		((ListView) findViewById(R.id.list)).setOnItemClickListener(this);
 		// refresh the bus list
@@ -78,8 +82,8 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	 */
 	private void refreshAll() {
 		MyLog.v(TAG, "refreshAll()");
-		if (getBusListGroupByFromPreferences().equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)
-		        || getBusListGroupByFromPreferences().equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
+		if (getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)
+		        || getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
 			showEListView();
 			new SetBusEListTask().execute(getBusListGroupByFromPreferences());
 		} else {
@@ -139,32 +143,44 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 		((ListView) findViewById(R.id.list)).setEmptyView(findViewById(R.id.list_empty));
 	}
 
-	private static final int MENU_GROUP_BY_GROUP = 1;
-	private static final int MENU_GROUP_BY = 2;
+	/**
+	 * The menu group for the group by setting.
+	 */
+	private static final int MENU_GROUP_BY_GROUP = Menu.FIRST;
+	/**
+	 * The menu for the group by setting.
+	 */
+	private static final int MENU_GROUP_BY = Menu.FIRST;
 	/**
 	 * The menu item to show the list without group by.
 	 */
-	private static final int MENU_GROUP_BY_NO_GROUP_BY = 4;
+	private static final int MENU_GROUP_BY_NO_GROUP_BY = Menu.FIRST+1;
 	/**
 	 * The menu item to show the list group by type.
 	 */
-	private static final int MENU_GROUP_BY_TYPE = 5;
+	private static final int MENU_GROUP_BY_TYPE = Menu.FIRST+2;
 	/**
 	 * The menu item to show the list group by number.
 	 */
-	private static final int MENU_GROUP_BY_NUMBER = 3;
+	private static final int MENU_GROUP_BY_NUMBER = Menu.FIRST+3;
+	/**
+	 * The menu used to show the user preferences.
+	 */
+	private static final int MENU_PREFERENCES = Menu.FIRST+4;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		SubMenu subMenu = menu.addSubMenu(MENU_GROUP_BY_GROUP, MENU_GROUP_BY, 0, R.string.select_group_by).setIcon(
-		        android.R.drawable.ic_menu_view);
-		subMenu.add(MENU_GROUP_BY_GROUP, MENU_GROUP_BY_TYPE, 0, R.string.group_by_bus_line_type);
-		subMenu.add(MENU_GROUP_BY_GROUP, MENU_GROUP_BY_NUMBER, 0, R.string.group_by_bus_line_number);
-		subMenu.add(MENU_GROUP_BY_GROUP, MENU_GROUP_BY_NO_GROUP_BY, 0, R.string.group_by_bus_line_no_group);
+		SubMenu subMenu = menu.addSubMenu(MENU_GROUP_BY_GROUP, MENU_GROUP_BY, 0, R.string.select_group_by);
+		subMenu.setIcon(android.R.drawable.ic_menu_view);
+		subMenu.add(MENU_GROUP_BY_GROUP, MENU_GROUP_BY_TYPE, Menu.NONE, R.string.group_by_bus_line_type);
+		subMenu.add(MENU_GROUP_BY_GROUP, MENU_GROUP_BY_NUMBER, Menu.NONE, R.string.group_by_bus_line_number);
+		subMenu.add(MENU_GROUP_BY_GROUP, MENU_GROUP_BY_NO_GROUP_BY, Menu.NONE, R.string.group_by_bus_line_no_group);
 		subMenu.setGroupCheckable(MENU_GROUP_BY_GROUP, true, true);
+		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
+		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
 		return true;
 	}
 
@@ -178,15 +194,15 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 			SubMenu subMenu = menu.findItem(MENU_GROUP_BY).getSubMenu();
 			for (int i = 0; i < subMenu.size(); i++) {
 				if (subMenu.getItem(i).getItemId() == MENU_GROUP_BY_NO_GROUP_BY
-				        && getBusListGroupByFromPreferences().equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP)) {
+				        && getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP)) {
 					subMenu.getItem(i).setChecked(true);
 					break;
 				} else if (subMenu.getItem(i).getItemId() == MENU_GROUP_BY_TYPE
-				        && getBusListGroupByFromPreferences().equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
+				        && getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
 					subMenu.getItem(i).setChecked(true);
 					break;
 				} else if (subMenu.getItem(i).getItemId() == MENU_GROUP_BY_NUMBER
-				        && getBusListGroupByFromPreferences().equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)) {
+				        && getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)) {
 					subMenu.getItem(i).setChecked(true);
 					break;
 				}
@@ -197,7 +213,7 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 			return false;
 		}
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -205,38 +221,51 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case MENU_GROUP_BY_NO_GROUP_BY:
-			if (!getBusListGroupByFromPreferences().equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP)) {
-				Utils.saveSharedPreferences(this, Constant.PREFS_BUS_LINE_LIST_GROUP_BY,
-				        Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP);
+			if (!getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP)) {
+				Utils.saveSharedPreferences(this, UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY,
+						UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP);
 				refreshAll();
 			}
 			return true;
 		case MENU_GROUP_BY_TYPE:
-			if (!getBusListGroupByFromPreferences().equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
-				Utils.saveSharedPreferences(this, Constant.PREFS_BUS_LINE_LIST_GROUP_BY,
-				        Constant.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE);
+			if (!getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
+				Utils.saveSharedPreferences(this, UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY,
+						UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE);
 				refreshAll();
 			}
 			return true;
 		case MENU_GROUP_BY_NUMBER:
-			if (!getBusListGroupByFromPreferences().equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)) {
-				Utils.saveSharedPreferences(this, Constant.PREFS_BUS_LINE_LIST_GROUP_BY,
-				        Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER);
+			if (!getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)) {
+				Utils.saveSharedPreferences(this, UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY,
+						UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER);
 				refreshAll();
 			}
 			return true;
+		case MENU_PREFERENCES:
+			startActivity(new Intent(this, UserPreferences.class));
+            return true;
 		default:
 			MyLog.w(TAG, "Unknow menu action:" + item.getItemId() + ".");
 			return false;
 		}
 	}
-
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+	    if (key.equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY)) {
+	    	refreshAll();
+	    }
+	}
+	
 	/**
 	 * @return the bus list "group by" preference.
 	 */
 	private String getBusListGroupByFromPreferences() {
-		return Utils.getSharedPreferences(this, Constant.PREFS_BUS_LINE_LIST_GROUP_BY,
-		        Constant.PREFS_BUS_LINE_LIST_GROUP_BY_DEFAULT);
+		return Utils.getSharedPreferences(this, UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY,
+				UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_DEFAULT);
 	}
 
 	/**
@@ -247,9 +276,9 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	 */
 	private ExpandableListAdapter getEAdapterFromSettings(String busListGroupBy) {
 		MyLog.v(TAG, "getEAdapterFromSettings(" + busListGroupBy + ")");
-		if (busListGroupBy.equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)) {
+		if (busListGroupBy.equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)) {
 			return getAdapterByNumber();
-		} else if (busListGroupBy.equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
+		} else if (busListGroupBy.equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
 			return getAdapterByType();
 		} else {
 			MyLog.w(TAG, "Unknow exandable list adapter \"" + busListGroupBy + "\"");
@@ -265,7 +294,7 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	 */
 	private ListAdapter getAdapterFromSettings(String busListGroupBy) {
 		MyLog.v(TAG, "getAdapterFromSettings(" + busListGroupBy + ")");
-		if (busListGroupBy.equals(Constant.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP)) {
+		if (busListGroupBy.equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP)) {
 			return getAdapterNoGroupBy();
 		} else {
 			MyLog.w(TAG, "Unknow list adapter \"" + busListGroupBy + "\"");

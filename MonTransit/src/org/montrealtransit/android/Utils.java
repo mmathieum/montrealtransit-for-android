@@ -27,6 +27,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 /**
@@ -730,10 +731,8 @@ public class Utils {
 	 */
 	public static void saveSharedPreferences(Context context, String prefKey, String newValue) {
 		MyLog.v(TAG, "saveSharedPreferences(" + prefKey + ", " + newValue + ")");
-		SharedPreferences settings = context.getSharedPreferences(Constant.PREFS_NAME, Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = settings.edit();
-		editor.putString(prefKey, newValue);
-		editor.commit();
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+		settings.edit().putString(prefKey, newValue).commit();
 	}
 
 	/**
@@ -745,7 +744,7 @@ public class Utils {
 	 */
 	public static String getSharedPreferences(Context context, String prefKey, String defaultValue) {
 		MyLog.v(TAG, "getSharedPreferences(" + prefKey + ", " + defaultValue + ")");
-		SharedPreferences settings = context.getSharedPreferences(Constant.PREFS_NAME, Context.MODE_PRIVATE);
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 		return settings.getString(prefKey, defaultValue);
 	}
 

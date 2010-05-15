@@ -47,10 +47,6 @@ public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDi
 	 */
 	private Cursor cursor;
 	/**
-	 * The view bus stop activity code.
-	 */
-	private static final int ACTIVITY_VIEW_BUS_STOP = 1;
-	/**
 	 * The log tag.
 	 */
 	private static final String TAG = BusLineInfo.class.getSimpleName();
@@ -190,30 +186,38 @@ public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDi
 	public void onItemClick(AdapterView<?> l, View v, int position, long id) {
 		MyLog.v(TAG, "onItemClick(" + v.getId() + "," + v.getId() + "," + position + "," + id + ")");
 		if (id > 0) {
-			Intent i = new Intent(this, BusStopInfo.class);
-			i.putExtra(BusStopInfo.EXTRA_STOP_CODE, String.valueOf(id));
-			i.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, this.busLine.getNumber());
-			i.putExtra(BusStopInfo.EXTRA_STOP_LINE_DIRECTION, this.busLineDirection.getId());
-			startActivityForResult(i, ACTIVITY_VIEW_BUS_STOP);
+			Intent intent = new Intent(this, BusStopInfo.class);
+			intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, String.valueOf(id));
+			intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, this.busLine.getNumber());
+			intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_DIRECTION, this.busLineDirection.getId());
+			startActivity(intent);
 		}
 	}
 
 	/**
 	 * The menu item to show the map
 	 */
-	private static final int MENU_SEE_MAP = 1;
+	private static final int MENU_SEE_MAP = Menu.FIRST;
 	/**
 	 * The menu item to select the bus line direction.
 	 */
-	private static final int MENU_CHANGE_DIRECTION = 2;
+	private static final int MENU_CHANGE_DIRECTION = Menu.FIRST + 1;
+	/**
+	 * The menu used to show the user preferences.
+	 */
+	private static final int MENU_PREFERENCES = Menu.FIRST + 2;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(0, MENU_SEE_MAP, 0, R.string.see_bus_line_plan).setIcon(R.drawable.planibu);
-		menu.add(0, MENU_CHANGE_DIRECTION, 0, R.string.change_direction).setIcon(android.R.drawable.ic_menu_compass);
+		MenuItem menuMap = menu.add(0, MENU_SEE_MAP, 0, R.string.see_bus_line_plan);
+		menuMap.setIcon(R.drawable.planibu);
+		MenuItem menuDirection = menu.add(0, MENU_CHANGE_DIRECTION, 0, R.string.change_direction);
+		menuDirection.setIcon(android.R.drawable.ic_menu_compass);
+		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
+		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
 		return true;
 	}
 
@@ -231,6 +235,9 @@ public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDi
 			BusLineSelectDirection select = new BusLineSelectDirection(this, this.busLine.getNumber(), this);
 			select.showDialog();
 			break;
+		case MENU_PREFERENCES:
+            startActivity(new Intent(this, UserPreferences.class));
+	        break;
 		}
 		return false;
 	}

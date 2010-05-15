@@ -47,6 +47,8 @@
 		<activity android:name=".activity.SubwayLinesListTab" />
 		<activity android:name=".activity.SubwayLineInfo"
 			android:configChanges="orientation|keyboardHidden" />
+		<!-- PREFERENCES -->
+		<activity android:name=".activity.UserPreferences" />
 		<!-- SEARCH RESULT ACTIVITY -->
 		<activity android:name=".activity.SearchResult"
 			android:theme="@android:style/Theme"

@@ -93,11 +93,6 @@ public class SubwayLinesListTab extends Activity implements ViewBinder, OnItemCl
 	}
 
 	/**
-	 * The view subway station info activity.
-	 */
-	private static final int ACTIVITY_VIEW_STATION_INFO = 1;
-
-	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -107,7 +102,7 @@ public class SubwayLinesListTab extends Activity implements ViewBinder, OnItemCl
 		Intent intent = new Intent(this, SubwayLineInfo.class);
 		intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, String.valueOf(id));
 		intent.putExtra(SubwayLineInfo.EXTRA_ORDER_ID, StmStore.SubwayLine.DEFAULT_SORT_ORDER);
-		startActivityForResult(intent, ACTIVITY_VIEW_STATION_INFO);
+		startActivity(intent);
 		// TODO ? use user settings to save the last order choose by the user for each subway lines ?
 	}
 
@@ -125,7 +120,11 @@ public class SubwayLinesListTab extends Activity implements ViewBinder, OnItemCl
 	/**
 	 * Menu to show the subway map from the STM.info Web Site.
 	 */
-	private static final int MENU_SHOW_MAP_ON_THE_STM_WEBSITE = 1;
+	private static final int MENU_SHOW_MAP_ON_THE_STM_WEBSITE = Menu.FIRST;
+	/**
+	 * The menu used to show the user preferences.
+	 */
+	private static final int MENU_PREFERENCES = Menu.FIRST + 1;
 
 	/**
 	 * {@inheritDoc}
@@ -133,6 +132,8 @@ public class SubwayLinesListTab extends Activity implements ViewBinder, OnItemCl
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		menu.add(0, MENU_SHOW_MAP_ON_THE_STM_WEBSITE, 0, R.string.show_map_from_stm_website);
+		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
+		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
 		return true;
 	}
 
@@ -146,6 +147,9 @@ public class SubwayLinesListTab extends Activity implements ViewBinder, OnItemCl
 			String url = "http://www.stm.info/metro/images/plan-metro.jpg";
 			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
 			break;
+		case MENU_PREFERENCES:
+            startActivity(new Intent(this, UserPreferences.class));
+	        break;
 		default:
 			MyLog.d(TAG, "Unknow menu action:" + item.getItemId() + ".");
 		}
