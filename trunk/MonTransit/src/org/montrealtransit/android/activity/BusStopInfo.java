@@ -620,6 +620,10 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	 * The menu used to show the user preferences.
 	 */
 	private static final int MENU_PREFERENCES = Menu.FIRST + 8;
+	/**
+	 * The menu used to show the about screen.
+	 */
+	private static final int MENU_ABOUT = Menu.FIRST + 9;
 
 	/**
 	 * {@inheritDoc}
@@ -650,6 +654,8 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 		
 		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
 		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
+		MenuItem menuAbout = menu.add(0, MENU_ABOUT, Menu.NONE, R.string.menu_about);
+		menuAbout.setIcon(android.R.drawable.ic_menu_info_details);
 		return true;
 	}
 
@@ -770,6 +776,9 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 		case MENU_PREFERENCES:
             startActivity(new Intent(this, UserPreferences.class));
 	        return true;
+		case MENU_ABOUT:
+        	Utils.showAboutDialog(this);
+        	return true;
 		default:
 			MyLog.d(TAG, "Unknow menu action:" + item.getItemId() + ".");
 			return false;
