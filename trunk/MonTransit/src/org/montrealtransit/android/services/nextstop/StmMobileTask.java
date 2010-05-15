@@ -23,6 +23,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 /**
  * <b>NOT WORKING</b> This task retrieve next bus stop from the m.stm.info web site.
@@ -67,7 +68,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 		String stopCode = stopInfo[0].getCode();
 		String lineNumber = stopInfo[0].getLineNumber();
 		String URLString = URL_PART_1_BEFORE_STOP_CODE + stopCode;
-		if (lineNumber != null && lineNumber.length() > 0) {
+		if (!TextUtils.isEmpty(lineNumber)) {
 			URLString += URL_PART_2_BEFORE_LINE_NUMBER + lineNumber;
 		}
 		if (Utils.getUserLocale().equals("fr")) {
