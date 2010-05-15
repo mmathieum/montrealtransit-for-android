@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="fill_parent">
+	<LinearLayout
+		android:layout_width="fill_parent" android:layout_height="fill_parent"
+		android:orientation="vertical" android:padding="5dip">
+
+		<TextView
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:text="@string/about_text1"
+			android:textAppearance="?android:attr/textAppearanceSmall" android:textColor="#ffff" />
+	
+		<TextView
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:text="@string/about_text2_authors" android:autoLink="web"
+			android:textAppearance="?android:attr/textAppearanceSmall" android:textColor="#ffff" />
+	
+		<TextView
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:text="@string/about_text3_website" android:autoLink="web"
+			android:textAppearance="?android:attr/textAppearanceSmall" android:textColor="#ffff" />
+	
+		<TextView
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:text="@string/about_text4_source" android:autoLink="web"
+			android:textAppearance="?android:attr/textAppearanceSmall" android:textColor="#ffff" />
+	
+		<TextView android:id="@+id/version"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceSmallInverse" android:textColor="#ffff" />
+
+	</LinearLayout>
+</ScrollView>

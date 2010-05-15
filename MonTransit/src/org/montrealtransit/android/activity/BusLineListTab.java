@@ -154,19 +154,24 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	/**
 	 * The menu item to show the list without group by.
 	 */
-	private static final int MENU_GROUP_BY_NO_GROUP_BY = Menu.FIRST+1;
+	private static final int MENU_GROUP_BY_NO_GROUP_BY = Menu.FIRST + 1;
 	/**
 	 * The menu item to show the list group by type.
 	 */
-	private static final int MENU_GROUP_BY_TYPE = Menu.FIRST+2;
+	private static final int MENU_GROUP_BY_TYPE = Menu.FIRST + 2;
 	/**
 	 * The menu item to show the list group by number.
 	 */
-	private static final int MENU_GROUP_BY_NUMBER = Menu.FIRST+3;
+	private static final int MENU_GROUP_BY_NUMBER = Menu.FIRST + 3;
 	/**
 	 * The menu used to show the user preferences.
 	 */
-	private static final int MENU_PREFERENCES = Menu.FIRST+4;
+	private static final int MENU_PREFERENCES = Menu.FIRST + 4;
+	/**
+	 * The menu used to show the about screen.
+	 */
+	private static final int MENU_ABOUT = Menu.FIRST + 5;
+	
 
 	/**
 	 * {@inheritDoc}
@@ -179,8 +184,12 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 		subMenu.add(MENU_GROUP_BY_GROUP, MENU_GROUP_BY_NUMBER, Menu.NONE, R.string.group_by_bus_line_number);
 		subMenu.add(MENU_GROUP_BY_GROUP, MENU_GROUP_BY_NO_GROUP_BY, Menu.NONE, R.string.group_by_bus_line_no_group);
 		subMenu.setGroupCheckable(MENU_GROUP_BY_GROUP, true, true);
+		
 		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
 		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
+		
+		MenuItem menuAbout = menu.add(0, MENU_ABOUT, Menu.NONE, R.string.menu_about);
+		menuAbout.setIcon(android.R.drawable.ic_menu_info_details);
 		return true;
 	}
 
@@ -244,6 +253,9 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 		case MENU_PREFERENCES:
 			startActivity(new Intent(this, UserPreferences.class));
             return true;
+		case MENU_ABOUT:
+        	Utils.showAboutDialog(this);
+        	return true;
 		default:
 			MyLog.w(TAG, "Unknow menu action:" + item.getItemId() + ".");
 			return false;

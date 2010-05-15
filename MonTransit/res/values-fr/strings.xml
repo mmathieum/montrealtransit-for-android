@@ -175,4 +175,11 @@
     <string name="update_stm_db_error_next">Veuillez désinstaller puis re-installer l'application.</string>
     
     <string name="menu_preferences">Paramètres</string>
+    <string name="menu_about">À propos</string>
+    
+    <string name="about_text1">"MonTransit est une application gratuite pour Android. Cette application n\'est pas associée à la STM. Le code source de l'application est publié sous la license Apache 2.0 par:"</string>
+    <string name="about_text2_authors">"Mathieu Méa http://twitter.com/mmathieum"</string>
+    <string name="about_text3_website">"Site web : http://montrealtransit-for-android.googlecode.com/"</string>
+    <string name="about_text4_source">"Code source : http://code.google.com/p/montrealtransit-for-android/source/browse/"</string>
+    <string name="about_version">"Version %s"</string>
 </resources>

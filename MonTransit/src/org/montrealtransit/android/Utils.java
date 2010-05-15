@@ -17,6 +17,8 @@ import org.montrealtransit.android.provider.StmStore;
 import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.StmStore.BusLine;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -28,6 +30,8 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 /**
@@ -800,5 +804,32 @@ public class Utils {
 			favIdsS += favId.getFkId() + "-" + favId.getFkId2();
 		}
 	    return favIdsS;
+    }
+
+	/**
+	 * Show an about dialog.
+	 * @param activity the activity asking for the dialog
+	 */
+	public static void showAboutDialog(Activity activity) {
+		String versionName = "";
+        try {
+        	PackageInfo packageInfo = activity.getPackageManager().getPackageInfo(Constant.PKG, 0);
+        	versionName = packageInfo.versionName;
+        } catch (NameNotFoundException e) {
+        }
+        View view = activity.getLayoutInflater().inflate(R.layout.about, null, false);
+
+        TextView versionTv = (TextView)view.findViewById(R.id.version);
+        versionTv.setText(activity.getString(R.string.about_version, versionName));
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle(activity.getString(R.string.app_name));
+        builder.setIcon(android.R.drawable.ic_dialog_info);
+        builder.setView(view);
+        builder.setPositiveButton(activity.getString(android.R.string.ok), null);
+        builder.setCancelable(true);
+
+        builder.create();
+		builder.show();
     }
 }
