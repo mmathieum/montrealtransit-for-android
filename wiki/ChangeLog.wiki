@@ -1,7 +1,25 @@
 #summary Changes made to the app
-#labels Phase-Support
+#labels Phase-Support,Featured
 
- * BETA 04-24-2010 ([http://montrealtransit-for-android.googlecode.com/files/MonTransit_BETA_2010-04-24.apk download])
+ * BETA 05-15-2010 ([http://montrealtransit-for-android.googlecode.com/files/MonTransit_BETA_2010-05-15.apk download])
+  * add search (bus stops) to the application r99
+  * enable text filtering in:
+   * bus lines list r87
+   * subway line stations list r86
+   * bus line stops list r90
+  * add preference activity r102
+  * add about dialog r103
+  * add hardware keyboard shortcuts to bus stop info r92
+  * fix the rotation issues across all screens r81 r91
+  * improve the favorite tab text r89
+  * bus stop info view:
+   * fix landscape display issues (issue #16) r95
+   * display the next bus stops data source r93
+   * improve m.stm.info messages support r96
+   * improve next bus stop loading errors UI r97
+   * improve the show in STM Mobile web site r104
+
+ * BETA 04-24-2010
   * fix bug in Subway station view r63
   * fix STM message from stm.info for regular bus lines r74
   * fix minor issue in the English UI in the bus line list tab r69
