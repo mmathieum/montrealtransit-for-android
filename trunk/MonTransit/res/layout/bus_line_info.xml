@@ -16,7 +16,7 @@
 			android:layout_alignParentTop="true" android:layout_alignParentLeft="true"
 			android:layout_marginRight="7dip" android:layout_marginLeft="5dip" android:layout_marginTop="5dip"
 			android:gravity="center" android:scaleType="centerInside"
-			android:background="@drawable/bus_blue_big" />
+			android:background="@drawable/bus_blue" />
 
 		<!-- BUS LINE -->
 		<TextView android:id="@+id/line_number"

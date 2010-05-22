@@ -217,7 +217,7 @@ public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDi
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuItem menuMap = menu.add(0, MENU_SEE_MAP, 0, R.string.see_bus_line_plan);
-		menuMap.setIcon(R.drawable.planibu);
+		menuMap.setIcon(R.drawable.ic_menu_bus_line_plan);
 		MenuItem menuDirection = menu.add(0, MENU_CHANGE_DIRECTION, 0, R.string.change_direction);
 		menuDirection.setIcon(android.R.drawable.ic_menu_compass);
 		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
