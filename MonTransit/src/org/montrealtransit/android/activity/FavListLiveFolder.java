@@ -35,7 +35,7 @@ public class FavListLiveFolder extends Activity {
 			List<DataStore.Fav> favList = DataManager.findAllFavsList(this.getContentResolver());
 			if (Utils.getListSize(favList) > 0) {
 				setResult(RESULT_OK, createLiveFolder(this, StmManager.getBusStopsFavUri(favList), getResources().getString(
-				        R.string.favorite_live_folder_name), R.drawable.fav_live_folder_icon));
+				        R.string.favorite_live_folder_name), R.drawable.ic_launcher_folder_live_favorites));
 			} else {
 				Utils.notifyTheUser(this, getResources().getString(R.string.favorite_live_folder_need_to_add_fav));
 				setResult(RESULT_CANCELED);

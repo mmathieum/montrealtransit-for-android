@@ -15,7 +15,7 @@
         	android:layout_width="40dip" android:layout_height="40dip"
         	android:layout_marginRight="7dip" android:layout_marginTop="7dip"
         	android:gravity="center" android:scaleType="centerInside"
-        	android:background="@drawable/subway_blue_big" />
+        	android:background="@drawable/subway_blue" />
 		<!-- SUBWAY LINE NAME -->
         <TextView android:id="@+id/line_name"
         	android:layout_width="fill_parent" android:layout_height="wrap_content"

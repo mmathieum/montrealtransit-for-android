@@ -8,7 +8,7 @@
         android:layout_width="30dip" android:layout_height="30dip"
         android:layout_alignParentRight="true" android:layout_alignWithParentIfMissing="true" 
 		android:gravity="center" android:scaleType="centerInside"
-        android:src="@drawable/subway_white_big" />
+        android:src="@drawable/subway_dark" />
 	
 	<!-- BUS STOP PLACE -->
 	<TextView android:id="@+id/place"

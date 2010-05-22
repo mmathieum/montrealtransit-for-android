@@ -635,7 +635,7 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 		menuRefresh.setIcon(R.drawable.ic_menu_refresh); // TODO use refresh icon from android.R.drawable (bug SDK 1.5)
 		menuRefresh.setAlphabeticShortcut('r');
 		MenuItem menuStmMobile = menu.add(0, MENU_SHOW_STM_MOBILE_WEBSITE, 0, R.string.see_in_stm_mobile_web_site);
-		menuStmMobile.setIcon(R.drawable.stmmobile);
+		menuStmMobile.setIcon(R.drawable.ic_menu_stmmobile);
 		menuStmMobile.setAlphabeticShortcut('s');
 		MenuItem menuMaps = menu.add(0, MENU_SHOW_IN_MAPS, 0, R.string.show_in_map_exp);
 		menuMaps.setIcon(android.R.drawable.ic_menu_mapmode);
