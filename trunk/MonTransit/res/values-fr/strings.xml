@@ -85,7 +85,7 @@
     
     <string name="wrong_stop_code_before">Le code d\'arrêt \'</string>
     <string name="wrong_stop_code_after">\' n\'est pas enregistrée dans l\'application.</string>
-    <string name="wrong_stop_code_after_internet">Voulez-vous essayer de télécharger les prochains passages depuis Internet?</string>
+    <string name="wrong_stop_code_after_internet">Voulez-vous essayer de télécharger les prochains passages depuis Internet ?</string>
     <string name="wrong_line_number_before">La ligne de bus numéro \'</string>
     <string name="wrong_line_number_after">\' n\'existe pas.</string>
     
