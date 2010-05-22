@@ -84,7 +84,7 @@
     <string name="warning">Attention</string>
     
     <string name="wrong_stop_code_before">Le code d\'arrêt \'</string>
-    <string name="wrong_stop_code_after">\' n\'est pas enregistrée dans l'application.</string>
+    <string name="wrong_stop_code_after">\' n\'est pas enregistrée dans l\'application.</string>
     <string name="wrong_stop_code_after_internet">Voulez-vous essayer de télécharger les prochains passages depuis Internet?</string>
     <string name="wrong_line_number_before">La ligne de bus numéro \'</string>
     <string name="wrong_line_number_after">\' n\'existe pas.</string>
@@ -111,7 +111,7 @@
     <string name="route_during_off_peak_periods">Trajet hors des heures de pointe</string>
     <string name="rush_hour_route">Trajet aux heures de pointe</string>
     <string name="am_route_peak_period">Trajet à l\'heure de pointe du matin</string>
-	<string name="pm_route_peak_period">Trajet à l\'heure de pointe de l'après-midi</string>
+	<string name="pm_route_peak_period">Trajet à l\'heure de pointe de l\'après-midi</string>
 	<string name="route_off_peak_periods">Trajet hors de heures de pointe</string>
 	<string name="am_route_peak_period_and_off_peaks_periods">Trajet à l\'heure de pointe du matin et hors-pointe</string>
 	<string name="to_the_old_montreal">Vers le Vieux-Montréal</string>
@@ -130,7 +130,7 @@
     
     <string name="remove_fav">Supprimer le favori.</string>
     <string name="no_fav">Pas de favoris.</string>
-    <string name="no_fav_message">Aucun favori.\nPour ajouter un arrêt de bus favori, parcourez les différentes lignes de bus ou chercher l\'arrêt à partir de son code d'arrêt. Ensuite, cliquez l\'étoile pour ajouter le favori.</string>
+    <string name="no_fav_message">Aucun favori.\nPour ajouter un arrêt de bus favori, parcourez les différentes lignes de bus ou chercher l\'arrêt à partir de son code d\'arrêt. Ensuite, cliquez l\'étoile pour ajouter le favori.</string>
     <string name="favorite_removed">Favori supprimé.</string>
     <string name="favorite_added">Favori ajouté.</string>
     
@@ -172,7 +172,7 @@
 
     <string name="update_stm_db_ok">Données (autobus, métro) mises à jour.</string>
     <string name="update_stm_db_error">Erreur pendant la mise à jour des données (autobus, métro).</string>
-    <string name="update_stm_db_error_next">Veuillez désinstaller puis re-installer l'application.</string>
+    <string name="update_stm_db_error_next">Veuillez désinstaller puis re-installer l\'application.</string>
     
     <string name="menu_preferences">Paramètres</string>
     <string name="menu_about">À propos</string>
