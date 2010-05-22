@@ -46,7 +46,7 @@
 	<string name="group_by_pref_title">Bus Lines Display</string>
 	<string name="group_by_pref_summary">How the bus lines are displayed in the bus line list.</string>
 	<string name="group_by_pref_dialog_title">Group bus lines</string>
-	<string name="group_by_pref_no_group">don't group</string>
+	<string name="group_by_pref_no_group">don\'t group</string>
 	<string name="group_by_pref_type">by type</string>
 	<string name="group_by_pref_number">by line number</string>
 	
