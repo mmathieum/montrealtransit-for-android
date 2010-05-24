@@ -392,7 +392,7 @@ public class StmManager {
 	 * @return the bus line directions
 	 */
 	public static List<StmStore.BusLineDirection> findBusLineDirections(ContentResolver contentResolver, String busLineNumber) {
-		MyLog.v(TAG, "fingBusLineDirections(" + busLineNumber + ")");
+		MyLog.v(TAG, "findBusLineDirections(" + busLineNumber + ")");
 		List<StmStore.BusLineDirection> result = null;
 		Cursor c = null;
 		try {
