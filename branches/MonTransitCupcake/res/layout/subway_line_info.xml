@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	android:orientation="vertical">
+
+	<!-- SUBWAY LINE INFORMATIONS -->
+    <RelativeLayout android:id="@+id/banner"
+    	android:layout_width="fill_parent" android:layout_height="wrap_content"
+    	android:padding="5dip"
+    	android:orientation="horizontal" android:gravity="center_vertical"
+    	android:background="@android:drawable/title_bar_tall">
+		<!-- SUBWAY LOGO -->
+        <ImageView android:id="@+id/subway"
+        	android:layout_alignParentLeft="true"
+        	android:layout_width="40dip" android:layout_height="40dip"
+        	android:layout_marginRight="7dip" android:layout_marginTop="7dip"
+        	android:gravity="center" android:scaleType="centerInside"
+        	android:background="@drawable/subway_blue" />
+		<!-- SUBWAY LINE NAME -->
+        <TextView android:id="@+id/line_name"
+        	android:layout_width="fill_parent" android:layout_height="wrap_content"
+    		android:layout_toRightOf="@id/subway" android:layout_alignParentTop="true"
+    		android:singleLine="true" android:ellipsize="marquee"
+    		android:focusable="true" android:gravity="center_vertical|left"
+    		android:textAppearance="?android:attr/textAppearanceLarge" android:textStyle="bold" />
+    	<!-- SUWBAY STATIONS DISPLAY ORDER -->
+        <TextView android:id="@+id/order_main"
+        	android:layout_width="fill_parent" android:layout_height="wrap_content"
+    		android:layout_marginRight="5dip"
+    		android:layout_toRightOf="@id/subway" android:layout_below="@+id/line_name"
+    		android:textAppearance="?android:attr/textAppearanceMedium"
+    		android:singleLine="true" android:ellipsize="marquee"
+    		android:focusable="true" android:gravity="center_vertical|left" />
+			
+    </RelativeLayout>
+
+	<!-- SUBWAY STATIONS  -->
+    <FrameLayout
+    	android:layout_width="fill_parent"
+    	android:layout_height="0dip"
+    	android:layout_weight="1">
+
+		<include layout="@layout/subway_line_info_stations_list"/>
+		
+    </FrameLayout>
+</LinearLayout>
