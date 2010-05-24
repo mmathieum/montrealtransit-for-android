@@ -62,10 +62,6 @@
 
 		<meta-data android:name="android.app.default_searchable" android:value=".activity.SearchResult" />
 	</application>
-	<uses-sdk android:minSdkVersion="3" />
-	<!--
-		NEED A BRANCH for Android 1.5 and the trunk for Android 1.6 and higher
-		android:targetSdkVersion="4"
-	-->
+	<uses-sdk android:minSdkVersion="4" />
 	<uses-permission android:name="android.permission.INTERNET" />
 </manifest> 
