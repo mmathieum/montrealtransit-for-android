@@ -24,4 +24,4 @@
 || 2010 || TELUS || HTC || Triumph (Desire) || 2.1 || ? || HTC Sense UI ||
 || ? || `*` || `*` || `*` || 2.1 || 2.2? || Google TV ||
 
-_Cette page est également disponible en français mais votre navigateur est configuré pour afficher la version en anglais._
+_Cette page est Ã©galement disponible en franÃ§ais mais votre navigateur est configurÃ© pour afficher la version en anglais._
