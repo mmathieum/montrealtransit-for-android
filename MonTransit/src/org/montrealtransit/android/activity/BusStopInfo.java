@@ -3,6 +3,7 @@ package org.montrealtransit.android.activity;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
@@ -633,13 +634,13 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 		// MyLog.v(TAG, "onCreateOptionsMenu()");
 		MenuItem menuRefresh = menu.add(0, MENU_SHOW_REFRESH_NEXT_STOP, 0, R.string.refresh_next_bus_stop);
 		menuRefresh.setIcon(R.drawable.ic_menu_refresh); // TODO use refresh icon from android.R.drawable (bug SDK 1.5)
-		menuRefresh.setAlphabeticShortcut('r');
+		menuRefresh.setAlphabeticShortcut(Constant.SHORTCUT_REFRESH);
 		MenuItem menuStmMobile = menu.add(0, MENU_SHOW_STM_MOBILE_WEBSITE, 0, R.string.see_in_stm_mobile_web_site);
 		menuStmMobile.setIcon(R.drawable.ic_menu_stmmobile);
-		menuStmMobile.setAlphabeticShortcut('s');
+		menuStmMobile.setAlphabeticShortcut(Constant.SHORTCUT_STM_MOBILE);
 		MenuItem menuMaps = menu.add(0, MENU_SHOW_IN_MAPS, 0, R.string.show_in_map_exp);
 		menuMaps.setIcon(android.R.drawable.ic_menu_mapmode);
-		menuMaps.setAlphabeticShortcut('m');
+		menuMaps.setAlphabeticShortcut(Constant.SHORTCUT_MAPS);
 		MenuItem menuRadar = menu.add(0, MENU_USE_RADAR, 0, R.string.use_radar);
 		menuRadar.setIcon(android.R.drawable.ic_menu_compass);
 

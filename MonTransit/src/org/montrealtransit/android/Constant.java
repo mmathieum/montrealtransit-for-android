@@ -23,6 +23,9 @@ public class Constant {
 
 	public static final String PLACE_CHAR_DU = "du ";
 	public static final int PLACE_CHAR_DU_LENGTH = PLACE_CHAR_DE.length();
+	
+	public static final String PLACE_CHAR_L = "l'";
+	public static final int PLACE_CHAR_L_LENGTH = PLACE_CHAR_L.length();
 
 	public static final String PLACE_CHAR_IN = "/ ";
 
@@ -74,4 +77,8 @@ public class Constant {
 	 * The max number of search results.
 	 */
 	public static final int NB_SEARCH_RESULT = 7;
+	
+	public static final char SHORTCUT_STM_MOBILE = 's';
+	public static final char SHORTCUT_REFRESH = 'r';
+	public static final char SHORTCUT_MAPS = 'm';
 }
