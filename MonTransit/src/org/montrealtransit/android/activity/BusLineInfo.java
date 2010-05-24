@@ -123,6 +123,8 @@ public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDi
 			((TextView) findViewById(R.id.direction_detail)).setVisibility(View.VISIBLE);
 			((TextView) findViewById(R.id.direction_detail)).setText(getResources().getString(busLineDirection.get(1)));
 			((TextView) findViewById(R.id.direction_detail)).setOnClickListener(selectBusLineDirection);
+		} else {
+			((TextView) findViewById(R.id.direction_detail)).setVisibility(View.INVISIBLE);
 		}
 	}
 
