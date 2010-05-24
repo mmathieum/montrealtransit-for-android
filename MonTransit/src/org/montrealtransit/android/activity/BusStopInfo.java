@@ -1,7 +1,9 @@
 package org.montrealtransit.android.activity;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 
 import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
@@ -460,12 +462,19 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	private void refreshOtherBusLinesInfo() {
 		MyLog.v(TAG, "setOtherBusLines()");
 		List<BusLine> allBusLines = StmManager.findBusStopLinesList(this.getContentResolver(), this.busStop.getCode());
-		// remove all bus line with the same line number
+		// remove all bus lines with the same line number
 		ListIterator<BusLine> it = allBusLines.listIterator();
+		Set<String> buslinesNumber = new HashSet<String>();
 		while (it.hasNext()) {
 			BusLine busLine = it.next();
+			// IF the bus line number is the same as the current bus stop DO
 			if (busLine.getNumber().equals(this.busLine.getNumber())) {
 				it.remove();
+			// ELSE IF the bus line number is already in the list DO
+			} else if (buslinesNumber.contains(busLine.getNumber())) {
+				it.remove();
+			} else {
+				buslinesNumber.add(busLine.getNumber());
 			}
 		}
 		LinearLayout otherBusLinesList = (LinearLayout) findViewById(R.id.other_bus_line_list);
