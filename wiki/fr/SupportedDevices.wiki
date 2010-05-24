@@ -1,22 +1,23 @@
 #labels Phase-Support,Phase-Requirements
-= Appareils Android supportés : =
-|| *Date de sortie* || *Opérateur* || *Constructeur* || *Modèle* || *Version Android* || *Prochaine mise à jour* || *Notes* ||
+= Appareils Android supportÃ©s : =
+|| *Date de sortie* || *OpÃ©rateur* || *Constructeur* || *ModÃ¨le* || *Version Android* || *Prochaine mise Ã  jour* || *Notes* ||
 || juin 2009 || Rogers || HTC || Dream || 1.5 || ? || ||
 || juin 2009 || Rogers || HTC || Magic+ || 1.5 || 2.1? || Interface HTC Sense ||
 || novembre 2009 || TELUS || HTC || Hero || 1.5 || 2.1? || Interface HTC Sense ||
 || novembre 2009 || Rogers || LG || Eve (GW620) || 1.5 || 1.6? || Interface LG ||
-|| décembre 2009 || Bell || Samsung || Galaxy || 1.5 || 1.6? || ||
-|| février 2010 || TELUS || Motorola || Milestone || 2.1 || 2.2? || ||
+|| dÃ©cembre 2009 || Bell || Samsung || Galaxy || 1.5 || 1.6? || ||
+|| fÃ©vrier 2010 || TELUS || Motorola || Milestone || 2.1 || 2.2? || ||
 || mars 2010 || Rogers || Samsung || Spica || 1.5 || 2.1? || ||
-|| mars 2010 || Rogers/TELUS/Bell/WIND || HTC || Nexus One || 2.2 || ? || Le premier téléphone Google ||
+|| mars 2010 || Rogers/TELUS/Bell/WIND || HTC || Nexus One || 2.2 || ? || Le premier tÃ©lÃ©phone Google ||
 || avril 2010 || Rogers || Sony Ericsson || X10 || 1.6 || 2.1? || Interface Sony Ericsson ||
 || 2010 || X || Archos || 5 IT || 1.6 || ? || Interface Archos ||
 || avril 2010 || TELUS || Motorola || Backflip || 1.5 || 2.1? || Interface MOTOBLUR ||
 || mai 2010 || Bell || Motorola || Dext || 1.5 || ? || Interface MOTOBLUR ||
 || mai 2010 || Rogers || Motorola || Quench || 1.5 || ? || Interface MOTOBLUR ||
 
-= Appareils Android à  venir : =
-|| *Date de sortie* || *Opérateur* || *Constructeur* || *Modèle* || *Version Android* || *Prochaine mise à jour* || *Notes* ||
+
+= Appareils Android Ã  venir : =
+|| *Date de sortie* || *OpÃ©rateur* || *Constructeur* || *ModÃ¨le* || *Version Android* || *Prochaine mise Ã  jour* || *Notes* ||
 || 2010 || Rogers || Acer || Liquid E || 2.1? || ? || ||
 || 2010 || Rogers || LG || GT540 || 2.x? || ? || ||
 || 2010 || Rogers || Sony Ericsson|| Xperia X10 Mini || ? || ? || Interface Sony Ericsson ||
