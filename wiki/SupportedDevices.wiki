@@ -6,7 +6,7 @@
 || November 2009 || TELUS|| HTC || Hero || 1.5 || 2.1? || HTC Sense UI ||
 || November 2009 || Rogers || LG || Eve (GW620) || 1.5 || 1.6? || LG UI ||
 || December 2009 || Bell || Samsung || Galaxy || 1.5 || 1.6? || ||
-|| February 2010 || TELUS || Motorola || Milestone || 2.1 || ? || ||
+|| February 2010 || TELUS || Motorola || Milestone || 2.1 || 2.2? || ||
 || March 2010 || Rogers || Samsung || Spica || 1.5 || 2.1? || ||
 || March 2010 || Rogers/TELUS/Bell/WIND || HTC || Nexus One || 2.2 || ? || The first Google Phone ||
 || April 2010 || Rogers || Sony Ericsson || Xperia X10 || 1.6 || 2.1? || SE custom UI ||
@@ -24,4 +24,4 @@
 || 2010 || TELUS || HTC || Triumph (Desire) || 2.1 || ? || HTC Sense UI ||
 || ? || `*` || `*` || `*` || 2.1 || 2.2? || Google TV ||
 
-_Cette page est Ã©galement disponible en franÃ§ais mais votre navigateur est configurÃ© pour afficher la version en anglais._
+_Cette page est également disponible en français mais votre navigateur est configuré pour afficher la version en anglais._
