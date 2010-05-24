@@ -5,7 +5,7 @@
 	<!-- LIST NO GROUP BY -->
 	<ListView android:id="@+id/list"
 		android:layout_width="fill_parent" android:layout_height="fill_parent"
-		android:textFilterEnabled="true" />
+		android:textFilterEnabled="true" android:fastScrollEnabled="true" />
 	<TextView android:id="@+id/list_empty" android:text="@string/please_wait"
 		android:layout_width="wrap_content" android:layout_height="wrap_content" />
 
