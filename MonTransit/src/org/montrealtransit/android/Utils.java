@@ -380,6 +380,10 @@ public class Utils {
 		} else if (result.startsWith(Constant.PLACE_CHAR_DU)) {
 			result = result.substring(Constant.PLACE_CHAR_DU_LENGTH);
 		}
+		
+		if (result.startsWith(Constant.PLACE_CHAR_L)) {
+			result = result.substring(Constant.PLACE_CHAR_L_LENGTH);
+		}
 
 		if (result.contains(Constant.PLACE_CHAR_IN_DE)) {
 			result = result.replace(Constant.PLACE_CHAR_IN_DE, Constant.PLACE_CHAR_IN);
