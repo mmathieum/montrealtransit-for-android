@@ -1,7 +1,7 @@
 #summary Changes made to the app
 #labels Phase-Support,Featured
 
- * BETA 05-24-2010 ([http://montrealtransit-for-android.googlecode.com/files/MonTransit_BETA_2010-05-24.apk download], http://montrealtransit-for-android.googlecode.com/files/MonTransit_BETA_2010-05-24_Cupcake.apk download for Android 1.5])
+ * BETA 05-24-2010 ([http://montrealtransit-for-android.googlecode.com/files/MonTransit_BETA_2010-05-24.apk download], [http://montrealtransit-for-android.googlecode.com/files/MonTransit_BETA_2010-05-24_Cupcake.apk download for Android 1.5])
   * coming soon...
 
  * BETA 05-15-2010
