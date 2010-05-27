@@ -1,20 +1,19 @@
 #labels Phase-Support,Phase-Requirements
 = Appareils Android supportés : =
-|| *Date de sortie* || *Opérateur* || *Constructeur* || *Modèle* || *Version Android* || *Prochaine mise à jour* || *Notes* ||
-|| juin 2009 || Rogers || HTC || Dream || 1.5 || ? || ||
-|| juin 2009 || Rogers || HTC || Magic+ || 1.5 || 2.1? || Interface HTC Sense ||
-|| novembre 2009 || TELUS || HTC || Hero || 1.5 || 2.1? || Interface HTC Sense ||
-|| novembre 2009 || Rogers || LG || Eve (GW620) || 1.5 || 1.6? || Interface LG ||
-|| décembre 2009 || Bell || Samsung || Galaxy || 1.5 || 1.6? || ||
-|| février 2010 || TELUS || Motorola || Milestone || 2.1 || 2.2? || ||
-|| mars 2010 || Rogers || Samsung || Spica || 1.5 || 2.1? || ||
-|| mars 2010 || Rogers/TELUS/Bell/WIND || HTC || Nexus One || 2.2 || ? || Le premier téléphone Google ||
-|| avril 2010 || Rogers || Sony Ericsson || X10 || 1.6 || 2.1? || Interface Sony Ericsson ||
-|| 2010 || X || Archos || 5 IT || 1.6 || ? || Interface Archos ||
-|| avril 2010 || TELUS || Motorola || Backflip || 1.5 || 2.1? || Interface MOTOBLUR ||
-|| mai 2010 || Bell || Motorola || Dext || 1.5 || ? || Interface MOTOBLUR ||
-|| mai 2010 || Rogers || Motorola || Quench || 1.5 || ? || Interface MOTOBLUR ||
-
+|| *Date de sortie* || *Opérateur* || *Constructeur* || *Modèle* || *Version Android* || *Téléchargement* || *Prochaine mise à jour* || *Notes* ||
+|| juin 2009 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Dream || 1.5 || [http://code.google.com/p/montrealtransit-for-android/downloads/list?q=label:Android-1.5-Cupcake Télécher] || ? || ||
+|| juin 2009 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Magic+ || 1.5 || [http://code.google.com/p/montrealtransit-for-android/downloads/list?q=label:Android-1.5-Cupcake Télécher] || 2.1? || Interface HTC Sense ||
+|| novembre 2009 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Hero || 1.5 || [http://code.google.com/p/montrealtransit-for-android/downloads/list?q=label:Android-1.5-Cupcake Télécher] || 2.1? || Interface HTC Sense ||
+|| novembre 2009 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/5/54/LG_Logo.svg/77px-LG_Logo.svg.png || Eve (GW620) || 1.5 || [http://code.google.com/p/montrealtransit-for-android/downloads/list?q=label:Android-1.5-Cupcake Télécher] || 1.6? || Interface LG ||
+|| décembre 2009 || http://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Bell_logo.svg/77px-Bell_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/77px-Samsung_Logo.svg.png || Galaxy || 1.5 || [http://code.google.com/p/montrealtransit-for-android/downloads/list?q=label:Android-1.5-Cupcake Télécher] || 1.6? || ||
+|| février 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Milestone || 2.1 || [http://code.google.com/p/montrealtransit-for-android/downloads/list?q=label:Android-2.1-Eclair Télécher] || 2.2? || ||
+|| mars 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/77px-Samsung_Logo.svg.png || Spica || 1.5 || [http://code.google.com/p/montrealtransit-for-android/downloads/list?q=label:Android-1.5-Cupcake Télécher] || 2.1? || ||
+|| mars 2010 || * || http://upload.wikimedia.org/wikipedia/en/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Nexus One || 2.2 || [http://code.google.com/p/montrealtransit-for-android/downloads/list?q=label:Android-2.2-Froyo Télécher] || ? || Le premier téléphone Google ||
+|| avril 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/6/67/Sony_Ericsson_logo.svg/77px-Sony_Ericsson_logo.svg.png || X10 || 1.6 || [http://code.google.com/p/montrealtransit-for-android/downloads/list?q=label:Android-1.6-Donut Télécher] || 2.1? || Interface Sony Ericsson ||
+|| 2010 || X || Archos || 5 IT || 1.6 || [http://code.google.com/p/montrealtransit-for-android/downloads/list?q=label:Android-1.6-Donut Télécher] || ? || Interface Archos ||
+|| avril 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Backflip || 1.5 || [http://code.google.com/p/montrealtransit-for-android/downloads/list?q=label:Android-1.5-Cupcake Télécher] || 2.1? || Interface MOTOBLUR ||
+|| mai 2010 || http://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Bell_logo.svg/77px-Bell_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Dext || 1.5 || [http://code.google.com/p/montrealtransit-for-android/downloads/list?q=label:Android-1.5-Cupcake Télécher] || ? || Interface MOTOBLUR ||
+|| mai 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Quench || 1.5 || [http://code.google.com/p/montrealtransit-for-android/downloads/list?q=label:Android-1.5-Cupcake Télécher] || ? || Interface MOTOBLUR ||
 
 = Appareils Android à venir : =
 || *Date de sortie* || *Opérateur* || *Constructeur* || *Modèle* || *Version Android* || *Prochaine mise à jour* || *Notes* ||
@@ -22,7 +21,8 @@
 || 2010 || Rogers || LG || GT540 || 2.x? || ? || ||
 || 2010 || Rogers || Sony Ericsson|| Xperia X10 Mini || ? || ? || Interface Sony Ericsson ||
 || 2010 || Rogers || Sony Ericsson|| Xperia X10 Mini Pro || ? || ? || Interface Sony Ericsson||
-|| 2010 || TELUS || HTC || Triumph (Desire) || 2.1 || ? || HTC Sense UI ||
+|| 2010 || TELUS || HTC || Triumph (Desire) || 2.1 || ? || Interface HTC Sense ||
+|| 2010 || Bell || HTC || Legend || 2.1 || ? || Interface HTC Sense ||
 || ? || `*` || `*` || `*` || 2.1 || 2.2? || Google TV ||
 
 _This page is also available in English, but your browser is configured to display the French version._
