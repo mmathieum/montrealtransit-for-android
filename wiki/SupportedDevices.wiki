@@ -1,19 +1,19 @@
 #labels Phase-Support,Phase-Requirements
 = Supported Android devices: =
-|| *Release Date* || *Carrier* || *Manufacturer* || *Name* || *Android Version* || *Upcoming update* || *Notes* ||
-|| June 2009 || Rogers || HTC || Dream || 1.5 || ? || ||
-|| June 2009 || Rogers || HTC || Magic+ || 1.5 || 2.1? || HTC Sense UI ||
-|| November 2009 || TELUS|| HTC || Hero || 1.5 || 2.1? || HTC Sense UI ||
-|| November 2009 || Rogers || LG || Eve (GW620) || 1.5 || 1.6? || LG UI ||
-|| December 2009 || Bell || Samsung || Galaxy || 1.5 || 1.6? || ||
-|| February 2010 || TELUS || Motorola || Milestone || 2.1 || 2.2? || ||
-|| March 2010 || Rogers || Samsung || Spica || 1.5 || 2.1? || ||
-|| March 2010 || Rogers/TELUS/Bell/WIND || HTC || Nexus One || 2.2 || ? || The first Google Phone ||
-|| April 2010 || Rogers || Sony Ericsson || Xperia X10 || 1.6 || 2.1? || SE custom UI ||
-|| 2010 || X || Archos || 5 IT || 1.6 || ? || Archos custom UI ||
-|| April 2010 || TELUS || Motorola || Backflip || 1.5 || 2.1? || MOTOBLUR UI ||
-|| May 2010 || Bell || Motorola || Dext || 1.5 || ? || MOTOBLUR UI ||
-|| May 2010 || Rogers || Motorola || Quench || 1.5 || ? || MOTOBLUR UI ||
+|| *Release Date* || *Carrier* || *Manufacturer* || *Name* || *Android Version* || *Download link* || *Upcoming update* || *Notes* ||
+|| June 2009 || Rogers || HTC || Dream || 1.5 || [http://code.google.com/p/montrealtransit-for-android/downloads/list?q=Android-1.5-Cupcake Download] || ? || ||
+|| June 2009 || Rogers || HTC || Magic+ || 1.5 || [http://code.google.com/p/montrealtransit-for-android/downloads/list?q=Android-1.5-Cupcake Download] || 2.1? || HTC Sense UI ||
+|| November 2009 || TELUS|| HTC || Hero || 1.5 || [http://code.google.com/p/montrealtransit-for-android/downloads/list?q=Android-1.5-Cupcake Download] || 2.1? || HTC Sense UI ||
+|| November 2009 || Rogers || LG || Eve (GW620) || 1.5 || [http://code.google.com/p/montrealtransit-for-android/downloads/list?q=Android-1.5-Cupcake Download] || 1.6? || LG UI ||
+|| December 2009 || Bell || Samsung || Galaxy || 1.5 || [http://code.google.com/p/montrealtransit-for-android/downloads/list?q=Android-1.5-Cupcake Download] || 1.6? || ||
+|| February 2010 || TELUS || Motorola || Milestone || 2.1 || || 2.2? || ||
+|| March 2010 || Rogers || Samsung || Spica || 1.5 || [http://code.google.com/p/montrealtransit-for-android/downloads/list?q=Android-1.5-Cupcake Download] || 2.1? || ||
+|| March 2010 || Rogers/TELUS/Bell/WIND || HTC || Nexus One || 2.2 || || ? || The first Google Phone ||
+|| April 2010 || Rogers || Sony Ericsson || Xperia X10 || 1.6 || || 2.1? || SE custom UI ||
+|| 2010 || X || Archos || 5 IT || 1.6 || || ? || Archos custom UI ||
+|| April 2010 || TELUS || Motorola || Backflip || 1.5 || [http://code.google.com/p/montrealtransit-for-android/downloads/list?q=Android-1.5-Cupcake Download] || 2.1? || MOTOBLUR UI ||
+|| May 2010 || Bell || Motorola || Dext || 1.5 || [http://code.google.com/p/montrealtransit-for-android/downloads/list?q=Android-1.5-Cupcake Download] || ? || MOTOBLUR UI ||
+|| May 2010 || Rogers || Motorola || Quench || 1.5 || [http://code.google.com/p/montrealtransit-for-android/downloads/list?q=Android-1.5-Cupcake Download] || ? || MOTOBLUR UI ||
 
 = Upcoming Android devices: =
 || *Release Date* || *Carrier* || *Manufacturer* || *Name* || *Android Version* || *Upcoming update* || *Notes* ||
