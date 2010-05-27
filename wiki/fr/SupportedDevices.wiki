@@ -25,4 +25,4 @@
 || 2010 || Bell || HTC || Legend || 2.1 || ? || Interface HTC Sense ||
 || ? || X || `*` || `*` || 2.1 || 2.2? || Google TV ||
 
-_This page is also available in English, but your browser is configured to display the French version._
+_This page is also available [http://code.google.com/p/montrealtransit-for-android/wiki/SupportedDevices?wl=en in English], but your browser is configured to display the French version._
