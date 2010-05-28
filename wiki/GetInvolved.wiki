@@ -10,7 +10,7 @@ This project allows to highlight the capabilities of the Android platform.
 
  * As a *user*, you can report a problem or ask for a new feature [http://code.google.com/p/montrealtransit-for-android/issues/entry here].
 
- * As a *user*, you can look at the list of [http://code.google.com/p/montrealtransit-for-android/issues/list?q=type=Defect known issues] and [http://code.google.com/p/montrealtransit-for-android/issues/list?q=type=Enhancement feature requests].
+ * As a *user*, you can look at the list of [http://code.google.com/p/montrealtransit-for-android/issues/list?q=type=Defect known issues] and [http://code.google.com/p/montrealtransit-for-android/issues/list?q=type=Enhancement feature requests] to add your comments.
 
  * If you're a *developer* and you're interested by Android apps development, you can get [http://code.google.com/p/montrealtransit-for-android/source the source code] et start to look at it. Then, if you want to fix [http://code.google.com/p/montrealtransit-for-android/issues/list?q=type=Defect an issue] or add a [http://code.google.com/p/montrealtransit-for-android/issues/list?q=type=Enhancement new feature], you should inform us (to avoid working on the same thing unnecessarily). When you've made the necessary changes in the source code, you will need to contact us to get write access on the project source code.
 
