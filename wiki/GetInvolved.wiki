@@ -17,3 +17,5 @@ This project allows to highlight the capabilities of the Android platform.
  * As a *graphic* artist, you can help us by providing new images for the application. You can find existing images [http://code.google.com/p/montrealtransit-for-android/source/browse/#svn/trunk/MonTransit/res/drawable here] and [http://code.google.com/p/montrealtransit-for-android/source/browse/#svn/trunk/MonTransit/res/drawable-hdpi here].
 
  * As a *wireless carrier* or as an Android *device manufacturer*, you can help us by providing test devices to polish the compatibility of the application with your devices in order to improve your customers experience.
+ 
+ _Cette page est également disponible [http://code.google.com/p/montrealtransit-for-android/wiki/GetInvolved?wl=fr en français] mais votre navigateur est configuré pour afficher la version en anglais._

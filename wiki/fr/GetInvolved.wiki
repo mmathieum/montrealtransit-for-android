@@ -17,3 +17,5 @@ Ce projet permet de mettre en avant les possibilités offertes par la plateforme
  * En tant que *graphiste* (ou si vous avez des talents de graphiste), vous pouvez nous aider en proposant de nouvelles images pour l'application. Vous pouvez trouver toutes les images utilisées par l'application actuellement [http://code.google.com/p/montrealtransit-for-android/source/browse/#svn/trunk/MonTransit/res/drawable ici] et [http://code.google.com/p/montrealtransit-for-android/source/browse/#svn/trunk/MonTransit/res/drawable-hdpi ici].
  
  * En tant qu'*opérateur de téléphonie mobile* ou en tant que *fabricant d'appareil* Android, vous pouvez nous aider en nous fournissant des appareils de test pour perfectionner la compatibilité de l'application avec vos appareils afin de améliorer l'expérience de vos clients.
+ 
+ _This page is also available [http://code.google.com/p/montrealtransit-for-android/wiki/GetInvolved?wl=en in English], but your browser is configured to display the French version._
