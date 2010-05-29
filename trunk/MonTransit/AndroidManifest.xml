@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="org.montrealtransit.android" android:versionName="RC1 2010-05-27"
-	android:versionCode="145">
+	android:versionCode="145" android:installLocation="auto">
 
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-sdk android:minSdkVersion="3" android:targetSdkVersion="8" />
