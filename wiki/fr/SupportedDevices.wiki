@@ -16,7 +16,7 @@
 || mai 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Quench ([http://en.wikipedia.org/wiki/Motorola_CLIQ_XT wikipédia anglais]) || 1.5 || ? || Interface MOTOBLUR ||
 
 
-= Appareils Android Ã  venir : =
+= Appareils Android à  venir : =
 || *Date de sortie* || *Opérateur* || *Constructeur* || *Modèle* || *Version Android* || *Prochaine mise à  jour* || *Notes* ||
 || 2010 || Rogers || Acer || Liquid E || 2.1? || ? || ||
 || 2010 || Rogers || LG || GT540 || 2.x? || ? || ||
