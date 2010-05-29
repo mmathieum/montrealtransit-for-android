@@ -1,5 +1,5 @@
 #labels Phase-Support,Phase-Requirements
-= Appareils Android support&eacute;s : =
+= Appareils Android support&#233;s : =
 || *Date de sortie* || *Opérateur* || *Constructeur* || *Modèle* || *Version Android* || *Prochaine mise � jour* || *Notes* ||
 || juin 2009 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Dream ([http://fr.wikipedia.org/wiki/HTC_G1 wikipédia]) || 1.5 || ? || ||
 || juin 2009 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Magic+ ([http://fr.wikipedia.org/wiki/HTC_Magic wikipédia]) || 1.5 || 2.1? || Interface HTC Sense ||
