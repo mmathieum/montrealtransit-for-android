@@ -27,3 +27,5 @@
 || ? || X || `*` || `*` || 2.1 || 2.2? || Google TV ||
 
 _Cette page est également disponible [http://code.google.com/p/montrealtransit-for-android/wiki/SupportedDevices?wl=fr en français] mais votre navigateur est configuré pour afficher la version en anglais._
+
+Test é ê è à
