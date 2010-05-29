@@ -1,5 +1,5 @@
 #summary Comment s'impliquer dans ce projet.
-��
+
 Le développement de cette application a commencé il y a plusieurs mois.
 
 Nous travaillons bénévolement sur cette application pendant notre temps libre.
@@ -8,11 +8,11 @@ Ce projet permet de mettre en avant les possibilités offertes par la plateforme
 
 = Comment puis-je aider ? =
 
- * En tant qu'*utilisateur*, vous pouvez nous signaler un probl�me ou demander l'ajout d'une nouvelle fonctionnalité [http://code.google.com/p/montrealtransit-for-android/issues/entry ici].
+ * En tant qu'*utilisateur*, vous pouvez nous signaler un problème ou demander l'ajout d'une nouvelle fonctionnalité [http://code.google.com/p/montrealtransit-for-android/issues/entry ici].
 
- * En tant qu'*utilisateur*, vous pouvez consulter la liste [http://code.google.com/p/montrealtransit-for-android/issues/list?q=type=Defect des probl�mes connus] et [http://code.google.com/p/montrealtransit-for-android/issues/list?q=type=Enhancement des fonctionnalités demandées] pour y ajouter vos commentaires.
+ * En tant qu'*utilisateur*, vous pouvez consulter la liste [http://code.google.com/p/montrealtransit-for-android/issues/list?q=type=Defect des problèmes connus] et [http://code.google.com/p/montrealtransit-for-android/issues/list?q=type=Enhancement des fonctionnalités demandées] pour y ajouter vos commentaires.
 
- * En tant que *développeur* (ou si vous vous intéressez au développement d'applications Android), vous pouvez récupérer [http://code.google.com/p/montrealtransit-for-android/source le code source] et commencer � le regarder. Ensuite, si vous souhaitez modifier le code source pour corriger [http://code.google.com/p/montrealtransit-for-android/issues/list?q=type=Defect un probl�me] ou ajouter [http://code.google.com/p/montrealtransit-for-android/issues/list?q=type=Enhancement une nouvelle fonctionnalité], vous pouvez nous en informer (afin de ne pas travailler sur la m�me chose inutilement). Une fois que vous avez fait les modifications nécessaires au projet, contactez-nous pour pouvoir modifier le code source du projet.
+ * En tant que *développeur* (ou si vous vous intéressez au développement d'applications Android), vous pouvez récupérer [http://code.google.com/p/montrealtransit-for-android/source le code source] et commencer � le regarder. Ensuite, si vous souhaitez modifier le code source pour corriger [http://code.google.com/p/montrealtransit-for-android/issues/list?q=type=Defect un problème] ou ajouter [http://code.google.com/p/montrealtransit-for-android/issues/list?q=type=Enhancement une nouvelle fonctionnalité], vous pouvez nous en informer (afin de ne pas travailler sur la m�me chose inutilement). Une fois que vous avez fait les modifications nécessaires au projet, contactez-nous pour pouvoir modifier le code source du projet.
 
  * En tant que *graphiste* (ou si vous avez des talents de graphiste), vous pouvez nous aider en proposant de nouvelles images pour l'application. Vous pouvez trouver toutes les images utilisées par l'application actuellement [http://code.google.com/p/montrealtransit-for-android/source/browse/#svn/trunk/MonTransit/res/drawable ici] et [http://code.google.com/p/montrealtransit-for-android/source/browse/#svn/trunk/MonTransit/res/drawable-hdpi ici].
  
