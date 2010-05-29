@@ -1,6 +1,6 @@
 #labels Phase-Support,Phase-Requirements
-= Appareils Android support�s : =
-|| *Date de sortie* || *Opérateur* || *Constructeur* || *Modèle* || *Version Android* || *Prochaine mise � jour* || *Notes* ||
+= Appareils Android supportés : =
+|| *Date de sortie* || *Opérateur* || *Constructeur* || *Modèle* || *Version Android* || *Prochaine mise à jour* || *Notes* ||
 || juin 2009 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Dream ([http://fr.wikipedia.org/wiki/HTC_G1 wikipédia]) || 1.5 || ? || ||
 || juin 2009 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Magic+ ([http://fr.wikipedia.org/wiki/HTC_Magic wikipédia]) || 1.5 || 2.1? || Interface HTC Sense ||
 || novembre 2009 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Hero ([http://fr.wikipedia.org/wiki/HTC_Hero wikipédia]) || 1.5 || 2.1? || Interface HTC Sense ||
@@ -16,8 +16,8 @@
 || mai 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Quench ([http://en.wikipedia.org/wiki/Motorola_CLIQ_XT wikipédia anglais]) || 1.5 || ? || Interface MOTOBLUR ||
 
 
-= Appareils Android à venir : =
-|| *Date de sortie* || *Opérateur* || *Constructeur* || *Modèle* || *Version Android* || *Prochaine mise à jour* || *Notes* ||
+= Appareils Android Ã  venir : =
+|| *Date de sortie* || *Opérateur* || *Constructeur* || *Modèle* || *Version Android* || *Prochaine mise à  jour* || *Notes* ||
 || 2010 || Rogers || Acer || Liquid E || 2.1? || ? || ||
 || 2010 || Rogers || LG || GT540 || 2.x? || ? || ||
 || 2010 || Rogers || Sony Ericsson|| Xperia X10 Mini || ? || ? || Interface Sony Ericsson ||
