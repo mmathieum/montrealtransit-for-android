@@ -816,15 +816,17 @@ public class Utils {
 	 */
 	public static void showAboutDialog(Activity activity) {
 		String versionName = "";
+		String versionCode = "";
         try {
         	PackageInfo packageInfo = activity.getPackageManager().getPackageInfo(Constant.PKG, 0);
         	versionName = packageInfo.versionName;
+        	versionCode = String.valueOf(packageInfo.versionCode);
         } catch (NameNotFoundException e) {
         }
         View view = activity.getLayoutInflater().inflate(R.layout.about, null, false);
 
         TextView versionTv = (TextView)view.findViewById(R.id.version);
-        versionTv.setText(activity.getString(R.string.about_version, versionName));
+        versionTv.setText(activity.getString(R.string.about_version, versionName, versionCode));
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle(activity.getString(R.string.app_name));
