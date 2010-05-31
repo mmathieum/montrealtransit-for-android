@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">MonTransit</string>
-    <string name="app_desc">BETA de MonTransit pour Android.</string>
+    <string name="app_desc">Transport Montréal pour Android.</string>
     
     <string name="bus">Autobus</string>
     <string name="subway">Métro</string>
@@ -177,9 +177,9 @@
     <string name="menu_preferences">Paramètres</string>
     <string name="menu_about">À propos</string>
     
-    <string name="about_text1">"MonTransit est une application gratuite pour Android. Cette application n\'est pas associée à la STM. Le code source de l'application est publié sous la license Apache 2.0 par:"</string>
+    <string name="about_text1">MonTransit vous permet d\'accéder aux informations sur les autobus et les métro de la STM. Cette application n\'est pas associée à la Société de Transport de Montréal. Le code source de l\'application est publié sous la license Apache 2.0 par:"</string>
     <string name="about_text2_authors">"Mathieu Méa http://twitter.com/mmathieum"</string>
     <string name="about_text3_website">"Site web : http://montrealtransit-for-android.googlecode.com/"</string>
     <string name="about_text4_source">"Code source : http://code.google.com/p/montrealtransit-for-android/source/browse/"</string>
-    <string name="about_version">"Version %s"</string>
+    <string name="about_version">"Version %s (%s)"</string>
 </resources>
