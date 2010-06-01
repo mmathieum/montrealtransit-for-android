@@ -5,12 +5,12 @@
 
 	<!-- BUS STOP INFORMATIONS -->
 	<RelativeLayout android:id="@+id/banner"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:orientation="horizontal" android:background="@android:drawable/title_bar_tall"
+		android:layout_width="fill_parent" android:layout_height="85dip"
+		android:orientation="horizontal" android:background="@android:drawable/title_bar"
 		android:paddingRight="5dip" android:paddingLeft="5dip"
 		android:gravity="fill_horizontal">
 
-		<!-- BUS IMG -->
+		<!-- BUS STOP LOGO -->
 		<ImageView android:id="@+id/img"
 			android:layout_alignParentLeft="true" android:layout_width="45dip"
 			android:layout_height="45dip" android:layout_marginRight="5dip"
@@ -56,6 +56,11 @@
 			android:gravity="center_vertical|left" android:focusable="true"
 			android:textAppearance="?android:attr/textAppearanceMedium"
 			android:text="@string/unknow_line_name" />
+		<!-- BUS LINE TYPE -->
+		<ImageView android:id="@+id/line_type"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_alignParentBottom="true" android:layout_alignParentRight="true"
+			android:paddingBottom="5dip" />
 
 		<!-- DIRECTION LINE -->
 		<TextView android:id="@+id/direction_main"

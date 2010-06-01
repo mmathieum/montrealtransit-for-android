@@ -53,7 +53,7 @@ import android.widget.TextView;
 
 /**
  * This activity show information about a bus stop.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class BusStopInfo extends Activity implements NextStopListener, View.OnClickListener,
         DialogInterface.OnClickListener, OnSharedPreferenceChangeListener {
@@ -402,11 +402,14 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 		// set bus line name
 		((TextView) findViewById(R.id.line_name)).setText(this.busLine.getName());
 		((TextView) findViewById(R.id.line_name)).setOnClickListener(busLineSelectDirection);
+		// bus line type
+		((ImageView) findViewById(R.id.line_type)).setImageResource(Utils.getBusLineTypeImgFromType(this.busLine.getType()));
 		// set bus line direction
 		String directionId = this.busStop.getDirectionId();
 		BusLineDirection busLineDirection = StmManager.findBusLineDirection(this.getContentResolver(), directionId);
 		List<Integer> busLineDirectionIds = Utils.getBusLineDirectionStringIdFromId(busLineDirection.getId());
-		((TextView) findViewById(R.id.direction_main)).setText(getResources().getString(busLineDirectionIds.get(0)));
+		String directionText = getResources().getString(R.string.direction) + " " + getResources().getString(busLineDirectionIds.get(0));
+		((TextView) findViewById(R.id.direction_main)).setText(directionText);
 		// set the favorite star
 		setTheStar();
 	}

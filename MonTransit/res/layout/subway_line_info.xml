@@ -5,36 +5,37 @@
 
 	<!-- SUBWAY LINE INFORMATIONS -->
     <RelativeLayout android:id="@+id/banner"
-    	android:layout_width="fill_parent" android:layout_height="wrap_content"
+    	android:layout_width="fill_parent" android:layout_height="70dip"
     	android:padding="5dip"
     	android:orientation="horizontal" android:gravity="center_vertical"
-    	android:background="@android:drawable/title_bar_tall">
+    	android:background="@android:drawable/title_bar">
 		<!-- SUBWAY LOGO -->
         <ImageView android:id="@+id/subway"
-        	android:layout_alignParentLeft="true"
-        	android:layout_width="40dip" android:layout_height="40dip"
-        	android:layout_marginRight="7dip" android:layout_marginTop="7dip"
-        	android:gravity="center" android:scaleType="centerInside"
-        	android:background="@drawable/subway_blue" />
+        	android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_alignParentBottom="true"	android:layout_alignParentTop="true"
+			android:layout_alignParentLeft="true" android:layout_alignWithParentIfMissing="true"
+			android:layout_marginRight="7dip"
+			android:gravity="center_horizontal"
+        	android:src="@drawable/subway_white" />
+		<!-- SUBWAY LINE COLOR -->
+		<ImageView android:id="@+id/subway_img"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_alignParentBottom="true"	android:layout_alignParentTop="true"
+			android:layout_alignParentRight="true" android:layout_alignWithParentIfMissing="true"
+			android:gravity="center_horizontal" />
 		<!-- SUBWAY LINE NAME -->
         <TextView android:id="@+id/line_name"
-        	android:layout_width="fill_parent" android:layout_height="wrap_content"
-    		android:layout_toRightOf="@id/subway" android:layout_alignParentTop="true"
+        	android:layout_width="fill_parent" android:layout_height="fill_parent"
+    		android:layout_toRightOf="@id/subway" android:layout_toLeftOf="@id/subway_img"
     		android:singleLine="true" android:ellipsize="marquee"
     		android:focusable="true" android:gravity="center_vertical|left"
     		android:textAppearance="?android:attr/textAppearanceLarge" android:textStyle="bold" />
-    	<!-- SUWBAY STATIONS DISPLAY ORDER -->
-        <TextView android:id="@+id/order_main"
-        	android:layout_width="fill_parent" android:layout_height="wrap_content"
-    		android:layout_marginRight="5dip"
-    		android:layout_toRightOf="@id/subway" android:layout_below="@+id/line_name"
-    		android:textAppearance="?android:attr/textAppearanceMedium"
-    		android:singleLine="true" android:ellipsize="marquee"
-    		android:focusable="true" android:gravity="center_vertical|left" />
-			
     </RelativeLayout>
 
 	<!-- SUBWAY STATIONS  -->
+	<TextView android:id="@+id/subway_line_station_string"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp" />
     <FrameLayout
     	android:layout_width="fill_parent"
     	android:layout_height="0dip"

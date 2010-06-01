@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.FilterQueryProvider;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -27,7 +28,7 @@ import android.widget.SimpleCursorAdapter.ViewBinder;
 
 /**
  * Display a list of subway line.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class SubwayLinesListTab extends Activity implements ViewBinder, OnItemClickListener, OnItemLongClickListener,
         FilterQueryProvider {
@@ -62,8 +63,8 @@ public class SubwayLinesListTab extends Activity implements ViewBinder, OnItemCl
 	 */
 	private ListAdapter getAdapter() {
 		this.cursor = StmManager.findAllSubwayLines(this.getContentResolver());
-		String[] from = new String[] { StmStore.SubwayLine.LINE_NUMBER };
-		int[] to = new int[] { R.id.line_name };
+		String[] from = new String[] { StmStore.SubwayLine.LINE_NUMBER, StmStore.SubwayLine.LINE_NUMBER, StmStore.SubwayLine.LINE_NUMBER };
+		int[] to = new int[] { R.id.line_name, R.id.subway_img_1, R.id.subway_img_2 };
 		SimpleCursorAdapter subwayLines = new SimpleCursorAdapter(this, R.layout.subway_line_list_tab_item, this.cursor, from, to);
 		subwayLines.setViewBinder(this);
 		subwayLines.setFilterQueryProvider(this);
@@ -83,13 +84,19 @@ public class SubwayLinesListTab extends Activity implements ViewBinder, OnItemCl
 	 */
 	@Override
 	public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-		if (view.getId() == R.id.line_name && columnIndex == cursor.getColumnIndex(StmStore.SubwayLine.LINE_NUMBER)) {
-			int subwayLineId = cursor.getInt(cursor.getColumnIndex(StmStore.SubwayLine.LINE_NUMBER));
-			((TextView) view).setTextColor(Utils.getSubwayLineColor(subwayLineId));
+		switch (view.getId()) {
+        case R.id.line_name:
+        	int subwayLineId = cursor.getInt(cursor.getColumnIndex(StmStore.SubwayLine.LINE_NUMBER));
 			((TextView) view).setText(getResources().getString(Utils.getSubwayLineName(subwayLineId)));
+	        return true;
+        case R.id.subway_img_1:
+        case R.id.subway_img_2:
+        	int subwayLineId2 = cursor.getInt(cursor.getColumnIndex(StmStore.SubwayLine.LINE_NUMBER));
+			((ImageView) view).setImageResource(Utils.getSubwayLineImg(subwayLineId2));
 			return true;
-		}
-		return false;
+        default:
+        	return false;
+        }
 	}
 
 	/**

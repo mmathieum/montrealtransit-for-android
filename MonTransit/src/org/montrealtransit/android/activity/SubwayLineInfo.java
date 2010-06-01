@@ -31,7 +31,7 @@ import android.widget.SimpleCursorAdapter.ViewBinder;
 
 /**
  * The subway line info activity.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectionDialogListener, OnItemClickListener,
         ViewBinder, FilterQueryProvider {
@@ -115,23 +115,25 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	private void refreshSubwayLineInfo() {
 		// subway line name
 		((TextView) findViewById(R.id.line_name)).setText(Utils.getSubwayLineName(subwayLine.getNumber()));
-		((TextView) findViewById(R.id.line_name)).setTextColor(Utils.getSubwayLineColor(subwayLine.getNumber()));
+		((ImageView) findViewById(R.id.subway_img)).setImageResource(Utils.getSubwayLineImg(subwayLine.getNumber()));
 
 		// subway line direction
 		this.lastSubwayStation = StmManager.findSubwayLineLastSubwayStation(this.getContentResolver(), this.subwayLine.getNumber(), this.orderId);
-		((TextView) findViewById(R.id.order_main)).setText(getDirectionText());
+		String separatorText = this.getResources().getString(R.string.subway_stations) + " (" + getDirectionText() + ")";
+		((TextView) findViewById(R.id.subway_line_station_string)).setText(separatorText);
 		SubwayLineSelectDirection selectSubwayStationOrder = new SubwayLineSelectDirection(this, this.subwayLine.getNumber(), this);
-		((TextView) findViewById(R.id.order_main)).setOnClickListener(selectSubwayStationOrder);
+		((TextView) findViewById(R.id.subway_line_station_string)).setOnClickListener(selectSubwayStationOrder);
 	}
 
 	/**
 	 * @return the direction test (the direction(station) or the A-Z order)
 	 */
 	private String getDirectionText() {
-		if (this.orderId.equals(StmStore.SubwayLine.NATURAL_SORT_ORDER) || this.orderId.equals(StmStore.SubwayLine.NATURAL_SORT_ORDER_DESC)) {
+		if (this.orderId.equals(StmStore.SubwayStation.NATURAL_SORT_ORDER) || this.orderId.equals(StmStore.SubwayStation.NATURAL_SORT_ORDER_DESC)) {
 			return this.getResources().getString(R.string.direction) + " " + this.lastSubwayStation.getName();
 		} else {
 			// DEFAULT : StmStore.SubwayLine.DEFAULT_SORT_ORDER A-Z order
+			this.orderId = StmStore.SubwayStation.DEFAULT_SORT_ORDER;
 			return this.getResources().getString(R.string.alphabetical_order);
 		}
 	}

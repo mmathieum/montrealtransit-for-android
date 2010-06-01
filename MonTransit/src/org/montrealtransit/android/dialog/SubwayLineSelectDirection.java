@@ -15,7 +15,7 @@ import android.view.View;
 
 /**
  * This class handle the subway line direction selection.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class SubwayLineSelectDirection implements android.view.View.OnClickListener, android.content.DialogInterface.OnClickListener,
         SubwayLineSelectDirectionDialogListener {
@@ -100,10 +100,10 @@ public class SubwayLineSelectDirection implements android.view.View.OnClickListe
 	private String[] getItems() {
 		MyLog.v(TAG, "getItems()");
 		StmStore.SubwayStation firstSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(this.context.getContentResolver(), this.subwayLine
-		        .getNumber(), StmStore.SubwayLine.NATURAL_SORT_ORDER);
+		        .getNumber(), StmStore.SubwayStation.NATURAL_SORT_ORDER);
 		//MyTrace.d(TAG, "First station: " + firstSubwayStationDirection.getName());
 		StmStore.SubwayStation lastSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(this.context.getContentResolver(), this.subwayLine
-		        .getNumber(), StmStore.SubwayLine.NATURAL_SORT_ORDER_DESC);
+		        .getNumber(), StmStore.SubwayStation.NATURAL_SORT_ORDER_DESC);
 		//MyTrace.d(TAG, "Last station: " + lastSubwayStationDirection.getName());
 
 		String[] items = new String[3];
@@ -111,9 +111,9 @@ public class SubwayLineSelectDirection implements android.view.View.OnClickListe
 
 		orderId[0] = StmStore.SubwayLine.DEFAULT_SORT_ORDER;
 		items[0] = this.context.getResources().getString(R.string.alphabetical_order);
-		orderId[1] = StmStore.SubwayLine.NATURAL_SORT_ORDER;
+		orderId[1] = StmStore.SubwayStation.NATURAL_SORT_ORDER;
 		items[1] = firstSubwayStationDirection.getName();
-		orderId[2] = StmStore.SubwayLine.NATURAL_SORT_ORDER_DESC;
+		orderId[2] = StmStore.SubwayStation.NATURAL_SORT_ORDER_DESC;
 		items[2] = lastSubwayStationDirection.getName();
 		return items;
 	}

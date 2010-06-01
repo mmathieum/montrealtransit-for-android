@@ -3,10 +3,11 @@
 	android:layout_width="fill_parent" android:layout_height="wrap_content">
 
 	<!-- OK BUTTON  -->
-	<ImageButton android:id="@+id/ok" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:layout_alignParentRight="true"
-		android:layout_alignParentTop="true" android:layout_marginLeft="0dip"
-		android:src="@android:drawable/ic_search_category_default" />
+	<ImageButton android:id="@+id/ok"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:layout_alignParentRight="true" android:layout_alignParentTop="true"
+		android:layout_marginLeft="0dip"
+		android:src="@drawable/ic_btn_search" />
 	<!-- SEARCH FIELD -->
 	<AutoCompleteTextView android:id="@+id/field"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
