@@ -29,7 +29,7 @@ import android.widget.SimpleCursorAdapter.ViewBinder;
 
 /**
  * This activity display information about a bus line.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDirectionDialogListener,
         OnItemClickListener, FilterQueryProvider {
@@ -114,18 +114,16 @@ public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDi
 		
 		// bus line direction
 		BusLineSelectDirection selectBusLineDirection = new BusLineSelectDirection(this, this.busLine.getNumber(), this);
-		((TextView) findViewById(R.id.direction_string)).setOnClickListener(selectBusLineDirection);
+		((TextView) findViewById(R.id.bus_line_stop_string)).setOnClickListener(selectBusLineDirection);
 		List<Integer> busLineDirection = Utils.getBusLineDirectionStringIdFromId(this.busLineDirection.getId());
-		((TextView) findViewById(R.id.direction_main)).setText(getResources().getString(busLineDirection.get(0)));
-		((TextView) findViewById(R.id.direction_main)).setOnClickListener(selectBusLineDirection);
-		// bus line direction details
+		String separtorText = getResources().getString(R.string.bus_stops);
+		separtorText += " (" + getResources().getString(R.string.direction);
+		separtorText += " " + getResources().getString(busLineDirection.get(0));
 		if (busLineDirection.size() >= 2) {
-			((TextView) findViewById(R.id.direction_detail)).setVisibility(View.VISIBLE);
-			((TextView) findViewById(R.id.direction_detail)).setText(getResources().getString(busLineDirection.get(1)));
-			((TextView) findViewById(R.id.direction_detail)).setOnClickListener(selectBusLineDirection);
-		} else {
-			((TextView) findViewById(R.id.direction_detail)).setVisibility(View.INVISIBLE);
+			separtorText += " " + getResources().getString(busLineDirection.get(1));
 		}
+		separtorText += ")";
+		((TextView) findViewById(R.id.bus_line_stop_string)).setText(separtorText);
 	}
 
 	/**

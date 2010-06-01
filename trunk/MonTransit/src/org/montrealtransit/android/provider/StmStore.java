@@ -10,7 +10,7 @@ import android.provider.BaseColumns;
 
 /**
  * This class contains all the info about the data return by the {@link StmProvider}
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class StmStore {
 
@@ -35,7 +35,7 @@ public class StmStore {
 
 	/**
 	 * Represent a bus line.
-	 * @author Mathieu Méa
+	 * @author Mathieu MÃ©a
 	 */
 	public static class BusLine implements BaseColumns, BusLinesColumns, BusStopsColumns {
 		/**
@@ -190,7 +190,7 @@ public class StmStore {
 
 	/**
 	 * The bus line columns
-	 * @author Mathieu Méa
+	 * @author Mathieu MÃ©a
 	 */
 	public interface BusLinesColumns {
 		public static final String LINE_NUMBER = StmDbHelper.T_BUS_LINES_K_NUMBER;
@@ -201,7 +201,7 @@ public class StmStore {
 
 	/**
 	 * Represent a bus line direction.
-	 * @author Mathieu Méa
+	 * @author Mathieu MÃ©a
 	 */
 	public static class BusLineDirection implements BaseColumns, BusLineDirectionsColumns {
 		/**
@@ -276,7 +276,7 @@ public class StmStore {
 
 	/**
 	 * The bus line direction columns
-	 * @author Mathieu Méa
+	 * @author Mathieu MÃ©a
 	 */
 	public interface BusLineDirectionsColumns {
 		public static final String DIRECTION_ID = StmDbHelper.T_BUS_LINE_DIRECTIONS_K_ID;
@@ -286,7 +286,7 @@ public class StmStore {
 
 	/**
 	 * A bus line stop.
-	 * @author Mathieu Méa
+	 * @author Mathieu MÃ©a
 	 */
 	public static class BusStop implements BaseColumns, SubwayStationsColumns, BusLinesColumns, BusStopsColumns {
 		/**
@@ -464,7 +464,7 @@ public class StmStore {
 
 	/**
 	 * The bus stop columns.
-	 * @author Mathieu Méa
+	 * @author Mathieu MÃ©a
 	 */
 	public interface BusStopsColumns {
 		public static final String STOP_CODE = StmDbHelper.T_BUS_STOPS_K_CODE;
@@ -478,7 +478,7 @@ public class StmStore {
 
 	/**
 	 * A subway line
-	 * @author Mathieu Méa
+	 * @author Mathieu MÃ©a
 	 */
 	public static class SubwayLine implements BaseColumns, SubwayLinesColumns, SubwayStationsColumns {
 		/**
@@ -518,17 +518,7 @@ public class StmStore {
 		/**
 		 * The default sort order.
 		 */
-		public static final String DEFAULT_SORT_ORDER = StmDbHelper.T_SUBWAY_LINES_K_NAME + " ASC";
-
-		/**
-		 * Order subway line by the real world order 1.
-		 */
-		public static final String NATURAL_SORT_ORDER = StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ORDER + " ASC";
-		/**
-		 * Order subway line by the real world order 2.
-		 */
-		public static final String NATURAL_SORT_ORDER_DESC = StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ORDER
-		        + " DESC";
+		public static final String DEFAULT_SORT_ORDER = StmDbHelper.T_SUBWAY_LINES_K_NUMBER + " ASC";
 
 		/**
 		 * The subway line number.
@@ -580,7 +570,7 @@ public class StmStore {
 
 	/**
 	 * The subway line columns
-	 * @author Mathieu Méa
+	 * @author Mathieu MÃ©a
 	 */
 	public interface SubwayLinesColumns {
 		public static final String LINE_NUMBER = StmDbHelper.T_SUBWAY_LINES_K_NUMBER;
@@ -589,7 +579,7 @@ public class StmStore {
 
 	/**
 	 * The subway station.
-	 * @author Mathieu Méa
+	 * @author Mathieu MÃ©a
 	 */
 	public static class SubwayStation implements BaseColumns, SubwayStationsColumns, SubwayLinesColumns {
 		/**
@@ -610,6 +600,15 @@ public class StmStore {
 		 * The default sort order.
 		 */
 		public static final String DEFAULT_SORT_ORDER = StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME + " ASC";
+		/**
+		 * Order subway line by the real world order 1.
+		 */
+		public static final String NATURAL_SORT_ORDER = StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ORDER + " ASC";
+		/**
+		 * Order subway line by the real world order 2.
+		 */
+		public static final String NATURAL_SORT_ORDER_DESC = StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ORDER
+		        + " DESC";
 		/**
 		 * The subway station ID.
 		 */
@@ -670,7 +669,7 @@ public class StmStore {
 
 		/**
 		 * A sub directory of a single subway station that contains all of their bus lines.
-		 * @author Mathieu Méa
+		 * @author Mathieu MÃ©a
 		 */
 		public static final class BusLines implements BaseColumns, BusLinesColumns, SubwayStationsColumns {
 			private BusLines() {
@@ -682,7 +681,7 @@ public class StmStore {
 
 		/**
 		 * A sub directory of a single subway station that contains all of their bus stops.
-		 * @author Mathieu Méa
+		 * @author Mathieu MÃ©a
 		 */
 		public static final class BusStops implements BaseColumns, BusStopsColumns, SubwayStationsColumns {
 			private BusStops() {
@@ -694,7 +693,7 @@ public class StmStore {
 
 		/**
 		 * A sub directory of a single subway station that contains all of their subway lines.
-		 * @author Mathieu Méa
+		 * @author Mathieu MÃ©a
 		 */
 		public static final class SubwayLines implements BaseColumns, SubwayLinesColumns, SubwayStationsColumns {
 			private SubwayLines() {
@@ -707,7 +706,7 @@ public class StmStore {
 
 	/**
 	 * The subway lines columns
-	 * @author Mathieu Méa
+	 * @author Mathieu MÃ©a
 	 */
 	public interface SubwayStationsColumns {
 		public static final String STATION_ID = StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID;

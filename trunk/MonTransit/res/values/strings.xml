@@ -38,6 +38,8 @@
 	<string name="next_bus_stops">Next passing</string>
 	<string name="other_bus_line">Other bus line(s)</string>
 	<string name="subway_station">Subway station</string>
+	<string name="subway_stations">Subway stations</string>
+	<string name="bus_stops">Bus stops</string>
 	
 	<string name="display_pref_cat_title">Display preferences</string>
 	<string name="data_pref_cat_title">Data source</string>
@@ -180,6 +182,6 @@
     <string name="about_text1">MonTransit allows you to access information about the buses and subway from the STM. This app is not related with the Société de Transport de Montréal. The source code is released under an Apache 2.0 license by:"</string>
     <string name="about_text2_authors">"Mathieu Méa http://twitter.com/mmathieum"</string>
     <string name="about_text3_website">"Website: http://montrealtransit-for-android.googlecode.com/"</string>
-    <string name="about_text4_source">"Source code: http://code.google.com/p/montrealtransit-for-android/source/browse/"</string>
-    <string name="about_version">"Version %s (%s)"</string>
+    <string name="about_text4_source">"Source code: http://code.google.com/p/montrealtransit-for-android/source/"</string>
+    <string name="about_version">"Version %s (r%s)"</string>
 </resources>

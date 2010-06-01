@@ -34,7 +34,7 @@ import android.widget.ExpandableListView.OnChildClickListener;
 
 /**
  * Show information about a subway station.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class SubwayStationInfo extends Activity implements OnChildClickListener, OnClickListener {
 
@@ -66,7 +66,6 @@ public class SubwayStationInfo extends Activity implements OnChildClickListener,
 		setContentView(R.layout.subway_station_info);
 		((ExpandableListView) findViewById(R.id.bus_line_list)).setEmptyView(findViewById(R.id.empty_bus_line_list));
 		((ExpandableListView) findViewById(R.id.bus_line_list)).setOnChildClickListener(this);
-		((TextView) findViewById(R.id.subway_line_string)).setOnClickListener(this);
 		((ImageView) findViewById(R.id.subway_line_1)).setOnClickListener(this);
 		((ImageView) findViewById(R.id.subway_line_2)).setOnClickListener(this);
 		((ImageView) findViewById(R.id.subway_line_3)).setOnClickListener(this);
@@ -103,11 +102,9 @@ public class SubwayStationInfo extends Activity implements OnChildClickListener,
 		MyLog.v(TAG, "refreshSubwayStationInfo()");
 		((TextView) findViewById(R.id.station_name)).setText(this.subwayStation.getName());
 		if (this.subwayLines.size() > 0) {
-			((TextView) findViewById(R.id.subway_line_string)).setText(R.string.subway_line);
 			((ImageView) findViewById(R.id.subway_line_1)).setVisibility(View.VISIBLE);
 			((ImageView) findViewById(R.id.subway_line_1)).setImageResource(Utils.getSubwayLineImg(this.subwayLines.get(0).getNumber()));
 			if (this.subwayLines.size() > 1) {
-				((TextView) findViewById(R.id.subway_line_string)).setText(R.string.subway_lines);
 				((ImageView) findViewById(R.id.subway_line_2)).setVisibility(View.VISIBLE);
 				((ImageView) findViewById(R.id.subway_line_2)).setImageResource(Utils.getSubwayLineImg(this.subwayLines.get(1).getNumber()));
 				if (this.subwayLines.size() > 2) {
@@ -224,7 +221,7 @@ public class SubwayStationInfo extends Activity implements OnChildClickListener,
 
 	/**
 	 * Simple expandable list adapter to customize the expandable list view for bus line and bus stops.
-	 * @author Mathieu Méa
+	 * @author Mathieu Mï¿½a
 	 */
 	private class MySimpleExpandableListAdapter extends SimpleExpandableListAdapter {
 

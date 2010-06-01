@@ -38,6 +38,8 @@
 	<string name="next_bus_stops">Prochains passages</string>
 	<string name="other_bus_line">Autre(s) Ligne(s) de Bus</string>
 	<string name="subway_station">Station de Métro</string>
+	<string name="subway_stations">Stations de Métro</string>
+	<string name="bus_stops">Arrêts de bus</string>
     
     <string name="display_pref_cat_title">Préférences d\'affichage</string>
     <string name="data_pref_cat_title">Source de données</string>
@@ -153,9 +155,9 @@
     <string name="next_stop_pref_stminfo">stm.info</string>
     
     <string name="search_label">MonTransit</string>
-    <string name="search_hint">Recherche arrêts d\'autobus.</string>
-    <string name="search_settings_description">Arrêts d\'autobus (MonTransit)</string>
-    <string name="search_no_result">Aucun arrêts d\'autobus ne correspond aux termes de recherche spécifiés</string>
+    <string name="search_hint">Recherche arrêts de bus.</string>
+    <string name="search_settings_description">Arrêts de bus (MonTransit)</string>
+    <string name="search_no_result">Aucun arrêts de bus ne correspond aux termes de recherche spécifiés</string>
     <string name="search_result_for">Recherche</string>
     
     <string name="search_pref_title">Recherche</string>
@@ -180,6 +182,6 @@
     <string name="about_text1">MonTransit vous permet d\'accéder aux informations sur les autobus et les métro de la STM. Cette application n\'est pas associée à la Société de Transport de Montréal. Le code source de l\'application est publié sous la license Apache 2.0 par:"</string>
     <string name="about_text2_authors">"Mathieu Méa http://twitter.com/mmathieum"</string>
     <string name="about_text3_website">"Site web : http://montrealtransit-for-android.googlecode.com/"</string>
-    <string name="about_text4_source">"Code source : http://code.google.com/p/montrealtransit-for-android/source/browse/"</string>
-    <string name="about_version">"Version %s (%s)"</string>
+    <string name="about_text4_source">"Code source : http://code.google.com/p/montrealtransit-for-android/source/"</string>
+    <string name="about_version">"Version %s (r%s)"</string>
 </resources>
