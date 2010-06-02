@@ -14,7 +14,7 @@
 || April 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Backflip ([http://en.wikipedia.org/wiki/Motorola_Backflip wikipedia]) || 1.5 || 2.1? || MOTOBLUR UI ||
 || May 2010 || http://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Bell_logo.svg/77px-Bell_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Dext ([http://en.wikipedia.org/wiki/Motorola_CLIQ wikipedia]) || 1.5 || ? || MOTOBLUR UI ||
 || May 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Quench ([http://en.wikipedia.org/wiki/Motorola_CLIQ_XT wikipedia]) || 1.5 || ? || MOTOBLUR UI ||
-|| June 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Acer_Logo.svg/77px-Acer_Logo.svg.png || Liquid E ([http://en.wikipedia.org/wiki/Acer_Liquid_A1 wikipedia]) || 2.1? || ? || ||
+|| June 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Acer_Logo.svg/77px-Acer_Logo.svg.png || Liquid E ([http://en.wikipedia.org/wiki/Acer_Liquid_A1 wikipedia]) || 2.1 || ? || ||
 
 = Upcoming Android devices: =
 || *Release Date* || *Carrier* || *Manufacturer* || *Name* || *Android Version* || *Upcoming update* || *Notes* ||
