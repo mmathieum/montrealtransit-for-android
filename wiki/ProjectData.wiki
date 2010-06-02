@@ -2,8 +2,9 @@
 #labels Phase-Support
 
 = Android Market data =
-|| *Date* || *Ratings* || *Total installs* || *Active installs* || *Errors* ||
-|| 2010-06-02 || 4.5 (2) || 17 || 14 (82%) || 0||
+|| *Date* || *App Version* || *Ratings* || *Total installs* || *Active installs* || *Errors* ||
+|| 2010-06-02 || 1.0 (r171) || 4.5 (2) || 35 || 24 (68%) || 0 ||
+|| 2010-06-01 || 1.0 (r171) || 4.5 (2) || 17 || 14 (82%) || 0 ||
 
 = Source code data = 
 
