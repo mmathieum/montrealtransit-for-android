@@ -3,12 +3,13 @@
 
 = Android Market data =
 || *Date* || *App Version* || *Ratings* || *Total installs* || *Active installs* || *Errors* ||
+|| 2010-06-05 || 1.0 (r171) || 5 (4) || 73 || 55 (75%) || 0 ||
 || 2010-06-04 || 1.0 (r171) || 5 (4) || 69 || 52 (75%) || 0 ||
 || 2010-06-03 || 1.0 (r171) || 5 (4) || 61 || 44 (72%) || 0 ||
 || 2010-06-02 || 1.0 (r171) || 4.5 (2) || 35 || 24 (68%) || 0 ||
 || 2010-06-01 || 1.0 (r171) || 4.5 (2) || 17 || 14 (82%) || 0 ||
 
-http://chart.apis.google.com/chart?cht=lc&chs=400x200&chd=t:17,35,61,69|14,24,44,52&chxt=x&chxl=0:|01-06-2010|02-06-2010|03-06-2010|04-06-2010&chco=0077CC,00FF00&chdl=Total+Installs|Active+Installs&chdlp=t&nonsense=something_that_ends_with.png
+http://chart.apis.google.com/chart?cht=lc&chs=400x200&chd=t:17,35,61,69,73|14,24,44,52,55&chxt=x&chxl=0:|01-06-2010|02-06-2010|03-06-2010|04-06-2010|05-06-2010&chco=0077CC,00FF00&chdl=Total+Installs|Active+Installs&chdlp=t&nonsense=something_that_ends_with.png
 
 = Source code data = 
 
