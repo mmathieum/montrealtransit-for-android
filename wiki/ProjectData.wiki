@@ -13,7 +13,11 @@
 || 2010-06-02 || 1.0 (r171) || 4.5 (2) || 35 || 18 || 24 (68%) || 10 || 0 ||
 || 2010-06-01 || 1.0 (r171) || 4.5 (2) || 17 || 17 || 14 (82%) || 14 || 0 ||
 
+<wiki:comment>
 http://chart.apis.google.com/chart?cht=lc&chs=500x200&chd=t:8.5,17.5,30.5,34.5,36.5,51,55.5,61.5,71.5|7,12,22,26,27.5,39.5,43.5,48.5,54.5&chxr=1,0,200&chxt=x&chxl=0:|01-06-2010|09-06-2010&chco=0077CC,00FF00&chdl=Total+Installs|Active+Installs&chdlp=t&nonsense=something_that_ends_with.png
+</wiki:comment>
+
+http://chart.apis.google.com/chart?cht=lc&chs=500x200&chd=t:17,18,26,8,4,29,9,12,20|14,10,20,8,3,24,8,10,12&chxr=1,0,100&chxt=x,y&chxl=0:|01-06-2010|09-06-2010&chco=0077CC,00FF00&chdl=New+Installs|New+Active+Installs&chdlp=t&nonsense=something_that_ends_with.png
 
 = Source code data = 
 
