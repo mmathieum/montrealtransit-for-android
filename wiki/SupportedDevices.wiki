@@ -15,6 +15,7 @@
 || May 2010 || http://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Bell_logo.svg/77px-Bell_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Dext ([http://en.wikipedia.org/wiki/Motorola_CLIQ wikipedia]) || 1.5 || ? || MOTOBLUR UI ||
 || May 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Quench ([http://en.wikipedia.org/wiki/Motorola_CLIQ_XT wikipedia]) || 1.5 || ? || MOTOBLUR UI ||
 || June 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Acer_Logo.svg/77px-Acer_Logo.svg.png || Liquid E ([http://en.wikipedia.org/wiki/Acer_Liquid_A1 wikipedia]) || 2.1 || ? || ||
+|| June 2010 || Virgin Mobile || http://upload.wikimedia.org/wikipedia/en/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Legend ([http://en.wikipedia.org/wiki/HTC_Legend wikipedia]) || 2.1 || 2.2? || HTC Sense UI ||
 
 = Upcoming Android devices: =
 || *Release Date* || *Carrier* || *Manufacturer* || *Name* || *Android Version* || *Upcoming update* || *Notes* ||
@@ -22,7 +23,6 @@
 || 2010 || Rogers || Sony Ericsson|| Xperia X10 Mini || ? || ? || SE custom UI ||
 || 2010 || Rogers || Sony Ericsson|| Xperia X10 Mini Pro || ? || ? || SE custom UI ||
 || 2010 || TELUS || HTC || Triumph (Desire) || 2.1 || ? || HTC Sense UI ||
-|| 2010 || Bell || HTC || Legend || 2.1 || ? || HTC Sense UI ||
 || ? || X || `*` || `*` || 2.1 || 2.2? || Google TV ||
 
 _Cette page est également disponible [http://code.google.com/p/montrealtransit-for-android/wiki/SupportedDevices?wl=fr en français] mais votre navigateur est configuré pour afficher la version en anglais._
