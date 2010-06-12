@@ -32,7 +32,7 @@ import android.widget.AdapterView.OnItemClickListener;
 /**
  * This activity display a search text box for entering bus stop code. The user can also enter a bus line number. In the future, this activity will have the
  * same functionalities as a search box for almost everything.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class BusStopCodeTab extends Activity implements OnKeyListener, OnClickListener, OnItemClickListener {
 
@@ -63,7 +63,8 @@ public class BusStopCodeTab extends Activity implements OnKeyListener, OnClickLi
 	 */
 	private ArrayAdapter<String> getAutoCompleteAdapter() {
 		List<String> objects = DataManager.findAllHistoryList(this.getContentResolver());
-		ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, objects);
+		ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line,
+		        objects);
 		return arrayAdapter;
 	}
 
@@ -72,8 +73,9 @@ public class BusStopCodeTab extends Activity implements OnKeyListener, OnClickLi
 	 * @return the history adapter.
 	 */
 	private ListAdapter getHistoryAdapter() {
-		SimpleCursorAdapter historyItems = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, DataManager.findAllHistory(this
-		        .getContentResolver()), new String[] { DataStore.History.VALUE }, new int[] { android.R.id.text1 });
+		SimpleCursorAdapter historyItems = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1,
+		        DataManager.findAllHistory(this.getContentResolver()), new String[] { DataStore.History.VALUE },
+		        new int[] { android.R.id.text1 });
 		// historyItems.setViewBinder(this);
 		return historyItems;
 	}
@@ -98,19 +100,40 @@ public class BusStopCodeTab extends Activity implements OnKeyListener, OnClickLi
 			// please enter a number
 			Utils.notifyTheUser(this, getResources().getString(R.string.please_enter_a_stop_code));
 		} else {
-			// save to the history
-			DataStore.History history = new DataStore.History();
-			history.setValue(search);
-			DataManager.addHistory(this.getContentResolver(), history);
 			if (search.length() <= 3) {
 				// search for a bus line number
-				BusLineSelectDirection busLineSelectDirection = new BusLineSelectDirection(this, search);
-				busLineSelectDirection.showDialog();
+				if (Utils.isBusLineNumberValid(this, search)) {
+					addToHistory(search);
+					BusLineSelectDirection busLineSelectDirection = new BusLineSelectDirection(this, search);
+					busLineSelectDirection.showDialog();
+				} else {
+					String message = getResources().getString(R.string.wrong_line_number_before) + search
+					        + getResources().getString(R.string.wrong_line_number_after);
+					Utils.notifyTheUserLong(this, message);
+				}
 			} else if (search.length() == 5) {
 				// search for a bus stop code
-				showBusStopInfo(search);
+				if (Utils.isStopCodeValid(this, search)) {
+					addToHistory(search);
+					showBusStopInfo(search);
+				} else {
+					String message = getResources().getString(R.string.wrong_stop_code_before) + search
+					        + getResources().getString(R.string.wrong_stop_code_after);
+					Utils.notifyTheUserLong(this, message);
+				}
 			}
 		}
+	}
+
+	/**
+	 * Add a value to the history.
+	 * @param search the search string.
+	 */
+	private void addToHistory(String search) {
+		// save to the history
+		DataStore.History history = new DataStore.History();
+		history.setValue(search);
+		DataManager.addHistory(this.getContentResolver(), history);
 	}
 
 	/**
@@ -128,8 +151,8 @@ public class BusStopCodeTab extends Activity implements OnKeyListener, OnClickLi
 	 */
 	@Override
 	public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-		MyLog.v(TAG, "onItemClick(" + v.getId() + "," + v.getId() + "," + position + "," + id + ")");
-		searchFor(((TextView) ((ListView) findViewById(R.id.list)).getChildAt(position)).getText().toString());
+		MyLog.v(TAG, "onItemClick(" + l.getId() + "," + v.getId() + "," + position + "," + id + ")");
+		searchFor((((TextView) v).getText()).toString());
 	}
 
 	/**
@@ -146,7 +169,7 @@ public class BusStopCodeTab extends Activity implements OnKeyListener, OnClickLi
 	 */
 	@Override
 	public boolean onKey(View v, int keyCode, KeyEvent event) {
-		//MyTrace.v(TAG, "onKey(" + v.getId() + "," + keyCode + "," + event.getAction() + ")");
+		// MyTrace.v(TAG, "onKey(" + v.getId() + "," + keyCode + "," + event.getAction() + ")");
 		if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
 			searchFor(((EditText) findViewById(R.id.field)).getText().toString());
 			return true;
@@ -158,7 +181,7 @@ public class BusStopCodeTab extends Activity implements OnKeyListener, OnClickLi
 	 * Menu item for clearing the history.
 	 */
 	private static final int MENU_CLEAR_HISTOTY = Menu.FIRST;
-	
+
 	/**
 	 * The menu used to show the user preferences.
 	 */
@@ -192,11 +215,11 @@ public class BusStopCodeTab extends Activity implements OnKeyListener, OnClickLi
 			DataManager.deleteHistory(this.getContentResolver());
 			break;
 		case MENU_PREFERENCES:
-            startActivity(new Intent(this, UserPreferences.class));
-	        break;
+			startActivity(new Intent(this, UserPreferences.class));
+			break;
 		case MENU_ABOUT:
-        	Utils.showAboutDialog(this);
-        	break;
+			Utils.showAboutDialog(this);
+			break;
 		default:
 			MyLog.d(TAG, "Unknow menu action:" + item.getItemId() + ".");
 		}
