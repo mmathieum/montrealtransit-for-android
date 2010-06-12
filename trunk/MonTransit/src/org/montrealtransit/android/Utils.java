@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.montrealtransit.android.provider.DataStore;
+import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
 import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.StmStore.BusLine;
@@ -36,7 +37,7 @@ import android.widget.Toast;
 
 /**
  * This is the utility class with a lot of useful methods to be used all across the application.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class Utils {
 
@@ -837,5 +838,25 @@ public class Utils {
 
         builder.create();
 		builder.show();
+    }
+
+	/**
+	 * Check if a bus stop code is in the database.
+	 * @param context the activity
+	 * @param stopCode the bus stop code
+	 * @return true if the bus stop code exist
+	 */
+	public static boolean isStopCodeValid(Context context, String stopCode) {
+		return StmManager.findBusStop(context.getContentResolver(), stopCode) != null;
+    }
+
+	/**
+	 * Check if a bus line number is in the database.
+	 * @param context the activity
+	 * @param lineNumber the bus line number
+	 * @return true if the bus line exist
+	 */
+	public static boolean isBusLineNumberValid(Context context, String lineNumber) {
+		return StmManager.findBusLine(context.getContentResolver(), lineNumber) != null;
     }
 }
