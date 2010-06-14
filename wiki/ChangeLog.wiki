@@ -1,7 +1,12 @@
 #summary Changes made to the app
 #labels Phase-Support
+ * 1.0.1 (r197) 06-12-2010
+  * fix an errors in the bus stop code tab r196
 
- * RC1 05-27-2010 ([http://montrealtransit-for-android.googlecode.com/files/MonTransit_RC1_2010-05-27.apk download])
+ * 1.0 (r171) 06-01-2010
+  * coming soon...
+
+ * RC1 05-27-2010
   * coming soon...
 
  * BETA 05-24-2010
