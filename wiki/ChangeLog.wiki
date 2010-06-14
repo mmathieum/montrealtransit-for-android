@@ -1,5 +1,8 @@
-#summary Changes made to the app
+#summary The changes between two successive versions of the application.
 #labels Phase-Support
+
+= !ChangeLog =
+
  * 1.0.1 (r197)
   * fix an errors in the bus stop code tab r196
 
@@ -8,7 +11,7 @@
 
 -----
 
-_ChangeLog for the BETA versions:_
+_!ChangeLog for the BETA versions:_
 
  * RC1 05-27-2010
   * _no change log_
