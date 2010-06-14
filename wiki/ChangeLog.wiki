@@ -1,16 +1,20 @@
 #summary Changes made to the app
 #labels Phase-Support
- * 1.0.1 (r197) 06-12-2010
+ * 1.0.1 (r197)
   * fix an errors in the bus stop code tab r196
 
- * 1.0 (r171) 06-01-2010
-  * coming soon...
+ * 1.0 (r171)
+  * initial Market release
+
+-----
+
+_ChangeLog for the BETA versions:_
 
  * RC1 05-27-2010
-  * coming soon...
+  * _no change log_
 
  * BETA 05-24-2010
-  * coming soon...
+  * _no change log_
 
  * BETA 05-15-2010
   * add search (bus stops) to the application r99
