@@ -2,7 +2,7 @@ package org.montrealtransit.android;
 
 /**
  * Contains all the constants use by the application.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class Constant {
 
@@ -46,7 +46,6 @@ public class Constant {
 	public static final CharSequence HTML_CODE_SPACE = "&nbsp;";
 	public static final String HTML_CODE_EACUTE = "&eacute;";
 	public static final String HTML_CODE_ECIRC = "&ecirc;";
-	public static final CharSequence HTML_A_1 = "<a";
 	public static final String HTML_TABLE_END = "</table>";
 	public static final String HTML_TAG = "<html>";
 	public static final String HTML_TAG_END = "</html>";

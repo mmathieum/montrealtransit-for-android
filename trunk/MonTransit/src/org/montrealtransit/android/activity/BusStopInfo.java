@@ -216,6 +216,23 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 		this.hours = result;
 		setNextStops();
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onCancelled() {
+		MyLog.v(TAG, "onCancelled()");
+		if (this.hours != null) {
+			// show the last loaded hours
+			setNextStops();
+		} else {
+			// show the stopped message
+			showNextBusStopMessage();
+			((TextView) findViewById(R.id.progress_bar_please_wait)).setText(R.string.next_bus_stop_load_cancelled);
+			((TextView) findViewById(R.id.progress_bar_text)).setText(null);
+		}
+	}
 
 	/**
 	 * Hide the progress bar and show the next bus stop text views.
@@ -543,6 +560,11 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 			if (newStopCode != null && newLineNumber != null) {
 				this.busStop = StmManager.findBusLineStop(this.getContentResolver(), newStopCode, newLineNumber);
 				this.busLine = StmManager.findBusLine(this.getContentResolver(), this.busStop.getLineNumber());
+				this.hours = null;
+				if (this.task != null) {
+					this.task.cancel(true);
+					this.task = null;
+				}
 				refreshAll();
 			}
 		}
@@ -600,7 +622,7 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	/**
 	 * The menu item for refreshing the next bus stops.
 	 */
-	private static final int MENU_SHOW_REFRESH_NEXT_STOP = Menu.FIRST;
+	private static final int MENU_REFRESH_NEXT_STOP = Menu.FIRST;
 	/**
 	 * The menu item for showing the m.stm.info page of this bus stop.
 	 */
@@ -644,8 +666,8 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// MyLog.v(TAG, "onCreateOptionsMenu()");
-		MenuItem menuRefresh = menu.add(0, MENU_SHOW_REFRESH_NEXT_STOP, 0, R.string.refresh_next_bus_stop);
-		menuRefresh.setIcon(R.drawable.ic_menu_refresh); // TODO use refresh icon from android.R.drawable (bug SDK 1.5)
+		MenuItem menuRefresh = menu.add(0, MENU_REFRESH_NEXT_STOP, 0, R.string.refresh_next_bus_stop);
+		menuRefresh.setIcon(R.drawable.ic_menu_refresh); // not in SDK 1.5!
 		menuRefresh.setAlphabeticShortcut(Constant.SHORTCUT_REFRESH);
 		MenuItem menuStmMobile = menu.add(0, MENU_SHOW_STM_MOBILE_WEBSITE, 0, R.string.see_in_stm_mobile_web_site);
 		menuStmMobile.setIcon(R.drawable.ic_menu_stmmobile);
@@ -691,6 +713,17 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 					break;
 				}
 			}
+			if (this.task != null && this.task.getStatus().equals(AsyncTask.Status.RUNNING)) {
+				// CANCEL REFRESH
+				MenuItem menuRefresh = menu.findItem(MENU_REFRESH_NEXT_STOP);
+				menuRefresh.setIcon(R.drawable.ic_menu_stop); // not in SDK 1.5!
+				menuRefresh.setTitle(R.string.stop_refresh_next_bus_stop);
+			} else {
+				// REFRESH
+				MenuItem menuRefresh = menu.findItem(MENU_REFRESH_NEXT_STOP);
+				menuRefresh.setIcon(R.drawable.ic_menu_refresh); // not in SDK 1.5!
+				menuRefresh.setTitle(R.string.refresh_next_bus_stop);
+			}
 			return true;
 		} else {
 			MyLog.w(TAG, "Error in onPrepareOptionsMenu().");
@@ -716,8 +749,15 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 			}
 			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
 			return true;
-		case MENU_SHOW_REFRESH_NEXT_STOP:
-			reloadNextBusStops();
+		case MENU_REFRESH_NEXT_STOP:
+			if (this.task != null && this.task.getStatus().equals(AsyncTask.Status.RUNNING)) {
+				// CANCEL
+				this.task.cancel(true);
+				this.task = null;
+			} else {
+				// REFRESH
+				reloadNextBusStops();
+			}
 			return true;
 		case MENU_SHOW_IN_MAPS:
 			try {
@@ -811,7 +851,7 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 	    if (key.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER)) {
-	    	// reloadNextBusStops();
+	    	//TODO reload if error?
 	    }
 	}
 
@@ -831,6 +871,7 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 		MyLog.v(TAG, "onDestroy()");
 		if (this.task != null) {
 			this.task.cancel(true);
+			this.task = null;
 		}
 		if (this.cursorBusLines != null) {
 			this.cursorBusLines.close();

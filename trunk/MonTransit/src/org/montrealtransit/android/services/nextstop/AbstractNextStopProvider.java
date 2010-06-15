@@ -9,7 +9,7 @@ import android.os.AsyncTask;
 
 /**
  * Abstract task for next bus stop services.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public abstract class AbstractNextStopProvider extends AsyncTask<StmStore.BusStop, String, BusStopHours> {
 
@@ -53,8 +53,18 @@ public abstract class AbstractNextStopProvider extends AsyncTask<StmStore.BusSto
 	 */
 	@Override
 	protected void onProgressUpdate(String... values) {
-		super.onProgressUpdate(values);
+		MyLog.v(getTag(), "onProgressUpdate(" + values[0] + ")");
 		this.from.updateProgress(values[0]);
-		MyLog.v(getTag(), "Progress: " + values[0] + ".");
+		super.onProgressUpdate(values);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onCancelled() {
+		MyLog.v(getTag(), "onCancelled()");
+		this.from.onCancelled();
+	    super.onCancelled();
 	}
 }

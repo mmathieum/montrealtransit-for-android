@@ -79,7 +79,7 @@
 		<!-- NEXT BUS STOPS  -->
 		<TextView android:id="@+id/next_stops_string"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
+			style="?android:attr/listSeparatorTextViewStyle" android:focusable="true" android:paddingLeft="5dp"
 			android:text="@string/next_bus_stops" />
 		<RelativeLayout android:id="@+id/next_stops_group"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"

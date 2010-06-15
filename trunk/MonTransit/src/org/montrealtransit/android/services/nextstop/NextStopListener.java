@@ -4,7 +4,7 @@ import org.montrealtransit.android.data.BusStopHours;
 
 /**
  * This interface have to be implemented by any class that want handle next bus services response.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public interface NextStopListener {
 
@@ -19,4 +19,9 @@ public interface NextStopListener {
 	 * @param result the result
 	 */
 	void onPostExectute(BusStopHours result);
+
+	/**
+	 * Methods calls when the task is cancelled.
+	 */
+	void onCancelled();
 }
