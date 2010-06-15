@@ -25,7 +25,7 @@ import android.content.Context;
 
 /**
  * Next stop provider implementation for the http://www.stm.info web site.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class StmInfoTask extends AbstractNextStopProvider {
 
@@ -53,23 +53,26 @@ public class StmInfoTask extends AbstractNextStopProvider {
 	/**
 	 * The HTML codes to remove.
 	 */
-	public static final CharSequence HTML_IMG_NIGHT = "<IMG alt=\"\" src=\"image/Nuit.gif\">";
-	public static final CharSequence HTML_IMG_METROBUS = "<IMG alt=\"\" src=\"image/Métrobus.gif\">";
-	public static final CharSequence HTML_IMG_TRAINBUS = "<IMG alt=\"\" src=\"image/Trainbus.gif\">";
-	public static final CharSequence HTML_IMG_EXPRESS = "<IMG alt=\"\" src=\"image/Express.gif\">";
-	public static final CharSequence HTML_IMG_HOT = "<IMG alt=\"\" src=\"image/hot.gif\">";
-	public static final CharSequence HTML_IMG_RESERVED = "<IMG alt=\"\" src=\"image/voieres.gif\">";
-	public static final CharSequence HTML_A_HREF_JS_VOID = "<a href=javascript:void(0)";
+	private static final CharSequence HTML_IMG_NIGHT = "<IMG alt=\"\" src=\"image/Nuit.gif\">";
+	private static final CharSequence HTML_IMG_METROBUS = "<IMG alt=\"\" src=\"image/MÃ©trobus.gif\">";
+	private static final CharSequence HTML_IMG_TRAINBUS = "<IMG alt=\"\" src=\"image/Trainbus.gif\">";
+	private static final CharSequence HTML_IMG_EXPRESS = "<IMG alt=\"\" src=\"image/Express.gif\">";
+	private static final CharSequence HTML_IMG_HOT = "<IMG alt=\"\" src=\"image/hot.gif\">";
+	private static final CharSequence HTML_IMG_RESERVED = "<IMG alt=\"\" src=\"image/voieres.gif\">";
+	private static final CharSequence HTML_A = "<a";
+	private static final String HTML_A_REGEX = "<a.[^>]*>";
+	private static final CharSequence HTML_A_close = "</a>";
+
 	/**
 	 * Some HTML codes marks.
 	 */
-	public static final String TD_B_1 = "<td width=\"30\"><b>";
-	public static final String TD_B_2 = "</b></td>";
-	public static final String TABLE_WEB_GRILLE = "<table cellspacing=\"0\" border=\"0\" id=\"webGrille\" width=\"450\">";
-	public static final String TABLE_WEB_GRILLE_MES = "<table cellspacing=\"0\" border=\"0\" id=\"webGrilleMes\" width=\"450\">";
-	public static final String TABLE_WEB_GRILLE_NUIT = "<table cellspacing=\"0\" border=\"0\" id=\"webGrilleNuit\" width=\"450\">";
-	public static final String TABLE_WEB_GRILLE_NUIT_MES = "<table cellspacing=\"0\" border=\"0\" id=\"webGrilleNuitMes\" width=\"450\">";
-	public static final String DOCTYPE_TAG = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
+	private static final String TD_B_1 = "<td width=\"30\"><b>";
+	private static final String TD_B_2 = "</b></td>";
+	private static final String TABLE_WEB_GRILLE = "<table cellspacing=\"0\" border=\"0\" id=\"webGrille\" width=\"450\">";
+	private static final String TABLE_WEB_GRILLE_MES = "<table cellspacing=\"0\" border=\"0\" id=\"webGrilleMes\" width=\"450\">";
+	private static final String TABLE_WEB_GRILLE_NUIT = "<table cellspacing=\"0\" border=\"0\" id=\"webGrilleNuit\" width=\"450\">";
+	private static final String TABLE_WEB_GRILLE_NUIT_MES = "<table cellspacing=\"0\" border=\"0\" id=\"webGrilleNuitMes\" width=\"450\">";
+	private static final String DOCTYPE_TAG = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
 
 	/**
 	 * {@inheritDoc}
@@ -212,8 +215,12 @@ public class StmInfoTask extends AbstractNextStopProvider {
 		if (string.contains(StmInfoTask.HTML_IMG_HOT)) {
 			string = string.replace(StmInfoTask.HTML_IMG_HOT, " ");
 		}
-		if (string.contains(StmInfoTask.HTML_A_HREF_JS_VOID)) {
-			string = string.replace(StmInfoTask.HTML_A_HREF_JS_VOID, Constant.HTML_A_1);
+		if (string.contains(StmInfoTask.HTML_A)) {
+			string = string.replaceAll(StmInfoTask.HTML_A_REGEX, "");
+			// TODO use the extra information about the bus line stop ?
+		}
+		if (string.contains(StmInfoTask.HTML_A_close)) {
+			string = string.replace(StmInfoTask.HTML_A_close, "");
 			// TODO use the extra information about the bus line stop ?
 		}
 		return string;

@@ -131,9 +131,7 @@ public class Utils {
 				}
 				break;
 			case 46:
-				if (directionId.startsWith("46AB")) {
-					results.add(R.string.regular_route);
-				} else if (directionId.equals("46AC0")) {
+				if (extraDirectionInfo.equals("AC")) {
 					results.add(R.string.route_by_way_of_fairmount);
 				}
 				break;
@@ -145,9 +143,7 @@ public class Utils {
 				}
 				break;
 			case 68:
-				if (extraDirectionInfo.equals("AB")) {
-					results.add(R.string.regular_route);
-				} else if (extraDirectionInfo.equals("AC")) {
+				if (extraDirectionInfo.equals("AC")) {
 					results.add(R.string.route_leading_to_timberlea);
 				}
 				break;
@@ -161,8 +157,6 @@ public class Utils {
 			case 103:
 				if (directionId.equals("103ACO")) {
 					results.add(R.string.route_by_way_of_westhill);
-				} else if (directionId.equals("103JOO")) {
-					results.add(R.string.regular_route);
 				}
 				break;
 			case 115:
@@ -239,9 +233,7 @@ public class Utils {
 				}
 				break;
 			case 197:
-				if (extraDirectionInfo.equals("JO")) {
-					results.add(R.string.regular_route);
-				} else if (directionId.equals("197HPE")) {
+				if (directionId.equals("197HPE")) {
 					results.add(R.string.route_by_way_of_pepiniere);
 				}
 				break;
