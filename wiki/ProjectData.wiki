@@ -3,9 +3,10 @@
 
 = Android Market data =
 
-http://chart.apis.google.com/chart?cht=lc&chs=500x200&chd=t:17,18,26,8,4,29,9,12,20,4,13,33,41,13,7,21|14,10,20,8,3,24,8,10,12,3,11,28,27,6,0,14&chxr=1,0,100&chxt=x,y&chxl=0:|01-06-2010|15-06-2010&chco=0077CC,00FF00&chdl=New+Installs|New+Active+Installs&chdlp=t&nonsense=something_that_ends_with.png
+http://chart.apis.google.com/chart?cht=lc&chs=500x200&chd=t:17,18,26,8,4,29,9,12,20,4,13,33,41,13,7,21,14|14,10,20,8,3,24,8,10,12,3,11,28,27,6,0,14,10&chxr=1,0,100&chxt=x,y&chxl=0:|01-06-2010|16-06-2010&chco=0077CC,00FF00&chdl=New+Installs|New+Active+Installs&chdlp=t&nonsense=something_that_ends_with.png
 
 || *Date* || *App Version* || *Ratings* || *Total installs* || *New installs* || *Active installs* || *New active installs* || *Errors* ||
+|| 2010-06-15 || 1.0.1 (r197) || 4.5 (7) || 289 || 14 || 206 (71%) || 10|| 0 ||
 || 2010-06-15 || 1.0.1 (r197) || 5 (5) || 275 || 21 || 196 (71%) || 14|| 0 ||
 || 2010-06-14 || 1.0.1 (r197) || 5 (5) || 254 || 7 || 182 (71%) || -2|| 0 ||
 || 2010-06-13 || 1.0.1 (r197) || 5 (5) || 247 || 13 || 184 (74%) || 6|| 0 ||
