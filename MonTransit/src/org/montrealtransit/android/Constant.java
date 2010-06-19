@@ -77,7 +77,29 @@ public class Constant {
 	 */
 	public static final int NB_SEARCH_RESULT = 7;
 	
+	/**
+	 * The shortcut for STM Mobile link.
+	 */
 	public static final char SHORTCUT_STM_MOBILE = 's';
+	/**
+	 * The shortcut for refresh data.
+	 */
 	public static final char SHORTCUT_REFRESH = 'r';
+	/**
+	 * The shortcut for maps.
+	 */
 	public static final char SHORTCUT_MAPS = 'm';
+	
+	/**
+	 * The number of feet necessary to make 1 meter.
+	 */
+	public static float FEET_PER_M = 3.2808399f;
+	/**
+	 * The number of feet necessary to make 1 mile.
+	 */
+    public static float FEET_PER_MILE = 5280;
+    /**
+     * The number of meter necessary to make 1 KM.
+     */
+    public static float METER_PER_KM = 1000f;
 }

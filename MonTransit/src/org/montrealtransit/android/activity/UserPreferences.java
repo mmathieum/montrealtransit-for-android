@@ -8,7 +8,7 @@ import android.preference.PreferenceActivity;
 
 /**
  * The user preferences activity.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class UserPreferences extends PreferenceActivity {
 
@@ -68,9 +68,43 @@ public class UserPreferences extends PreferenceActivity {
 	 */
 	public static final String PREFS_SEARCH_EXTENDED = "extended";
 	/**
-	 * The default value for the search simple.
+	 * The default value for the search.
 	 */
 	public static final String PREFS_SEARCH_DEFAULT = PREFS_SEARCH_SIMPLE;
+	
+	/**
+	 * The preference key for the distance display.
+	 */
+	public static final String PREFS_DISTANCE = "pDistanceDisplay";
+	/**
+	 * The preference value for the simple distance display (example: < 1 km).
+	 */
+	public static final String PREFS_DISTANCE_SIMPLE = "simple";
+	/**
+	 * The preference value for the detailed distance display (example: 0.8-1 km).
+	 */
+	public static final String PREFS_DISTANCE_DETAILED = "detailed";
+	/**
+	 * The default value for the distance display.
+	 */
+	public static final String PREFS_DISTANCE_DEFAULT = PREFS_DISTANCE_SIMPLE;
+	
+	/**
+	 * The preference key for the distance unit.
+	 */
+	public static final String PREFS_DISTANCE_UNIT = "pDistanceUnit";
+	/**
+	 * The preference value for the meter unit.
+	 */
+	public static final String PREFS_DISTANCE_UNIT_METER = "meter";
+	/**
+	 * The preference value for the imperial unit.
+	 */
+	public static final String PREFS_DISTANCE_UNIT_IMPERIAL = "imperial";
+	/**
+	 * The default value for the distance display.
+	 */
+	public static final String PREFS_DISTANCE_UNIT_DEFAULT = PREFS_DISTANCE_UNIT_METER;
 
 	/**
 	 * {@inheritDoc}

@@ -11,7 +11,17 @@
 		<item>type</item>
 		<item>no</item>
 	</string-array>
-	
+
+	<!-- DISTANCE UNIT PREFERENCES -->
+	<string-array name="distance_unit_pref_entries">
+		<item>@string/distance_unit_pref_meter</item>
+		<item>@string/distance_unit_pref_imperial</item>
+	</string-array>
+	<string-array name="distance_unit_pref_values">
+		<item>meter</item>
+		<item>imperial</item>
+	</string-array>
+
 	<!-- NEXT BUS STOP PROVIDER PREFERENCES -->
 	<string-array name="next_stop_pref_entries">
 		<item>@string/next_stop_pref_stmmobile</item>
@@ -30,5 +40,15 @@
 	<string-array name="search_pref_values">
 		<item>simple</item>
 		<item>extended</item>
+	</string-array>
+
+	<!-- DISTANCE DISPLAY PREFERENCES -->
+	<string-array name="distance_pref_entries">
+		<item>@string/distance_pref_simple</item>
+		<item>@string/distance_pref_detailed</item>
+	</string-array>
+	<string-array name="distance_pref_values">
+		<item>simple</item>
+		<item>detailed</item>
 	</string-array>
 </resources>

@@ -3,6 +3,8 @@
 	package="org.montrealtransit.android" android:versionName="1.0.1"
 	android:versionCode="197" android:installLocation="auto">
 
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-sdk android:minSdkVersion="3" android:targetSdkVersion="8" />
 	<supports-screens android:smallScreens="false" android:normalScreens="true" android:largeScreens="true"

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.montrealtransit.android.activity.UserPreferences;
 import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
@@ -58,7 +59,7 @@ public class Utils {
 	 * The date formatter use to parse HH:mm into Date.
 	 */
 	private static final SimpleDateFormat simpleDateFormatter = new SimpleDateFormat("HH:mm");
-	
+
 	/**
 	 * Read the input stream and write the stream to the output stream file.
 	 * @param is the input stream
@@ -66,7 +67,7 @@ public class Utils {
 	 * @param encoding encoding
 	 */
 	public static void getInputStreamToFile(InputStream is, FileOutputStream os, String encoding) {
-		MyLog.v(TAG, "getInputStreamToFile("+encoding+")");
+		MyLog.v(TAG, "getInputStreamToFile(" + encoding + ")");
 		OutputStreamWriter writer = new OutputStreamWriter(os);
 		byte[] b = new byte[4096];
 		try {
@@ -373,7 +374,7 @@ public class Utils {
 		} else if (result.startsWith(Constant.PLACE_CHAR_DU)) {
 			result = result.substring(Constant.PLACE_CHAR_DU_LENGTH);
 		}
-		
+
 		if (result.startsWith(Constant.PLACE_CHAR_L)) {
 			result = result.substring(Constant.PLACE_CHAR_L_LENGTH);
 		}
@@ -685,7 +686,7 @@ public class Utils {
 		Toast toast = Toast.makeText(context, message, duration);
 		toast.show();
 	}
-	
+
 	/**
 	 * Simple method to display a <b>long</b> message (toast) to the user. {@link Toast}
 	 * @param context the activity displaying the message
@@ -696,7 +697,6 @@ public class Utils {
 		Toast toast = Toast.makeText(context, message, duration);
 		toast.show();
 	}
-	
 
 	/**
 	 * Parse the subway line list to extract the subway line numbers.
@@ -784,9 +784,9 @@ public class Utils {
 	 * @return the user language (fr/en/...)
 	 */
 	public static String getUserLocale() {
-	    return Locale.getDefault().getLanguage();
-    }
-	
+		return Locale.getDefault().getLanguage();
+	}
+
 	/**
 	 * Extract the bus stop IDs (bus stop code - bus line number) from the favorite list
 	 * @param favList the favorite list
@@ -800,8 +800,8 @@ public class Utils {
 			}
 			favIdsS += favId.getFkId() + "-" + favId.getFkId2();
 		}
-	    return favIdsS;
-    }
+		return favIdsS;
+	}
 
 	/**
 	 * Show an about dialog.
@@ -810,27 +810,27 @@ public class Utils {
 	public static void showAboutDialog(Activity activity) {
 		String versionName = "";
 		String versionCode = "";
-        try {
-        	PackageInfo packageInfo = activity.getPackageManager().getPackageInfo(Constant.PKG, 0);
-        	versionName = packageInfo.versionName;
-        	versionCode = String.valueOf(packageInfo.versionCode);
-        } catch (NameNotFoundException e) {
-        }
-        View view = activity.getLayoutInflater().inflate(R.layout.about, null, false);
+		try {
+			PackageInfo packageInfo = activity.getPackageManager().getPackageInfo(Constant.PKG, 0);
+			versionName = packageInfo.versionName;
+			versionCode = String.valueOf(packageInfo.versionCode);
+		} catch (NameNotFoundException e) {
+		}
+		View view = activity.getLayoutInflater().inflate(R.layout.about, null, false);
 
-        TextView versionTv = (TextView)view.findViewById(R.id.version);
-        versionTv.setText(activity.getString(R.string.about_version, versionName, versionCode));
+		TextView versionTv = (TextView) view.findViewById(R.id.version);
+		versionTv.setText(activity.getString(R.string.about_version, versionName, versionCode));
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle(activity.getString(R.string.app_name));
-        builder.setIcon(android.R.drawable.ic_dialog_info);
-        builder.setView(view);
-        builder.setPositiveButton(activity.getString(android.R.string.ok), null);
-        builder.setCancelable(true);
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		builder.setTitle(activity.getString(R.string.app_name));
+		builder.setIcon(android.R.drawable.ic_dialog_info);
+		builder.setView(view);
+		builder.setPositiveButton(activity.getString(android.R.string.ok), null);
+		builder.setCancelable(true);
 
-        builder.create();
+		builder.create();
 		builder.show();
-    }
+	}
 
 	/**
 	 * Check if a bus stop code is in the database.
@@ -840,7 +840,7 @@ public class Utils {
 	 */
 	public static boolean isStopCodeValid(Context context, String stopCode) {
 		return StmManager.findBusStop(context.getContentResolver(), stopCode) != null;
-    }
+	}
 
 	/**
 	 * Check if a bus line number is in the database.
@@ -850,5 +850,90 @@ public class Utils {
 	 */
 	public static boolean isBusLineNumberValid(Context context, String lineNumber) {
 		return StmManager.findBusLine(context.getContentResolver(), lineNumber) != null;
-    }
+	}
+
+	/**
+	 * Return the distance string matching the accuracy and the user settings.
+	 * @param context the activity
+	 * @param distanceInMeters the distance in meter
+	 * @param accuracyInMeters the accuracy in meter
+	 * @return the distance string.
+	 */
+	public static String getDistanceString(Context context, float distanceInMeters, float accuracyInMeters) {
+		MyLog.v(TAG, "getDistanceString(" + distanceInMeters + ", " + accuracyInMeters + ")");
+		boolean isDetailed = getSharedPreferences(context, UserPreferences.PREFS_DISTANCE,
+		        UserPreferences.PREFS_DISTANCE_DEFAULT).equals(UserPreferences.PREFS_DISTANCE_DETAILED);
+		String distanceUnit = getSharedPreferences(context, UserPreferences.PREFS_DISTANCE_UNIT,
+		        UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
+		// IF distance unit is Imperial DO
+		if (distanceUnit.equals(UserPreferences.PREFS_DISTANCE_UNIT_IMPERIAL)) {
+			float distanceInFeet = distanceInMeters * Constant.FEET_PER_M;
+			float accuracyInFeet = accuracyInMeters * Constant.FEET_PER_M;
+			return getDistance(distanceInFeet, accuracyInFeet, isDetailed, Constant.FEET_PER_MILE, 10, "ft", "mi");
+		} else { // use Metric (default)
+			return getDistance(distanceInMeters, accuracyInMeters, isDetailed, Constant.METER_PER_KM, 1, "m", "km");
+		}
+	}
+
+	/**
+	 * @param distance the distance
+	 * @param accuracy the accuracy
+	 * @param isDetailed true if the distance string must be detailed
+	 * @param smallPerBig the number of small unit to make the big unit
+	 * @param threshold the threshold between small and big
+	 * @param smallUnit the small unit
+	 * @param bigUnit the big unit
+	 * @return the distance string
+	 */
+	private static String getDistance(float distance, float accuracy, boolean isDetailed, float smallPerBig,
+	        int threshold, String smallUnit, String bigUnit) {
+		String result = "";
+		// IF the location is enough precise AND the accuracy is 10% or more of the distance DO
+		if (isDetailed && accuracy < distance && accuracy / distance > 0.1) {
+			float shorterDistanceInFeet = distance - accuracy / 2;
+			float longerDistanceInFeet = distance + accuracy;
+			// IF distance in "small unit" is big enough to fit in "big unit" DO
+			if (distance > (smallPerBig / threshold)) {
+				// use "big unit"
+				float shorterDistanceInMile = shorterDistanceInFeet / smallPerBig;
+				float niceShorterDistanceInMile = ((Integer) Math.round(shorterDistanceInMile * 10)).floatValue() / 10;
+				float longerDistanceInMile = longerDistanceInFeet / smallPerBig;
+				float niceLongerDistanceInMile = ((Integer) Math.round(longerDistanceInMile * 10)).floatValue() / 10;
+				result = niceShorterDistanceInMile + "-" + niceLongerDistanceInMile + " " + bigUnit;
+			} else {
+				// use "small unit"
+				int niceShorterDistanceInFeet = Math.round(shorterDistanceInFeet);
+				int niceLongerDistanceInFeet = Math.round(longerDistanceInFeet);
+				result = niceShorterDistanceInFeet + "-" + niceLongerDistanceInFeet + " " + smallUnit;
+			}
+			// ELSE IF the accuracy of the location is more than the distance DO
+		} else if (accuracy > distance) { // basically, the location is in the blue circle in Maps
+			// use the accuracy as a distance
+			// IF distance in "small unit" is big enough to fit in "big unit" DO
+			if (accuracy > (smallPerBig / threshold)) {
+				// use "big unit"
+				float accuracyInMile = accuracy / smallPerBig;
+				float niceAccuracyInMile = ((Integer) Math.round(accuracyInMile * 10)).floatValue() / 10;
+				result += "< " + niceAccuracyInMile + " " + bigUnit;
+			} else {
+				// use "small unit"
+				int niceAccuracyInFeet = Math.round(accuracy);
+				result += "< " + niceAccuracyInFeet + " " + smallUnit;
+			}
+			// TODO ? ELSE if accuracy non-significant DO show the longer distance ?
+		} else {
+			// IF distance in "small unit" is big enough to fit in "big unit" DO
+			if (distance > (smallPerBig / threshold)) {
+				// use "big unit"
+				float distanceInMile = distance / smallPerBig;
+				float niceDistanceInMile = ((Integer) Math.round(distanceInMile * 10)).floatValue() / 10;
+				result += niceDistanceInMile + " " + bigUnit;
+			} else {
+				// use "small unit"
+				int niceDistanceInFeet = Math.round(distance);
+				result += niceDistanceInFeet + " " + smallUnit;
+			}
+		}
+		return result;
+	}
 }
