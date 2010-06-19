@@ -38,12 +38,18 @@
 			android:gravity="center_horizontal" />
 		<!-- STATION NAME -->
 		<TextView android:id="@+id/station_name"
-			android:layout_width="fill_parent" android:layout_height="fill_parent"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
 			android:layout_toRightOf="@id/img"
 			android:singleLine="true" android:ellipsize="marquee"
 			android:focusable="true" android:gravity="center_vertical|left"
 			android:textAppearance="?android:attr/textAppearanceLarge" android:textStyle="bold"
 			android:text="@string/unknow_stop_place" />
+		<!-- DISTANCE -->
+		<TextView android:id="@+id/distance"
+			android:layout_width="wrap_content" android:layout_height="wrap_content"
+			android:layout_below="@id/station_name" android:layout_alignLeft="@id/station_name"
+			android:layout_alignWithParentIfMissing="true"
+			android:textAppearance="?android:attr/textAppearanceMedium" />
 	</RelativeLayout>
 
 	<!-- BUS LINES -->

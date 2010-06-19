@@ -7,6 +7,11 @@
 		android:entries="@array/group_by_pref_entries" android:entryValues="@array/group_by_pref_values"
 		android:dialogTitle="@string/group_by_pref_dialog_title"
 		android:defaultValue="no" />
+	<ListPreference android:key="pDistanceUnit"
+		android:title="@string/distance_unit_pref_title" android:summary="@string/distance_unit_pref_summary"
+		android:entries="@array/distance_unit_pref_entries" android:entryValues="@array/distance_unit_pref_values"
+		android:dialogTitle="@string/distance_unit_pref_dialog_title"
+		android:defaultValue="meter" />
 	<!-- DATA -->
 	<PreferenceCategory android:title="@string/data_pref_cat_title" />
 	<ListPreference android:key="pNextStopProvider"
@@ -20,5 +25,10 @@
 		android:title="@string/search_pref_title" android:summary="@string/search_pref_summary"
 		android:entries="@array/search_pref_entries" android:entryValues="@array/search_pref_values"
 		android:dialogTitle="@string/search_pref_dialog_title"
+		android:defaultValue="simple" />
+	<ListPreference android:key="pDistanceDisplay"
+		android:title="@string/distance_pref_title" android:summary="@string/distance_pref_summary"
+		android:entries="@array/distance_pref_entries" android:entryValues="@array/distance_pref_values"
+		android:dialogTitle="@string/distance_pref_dialog_title"
 		android:defaultValue="simple" />
 </PreferenceScreen>

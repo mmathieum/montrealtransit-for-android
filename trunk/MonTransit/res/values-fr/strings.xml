@@ -167,7 +167,19 @@
     <string name="search_pref_dialog_title">Type de recherche</string>
     <string name="search_pref_simple">simple (rapide)</string>
     <string name="search_pref_extended">complète (lent)</string>
-    
+
+    <string name="distance_unit_pref_title">Unité pour les distances</string>
+    <string name="distance_unit_pref_summary">Système métrique (km/m) ou impérial (mi/ft).</string>
+    <string name="distance_unit_pref_dialog_title">Distance unit</string>
+    <string name="distance_unit_pref_meter">Métrique (km/m)</string>
+    <string name="distance_unit_pref_imperial">Impérial (mi/ft)</string>
+
+    <string name="distance_pref_title">Affichage des distances</string>
+    <string name="distance_pref_summary">Affichage simple ou détaillé des distances.</string>
+    <string name="distance_pref_dialog_title">Affichage des distances</string>
+    <string name="distance_pref_simple">Simple</string>
+    <string name="distance_pref_detailed">Détaillé</string>
+
     <string name="viewBusStopInfo">Voir l\'arrêt de bus</string>
     
     <string name="favorite_live_folder_name">Favoris</string>
