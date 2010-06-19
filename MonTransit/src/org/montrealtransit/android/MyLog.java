@@ -4,7 +4,7 @@ import android.util.Log;
 
 /**
  * This class is used to customize and optimize the log.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class MyLog {
 
