@@ -4,17 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.montrealtransit.android.MyLog;
+import org.montrealtransit.android.data.Pair;
+import org.montrealtransit.android.provider.StmStore.SubwayLine;
+import org.montrealtransit.android.provider.StmStore.SubwayStation;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.BaseColumns;
 import android.text.TextUtils;
 
 /**
  * This manager provide methods to access STM static information about bus stops, bus lines, subway lines, subway stations. Use the content provider
  * {@link StmProvider}
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class StmManager {
 
@@ -62,6 +66,13 @@ public class StmManager {
 	 */
 	private static final String[] PROJECTION_SUBWAY_LINE = new String[] { StmStore.SubwayLine._ID, StmStore.SubwayLine.LINE_NUMBER,
 	        StmStore.SubwayLine.LINE_NAME };
+
+	/**
+	 * Represents the fields the content provider will return for a subway line + subway station.
+	 */
+	private static final String[] PROJECTION_SUBWAY_LINES_STATIONS = new String[] { BaseColumns._ID,
+		StmStore.SubwayLine.LINE_NUMBER, StmStore.SubwayLine.LINE_NAME,
+		StmStore.SubwayStation.STATION_ID, StmStore.SubwayStation.STATION_NAME, StmStore.SubwayStation.STATION_LNG, StmStore.SubwayStation.STATION_LAT};
 
 	/**
 	 * Represents the fields the content provider will return for a bus line.
@@ -604,6 +615,55 @@ public class StmManager {
 		Uri subwayLinesUri = Uri.withAppendedPath(subwayStationUri, StmStore.SubwayStation.SubwayLines.CONTENT_DIRECTORY);
 		MyLog.v(TAG, "subwayLinesUri>" + subwayLinesUri.getPath());
 		return contentResolver.query(subwayLinesUri, PROJECTION_SUBWAY_LINE, null, null, null);
+	}
+
+	/**
+	 * Find subway line stations other lines.
+	 * @param contentResolver the content resolver
+	 * @param subwayLineId the subway line
+	 * @return the subway line + stations
+	 */
+	public static List<Pair<SubwayLine, SubwayStation>> findSubwayLineStationsWithOtherLinesList(ContentResolver contentResolver,
+            int subwayLineId) {
+		MyLog.v(TAG, "findSubwayStationLinesList(" + subwayLineId + ")");
+		List<Pair<SubwayLine, SubwayStation>> result = null;
+		Cursor c = null;
+		try {
+			c = findSubwayLineStationsWithOtherLines(contentResolver, subwayLineId);
+			if (c.getCount() > 0) {
+				if (c.moveToFirst()) {
+					result = new ArrayList<Pair<SubwayLine, SubwayStation>>();
+					do {
+						SubwayStation station = StmStore.SubwayStation.fromCursor(c);
+						SubwayLine line = StmStore.SubwayLine.fromCursor(c);
+						result.add(new Pair<SubwayLine, SubwayStation>(line, station));
+					} while (c.moveToNext());
+				} else {
+					MyLog.w(TAG, "cursor is EMPTY !!!");
+				}
+			} else {
+				MyLog.w(TAG, "cursor.SIZE = 0 !!!");
+			}
+		} finally {
+			if (c != null)
+				c.close();
+		}
+		return result;
+    }
+
+	/**
+	 * Return a cursor with subway line stations other lines.
+	 * @param contentResolver the content resolver
+	 * @param subwayLineId the subway line ID
+	 * @return the subway line + stations
+	 */
+	public static Cursor findSubwayLineStationsWithOtherLines(ContentResolver contentResolver, int subwayLineId) {
+		Uri subwayStationsUri = StmStore.SubwayStation.CONTENT_URI;
+		Uri subwayStationUri = Uri.withAppendedPath(subwayStationsUri, String.valueOf(subwayLineId));
+		Uri subwayLinesUri = Uri.withAppendedPath(subwayStationUri, StmStore.SubwayStation.SubwayLines.CONTENT_DIRECTORY);
+		Uri otherUri = Uri.withAppendedPath(subwayLinesUri, "other");
+		MyLog.v(TAG, "otherUri>" + otherUri.getPath());
+		return contentResolver.query(otherUri, PROJECTION_SUBWAY_LINES_STATIONS, null, null, null);
 	}
 
 	/**

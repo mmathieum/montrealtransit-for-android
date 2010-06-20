@@ -518,7 +518,7 @@ public class StmStore {
 		/**
 		 * The default sort order.
 		 */
-		public static final String DEFAULT_SORT_ORDER = StmDbHelper.T_SUBWAY_LINES_K_NUMBER + " ASC";
+		public static final String DEFAULT_SORT_ORDER = StmDbHelper.T_SUBWAY_LINES + "." +  StmDbHelper.T_SUBWAY_LINES_K_NUMBER + " ASC";
 
 		/**
 		 * The subway line number.
@@ -573,8 +573,8 @@ public class StmStore {
 	 * @author Mathieu Méa
 	 */
 	public interface SubwayLinesColumns {
-		public static final String LINE_NUMBER = StmDbHelper.T_SUBWAY_LINES_K_NUMBER;
-		public static final String LINE_NAME = StmDbHelper.T_SUBWAY_LINES_K_NAME;
+		public static final String LINE_NUMBER = StmDbHelper.T_SUBWAY_LINES + "_" + StmDbHelper.T_SUBWAY_LINES_K_NUMBER;
+		public static final String LINE_NAME = StmDbHelper.T_SUBWAY_LINES + "_" + StmDbHelper.T_SUBWAY_LINES_K_NAME;
 	}
 
 	/**
@@ -599,16 +599,18 @@ public class StmStore {
 		/**
 		 * The default sort order.
 		 */
-		public static final String DEFAULT_SORT_ORDER = StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME + " ASC";
+		public static final String DEFAULT_SORT_ORDER = StmDbHelper.T_SUBWAY_STATIONS + "."
+		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME + " ASC";
 		/**
 		 * Order subway line by the real world order 1.
 		 */
-		public static final String NATURAL_SORT_ORDER = StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ORDER + " ASC";
+		public static final String NATURAL_SORT_ORDER = StmDbHelper.T_SUBWAY_DIRECTIONS + "."
+		        + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ORDER + " ASC";
 		/**
 		 * Order subway line by the real world order 2.
 		 */
-		public static final String NATURAL_SORT_ORDER_DESC = StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ORDER
-		        + " DESC";
+		public static final String NATURAL_SORT_ORDER_DESC = StmDbHelper.T_SUBWAY_DIRECTIONS + "."
+		        + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ORDER + " DESC";
 		/**
 		 * The subway station ID.
 		 */
@@ -709,9 +711,13 @@ public class StmStore {
 	 * @author Mathieu Méa
 	 */
 	public interface SubwayStationsColumns {
-		public static final String STATION_ID = StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID;
-		public static final String STATION_NAME = StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME;
-		public static final String STATION_LAT = StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LAT;
-		public static final String STATION_LNG = StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LNG;
+		public static final String STATION_ID = StmDbHelper.T_SUBWAY_STATIONS + "_"
+		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID;
+		public static final String STATION_NAME = StmDbHelper.T_SUBWAY_STATIONS + "_"
+		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME;
+		public static final String STATION_LAT = StmDbHelper.T_SUBWAY_STATIONS + "_"
+		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LAT;
+		public static final String STATION_LNG = StmDbHelper.T_SUBWAY_STATIONS + "_"
+		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LNG;
 	}
 }
