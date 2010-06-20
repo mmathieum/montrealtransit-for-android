@@ -1,5 +1,6 @@
 package org.montrealtransit.android.activity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import org.montrealtransit.android.dialog.SubwayLineSelectDirection;
 import org.montrealtransit.android.dialog.SubwayLineSelectDirectionDialogListener;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
+import org.montrealtransit.android.provider.StmStore.SubwayLine;
 import org.montrealtransit.android.provider.StmStore.SubwayStation;
 
 import android.app.Activity;
@@ -130,16 +132,6 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void onStart() {
-		MyLog.v(TAG, "onStart()");
-		super.onStart();
-		refreshSubwayStationsList();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	protected void onPause() {
 		MyLog.v(TAG, "onPause()");
 		if (locationUpdatesEnabled) {
@@ -164,8 +156,24 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 */
 	private void refreshAll() {
 		refreshSubwayLineInfo();
+		refreshSubwayStationsInfo();
+		refreshDistances();
 		refreshSubwayStationsList();
 	}
+
+	/**
+	 * Refresh the subway stations distance.
+	 */
+	private void refreshDistances() {
+		updateDistancesWithNewLocation();
+    }
+
+	/**
+	 * Refresh the subway stations list.
+	 */
+	private void refreshSubwayStationsList() {
+		((ListView) findViewById(R.id.list)).setAdapter(getAdapter());
+    }
 
 	/**
 	 * Refresh the subway line info.
@@ -218,10 +226,10 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	}
 
 	/**
-	 * Refresh the subway stations list.
+	 * Refresh the subway stations info.
 	 */
-	private void refreshSubwayStationsList() {
-		// 1 - store some useful subway stations info
+	private void refreshSubwayStationsInfo() {
+		// store some useful subway stations info
 		this.subwayStationLocations = new HashMap<String, Pair<Double, Double>>();
 		this.subwayStationOtherLines = new HashMap<String, List<String>>();
 		String orderId = getSortOrderFromOrderPref(this.subwayLine.getNumber());
@@ -231,17 +239,53 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 			// store the station location
 			this.subwayStationLocations.put(subwayStation.getId(), new Pair<Double, Double>(subwayStation.getLat(),
 			        subwayStation.getLng()));
-			// store the other subway station lines
-			List<String> otherSubwayLinesIds = Utils.extractSubwayLineNumbers(StmManager.findSubwayStationLinesList(
-			        getContentResolver(), subwayStation.getId()));
-			if (otherSubwayLinesIds != null) {
-				otherSubwayLinesIds.remove(String.valueOf(this.subwayLine.getNumber()));
-				this.subwayStationOtherLines.put(subwayStation.getId(), otherSubwayLinesIds);
-			}
 		}
-		// 2 - set the list adapter
-		((ListView) findViewById(R.id.list)).setAdapter(getAdapter());
+		List<Pair<SubwayLine, SubwayStation>> subwayStationsWithOtherLines = StmManager.findSubwayLineStationsWithOtherLinesList(this.getContentResolver(),
+		        this.subwayLine.getNumber());
+		for (Pair<SubwayLine, SubwayStation> lineStation : subwayStationsWithOtherLines) {
+			String subwayLineNumber = String.valueOf(lineStation.first.getNumber());
+			String subwayStationId = lineStation.second.getId();
+			if (!this.subwayStationOtherLines.containsKey(subwayStationId)) {
+				this.subwayStationOtherLines.put(subwayStationId, new ArrayList<String>());
+			}
+			this.subwayStationOtherLines.get(subwayStationId).add(subwayLineNumber);
+			// MyLog.v(TAG, subwayStationId+"-"+subwayLineNumber);
+		}
 	}
+	
+	/**
+	 * Update the distances with the latest device location.
+	 */
+	private void updateDistancesWithNewLocation() {
+	    for (String subwayStationId : this.subwayStationLocations.keySet()) {
+	    	// subway station info
+			Location subwayStationLocation = new Location("MonTransit");
+			subwayStationLocation.setLatitude(this.subwayStationLocations.get(subwayStationId).first);
+			subwayStationLocation.setLongitude(this.subwayStationLocations.get(subwayStationId).second);
+			// distance
+			float distanceInMeters = getLocation().distanceTo(subwayStationLocation);
+			float accuracyInMeters = getLocation().getAccuracy();
+			//MyLog.v(TAG, "distance in meters: " + distanceInMeters + " (accuracy: " + accuracyInMeters + ").");
+			String distanceString = Utils.getDistanceString(this, distanceInMeters, accuracyInMeters);
+			this.getSubwayStationDistance().put(subwayStationId, distanceString);
+	    }
+	    
+    }
+
+    /**
+	 * Store the subway station distances.
+	 */
+	private HashMap<String, String> subwayStationDistances;
+
+	/**
+	 * @return the subway station distances
+	 */
+	private HashMap<String, String> getSubwayStationDistance() {
+		if (this.subwayStationDistances == null) {
+			this.subwayStationDistances = new HashMap<String, String>();
+		}
+	    return this.subwayStationDistances;
+    }
 
 	/**
 	 * @return the subway station list adapter.
@@ -282,15 +326,27 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		MyLog.v(TAG, "setViewValue(" + view.getId() + ", " + columnIndex + ")");
 		if (view.getId() == R.id.subway_img_1
 		        && columnIndex == cursor.getColumnIndex(StmStore.SubwayStation.STATION_ID)) {
-			((ImageView) view).setImageResource(Utils.getSubwayLineImg(this.subwayLine.getNumber()));
+			String subwayStationID = cursor.getString(cursor.getColumnIndex(StmStore.SubwayStation.STATION_ID));
+			if (this.subwayStationOtherLines.containsKey(subwayStationID) && this.subwayStationOtherLines.get(subwayStationID).size() > 0) {
+				int index = this.subwayStationOtherLines.get(subwayStationID).size() -1;
+				int subwayLineNumber = Integer.valueOf(this.subwayStationOtherLines.get(subwayStationID).get(index));
+				((ImageView) view).setImageResource(Utils.getSubwayLineImg(subwayLineNumber));
+			} else {
+				((ImageView) view).setImageResource(Utils.getSubwayLineImg(this.subwayLine.getNumber()));
+			}
 			return true;
 		} else if (view.getId() == R.id.subway_img_2
 		        && columnIndex == cursor.getColumnIndex(StmStore.SubwayStation.STATION_ID)) {
 			String subwayStationID = cursor.getString(cursor.getColumnIndex(StmStore.SubwayStation.STATION_ID));
-			if (this.subwayStationOtherLines.get(subwayStationID).size() > 0) {
+			if (this.subwayStationOtherLines.containsKey(subwayStationID)
+			        && this.subwayStationOtherLines.get(subwayStationID).size() > 0) {
 				((ImageView) view).setVisibility(View.VISIBLE);
-				((ImageView) view).setImageResource(Utils.getSubwayLineImg(Integer.valueOf(this.subwayStationOtherLines
-				        .get(subwayStationID).get(0))));
+				if (this.subwayStationOtherLines.get(subwayStationID).size() == 1) {
+					((ImageView) view).setImageResource(Utils.getSubwayLineImg(this.subwayLine.getNumber()));
+				} else {
+					int subwayLineNumber = Integer.valueOf(this.subwayStationOtherLines.get(subwayStationID).get(0));
+					((ImageView) view).setImageResource(Utils.getSubwayLineImg(subwayLineNumber));
+				}
 			} else {
 				((ImageView) view).setVisibility(View.GONE);
 			}
@@ -298,29 +354,25 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		} else if (view.getId() == R.id.subway_img_3
 		        && columnIndex == cursor.getColumnIndex(StmStore.SubwayStation.STATION_ID)) {
 			String subwayStationID = cursor.getString(cursor.getColumnIndex(StmStore.SubwayStation.STATION_ID));
-			if (this.subwayStationOtherLines.get(subwayStationID).size() > 1) {
+			if (this.subwayStationOtherLines.containsKey(subwayStationID)
+			        && this.subwayStationOtherLines.get(subwayStationID).size() > 1) {
 				((ImageView) view).setVisibility(View.VISIBLE);
-				((ImageView) view).setImageResource(Utils.getSubwayLineImg(Integer.valueOf(this.subwayStationOtherLines
-				        .get(subwayStationID).get(1))));
+				
+				if (this.subwayStationOtherLines.get(subwayStationID).size() == 2) {
+					((ImageView) view).setImageResource(Utils.getSubwayLineImg(this.subwayLine.getNumber()));
+				} else {
+					int subwayLineNumber = Integer.valueOf(this.subwayStationOtherLines.get(subwayStationID).get(1));
+					((ImageView) view).setImageResource(Utils.getSubwayLineImg(subwayLineNumber));
+				}
 			} else {
 				((ImageView) view).setVisibility(View.GONE);
 			}
 			return true;
 		} else if (view.getId() == R.id.distance
 		        && columnIndex == cursor.getColumnIndex(StmStore.SubwayStation.STATION_ID)) {
-			// location
-			if (getLocation() != null) {
-				String subwayStationID = cursor.getString(cursor.getColumnIndex(StmStore.SubwayStation.STATION_ID));
-				// subway station info
-				Location subwayStationLocation = new Location("MonTransit");
-				subwayStationLocation.setLatitude(this.subwayStationLocations.get(subwayStationID).first);
-				subwayStationLocation.setLongitude(this.subwayStationLocations.get(subwayStationID).second);
-				// distance
-				float distanceInMeters = getLocation().distanceTo(subwayStationLocation);
-				float accuracyInMeters = getLocation().getAccuracy();
-				MyLog.v(TAG, "distance in meters: " + distanceInMeters + " (accuracy: " + accuracyInMeters + ").");
-				String distanceString = Utils.getDistanceString(this, distanceInMeters, accuracyInMeters);
-				((TextView) view).setText(distanceString);
+			String subwayStationID = cursor.getString(cursor.getColumnIndex(StmStore.SubwayStation.STATION_ID));
+			if (this.getSubwayStationDistance().get(subwayStationID) != null) {
+				((TextView) view).setText(this.getSubwayStationDistance().get(subwayStationID));
 			}
 			return true;
 		} else {
@@ -401,6 +453,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	public void onLocationChanged(Location location) {
 		MyLog.v(TAG, "onLocationChanged()"); // TODO update list view update? how? (maybe use provider ?)
 		this.setLocation(location);
+		updateDistancesWithNewLocation();
 	}
 
 	/**
