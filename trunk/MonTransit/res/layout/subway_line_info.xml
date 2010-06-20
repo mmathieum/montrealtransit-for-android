@@ -35,7 +35,8 @@
 	<!-- SUBWAY STATIONS  -->
 	<TextView android:id="@+id/subway_line_station_string"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp" />
+		style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
+		android:singleLine="true" android:ellipsize="end" />
     <FrameLayout
     	android:layout_width="fill_parent"
     	android:layout_height="0dip"
