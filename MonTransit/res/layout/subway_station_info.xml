@@ -39,7 +39,8 @@
 		<!-- STATION NAME -->
 		<TextView android:id="@+id/station_name"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:layout_toRightOf="@id/img"
+			android:layout_toRightOf="@id/img" android:layout_toLeftOf="@id/subway_line_3"
+			android:layout_marginRight="3dip"
 			android:singleLine="true" android:ellipsize="marquee"
 			android:focusable="true" android:gravity="center_vertical|left"
 			android:textAppearance="?android:attr/textAppearanceLarge" android:textStyle="bold"
