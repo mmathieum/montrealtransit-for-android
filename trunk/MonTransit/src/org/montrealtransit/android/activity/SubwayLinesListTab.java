@@ -27,7 +27,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.SimpleCursorAdapter.ViewBinder;
 
 /**
- * Display a list of subway line.
+ * Display a list of subway lines.
  * @author Mathieu Méa
  */
 public class SubwayLinesListTab extends Activity implements ViewBinder, OnItemClickListener, OnItemLongClickListener,
@@ -104,11 +104,10 @@ public class SubwayLinesListTab extends Activity implements ViewBinder, OnItemCl
 	 */
 	@Override
 	public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-		MyLog.v(TAG, "onItemClick(" + v.getId() + "," + v.getId() + "," + position + "," + id + ")");
+		MyLog.v(TAG, "onItemClick(" + l.getId() + "," + v.getId() + "," + position + "," + id + ")");
 		// show the subway station in default (A-Z) older by default
 		Intent intent = new Intent(this, SubwayLineInfo.class);
 		intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, String.valueOf(id));
-		intent.putExtra(SubwayLineInfo.EXTRA_ORDER_ID, StmStore.SubwayLine.DEFAULT_SORT_ORDER);
 		startActivity(intent);
 		// TODO ? use user settings to save the last order choose by the user for each subway lines ?
 	}

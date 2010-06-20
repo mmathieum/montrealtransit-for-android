@@ -4,6 +4,7 @@ import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.activity.SubwayLineInfo;
+import org.montrealtransit.android.activity.UserPreferences;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
 
@@ -33,9 +34,9 @@ public class SubwayLineSelectDirection implements android.view.View.OnClickListe
 	 */
 	private SubwayLineSelectDirectionDialogListener listener;
 	/**
-	 * The direction IDs.
+	 * The direction preferences.
 	 */
-	private String[] orderId;
+	private String[] orderPref;
 	/**
 	 * The subway line.
 	 */
@@ -91,12 +92,30 @@ public class SubwayLineSelectDirection implements android.view.View.OnClickListe
 		AlertDialog.Builder builder = new AlertDialog.Builder(this.context);
 		builder.setTitle(this.context.getResources().getString(Utils.getSubwayLineName(this.subwayLine.getNumber())) + " - "
 		        + this.context.getResources().getString(R.string.select_subway_direction));
-		builder.setItems(getItems(), this);
+		//builder.setItems(getItems(), this);
+		builder.setSingleChoiceItems(getItems(), getCheckedItemFromPref(), this);
 		builder.setNegativeButton(R.string.cancel, this);
 		AlertDialog alert = builder.create();
 		return alert;
 	}
 
+	/**
+	 * @return the id of the checked choice
+	 */
+	private int getCheckedItemFromPref() {
+	    String sharedPreferences = Utils.getSharedPreferences(context, UserPreferences.getPrefsSubwayStationsOrder(this.subwayLine.getNumber()), UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_DEFAULT);
+		if (sharedPreferences.equals(UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL)) {
+	    	return 1;
+	    } else if (sharedPreferences.equals(UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL_DESC)) {
+	    	return 2;
+	    } else {
+	    	return 0;
+	    }
+    }
+
+	/**
+	 * @return the items to be displayed
+	 */
 	private String[] getItems() {
 		MyLog.v(TAG, "getItems()");
 		StmStore.SubwayStation firstSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(this.context.getContentResolver(), this.subwayLine
@@ -107,13 +126,13 @@ public class SubwayLineSelectDirection implements android.view.View.OnClickListe
 		//MyTrace.d(TAG, "Last station: " + lastSubwayStationDirection.getName());
 
 		String[] items = new String[3];
-		orderId = new String[3];
+		orderPref = new String[3];
 
-		orderId[0] = StmStore.SubwayLine.DEFAULT_SORT_ORDER;
+		orderPref[0] = UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_AZ;
 		items[0] = this.context.getResources().getString(R.string.alphabetical_order);
-		orderId[1] = StmStore.SubwayStation.NATURAL_SORT_ORDER;
+		orderPref[1] = UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL;
 		items[1] = firstSubwayStationDirection.getName();
-		orderId[2] = StmStore.SubwayStation.NATURAL_SORT_ORDER_DESC;
+		orderPref[2] = UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL_DESC;
 		items[2] = lastSubwayStationDirection.getName();
 		return items;
 	}
@@ -124,10 +143,11 @@ public class SubwayLineSelectDirection implements android.view.View.OnClickListe
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
 		MyLog.v(TAG, "onClick(" + which + ")");
-		if (which == -2) {
-			dialog.dismiss(); // CANCEL
+		if (which == -2) { // CANCEL
+			dialog.dismiss(); // close the dialog (do nothing)
 		} else {
-			this.listener.showNewSubway(this.subwayLine.getNumber(), this.orderId[which]);
+			dialog.dismiss(); // close the dialog 
+			this.listener.showNewSubway(this.subwayLine.getNumber(), this.orderPref[which]);
 		}
 	}
 
@@ -135,11 +155,11 @@ public class SubwayLineSelectDirection implements android.view.View.OnClickListe
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void showNewSubway(int subwayLineId, String orderId) {
-		MyLog.v(TAG, "showNewSubway(" + subwayLineId + ", " + orderId + ")");
+	public void showNewSubway(int subwayLineId, String orderPref) {
+		MyLog.v(TAG, "showNewSubway(" + subwayLineId + ", " + orderPref + ")");
 		Intent mIntent = new Intent(this.context, SubwayLineInfo.class);
 		mIntent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, String.valueOf(subwayLineId));
-		mIntent.putExtra(SubwayLineInfo.EXTRA_ORDER_ID, orderId);
+		mIntent.putExtra(SubwayLineInfo.EXTRA_ORDER_PREF, orderPref);
 		this.context.startActivity(mIntent);
 	}
 }

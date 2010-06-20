@@ -71,7 +71,7 @@ public class UserPreferences extends PreferenceActivity {
 	 * The default value for the search.
 	 */
 	public static final String PREFS_SEARCH_DEFAULT = PREFS_SEARCH_SIMPLE;
-	
+
 	/**
 	 * The preference key for the distance display.
 	 */
@@ -88,7 +88,7 @@ public class UserPreferences extends PreferenceActivity {
 	 * The default value for the distance display.
 	 */
 	public static final String PREFS_DISTANCE_DEFAULT = PREFS_DISTANCE_SIMPLE;
-	
+
 	/**
 	 * The preference key for the distance unit.
 	 */
@@ -107,6 +107,28 @@ public class UserPreferences extends PreferenceActivity {
 	public static final String PREFS_DISTANCE_UNIT_DEFAULT = PREFS_DISTANCE_UNIT_METER;
 
 	/**
+	 * The preference key for the subway line stations display order. <b>WARNING:</b> To be used with the subway line number at the end.
+	 * Use {@link UserPreferences#getPrefsSubwayStationsOrder(int)} to get the key.
+	 */
+	private static final String PREFS_SUBWAY_STATIONS_ORDER = "pSubwayStationOrder";
+	/**
+	 * The preference value for A-Z order.
+	 */
+	public static final String PREFS_SUBWAY_STATIONS_ORDER_AZ = "az";
+	/**
+	 * The preference value for the natural order 1.
+	 */
+	public static final String PREFS_SUBWAY_STATIONS_ORDER_NATURAL = "asc";
+	/**
+	 * The preference value for the natural order 2.
+	 */
+	public static final String PREFS_SUBWAY_STATIONS_ORDER_NATURAL_DESC = "desc";
+	/**
+	 * The default value for the subway stations order.
+	 */
+	public static final String PREFS_SUBWAY_STATIONS_ORDER_DEFAULT = PREFS_SUBWAY_STATIONS_ORDER_AZ;
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -114,6 +136,14 @@ public class UserPreferences extends PreferenceActivity {
 		MyLog.v(TAG, "onCreate()");
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.userpreferences);
+	}
+
+	/**
+	 * @param number the subway line number
+	 * @return the PREFS_SUBWAY_STATIONS_ORDER+number key.
+	 */
+	public static String getPrefsSubwayStationsOrder(int number) {
+		return PREFS_SUBWAY_STATIONS_ORDER + number;
 	}
 
 }
