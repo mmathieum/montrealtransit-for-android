@@ -41,7 +41,7 @@ import android.widget.SimpleCursorAdapter.ViewBinder;
 
 /**
  * This activity show a list of the bus lines. They can be grouped by number or name.
- * @author Mathieu Méa
+ * @author Mathieu Mï¿½a
  */
 public class BusLineListTab extends Activity implements OnChildClickListener, OnItemClickListener, ViewBinder,
         FilterQueryProvider, OnSharedPreferenceChangeListener {
@@ -94,7 +94,7 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 
 	/**
 	 * This task create the expandable list adapter in a other thread.
-	 * @author Mathieu Méa
+	 * @author Mathieu Mï¿½a
 	 */
 	private class SetBusEListTask extends AsyncTask<String, String, ExpandableListAdapter> {
 
@@ -113,7 +113,7 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 		 */
 		@Override
 		protected void onPostExecute(ExpandableListAdapter result) {
-			((ExpandableListView) findViewById(R.id.elist)).setAdapter((ExpandableListAdapter) result);
+			((ExpandableListView) findViewById(R.id.elist)).setAdapter(result);
 			super.onPostExecute(result);
 		}
 
@@ -418,7 +418,7 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 
 	/**
 	 * A simple expandable list adapter based on {@link SimpleExpandableListAdapter}. Add the customization of the child view (line type img).
-	 * @author Mathieu Méa
+	 * @author Mathieu Mï¿½a
 	 */
 	private class MySimpleExpandableListAdapter extends SimpleExpandableListAdapter {
 
@@ -565,7 +565,7 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 
 	/**
 	 * A custom expandable list adapter based on {@link MySimpleExpandableListAdapter}. Add the group view customization.
-	 * @author Mathieu Méa
+	 * @author Mathieu Mï¿½a
 	 */
 	private class MySimpleExpandableListAdapterType extends MySimpleExpandableListAdapter {
 
