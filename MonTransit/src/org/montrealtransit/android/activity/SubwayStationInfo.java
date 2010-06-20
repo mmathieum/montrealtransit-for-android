@@ -261,7 +261,6 @@ public class SubwayStationInfo extends Activity implements OnChildClickListener,
 		if (this.subwayLines.size() == 1) {
 			Intent intent = new Intent(this, SubwayLineInfo.class);
 			intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, String.valueOf(this.subwayLines.get(0).getNumber()));
-			intent.putExtra(SubwayLineInfo.EXTRA_ORDER_ID, StmStore.SubwayLine.DEFAULT_SORT_ORDER);
 			startActivity(intent);
 		} else {
 			// TODO show subway lines selector?
