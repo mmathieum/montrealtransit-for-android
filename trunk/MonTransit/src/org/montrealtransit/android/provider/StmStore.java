@@ -647,28 +647,48 @@ public class StmStore {
 		public String getName() {
 			return name;
 		}
-
+		/**
+		 * @param name the new subway station name
+		 */
+		public void setName(String name) {
+	        this.name = name;
+        }
 		/**
 		 * @return the subway station ID
 		 */
 		public String getId() {
 			return id;
 		}
-
+		/**
+		 * @param id the new subway station ID
+		 */
+		public void setId(String id) {
+	        this.id = id;
+        }
 		/**
 		 * @return the subway station GPS latitude
 		 */
 		public double getLat() {
 			return lat;
 		}
-
+		/**
+		 * @param lat the new subway station GPS latitude
+		 */
+		public void setLat(double lat) {
+	        this.lat = lat;
+        }
 		/**
 		 * @return the subway station GPS longitude
 		 */
 		public double getLng() {
 			return lng;
 		}
-
+		/**
+		 * @param lng the new subway station GPS longitude
+		 */
+		public void setLng(double lng) {
+	        this.lng = lng;
+        }
 		/**
 		 * A sub directory of a single subway station that contains all of their bus lines.
 		 * @author Mathieu Méa
