@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
@@ -16,11 +17,9 @@ import org.montrealtransit.android.provider.StmStore.SubwayLine;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -88,9 +87,7 @@ public class SubwayStationInfo extends Activity implements OnChildClickListener,
 	@Override
 	protected void onPause() {
 		MyLog.v(TAG, "onPause()");
-		if (locationUpdatesEnabled) {
-			this.getLocationManager().removeUpdates(this);
-		}
+		LocationUtils.disableLocationUpdates(this, this);
 		super.onPause();
 	}
 
@@ -99,8 +96,11 @@ public class SubwayStationInfo extends Activity implements OnChildClickListener,
 	 */
 	@Override
 	protected void onResume() {
+		MyLog.v(TAG, "onResume()");
+		// IF location updates should be enabled DO
 		if (this.locationUpdatesEnabled) {
-			enableLocationUpdates();
+			// re-enable
+			LocationUtils.enableLocationUpdates(this, this);
 		}
 		super.onResume();
 	}
@@ -125,6 +125,17 @@ public class SubwayStationInfo extends Activity implements OnChildClickListener,
 	private void refreshAll() {
 		refreshSubwayStationInfo();
 		refreshBusLines();
+		// IF there is a valid last know location DO
+		if (LocationUtils.getLocationManager(this) != null) {
+			// set the distance before showing the station
+			updateDistanceWithNewLocation();
+		}
+		// IF location updates is not already enabled DO
+		if (!this.locationUpdatesEnabled) {
+			// enable
+			LocationUtils.enableLocationUpdates(this, this);
+			this.locationUpdatesEnabled = true;
+		}
 	}
 
 	/**
@@ -134,25 +145,19 @@ public class SubwayStationInfo extends Activity implements OnChildClickListener,
 		MyLog.v(TAG, "refreshSubwayStationInfo()");
 		// subway station name
 		((TextView) findViewById(R.id.station_name)).setText(this.subwayStation.getName());
-		// update the location info with the last known location
-		updateDistanceWithNewLocation(getLastKnownLocation());
-		// enable location updates if necessary
-		if (!this.locationUpdatesEnabled) {
-			enableLocationUpdates();
-		}
 		// subway lines colors
 		if (this.subwayLines.size() > 0) {
 			((ImageView) findViewById(R.id.subway_line_1)).setVisibility(View.VISIBLE);
-			((ImageView) findViewById(R.id.subway_line_1)).setImageResource(Utils.getSubwayLineImg(this.subwayLines
-			        .get(0).getNumber()));
+			int subwayLineImg = Utils.getSubwayLineImg(this.subwayLines.get(0).getNumber());
+			((ImageView) findViewById(R.id.subway_line_1)).setImageResource(subwayLineImg);
 			if (this.subwayLines.size() > 1) {
 				((ImageView) findViewById(R.id.subway_line_2)).setVisibility(View.VISIBLE);
-				((ImageView) findViewById(R.id.subway_line_2)).setImageResource(Utils.getSubwayLineImg(this.subwayLines
-				        .get(1).getNumber()));
+				int subwayLineImg2 = Utils.getSubwayLineImg(this.subwayLines.get(1).getNumber());
+				((ImageView) findViewById(R.id.subway_line_2)).setImageResource(subwayLineImg2);
 				if (this.subwayLines.size() > 2) {
 					((ImageView) findViewById(R.id.subway_line_3)).setVisibility(View.VISIBLE);
-					((ImageView) findViewById(R.id.subway_line_3)).setImageResource(Utils
-					        .getSubwayLineImg(this.subwayLines.get(2).getNumber()));
+					int subwayLineImg3 = Utils.getSubwayLineImg(this.subwayLines.get(2).getNumber());
+					((ImageView) findViewById(R.id.subway_line_3)).setImageResource(subwayLineImg3);
 				}
 			}
 		}
@@ -161,63 +166,53 @@ public class SubwayStationInfo extends Activity implements OnChildClickListener,
 
 	/**
 	 * Update the distance with the latest device location.
-	 * @param location the device location
 	 */
-	private void updateDistanceWithNewLocation(Location location) {
-		MyLog.v(TAG, "updateDistanceWithNewLocation(" + location + ")");
-		if (location != null && this.subwayStation != null) {
-			// subway station
-			Location subwayStationLocation = new Location("MonTransit");
-			subwayStationLocation.setLatitude(this.subwayStation.getLat());
-			subwayStationLocation.setLongitude(this.subwayStation.getLng());
+	private void updateDistanceWithNewLocation() {
+		MyLog.v(TAG, "updateDistanceWithNewLocation(" + getLocation() + ")");
+		if (getLocation() != null && this.subwayStation != null) {
 			// distance & accuracy
-			float distanceInMeters = location.distanceTo(subwayStationLocation);
-			float accuracyInMeters = location.getAccuracy();
+			Location stationLocation = LocationUtils.getNewLocation(subwayStation.getLat(), subwayStation.getLng());
+			float distanceInMeters = getLocation().distanceTo(stationLocation);
+			float accuracyInMeters = getLocation().getAccuracy();
 			MyLog.v(TAG, "distance in meters: " + distanceInMeters + " (accuracy: " + accuracyInMeters + ").");
 			String distanceString = Utils.getDistanceString(this, distanceInMeters, accuracyInMeters);
 			((TextView) findViewById(R.id.distance)).setText(distanceString);
-		} else {
-			((TextView) findViewById(R.id.distance)).setText("..."); // FIXME
 		}
 	}
 
 	/**
-	 * @return the best last know location (GPS if available, if not NETWORK)
+	 * Store the device location.
 	 */
-	private Location getLastKnownLocation() {
-		Location lastGPSLocation = getLocationManager().getLastKnownLocation(LocationManager.GPS_PROVIDER);
-		Location lastNetworkLocation = getLocationManager().getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-		return lastGPSLocation != null ? lastGPSLocation : lastNetworkLocation;
-	}
-	
-	/**
-	 * The location manager.
-	 */
-	private LocationManager locationManager;
+	private Location location;
 
 	/**
-	 * @return the location manager
+	 * Initialize the location updates if necessary.
+	 * @return the location or <B>NULL</b>
 	 */
-	public LocationManager getLocationManager() {
-		MyLog.v(TAG, "getLocationManager()");
-		if (this.locationManager == null) {
-			locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+	private Location getLocation() {
+		if (this.location == null) {
+			Location bestLastKnownLocationOrNull = LocationUtils.getBestLastKnownLocation(this);
+			if (bestLastKnownLocationOrNull != null) {
+				this.setLocation(bestLastKnownLocationOrNull);
+			}
+			// enable location updates if necessary
+			if (!this.locationUpdatesEnabled) {
+				LocationUtils.enableLocationUpdates(this, this);
+				this.locationUpdatesEnabled = true;
+			}
 		}
-		return this.locationManager;
+		return this.location;
 	}
 
 	/**
-	 * Enable location updates.
+	 * @param location the new location
 	 */
-	public void enableLocationUpdates() {
-		MyLog.v(TAG, "enableLocationUpdates()");
-		// enable location updates
-		long minTime = 2000; // 2 seconds
-		float minDistance = 5;// 5 meters
-		// use both location providers because GPS is better and NETWORK is useful when no GPS.
-		this.getLocationManager().requestLocationUpdates(LocationManager.GPS_PROVIDER, minTime, minDistance, this);
-		this.getLocationManager().requestLocationUpdates(LocationManager.NETWORK_PROVIDER, minTime, minDistance, this);
-		this.locationUpdatesEnabled = true;
+	public void setLocation(Location location) {
+		if (location != null) {
+			MyLog.v(TAG, "setLocation(" + location.getProvider() + ", " + location.getLatitude() + ", "
+			        + location.getLongitude() + ", " + location.getAccuracy() + ")", this, MyLog.SHOW_LOCATION);
+		}
+		this.location = location;
 	}
 
 	/**
@@ -226,7 +221,8 @@ public class SubwayStationInfo extends Activity implements OnChildClickListener,
 	@Override
 	public void onLocationChanged(Location location) {
 		MyLog.v(TAG, "onLocationChanged()");
-		updateDistanceWithNewLocation(location);
+		this.setLocation(location);
+		updateDistanceWithNewLocation();
 	}
 
 	/**
