@@ -23,6 +23,7 @@
 || 2010 || Rogers || Sony Ericsson|| Xperia X10 Mini || ? || ? || SE custom UI ||
 || 2010 || Rogers || Sony Ericsson|| Xperia X10 Mini Pro || ? || ? || SE custom UI ||
 || 2010 || TELUS || HTC || Triumph (Desire) || 2.1 || ? || HTC Sense UI ||
+|| 2010 || Bell || Samsung || Galaxy S || 2.1 || 2.2? || Samsung UI ||
 || ? || X || `*` || `*` || 2.1 || 2.2? || Google TV ||
 
 _Cette page est également disponible [http://code.google.com/p/montrealtransit-for-android/wiki/SupportedDevices?wl=fr en français] mais votre navigateur est configuré pour afficher la version en anglais._
