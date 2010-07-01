@@ -844,6 +844,9 @@ public class Utils {
 		}
 		View view = activity.getLayoutInflater().inflate(R.layout.about, null, false);
 
+		TextView contributosTv = (TextView) view.findViewById(R.id.contributors);
+		contributosTv.setText(activity.getResources().getString(R.string.about_contributors));
+		
 		TextView versionTv = (TextView) view.findViewById(R.id.version);
 		versionTv.setText(activity.getString(R.string.about_version, versionName, versionCode));
 

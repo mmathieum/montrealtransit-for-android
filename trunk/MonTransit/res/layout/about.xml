@@ -24,6 +24,10 @@
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
 			android:text="@string/about_text4_source" android:autoLink="web"
 			android:textAppearance="?android:attr/textAppearanceSmall" android:textColor="#ffff" />
+			
+		<TextView android:id="@+id/contributors"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceSmallInverse" android:textColor="#ffff" />
 	
 		<TextView android:id="@+id/version"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
