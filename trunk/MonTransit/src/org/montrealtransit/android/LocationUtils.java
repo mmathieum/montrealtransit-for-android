@@ -71,18 +71,21 @@ public class LocationUtils {
 		Location result = null;
 		for (String provider : getBestProviders(activity)) {
 			Location lastLocation = getLocationManager(activity).getLastKnownLocation(provider);
-			// IF no last location candidate DO
-			if (result == null) {
-				// IF this location candidate is not too old DO
-				if (isNotTooOld(lastLocation)) {
-					result = lastLocation;
+			// IF the last location is NOT NULL (= location provider disabled) DO
+			if (lastLocation != null) {
+				// IF no last location candidate DO
+				if (result == null) {
+					// IF this location candidate is not too old DO
+					if (isNotTooOld(lastLocation)) {
+						result = lastLocation;
+					}
+				} else {
+					// IF the new location candidate is more recent DO
+					if (lastLocation.getTime() > result.getTime()) {
+						result = lastLocation;
+					}
+					// TODO compare accuracy?
 				}
-			} else {
-				// IF the new location candidate is more recent DO
-				if (lastLocation.getTime() > result.getTime()) {
-					result = lastLocation;
-				}
-				// TODO compare accuracy?
 			}
 		}
 		if (result != null) {
