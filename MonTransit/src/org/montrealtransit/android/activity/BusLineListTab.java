@@ -41,7 +41,7 @@ import android.widget.SimpleCursorAdapter.ViewBinder;
 
 /**
  * This activity show a list of the bus lines. They can be grouped by number or name.
- * @author Mathieu M�a
+ * @author Mathieu Méa
  */
 public class BusLineListTab extends Activity implements OnChildClickListener, OnItemClickListener, ViewBinder,
         FilterQueryProvider, OnSharedPreferenceChangeListener {
@@ -94,7 +94,7 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 
 	/**
 	 * This task create the expandable list adapter in a other thread.
-	 * @author Mathieu M�a
+	 * @author Mathieu Méa
 	 */
 	private class SetBusEListTask extends AsyncTask<String, String, ExpandableListAdapter> {
 
@@ -327,6 +327,7 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.bus_line_list_item, this.cursor, from, to);
 		adapter.setViewBinder(this);
 		adapter.setFilterQueryProvider(this);
+		startManagingCursor(cursor);
 		return adapter;
 	}
 
@@ -603,7 +604,9 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	@Override
 	protected void onDestroy() {
 		MyLog.v(TAG, "onDestroy()");
-		if (this.cursor!=null) {this.cursor.close(); }
+		if (this.cursor != null && !this.cursor.isClosed()) {
+			this.cursor.close();
+		}
 	    super.onDestroy();
 	}
 }
