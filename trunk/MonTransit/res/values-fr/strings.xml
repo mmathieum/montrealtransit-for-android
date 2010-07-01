@@ -15,16 +15,19 @@
     
     <string name="select_bus_direction">Direction</string>
     <string name="direction">Direction</string>
+    <string name="frequency">Fréquence</string>
     <string name="change_direction">Autres directions</string>
     <string name="see_bus_line_plan">Plan de la ligne</string>
     
     <string name="hours_string">Horaires</string>
+    <string name="minutes">minutes</string>
     
     <string name="subway_line">Ligne</string>
     <string name="subway_lines">Lignes</string>
     
-    <string name="bus_lines">Ligne d\'autobus</string>
-    <string name="bus_lines_connecting">Ligne d\'autobus en correspondance</string>
+    <string name="bus_line">Ligne d\'autobus</string>
+    <string name="bus_lines">Lignes d\'autobus</string>
+    <string name="bus_lines_connecting">Lignes d\'autobus en correspondance</string>
     <string name="no_bus_line">Aucune ligne de bus !</string>
     <string name="no_subway_line">Aucune ligne de métro !</string>
     <string name="line">Ligne</string>
@@ -40,6 +43,7 @@
 	<string name="subway_station">Station de Métro</string>
 	<string name="subway_stations">Stations de Métro</string>
 	<string name="bus_stops">Arrêts de bus</string>
+	<string name="bus_stops_short">arrêts</string>
     
     <string name="display_pref_cat_title">Préférences d\'affichage</string>
     <string name="data_pref_cat_title">Source de données</string>

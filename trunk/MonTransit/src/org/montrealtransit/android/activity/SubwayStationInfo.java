@@ -1,19 +1,19 @@
 package org.montrealtransit.android.activity;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 
 import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
+import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.dialog.NoRadarInstalled;
+import org.montrealtransit.android.dialog.SubwayStationSelectBusLineStop;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
-import org.montrealtransit.android.provider.StmStore.BusLine;
 import org.montrealtransit.android.provider.StmStore.SubwayLine;
+import org.montrealtransit.android.provider.StmStore.SubwayStation;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -22,24 +22,19 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.widget.ExpandableListAdapter;
-import android.widget.ExpandableListView;
 import android.widget.ImageView;
-import android.widget.SimpleExpandableListAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.ExpandableListView.OnChildClickListener;
 
 /**
  * Show information about a subway station.
  * @author Mathieu Méa
  */
-public class SubwayStationInfo extends Activity implements OnChildClickListener, OnClickListener, LocationListener {
+public class SubwayStationInfo extends Activity implements OnClickListener, LocationListener {
 
 	/**
 	 * Extra for the subway station ID.
@@ -71,12 +66,10 @@ public class SubwayStationInfo extends Activity implements OnChildClickListener,
 		super.onCreate(savedInstanceState);
 		// set the UI
 		setContentView(R.layout.subway_station_info);
-		((ExpandableListView) findViewById(R.id.bus_line_list)).setEmptyView(findViewById(R.id.empty_bus_line_list));
-		((ExpandableListView) findViewById(R.id.bus_line_list)).setOnChildClickListener(this);
 		((ImageView) findViewById(R.id.subway_line_1)).setOnClickListener(this);
 		((ImageView) findViewById(R.id.subway_line_2)).setOnClickListener(this);
 		((ImageView) findViewById(R.id.subway_line_3)).setOnClickListener(this);
-
+		// show the subway station
 		showNewSubwayStation(Utils.getSavedStringValue(this.getIntent(), savedInstanceState,
 		        SubwayStationInfo.EXTRA_STATION_ID));
 	}
@@ -124,9 +117,10 @@ public class SubwayStationInfo extends Activity implements OnChildClickListener,
 	 */
 	private void refreshAll() {
 		refreshSubwayStationInfo();
+		refreshSchedule();
 		refreshBusLines();
 		// IF there is a valid last know location DO
-		if (LocationUtils.getLocationManager(this) != null) {
+		if (LocationUtils.getBestLastKnownLocation(this) != null) {
 			// set the distance before showing the station
 			updateDistanceWithNewLocation();
 		}
@@ -136,6 +130,78 @@ public class SubwayStationInfo extends Activity implements OnChildClickListener,
 			LocationUtils.enableLocationUpdates(this, this);
 			this.locationUpdatesEnabled = true;
 		}
+	}
+
+	/**
+	 * Refresh the subway station schedule.
+	 */
+	private void refreshSchedule() {
+		LinearLayout layout = (LinearLayout) findViewById(R.id.hours_list);
+		List<StmStore.SubwayLine> subwayLines = StmManager.findSubwayStationLinesList(getContentResolver(),
+		        this.subwayStation.getId());
+		// FOR EACH subway line DO
+		for (StmStore.SubwayLine subwayLine : subwayLines) {
+			// FIRST direction
+			StmStore.SubwayStation firstSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(
+			        getContentResolver(), subwayLine.getNumber(), StmStore.SubwayStation.NATURAL_SORT_ORDER);
+			// IF the direction is not the subway station DO
+			if (!this.subwayStation.getId().equals(firstSubwayStationDirection.getId())) {
+				// list divider
+				if (layout.getChildCount() > 0) {
+					layout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+				}
+				// list view
+				layout.addView(getDirectionView(subwayLine, firstSubwayStationDirection));
+			}
+			// SECOND direction
+			StmStore.SubwayStation lastSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(
+			        getContentResolver(), subwayLine.getNumber(), StmStore.SubwayStation.NATURAL_SORT_ORDER_DESC);
+			// IF the direction is not the subway station DO
+			if (!this.subwayStation.getId().equals(lastSubwayStationDirection.getId())) {
+				// list divider
+				if (layout.getChildCount() > 0) {
+					layout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+				}
+				// list view
+				layout.addView(getDirectionView(subwayLine, lastSubwayStationDirection));
+			}
+
+		}
+	}
+	
+	/**
+	 * @param subwayLine the subway line
+	 * @param subwayStationDir the direction
+	 * @return the direction view for the subway line and the direction
+	*/
+	private View getDirectionView(SubwayLine subwayLine, SubwayStation subwayStationDir) {
+		MyLog.v(TAG, "getDirectionView(" + subwayLine.getNumber() + ", " + subwayStationDir.getId() + ")");
+		// find day and hour (minus 2 hours)
+		Calendar now = Calendar.getInstance();
+		now.add(Calendar.HOUR, -2);
+		String dayOfTheWeek = Utils.getDayOfTheWeek(now);
+		String time = Utils.getTimeOfTheDay(now);
+		// create view
+		View dView = getLayoutInflater().inflate(R.layout.subway_station_info_line_schedule_direction, null);
+		// SUBWAY LINE color
+		ImageView ivSubwayLineColor1 = (ImageView) dView.findViewById(R.id.subway_img);
+		ivSubwayLineColor1.setImageResource(Utils.getSubwayLineImg(subwayLine.getNumber()));
+		// DIRECTION - SUBWAY STATION name
+		TextView tvSubwayStation1 = (TextView) dView.findViewById(R.id.direction_station);
+		tvSubwayStation1.setText(subwayStationDir.getName());
+		// FIRST LAST DEPARTURE
+		Pair<String, String> deps = StmManager.findSubwayStationDepartures(getContentResolver(), this.subwayStation
+		        .getId(), subwayStationDir.getId(), dayOfTheWeek);
+		TextView tvHours1 = (TextView) dView.findViewById(R.id.direction_hours);
+		String firstCleanDep = Utils.formatHours(this, deps.first);
+		String secondCleanDep = Utils.formatHours(this, deps.second);
+		tvHours1.setText(firstCleanDep + " - " + secondCleanDep);
+		// FREQUENCY
+		String frequency = StmManager.findSubwayDirectionFrequency(getContentResolver(), subwayStationDir.getId(),
+		        dayOfTheWeek, time);
+		TextView tvDirFreq1 = (TextView) dView.findViewById(R.id.direction_frequency);
+		tvDirFreq1.setText(frequency + " " + getResources().getString(R.string.minutes));
+		return dView;
 	}
 
 	/**
@@ -254,9 +320,11 @@ public class SubwayStationInfo extends Activity implements OnChildClickListener,
 	 */
 	@Override
 	public void onClick(View v) {
+		MyLog.v(TAG, "onClick(" + v.getId() + ")");
 		if (this.subwayLines.size() == 1) {
 			Intent intent = new Intent(this, SubwayLineInfo.class);
-			intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, String.valueOf(this.subwayLines.get(0).getNumber()));
+			String subwayLineNumber = String.valueOf(this.subwayLines.get(0).getNumber());
+			intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumber);
 			startActivity(intent);
 		} else {
 			// TODO show subway lines selector?
@@ -268,178 +336,40 @@ public class SubwayStationInfo extends Activity implements OnChildClickListener,
 	 */
 	private void refreshBusLines() {
 		MyLog.v(TAG, "refreshBusLines()");
-		((ExpandableListView) findViewById(R.id.bus_line_list)).setAdapter(getBusStopsEAdapter());
-	}
-
-	/**
-	 * The current bus stops (group by bus line).
-	 */
-	private List<List<Map<String, String>>> currentChildData;
-	/**
-	 * The current bus lines.
-	 */
-	private List<Map<String, StmStore.BusLine>> currentGroupData;
-	/**
-	 * The bus line string.
-	 */
-	private static final String BUS_LINE = "line";
-	/**
-	 * The bus line number string.
-	 */
-	private static final String BUS_LINE_NUMBER = "lineNumber";
-
-	/**
-	 * @return the bus stops adapter.
-	 */
-	private ExpandableListAdapter getBusStopsEAdapter() {
-		MyLog.v(TAG, "getBusStopsEAdapter()");
-		List<StmStore.BusStop> busStopList = StmManager.findSubwayStationBusStopsExtendedList(getContentResolver(),
+		List<StmStore.BusLine> busLinesList = StmManager.findSubwayStationBusLinesList(getContentResolver(),
 		        this.subwayStation.getId());
-
-		if (busStopList != null && busStopList.size() > 0) {
-
-			List<Map<String, String>> groupData = new ArrayList<Map<String, String>>();
-			this.currentGroupData = new ArrayList<Map<String, StmStore.BusLine>>();
-			this.currentChildData = new ArrayList<List<Map<String, String>>>();
-
-			String currentLine = null;
-			List<Map<String, String>> currrentChildren = null;
-			for (StmStore.BusStop busStop : busStopList) {
-				// IF the bus stop isn't a terminus (has a stop code) DO
-				if (!TextUtils.isEmpty(busStop.getCode())) {
-					// IF this is a bus stop of a new bus line DO
-					if (!busStop.getLineNumber().equals(currentLine)) {
-						// create a new group for this bus line
-						Map<String, StmStore.BusLine> curGroupBusLineMap = new HashMap<String, StmStore.BusLine>();
-						Map<String, String> curGroupMap = new HashMap<String, String>();
-						// save the current bus line
-						currentLine = busStop.getLineNumber();
-						BusLine busLine = new BusLine();
-						busLine.setNumber(busStop.getLineNumber());
-						busLine.setName(busStop.getLineNameOrNull());
-						// busLine.setHours(busStop.getLineHoursOrNull());
-						busLine.setType(busStop.getLineTypeOrNull());
-						curGroupBusLineMap.put(BUS_LINE, busLine);
-						curGroupMap.put(BUS_LINE_NUMBER, busLine.getNumber());
-						this.currentGroupData.add(curGroupBusLineMap);
-						groupData.add(curGroupMap);
-						// create the children list
-						currrentChildren = new ArrayList<Map<String, String>>();
-						this.currentChildData.add(currrentChildren);
-
-					}
-					Map<String, String> curChildMap = new HashMap<String, String>();
-					curChildMap.put(StmStore.BusStop.STOP_CODE, busStop.getCode());
-					curChildMap.put(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID, busStop.getSimpleDirectionId());
-					curChildMap.put(StmStore.BusStop.STOP_LINE_NUMBER, busStop.getLineNumber());
-					curChildMap.put(StmStore.BusStop.STOP_PLACE, busStop.getPlace());
-					curChildMap.put(StmStore.BusStop.STOP_SUBWAY_STATION_ID, busStop.getSubwayStationId());
-					curChildMap.put(StmStore.BusStop.LINE_NAME, busStop.getLineNameOrNull());
-					currrentChildren.add(curChildMap);
+		LinearLayout busLinesLayout = (LinearLayout) findViewById(R.id.bus_line_list);
+		busLinesLayout.removeAllViews();
+		// IF there is one or more bus lines DO
+		if (busLinesList != null && busLinesList.size() > 0) {
+			((TextView) findViewById(R.id.bus_line)).setVisibility(View.VISIBLE);
+			busLinesLayout.setVisibility(View.VISIBLE);
+			// FOR EACH bus line DO
+			for (StmStore.BusLine busLine : busLinesList) {
+				// list view divider
+				if (busLinesLayout.getChildCount() > 0) {
+					busLinesLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
 				}
+				// create view
+				View view = getLayoutInflater().inflate(R.layout.subway_station_info_bus_line_list_item, null);
+				// bus line type image
+				int busLineTypeImg = Utils.getBusLineTypeImgFromType(busLine.getType());
+				((ImageView) view.findViewById(R.id.line_type)).setImageResource(busLineTypeImg);
+				// bus line number
+				((TextView) view.findViewById(R.id.line_number)).setText(busLine.getNumber());
+				// bus line name
+				((TextView) view.findViewById(R.id.line_name)).setText(busLine.getName());
+				// bus line hours
+				String formattedHours = Utils.getFormatted2Hours(this, busLine.getHours(), "-");
+				((TextView) view.findViewById(R.id.hours)).setText(formattedHours);
+				// add click listener
+				view.setOnClickListener(new SubwayStationSelectBusLineStop(this, this.subwayStation.getId(), busLine
+				        .getNumber()));
+				busLinesLayout.addView(view);
 			}
-
-			String[] groupFrom = new String[] { BUS_LINE_NUMBER, BUS_LINE_NUMBER, BUS_LINE_NUMBER };
-			int[] groupTo = new int[] { R.id.line_number, R.id.line_name, R.id.line_type };
-			String[] childFrom = new String[] { StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE,
-			        StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID };
-			int[] childTo = new int[] { R.id.stop_code, R.id.label, R.id.direction_main };
-
-			MySimpleExpandableListAdapter mAdapter = new MySimpleExpandableListAdapter(this, groupData,
-			        R.layout.subway_station_info_bus_stop_list_group_item, groupFrom, groupTo, this.currentChildData,
-			        R.layout.subway_station_info_bus_stop_list_item, childFrom, childTo);
-			return mAdapter;
 		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * Simple expandable list adapter to customize the expandable list view for bus line and bus stops.
-	 * @author Mathieu Méa
-	 */
-	private class MySimpleExpandableListAdapter extends SimpleExpandableListAdapter {
-
-		/**
-		 * Default constructor @see SimpleExpandableListAdapter
-		 */
-		public MySimpleExpandableListAdapter(SubwayStationInfo subwayStationInfo, List<Map<String, String>> groupData,
-		        int simpleExpandableListItem1, String[] strings, int[] is, List<List<Map<String, String>>> childData,
-		        int busLineListItem, String[] childFrom, int[] childTo) {
-			super(subwayStationInfo, groupData, simpleExpandableListItem1, strings, is, childData, busLineListItem,
-			        childFrom, childTo);
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView,
-		        ViewGroup parent) {
-			MyLog.v(TAG, "getChildView(" + groupPosition + "," + childPosition + "," + isLastChild + ")");
-			View v;
-			if (convertView == null) {
-				v = newChildView(isLastChild, parent);
-			} else {
-				v = convertView;
-			}
-			bindView(v, currentChildData.get(groupPosition).get(childPosition));
-			return v;
-		}
-
-		/**
-		 * Bind the child view.
-		 * @param view the child view
-		 * @param data the child data
-		 */
-		private void bindView(View view, Map<String, String> data) {
-			((TextView) view.findViewById(R.id.stop_code)).setText(data.get(StmStore.BusStop.STOP_CODE));
-			String busStopPlace = Utils.cleanBusStopPlace(data.get(StmStore.BusStop.STOP_PLACE));
-			((TextView) view.findViewById(R.id.label)).setText(busStopPlace);
-			Integer simpleBusLineDirectionId = Utils.getBusLineDirectionStringIdFromId(
-			        data.get(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID)).get(0);
-			((TextView) view.findViewById(R.id.direction_main)).setText(simpleBusLineDirectionId);
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-			View v;
-			if (convertView == null) {
-				v = newGroupView(isExpanded, parent);
-			} else {
-				v = convertView;
-			}
-			StmStore.BusLine busLine = currentGroupData.get(groupPosition).get(BUS_LINE);
-			((TextView) v.findViewById(R.id.line_number)).setText(busLine.getNumber());
-			((TextView) v.findViewById(R.id.line_name)).setText(busLine.getName());
-			int busLineTypeImg = Utils.getBusLineTypeImgFromType(busLine.getType());
-			((ImageView) v.findViewById(R.id.line_type)).setImageResource(busLineTypeImg);
-			return v;
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-		MyLog.v(TAG, "onChildClick(" + parent.getId() + "," + v.getId() + "," + groupPosition + "," + childPosition
-		        + "," + id + ")");
-		String busLineNumber = this.currentChildData.get(groupPosition).get(childPosition).get(
-		        StmStore.BusStop.STOP_LINE_NUMBER);
-		String busStopCode = this.currentChildData.get(groupPosition).get(childPosition)
-		        .get(StmStore.BusStop.STOP_CODE);
-		if (busStopCode != null && busStopCode.length() > 0) {
-			Intent intent = new Intent(this, BusStopInfo.class);
-			intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, busLineNumber);
-			intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, busStopCode);
-			startActivity(intent);
-			return true;
-		} else {
-			return false;
+			((TextView) findViewById(R.id.bus_line)).setVisibility(View.GONE);
+			busLinesLayout.setVisibility(View.GONE);
 		}
 	}
 
@@ -484,7 +414,6 @@ public class SubwayStationInfo extends Activity implements OnChildClickListener,
 		switch (item.getItemId()) {
 		case MENU_SHOW_SUBWAY_STATION_IN_MAPS:
 			try {
-				// + "?q=Station " + this.subwayStation.getName()
 				Uri uri = Uri.parse("geo:" + this.subwayStation.getLat() + "," + this.subwayStation.getLng());
 				startActivity(new Intent(android.content.Intent.ACTION_VIEW, uri));
 				return true;

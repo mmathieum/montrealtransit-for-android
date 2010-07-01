@@ -509,7 +509,7 @@ public class Utils {
 	 * @return the subway line image ID
 	 */
 	public static int getSubwayLineImg(int number) {
-		MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
+		//MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
 		switch (number) {
 		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
 			return R.drawable.green;
@@ -607,18 +607,44 @@ public class Utils {
 	}
 
 	/**
-	 * Return the day of the week
-	 * @return the day of the week
+	 * @return the day of the week value in the DB
 	 */
 	public static String getDayOfTheWeek() {
-		Calendar rightNow = Calendar.getInstance();
-		if (rightNow.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
+		return getDayOfTheWeek(Calendar.getInstance());
+	}
+	
+	/**
+	 * @param calendar the date
+	 * @return the day of the week value in the DB
+	 */
+	public static String getDayOfTheWeek(Calendar calendar) {
+		switch (calendar.get(Calendar.DAY_OF_WEEK)) {
+		case Calendar.SATURDAY:
 			return StmStore.SubwayLine.FREQUENCES_K_DAY_SATURDAY;
-		} else if (rightNow.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+		case Calendar.SUNDAY:
 			return StmStore.SubwayLine.FREQUENCES_K_DAY_SUNDAY;
-		} else {
+		default:
 			return StmStore.SubwayLine.FREQUENCES_K_DAY_WEEK;
 		}
+	}
+	
+	/**
+	 * @param calendar the date and time
+	 * @return the hour formatted for the DB
+	 */
+	public static String getTimeOfTheDay(Calendar calendar) {
+		String hours = String.valueOf(calendar.get(Calendar.HOUR_OF_DAY));
+		if (hours.length() < 2) {
+			hours = "0"+ hours;
+		}
+		String minutes = String.valueOf(calendar.get(Calendar.MINUTE));
+		if (minutes.length() < 2) {
+			minutes = "0"+ hours;
+		}
+		String result = hours + ":" + minutes + ":00";
+		//String result = hours + "h" + minutes;
+		MyLog.d(TAG, "hour:"+result);
+		return result;
 	}
 
 	/**
@@ -744,7 +770,7 @@ public class Utils {
 	 * @return the preference value
 	 */
 	public static String getSharedPreferences(Context context, String prefKey, String defaultValue) {
-		MyLog.v(TAG, "getSharedPreferences(" + prefKey + ", " + defaultValue + ")");
+		//MyLog.v(TAG, "getSharedPreferences(" + prefKey + ", " + defaultValue + ")");
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 		return settings.getString(prefKey, defaultValue);
 	}

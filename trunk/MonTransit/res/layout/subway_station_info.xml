@@ -53,14 +53,27 @@
 			android:textAppearance="?android:attr/textAppearanceMedium" />
 	</RelativeLayout>
 
-	<!-- BUS LINES -->
-	<TextView android:id="@+id/bus_line"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
-		android:text="@string/bus_lines_connecting" />
-	<ExpandableListView android:id="@+id/bus_line_list"
-		android:layout_width="fill_parent" android:layout_height="wrap_content" />
-	<TextView android:id="@+id/empty_bus_line_list"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:text="@string/no_bus_line" />
+	<ScrollView
+		android:layout_width="fill_parent" android:layout_height="wrap_content">
+		<LinearLayout
+			android:layout_width="fill_parent" android:layout_height="fill_parent"
+			android:orientation="vertical">
+			<!-- SCHEDULE -->
+			<TextView android:id="@+id/hours"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
+				android:text="@string/hours_string" />
+			<LinearLayout android:id="@+id/hours_list"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				android:orientation="vertical" />
+			<!-- BUS LINES -->
+			<TextView android:id="@+id/bus_line"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
+				android:text="@string/bus_lines_connecting" />
+			<LinearLayout android:id="@+id/bus_line_list"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				android:orientation="vertical" />
+		</LinearLayout>
+	</ScrollView>
 </LinearLayout>
