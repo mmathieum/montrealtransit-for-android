@@ -32,7 +32,7 @@ import android.widget.SimpleCursorAdapter.ViewBinder;
 
 /**
  * This activity list the favorite bus stops.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class FavListTab extends Activity implements ViewBinder, OnItemClickListener {
 
@@ -40,12 +40,12 @@ public class FavListTab extends Activity implements ViewBinder, OnItemClickListe
 	 * The log tag.
 	 */
 	private static final String TAG = FavListTab.class.getSimpleName();
-	
+
 	/**
 	 * The favorite bus stops list.
 	 */
 	private List<DataStore.Fav> lastFavList;
-	
+
 	/**
 	 * The cursor used to display the bus stops.
 	 */
@@ -74,14 +74,15 @@ public class FavListTab extends Activity implements ViewBinder, OnItemClickListe
 		super.onResume();
 		refreshDataIfNecessary();
 	}
-	
+
 	/**
 	 * Refresh the data If the favorite list have change.
 	 */
 	private void refreshDataIfNecessary() {
 		// check if favorite list have changed.
 		// TODO check more than the size
-		if (this.lastFavList == null || this.lastFavList.size() != Utils.getCursorSize(DataManager.findAllFavs(this.getContentResolver()))) {
+		if (this.lastFavList == null
+		        || this.lastFavList.size() != Utils.getCursorSize(DataManager.findAllFavs(this.getContentResolver()))) {
 			// update the list
 			forceRefresh();
 		}
@@ -95,12 +96,16 @@ public class FavListTab extends Activity implements ViewBinder, OnItemClickListe
 	private ListAdapter getAdapter(List<DataStore.Fav> favList) {
 		MyLog.v(TAG, "getAdapter(" + Utils.getListSize(favList) + ")");
 		if (Utils.getListSize(favList) > 0) {
-			this.cursor = StmManager.findBusStopsExtended(this.getContentResolver(), Utils.extractBusStopIDsFromFavList(favList));
-			String[] from = new String[] { StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE, StmStore.BusStop.STOP_LINE_NUMBER,
-			        StmStore.BusStop.LINE_NAME, StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID };
+			this.cursor = StmManager.findBusStopsExtended(this.getContentResolver(), Utils
+			        .extractBusStopIDsFromFavList(favList));
+			String[] from = new String[] { StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE,
+			        StmStore.BusStop.STOP_LINE_NUMBER, StmStore.BusStop.LINE_NAME,
+			        StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID };
 			int[] to = new int[] { R.id.stop_code, R.id.label, R.id.line_number, R.id.line_name, R.id.line_direction };
-			SimpleCursorAdapter busStops = new SimpleCursorAdapter(this, R.layout.fav_list_tab_bus_stop_item, this.cursor, from, to);
+			SimpleCursorAdapter busStops = new SimpleCursorAdapter(this, R.layout.fav_list_tab_bus_stop_item,
+			        this.cursor, from, to);
 			busStops.setViewBinder(this);
+			startManagingCursor(cursor);
 			return busStops;
 		} else {
 			return null;
@@ -112,8 +117,10 @@ public class FavListTab extends Activity implements ViewBinder, OnItemClickListe
 	 */
 	@Override
 	public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-		if (view.getId() == R.id.line_direction && columnIndex == cursor.getColumnIndex(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID)) {
-			String simpleDirectionId = cursor.getString(cursor.getColumnIndex(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID));
+		if (view.getId() == R.id.line_direction
+		        && columnIndex == cursor.getColumnIndex(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID)) {
+			String simpleDirectionId = cursor.getString(cursor
+			        .getColumnIndex(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID));
 			((TextView) view).setText(Utils.getBusLineDirectionStringIdFromId(simpleDirectionId).get(0));
 			return true;
 		} else if (view.getId() == R.id.label && columnIndex == cursor.getColumnIndex(StmStore.BusStop.STOP_PLACE)) {
@@ -164,20 +171,22 @@ public class FavListTab extends Activity implements ViewBinder, OnItemClickListe
 		// the stop code
 		String stopCode = String.valueOf(menuInfo.id);
 		// find the selected favorite layout
-		RelativeLayout selectedFavoriteLayout = (RelativeLayout) ((ListView) findViewById(R.id.list)).getChildAt(menuInfo.position);
+		RelativeLayout selectedFavoriteLayout = (RelativeLayout) ((ListView) findViewById(R.id.list))
+		        .getChildAt(menuInfo.position);
 		// find the line number text view
 		TextView lineNumberTextView = (TextView) selectedFavoriteLayout.getChildAt(LINE_NUMBER_VIEW_INDEX);
 		// find the line number
 		String lineNumber = lineNumberTextView.getText().toString();
 		// find the favorite to delete
-		Fav findFav = DataManager.findFav(this.getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP, stopCode, lineNumber);
+		Fav findFav = DataManager.findFav(this.getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP, stopCode,
+		        lineNumber);
 		// delete the favorite
 		DataManager.deleteFav(this.getContentResolver(), findFav.getId());
 		// refresh the UI
 		forceRefresh();
 		return super.onContextItemSelected(item);
 	}
-	
+
 	/**
 	 * The menu used to show the user preferences.
 	 */
@@ -196,26 +205,26 @@ public class FavListTab extends Activity implements ViewBinder, OnItemClickListe
 		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
 		MenuItem menuAbout = menu.add(0, MENU_ABOUT, Menu.NONE, R.string.menu_about);
 		menuAbout.setIcon(android.R.drawable.ic_menu_info_details);
-	    return true;
+		return true;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-	    switch (item.getItemId()) {
-        case MENU_PREFERENCES:
-            startActivity(new Intent(this, UserPreferences.class));
-	        break;
-        case MENU_ABOUT:
-        	Utils.showAboutDialog(this);
-        	break;
-        default:
-        	MyLog.d(TAG, "Unknown option menu action: "+item.getItemId() + ".");
-	        break;
-        }
-	    return true;
+		switch (item.getItemId()) {
+		case MENU_PREFERENCES:
+			startActivity(new Intent(this, UserPreferences.class));
+			break;
+		case MENU_ABOUT:
+			Utils.showAboutDialog(this);
+			break;
+		default:
+			MyLog.d(TAG, "Unknown option menu action: " + item.getItemId() + ".");
+			break;
+		}
+		return true;
 	}
 
 	/**
@@ -225,14 +234,16 @@ public class FavListTab extends Activity implements ViewBinder, OnItemClickListe
 		this.lastFavList = DataManager.findAllFavsList(this.getContentResolver());
 		((ListView) findViewById(R.id.list)).setAdapter(getAdapter(this.lastFavList));
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	protected void onDestroy() {
 		MyLog.v(TAG, "onDestroy()");
-		if (this.cursor!=null) {this.cursor.close(); }
-	    super.onDestroy();
+		if (this.cursor != null && !this.cursor.isClosed()) {
+			this.cursor.close();
+		}
+		super.onDestroy();
 	}
 }
