@@ -175,8 +175,8 @@
     <string name="distance_unit_pref_title">Distance unit</string>
     <string name="distance_unit_pref_summary">Metric(km/m) or Imperial(mi/ft) system.</string>
     <string name="distance_unit_pref_dialog_title">Distance unit</string>
-    <string name="distance_unit_pref_meter">Metric(km/m)</string>
-    <string name="distance_unit_pref_imperial">Imperial(mi/ft)</string>
+    <string name="distance_unit_pref_meter">Metric (km/m)</string>
+    <string name="distance_unit_pref_imperial">Imperial (mi/ft)</string>
 
     <string name="distance_pref_title">Distance display</string>
     <string name="distance_pref_summary">Simple or detailed distance display.</string>
@@ -201,5 +201,6 @@
     <string name="about_text2_authors">"Mathieu Méa http://twitter.com/mmathieum"</string>
     <string name="about_text3_website">"Website: http://montrealtransit-for-android.googlecode.com/"</string>
     <string name="about_text4_source">"Source code: http://code.google.com/p/montrealtransit-for-android/source/"</string>
+    <string name="about_contributors">Contributor: Ian Cloutier.</string>
     <string name="about_version">"Version %s (r%s)"</string>
 </resources>
