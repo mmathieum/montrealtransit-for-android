@@ -71,8 +71,10 @@ public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDi
 		((ListView) findViewById(R.id.list)).setEmptyView(findViewById(R.id.list_empty));
 		((ListView) findViewById(R.id.list)).setOnItemClickListener(this);
 		// get the bus line ID and bus line direction ID from the intent.
-		String lineNumber = Utils.getSavedStringValue(this.getIntent(), savedInstanceState, BusLineInfo.EXTRA_LINE_NUMBER);
-		String lineDirectionId = Utils.getSavedStringValue(this.getIntent(), savedInstanceState, BusLineInfo.EXTRA_LINE_DIRECTION_ID);
+		String lineNumber = Utils.getSavedStringValue(this.getIntent(), savedInstanceState,
+		        BusLineInfo.EXTRA_LINE_NUMBER);
+		String lineDirectionId = Utils.getSavedStringValue(this.getIntent(), savedInstanceState,
+		        BusLineInfo.EXTRA_LINE_DIRECTION_ID);
 		showNewLine(lineNumber, lineDirectionId);
 	}
 
@@ -83,7 +85,8 @@ public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDi
 	public void showNewLine(String newLineNumber, String newDirectionId) {
 		MyLog.v(TAG, "showNewLine(" + newLineNumber + ", " + newDirectionId + ")");
 		if ((this.busLine == null || this.busLineDirection == null)
-		        || (!this.busLine.getNumber().equals(newLineNumber) || !this.busLineDirection.getId().equals(newDirectionId))) {
+		        || (!this.busLine.getNumber().equals(newLineNumber) || !this.busLineDirection.getId().equals(
+		                newDirectionId))) {
 			MyLog.v(TAG, "show new bus line.");
 			this.busLine = StmManager.findBusLine(this.getContentResolver(), newLineNumber);
 			this.busLineDirection = StmManager.findBusLineDirection(this.getContentResolver(), newDirectionId);
@@ -110,8 +113,9 @@ public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDi
 		((TextView) findViewById(R.id.line_name)).setText(this.busLine.getName());
 
 		// bus line type
-		((ImageView) findViewById(R.id.bus_type)).setImageResource(Utils.getBusLineTypeImgFromType(this.busLine.getType()));
-		
+		int busLineTypeImg = Utils.getBusLineTypeImgFromType(this.busLine.getType());
+		((ImageView) findViewById(R.id.bus_type)).setImageResource(busLineTypeImg);
+
 		// bus line direction
 		BusLineSelectDirection selectBusLineDirection = new BusLineSelectDirection(this, this.busLine.getNumber(), this);
 		((TextView) findViewById(R.id.bus_line_stop_string)).setOnClickListener(selectBusLineDirection);
@@ -147,6 +151,7 @@ public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDi
 		        this.cursor, from, to);
 		busStops.setViewBinder(this);
 		busStops.setFilterQueryProvider(this);
+		startManagingCursor(cursor);
 		return busStops;
 	}
 
@@ -164,17 +169,15 @@ public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDi
 	 */
 	@Override
 	public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-		if (view.getId() == R.id.subway_img) {
-			if (cursor.getInt(cursor.getColumnIndex(StmStore.BusStop.STOP_SUBWAY_STATION_ID)) != 0) {
-				((ImageView) view).setVisibility(View.VISIBLE);
-			} else {
-				((ImageView) view).setVisibility(View.GONE);
-			}
+		switch (view.getId()) {
+		case R.id.subway_img:
+			((ImageView) view).setVisibility(cursor.getInt(columnIndex) != 0 ? View.VISIBLE : View.GONE);
 			return true;
-		} else if (view.getId() == R.id.place) {
-			((TextView) view).setText(Utils.cleanBusStopPlace(cursor.getString(cursor.getColumnIndex(StmStore.BusStop.STOP_PLACE))));
+		case R.id.place:
+			String cleanBusStopPlace = Utils.cleanBusStopPlace(cursor.getString(columnIndex));
+			((TextView) view).setText(cleanBusStopPlace);
 			return true;
-		} else {
+		default:
 			return false;
 		}
 	}
@@ -189,7 +192,6 @@ public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDi
 			Intent intent = new Intent(this, BusStopInfo.class);
 			intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, String.valueOf(id));
 			intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, this.busLine.getNumber());
-			intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_DIRECTION, this.busLineDirection.getId());
 			startActivity(intent);
 		}
 	}
@@ -242,22 +244,24 @@ public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDi
 			select.showDialog();
 			break;
 		case MENU_PREFERENCES:
-            startActivity(new Intent(this, UserPreferences.class));
-	        break;
+			startActivity(new Intent(this, UserPreferences.class));
+			break;
 		case MENU_ABOUT:
-        	Utils.showAboutDialog(this);
-        	break;
+			Utils.showAboutDialog(this);
+			break;
 		}
 		return false;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	protected void onDestroy() {
 		MyLog.v(TAG, "onDestroy()");
-		if (this.cursor!=null) {this.cursor.close(); }
-	    super.onDestroy();
+		if (this.cursor != null && !this.cursor.isClosed()) {
+			this.cursor.close();
+		}
+		super.onDestroy();
 	}
 }
