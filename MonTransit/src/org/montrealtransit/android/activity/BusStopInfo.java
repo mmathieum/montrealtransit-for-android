@@ -32,7 +32,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.database.Cursor;
 import android.location.Address;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -67,10 +66,6 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	 */
 	public static final String EXTRA_STOP_LINE_NUMBER = "extra_line_number";
 	/**
-	 * The extra ID for the bus line direction.
-	 */
-	public static final String EXTRA_STOP_LINE_DIRECTION = "extra_line_direction";
-	/**
 	 * The log tag.
 	 */
 	private static final String TAG = BusStopInfo.class.getSimpleName();
@@ -86,14 +81,6 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	 * Store the current hours (including messages).
 	 */
 	private BusStopHours hours;
-	/**
-	 * The cursor used to display the subway station(s).
-	 */
-	private Cursor cursorSubwayStations;
-	/**
-	 * The cursor used to display the bus lines.
-	 */
-	private Cursor cursorBusLines;
 	/**
 	 * The task used to load the next bus stops.
 	 */
@@ -497,15 +484,17 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 				buslinesNumber.add(busLine.getNumber());
 			}
 		}
-		LinearLayout otherBusLinesList = (LinearLayout) findViewById(R.id.other_bus_line_list);
-		otherBusLinesList.removeAllViews();
+		LinearLayout otherBusLinesLayout = (LinearLayout) findViewById(R.id.other_bus_line_list);
+		otherBusLinesLayout.removeAllViews();
 		if (allBusLines.size() > 0) {
 			((TextView) findViewById(R.id.other_bus_line)).setVisibility(View.VISIBLE);
-			otherBusLinesList.setVisibility(View.VISIBLE);
+			otherBusLinesLayout.setVisibility(View.VISIBLE);
 			for (StmStore.BusLine busLine : allBusLines) {
-				if (otherBusLinesList.getChildCount() > 0) {
-					otherBusLinesList.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+				// list view divider
+				if (otherBusLinesLayout.getChildCount() > 0) {
+					otherBusLinesLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
 				}
+				// the view
 				View view = getLayoutInflater().inflate(R.layout.bus_stop_info_bus_line_list_item, null);
 				int busLineTypeImg = Utils.getBusLineTypeImgFromType(busLine.getType());
 				((ImageView) view.findViewById(R.id.line_type)).setImageResource(busLineTypeImg);
@@ -514,11 +503,11 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 				String formattedHours = Utils.getFormatted2Hours(this, busLine.getHours(), "-");
 				((TextView) view.findViewById(R.id.hours)).setText(formattedHours);
 				view.setOnClickListener(this);
-				otherBusLinesList.addView(view);
+				otherBusLinesLayout.addView(view);
 			}
 		} else {
 			((TextView) findViewById(R.id.other_bus_line)).setVisibility(View.GONE);
-			otherBusLinesList.setVisibility(View.GONE);
+			otherBusLinesLayout.setVisibility(View.GONE);
 		}
 	}
 
@@ -872,12 +861,6 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 		if (this.task != null) {
 			this.task.cancel(true);
 			this.task = null;
-		}
-		if (this.cursorBusLines != null) {
-			this.cursorBusLines.close();
-		}
-		if (this.cursorSubwayStations != null) {
-			this.cursorSubwayStations.close();
 		}
 		super.onDestroy();
 	}
