@@ -146,7 +146,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		refreshSubwayLineInfo();
 		refreshSubwayStationsList();
 		// IF there is a valid last know location DO
-		if (LocationUtils.getLocationManager(this) != null) {
+		if (LocationUtils.getBestLastKnownLocation(this) != null) {
 			// set the distance before showing the list
 			updateDistancesWithNewLocation();
 		}
@@ -310,7 +310,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			MyLog.v(TAG, "getView(" + position + ")");
+			//MyLog.v(TAG, "getView(" + position + ")");
 			View view;
 			if (convertView == null) {
 				view = this.layoutInflater.inflate(R.layout.subway_line_info_stations_list_item, parent, false);
@@ -319,7 +319,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 			}
 			ASubwayStation station = this.stations[position];
 			if (station != null) {
-				MyLog.v(TAG, "station:" + station.getId());
+				//MyLog.v(TAG, "station:" + station.getId());
 				// station name
 				((TextView) view.findViewById(R.id.station_name)).setText(station.getName());
 				// station lines color
