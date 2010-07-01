@@ -15,14 +15,17 @@
     
     <string name="select_bus_direction">Direction</string>
     <string name="direction">Direction</string>
+    <string name="frequency">Frequency</string>
     <string name="change_direction">Other directions</string>
     <string name="see_bus_line_plan">Bus route map</string>
     
     <string name="hours_string">Schedule</string>
+    <string name="minutes">minutes</string>
     
     <string name="subway_line">Line</string>
     <string name="subway_lines">Lines</string>
     
+    <string name="bus_line">Bus line</string>
     <string name="bus_lines">Bus lines</string>
     <string name="bus_lines_connecting">Bus lines connecting</string>
     <string name="no_bus_line">No bus line!</string>
@@ -40,6 +43,7 @@
 	<string name="subway_station">Subway station</string>
 	<string name="subway_stations">Subway stations</string>
 	<string name="bus_stops">Bus stops</string>
+	<string name="bus_stops_short">stops</string>
 	
 	<string name="display_pref_cat_title">Display preferences</string>
 	<string name="data_pref_cat_title">Data source</string>

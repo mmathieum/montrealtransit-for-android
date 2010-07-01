@@ -26,12 +26,44 @@ public class StmStore {
 	 * The content URI for bus line.
 	 */
 	public static final String SEARCH_URI = "search";
-
+	/**
+	 * The content URI for a direction.
+	 */
+	public static final String DIRECTION_URI = "directions";
+	/**
+	 * The content URI for a day.
+	 */
+	public static final String DAY_URI = "days";
+	/**
+	 * The content URI for an hour.
+	 */
+	public static final String HOUR_URI = "hours";
+	/**
+	 * A frequency column name.
+	 */
+	public static final String FREQUENCY = "frequency";
+	/**
+	 * An hour column name. 
+	 */
+	public static final String HOUR = "hour";
+	/**
+	 * A first/last column name.
+	 */
+	public static final String FIRST_LAST = "first_last";
+	/**
+	 * The content URI for a subway directions.
+	 */
+	private static final String SUBWAY_DIRECTIONS_URI = "subwaydirections";
 	/**
 	 * The standard SEARCH URI.
 	 */
 	public static final Uri GLOBAL_SEARCH_URI = Uri.parse("content://" + AUTHORITY + "/"
 	        + SearchManager.SUGGEST_URI_PATH_QUERY);
+	/**
+	 * The subway directions URI.
+	 */
+	public static final Uri SUBWAY_DIRECTION_URI = Uri.parse("content://" + AUTHORITY + "/"
+	        + SUBWAY_DIRECTIONS_URI);
 
 	/**
 	 * Represent a bus line.
