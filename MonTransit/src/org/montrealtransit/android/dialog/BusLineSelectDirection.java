@@ -20,7 +20,7 @@ import android.view.View;
 
 /**
  * This class manage the selection of the bus line direction from a bus line number.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class BusLineSelectDirection implements android.view.View.OnClickListener,
         android.content.DialogInterface.OnClickListener, BusLineSelectDirectionDialogListener {
@@ -86,7 +86,7 @@ public class BusLineSelectDirection implements android.view.View.OnClickListener
 	 */
 	@Override
 	public void onClick(View v) {
-		MyLog.v(TAG, "onListItemClick()");
+		MyLog.v(TAG, "onClick()");
 		showDialog();
 	}
 
@@ -275,7 +275,7 @@ public class BusLineSelectDirection implements android.view.View.OnClickListener
 
 	/**
 	 * This custom exception is raised when a submitted bus line number doesn't exist.
-	 * @author Mathieu Méa
+	 * @author Mathieu MÃ©a
 	 */
 	public class WrongBusLineNumberException extends Exception {
 		/**
