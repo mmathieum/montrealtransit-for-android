@@ -37,7 +37,7 @@ public class SubwayLinesListTab extends Activity implements ViewBinder, OnItemCl
 	 * The log tag.
 	 */
 	private static final String TAG = SubwayLinesListTab.class.getSimpleName();
-	
+
 	/**
 	 * The cursor used to display the subway lines.
 	 */
@@ -63,20 +63,23 @@ public class SubwayLinesListTab extends Activity implements ViewBinder, OnItemCl
 	 */
 	private ListAdapter getAdapter() {
 		this.cursor = StmManager.findAllSubwayLines(this.getContentResolver());
-		String[] from = new String[] { StmStore.SubwayLine.LINE_NUMBER, StmStore.SubwayLine.LINE_NUMBER, StmStore.SubwayLine.LINE_NUMBER };
+		String[] from = new String[] { StmStore.SubwayLine.LINE_NUMBER, StmStore.SubwayLine.LINE_NUMBER,
+		        StmStore.SubwayLine.LINE_NUMBER };
 		int[] to = new int[] { R.id.line_name, R.id.subway_img_1, R.id.subway_img_2 };
-		SimpleCursorAdapter subwayLines = new SimpleCursorAdapter(this, R.layout.subway_line_list_tab_item, this.cursor, from, to);
+		SimpleCursorAdapter subwayLines = new SimpleCursorAdapter(this, R.layout.subway_line_list_tab_item,
+		        this.cursor, from, to);
 		subwayLines.setViewBinder(this);
 		subwayLines.setFilterQueryProvider(this);
+		startManagingCursor(cursor);
 		return subwayLines;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public Cursor runQuery(CharSequence constraint) {
-	    return StmManager.searchAllSubwayLines(this.getContentResolver(), constraint.toString());
+		return StmManager.searchAllSubwayLines(this.getContentResolver(), constraint.toString());
 	}
 
 	/**
@@ -85,18 +88,18 @@ public class SubwayLinesListTab extends Activity implements ViewBinder, OnItemCl
 	@Override
 	public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
 		switch (view.getId()) {
-        case R.id.line_name:
-        	int subwayLineId = cursor.getInt(cursor.getColumnIndex(StmStore.SubwayLine.LINE_NUMBER));
+		case R.id.line_name:
+			int subwayLineId = cursor.getInt(cursor.getColumnIndex(StmStore.SubwayLine.LINE_NUMBER));
 			((TextView) view).setText(getResources().getString(Utils.getSubwayLineName(subwayLineId)));
-	        return true;
-        case R.id.subway_img_1:
-        case R.id.subway_img_2:
-        	int subwayLineId2 = cursor.getInt(cursor.getColumnIndex(StmStore.SubwayLine.LINE_NUMBER));
+			return true;
+		case R.id.subway_img_1:
+		case R.id.subway_img_2:
+			int subwayLineId2 = cursor.getInt(cursor.getColumnIndex(StmStore.SubwayLine.LINE_NUMBER));
 			((ImageView) view).setImageResource(Utils.getSubwayLineImg(subwayLineId2));
 			return true;
-        default:
-        	return false;
-        }
+		default:
+			return false;
+		}
 	}
 
 	/**
@@ -118,7 +121,8 @@ public class SubwayLinesListTab extends Activity implements ViewBinder, OnItemCl
 	@Override
 	public boolean onItemLongClick(AdapterView<?> l, View v, int position, long id) {
 		MyLog.v(TAG, "onItemLongClick(" + v.getId() + "," + v.getId() + "," + position + "," + id + ")");
-		SubwayLineSelectDirection subwayLineSelectDirection = new SubwayLineSelectDirection(this, Integer.valueOf(String.valueOf(id)));
+		Integer directionId = Integer.valueOf(String.valueOf(id));
+		SubwayLineSelectDirection subwayLineSelectDirection = new SubwayLineSelectDirection(this, directionId);
 		subwayLineSelectDirection.showDialog();
 		return true;
 	}
@@ -160,24 +164,26 @@ public class SubwayLinesListTab extends Activity implements ViewBinder, OnItemCl
 			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
 			break;
 		case MENU_PREFERENCES:
-            startActivity(new Intent(this, UserPreferences.class));
-	        break;
+			startActivity(new Intent(this, UserPreferences.class));
+			break;
 		case MENU_ABOUT:
-        	Utils.showAboutDialog(this);
-        	break;
+			Utils.showAboutDialog(this);
+			break;
 		default:
 			MyLog.d(TAG, "Unknow menu action:" + item.getItemId() + ".");
 		}
 		return false;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	protected void onDestroy() {
 		MyLog.v(TAG, "onDestroy()");
-		if (this.cursor!=null) {this.cursor.close(); }
-	    super.onDestroy();
+		if (this.cursor != null && !this.cursor.isClosed()) {
+			this.cursor.close();
+		}
+		super.onDestroy();
 	}
 }
