@@ -16,6 +16,8 @@
  * 1.0 (r171)
   * initial Market release
 
+_Cette page est également disponible [http://code.google.com/p/montrealtransit-for-android/wiki/ChangeLog?wl=fr en français] mais votre navigateur est configuré pour afficher la version en anglais._
+
 -----
 
 _!ChangeLog for the BETA versions:_
@@ -81,5 +83,3 @@ _!ChangeLog for the BETA versions:_
 
  * BETA 02-07-2010
   * initial public release
-
-_Cette page n'est pas encore disponible en français, désolé._
