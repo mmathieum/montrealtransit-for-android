@@ -1,0 +1,19 @@
+#summary Les changements entre 2 versions de l'application
+#labels Phase-Support
+
+= !ChangeLog =
+
+ * 1.1 (r245)
+  * ajout des horaires pour le métro
+  * ajout des distances (localisation GPS & réseau) pour les stations de métro.
+  * il est maintenant possible d'annuler le chargement des horaires d'arrêt de bus
+  * l'ordre d'affichage des stations de métro est maintenant sauvegardé
+  * autres corrections et changements mineurs
+
+ * 1.0.1 (r197)
+  * corrige un problème dans l'onglet "Code d'arrêt" r196
+
+ * 1.0 (r171)
+  * première publication sur l'Android Market
+
+_This page is also available [http://code.google.com/p/montrealtransit-for-android/wiki/ChangeLog?wl=en in English], but your browser is configured to display the French version._
