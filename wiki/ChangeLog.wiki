@@ -4,7 +4,7 @@
 = !ChangeLog =
 
  * 1.1 (r245)
-  * add subway station schedule
+  * add subway schedule
   * add subway station distances (using GPS and network locations)
   * it's now possible to cancel the next bus stops loading
   * subway line stations display order is now saved
