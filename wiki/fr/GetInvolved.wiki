@@ -1,10 +1,8 @@
 #summary Comment s'impliquer dans ce projet.
 
-Le développement de cette application a commencé il y a plusieurs mois.
+Le développement de cette application a commencé il y a *plusieurs mois* et nous travaillons *bénévolement* sur cette application pendant notre temps *libre*.
 
-Nous travaillons bénévolement sur cette application pendant notre temps libre.
-
-Ce projet permet de mettre en avant les possibilités offertes par la plateforme Android.
+Ce projet nous permet de satisfaire notre curiosité en tant que développeur, de rendre service aux utilisateurs et notre objectif est de mettre en avant les possibilités offertes par la plateforme Android.
 
 = Comment puis-je aider ? =
 

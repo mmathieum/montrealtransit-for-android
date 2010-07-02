@@ -1,10 +1,8 @@
 #summary How to get involved in this project.
 
-The development of this application has started months ago.
+The development of this application has started *months ago* and we work on this project on a *voluntary* basis on our *free* time.
 
-We work on this project on a voluntary basis on our free time.
-
-This project allows to highlight the capabilities of the Android platform.
+This project allows us to satisfy our curiosity as a developer, to help the users and to highlight the capabilities of the Android platform.
 
 = How can you help? =
 
