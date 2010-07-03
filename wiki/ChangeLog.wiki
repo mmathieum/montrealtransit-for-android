@@ -4,7 +4,7 @@
 = !ChangeLog =
 
  * 1.1.1 (r52)
-  * fix an errors in the subway views happening only on Saturday and Sunday r251
+  * fix an error in the subway views happening only on Saturday and Sunday r251
 
  * 1.1 (r245)
   * add subway schedule
