@@ -127,7 +127,7 @@ public class StmProvider extends ContentProvider {
 	 * Projection for the first and last hour of a subway station.
 	 */
 	private static final HashMap<String, String> sSubwayStationHourProjectionMap;
-	
+
 	static {
 		URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 		URI_MATCHER.addURI(AUTHORITY, "buslines", BUS_LINES);
@@ -303,8 +303,8 @@ public class StmProvider extends ContentProvider {
 		map = new HashMap<String, String>();
 		map.put(BaseColumns._ID, StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_DIRECTION_ID + " AS "
 		        + BaseColumns._ID);
-		map.put(StmStore.HOUR, "strftime('%Hh%M'," + StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_HOUR + ") AS "
-		        + StmStore.HOUR);
+		map.put(StmStore.HOUR, "strftime('%Hh%M'," + StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_HOUR
+		        + ") AS " + StmStore.HOUR);
 		map.put(StmStore.FIRST_LAST, StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_FIRST_LAST + " AS "
 		        + StmStore.FIRST_LAST);
 		sSubwayStationHourProjectionMap = map;
@@ -745,10 +745,10 @@ public class StmProvider extends ContentProvider {
 			qb.appendWhere(StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_STATION_ID + "="
 			        + uri.getPathSegments().get(1) + " AND " + StmDbHelper.T_SUBWAY_HOUR + "."
 			        + StmDbHelper.T_SUBWAY_HOUR_K_DIRECTION_ID + "=" + uri.getPathSegments().get(3) + " AND "
-			        + StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_DAY + "="
-			        + uri.getPathSegments().get(4));
+			        + StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_DAY + "='"
+			        + uri.getPathSegments().get(4) + "'");
 			break;
-			
+
 		case SUBWAY_DIRECTION_ID_WEEK_DAY_HOUR_ID:
 			MyLog.v(TAG, "query>SUBWAY_DIRECTION_ID_WEEK_DAY_HOUR_ID");
 			qb.setTables(StmDbHelper.T_SUBWAY_FREQUENCES);
@@ -756,14 +756,15 @@ public class StmProvider extends ContentProvider {
 			map.put(StmStore.FREQUENCY, StmDbHelper.T_SUBWAY_FREQUENCES + "."
 			        + StmDbHelper.T_SUBWAY_FREQUENCES_K_FREQUENCE + " AS " + StmStore.FREQUENCY);
 			qb.setProjectionMap(map);
-			qb.appendWhere(StmDbHelper.T_SUBWAY_FREQUENCES + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_DIRECTION + "="
-			        + uri.getPathSegments().get(1) + " AND " + StmDbHelper.T_SUBWAY_FREQUENCES + "."
-			        + StmDbHelper.T_SUBWAY_FREQUENCES_K_DAY + "='' AND time("
-			        + StmDbHelper.T_SUBWAY_FREQUENCES + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_HOUR
-			        + ", '-2 hour') <= '" + uri.getPathSegments().get(3)+ "'");
+			qb
+			        .appendWhere(StmDbHelper.T_SUBWAY_FREQUENCES + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_DIRECTION
+			                + "=" + uri.getPathSegments().get(1) + " AND " + StmDbHelper.T_SUBWAY_FREQUENCES + "."
+			                + StmDbHelper.T_SUBWAY_FREQUENCES_K_DAY + "='' AND time(" + StmDbHelper.T_SUBWAY_FREQUENCES
+			                + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_HOUR + ", '-2 hour') <= '"
+			                + uri.getPathSegments().get(3) + "'");
 			limit = "1";
 			sortOrder = StmDbHelper.T_SUBWAY_FREQUENCES + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_HOUR + " DESC";
-			
+
 			break;
 		case SUBWAY_DIRECTION_ID_DAY_ID_HOUR_ID:
 			MyLog.v(TAG, "query>SUBWAY_DIRECTION_ID_DAY_ID_HOUR_ID");
@@ -774,9 +775,9 @@ public class StmProvider extends ContentProvider {
 			qb.setProjectionMap(map2);
 			qb.appendWhere(StmDbHelper.T_SUBWAY_FREQUENCES + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_DIRECTION + "="
 			        + uri.getPathSegments().get(1) + " AND " + StmDbHelper.T_SUBWAY_FREQUENCES + "."
-			        + StmDbHelper.T_SUBWAY_FREQUENCES_K_DAY + "=" + uri.getPathSegments().get(3) + " AND time("
+			        + StmDbHelper.T_SUBWAY_FREQUENCES_K_DAY + "='" + uri.getPathSegments().get(3) + "' AND time("
 			        + StmDbHelper.T_SUBWAY_FREQUENCES + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_HOUR
-			        + ", '-2 hour') <= '" + uri.getPathSegments().get(5)+ "'");
+			        + ", '-2 hour') <= '" + uri.getPathSegments().get(5) + "'");
 			limit = "1";
 			sortOrder = StmDbHelper.T_SUBWAY_FREQUENCES + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_HOUR + " DESC";
 			break;
