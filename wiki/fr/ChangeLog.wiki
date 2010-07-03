@@ -3,6 +3,9 @@
 
 = !ChangeLog =
 
+ * 1.1.1 (r252)
+  * corrige un problème dans les vues sur le métro arrivant le samedi et le dimanche r251
+
  * 1.1 (r245)
   * ajout des horaires pour le métro
   * ajout des distances (localisation GPS & réseau) pour les stations de métro.
