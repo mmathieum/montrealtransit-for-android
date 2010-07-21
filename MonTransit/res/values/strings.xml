@@ -32,9 +32,13 @@
     <string name="no_subway_line">No subway line!</string>
     <string name="line">Line</string>
     <string name="green_line">Green line</string>
+    <string name="green_line_short">Green</string>
 	<string name="orange_line">Orange line</string>
+	<string name="orange_line_short">Orange</string>
 	<string name="yellow_line">Yellow line</string>
+	<string name="yellow_line_short">Yellow</string>
 	<string name="blue_line">Blue line</string>
+	<string name="blue_line_short">Blue</string>
 	<string name="select_subway_direction">Direction</string>
 	<string name="first_trains">First trains</string>
 	<string name="last_trains">Last trains</string>
@@ -42,6 +46,8 @@
 	<string name="other_bus_line">Other bus line(s)</string>
 	<string name="subway_station">Subway station</string>
 	<string name="subway_stations">Subway stations</string>
+	<string name="closest_subway_stations">Closest stations</string>
+	<string name="reload_closest_stations">Reload closest stations</string>
 	<string name="bus_stops">Bus stops</string>
 	<string name="bus_stops_short">stops</string>
 	

@@ -74,6 +74,7 @@ public class StmProvider extends ContentProvider {
 	private static final int SUBWAY_STATION_ID_DIRECTION_ID_WEEK_DAY = 35;
 	private static final int SUBWAY_DIRECTION_ID_DAY_ID_HOUR_ID = 36;
 	private static final int SUBWAY_DIRECTION_ID_WEEK_DAY_HOUR_ID = 37;
+	private static final int SUBWAY_STATIONS_AND_LINES = 38;
 
 	/**
 	 * The URI marcher.
@@ -154,6 +155,7 @@ public class StmProvider extends ContentProvider {
 		URI_MATCHER.addURI(AUTHORITY, "subwaylines/#/subwaystations", SUBWAY_LINE_ID_STATIONS);
 		URI_MATCHER.addURI(AUTHORITY, "subwaylines/#/subwaystations/search/*", SUBWAY_LINE_ID_STATIONS_SEARCH);
 		URI_MATCHER.addURI(AUTHORITY, "subwaystations", SUBWAY_STATIONS);
+		URI_MATCHER.addURI(AUTHORITY, "subwaystations/subwaylines", SUBWAY_STATIONS_AND_LINES);
 		URI_MATCHER.addURI(AUTHORITY, "subwaystations/#", SUBWAY_STATION_ID);
 		URI_MATCHER.addURI(AUTHORITY, "subwaystations/#/directions/#", SUBWAY_STATION_ID_DIRECTION_ID_WEEK_DAY);
 		URI_MATCHER.addURI(AUTHORITY, "subwaystations/#/directions/#/*", SUBWAY_STATION_ID_DIRECTION_ID_DAY);
@@ -641,6 +643,11 @@ public class StmProvider extends ContentProvider {
 			qb.appendWhere(StmDbHelper.T_SUBWAY_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ID
 			        + "=" + uri.getPathSegments().get(1));
 			break;
+		case SUBWAY_STATIONS_AND_LINES:
+			MyLog.v(TAG, "query>SUBWAY_STATIONS_AND_LINES");
+			qb.setTables(SUBWAY_STATIONS_LINE_DIRECTION_JOIN);
+			qb.setProjectionMap(sSubwayLinesStationsProjectionMap);
+			break;
 		case SUBWAY_STATION_ID_LINES_OTHER:
 			MyLog.v(TAG, "query>SUBWAY_STATION_ID_LINES_OTHER");
 			qb.setTables(SUBWAY_STATIONS_LINE_DIRECTION_JOIN);
@@ -684,6 +691,7 @@ public class StmProvider extends ContentProvider {
 		case SUBWAY_STATIONS:
 			MyLog.v(TAG, "query>SUBWAY_STATIONS");
 			qb.setTables(StmDbHelper.T_SUBWAY_STATIONS);
+			qb.setProjectionMap(sSubwayStationsProjectionMap);
 			break;
 		case SUBWAY_STATIONS_IDS:
 			MyLog.v(TAG, "query>SUBWAY_STATIONS_IDS");
@@ -706,16 +714,17 @@ public class StmProvider extends ContentProvider {
 			break;
 		case SUBWAY_STATION_ID_BUS_LINES:
 			MyLog.v(TAG, "query>SUBWAY_STATION_ID_BUS_LINES");
-			qb.setTables(BUS_STOP_LINES_JOIN);
 			qb.setDistinct(true);
 			qb.setProjectionMap(sBusLinesProjectionMap);
+			qb.setTables(BUS_STOP_LINES_JOIN);
 			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + "="
 			        + uri.getPathSegments().get(1));
 			break;
 		case SUBWAY_STATION_ID_BUS_LINE_ID_BUS_STOPS:
 			MyLog.v(TAG, "query>SUBWAY_STATION_ID_BUS_LINE_ID_BUS_STOPS");
-			qb.setTables(StmDbHelper.T_BUS_STOPS);
+			qb.setDistinct(true);
 			qb.setProjectionMap(sBusStopsProjectionMap);
+			qb.setTables(StmDbHelper.T_BUS_STOPS);
 			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + "="
 			        + uri.getPathSegments().get(1) + " AND " + StmDbHelper.T_BUS_STOPS + "."
 			        + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + "=" + uri.getPathSegments().get(3) + " AND "
@@ -724,15 +733,15 @@ public class StmProvider extends ContentProvider {
 		case SUBWAY_STATION_ID_BUS_STOPS:
 			MyLog.v(TAG, "query>SUBWAY_STATION_ID_BUS_STOPS");
 			qb.setDistinct(true);
-			qb.setTables(BUS_STOP_LINES_JOIN);
 			qb.setProjectionMap(sBusStopsExtendedProjectionMap);
+			qb.setTables(BUS_STOP_LINES_JOIN);
 			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + "="
 			        + uri.getPathSegments().get(1));
 			break;
 		case SUBWAY_STATION_ID_DIRECTION_ID_WEEK_DAY:
 			MyLog.v(TAG, "query>SUBWAY_STATION_ID_DIRECTION_ID_WEEK_DAY");
-			qb.setTables(StmDbHelper.T_SUBWAY_HOUR);
 			qb.setProjectionMap(sSubwayStationHourProjectionMap);
+			qb.setTables(StmDbHelper.T_SUBWAY_HOUR);
 			qb.appendWhere(StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_STATION_ID + "="
 			        + uri.getPathSegments().get(1) + " AND " + StmDbHelper.T_SUBWAY_HOUR + "."
 			        + StmDbHelper.T_SUBWAY_HOUR_K_DIRECTION_ID + "=" + uri.getPathSegments().get(3) + " AND "
@@ -783,6 +792,7 @@ public class StmProvider extends ContentProvider {
 			break;
 		case SEARCH:
 			MyLog.v(TAG, "query>SEARCH");
+			String search = uri.getPathSegments().get(1);
 			// IF simple search DO
 			if (Utils.getSharedPreferences(getContext(), UserPreferences.PREFS_SEARCH,
 			        UserPreferences.PREFS_SEARCH_DEFAULT).equals(UserPreferences.PREFS_SEARCH_SIMPLE)) {
@@ -790,7 +800,6 @@ public class StmProvider extends ContentProvider {
 				qb.setProjectionMap(sSearchSimpleProjectionMap);
 				qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "!=''");
 				if (uri.getPathSegments().size() > 1) {
-					String search = uri.getPathSegments().get(1);
 					MyLog.d(TAG, "search: " + search);
 					if (!TextUtils.isEmpty(search)) {
 						String[] keywords = search.split(" ");
@@ -828,7 +837,6 @@ public class StmProvider extends ContentProvider {
 				qb.setProjectionMap(sSearchProjectionMap);
 				qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "!=''");
 				if (uri.getPathSegments().size() > 1) {
-					String search = uri.getPathSegments().get(1);
 					MyLog.d(TAG, "search: " + search);
 					if (!TextUtils.isEmpty(search)) {
 						String[] keywords = search.split(" ");
@@ -865,7 +873,9 @@ public class StmProvider extends ContentProvider {
 					}
 				}
 			}
-			limit = String.valueOf(Constant.NB_SEARCH_RESULT);
+			if (search.length() == 0) {
+				limit = String.valueOf(Constant.NB_SEARCH_RESULT);
+			}
 			MyLog.d(TAG, "search query ready!");
 			break;
 		default:
@@ -910,6 +920,7 @@ public class StmProvider extends ContentProvider {
 			case SUBWAY_LINE_ID_STATIONS:
 			case SUBWAY_LINE_ID_STATIONS_SEARCH:
 			case SUBWAY_STATION_ID_LINES_OTHER:
+			case SUBWAY_STATIONS_AND_LINES:
 				orderBy = StmStore.SubwayStation.DEFAULT_SORT_ORDER;
 				break;
 			case SUBWAY_STATION_ID_DIRECTION_ID_DAY:
@@ -974,8 +985,6 @@ public class StmProvider extends ContentProvider {
 		case SUBWAY_STATIONS_IDS:
 		case SUBWAY_LINE_ID_STATIONS:
 		case SUBWAY_LINE_ID_STATIONS_SEARCH:
-		case SUBWAY_STATION_ID_LINES_OTHER:
-			return StmStore.SubwayStation.CONTENT_TYPE;
 		case SUBWAY_STATION_ID:
 			return StmStore.SubwayStation.CONTENT_ITEM_TYPE;
 		case SEARCH:
@@ -984,6 +993,8 @@ public class StmProvider extends ContentProvider {
 		case SUBWAY_STATION_ID_DIRECTION_ID_WEEK_DAY:
 		case SUBWAY_DIRECTION_ID_DAY_ID_HOUR_ID:
 		case SUBWAY_DIRECTION_ID_WEEK_DAY_HOUR_ID:
+		case SUBWAY_STATION_ID_LINES_OTHER:
+		case SUBWAY_STATIONS_AND_LINES:
 			return null;
 		default:
 			throw new IllegalArgumentException("Unknown URI (type) " + uri);

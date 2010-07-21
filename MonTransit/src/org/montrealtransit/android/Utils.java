@@ -504,6 +504,28 @@ public class Utils {
 	}
 
 	/**
+	 * Return the subway line short name string ID from the subway line number.
+	 * @param subwayLineNumber the subway line number
+	 * @return the subway line short name string ID
+	 */
+	public static int getSubwayLineNameShort(int number) {
+		MyLog.v(TAG, "getSubwayLineNameShort(" + number + ")");
+		switch (number) {
+		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
+			return R.string.green_line_short;
+		case StmStore.SubwayLine.ORANGE_LINE_NUMBER:
+			return R.string.orange_line_short;
+		case StmStore.SubwayLine.YELLOW_LINE_NUMBER:
+			return R.string.yellow_line_short;
+		case StmStore.SubwayLine.BLUE_LINE_NUMBER:
+			return R.string.blue_line_short;
+		default:
+			MyLog.w(TAG, "Unknown subway line number \"" + number + "\".");
+			return R.string.error;
+		}
+	}
+
+	/**
 	 * Return the subway line image ID for the subway line number
 	 * @param number the subway line number
 	 * @return the subway line image ID
@@ -889,7 +911,7 @@ public class Utils {
 	 * @return the distance string.
 	 */
 	public static String getDistanceString(Context context, float distanceInMeters, float accuracyInMeters) {
-		MyLog.v(TAG, "getDistanceString(" + distanceInMeters + ", " + accuracyInMeters + ")");
+		// MyLog.v(TAG, "getDistanceString(" + distanceInMeters + ", " + accuracyInMeters + ")");
 		boolean isDetailed = getSharedPreferences(context, UserPreferences.PREFS_DISTANCE,
 		        UserPreferences.PREFS_DISTANCE_DEFAULT).equals(UserPreferences.PREFS_DISTANCE_DETAILED);
 		String distanceUnit = getSharedPreferences(context, UserPreferences.PREFS_DISTANCE_UNIT,
@@ -928,12 +950,12 @@ public class Utils {
 				float niceShorterDistanceInMile = ((Integer) Math.round(shorterDistanceInMile * 10)).floatValue() / 10;
 				float longerDistanceInMile = longerDistanceInFeet / smallPerBig;
 				float niceLongerDistanceInMile = ((Integer) Math.round(longerDistanceInMile * 10)).floatValue() / 10;
-				result = niceShorterDistanceInMile + "-" + niceLongerDistanceInMile + " " + bigUnit;
+				result = niceShorterDistanceInMile + " - " + niceLongerDistanceInMile + " " + bigUnit;
 			} else {
 				// use "small unit"
 				int niceShorterDistanceInFeet = Math.round(shorterDistanceInFeet);
 				int niceLongerDistanceInFeet = Math.round(longerDistanceInFeet);
-				result = niceShorterDistanceInFeet + "-" + niceLongerDistanceInFeet + " " + smallUnit;
+				result = niceShorterDistanceInFeet + " - " + niceLongerDistanceInFeet + " " + smallUnit;
 			}
 			// ELSE IF the accuracy of the location is more than the distance DO
 		} else if (accuracy > distance) { // basically, the location is in the blue circle in Maps

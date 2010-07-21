@@ -70,32 +70,37 @@ public class SubwayStationInfo extends Activity implements OnClickListener, Loca
 		((ImageView) findViewById(R.id.subway_line_2)).setOnClickListener(this);
 		((ImageView) findViewById(R.id.subway_line_3)).setOnClickListener(this);
 		// show the subway station
-		showNewSubwayStation(Utils.getSavedStringValue(this.getIntent(), savedInstanceState,
-		        SubwayStationInfo.EXTRA_STATION_ID));
+		showNewSubwayStation(Utils.getSavedStringValue(this.getIntent(), savedInstanceState, EXTRA_STATION_ID));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void onPause() {
-		MyLog.v(TAG, "onPause()");
+	protected void onStop() {
+		MyLog.v(TAG, "onStop()");
 		LocationUtils.disableLocationUpdates(this, this);
-		super.onPause();
+		super.onStop();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void onResume() {
-		MyLog.v(TAG, "onResume()");
+	protected void onRestart() {
+		MyLog.v(TAG, "onRestart()");
 		// IF location updates should be enabled DO
 		if (this.locationUpdatesEnabled) {
+			// IF there is a valid last know location DO
+			if (LocationUtils.getBestLastKnownLocation(this) != null) {
+				// set the new distance
+				setLocation(LocationUtils.getBestLastKnownLocation(this));
+				updateDistanceWithNewLocation();
+			}
 			// re-enable
 			LocationUtils.enableLocationUpdates(this, this);
 		}
-		super.onResume();
+		super.onRestart();
 	}
 
 	/**
@@ -122,9 +127,10 @@ public class SubwayStationInfo extends Activity implements OnClickListener, Loca
 		// IF there is a valid last know location DO
 		if (LocationUtils.getBestLastKnownLocation(this) != null) {
 			// set the distance before showing the station
+			setLocation(LocationUtils.getBestLastKnownLocation(this));
 			updateDistanceWithNewLocation();
 		}
-		// IF location updates is not already enabled DO
+		// IF location updates are not already enabled DO
 		if (!this.locationUpdatesEnabled) {
 			// enable
 			LocationUtils.enableLocationUpdates(this, this);
@@ -168,14 +174,14 @@ public class SubwayStationInfo extends Activity implements OnClickListener, Loca
 
 		}
 	}
-	
+
 	/**
 	 * @param subwayLine the subway line
 	 * @param subwayStationDir the direction
 	 * @return the direction view for the subway line and the direction
-	*/
+	 */
 	private View getDirectionView(SubwayLine subwayLine, SubwayStation subwayStationDir) {
-		MyLog.v(TAG, "getDirectionView(" + subwayLine.getNumber() + ", " + subwayStationDir.getId() + ")");
+		// MyLog.v(TAG, "getDirectionView(" + subwayLine.getNumber() + ", " + subwayStationDir.getId() + ")");
 		// find day and hour (minus 2 hours)
 		Calendar now = Calendar.getInstance();
 		now.add(Calendar.HOUR, -2);
@@ -240,7 +246,7 @@ public class SubwayStationInfo extends Activity implements OnClickListener, Loca
 			Location stationLocation = LocationUtils.getNewLocation(subwayStation.getLat(), subwayStation.getLng());
 			float distanceInMeters = getLocation().distanceTo(stationLocation);
 			float accuracyInMeters = getLocation().getAccuracy();
-			MyLog.v(TAG, "distance in meters: " + distanceInMeters + " (accuracy: " + accuracyInMeters + ").");
+			// MyLog.v(TAG, "distance in meters: " + distanceInMeters + " (accuracy: " + accuracyInMeters + ").");
 			String distanceString = Utils.getDistanceString(this, distanceInMeters, accuracyInMeters);
 			((TextView) findViewById(R.id.distance)).setText(distanceString);
 		}
@@ -271,14 +277,16 @@ public class SubwayStationInfo extends Activity implements OnClickListener, Loca
 	}
 
 	/**
-	 * @param location the new location
+	 * @param newLocation the new location
 	 */
-	public void setLocation(Location location) {
-		if (location != null) {
-			MyLog.v(TAG, "setLocation(" + location.getProvider() + ", " + location.getLatitude() + ", "
-			        + location.getLongitude() + ", " + location.getAccuracy() + ")", this, MyLog.SHOW_LOCATION);
+	public void setLocation(Location newLocation) {
+		if (newLocation != null) {
+			MyLog.v(TAG, "new location: '" + newLocation.getProvider() + "' " + newLocation.getLatitude() + ","
+			        + newLocation.getLongitude() + " (" + newLocation.getAccuracy() + ")", this, MyLog.SHOW_LOCATION);
+			if (this.location == null || LocationUtils.isMorePrecise(this.location, newLocation)) {
+				this.location = newLocation;
+			}
 		}
-		this.location = location;
 	}
 
 	/**

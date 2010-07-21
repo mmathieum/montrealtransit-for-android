@@ -15,14 +15,14 @@ import android.os.AsyncTask;
 
 /**
  * This task obtain the GPS location of the location name.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
-public class ReverseGeocodeTask extends AsyncTask<String, String, List<Address>> {
+public class GeocodingTask extends AsyncTask<String, String, List<Address>> {
 
 	/**
 	 * The log tag.
 	 */
-	private static final String TAG = ReverseGeocodeTask.class.getSimpleName();
+	private static final String TAG = GeocodingTask.class.getSimpleName();
 
 	/**
 	 * The activity context calling the dialog.
@@ -37,7 +37,7 @@ public class ReverseGeocodeTask extends AsyncTask<String, String, List<Address>>
 	/**
 	 * This class will process the result.
 	 */
-	private ReverseGeocodeTaskListener listener;
+	private GeocodingTaskListener listener;
 
 	/**
 	 * Default constructor.
@@ -45,7 +45,7 @@ public class ReverseGeocodeTask extends AsyncTask<String, String, List<Address>>
 	 * @param maxResults the max number of results necessary
 	 * @param listener the class that will process the result
 	 */
-	public ReverseGeocodeTask(Context context, int maxResults, ReverseGeocodeTaskListener listener) {
+	public GeocodingTask(Context context, int maxResults, GeocodingTaskListener listener) {
 		this.context = context;
 		this.maxResults = maxResults;
 		this.listener = listener;
@@ -61,9 +61,10 @@ public class ReverseGeocodeTask extends AsyncTask<String, String, List<Address>>
 			String locationName = params[0];
 			publishProgress(this.context.getResources().getString(R.string.reverse_geocoding_1) + " " + locationName
 			        + this.context.getResources().getString(R.string.ellipsis));
-			MyLog.v(TAG, "Reverse geocode: " + locationName + ".");
+			MyLog.v(TAG, "Geocode: " + locationName + ".");
 			Geocoder geocoder = new Geocoder(this.context);
-			return geocoder.getFromLocationName(locationName, this.maxResults, Constant.STM_LOWER_LEFT_LAT, Constant.STM_LOWER_LEFT_LNG, Constant.STM_UPPER_RIGHT_LAT, Constant.STM_UPPER_RIGHT_LNG);
+			return geocoder.getFromLocationName(locationName, this.maxResults, Constant.STM_LOWER_LEFT_LAT,
+			        Constant.STM_LOWER_LEFT_LNG, Constant.STM_UPPER_RIGHT_LAT, Constant.STM_UPPER_RIGHT_LNG);
 		} catch (IOException e) {
 			MyLog.e(TAG, "INTERNAL ERROR: the network is unavailable or any other I/O problem occurs", e);
 		} catch (Exception e) {

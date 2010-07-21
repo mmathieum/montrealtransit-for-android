@@ -8,11 +8,11 @@ import org.montrealtransit.android.provider.DataManager;
 import android.app.TabActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.TabHost;
+import android.widget.TabHost.TabSpec;
 
 /**
  * This class is the first screen displayed by the application. It contains, 4 tabs.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 // TODO offer the options to just show a list of the "tabs".
 public class MainScreen extends TabActivity {
@@ -49,23 +49,36 @@ public class MainScreen extends TabActivity {
 		// set the UI.
 		setContentView(R.layout.main_screen);
 
-		TabHost mTabHost = getTabHost();
-		mTabHost.addTab(mTabHost.newTabSpec(TAB_FAV).setIndicator(getResources().getString(R.string.favorite),
-		        getResources().getDrawable(R.drawable.ic_tab_starred)).setContent(new Intent(this, FavListTab.class)));
-		mTabHost.addTab(mTabHost.newTabSpec(TAB_STOP_CODE).setIndicator(getResources().getString(R.string.stop_code),
-		        getResources().getDrawable(R.drawable.ic_tab_stop_code)).setContent(
-		        new Intent(this, BusStopCodeTab.class)));
-		mTabHost.addTab(mTabHost.newTabSpec(TAB_BUS).setIndicator(getResources().getString(R.string.bus),
-		        getResources().getDrawable(R.drawable.ic_tab_bus)).setContent(new Intent(this, BusLineListTab.class)));
-		mTabHost.addTab(mTabHost.newTabSpec(TAB_SUBWAY).setIndicator(getResources().getString(R.string.subway),
-		        getResources().getDrawable(R.drawable.ic_tab_subway)).setContent(
-		        new Intent(this, SubwayLinesListTab.class)));
+		// the favorites list
+		TabSpec favListTab = getTabHost().newTabSpec(TAB_FAV);
+		favListTab.setIndicator(getResources().getString(R.string.favorite), getResources().getDrawable(
+		        R.drawable.ic_tab_starred));
+		favListTab.setContent(new Intent(this, FavListTab.class));
+		getTabHost().addTab(favListTab);
+		// the bus stop code
+		TabSpec busStopCodeTab = getTabHost().newTabSpec(TAB_STOP_CODE);
+		busStopCodeTab.setIndicator(getResources().getString(R.string.stop_code), getResources().getDrawable(
+		        R.drawable.ic_tab_stop_code));
+		busStopCodeTab.setContent(new Intent(this, BusStopCodeTab.class));
+		getTabHost().addTab(busStopCodeTab);
+		// the bus lines list
+		TabSpec busLinesListTab = getTabHost().newTabSpec(TAB_BUS);
+		busLinesListTab.setIndicator(getResources().getString(R.string.bus), getResources().getDrawable(
+		        R.drawable.ic_tab_bus));
+		busLinesListTab.setContent(new Intent(this, BusLineListTab.class));
+		getTabHost().addTab(busLinesListTab);
+		// the subway lines list
+		TabSpec subwayLinesListTab = getTabHost().newTabSpec(TAB_SUBWAY);
+		subwayLinesListTab.setIndicator(getResources().getString(R.string.subway), getResources().getDrawable(
+		        R.drawable.ic_tab_subway));
+		subwayLinesListTab.setContent(new Intent(this, SubwayTab.class));
+		getTabHost().addTab(subwayLinesListTab);
 		try {
 			// IF there is one or more favorites DO
-			if (Utils.getCursorSize(DataManager.findAllFavs(this.getContentResolver())) > 0) {
-				mTabHost.setCurrentTab(0); // show favorite tab
+			if (Utils.getListSize(DataManager.findAllFavsList(this.getContentResolver())) > 0) {
+				getTabHost().setCurrentTab(0); // show favorite tab
 			} else {
-				mTabHost.setCurrentTab(1); // show bus stop code search tab
+				getTabHost().setCurrentTab(1); // show bus stop code search tab
 			}
 		} catch (Exception e) {
 			MyLog.w(TAG, "Error while determing the select tab", e);

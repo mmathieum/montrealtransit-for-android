@@ -39,7 +39,7 @@ public class MyLog {
 	 */
 	public static void v(String tag, String msg, Context context, boolean show) {
 	   if (DEBUG && show) {
-		   Utils.notifyTheUserLong(context, msg);
+		   Utils.notifyTheUser(context, msg);
 	   }
 	   v(tag,msg);
     }

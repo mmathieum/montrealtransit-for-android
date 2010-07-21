@@ -32,9 +32,13 @@
     <string name="no_subway_line">Aucune ligne de métro !</string>
     <string name="line">Ligne</string>
     <string name="green_line">Ligne Verte</string>
+    <string name="green_line_short">Verte</string>
 	<string name="orange_line">Ligne Orange</string>
+	<string name="orange_line_short">Orange</string>
 	<string name="yellow_line">Ligne Jaune</string>
+	<string name="yellow_line_short">Jaune</string>
 	<string name="blue_line">Ligne Bleue</string>
+	<string name="blue_line_short">Bleue</string>
 	<string name="select_subway_direction">Direction</string>
 	<string name="first_trains">Premiers départs</string>
 	<string name="last_trains">Derniers départs</string>
@@ -42,6 +46,8 @@
 	<string name="other_bus_line">Autre(s) Ligne(s) de Bus</string>
 	<string name="subway_station">Station de Métro</string>
 	<string name="subway_stations">Stations de Métro</string>
+	<string name="closest_subway_stations">Stations les plus proches</string>
+	<string name="reload_closest_stations">Recharger les stations les plus proches</string>
 	<string name="bus_stops">Arrêts de bus</string>
 	<string name="bus_stops_short">arrêts</string>
     

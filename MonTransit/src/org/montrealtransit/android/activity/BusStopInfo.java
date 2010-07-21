@@ -19,8 +19,8 @@ import org.montrealtransit.android.provider.StmStore;
 import org.montrealtransit.android.provider.StmStore.BusLine;
 import org.montrealtransit.android.provider.StmStore.BusLineDirection;
 import org.montrealtransit.android.provider.StmStore.SubwayLine;
-import org.montrealtransit.android.services.ReverseGeocodeTask;
-import org.montrealtransit.android.services.ReverseGeocodeTaskListener;
+import org.montrealtransit.android.services.GeocodingTask;
+import org.montrealtransit.android.services.GeocodingTaskListener;
 import org.montrealtransit.android.services.nextstop.NextStopListener;
 import org.montrealtransit.android.services.nextstop.StmInfoTask;
 import org.montrealtransit.android.services.nextstop.StmMobileTask;
@@ -428,7 +428,6 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 			((TextView) findViewById(R.id.subway_station)).setVisibility(View.VISIBLE);
 			((RelativeLayout) findViewById(R.id.the_subway_station)).setVisibility(View.VISIBLE);
 			((RelativeLayout) findViewById(R.id.the_subway_station)).setOnClickListener(this);
-			((RelativeLayout) findViewById(R.id.the_subway_station)).setFocusable(true);
 
 			StmStore.SubwayStation subwayStation = StmManager.findSubwayStation(this.getContentResolver(), this.busStop
 			        .getSubwayStationId());
@@ -751,7 +750,7 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 		case MENU_SHOW_IN_MAPS:
 			try {
 				// Finding the location of the bus stop
-				new ReverseGeocodeTask(this, 1, new ReverseGeocodeTaskListener() {
+				new GeocodingTask(this, 1, new GeocodingTaskListener() {
 					@Override
 					public void processLocation(List<Address> addresses) {
 						if (addresses != null && addresses.size() > 0 && addresses.get(0) != null) {
@@ -781,7 +780,10 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 				noRadar.showDialog();
 			} else {
 				// Finding the location of the bus stop
-				new ReverseGeocodeTask(this, 1, new ReverseGeocodeTaskListener() {
+				new GeocodingTask(this, 1, new GeocodingTaskListener() {
+					/**
+					 * {@inheritDoc}
+					 */
 					@Override
 					public void processLocation(List<Address> addresses) {
 						if (addresses != null && addresses.size() > 0 && addresses.get(0) != null) {

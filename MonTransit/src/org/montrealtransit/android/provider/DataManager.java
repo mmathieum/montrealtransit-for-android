@@ -14,7 +14,7 @@ import android.net.Uri;
 /**
  * This manager provide methods to access the user data.
  * This class query the content provider {@link DataProvider}
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class DataManager {
 

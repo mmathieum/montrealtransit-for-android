@@ -5,10 +5,10 @@ import java.util.List;
 import android.location.Address;
 
 /**
- * Interface implemented by all the class that need to process the result of {@link ReverseGeocodeTask}.
- * @author Mathieu Méa
+ * Interface implemented by all the class that need to process the result of {@link GeocodingTask}.
+ * @author Mathieu MÃ©a
  */
-public interface ReverseGeocodeTaskListener {
+public interface GeocodingTaskListener {
 
 	/**
 	 * Call when the task is complete to process the data.
