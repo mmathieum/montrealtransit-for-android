@@ -1,6 +1,5 @@
 package org.montrealtransit.android.activity;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -11,6 +10,7 @@ import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
+import org.montrealtransit.android.data.ASubwayStation;
 import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.dialog.SubwayLineSelectDirection;
 import org.montrealtransit.android.dialog.SubwayLineSelectDirectionDialogListener;
@@ -119,24 +119,30 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void onPause() {
-		MyLog.v(TAG, "onPause()");
+	protected void onStop() {
+		MyLog.v(TAG, "onStop()");
 		LocationUtils.disableLocationUpdates(this, this);
-		super.onPause();
+		super.onStop();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void onResume() {
-		MyLog.v(TAG, "onResume()");
+	protected void onRestart() {
+		MyLog.v(TAG, "onRestart()");
 		// IF location updates should be enabled DO
 		if (this.locationUpdatesEnabled) {
+			// IF there is a valid last know location DO
+			if (LocationUtils.getBestLastKnownLocation(this) != null) {
+				// set the new distance
+				setLocation(LocationUtils.getBestLastKnownLocation(this));
+				updateDistancesWithNewLocation();
+			}
 			// re-enable
 			LocationUtils.enableLocationUpdates(this, this);
 		}
-		super.onResume();
+		super.onRestart();
 	}
 
 	/**
@@ -148,9 +154,10 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		// IF there is a valid last know location DO
 		if (LocationUtils.getBestLastKnownLocation(this) != null) {
 			// set the distance before showing the list
+			setLocation(LocationUtils.getBestLastKnownLocation(this));
 			updateDistancesWithNewLocation();
 		}
-		// IF location updates is not already enabled DO
+		// IF location updates are not already enabled DO
 		if (!this.locationUpdatesEnabled) {
 			// enable
 			LocationUtils.enableLocationUpdates(this, this);
@@ -220,11 +227,11 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 */
 	private void updateDistancesWithNewLocation() {
 		if (getLocation() != null) {
+			float accuracyInMeters = getLocation().getAccuracy();
 			for (ASubwayStation station : stations) {
 				// distance
 				Location stationLocation = LocationUtils.getNewLocation(station.getLat(), station.getLng());
 				float distanceInMeters = getLocation().distanceTo(stationLocation);
-				float accuracyInMeters = getLocation().getAccuracy();
 				// MyLog.v(TAG, "distance in meters: " + distanceInMeters + " (accuracy: " + accuracyInMeters + ").");
 				String distanceString = Utils.getDistanceString(this, distanceInMeters, accuracyInMeters);
 				station.setDistanceString(distanceString);
@@ -308,9 +315,12 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 			this.layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 
+		/**
+		 * {@inheritDoc}
+		 */
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			//MyLog.v(TAG, "getView(" + position + ")");
+			// MyLog.v(TAG, "getView(" + position + ")");
 			View view;
 			if (convertView == null) {
 				view = this.layoutInflater.inflate(R.layout.subway_line_info_stations_list_item, parent, false);
@@ -319,7 +329,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 			}
 			ASubwayStation station = this.stations[position];
 			if (station != null) {
-				//MyLog.v(TAG, "station:" + station.getId());
+				// MyLog.v(TAG, "station:" + station.getId());
 				// station name
 				((TextView) view.findViewById(R.id.station_name)).setText(station.getName());
 				// station lines color
@@ -366,81 +376,6 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	}
 
 	/**
-	 * A subway station.
-	 */
-	private class ASubwayStation extends SubwayStation {
-
-		/**
-		 * The current main subway line ID.
-		 */
-		private Integer lineId;
-		/**
-		 * the other subway lines ID.
-		 */
-		private List<Integer> otherLinesId;
-		/**
-		 * The distance string.
-		 */
-		private String distanceString;
-
-		/**
-		 * @param lineId the new current subway line ID
-		 */
-		public void setLineId(int lineId) {
-			this.lineId = lineId;
-		}
-
-		/**
-		 * @return the current subway line ID.
-		 */
-		public int getLineId() {
-			return lineId;
-		}
-
-		/**
-		 * @param newLineNumber a new other subway line ID
-		 */
-		public void addOtherLinesId(Integer newLineNumber) {
-			if (!this.getOtherLinesId().contains(newLineNumber)) {
-				this.getOtherLinesId().add(newLineNumber);
-			}
-		}
-
-		/**
-		 * @param newLinesNumber the new other subway lines ID
-		 */
-		public void addOtherLinesId(Set<Integer> newLinesNumber) {
-			for (Integer newLineNumber : newLinesNumber) {
-				addOtherLinesId(newLineNumber);
-			}
-		}
-
-		/**
-		 * @return the other subway lines ID
-		 */
-		private List<Integer> getOtherLinesId() {
-			if (this.otherLinesId == null) {
-				this.otherLinesId = new ArrayList<Integer>();
-			}
-			return this.otherLinesId;
-		}
-
-		/**
-		 * @param distanceString the new distance string
-		 */
-		public void setDistanceString(String distanceString) {
-			this.distanceString = distanceString;
-		}
-
-		/**
-		 * @return the distance string
-		 */
-		public String getDistanceString() {
-			return distanceString;
-		}
-	}
-
-	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -476,14 +411,16 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	}
 
 	/**
-	 * @param location the new location
+	 * @param newLocation the new location
 	 */
-	public void setLocation(Location location) {
-		if (location != null) {
-			MyLog.v(TAG, "setLocation(" + location.getProvider() + ", " + location.getLatitude() + ", "
-			        + location.getLongitude() + ", " + location.getAccuracy() + ")", this, MyLog.SHOW_LOCATION);
+	public void setLocation(Location newLocation) {
+		if (newLocation != null) {
+			MyLog.v(TAG, "new location: '" + newLocation.getProvider() + "' " + newLocation.getLatitude() + ","
+			        + newLocation.getLongitude() + " (" + newLocation.getAccuracy() + ")", this, MyLog.SHOW_LOCATION);
+			if (this.location == null || LocationUtils.isMorePrecise(this.location, newLocation)) {
+				this.location = newLocation;
+			}
 		}
-		this.location = location;
 	}
 
 	/**

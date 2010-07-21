@@ -23,15 +23,19 @@ public class LocationUtils {
 	/**
 	 * The minimum time between 2 locations updates (in milliseconds)
 	 */
-	public static final long MIN_TIME = 2000; // 2 second
+	public static final long MIN_TIME = 1000; // 1 second
 	/**
 	 * The minimum distance between 2 updates
 	 */
-	public static final float MIN_DISTANCE = 5; // 5 meter
+	public static final float MIN_DISTANCE = 2; // 2 meters
+	/**
+	 * How long do we prefer accuracy over time?
+	 */
+	public static final int PREFER_MORE_PRECISE_LAST_KNOWN_LOC_TIME = 5000; // 5 seconds
 	/**
 	 * The validity of a last know location (in milliseconds)
 	 */
-	private static final long MAX_LAST_KNOW_LOCATION_TIME = 600000; // 10 minutes
+	private static final long MAX_LAST_KNOW_LOCATION_TIME = 120000; // 2 minutes
 
 	/**
 	 * Utility class.
@@ -43,7 +47,7 @@ public class LocationUtils {
 	 * @param activity the activity
 	 * @return the providers matching the application requirement
 	 */
-	private static List<String> getBestProviders(Activity activity) {
+	private static List<String> getProviders(Activity activity) {
 		Criteria criteria = new Criteria();
 		// criteria.setAccuracy(Criteria.ACCURACY_FINE); any accuracy
 		criteria.setAltitudeRequired(false); // no altitude
@@ -69,7 +73,7 @@ public class LocationUtils {
 	 */
 	public static Location getBestLastKnownLocation(Activity activity) {
 		Location result = null;
-		for (String provider : getBestProviders(activity)) {
+		for (String provider : getProviders(activity)) {
 			Location lastLocation = getLocationManager(activity).getLastKnownLocation(provider);
 			// IF the last location is NOT NULL (= location provider disabled) DO
 			if (lastLocation != null) {
@@ -81,7 +85,7 @@ public class LocationUtils {
 					}
 				} else {
 					// IF the new location candidate is more recent DO
-					if (lastLocation.getTime() > result.getTime()) {
+					if (lastLocation.getTime() > result.getTime() && isMorePrecise(lastLocation, result)) {
 						result = lastLocation;
 					}
 					// TODO compare accuracy?
@@ -114,7 +118,7 @@ public class LocationUtils {
 	public static void enableLocationUpdates(Activity activity, LocationListener listener) {
 		MyLog.v(TAG, "enableLocationUpdates()");
 		// enable location updates
-		for (String provider : getBestProviders(activity)) {
+		for (String provider : getProviders(activity)) {
 			getLocationManager(activity).requestLocationUpdates(provider, MIN_TIME, MIN_DISTANCE, listener);
 		}
 	}
@@ -140,4 +144,21 @@ public class LocationUtils {
 		newLocation.setLongitude(lng);
 		return newLocation;
 	}
+
+	/**
+	 * @param currentLocation the current location
+	 * @param newLocation the new location
+	 * @return true if the new location is more 'relevant'
+	 */
+	public static boolean isMorePrecise(Location currentLocation, Location newLocation) {
+		if (newLocation.getAccuracy() < currentLocation.getAccuracy()) {
+			// the new location is more precise
+			return true;
+		} else if (newLocation.getTime()-currentLocation.getTime() > PREFER_MORE_PRECISE_LAST_KNOWN_LOC_TIME) {
+			// the new location is less precise but more recent
+			return true;
+		} else {
+			return false;
+		}
+    }
 }

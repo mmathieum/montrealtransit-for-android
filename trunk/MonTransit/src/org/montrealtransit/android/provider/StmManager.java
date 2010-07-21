@@ -513,6 +513,67 @@ public class StmManager {
 	public static Cursor findAllSubwayLines(ContentResolver contentResolver) {
 		return contentResolver.query(StmStore.SubwayLine.CONTENT_URI, PROJECTION_SUBWAY_LINE, null, null, null);
 	}
+	
+	/**
+	 * Find all subway lines.
+	 * @param contentResolver the content resolver
+	 * @return the subway line list
+	 */
+	public static List<StmStore.SubwayLine> findAllSubwayLinesList(ContentResolver contentResolver) {
+		MyLog.v(TAG, "findAllSubwayLinesList()");
+		List<StmStore.SubwayLine> result = null;
+		Cursor c = null;
+		try {
+			c = findAllSubwayLines(contentResolver);
+			if (c.getCount() > 0) {
+				if (c.moveToFirst()) {
+					result = new ArrayList<StmStore.SubwayLine>();
+					do {
+						result.add(StmStore.SubwayLine.fromCursor(c));
+					} while (c.moveToNext());
+				}
+			}
+		} finally {
+			if (c != null)
+				c.close();
+		}
+		return result;
+	}
+	
+	/**
+	 * Return a cursor containing all subway lines.
+	 * @param contentResolver the content resolver
+	 * @return the cursor
+	 */
+	public static Cursor findAllSubwayStations(ContentResolver contentResolver) {
+		return contentResolver.query(StmStore.SubwayStation.CONTENT_URI, PROJECTION_SUBWAY_STATION, null, null, null);
+	}
+	
+	/**
+	 * Find all subway stations.
+	 * @param contentResolver the content resolver
+	 * @return the subway stations list
+	 */
+	public static List<StmStore.SubwayStation> findAllSubwayStationsList(ContentResolver contentResolver) {
+		MyLog.v(TAG, "findAllSubwayStationsList()");
+		List<StmStore.SubwayStation> result = null;
+		Cursor c = null;
+		try {
+			c = findAllSubwayStations(contentResolver);
+			if (c.getCount() > 0) {
+				if (c.moveToFirst()) {
+					result = new ArrayList<StmStore.SubwayStation>();
+					do {
+						result.add(StmStore.SubwayStation.fromCursor(c));
+					} while (c.moveToNext());
+				}
+			}
+		} finally {
+			if (c != null)
+				c.close();
+		}
+		return result;
+	}
 
 	/**
 	 * Search all subway lines.
@@ -632,6 +693,51 @@ public class StmManager {
 		        StmStore.SubwayStation.SubwayLines.CONTENT_DIRECTORY);
 		//MyLog.v(TAG, "subwayLinesUri>" + subwayLinesUri.getPath());
 		return contentResolver.query(subwayLinesUri, PROJECTION_SUBWAY_LINE, null, null, null);
+	}
+
+	/**
+	 * Find all subway stations and subway lines.
+	 * @param contentResolver the content resolver
+	 * @return the subway stations and subway lines pair list
+	 */
+	public static List<Pair<SubwayLine, SubwayStation>> findSubwayStationsAndLinesList(
+	        ContentResolver contentResolver) {
+		MyLog.v(TAG, "findSubwayStationsAndLinesList()");
+		List<Pair<SubwayLine, SubwayStation>> result = null;
+		Cursor c = null;
+		try {
+			c = findSubwayStationsAndLines(contentResolver);
+			if (c.getCount() > 0) {
+				if (c.moveToFirst()) {
+					result = new ArrayList<Pair<SubwayLine, SubwayStation>>();
+					do {
+						SubwayStation station = StmStore.SubwayStation.fromCursor(c);
+						SubwayLine line = StmStore.SubwayLine.fromCursor(c);
+						result.add(new Pair<SubwayLine, SubwayStation>(line, station));
+					} while (c.moveToNext());
+				} else {
+					MyLog.w(TAG, "cursor is EMPTY !!!");
+				}
+			} else {
+				MyLog.w(TAG, "cursor.SIZE = 0 !!!");
+			}
+		} finally {
+			if (c != null)
+				c.close();
+		}
+		return result;
+	}
+
+	/**
+	 * Find subway stations and subway lines pairs.
+	 * @param contentResolver the content resolver
+	 * @return the subway stations and subway line pairs
+	 */
+	public static Cursor findSubwayStationsAndLines(ContentResolver contentResolver) {
+		Uri subwayStationsUri = StmStore.SubwayStation.CONTENT_URI;
+		Uri subwayLinesUri = Uri.withAppendedPath(subwayStationsUri,
+		        StmStore.SubwayStation.SubwayLines.CONTENT_DIRECTORY);
+		return contentResolver.query(subwayLinesUri, PROJECTION_SUBWAY_LINES_STATIONS, null, null, null);
 	}
 
 	/**
