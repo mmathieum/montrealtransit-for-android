@@ -15,7 +15,7 @@ public class UserPreferences extends PreferenceActivity {
 	/**
 	 * The log tag.
 	 */
-	private static final String TAG = SubwayStationInfo.class.getSimpleName();
+	private static final String TAG = UserPreferences.class.getSimpleName();
 
 	/**
 	 * The preference key for the bus lines list display.
