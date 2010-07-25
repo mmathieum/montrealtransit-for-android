@@ -864,6 +864,7 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 			this.task.cancel(true);
 			this.task = null;
 		}
+		PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
 		super.onDestroy();
 	}
 }
