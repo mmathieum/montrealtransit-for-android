@@ -17,10 +17,8 @@
 		android:debuggable="false">
 		<meta-data android:name="android.app.default_searchable" android:value=".activity.SearchResult" />
 		<!-- PROVIDERs -->
-		<provider android:name=".provider.DataProvider"
-			android:authorities="org.montrealtransit.android.data" />
-		<provider android:name=".provider.StmProvider"
-			android:authorities="org.montrealtransit.android" />
+		<provider android:name=".provider.DataProvider" android:authorities="org.montrealtransit.android.data" />
+		<provider android:name=".provider.StmProvider" android:authorities="org.montrealtransit.android" />
 		<!-- MAIN SCREEN -->
 		<activity android:name=".activity.MainScreen" android:label="@string/app_name"
             android:configChanges="orientation|keyboardHidden">
