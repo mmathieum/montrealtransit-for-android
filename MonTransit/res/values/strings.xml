@@ -45,11 +45,17 @@
 	<string name="next_bus_stops">Next passing</string>
 	<string name="other_bus_line">Other bus line(s)</string>
 	<string name="subway_station">Subway station</string>
+	<string name="subway_station_short">Station</string>
+	<string name="subway_station_with_name_short">%1$s station</string>
 	<string name="subway_stations">Subway stations</string>
+	<string name="subway_stations_short">Stations</string>
 	<string name="closest_subway_stations">Closest stations</string>
 	<string name="reload_closest_stations">Reload closest stations</string>
 	<string name="bus_stops">Bus stops</string>
-	<string name="bus_stops_short">stops</string>
+	<string name="bus_stops_short">Stops</string>
+	<string name="bus_stop">Bus stop</string>
+	<string name="bus_stop_short">Stop</string>
+	<string name="bus_stop_and_line_short">Stop %1$s (Line %2$s)</string>
 	
 	<string name="display_pref_cat_title">Display preferences</string>
 	<string name="data_pref_cat_title">Data source</string>
@@ -142,9 +148,14 @@
 	<string name="no_more_stops">Service ended.</string>
 	<string name="no_more_stops_for_this_bus_line">Service ended for the bus line</string>
 	
-    <string name="remove_fav">Remove favorite.</string>
+	<string name="view_bus_stop">View bus stop</string>
+	<string name="view_subway_station">View subway station</string>
+	<string name="view_fav">View favorite</string>
+    <string name="remove_fav">Remove from favorites</string>
     <string name="no_fav">No favorite.</string>
-    <string name="no_fav_message">No favorite.\nTo add a favorite bus stop, browse the bus lines or search the bus stop from its stop code. Then, click on the star to add the favourite.</string>
+    <string name="no_fav_message">No favorite.\nTo add a favorite bus stop, browse the bus lines or search the bus stop from its stop code. Then, click on the star to add the favorite.</string>
+    <string name="no_fav_bus_stop_message">No favorite bus stop.\nTo add a favorite bus stop, browse the bus lines or search the bus stop from its stop code. Then, click on the star to add the favorite.</string>
+    <string name="no_fav_subway_station_message">No favorite subway station.\nTo add a favorite subway station, browse the subway lines. Then, click on the star to add the favorite.</string>
     <string name="favorite_removed">Favorite removed.</string>
     <string name="favorite_added">Favorite added.</string>
     

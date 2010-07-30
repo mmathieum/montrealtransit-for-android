@@ -21,7 +21,7 @@ import android.text.TextUtils;
 
 /**
  * This provider give information about the user.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class DataProvider extends ContentProvider {
 
@@ -35,34 +35,14 @@ public class DataProvider extends ContentProvider {
 	 */
 	public static final String AUTHORITY = Constant.PKG + ".data";
 
-	/**
-	 * The content URI ID for live folder.
-	 */
-	private static final int LIVE_FOLDER_FAVS = 4;
-	/**
-	 * The content URI ID for all the favorite entries.
-	 */
+	private static final int LIVE_FOLDER_FAVS = 1;
 	private static final int FAVS = 2;
-	/**
-	 * The content URI ID for a favorite entry.
-	 */
 	private static final int FAV_ID = 3;
-	/**
-	 * The content URI ID for some favorite entries.
-	 */
-	private static final int FAVS_IDS = 5;
-	/**
-	 * The content URI ID for all history entries.
-	 */
-	private static final int HISTORY = 6;
-	/**
-	 * The content URI ID for one history entry.
-	 */
-	private static final int HISTORY_ID = 7;
-	/**
-	 * The content URI ID for some history entries.
-	 */
-	private static final int HISTORY_IDS = 8;
+	private static final int FAVS_IDS = 4;
+	private static final int HISTORY = 5;
+	private static final int HISTORY_ID = 6;
+	private static final int HISTORY_IDS = 7;
+	private static final int FAVS_TYPE_ID = 8;
 
 	/**
 	 * The URI matcher filter the content URI calls.
@@ -73,6 +53,7 @@ public class DataProvider extends ContentProvider {
 		URI_MATCHER.addURI(AUTHORITY, "favs", FAVS);
 		URI_MATCHER.addURI(AUTHORITY, "favs/#", FAV_ID);
 		URI_MATCHER.addURI(AUTHORITY, "favs/*", FAVS_IDS);
+		URI_MATCHER.addURI(AUTHORITY, "favs/#/type", FAVS_TYPE_ID);
 		URI_MATCHER.addURI(AUTHORITY, "live_folder_favs", LIVE_FOLDER_FAVS); // TODO useless ?
 		URI_MATCHER.addURI(AUTHORITY, "history", HISTORY);
 		URI_MATCHER.addURI(AUTHORITY, "history/#", HISTORY_ID);
@@ -87,7 +68,8 @@ public class DataProvider extends ContentProvider {
 		LIVE_FOLDER_PROJECTION_MAP = new HashMap<String, String>();
 		LIVE_FOLDER_PROJECTION_MAP.put(LiveFolders._ID, DataDbHelper.T_FAVS_K_ID + " AS " + LiveFolders._ID);
 		LIVE_FOLDER_PROJECTION_MAP.put(LiveFolders.NAME, DataDbHelper.T_FAVS_K_FK_ID + " AS " + LiveFolders.NAME);
-		LIVE_FOLDER_PROJECTION_MAP.put(LiveFolders.DESCRIPTION, DataDbHelper.T_FAVS_K_FK_ID_2 + " AS " + LiveFolders.DESCRIPTION);
+		LIVE_FOLDER_PROJECTION_MAP.put(LiveFolders.DESCRIPTION, DataDbHelper.T_FAVS_K_FK_ID_2 + " AS "
+		        + LiveFolders.DESCRIPTION);
 	}
 
 	/**
@@ -95,10 +77,10 @@ public class DataProvider extends ContentProvider {
 	 */
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-		MyLog.v(TAG, "query(" + uri + ", " + Arrays.toString(projection) + ", " + selection + ", " + Arrays.toString(selectionArgs) + ", " + sortOrder + ")");
-		MyLog.i(TAG, "[" + uri + "]");
+		MyLog.v(TAG, "query(" + uri.getPath() + ", " + Arrays.toString(projection) + ", " + selection + ", "
+		        + Arrays.toString(selectionArgs) + ", " + sortOrder + ")");
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-
+		MyLog.i(TAG, "[" + uri + "]");
 		switch (URI_MATCHER.match(uri)) {
 		case FAVS:
 			MyLog.v(TAG, "FAVS");
@@ -111,14 +93,26 @@ public class DataProvider extends ContentProvider {
 			break;
 		case FAVS_IDS:
 			MyLog.v(TAG, "FAVS_IDS");
+			qb.setTables(DataDbHelper.T_FAVS);
 			String[] ids = uri.getPathSegments().get(1).split("\\+");
 			String fkId = ids[0];
 			String fkId2 = ids[1];
-			String favType = ids[2];
-			String mSlection = DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND " + DataDbHelper.T_FAVS + "."
-			        + DataDbHelper.T_FAVS_K_FK_ID_2 + "=" + fkId2 + " AND " + DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_TYPE + "=" + favType;
+			int favType = Integer.valueOf(ids[2]);
+			String where = null;
+			if (favType == DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP) {
+				where = DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND "
+				        + DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_FK_ID_2 + "=" + fkId2 + " AND "
+				        + DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_TYPE + "=" + favType;
+			} else if (favType == DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION) {
+				where = DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND "
+				        + DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_TYPE + "=" + favType;
+			}
+			qb.appendWhere(where);
+			break;
+		case FAVS_TYPE_ID:
+			MyLog.v(TAG, "FAVS_TYPE_ID");
 			qb.setTables(DataDbHelper.T_FAVS);
-			qb.appendWhere(mSlection);
+			qb.appendWhere(DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_TYPE + "=" + uri.getPathSegments().get(1));
 			break;
 		case LIVE_FOLDER_FAVS:
 			qb.setTables(DataDbHelper.T_FAVS);
@@ -131,10 +125,11 @@ public class DataProvider extends ContentProvider {
 		case HISTORY_ID:
 			MyLog.v(TAG, "HISTORY_ID");
 			qb.setTables(DataDbHelper.T_HISTORY);
-			qb.appendWhere(DataDbHelper.T_HISTORY + "." + DataDbHelper.T_HISTORY_K_ID + "=" + uri.getPathSegments().get(1));
+			qb.appendWhere(DataDbHelper.T_HISTORY + "." + DataDbHelper.T_HISTORY_K_ID + "="
+			        + uri.getPathSegments().get(1));
 			break;
 		default:
-			throw new IllegalArgumentException("Unknown URI " + uri);
+			throw new IllegalArgumentException("Unknown URI (query) " + uri);
 		}
 
 		// If no sort order is specified use the default
@@ -144,6 +139,7 @@ public class DataProvider extends ContentProvider {
 			case FAVS:
 			case FAV_ID:
 			case FAVS_IDS:
+			case FAVS_TYPE_ID:
 			case LIVE_FOLDER_FAVS:
 				orderBy = DataStore.Fav.DEFAULT_SORT_ORDER;
 				break;
@@ -153,7 +149,7 @@ public class DataProvider extends ContentProvider {
 				orderBy = DataStore.History.DEFAULT_SORT_ORDER;
 				break;
 			default:
-				throw new IllegalArgumentException("Unknown URI " + uri);
+				throw new IllegalArgumentException("Unknown URI (order) " + uri);
 			}
 		} else {
 			orderBy = sortOrder;
@@ -175,6 +171,7 @@ public class DataProvider extends ContentProvider {
 		switch (URI_MATCHER.match(uri)) {
 		case FAVS:
 		case FAVS_IDS:
+		case FAVS_TYPE_ID:
 			return DataStore.Fav.CONTENT_TYPE;
 		case FAV_ID:
 			return DataStore.Fav.CONTENT_ITEM_TYPE;
@@ -184,7 +181,7 @@ public class DataProvider extends ContentProvider {
 		case HISTORY_ID:
 			return DataStore.History.CONTENT_ITEM_TYPE;
 		default:
-			throw new IllegalArgumentException("Unknown URI " + uri);
+			throw new IllegalArgumentException("Unknown URI (type) " + uri);
 		}
 	}
 
@@ -202,22 +199,29 @@ public class DataProvider extends ContentProvider {
 			MyLog.v(TAG, "DELETE>FAVS");
 			String fkId = selectionArgs[0];
 			String fkId2 = selectionArgs[1];
-			String favType = selectionArgs[2];
-			String whereClause = DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND " + DataDbHelper.T_FAVS_K_FK_ID_2 + "=" + fkId2 + " AND "
-			        + DataDbHelper.T_FAVS_K_TYPE + "=" + favType;
+			int favType = Integer.valueOf(selectionArgs[2]);
+			String whereClause = null;
+			if (favType == DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP) {
+				whereClause = DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND " + DataDbHelper.T_FAVS_K_FK_ID_2 + "="
+				        + fkId2 + " AND " + DataDbHelper.T_FAVS_K_TYPE + "=" + favType;
+			} else if (favType == DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION) {
+				whereClause = DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND " + DataDbHelper.T_FAVS_K_TYPE + "="
+				        + favType;
+			}
 			count = db.delete(DataDbHelper.T_FAVS, whereClause, null);
 			break;
 		case FAV_ID:
 			MyLog.v(TAG, "DELETE>FAV_ID");
 			String favId = uri.getPathSegments().get(1);
-			count = db.delete(DataDbHelper.T_FAVS, DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_ID + "=" + favId, null);
+			count = db.delete(DataDbHelper.T_FAVS, DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_ID + "=" + favId,
+			        null);
 			break;
 		case HISTORY:
 			MyLog.v(TAG, "DELETE>HISTORY");
 			count = db.delete(DataDbHelper.T_HISTORY, null, null);
 			break;
 		default:
-			throw new IllegalArgumentException("Unknown URI " + uri);
+			throw new IllegalArgumentException("Unknown URI (delete) " + uri);
 		}
 		getContext().getContentResolver().notifyChange(uri, null);
 		return count;
@@ -251,7 +255,7 @@ public class DataProvider extends ContentProvider {
 			}
 			break;
 		default:
-			throw new IllegalArgumentException("Unknown URI " + uri);
+			throw new IllegalArgumentException("Unknown URI (insert) " + uri);
 		}
 		if (insertUri == null) {
 			throw new SQLException("Failed to insert row into " + uri);

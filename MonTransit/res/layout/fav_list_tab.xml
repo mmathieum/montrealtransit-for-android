@@ -1,13 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="fill_parent">
-
-	<ListView android:id="@+id/list"
-		android:layout_width="fill_parent" android:layout_height="fill_parent" />
-
-	<TextView android:id="@+id/list_empty"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:text="@string/no_fav_message"
-		android:textAppearance="?android:attr/textAppearanceMedium" />
-
-</LinearLayout>
+	<LinearLayout
+		android:layout_width="fill_parent" android:layout_height="fill_parent"
+		android:orientation="vertical">
+		<!-- FAVORITEs BUS STOPs -->
+		<TextView android:id="@+id/fav_bus_stops"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
+			android:text="@string/bus_stops" />
+		<LinearLayout android:id="@+id/bus_stops_list"
+			android:layout_width="fill_parent" android:layout_height="fill_parent"
+			android:orientation="vertical" />
+		<!-- FAVORITEs SUBWAY STATIONs -->
+		<TextView android:id="@+id/fav_subway_stations"
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
+			android:text="@string/subway_stations" />
+		<LinearLayout android:id="@+id/subway_stations_list"
+			android:layout_width="fill_parent" android:layout_height="fill_parent"
+			android:orientation="vertical" />
+	</LinearLayout>
+</ScrollView>

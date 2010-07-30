@@ -8,33 +8,29 @@ import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.StmManager;
-import org.montrealtransit.android.provider.StmStore;
 import org.montrealtransit.android.provider.DataStore.Fav;
+import org.montrealtransit.android.provider.StmStore.BusStop;
+import org.montrealtransit.android.provider.StmStore.SubwayLine;
+import org.montrealtransit.android.provider.StmStore.SubwayStation;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
-import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.widget.AdapterView;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
-import android.widget.SimpleCursorAdapter;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.SimpleCursorAdapter.ViewBinder;
 
 /**
  * This activity list the favorite bus stops.
  * @author Mathieu Méa
  */
-public class FavListTab extends Activity implements ViewBinder, OnItemClickListener {
+public class FavListTab extends Activity {
 
 	/**
 	 * The log tag.
@@ -42,14 +38,14 @@ public class FavListTab extends Activity implements ViewBinder, OnItemClickListe
 	private static final String TAG = FavListTab.class.getSimpleName();
 
 	/**
-	 * The favorite bus stops list.
+	 * The favorite subway stations list.
 	 */
-	private List<DataStore.Fav> lastFavList;
+	private List<DataStore.Fav> lastSubwayStationFavList;
 
 	/**
-	 * The cursor used to display the bus stops.
+	 * The favorite favorite bus stops list.
 	 */
-	private Cursor cursor;
+	private List<DataStore.Fav> lastBusStopFavList;
 
 	/**
 	 * {@inheritDoc}
@@ -60,10 +56,239 @@ public class FavListTab extends Activity implements ViewBinder, OnItemClickListe
 		super.onCreate(savedInstanceState);
 		// set the UI
 		setContentView(R.layout.fav_list_tab);
-		((ListView) findViewById(R.id.list)).setEmptyView(findViewById(R.id.list_empty));
-		((ListView) findViewById(R.id.list)).setOnItemClickListener(this);
-		((ListView) findViewById(R.id.list)).setOnCreateContextMenuListener(this);
+		refreshAll();
 	}
+
+	/**
+	 * Refresh all the UI.
+	 */
+	private void refreshAll() {
+		refreshBusStops();
+		refreshSubwayStations();
+
+	}
+
+	/**
+	 * Refresh the favorite bus stops UI.
+	 */
+	private void refreshBusStops() {
+		List<DataStore.Fav> favList = DataManager.findFavsByTypeList(getContentResolver(),
+		        DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
+		if (this.lastBusStopFavList == null || this.lastBusStopFavList.size() != favList.size()) {
+			LinearLayout busStopsLayout = (LinearLayout) findViewById(R.id.bus_stops_list);
+			busStopsLayout.removeAllViews();
+			// IF there is one or more bus stops DO
+			if (favList != null && favList.size() > 0) {
+				List<BusStop> busStops = StmManager.findBusStopsExtendedList(this.getContentResolver(), Utils
+				        .extractBusStopIDsFromFavList(favList));
+				// FOR EACH bus stop DO
+				for (final BusStop busStop : busStops) {
+					// list view divider
+					if (busStopsLayout.getChildCount() > 0) {
+						busStopsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+					}
+					// create view
+					View view = getLayoutInflater().inflate(R.layout.fav_list_tab_bus_stop_item, null);
+					// bus stop code
+					((TextView) view.findViewById(R.id.stop_code)).setText(busStop.getCode());
+					// bus stop place
+					String busStopPlace = Utils.cleanBusStopPlace(busStop.getPlace());
+					((TextView) view.findViewById(R.id.label)).setText(busStopPlace);
+					// bus stop line number
+					((TextView) view.findViewById(R.id.line_number)).setText(busStop.getLineNumber());
+					// bus stop line name
+					((TextView) view.findViewById(R.id.line_name)).setText(busStop.getLineNameOrNull());
+					// bus stop line direction
+					Integer busLineDirection = Utils.getBusLineDirectionStringIdFromId(busStop.getSimpleDirectionId())
+					        .get(0);
+					((TextView) view.findViewById(R.id.line_direction)).setText(busLineDirection);
+					// add click listener
+					view.setOnClickListener(new View.OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							MyLog.v(TAG, "onClick(" + v.getId() + ")");
+							Intent intent = new Intent(FavListTab.this, BusStopInfo.class);
+							intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, busStop.getLineNumber());
+							intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, busStop.getCode());
+							startActivity(intent);
+						}
+					});
+					// add context menu
+					view.setOnLongClickListener(new View.OnLongClickListener() {
+						@Override
+						public boolean onLongClick(View v) {
+							MyLog.v(TAG, "onLongClick(" + v.getId() + ")");
+							AlertDialog.Builder builder = new AlertDialog.Builder(FavListTab.this);
+							builder.setTitle(getString(R.string.bus_stop_and_line_short, busStop.getCode(), busStop
+							        .getLineNumber()));
+							CharSequence[] items = { getString(R.string.view_bus_stop), getString(R.string.remove_fav) };
+							builder.setItems(items, new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int item) {
+									MyLog.v(TAG, "onClick(" + item + ")");
+									switch (item) {
+									case VIEW_CONTEXT_MENU_INDEX:
+										Intent intent = new Intent(FavListTab.this, BusStopInfo.class);
+										intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, busStop.getLineNumber());
+										intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, busStop.getCode());
+										startActivity(intent);
+										break;
+									case DELETE_CONTEXT_MENU_INDEX:
+										// find the favorite to delete
+										Fav findFav = DataManager.findFav(FavListTab.this.getContentResolver(),
+										        DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP, busStop.getCode(), busStop
+										                .getLineNumber());
+										// delete the favorite
+										boolean status = DataManager.deleteFav(FavListTab.this.getContentResolver(),
+										        findFav.getId());
+										MyLog.d(TAG, "delete fav: " + status);
+										// refresh the UI
+										FavListTab.this.lastBusStopFavList = null;
+										refreshBusStops();
+										break;
+									default:
+										break;
+									}
+								}
+							});
+							AlertDialog alert = builder.create();
+							alert.show();
+							return true;
+						}
+					});
+					busStopsLayout.addView(view);
+				}
+			} else {
+				// show the noFav message
+				TextView noFavTv = new TextView(this);
+				noFavTv.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+				noFavTv.setTextAppearance(this, android.R.attr.textAppearanceMedium);
+				noFavTv.setText(R.string.no_fav_bus_stop_message);
+				busStopsLayout.addView(noFavTv);
+			}
+		}
+	}
+
+	/**
+	 * Refresh the favorite subway stations UI.
+	 */
+	private void refreshSubwayStations() {
+		List<DataStore.Fav> favList = DataManager.findFavsByTypeList(getContentResolver(),
+		        DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
+		if (this.lastSubwayStationFavList == null || this.lastSubwayStationFavList.size() != favList.size()) {
+			LinearLayout subwayStationsLayout = (LinearLayout) findViewById(R.id.subway_stations_list);
+			subwayStationsLayout.removeAllViews();
+			// IF there is one or more bus stops DO
+			if (favList != null && favList.size() > 0) {
+				// FOR EACH bus stop DO
+				for (Fav fav : favList) {
+					final SubwayStation station = StmManager.findSubwayStation(getContentResolver(), fav.getFkId());
+					if (station != null) {
+						List<SubwayLine> otherLinesId = StmManager.findSubwayStationLinesList(getContentResolver(),
+						        station.getId());
+						// list view divider
+						if (subwayStationsLayout.getChildCount() > 0) {
+							subwayStationsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+						}
+						// create view
+						View view = getLayoutInflater().inflate(R.layout.fav_list_tab_subway_station_item, null);
+						// subway station name
+						((TextView) view.findViewById(R.id.station_name)).setText(station.getName());
+						// station lines color
+						if (otherLinesId != null && otherLinesId.size() > 0) {
+							int subwayLineImg1 = Utils.getSubwayLineImg(otherLinesId.get(0).getNumber());
+							((ImageView) view.findViewById(R.id.subway_img_1)).setImageResource(subwayLineImg1);
+							if (otherLinesId.size() > 1) {
+								int subwayLineImg2 = Utils.getSubwayLineImg(otherLinesId.get(1).getNumber());
+								((ImageView) view.findViewById(R.id.subway_img_2)).setImageResource(subwayLineImg2);
+								if (otherLinesId.size() > 2) {
+									int subwayLineImg3 = Utils.getSubwayLineImg(otherLinesId.get(2).getNumber());
+									((ImageView) view.findViewById(R.id.subway_img_3)).setImageResource(subwayLineImg3);
+								} else {
+									((ImageView) view.findViewById(R.id.subway_img_3)).setVisibility(View.GONE);
+								}
+							} else {
+								((ImageView) view.findViewById(R.id.subway_img_2)).setVisibility(View.GONE);
+								((ImageView) view.findViewById(R.id.subway_img_3)).setVisibility(View.GONE);
+							}
+						} else {
+							((ImageView) view.findViewById(R.id.subway_img_1)).setVisibility(View.GONE);
+							((ImageView) view.findViewById(R.id.subway_img_2)).setVisibility(View.GONE);
+							((ImageView) view.findViewById(R.id.subway_img_3)).setVisibility(View.GONE);
+						}
+						// add click listener
+						view.setOnClickListener(new View.OnClickListener() {
+							@Override
+							public void onClick(View v) {
+								MyLog.v(TAG, "onClick(" + v.getId() + ")");
+								Intent intent = new Intent(FavListTab.this, SubwayStationInfo.class);
+								intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, station.getId());
+								startActivity(intent);
+							}
+						});
+						// add context menu
+						view.setOnLongClickListener(new View.OnLongClickListener() {
+							@Override
+							public boolean onLongClick(View v) {
+								MyLog.v(TAG, "onLongClick(" + v.getId() + ")");
+								AlertDialog.Builder builder = new AlertDialog.Builder(FavListTab.this);
+								builder.setTitle(getString(R.string.subway_station_with_name_short, station.getName()));
+								CharSequence[] items = { getString(R.string.view_subway_station),
+								        getString(R.string.remove_fav) };
+								builder.setItems(items, new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog, int item) {
+										MyLog.v(TAG, "onClick(" + item + ")");
+										switch (item) {
+										case VIEW_CONTEXT_MENU_INDEX:
+											Intent intent = new Intent(FavListTab.this, SubwayStationInfo.class);
+											intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, station.getId());
+											startActivity(intent);
+											break;
+										case DELETE_CONTEXT_MENU_INDEX:
+											// find the favorite to delete
+											Fav findFav = DataManager.findFav(FavListTab.this.getContentResolver(),
+											        DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION, station.getId(), null);
+											// delete the favorite
+											boolean status = DataManager.deleteFav(
+											        FavListTab.this.getContentResolver(), findFav.getId());
+											MyLog.d(TAG, "delete fav: " + status);
+											// refresh the UI
+											FavListTab.this.lastSubwayStationFavList = null;
+											refreshSubwayStations();
+											break;
+										default:
+											break;
+										}
+									}
+								});
+								AlertDialog alert = builder.create();
+								alert.show();
+								return true;
+							}
+						});
+						subwayStationsLayout.addView(view);
+					} else {
+						MyLog.w(TAG, "Can't find the favorite subway station (ID:" + fav.getFkId() + ")");
+					}
+				}
+			} else {
+				// show the noFav message
+				TextView noFavTv = new TextView(this);
+				noFavTv.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+				noFavTv.setTextAppearance(this, android.R.attr.textAppearanceMedium);
+				noFavTv.setText(R.string.no_fav_subway_station_message);
+				subwayStationsLayout.addView(noFavTv);
+			}
+		}
+	}
+
+	/**
+	 * Context menu to view the favorite.
+	 */
+	private static final int VIEW_CONTEXT_MENU_INDEX = 0;
+	/**
+	 * Context menu to delete the favorite.
+	 */
+	private static final int DELETE_CONTEXT_MENU_INDEX = 1;
 
 	/**
 	 * {@inheritDoc}
@@ -72,119 +297,7 @@ public class FavListTab extends Activity implements ViewBinder, OnItemClickListe
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
 		super.onResume();
-		refreshDataIfNecessary();
-	}
-
-	/**
-	 * Refresh the data If the favorite list have change.
-	 */
-	private void refreshDataIfNecessary() {
-		// check if favorite list have changed.
-		// TODO check more than the size
-		if (this.lastFavList == null
-		        || this.lastFavList.size() != Utils.getCursorSize(DataManager.findAllFavs(this.getContentResolver()))) {
-			// update the list
-			forceRefresh();
-		}
-	}
-
-	/**
-	 * Return the favorite bus stops adapter.
-	 * @param favList the favorite elements
-	 * @return the favorite bus stops.
-	 */
-	private ListAdapter getAdapter(List<DataStore.Fav> favList) {
-		MyLog.v(TAG, "getAdapter(" + Utils.getListSize(favList) + ")");
-		if (Utils.getListSize(favList) > 0) {
-			this.cursor = StmManager.findBusStopsExtended(this.getContentResolver(), Utils
-			        .extractBusStopIDsFromFavList(favList));
-			String[] from = new String[] { StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE,
-			        StmStore.BusStop.STOP_LINE_NUMBER, StmStore.BusStop.LINE_NAME,
-			        StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID };
-			int[] to = new int[] { R.id.stop_code, R.id.label, R.id.line_number, R.id.line_name, R.id.line_direction };
-			SimpleCursorAdapter busStops = new SimpleCursorAdapter(this, R.layout.fav_list_tab_bus_stop_item,
-			        this.cursor, from, to);
-			busStops.setViewBinder(this);
-			startManagingCursor(cursor);
-			return busStops;
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-		if (view.getId() == R.id.line_direction
-		        && columnIndex == cursor.getColumnIndex(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID)) {
-			String simpleDirectionId = cursor.getString(cursor
-			        .getColumnIndex(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID));
-			((TextView) view).setText(Utils.getBusLineDirectionStringIdFromId(simpleDirectionId).get(0));
-			return true;
-		} else if (view.getId() == R.id.label && columnIndex == cursor.getColumnIndex(StmStore.BusStop.STOP_PLACE)) {
-			String busStopPlace = cursor.getString(cursor.getColumnIndex(StmStore.BusStop.STOP_PLACE));
-			((TextView) view).setText(Utils.cleanBusStopPlace(busStopPlace));
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * The line number index in the the view.
-	 */
-	private static final int LINE_NUMBER_VIEW_INDEX = 1;
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-		MyLog.v(TAG, "onItemClick(" + v.getId() + "," + v.getId() + "," + position + "," + id + ")");
-		if (id > 0) {
-			Intent intent = new Intent(this, BusStopInfo.class);
-			TextView lineNumberTextView = (TextView) ((RelativeLayout) v).getChildAt(LINE_NUMBER_VIEW_INDEX);
-			intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, lineNumberTextView.getText().toString());
-			intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, String.valueOf(id));
-			startActivity(intent);
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		MyLog.v(TAG, "onCreateContextMenu(" + v.getId() + ")");
-		menu.setHeaderTitle(R.string.favorite); // TODO add favorite info in the title
-		menu.add(Menu.NONE, 0, Menu.NONE, R.string.remove_fav);
-		// TODO see bus line / directions ? / open in m.stm.info
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
-		// the stop code
-		String stopCode = String.valueOf(menuInfo.id);
-		// find the selected favorite layout
-		RelativeLayout selectedFavoriteLayout = (RelativeLayout) ((ListView) findViewById(R.id.list))
-		        .getChildAt(menuInfo.position);
-		// find the line number text view
-		TextView lineNumberTextView = (TextView) selectedFavoriteLayout.getChildAt(LINE_NUMBER_VIEW_INDEX);
-		// find the line number
-		String lineNumber = lineNumberTextView.getText().toString();
-		// find the favorite to delete
-		Fav findFav = DataManager.findFav(this.getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP, stopCode,
-		        lineNumber);
-		// delete the favorite
-		DataManager.deleteFav(this.getContentResolver(), findFav.getId());
-		// refresh the UI
-		forceRefresh();
-		return super.onContextItemSelected(item);
+		refreshAll();
 	}
 
 	/**
@@ -225,25 +338,5 @@ public class FavListTab extends Activity implements ViewBinder, OnItemClickListe
 			break;
 		}
 		return true;
-	}
-
-	/**
-	 * Force the refresh of the favorite bus stops list.
-	 */
-	private void forceRefresh() {
-		this.lastFavList = DataManager.findAllFavsList(this.getContentResolver());
-		((ListView) findViewById(R.id.list)).setAdapter(getAdapter(this.lastFavList));
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void onDestroy() {
-		MyLog.v(TAG, "onDestroy()");
-		if (this.cursor != null && !this.cursor.isClosed()) {
-			this.cursor.close();
-		}
-		super.onDestroy();
 	}
 }
