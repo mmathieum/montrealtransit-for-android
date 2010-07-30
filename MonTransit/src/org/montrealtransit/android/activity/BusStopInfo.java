@@ -16,6 +16,7 @@ import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
+import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.StmStore.BusLine;
 import org.montrealtransit.android.provider.StmStore.BusLineDirection;
 import org.montrealtransit.android.provider.StmStore.SubwayLine;
@@ -385,8 +386,9 @@ public class BusStopInfo extends Activity implements NextStopListener, View.OnCl
 	 */
 	private void setTheStar() {
 		MyLog.v(TAG, "setTheStar()");
-		((CheckBox) findViewById(R.id.star)).setChecked(DataManager.findFav(this.getContentResolver(),
-		        DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP, this.busStop.getCode(), this.busStop.getLineNumber()) != null);
+		Fav fav = DataManager.findFav(this.getContentResolver(),
+		        DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP, this.busStop.getCode(), this.busStop.getLineNumber());
+		((CheckBox) findViewById(R.id.star)).setChecked(fav != null);
 	}
 
 	/**
