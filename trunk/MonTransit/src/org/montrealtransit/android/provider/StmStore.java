@@ -462,6 +462,7 @@ public class StmStore {
 		}
 
 		/**
+		 * Use {@link Utils#cleanBusStopPlace(String)} if possible.
 		 * @return the bus stop place
 		 */
 		public String getPlace() {
