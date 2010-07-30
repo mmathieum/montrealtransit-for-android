@@ -10,8 +10,11 @@ import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.dialog.NoRadarInstalled;
 import org.montrealtransit.android.dialog.SubwayStationSelectBusLineStop;
+import org.montrealtransit.android.provider.DataManager;
+import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
+import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.StmStore.SubwayLine;
 import org.montrealtransit.android.provider.StmStore.SubwayStation;
 
@@ -26,6 +29,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -66,9 +70,6 @@ public class SubwayStationInfo extends Activity implements OnClickListener, Loca
 		super.onCreate(savedInstanceState);
 		// set the UI
 		setContentView(R.layout.subway_station_info);
-		((ImageView) findViewById(R.id.subway_line_1)).setOnClickListener(this);
-		((ImageView) findViewById(R.id.subway_line_2)).setOnClickListener(this);
-		((ImageView) findViewById(R.id.subway_line_3)).setOnClickListener(this);
 		// show the subway station
 		showNewSubwayStation(Utils.getSavedStringValue(this.getIntent(), savedInstanceState, EXTRA_STATION_ID));
 	}
@@ -217,23 +218,57 @@ public class SubwayStationInfo extends Activity implements OnClickListener, Loca
 		MyLog.v(TAG, "refreshSubwayStationInfo()");
 		// subway station name
 		((TextView) findViewById(R.id.station_name)).setText(this.subwayStation.getName());
+		// set the favorite icon
+		((CheckBox) findViewById(R.id.star)).setOnClickListener(this);
 		// subway lines colors
 		if (this.subwayLines.size() > 0) {
 			((ImageView) findViewById(R.id.subway_line_1)).setVisibility(View.VISIBLE);
 			int subwayLineImg = Utils.getSubwayLineImg(this.subwayLines.get(0).getNumber());
 			((ImageView) findViewById(R.id.subway_line_1)).setImageResource(subwayLineImg);
+			((ImageView) findViewById(R.id.subway_line_1)).setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					MyLog.v(TAG, "onClick(" + v.getId() + ")");
+					Intent intent = new Intent(SubwayStationInfo.this, SubwayLineInfo.class);
+					String subwayLineNumber = String.valueOf(SubwayStationInfo.this.subwayLines.get(0).getNumber());
+					intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumber);
+					startActivity(intent);
+				}
+			});
 			if (this.subwayLines.size() > 1) {
 				((ImageView) findViewById(R.id.subway_line_2)).setVisibility(View.VISIBLE);
 				int subwayLineImg2 = Utils.getSubwayLineImg(this.subwayLines.get(1).getNumber());
 				((ImageView) findViewById(R.id.subway_line_2)).setImageResource(subwayLineImg2);
+				((ImageView) findViewById(R.id.subway_line_2)).setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						MyLog.v(TAG, "onClick(" + v.getId() + ")");
+						Intent intent = new Intent(SubwayStationInfo.this, SubwayLineInfo.class);
+						String subwayLineNumber = String.valueOf(SubwayStationInfo.this.subwayLines.get(1).getNumber());
+						intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumber);
+						startActivity(intent);
+					}
+				});
 				if (this.subwayLines.size() > 2) {
 					((ImageView) findViewById(R.id.subway_line_3)).setVisibility(View.VISIBLE);
 					int subwayLineImg3 = Utils.getSubwayLineImg(this.subwayLines.get(2).getNumber());
 					((ImageView) findViewById(R.id.subway_line_3)).setImageResource(subwayLineImg3);
+					((ImageView) findViewById(R.id.subway_line_3)).setOnClickListener(new OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							MyLog.v(TAG, "onClick(" + v.getId() + ")");
+							Intent intent = new Intent(SubwayStationInfo.this, SubwayLineInfo.class);
+							int lineNumber = SubwayStationInfo.this.subwayLines.get(2).getNumber();
+							String subwayLineNumber = String.valueOf(lineNumber);
+							intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumber);
+							startActivity(intent);
+						}
+					});
 				}
 			}
 		}
-		// TODO bus line colors ?
+		// set the favorite star
+		setTheStar();
 	}
 
 	/**
@@ -329,14 +364,46 @@ public class SubwayStationInfo extends Activity implements OnClickListener, Loca
 	@Override
 	public void onClick(View v) {
 		MyLog.v(TAG, "onClick(" + v.getId() + ")");
-		if (this.subwayLines.size() == 1) {
-			Intent intent = new Intent(this, SubwayLineInfo.class);
-			String subwayLineNumber = String.valueOf(this.subwayLines.get(0).getNumber());
-			intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumber);
-			startActivity(intent);
-		} else {
-			// TODO show subway lines selector?
+		switch (v.getId()) {
+		case R.id.star:
+			// manage favorite star click
+			DataStore.Fav fav = DataManager.findFav(this.getContentResolver(),
+			        DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION, this.subwayStation.getId(), null);
+			// IF the station is already a favorite DO
+			if (fav != null) {
+				// delete the favorite
+				DataManager.deleteFav(this.getContentResolver(), fav.getId());
+				Utils.notifyTheUser(this, getResources().getString(R.string.favorite_removed));
+			} else {
+				// add the favorite
+				DataStore.Fav newFav = new DataStore.Fav();
+				newFav.setType(DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
+				newFav.setFkId(this.subwayStation.getId());
+				newFav.setFkId2(null);
+				DataManager.addFav(this.getContentResolver(), newFav);
+				Utils.notifyTheUser(this, getResources().getString(R.string.favorite_added));
+			}
+			setTheStar(); // TODO is remove useless?
+			break;
+		default:
+			MyLog.d(TAG, "Unknown view ID " + v.getId() + " (" + v.getClass().getSimpleName() + ")");
+			break;
 		}
+	}
+
+	/**
+	 * Set the favorite star (UI).
+	 */
+	private void setTheStar() {
+		MyLog.v(TAG, "setTheStar()");
+		Fav fav = DataManager.findFav(this.getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION,
+		        this.subwayStation.getId(), null);
+		if (fav == null) {
+			MyLog.d(TAG, "fav:NULL");
+		} else {
+			MyLog.d(TAG, "fav:NOT NULL " + fav.getFkId() + ".");
+		}
+		((CheckBox) findViewById(R.id.star)).setChecked(fav != null);
 	}
 
 	/**

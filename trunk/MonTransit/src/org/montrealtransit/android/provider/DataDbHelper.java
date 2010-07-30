@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * This database helper is used to access the user data.
- * @author Mathieu Méa
+ * @author Mathieu Mï¿½a
  */
 public class DataDbHelper extends SQLiteOpenHelper {
 
@@ -58,6 +58,10 @@ public class DataDbHelper extends SQLiteOpenHelper {
 	 * The favorite type value for bus stops.
 	 */
 	public static final int KEY_TYPE_VALUE_BUS_STOP = 1;
+	/**
+	 * The favorite type value for bus stops.
+	 */
+	public static final int KEY_TYPE_VALUE_SUBWAY_STATION = 2;
 
 	/**
 	 * The history table.

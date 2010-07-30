@@ -7,7 +7,7 @@ import android.provider.BaseColumns;
 
 /**
  * The data store contains information about the objects from the {@link DataProvider}.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class DataStore {
 
@@ -19,13 +19,17 @@ public class DataStore {
 
 	/**
 	 * This class represent a favorite entry.
-	 * @author Mathieu Méa
+	 * @author Mathieu MÃ©a
 	 */
 	public static class Fav implements BaseColumns, FavColumns {
 		/**
 		 * The content URI for favorite.
 		 */
 		public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/favs");
+		/**
+		 * Content URI for favorite type.
+		 */
+		public static final String URI_TYPE = "type";
 		/**
 		 * The content URI for favorite in the live folder.
 		 */
@@ -46,6 +50,10 @@ public class DataStore {
 		 * The favorite type value for bus stops.
 		 */
 		public static final int KEY_TYPE_VALUE_BUS_STOP = DataDbHelper.KEY_TYPE_VALUE_BUS_STOP;
+		/**
+		 * The favorite type value for subway stations.
+		 */
+		public static final int KEY_TYPE_VALUE_SUBWAY_STATION = DataDbHelper.KEY_TYPE_VALUE_SUBWAY_STATION;
 		/**
 		 * The favorite ID.
 		 */
@@ -146,7 +154,7 @@ public class DataStore {
 
 	/**
 	 * The column associated with a favorite entries.
-	 * @author Mathieu Méa
+	 * @author Mathieu MÃ©a
 	 */
 	public interface FavColumns {
 		// TODO release this columns from their link to the real DB column name. Should use projection.
@@ -158,7 +166,7 @@ public class DataStore {
 
 	/**
 	 * This class represent an history entry.
-	 * @author Mathieu Méa
+	 * @author Mathieu MÃ©a
 	 */
 	public static class History implements BaseColumns, HistoryColumns {
 		/**
@@ -230,7 +238,7 @@ public class DataStore {
 
 	/**
 	 * The history columns
-	 * @author Mathieu Méa
+	 * @author Mathieu MÃ©a
 	 */
 	public interface HistoryColumns {
 		// TODO release this columns from their link to the real DB column name. Should use projection.

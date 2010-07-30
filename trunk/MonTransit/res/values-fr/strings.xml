@@ -45,11 +45,17 @@
 	<string name="next_bus_stops">Prochains passages</string>
 	<string name="other_bus_line">Autre(s) Ligne(s) de Bus</string>
 	<string name="subway_station">Station de Métro</string>
+	<string name="subway_station_short">Station</string>
+	<string name="subway_station_with_name_short">Station %1$s</string>
 	<string name="subway_stations">Stations de Métro</string>
+	<string name="subway_stations_short">Stations</string>
 	<string name="closest_subway_stations">Stations les plus proches</string>
 	<string name="reload_closest_stations">Recharger les stations les plus proches</string>
 	<string name="bus_stops">Arrêts de bus</string>
-	<string name="bus_stops_short">arrêts</string>
+	<string name="bus_stops_short">Arrêts</string>
+	<string name="bus_stop">Arrêt de bus</string>
+	<string name="bus_stop_short">Arrêt</string>
+	<string name="bus_stop_and_line_short">Arrêt %1$s (Ligne %2$s)</string>
     
     <string name="display_pref_cat_title">Préférences d\'affichage</string>
     <string name="data_pref_cat_title">Source de données</string>
@@ -142,9 +148,14 @@
 	<string name="no_more_stops">Service terminé.</string>
 	<string name="no_more_stops_for_this_bus_line">Service terminé pour la ligne de bus</string>
     
-    <string name="remove_fav">Supprimer le favori.</string>
+    <string name="view_bus_stop">Afficher l\'arrêt</string>
+	<string name="view_subway_station">Afficher la station</string>
+    <string name="view_fav">Afficher le favori</string>
+    <string name="remove_fav">Supprimer des favoris</string>
     <string name="no_fav">Pas de favoris.</string>
     <string name="no_fav_message">Aucun favori.\nPour ajouter un arrêt de bus favori, parcourez les différentes lignes de bus ou chercher l\'arrêt à partir de son code d\'arrêt. Ensuite, cliquez l\'étoile pour ajouter le favori.</string>
+    <string name="no_fav_bus_stop_message">Aucun arrêt de bus favori.\nPour ajouter un arrêt de bus favori, parcourez les différentes lignes de bus ou chercher l\'arrêt de bus à partir de son code. Ensuite, cliquez l\'étoile pour ajouter le favori.</string>
+    <string name="no_fav_subway_station_message">Aucune station de métro favorite.\nPour ajouter une station de métro favorite, parcourez les différentes lignes métro. Ensuite, cliquez l\'étoile pour ajouter le favori.</string>
     <string name="favorite_removed">Favori supprimé.</string>
     <string name="favorite_added">Favori ajouté.</string>
     

@@ -8,12 +8,12 @@ import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.DataStore.History;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.database.Cursor;
 import android.net.Uri;
 
 /**
- * This manager provide methods to access the user data.
- * This class query the content provider {@link DataProvider}
+ * This manager provide methods to access the user data. This class query the content provider {@link DataProvider}
  * @author Mathieu Méa
  */
 public class DataManager {
@@ -30,7 +30,8 @@ public class DataManager {
 	 * @return true if one (or more) favorite have been deleted.
 	 */
 	public static boolean deleteFav(ContentResolver contentResolver, int favId) {
-		int count = contentResolver.delete(Uri.withAppendedPath(DataStore.Fav.CONTENT_URI, String.valueOf(favId)), null, null);
+		int count = contentResolver.delete(Uri.withAppendedPath(DataStore.Fav.CONTENT_URI, String.valueOf(favId)),
+		        null, null);
 		return count > 0;
 	}
 
@@ -48,7 +49,8 @@ public class DataManager {
 	/**
 	 * Represents the fields the content provider will return for a favorite entry.
 	 */
-	private static final String[] PROJECTION_FAVS = new String[] { DataStore.Fav._ID, DataStore.Fav.FAV_FK_ID, DataStore.Fav.FAV_FK_ID2, DataStore.Fav.FAV_TYPE };
+	private static final String[] PROJECTION_FAVS = new String[] { DataStore.Fav._ID, DataStore.Fav.FAV_FK_ID,
+	        DataStore.Fav.FAV_FK_ID2, DataStore.Fav.FAV_TYPE };
 
 	/**
 	 * Represents the fields the content provider will return for an history entry.
@@ -171,16 +173,16 @@ public class DataManager {
 	 * @param contentResolver the content resolver
 	 * @param type the favorite entry type
 	 * @param fkId the favorite entry FK ID
-	 * @param fkId2 the favorite FK_ID
+	 * @param fkId2 the favorite FK_ID2 or <b>NULL</b> if N/A
 	 * @return the favorite entry matching the parameter.
 	 */
 	public static DataStore.Fav findFav(ContentResolver contentResolver, int type, String fkId, String fkId2) {
+		MyLog.v(TAG, "findFav(" + type + ", " + fkId + ", " + fkId2 + ")");
 		DataStore.Fav fav = null;
 		Cursor cursor = null;
 		try {
-			cursor = contentResolver.query(Uri.withAppendedPath(DataStore.Fav.CONTENT_URI, fkId + "+" + fkId2 + "+" + type), // FavsStore.Fav.CONTENT_URI
-			        null, null, null, /* new String[]{fkId, fkId2, String.valueOf(type)} */
-			        null);
+			Uri uri = Uri.withAppendedPath(DataStore.Fav.CONTENT_URI, fkId + "+" + fkId2 + "+" + type);
+			cursor = contentResolver.query(uri, null, null, null, null);
 			if (cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					fav = DataStore.Fav.fromCursor(cursor);
@@ -191,6 +193,37 @@ public class DataManager {
 				cursor.close();
 		}
 		return fav;
+	}
+
+	/**
+	 * Find the favorite for given favorite type.
+	 * @param contentResolver the content resolver
+	 * @param type the favorite type
+	 * @return the favorites
+	 */
+	public static List<DataStore.Fav> findFavsByTypeList(ContentResolver contentResolver, int type) {
+		MyLog.v(TAG, "findFavsByTypeList(" + type + ")");
+		List<DataStore.Fav> result = null;
+		Cursor cursor = null;
+		try {
+			Uri favTypeUri = ContentUris.withAppendedId(DataStore.Fav.CONTENT_URI, type);
+			Uri uri = Uri.withAppendedPath(favTypeUri, DataStore.Fav.URI_TYPE);
+
+			cursor = contentResolver.query(uri, PROJECTION_FAVS, null, null, null);
+			if (cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
+					result = new ArrayList<DataStore.Fav>();
+					do {
+						result.add(DataStore.Fav.fromCursor(cursor));
+					} while (cursor.moveToNext());
+				}
+			}
+		} finally {
+			if (cursor != null)
+				cursor.close();
+		}
+		return result;
+
 	}
 
 	/**
