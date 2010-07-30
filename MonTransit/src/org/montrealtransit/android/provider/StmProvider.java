@@ -77,10 +77,6 @@ public class StmProvider extends ContentProvider {
 	private static final int SUBWAY_STATIONS_AND_LINES = 38;
 
 	/**
-	 * The URI marcher.
-	 */
-	private static final UriMatcher URI_MATCHER;
-	/**
 	 * Projection for subway station.
 	 */
 	private static final HashMap<String, String> sSubwayStationsProjectionMap;
@@ -129,6 +125,10 @@ public class StmProvider extends ContentProvider {
 	 */
 	private static final HashMap<String, String> sSubwayStationHourProjectionMap;
 
+	/**
+	 * The URI marcher.
+	 */
+	private static final UriMatcher URI_MATCHER;
 	static {
 		URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 		URI_MATCHER.addURI(AUTHORITY, "buslines", BUS_LINES);
