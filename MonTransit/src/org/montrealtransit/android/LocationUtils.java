@@ -47,7 +47,7 @@ public class LocationUtils {
 	 * @param activity the activity
 	 * @return the providers matching the application requirement
 	 */
-	private static List<String> getProviders(Activity activity) {
+	public static List<String> getProviders(Activity activity) {
 		Criteria criteria = new Criteria();
 		// criteria.setAccuracy(Criteria.ACCURACY_FINE); any accuracy
 		criteria.setAltitudeRequired(false); // no altitude
