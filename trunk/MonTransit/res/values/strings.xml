@@ -56,6 +56,8 @@
 	<string name="bus_stop">Bus stop</string>
 	<string name="bus_stop_short">Stop</string>
 	<string name="bus_stop_and_line_short">Stop %1$s (Line %2$s)</string>
+	<string name="waiting_for_location_fix">Waiting for location...</string>
+	<string name="no_location_provider_available">No location provider available.\nYou need to enable location by wireless network or GPS satellites in your phone settings.</string>
 	
 	<string name="display_pref_cat_title">Display preferences</string>
 	<string name="data_pref_cat_title">Data source</string>
@@ -203,9 +205,9 @@
 
     <string name="viewBusStopInfo">View Bus Stop</string>
     
-    <string name="favorite_live_folder_name">Favorites</string>
-    <string name="favorite_live_folder_name_in_the_menu">MonTransit favorites</string>
-    <string name="favorite_live_folder_need_to_add_fav">You need to add favorites before using this live folder.</string>
+    <string name="favorite_bus_stop_live_folder_name">Favorites bus stops</string>
+    <string name="favorite_bus_stop_live_folder_name_in_the_menu">MonTransit favorites bus stops</string>
+    <string name="favorite_bus_stop_live_folder_need_to_add_fav">You need to add favorites bus stop before using this live folder.</string>
 
     <string name="update_stm_db_ok">Data (bus, subway) updated.</string>
     <string name="update_stm_db_error">Error while updating the data (bus, subway).</string>

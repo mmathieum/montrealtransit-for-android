@@ -56,6 +56,8 @@
 	<string name="bus_stop">Arrêt de bus</string>
 	<string name="bus_stop_short">Arrêt</string>
 	<string name="bus_stop_and_line_short">Arrêt %1$s (Ligne %2$s)</string>
+	<string name="waiting_for_location_fix">En attente d\'informations de localisation ...</string>
+	<string name="no_location_provider_available">Aucune information de localisation n\'est disponible.\nVous devez activer la localisation par réseaux sans fil et/ou satellites GPS dans les paramètres du téléphone.</string>
     
     <string name="display_pref_cat_title">Préférences d\'affichage</string>
     <string name="data_pref_cat_title">Source de données</string>
@@ -203,9 +205,9 @@
 
     <string name="viewBusStopInfo">Voir l\'arrêt de bus</string>
     
-    <string name="favorite_live_folder_name">Favoris</string>
-    <string name="favorite_live_folder_name_in_the_menu">Favoris MonTransit</string>
-    <string name="favorite_live_folder_need_to_add_fav">Vous devez ajouter des favoris avant d\'utiliser ce dossier actif.</string>
+    <string name="favorite_bus_stop_live_folder_name">Arrêts de bus favoris</string>
+    <string name="favorite_bus_stop_live_folder_name_in_the_menu">Arrêt de bus favoris MonTransit</string>
+    <string name="favorite_bus_stop_live_folder_need_to_add_fav">Vous devez ajouter des arrêts de bus favoris avant d\'utiliser ce dossier actif.</string>
 
     <string name="update_stm_db_ok">Données (autobus, métro) mises à jour.</string>
     <string name="update_stm_db_error">Erreur pendant la mise à jour des données (autobus, métro).</string>
