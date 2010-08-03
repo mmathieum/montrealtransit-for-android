@@ -66,7 +66,8 @@
 		</activity>
 		<!-- LIVE FOLDER -->
 		<activity android:name=".activity.FavListLiveFolder"
-			android:label="@string/favorite_live_folder_name_in_the_menu">
+			android:label="@string/favorite_bus_stop_live_folder_name_in_the_menu"
+			android:icon="@drawable/ic_launcher_folder_live_favorites">
 			<intent-filter>
 				<action android:name="android.intent.action.CREATE_LIVE_FOLDER" />
 				<category android:name="android.intent.category.DEFAULT" />
