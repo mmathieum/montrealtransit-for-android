@@ -3,6 +3,13 @@
 
 = !ChangeLog =
 
+ * 1.2 (r271)
+  * add closest subway stations
+  * add favorite subway stations
+  * improve location based services
+  * fix a minor issue with the main screen
+  * fix a bug in bus lines list tab related to the settings menu r260
+
  * 1.1.1 (r252)
   * fix an error in the subway views happening only on Saturday and Sunday r251
 
