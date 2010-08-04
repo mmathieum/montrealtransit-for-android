@@ -18,6 +18,7 @@
 || June 2010 || Bell / Virgin Mobile || http://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Legend ([http://en.wikipedia.org/wiki/HTC_Legend wikipedia]) || 2.1 || 2.2? || HTC Sense UI ||
 || July 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/6/67/Sony_Ericsson_logo.svg/77px-Sony_Ericsson_logo.svg.png || Xperia X10 mini ([http://en.wikipedia.org/wiki/Sony_Ericsson_Xperia_X10_Mini wikipedia]) || 1.6 || 2.1? || SE custom UI ||
 || August 2010 || Wind Mobile || Huawei || U8100 || 2.1 || ? || ||
+|| August 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Flipout || 2.1 || ? || MOTOBLUR UI ||
 
 = Upcoming Android devices: =
 || *Release Date* || *Carrier* || *Manufacturer* || *Name* || *Android Version* || *Upcoming update* || *Notes* ||
@@ -25,7 +26,6 @@
 || 2010 || Rogers || Sony Ericsson|| Xperia X10 Mini Pro || ? || ? || SE custom UI ||
 || 2010 || TELUS || HTC || Triumph (Desire) || 2.1 || ? || HTC Sense UI ||
 || 2010 || Bell || Samsung || Galaxy S || 2.1 || 2.2? || Samsung UI ||
-|| 2010 || Rogers || Motorola || Flipout || 2.1 || ? || ||
 || ? || X || `*` || `*` || 2.1 || 2.2? || Google TV ||
 
 _Cette page est également disponible [http://code.google.com/p/montrealtransit-for-android/wiki/SupportedDevices?wl=fr en français] mais votre navigateur est configuré pour afficher la version en anglais._
