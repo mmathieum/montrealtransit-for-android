@@ -15,15 +15,17 @@
 || mai 2010 || http://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Bell_logo.svg/77px-Bell_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Dext ([http://en.wikipedia.org/wiki/Motorola_CLIQ wikipédia anglais]) || 1.5 || ? || Interface MOTOBLUR ||
 || mai 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Quench ([http://en.wikipedia.org/wiki/Motorola_CLIQ_XT wikipédia anglais]) || 1.5 || ? || Interface MOTOBLUR ||
 || juin 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Acer_Logo.svg/77px-Acer_Logo.svg.png || Liquid E ([http://fr.wikipedia.org/wiki/Acer_Liquid wikipédia]) || 2.1 || ? || ||
+|| juin 2010 || Bell / Virgin Mobile || http://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Legend ([http://fr.wikipedia.org/wiki/HTC_Legend wikipédia]) || 2.1 || 2.2? || Interface HTC Sense UI ||
 || juillet 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/6/67/Sony_Ericsson_logo.svg/77px-Sony_Ericsson_logo.svg.png || Xperia X10 mini ([http://en.wikipedia.org/wiki/Sony_Ericsson_Xperia_X10_Mini wikipédia anglais]) || 1.6 || 2.1? || Interface Sony Ericsson ||
+|| août 2010 || Wind Mobile || Huawei || U8100 || 2.1 || ? || ||
+|| août 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Flipout || 2.1 || ? || Interface MOTOBLUR ||
 
 = Appareils Android à  venir : =
 || *Date de sortie* || *Opérateur* || *Constructeur* || *Modèle* || *Version Android* || *Prochaine mise à  jour* || *Notes* ||
-|| 2010 || Rogers || Acer || Liquid E || 2.1? || ? || ||
 || 2010 || Rogers || LG || GT540 || 2.x? || ? || ||
 || 2010 || Rogers || Sony Ericsson|| Xperia X10 Mini Pro || ? || ? || Interface Sony Ericsson||
 || 2010 || TELUS || HTC || Triumph (Desire) || 2.1 || ? || Interface HTC Sense ||
-|| 2010 || Bell || HTC || Legend || 2.1 || ? || Interface HTC Sense ||
+|| 2010 || Bell || Samsung || Galaxy S || 2.1 || 2.2? || Interface Samsung ||
 || ? || X || `*` || `*` || 2.1 || 2.2? || Google TV ||
 
 _This page is also available [http://code.google.com/p/montrealtransit-for-android/wiki/SupportedDevices?wl=en in English], but your browser is configured to display the French version._
