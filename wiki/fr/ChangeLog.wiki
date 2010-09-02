@@ -3,6 +3,9 @@
 
 = !ChangeLog =
 
+ * 1.2.5 (r287)
+  * ajout de la compatibilité avec les appareils LDPI
+
  * 1.2 (r271)
   * ajout des stations de métro les plus proche
   * ajout des stations de métro favoites

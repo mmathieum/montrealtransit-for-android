@@ -3,6 +3,9 @@
 
 = !ChangeLog =
 
+ * 1.2.5 (r287)
+  * add LDPI devices compatibility
+
  * 1.2 (r271)
   * add closest subway stations
   * add favorite subway stations
