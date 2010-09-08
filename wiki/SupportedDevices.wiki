@@ -23,11 +23,11 @@
 || August 2010 || http://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Bell_logo.svg/77px-Bell_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/77px-Samsung_Logo.svg.png || Galaxy S ([http://en.wikipedia.org/wiki/Samsung_i9000_Galaxy_S wikipedia]) || 2.1 || 2.2? || Samsung UI ||
 || August 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Charm ([http://en.wikipedia.org/wiki/Motorola_Charm wikipedia]) || 2.1 || ? || MOTOBLUR UI ||
 || August 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/5/54/LG_Logo.svg/77px-LG_Logo.svg.png || Loop (GT540) ([http://en.wikipedia.org/wiki/LG_GT540 wikipedia]) || 1.6 || ? || LG UI ||
+|| September 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/5/54/LG_Logo.svg/77px-LG_Logo.svg.png || Shine Plus || 2.1 || ? || LG UI ||
 
 = Upcoming Android devices: =
 || *Release Date* || *Carrier* || *Manufacturer* || *Name* || *Android Version* || *Upcoming update* || *Notes* ||
 || 2010 || Rogers || Sony Ericsson|| Xperia X10 Mini Pro || ? || ? || SE custom UI ||
-|| September 2010 || Telus || LG || Shine Plus || ? || ? || LG UI ||
 || 2010 || Telus || Motorola || i1 || 1.5? || ? || MOTOBLUR UI ||
 || ? || X || `*` || `*` || 2.1 || 2.2? || Google TV UI ||
 
