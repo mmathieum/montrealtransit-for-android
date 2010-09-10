@@ -24,6 +24,8 @@
 || August 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Charm ([http://en.wikipedia.org/wiki/Motorola_Charm wikipedia]) || 2.1 || ? || MOTOBLUR UI ||
 || August 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/5/54/LG_Logo.svg/77px-LG_Logo.svg.png || Loop (GT540) ([http://en.wikipedia.org/wiki/LG_GT540 wikipedia]) || 1.6 || ? || LG UI ||
 || September 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/5/54/LG_Logo.svg/77px-LG_Logo.svg.png || Shine Plus ([http://en.wikipedia.org/wiki/LG_VS740 wikipedia])  || 2.1 || ? || LG UI ||
+|| September 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/7/79/Videotron_logo.svg/77px-Videotron_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/c/c7/Garmin_logo.svg/77px-Garmin_logo.svg.png || A50 (Nüvifone) ([http://en.wikipedia.org/wiki/Garmin_N%C3%BCvifone wikipedia]) || 1.6? || ? || ||
+|| September 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/7/79/Videotron_logo.svg/77px-Videotron_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || XT720 (MOTOROI) || 2.1 || ? || Motorola UI ||
 
 = Upcoming Android devices: =
 || *Release Date* || *Carrier* || *Manufacturer* || *Name* || *Android Version* || *Upcoming update* || *Notes* ||
