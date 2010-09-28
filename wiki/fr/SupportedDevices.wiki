@@ -26,6 +26,7 @@
 || septembre 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/5/54/LG_Logo.svg/77px-LG_Logo.svg.png || Shine Plus ([http://en.wikipedia.org/wiki/LG_VS740 wikipédia anglais]) || 2.1 || ? || Interface LG ||
 || septembre 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/7/79/Videotron_logo.svg/77px-Videotron_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/c/c7/Garmin_logo.svg/77px-Garmin_logo.svg.png || A50 (Nüvifone) ([http://en.wikipedia.org/wiki/Garmin_N%C3%BCvifone wikipédia anglais]) || 1.6? || ? || ||
 || septembre 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/7/79/Videotron_logo.svg/77px-Videotron_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || XT720 (MOTOROI) || 2.1 || ? || Interface Motorola ||
+|| september 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/77px-Samsung_Logo.svg.png || Galaxy Apollo || 2.1 || ? || Interface Samsung ||
 
 = Appareils Android à  venir : =
 || *Date de sortie* || *Opérateur* || *Constructeur* || *Modèle* || *Version Android* || *Prochaine mise à  jour* || *Notes* ||
