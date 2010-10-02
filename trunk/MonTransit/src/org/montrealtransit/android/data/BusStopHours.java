@@ -9,7 +9,7 @@ import android.content.Context;
 
 /**
  * Represent the bus stops hours.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class BusStopHours {
 	
@@ -17,6 +17,7 @@ public class BusStopHours {
 	 * The bus stop hours.
 	 */
 	private List<String> sHours;
+	// TODO use a list of message
 	/**
 	 * The first message from the STM.
 	 */
@@ -33,7 +34,7 @@ public class BusStopHours {
 	/**
 	 * True if there was an error.
 	 */
-	private boolean error = false;
+	private String error = null;
 
 	/**
 	 * Default constructor.
@@ -46,9 +47,9 @@ public class BusStopHours {
 	/**
 	 * An other constructor to specify if there was an error.
 	 * @param sourceName the source name
-	 * @param error true if there was an error
+	 * @param error the error message (<b>null</b> if no error)
 	 */
-	public BusStopHours(String sourceName, boolean error) {
+	public BusStopHours(String sourceName, String error) {
 		this.sourceName = sourceName;
 		this.error  = error;
     }
@@ -132,7 +133,7 @@ public class BusStopHours {
 	/**
 	 * @return true if there was an error.
 	 */
-	public boolean isError() {
+	public String getError() {
 	    return error;
     }
 }

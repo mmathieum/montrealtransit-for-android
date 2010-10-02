@@ -195,25 +195,25 @@ public class FavListTab extends Activity {
 						((TextView) view.findViewById(R.id.station_name)).setText(station.getName());
 						// station lines color
 						if (otherLinesId != null && otherLinesId.size() > 0) {
-							int subwayLineImg1 = Utils.getSubwayLineImg(otherLinesId.get(0).getNumber());
+							int subwayLineImg1 = Utils.getSubwayLineImgId(otherLinesId.get(0).getNumber());
 							((ImageView) view.findViewById(R.id.subway_img_1)).setImageResource(subwayLineImg1);
 							if (otherLinesId.size() > 1) {
-								int subwayLineImg2 = Utils.getSubwayLineImg(otherLinesId.get(1).getNumber());
+								int subwayLineImg2 = Utils.getSubwayLineImgId(otherLinesId.get(1).getNumber());
 								((ImageView) view.findViewById(R.id.subway_img_2)).setImageResource(subwayLineImg2);
 								if (otherLinesId.size() > 2) {
-									int subwayLineImg3 = Utils.getSubwayLineImg(otherLinesId.get(2).getNumber());
+									int subwayLineImg3 = Utils.getSubwayLineImgId(otherLinesId.get(2).getNumber());
 									((ImageView) view.findViewById(R.id.subway_img_3)).setImageResource(subwayLineImg3);
 								} else {
-									((ImageView) view.findViewById(R.id.subway_img_3)).setVisibility(View.GONE);
+									view.findViewById(R.id.subway_img_3).setVisibility(View.GONE);
 								}
 							} else {
-								((ImageView) view.findViewById(R.id.subway_img_2)).setVisibility(View.GONE);
-								((ImageView) view.findViewById(R.id.subway_img_3)).setVisibility(View.GONE);
+								view.findViewById(R.id.subway_img_2).setVisibility(View.GONE);
+								view.findViewById(R.id.subway_img_3).setVisibility(View.GONE);
 							}
 						} else {
-							((ImageView) view.findViewById(R.id.subway_img_1)).setVisibility(View.GONE);
-							((ImageView) view.findViewById(R.id.subway_img_2)).setVisibility(View.GONE);
-							((ImageView) view.findViewById(R.id.subway_img_3)).setVisibility(View.GONE);
+							view.findViewById(R.id.subway_img_1).setVisibility(View.GONE);
+							view.findViewById(R.id.subway_img_2).setVisibility(View.GONE);
+							view.findViewById(R.id.subway_img_3).setVisibility(View.GONE);
 						}
 						// add click listener
 						view.setOnClickListener(new View.OnClickListener() {

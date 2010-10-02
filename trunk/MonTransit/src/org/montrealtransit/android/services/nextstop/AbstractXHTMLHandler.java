@@ -9,7 +9,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * The abstract default handler for XHTML file.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public abstract class AbstractXHTMLHandler extends DefaultHandler implements ContentHandler {
 
@@ -34,6 +34,7 @@ public abstract class AbstractXHTMLHandler extends DefaultHandler implements Con
 	protected static final String B = "b";
 	protected static final String IMG = "img";
 	protected static final String SPAN = "span";
+	protected static final String STRIKE = "strike";
 
 	/**
 	 * The HTML NUMBER & ID value.
@@ -64,7 +65,9 @@ public abstract class AbstractXHTMLHandler extends DefaultHandler implements Con
 	protected int id_img = 0;
 	protected int nb_span = 0;
 	protected int id_span = 0;
-
+	protected int nb_strike = 0;
+	protected int id_strike = 0;
+	
 	protected int pIndex = 0;
 
 	/**
@@ -112,6 +115,9 @@ public abstract class AbstractXHTMLHandler extends DefaultHandler implements Con
 		} else if (isTag(SPAN, localName)) {
 			nb_span++;
 			id_span++;
+		} else if (isTag(STRIKE, localName)) {
+			nb_strike++;
+			id_strike++;
 		} else {
 			MyLog.d(TAG, "localName+" + localName + ".");
 		}
@@ -148,6 +154,8 @@ public abstract class AbstractXHTMLHandler extends DefaultHandler implements Con
 		result += IMG + ":" + nb_img + "." + id_img;
 		result += "|";
 		result += SPAN + ":" + nb_span + "." + id_span;
+		result += "|";
+		result += STRIKE + ":" + nb_strike + "." + id_strike;
 		result += "]";
 		return result;
 	}
@@ -184,6 +192,8 @@ public abstract class AbstractXHTMLHandler extends DefaultHandler implements Con
 			nb_img--;
 		} else if (isTag(SPAN, localName)) {
 			nb_span--;
+		} else if (isTag(STRIKE, localName)) {
+			nb_strike--;
 		} else {
 			MyLog.d(TAG, "localName-" + localName + ".");
 		}

@@ -12,7 +12,7 @@ import android.net.Uri;
 
 /**
  * This dialog is used to ask the user to install an activity capable of displaying a radar (compass).
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class NoRadarInstalled implements OnClickListener {
 
@@ -49,8 +49,8 @@ public class NoRadarInstalled implements OnClickListener {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this.context);
 		builder.setTitle(R.string.no_radar_title);
 		builder.setIcon(android.R.drawable.ic_dialog_info);
-		String[] items = { this.context.getResources().getString(R.string.download_radar_app),
-		        this.context.getResources().getString(R.string.search_for_other_radar_app) };
+		String[] items = { this.context.getString(R.string.download_radar_app),
+		        this.context.getString(R.string.search_for_other_radar_app) };
 		builder.setItems(items, this);
 		builder.setNegativeButton(R.string.cancel, this);
 		AlertDialog alert = builder.create();

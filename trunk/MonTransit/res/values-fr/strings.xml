@@ -13,14 +13,21 @@
     <string name="no_history">Historique vide.</string>
     <string name="clear_history">Supprimer tout l\'historique.</string>
     
+    <string name="no_internet">Pas de connexion Internet !</string>
+    
     <string name="select_bus_direction">Direction</string>
+    <string name="select_bus_line_direction_and_number">Ligne %s - Direction</string>
+    <string name="select_bus_line_detail_direction_and_number_and_direction">Ligne %1s - Direction %2s</string>
+    <string name="select_bus_line_stop_and_number">Ligne %s - Arrêts</string>
     <string name="direction">Direction</string>
+    <string name="direction_and_string">Direction %s</string>
     <string name="frequency">Fréquence</string>
     <string name="change_direction">Autres directions</string>
-    <string name="see_bus_line_plan">Plan de la ligne</string>
+    <string name="see_bus_line_plan">Plan (stm.info)</string>
     
     <string name="hours_string">Horaires</string>
     <string name="minutes">minutes</string>
+    <string name="minutes_and_minutes">%s minutes</string>
     
     <string name="subway_line">Ligne</string>
     <string name="subway_lines">Lignes</string>
@@ -40,24 +47,33 @@
 	<string name="blue_line">Ligne Bleue</string>
 	<string name="blue_line_short">Bleue</string>
 	<string name="select_subway_direction">Direction</string>
+	<string name="select_subway_direction_and_name">Ligne %s - Direction</string>
 	<string name="first_trains">Premiers départs</string>
 	<string name="last_trains">Derniers départs</string>
 	<string name="next_bus_stops">Prochains passages</string>
+	<string name="next_bus_stops_and_source">Prochains passages (%s)</string>
+	<string name="next_bus_stops_message_and_source">MonTransit récupére les horaires des prochains passages depuis %s.</string>
 	<string name="other_bus_line">Autre(s) Ligne(s) de Bus</string>
 	<string name="subway_station">Station de Métro</string>
 	<string name="subway_station_short">Station</string>
 	<string name="subway_station_with_name_short">Station %1$s</string>
 	<string name="subway_stations">Stations de Métro</string>
+	<string name="stations">Stations</string>
+	<string name="stations_and_order">Stations (%s)</string>
 	<string name="subway_stations_short">Stations</string>
 	<string name="closest_subway_stations">Stations les plus proches</string>
-	<string name="reload_closest_stations">Recharger les stations les plus proches</string>
+	<string name="reload_closest_stations">Actualiser les stations les plus proches</string>
 	<string name="bus_stops">Arrêts de bus</string>
 	<string name="bus_stops_short">Arrêts</string>
+	<string name="bus_stops_short_and_direction">Arrêts (Direction %s)</string>
 	<string name="bus_stop">Arrêt de bus</string>
 	<string name="bus_stop_short">Arrêt</string>
 	<string name="bus_stop_and_line_short">Arrêt %1$s (Ligne %2$s)</string>
 	<string name="waiting_for_location_fix">En attente d\'informations de localisation ...</string>
 	<string name="no_location_provider_available">Aucune information de localisation n\'est disponible.\nVous devez activer la localisation par réseaux sans fil et/ou satellites GPS dans les paramètres du téléphone.</string>
+    <string name="subway_status">État du service</string>
+    <string name="subway_status_hour">État du service (%s)</string>
+    <string name="subway_status_message">La STM diffuse les interruptions de service du métro de plus de 20 minutes.</string>
     
     <string name="display_pref_cat_title">Préférences d\'affichage</string>
     <string name="data_pref_cat_title">Source de données</string>
@@ -86,7 +102,7 @@
     <string name="show_in_map">Voir Maps</string>
     <string name="show_in_map_exp">Voir Maps (BETA)</string>
 
-    <string name="reverse_geocoding_1">Recherche des coordonnées GPS de </string>
+    <string name="geocoding_and_location">Recherche des coordonnées GPS de %s ...</string>
 	<string name="bus_stop_location_not_found">Coordonnées GPS non trouvées.</string>
 
     <string name="use_radar">Utiliser un radar</string>
@@ -105,11 +121,9 @@
     <string name="no">Non</string>
     <string name="warning">Attention</string>
     
-    <string name="wrong_stop_code_before">Le code d\'arrêt \'</string>
-    <string name="wrong_stop_code_after">\' n\'est pas enregistrée dans l\'application.</string>
-    <string name="wrong_stop_code_after_internet">Voulez-vous essayer de télécharger les prochains passages depuis Internet ?</string>
-    <string name="wrong_line_number_before">La ligne de bus numéro \'</string>
-    <string name="wrong_line_number_after">\' n\'existe pas.</string>
+    <string name="wrong_stop_code_and_code">Le code d\'arrêt \'%s\' n\'est pas enregistrée dans l\'application.</string>
+    <string name="wrong_stop_code_internet">Voulez-vous essayer de télécharger les prochains passages depuis Internet ?</string>
+    <string name="wrong_line_number_and_number">La ligne de bus numéro \'%s\' n\'existe pas.</string>
     
     <string name="north">Nord</string>
     <string name="south">Sud</string>
@@ -148,7 +162,7 @@
 	<string name="bus_type_voieres">Service en voies réservées</string>
 	
 	<string name="no_more_stops">Service terminé.</string>
-	<string name="no_more_stops_for_this_bus_line">Service terminé pour la ligne de bus</string>
+	<string name="no_more_stops_for_this_bus_line">Service terminé pour la ligne de bus %s.</string>
     
     <string name="view_bus_stop">Afficher l\'arrêt</string>
 	<string name="view_subway_station">Afficher la station</string>
@@ -163,8 +177,9 @@
     
     <string name="cancel">Annuler</string>
     <string name="done">Terminé</string>
-    <string name="downloading_data_from">Téléchargement des données depuis</string>
+    <string name="downloading_data_from_and_source">Téléchargement des données depuis %s ...</string>
     <string name="processing_data">Traitement des données</string>
+    <string name="processing">Traitement...</string>
     <string name="please_wait">Veuillez patienter ...</string>
     <string name="ellipsis">&#160;...</string>
     <string name="colon">&#160;:&#160;</string>
@@ -183,7 +198,7 @@
     <string name="search_hint">Recherche arrêts de bus.</string>
     <string name="search_settings_description">Arrêts de bus (MonTransit)</string>
     <string name="search_no_result">Aucun arrêts de bus ne correspond aux termes de recherche spécifiés</string>
-    <string name="search_result_for">Recherche</string>
+    <string name="search_result_for_and_keyword">Recherche : %s</string>
     
     <string name="search_pref_title">Recherche</string>
     <string name="search_pref_summary">Recherche simple (rapide) ou complète (lent).</string>

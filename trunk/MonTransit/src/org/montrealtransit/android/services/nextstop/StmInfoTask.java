@@ -6,8 +6,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -39,7 +42,7 @@ public class StmInfoTask extends AbstractNextStopProvider {
 	/**
 	 * The source name
 	 */
-	public static final String SOURCE_NAME = "stm.info";
+	public static final String SOURCE_NAME = "www.stm.info";
 	/**
 	 * The URL.
 	 */
@@ -83,8 +86,7 @@ public class StmInfoTask extends AbstractNextStopProvider {
 		String lineNumber = busStops[0].getLineNumber();
 		Utils.logAppVersion(this.context);
 		try {
-			publishProgress(this.context.getResources().getString(R.string.downloading_data_from) + " "
-			        + StmInfoTask.SOURCE_NAME + this.context.getResources().getString(R.string.ellipsis));
+			publishProgress(context.getString(R.string.downloading_data_from_and_source, StmInfoTask.SOURCE_NAME));
 			String URLString = URL_PART_1_BEFORE_BUS_STOP + stopCode;
 			if (Utils.getUserLocale().equals("fr")) {
 				URLString += URL_PART_2_BEFORE_LANG + "Fr";
@@ -93,31 +95,45 @@ public class StmInfoTask extends AbstractNextStopProvider {
 			}
 			URL url = new URL(URLString + stopCode);
 			URLConnection urlc = url.openConnection();
-			// download the the page.
-			Utils.getInputStreamToFile(urlc.getInputStream(), this.context.openFileOutput(Constant.FILE1,
-			        Context.MODE_WORLD_READABLE), "iso-8859-1");
-			publishProgress(this.context.getResources().getString(R.string.processing_data));
-			// remove useless code from the page
-			cleanHtmlCodes(this.context.openFileInput(Constant.FILE1), this.context.openFileOutput(Constant.FILE2,
-			        Context.MODE_WORLD_READABLE), lineNumber);
-			// Get a SAX Parser from the SAX PArser Factory
-			SAXParserFactory spf = SAXParserFactory.newInstance();
-			SAXParser sp = spf.newSAXParser();
-			// Get the XML Reader of the SAX Parser we created
-			XMLReader xr = sp.getXMLReader();
-			// Create a new ContentHandler and apply it to the XML-Reader
-			StmInfoHandler busStopHandler = new StmInfoHandler(lineNumber);
-			xr.setContentHandler(busStopHandler);
-			MyLog.v(TAG, "Parsing data ...");
-			InputSource inputSource = new InputSource(this.context.openFileInput(Constant.FILE2));
-			xr.parse(inputSource);
-			MyLog.v(TAG, "Parsing data... DONE");
-			publishProgress(this.context.getResources().getString(R.string.done));
-			return busStopHandler.getHours();
+			HttpURLConnection httpUrlConnection = (HttpURLConnection) urlc;
+			if (httpUrlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+				// download the the page.
+				Utils.getInputStreamToFile(urlc.getInputStream(), this.context.openFileOutput(Constant.FILE1,
+				        Context.MODE_WORLD_READABLE), "iso-8859-1");
+				publishProgress(this.context.getString(R.string.processing_data));
+				// remove useless code from the page
+				cleanHtmlCodes(this.context.openFileInput(Constant.FILE1), this.context.openFileOutput(Constant.FILE2,
+				        Context.MODE_WORLD_READABLE), lineNumber);
+				// Get a SAX Parser from the SAX PArser Factory
+				SAXParserFactory spf = SAXParserFactory.newInstance();
+				SAXParser sp = spf.newSAXParser();
+				// Get the XML Reader of the SAX Parser we created
+				XMLReader xr = sp.getXMLReader();
+				// Create a new ContentHandler and apply it to the XML-Reader
+				StmInfoHandler busStopHandler = new StmInfoHandler(lineNumber);
+				xr.setContentHandler(busStopHandler);
+				MyLog.v(TAG, "Parsing data ...");
+				InputSource inputSource = new InputSource(this.context.openFileInput(Constant.FILE2));
+				xr.parse(inputSource);
+				MyLog.v(TAG, "Parsing data... DONE");
+				publishProgress(this.context.getString(R.string.done));
+				return busStopHandler.getHours();
+			} else {
+				MyLog.w(TAG, "Error: HTTP URL-Connection Response Code:" + httpUrlConnection.getResponseCode());
+				return new BusStopHours(StmInfoTask.SOURCE_NAME, this.context.getString(R.string.error));
+			}
+		} catch (UnknownHostException uhe) {
+			MyLog.w(TAG, "No Internet Connection!", uhe);
+			publishProgress(this.context.getString(R.string.no_internet));
+			return new BusStopHours(StmInfoTask.SOURCE_NAME, this.context.getString(R.string.no_internet));
+		} catch (SocketException se) {
+			MyLog.w(TAG, "No Internet Connection!", se);
+			publishProgress(this.context.getString(R.string.no_internet));
+			return new BusStopHours(StmInfoTask.SOURCE_NAME, this.context.getString(R.string.no_internet));
 		} catch (Exception e) {
 			MyLog.e(TAG, "INTERNAL ERROR: Unknown Exception", e);
-			publishProgress(this.context.getResources().getString(R.string.error));
-			return new BusStopHours(StmInfoTask.SOURCE_NAME, true);
+			publishProgress(this.context.getString(R.string.error));
+			return new BusStopHours(StmInfoTask.SOURCE_NAME, this.context.getString(R.string.error));
 		}
 	}
 
@@ -128,7 +144,7 @@ public class StmInfoTask extends AbstractNextStopProvider {
 	 * @param lineNumber the bus line number used to clean the code.
 	 */
 	public static void cleanHtmlCodes(FileInputStream is, FileOutputStream os, String lineNumber) {
-		MyLog.v(TAG, "cleanHtmlCodes("+lineNumber+")");
+		MyLog.v(TAG, "cleanHtmlCodes(" + lineNumber + ")");
 		boolean isIn = false;
 		boolean isOK = false;
 		String mustInclude = StmInfoTask.TD_B_1 + lineNumber + StmInfoTask.TD_B_2;
@@ -144,7 +160,7 @@ public class StmInfoTask extends AbstractNextStopProvider {
 			writer.write(Constant.NEW_LINE);
 			writer.write(Constant.HTML_TAG);
 			String line = reader.readLine();
-            while (line != null) {
+			while (line != null) {
 				if (line.contains(startString)) {
 					isIn = true;
 				}
@@ -186,14 +202,14 @@ public class StmInfoTask extends AbstractNextStopProvider {
 			}
 		}
 	}
-	
+
 	/**
 	 * Remove HTML useless codes from the string
 	 * @param string the string
 	 * @return the cleaned string
 	 */
 	public static String removeHref(String string) {
-		//MyLog.v(TAG, "removeHref(" + string + ")");
+		// MyLog.v(TAG, "removeHref(" + string + ")");
 		if (string.contains(Constant.HTML_CODE_SPACE)) {
 			string = string.replace(Constant.HTML_CODE_SPACE, " ");
 		}

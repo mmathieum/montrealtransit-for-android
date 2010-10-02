@@ -6,7 +6,7 @@ import org.xml.sax.SAXException;
 
 /**
  * This class handle stm.info page parsing.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class StmInfoHandler extends AbstractXHTMLHandler {
 
@@ -41,7 +41,7 @@ public class StmInfoHandler extends AbstractXHTMLHandler {
 	 * @param lineNumber the bus line number to match.
 	 */
 	public StmInfoHandler(String lineNumber) {
-		MyLog.v(TAG, "StmInfoHandler("+lineNumber+")");
+		MyLog.v(TAG, "StmInfoHandler(" + lineNumber + ")");
 		this.lineNumber = lineNumber;
 	}
 
@@ -87,7 +87,8 @@ public class StmInfoHandler extends AbstractXHTMLHandler {
 	 * @return true is the parser is currently in the interesting part of the document.
 	 */
 	private boolean isInInterestedArea() {
-		return nb_table == 1 && id_table == int_id_table && nb_tr == 1 && id_tr == int_id_tr && nb_td == 1 && nb_b == 0;
+		return nb_table == 1 && id_table == int_id_table && nb_tr == 1 && id_tr == int_id_tr && nb_td == 1 && nb_b == 0
+		        && nb_strike == 0;
 	}
 
 	/**

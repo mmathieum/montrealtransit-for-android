@@ -106,7 +106,7 @@ public class LocationUtils {
 	 * @param location the location
 	 * @return true if the location is not too "old"
 	 */
-	private static boolean isNotTooOld(Location location) {
+	public static boolean isNotTooOld(Location location) {
 		return System.currentTimeMillis() - location.getTime() < MAX_LAST_KNOW_LOCATION_TIME;
 	}
 

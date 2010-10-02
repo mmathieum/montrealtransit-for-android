@@ -38,7 +38,7 @@ import android.widget.TextView;
  * Show information about a subway station.
  * @author Mathieu Méa
  */
-public class SubwayStationInfo extends Activity implements OnClickListener, LocationListener {
+public class SubwayStationInfo extends Activity implements LocationListener {
 
 	/**
 	 * Extra for the subway station ID.
@@ -70,6 +70,29 @@ public class SubwayStationInfo extends Activity implements OnClickListener, Loca
 		super.onCreate(savedInstanceState);
 		// set the UI
 		setContentView(R.layout.subway_station_info);
+		((CheckBox) findViewById(R.id.star)).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// manage favorite star click
+				DataStore.Fav fav = DataManager.findFav(SubwayStationInfo.this.getContentResolver(),
+				        DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION, SubwayStationInfo.this.subwayStation.getId(), null);
+				// IF the station is already a favorite DO
+				if (fav != null) {
+					// delete the favorite
+					DataManager.deleteFav(SubwayStationInfo.this.getContentResolver(), fav.getId());
+					Utils.notifyTheUser(SubwayStationInfo.this, getString(R.string.favorite_removed));
+				} else {
+					// add the favorite
+					DataStore.Fav newFav = new DataStore.Fav();
+					newFav.setType(DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
+					newFav.setFkId(SubwayStationInfo.this.subwayStation.getId());
+					newFav.setFkId2(null);
+					DataManager.addFav(SubwayStationInfo.this.getContentResolver(), newFav);
+					Utils.notifyTheUser(SubwayStationInfo.this, getString(R.string.favorite_added));
+				}
+				setTheStar(); // TODO is remove useless?
+			}
+		});
 		// show the subway station
 		showNewSubwayStation(Utils.getSavedStringValue(this.getIntent(), savedInstanceState, EXTRA_STATION_ID));
 	}
@@ -192,7 +215,7 @@ public class SubwayStationInfo extends Activity implements OnClickListener, Loca
 		View dView = getLayoutInflater().inflate(R.layout.subway_station_info_line_schedule_direction, null);
 		// SUBWAY LINE color
 		ImageView ivSubwayLineColor1 = (ImageView) dView.findViewById(R.id.subway_img);
-		ivSubwayLineColor1.setImageResource(Utils.getSubwayLineImg(subwayLine.getNumber()));
+		ivSubwayLineColor1.setImageResource(Utils.getSubwayLineImgId(subwayLine.getNumber()));
 		// DIRECTION - SUBWAY STATION name
 		TextView tvSubwayStation1 = (TextView) dView.findViewById(R.id.direction_station);
 		tvSubwayStation1.setText(subwayStationDir.getName());
@@ -207,7 +230,7 @@ public class SubwayStationInfo extends Activity implements OnClickListener, Loca
 		String frequency = StmManager.findSubwayDirectionFrequency(getContentResolver(), subwayStationDir.getId(),
 		        dayOfTheWeek, time);
 		TextView tvDirFreq1 = (TextView) dView.findViewById(R.id.direction_frequency);
-		tvDirFreq1.setText(frequency + " " + getResources().getString(R.string.minutes));
+		tvDirFreq1.setText(getString(R.string.minutes_and_minutes, frequency));
 		return dView;
 	}
 
@@ -219,11 +242,11 @@ public class SubwayStationInfo extends Activity implements OnClickListener, Loca
 		// subway station name
 		((TextView) findViewById(R.id.station_name)).setText(this.subwayStation.getName());
 		// set the favorite icon
-		((CheckBox) findViewById(R.id.star)).setOnClickListener(this);
+		setTheStar();
 		// subway lines colors
 		if (this.subwayLines.size() > 0) {
-			((ImageView) findViewById(R.id.subway_line_1)).setVisibility(View.VISIBLE);
-			int subwayLineImg = Utils.getSubwayLineImg(this.subwayLines.get(0).getNumber());
+			findViewById(R.id.subway_line_1).setVisibility(View.VISIBLE);
+			int subwayLineImg = Utils.getSubwayLineImgListMiddleId(this.subwayLines.get(0).getNumber());
 			((ImageView) findViewById(R.id.subway_line_1)).setImageResource(subwayLineImg);
 			((ImageView) findViewById(R.id.subway_line_1)).setOnClickListener(new OnClickListener() {
 				@Override
@@ -236,8 +259,8 @@ public class SubwayStationInfo extends Activity implements OnClickListener, Loca
 				}
 			});
 			if (this.subwayLines.size() > 1) {
-				((ImageView) findViewById(R.id.subway_line_2)).setVisibility(View.VISIBLE);
-				int subwayLineImg2 = Utils.getSubwayLineImg(this.subwayLines.get(1).getNumber());
+				findViewById(R.id.subway_line_2).setVisibility(View.VISIBLE);
+				int subwayLineImg2 = Utils.getSubwayLineImgListMiddleId(this.subwayLines.get(1).getNumber());
 				((ImageView) findViewById(R.id.subway_line_2)).setImageResource(subwayLineImg2);
 				((ImageView) findViewById(R.id.subway_line_2)).setOnClickListener(new OnClickListener() {
 					@Override
@@ -250,8 +273,8 @@ public class SubwayStationInfo extends Activity implements OnClickListener, Loca
 					}
 				});
 				if (this.subwayLines.size() > 2) {
-					((ImageView) findViewById(R.id.subway_line_3)).setVisibility(View.VISIBLE);
-					int subwayLineImg3 = Utils.getSubwayLineImg(this.subwayLines.get(2).getNumber());
+					findViewById(R.id.subway_line_3).setVisibility(View.VISIBLE);
+					int subwayLineImg3 = Utils.getSubwayLineImgListMiddleId(this.subwayLines.get(2).getNumber());
 					((ImageView) findViewById(R.id.subway_line_3)).setImageResource(subwayLineImg3);
 					((ImageView) findViewById(R.id.subway_line_3)).setOnClickListener(new OnClickListener() {
 						@Override
@@ -267,8 +290,6 @@ public class SubwayStationInfo extends Activity implements OnClickListener, Loca
 				}
 			}
 		}
-		// set the favorite star
-		setTheStar();
 	}
 
 	/**
@@ -359,39 +380,6 @@ public class SubwayStationInfo extends Activity implements OnClickListener, Loca
 	}
 
 	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void onClick(View v) {
-		MyLog.v(TAG, "onClick(" + v.getId() + ")");
-		switch (v.getId()) {
-		case R.id.star:
-			// manage favorite star click
-			DataStore.Fav fav = DataManager.findFav(this.getContentResolver(),
-			        DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION, this.subwayStation.getId(), null);
-			// IF the station is already a favorite DO
-			if (fav != null) {
-				// delete the favorite
-				DataManager.deleteFav(this.getContentResolver(), fav.getId());
-				Utils.notifyTheUser(this, getResources().getString(R.string.favorite_removed));
-			} else {
-				// add the favorite
-				DataStore.Fav newFav = new DataStore.Fav();
-				newFav.setType(DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
-				newFav.setFkId(this.subwayStation.getId());
-				newFav.setFkId2(null);
-				DataManager.addFav(this.getContentResolver(), newFav);
-				Utils.notifyTheUser(this, getResources().getString(R.string.favorite_added));
-			}
-			setTheStar(); // TODO is remove useless?
-			break;
-		default:
-			MyLog.d(TAG, "Unknown view ID " + v.getId() + " (" + v.getClass().getSimpleName() + ")");
-			break;
-		}
-	}
-
-	/**
 	 * Set the favorite star (UI).
 	 */
 	private void setTheStar() {
@@ -417,7 +405,7 @@ public class SubwayStationInfo extends Activity implements OnClickListener, Loca
 		busLinesLayout.removeAllViews();
 		// IF there is one or more bus lines DO
 		if (busLinesList != null && busLinesList.size() > 0) {
-			((TextView) findViewById(R.id.bus_line)).setVisibility(View.VISIBLE);
+			findViewById(R.id.bus_line).setVisibility(View.VISIBLE);
 			busLinesLayout.setVisibility(View.VISIBLE);
 			// FOR EACH bus line DO
 			for (StmStore.BusLine busLine : busLinesList) {
@@ -431,19 +419,21 @@ public class SubwayStationInfo extends Activity implements OnClickListener, Loca
 				int busLineTypeImg = Utils.getBusLineTypeImgFromType(busLine.getType());
 				((ImageView) view.findViewById(R.id.line_type)).setImageResource(busLineTypeImg);
 				// bus line number
-				((TextView) view.findViewById(R.id.line_number)).setText(busLine.getNumber());
+				String lineNumber = busLine.getNumber();
+				((TextView) view.findViewById(R.id.line_number)).setText(lineNumber);
+				int color = Utils.getBusLineTypeBgColorFromType(busLine.getType());
+				((TextView) view.findViewById(R.id.line_number)).setBackgroundColor(color);
 				// bus line name
 				((TextView) view.findViewById(R.id.line_name)).setText(busLine.getName());
 				// bus line hours
 				String formattedHours = Utils.getFormatted2Hours(this, busLine.getHours(), "-");
 				((TextView) view.findViewById(R.id.hours)).setText(formattedHours);
 				// add click listener
-				view.setOnClickListener(new SubwayStationSelectBusLineStop(this, this.subwayStation.getId(), busLine
-				        .getNumber()));
+				view.setOnClickListener(new SubwayStationSelectBusLineStop(this, subwayStation.getId(), lineNumber));
 				busLinesLayout.addView(view);
 			}
 		} else {
-			((TextView) findViewById(R.id.bus_line)).setVisibility(View.GONE);
+			findViewById(R.id.bus_line).setVisibility(View.GONE);
 			busLinesLayout.setVisibility(View.GONE);
 		}
 	}

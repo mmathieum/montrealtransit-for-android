@@ -17,7 +17,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnKeyListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -27,14 +26,13 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
 
 /**
  * This activity display a search text box for entering bus stop code. The user can also enter a bus line number. In the future, this activity will have the
  * same functionalities as a search box for almost everything.
  * @author Mathieu Méa
  */
-public class BusStopCodeTab extends Activity implements OnKeyListener, OnClickListener, OnItemClickListener {
+public class BusStopCodeTab extends Activity {
 
 	/**
 	 * The log tag.
@@ -50,10 +48,31 @@ public class BusStopCodeTab extends Activity implements OnKeyListener, OnClickLi
 		super.onCreate(savedInstanceState);
 		// set the UI
 		setContentView(R.layout.bus_stop_code_tab);
-		((AutoCompleteTextView) findViewById(R.id.field)).setOnKeyListener(this);
+		((AutoCompleteTextView) findViewById(R.id.field)).setOnKeyListener(new View.OnKeyListener() {
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+					searchFor(((EditText) findViewById(R.id.field)).getText().toString());
+					return true;
+				}
+				return false;
+			}
+		});
+		((ImageButton) findViewById(R.id.ok)).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				MyLog.v(TAG, "onItemClick(" + v.getId() + ")");
+				searchFor(((EditText) findViewById(R.id.field)).getText().toString());
+			}
+		});
 		((ListView) findViewById(R.id.list)).setEmptyView(findViewById(R.id.list_empty));
-		((ListView) findViewById(R.id.list)).setOnItemClickListener(this);
-		((ImageButton) findViewById(R.id.ok)).setOnClickListener(this);
+		((ListView) findViewById(R.id.list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> l, View v, int position, long id) {
+				MyLog.v(TAG, "onItemClick(" + l.getId() + "," + v.getId() + "," + position + "," + id + ")");
+				searchFor((((TextView) v).getText()).toString());
+			}
+		});
 		((ListView) findViewById(R.id.list)).setAdapter(getHistoryAdapter());
 	}
 
@@ -98,7 +117,7 @@ public class BusStopCodeTab extends Activity implements OnKeyListener, OnClickLi
 	private void searchFor(String search) {
 		if (search == null || search.length() == 0) {
 			// please enter a number
-			Utils.notifyTheUser(this, getResources().getString(R.string.please_enter_a_stop_code));
+			Utils.notifyTheUser(this, getString(R.string.please_enter_a_stop_code));
 		} else {
 			if (search.length() <= 3) {
 				// search for a bus line number
@@ -107,9 +126,7 @@ public class BusStopCodeTab extends Activity implements OnKeyListener, OnClickLi
 					BusLineSelectDirection busLineSelectDirection = new BusLineSelectDirection(this, search);
 					busLineSelectDirection.showDialog();
 				} else {
-					String message = getResources().getString(R.string.wrong_line_number_before) + search
-					        + getResources().getString(R.string.wrong_line_number_after);
-					Utils.notifyTheUserLong(this, message);
+					Utils.notifyTheUserLong(this, getString(R.string.wrong_line_number_and_number, search));
 				}
 			} else if (search.length() == 5) {
 				// search for a bus stop code
@@ -117,9 +134,7 @@ public class BusStopCodeTab extends Activity implements OnKeyListener, OnClickLi
 					addToHistory(search);
 					showBusStopInfo(search);
 				} else {
-					String message = getResources().getString(R.string.wrong_stop_code_before) + search
-					        + getResources().getString(R.string.wrong_stop_code_after);
-					Utils.notifyTheUserLong(this, message);
+					Utils.notifyTheUserLong(this, getString(R.string.wrong_stop_code_and_code, search));
 				}
 			}
 		}
@@ -144,37 +159,6 @@ public class BusStopCodeTab extends Activity implements OnKeyListener, OnClickLi
 		Intent intent = new Intent(this, BusStopInfo.class);
 		intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, stopCode);
 		startActivity(intent);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-		MyLog.v(TAG, "onItemClick(" + l.getId() + "," + v.getId() + "," + position + "," + id + ")");
-		searchFor((((TextView) v).getText()).toString());
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void onClick(View v) {
-		MyLog.v(TAG, "onItemClick(" + v.getId() + ")");
-		searchFor(((EditText) findViewById(R.id.field)).getText().toString());
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean onKey(View v, int keyCode, KeyEvent event) {
-		// MyTrace.v(TAG, "onKey(" + v.getId() + "," + keyCode + "," + event.getAction() + ")");
-		if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-			searchFor(((EditText) findViewById(R.id.field)).getText().toString());
-			return true;
-		}
-		return false;
 	}
 
 	/**

@@ -20,15 +20,12 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.SimpleCursorAdapter.ViewBinder;
 
 /**
  * This class manage the selection from a subway station bus line to help the user select the bus stop.
  * @author Mathieu Méa
  */
-public class SubwayStationSelectBusLineStop implements View.OnClickListener, DialogInterface.OnClickListener,
-        ViewBinder, OnItemClickListener {
+public class SubwayStationSelectBusLineStop implements View.OnClickListener {
 
 	/**
 	 * The log tag.
@@ -101,17 +98,32 @@ public class SubwayStationSelectBusLineStop implements View.OnClickListener, Dia
 		MyLog.v(TAG, "getAlertDialog()");
 		AlertDialog.Builder builder = new AlertDialog.Builder(this.context);
 		// title
-		String title = this.context.getResources().getString(R.string.bus_line) + " " + this.busLineNumber + " "
-		        + this.context.getResources().getString(R.string.bus_stops_short);
+		String title = this.context.getString(R.string.select_bus_line_stop_and_number, this.busLineNumber);
 		builder.setTitle(title);
 		// bus stops list view
 		ListView listView = new ListView(this.context);
 		listView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 		listView.setAdapter(getAdapter());
-		listView.setOnItemClickListener(this);
+		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> l, View v, int position, long id) {
+				MyLog.v(TAG, "onItemClick(" + v.getId() + "," + v.getId() + "," + position + "," + id + ")");
+				if (id > 0) {
+					showBusStop(String.valueOf(id), SubwayStationSelectBusLineStop.this.busLineNumber);
+				}
+			}
+		});
 		builder.setView(listView);
 		// cancel button
-		builder.setNegativeButton(R.string.cancel, this);
+		builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				MyLog.v(TAG, "onClick(" + which + ")");
+				// CANCEL
+				dialog.dismiss();
+				closeCursor();
+			}
+		});
 		this.dialog = builder.create();
 		return dialog;
 	}
@@ -120,59 +132,33 @@ public class SubwayStationSelectBusLineStop implements View.OnClickListener, Dia
 	 * @return the bus stops list adapter
 	 */
 	private SimpleCursorAdapter getAdapter() {
-		this.cursor = StmManager.findSubwayStationBusLineStops(this.context.getContentResolver(),
-		        this.subwayStationId, this.busLineNumber);
+		this.cursor = StmManager.findSubwayStationBusLineStops(this.context.getContentResolver(), this.subwayStationId,
+		        this.busLineNumber);
 		String[] from = new String[] { StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE,
 		        StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID, };
 		int[] to = new int[] { R.id.stop_code, R.id.label, R.id.direction_main };
 		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this.context, R.layout.dialog_bus_stop_select_list_item,
 		        cursor, from, to);
-		adapter.setViewBinder(this);
+		adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+			@Override
+			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+				MyLog.v(TAG, "setViewValue(" + view.getId() + ", " + columnIndex + ")");
+				switch (view.getId()) {
+				case R.id.label:
+					String busStopPlace = Utils.cleanBusStopPlace(cursor.getString(columnIndex));
+					((TextView) view).setText(busStopPlace);
+					return true;
+				case R.id.direction_main:
+					int simpleBusLineDirectionId = Utils.getBusLineDirectionStringIdFromId(
+					        cursor.getString(columnIndex)).get(0);
+					((TextView) view).setText(simpleBusLineDirectionId);
+					return true;
+				default:
+					return false;
+				}
+			}
+		});
 		return adapter;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void onClick(DialogInterface dialog, int which) {
-		MyLog.v(TAG, "onClick(" + which + ")");
-		// CANCEL
-		dialog.dismiss();
-		closeCursor();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-		MyLog.v(TAG, "setViewValue(" + view.getId() + ", " + columnIndex + ")");
-		switch (view.getId()) {
-		case R.id.label:
-			String busStopPlace = Utils.cleanBusStopPlace(cursor.getString(columnIndex));
-			((TextView) view).setText(busStopPlace);
-			return true;
-		case R.id.direction_main:
-			int simpleBusLineDirectionId = Utils.getBusLineDirectionStringIdFromId(cursor.getString(columnIndex))
-			        .get(0);
-			((TextView) view).setText(simpleBusLineDirectionId);
-			return true;
-		default:
-			return false;
-		}
-
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-		MyLog.v(TAG, "onItemClick(" + v.getId() + "," + v.getId() + "," + position + "," + id + ")");
-		if (id > 0) {
-			showBusStop(String.valueOf(id), this.busLineNumber);
-		}
 	}
 
 	/**
@@ -198,5 +184,5 @@ public class SubwayStationSelectBusLineStop implements View.OnClickListener, Dia
 		if (this.cursor != null && !this.cursor.isClosed()) {
 			this.cursor.close();
 		}
-    }
+	}
 }

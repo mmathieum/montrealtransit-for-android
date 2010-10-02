@@ -7,8 +7,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -26,8 +29,8 @@ import android.content.Context;
 import android.text.TextUtils;
 
 /**
- * <b>NOT WORKING</b> This task retrieve next bus stop from the m.stm.info web site.
- * @author Mathieu Méa
+ * This task retrieve next bus stop from the m.stm.info web site.
+ * @author Mathieu MÃ©a
  */
 public class StmMobileTask extends AbstractNextStopProvider {
 
@@ -77,8 +80,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 			URLString += URL_PART_3_BEFORE_LANG + "en";
 		}
 		try {
-			publishProgress(this.context.getResources().getString(R.string.downloading_data_from) + " "
-			        + StmMobileTask.SOURCE_NAME + this.context.getResources().getString(R.string.ellipsis));
+			publishProgress(context.getString(R.string.downloading_data_from_and_source, StmMobileTask.SOURCE_NAME));
 			URL url = new URL(URLString);
 			// faking a real browser
 			URLConnection urlc = url.openConnection();
@@ -88,31 +90,45 @@ public class StmMobileTask extends AbstractNextStopProvider {
 			urlc.setRequestProperty("Accept-Language", "en-CA, en-US");
 			urlc.setRequestProperty("User-Agent", "Android");
 			MyLog.v(TAG, "URL created:" + url.toString());
-			Utils.getInputStreamToFile(urlc.getInputStream(), this.context.openFileOutput(Constant.FILE1,
-			        Context.MODE_WORLD_READABLE), "iso-8859-1");
-			publishProgress(this.context.getResources().getString(R.string.processing_data));
-			// remove useless code from the page
-			cleanHtmlCodes(this.context.openFileInput(Constant.FILE1), this.context.openFileOutput(Constant.FILE2,
-			        Context.MODE_WORLD_READABLE));
-			SAXParserFactory parserFactory = SAXParserFactory.newInstance();
-			SAXParser parser = parserFactory.newSAXParser();
-			// MyTrace.d(TAG, "SAX parser initiate");
-			// Get the XMLReader of the SAXParser we created.
-			XMLReader xmlReader = parser.getXMLReader();
-			// Create a new ContentHandler and apply it to the XML-Reader
-			StmMobileHandler stmMobileHandler = new StmMobileHandler();
-			xmlReader.setContentHandler(stmMobileHandler);
-			// MyTrace.d(TAG, "content handler instantiate");
-			MyLog.d(TAG, "Parsing data ...");
-			InputSource inputSource = new InputSource(this.context.openFileInput(Constant.FILE2));
-			xmlReader.parse(inputSource);
-			MyLog.d(TAG, "Parsing data ... OK");
-			publishProgress(this.context.getResources().getString(R.string.done));
-			return stmMobileHandler.getHours();
+			HttpURLConnection httpUrlConnection = (HttpURLConnection) urlc;
+			if (httpUrlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+				Utils.getInputStreamToFile(urlc.getInputStream(), this.context.openFileOutput(Constant.FILE1,
+				        Context.MODE_WORLD_READABLE), "iso-8859-1");
+				publishProgress(this.context.getResources().getString(R.string.processing_data));
+				// remove useless code from the page
+				cleanHtmlCodes(this.context.openFileInput(Constant.FILE1), this.context.openFileOutput(Constant.FILE2,
+				        Context.MODE_WORLD_READABLE));
+				SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+				SAXParser parser = parserFactory.newSAXParser();
+				// MyTrace.d(TAG, "SAX parser initiate");
+				// Get the XMLReader of the SAXParser we created.
+				XMLReader xmlReader = parser.getXMLReader();
+				// Create a new ContentHandler and apply it to the XML-Reader
+				StmMobileHandler stmMobileHandler = new StmMobileHandler();
+				xmlReader.setContentHandler(stmMobileHandler);
+				// MyTrace.d(TAG, "content handler instantiate");
+				MyLog.d(TAG, "Parsing data ...");
+				InputSource inputSource = new InputSource(this.context.openFileInput(Constant.FILE2));
+				xmlReader.parse(inputSource);
+				MyLog.d(TAG, "Parsing data ... OK");
+				publishProgress(this.context.getResources().getString(R.string.done));
+				return stmMobileHandler.getHours();
+			} else {
+				MyLog.w(TAG, "Error: HTTP URL-Connection Response Code:" + httpUrlConnection.getResponseCode());
+				return new BusStopHours(StmInfoTask.SOURCE_NAME, this.context.getString(R.string.error));
+			}
+		} catch (UnknownHostException uhe) {
+			MyLog.w(TAG, "No Internet Connection!", uhe);
+			publishProgress(this.context.getString(R.string.no_internet));
+			return new BusStopHours(StmInfoTask.SOURCE_NAME, this.context.getString(R.string.no_internet));
+		} catch (SocketException se) {
+			MyLog.w(TAG, "No Internet Connection!", se);
+			publishProgress(this.context.getString(R.string.no_internet));
+			return new BusStopHours(StmInfoTask.SOURCE_NAME, this.context.getString(R.string.no_internet));
 		} catch (Exception e) {
 			MyLog.e(TAG, "INTERNAL ERROR: Unknown Exception", e);
-			publishProgress(this.context.getResources().getString(R.string.error));
-			return new BusStopHours(StmInfoTask.SOURCE_NAME, true);
+			publishProgress(this.context.getString(R.string.error));
+			return new BusStopHours(StmInfoTask.SOURCE_NAME, this.context.getString(R.string.error));
 		}
 	}
 
@@ -128,7 +144,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 		try {
 			String line = reader.readLine();
 			while (line != null) {
-				writer.write(removeHref(line.trim())+ " ");
+				writer.write(removeHref(line.trim()) + " ");
 				line = reader.readLine();
 			}
 		} catch (IOException ioe) {
@@ -144,7 +160,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 				MyLog.w(TAG, "Error while finishing and closing the input/output stream files.", ioe);
 			}
 		}
-    }
+	}
 
 	/**
 	 * Remove unreadable HREF code.
@@ -152,15 +168,15 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	 * @return the cleaned string
 	 */
 	private String removeHref(String string) {
-		//MyLog.v(TAG, "removeHref(" + string + ")");
+		// MyLog.v(TAG, "removeHref(" + string + ")");
 		if (string.contains(Constant.HTML_CODE_EACUTE)) {
-			string = string.replaceAll(Constant.HTML_CODE_EACUTE, "é");
+			string = string.replaceAll(Constant.HTML_CODE_EACUTE, "ï¿½");
 		}
 		if (string.contains(Constant.HTML_CODE_ECIRC)) {
-			string = string.replaceAll(Constant.HTML_CODE_ECIRC, "ê");
+			string = string.replaceAll(Constant.HTML_CODE_ECIRC, "ï¿½");
 		}
-	    return string;
-    }
+		return string;
+	}
 
 	/**
 	 * {@inheritDoc}

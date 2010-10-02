@@ -22,7 +22,6 @@ import org.montrealtransit.android.provider.StmStore.SubwayStation;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
@@ -34,18 +33,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.FilterQueryProvider;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
 
 /**
  * The subway line info activity.
  * @author Mathieu Méa
  */
-public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectionDialogListener, OnItemClickListener,
-        FilterQueryProvider, LocationListener {
+public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectionDialogListener, LocationListener {
 
 	/**
 	 * The log tag.
@@ -83,7 +79,19 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		// set the UI
 		setContentView(R.layout.subway_line_info);
 		((ListView) findViewById(R.id.list)).setEmptyView(findViewById(R.id.list_empty));
-		((ListView) findViewById(R.id.list)).setOnItemClickListener(this);
+		((ListView) findViewById(R.id.list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> l, View v, int position, long id) {
+				MyLog.v(TAG, "onItemClick(" + v.getId() + "," + v.getId() + "," + position + "," + id + ")");
+				if (SubwayLineInfo.this.stations != null && position < SubwayLineInfo.this.stations.length
+				        && SubwayLineInfo.this.stations[position] != null) {
+					Intent intent = new Intent(SubwayLineInfo.this, SubwayStationInfo.class);
+					String subwayStationId = SubwayLineInfo.this.stations[position].getId();
+					intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, subwayStationId);
+					startActivity(intent);
+				}
+			}
+		});
 		// get info from the intent.
 		int newLineNumber = Integer.valueOf(Utils.getSavedStringValue(this.getIntent(), savedInstanceState,
 		        SubwayLineInfo.EXTRA_LINE_NUMBER));
@@ -178,14 +186,15 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	private void refreshSubwayLineInfo() {
 		// subway line name
 		((TextView) findViewById(R.id.line_name)).setText(Utils.getSubwayLineName(subwayLine.getNumber()));
-		((ImageView) findViewById(R.id.subway_img)).setImageResource(Utils.getSubwayLineImg(subwayLine.getNumber()));
+		((ImageView) findViewById(R.id.subway_img)).setImageResource(Utils.getSubwayLineImgId(subwayLine.getNumber()));
 
 		// subway line direction
 		String orderId = getSortOrderFromOrderPref(this.subwayLine.getNumber());
 		SubwayStation lastStation = StmManager.findSubwayLineLastSubwayStation(getContentResolver(), subwayLine
 		        .getNumber(), orderId);
-		String separatorText = this.getResources().getString(R.string.subway_stations) + " ("
-		        + getDirectionText(lastStation) + ")";
+		String separatorText = getString(R.string.stations_and_order, getDirectionText(lastStation));
+		// getString(R.string.stations) + " (" + getDirectionText(lastStation) + ")";
+
 		((TextView) findViewById(R.id.subway_line_station_string)).setText(separatorText);
 		SubwayLineSelectDirection select = new SubwayLineSelectDirection(this, this.subwayLine.getNumber(), this);
 		((TextView) findViewById(R.id.subway_line_station_string)).setOnClickListener(select);
@@ -214,11 +223,11 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	private String getDirectionText(SubwayStation lastSubwayStation) {
 		if (this.orderPref.equals(UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL)
 		        || this.orderPref.equals(UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL_DESC)) {
-			return this.getResources().getString(R.string.direction) + " " + lastSubwayStation.getName();
+			return getString(R.string.direction_and_string, lastSubwayStation.getName());
 		} else {
 			// DEFAULT: A-Z order
 			this.orderPref = UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_DEFAULT;
-			return this.getResources().getString(R.string.alphabetical_order);
+			return getString(R.string.alphabetical_order);
 		}
 	}
 
@@ -329,42 +338,56 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 			}
 			ASubwayStation station = this.stations[position];
 			if (station != null) {
-				// MyLog.v(TAG, "station:" + station.getId());
 				// station name
 				((TextView) view.findViewById(R.id.station_name)).setText(station.getName());
 				// station lines color
-				if (station.getOtherLinesId().size() > 0) {
-					int lastIndex = station.getOtherLinesId().size() - 1;
-					((ImageView) view.findViewById(R.id.subway_img_1)).setImageResource(Utils.getSubwayLineImg(station
-					        .getOtherLinesId().get(lastIndex)));
-				} else {
-					((ImageView) view.findViewById(R.id.subway_img_1)).setImageResource(Utils.getSubwayLineImg(station
-					        .getLineId()));
-				}
-				if (station.getOtherLinesId().size() > 0) {
-					((ImageView) view.findViewById(R.id.subway_img_2)).setVisibility(View.VISIBLE);
-					if (station.getOtherLinesId().size() == 1) {
-						((ImageView) view.findViewById(R.id.subway_img_2)).setImageResource(Utils
-						        .getSubwayLineImg(station.getLineId()));
+				List<Integer> otherLines = station.getOtherLinesId();
+				// 1 - find the station line image
+				int subwayLineImgId = Utils.getSubwayLineImgId(Utils.getSubwayLineImgId(station.getLineId()));
+				if (!SubwayLineInfo.this.getSortOrderFromOrderPref(station.getLineId()).equals(
+				        StmStore.SubwayStation.DEFAULT_SORT_ORDER)) {
+					if (position == 0) {
+						subwayLineImgId = Utils.getSubwayLineImgListTopId(station.getLineId());
+					} else if (position == this.stations.length - 1) {
+						subwayLineImgId = Utils.getSubwayLineImgListBottomId(station.getLineId());
 					} else {
-						((ImageView) view.findViewById(R.id.subway_img_2)).setImageResource(Utils
-						        .getSubwayLineImg(station.getOtherLinesId().get(0)));
+						subwayLineImgId = Utils.getSubwayLineImgListMiddleId(station.getLineId());
 					}
 				} else {
-					((ImageView) view.findViewById(R.id.subway_img_2)).setVisibility(View.GONE);
+					subwayLineImgId = Utils.getSubwayLineImgListId(station.getLineId());
 				}
-
-				if (station.getOtherLinesId().size() > 1) {
-					((ImageView) view.findViewById(R.id.subway_img_3)).setVisibility(View.VISIBLE);
-					if (station.getOtherLinesId().size() == 2) {
-						((ImageView) view.findViewById(R.id.subway_img_3)).setImageResource(Utils
-						        .getSubwayLineImg(station.getLineId()));
-					} else {
-						((ImageView) view.findViewById(R.id.subway_img_3)).setImageResource(Utils
-						        .getSubwayLineImg(station.getOtherLinesId().get(1)));
-					}
+				// 2 - set the images to the right image view
+				// color 1 (on the right, closer to the text)
+				if (otherLines.size() == 0) {
+					((ImageView) view.findViewById(R.id.subway_img_1)).setImageResource(subwayLineImgId);
 				} else {
-					((ImageView) view.findViewById(R.id.subway_img_3)).setVisibility(View.GONE);
+					int lastIndex = otherLines.size() - 1;
+					int otherLineImg = Utils.getSubwayLineImgListId(otherLines.get(lastIndex));
+					((ImageView) view.findViewById(R.id.subway_img_1)).setImageResource(otherLineImg);
+				}
+				// color 2 (on the middle)
+				if (otherLines.size() < 1) {
+					view.findViewById(R.id.subway_img_2).setVisibility(View.GONE);
+				} else {
+					view.findViewById(R.id.subway_img_2).setVisibility(View.VISIBLE);
+					if (otherLines.size() == 1) {
+						((ImageView) view.findViewById(R.id.subway_img_2)).setImageResource(subwayLineImgId);
+					} else {
+						int otherLineImg = Utils.getSubwayLineImgListId(otherLines.get(0));
+						((ImageView) view.findViewById(R.id.subway_img_2)).setImageResource(otherLineImg);
+					}
+				}
+				// color 3 (on the left, closer to the border)
+				if (otherLines.size() < 2) {
+					view.findViewById(R.id.subway_img_3).setVisibility(View.GONE);
+				} else {
+					view.findViewById(R.id.subway_img_3).setVisibility(View.VISIBLE);
+					if (otherLines.size() == 2) {
+						((ImageView) view.findViewById(R.id.subway_img_3)).setImageResource(subwayLineImgId);
+					} else {
+						int otherLineImg = Utils.getSubwayLineImgListId(otherLines.get(1));
+						((ImageView) view.findViewById(R.id.subway_img_3)).setImageResource(otherLineImg);
+					}
 				}
 				// station distance
 				if (!TextUtils.isEmpty(station.getDistanceString())) {
@@ -375,16 +398,17 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Cursor runQuery(CharSequence constraint) {
-		MyLog.v(TAG, "runQuery(" + constraint + ")");
-		String orderId = getSortOrderFromOrderPref(this.subwayLine.getNumber());
-		return StmManager.searchSubwayLineStations(this.getContentResolver(), this.subwayLine.getNumber(), orderId,
-		        constraint.toString());
-	}
+	// TODO enable list filtering
+	// /**
+	// * {@inheritDoc}
+	// */
+	// @Override
+	// public Cursor runQuery(CharSequence constraint) {
+	// MyLog.v(TAG, "runQuery(" + constraint + ")");
+	// int lineNumber = this.subwayLine.getNumber();
+	// String orderId = getSortOrderFromOrderPref(lineNumber);
+	// return StmManager.searchSubwayLineStations(getContentResolver(), lineNumber, orderId, constraint.toString());
+	// }
 
 	/**
 	 * Store the device location.
@@ -503,20 +527,6 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		default:
 			MyLog.d(TAG, "Unknow menu id: " + item.getItemId() + ".");
 			return false;
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-		MyLog.v(TAG, "onItemClick(" + v.getId() + "," + v.getId() + "," + position + "," + id + ")");
-		if (this.stations != null && position < this.stations.length && this.stations[position] != null) {
-			Intent intent = new Intent(this, SubwayStationInfo.class);
-			String subwayStationId = this.stations[position].getId();
-			intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, subwayStationId);
-			startActivity(intent);
 		}
 	}
 }
