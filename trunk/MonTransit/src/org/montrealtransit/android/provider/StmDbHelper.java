@@ -18,7 +18,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * This SQLite database helper is used to access the STM database.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class StmDbHelper extends SQLiteOpenHelper {
 
@@ -36,7 +36,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	 * The database file name.
 	 */
 	private static String DB_NAME = "stm.db";
-	
+
 	/**
 	 * The database version use to manage database changes.
 	 */
@@ -128,7 +128,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	 */
 	public StmDbHelper(Context context) {
 		super(context, DB_NAME, null, DB_VERSION);
-		MyLog.v(TAG, "StmDbHelper("+DB_NAME+", "+DB_VERSION+")");
+		MyLog.v(TAG, "StmDbHelper(" + DB_NAME + ", " + DB_VERSION + ")");
 		createDbIfNecessary(context);
 	}
 
@@ -137,7 +137,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	 */
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		//MyLog.v(TAG, "onCreate()");
+		// MyLog.v(TAG, "onCreate()");
 		// DO NOTHING
 	}
 
@@ -146,7 +146,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	 */
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		//MyLog.v(TAG, "onUpgrade("+oldVersion+", "+newVersion+")");
+		// MyLog.v(TAG, "onUpgrade("+oldVersion+", "+newVersion+")");
 		// DO NOTHING
 	}
 
@@ -154,7 +154,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	 * Create the database if necessary.
 	 * @param context the context used to create the database
 	 */
-	private void createDbIfNecessary(Context context){
+	private void createDbIfNecessary(Context context) {
 		MyLog.v(TAG, "createDbIfNecessary()");
 		// IF DB doesn't exist DO
 		if (!isDbExist()) {
@@ -164,7 +164,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 			try {
 				this.getReadableDatabase();
 			} catch (SQLiteException e) {
-				MyLog.d(TAG,"SQLite exception while getReadableDatabase().");
+				MyLog.d(TAG, "SQLite exception while getReadableDatabase().");
 			}
 			try {
 				MyLog.i(TAG, "Initialization of the STM database...");
@@ -173,15 +173,14 @@ public class StmDbHelper extends SQLiteOpenHelper {
 			} catch (IOException e) {
 				MyLog.e(TAG, "Error while copying database", e);
 			}
-		// IF DB exist DO
 		} else {
 			MyLog.d(TAG, "DB EXIST");
 			// check version
 			int currentVersion = getExistingDbVersion();
-			if (currentVersion!= DB_VERSION) {
+			if (currentVersion != DB_VERSION) {
 				MyLog.d(TAG, "VERSION DIFF");
 				// upgrade
-				if (currentVersion== 1 && DB_VERSION==2) {
+				if (currentVersion == 1 && DB_VERSION == 2) {
 					MyLog.d(TAG, "UPGRADING...");
 					// close the db
 					close();
@@ -189,23 +188,24 @@ public class StmDbHelper extends SQLiteOpenHelper {
 					if (context.deleteDatabase(DB_NAME)) {
 						// copy the new one
 						createDbIfNecessary(context);
-						Utils.notifyTheUser(context, context.getResources().getString(R.string.update_stm_db_ok));
+						Utils.notifyTheUser(context, context.getString(R.string.update_stm_db_ok));
 					} else {
-						MyLog.w(TAG,"Can't delete the current database.");
+						MyLog.w(TAG, "Can't delete the current database.");
 						// notify the user that he need to remove and re-install the application
-						Utils.notifyTheUserLong(context, context.getResources().getString(R.string.update_stm_db_error));
-						Utils.notifyTheUserLong(context, context.getResources().getString(R.string.update_stm_db_error_next));
+						Utils.notifyTheUserLong(context, context.getString(R.string.update_stm_db_error));
+						Utils.notifyTheUserLong(context, context.getString(R.string.update_stm_db_error_next));
 					}
 				} else {
-					MyLog.w(TAG,"Trying to upgrade the db from version '"+currentVersion+"' to version '"+DB_VERSION+"'.");
+					MyLog.w(TAG, "Trying to upgrade the db from version '" + currentVersion + "' to version '"
+					        + DB_VERSION + "'.");
 				}
 			}
 		}
 	}
-	
+
 	private int getExistingDbVersion() {
 		int result = 0;
-		if (myDataBase!= null) {
+		if (myDataBase != null) {
 			result = myDataBase.getVersion();
 		} else {
 			SQLiteDatabase checkDB = null;
@@ -219,7 +219,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 			}
 		}
 		return result;
-    }
+	}
 
 	/**
 	 * Check if the database already exist to avoid re-copying the file each time you open the application.
@@ -239,8 +239,8 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	}
 
 	/**
-	 * Copies the database from the local assets-folder to the just created empty database in the system folder, from where it can be accessed and handled.
-	 * This is done by transferring byte stream.
+	 * Copies the database from the local assets-folder to the just created empty database in the system folder, from where it can be accessed and handled. This
+	 * is done by transferring byte stream.
 	 * @param context the context use to open the input stream
 	 * */
 	private void copyDataBase(Context context) throws IOException {
@@ -262,7 +262,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 		myOutput.close();
 		myInput.close();
 	}
-	
+
 	/**
 	 * Open the database.
 	 */
@@ -274,7 +274,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 			MyLog.w(TAG, "Error while opening the database.", sqle);
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
