@@ -1,21 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="0px" android:layout_height="wrap_content" android:layout_weight="25"
- 	android:padding="5dip"
+ 	android:padding="3dip"
 	android:background="@android:drawable/list_selector_background"
 	android:focusable="true">
 
-		<!-- SUBWAY IMG -->
-		<ImageView android:id="@+id/subway_img"
-        	android:layout_width="fill_parent" android:layout_height="?android:attr/listPreferredItemHeight"
-            android:layout_alignParentTop="true"
-            android:gravity="center" android:scaleType="centerInside"
-            android:src="@drawable/subway_white"/>
+		<RelativeLayout android:id="@+id/subway_img_bg"
+			android:layout_width="fill_parent" android:layout_height="?android:attr/listPreferredItemHeight"
+			android:layout_alignParentTop="true">
+			
+			<!-- SUBWAY IMG -->
+			<ImageView android:id="@+id/subway_img"
+	        	android:layout_width="40dip" android:layout_height="40dip"
+	        	android:layout_centerInParent="true"
+	            android:gravity="center"
+	            android:src="@drawable/subway_white" />
+		</RelativeLayout>
 
 		<!-- SUBWAY LINE NAME -->
 		<TextView android:id="@+id/line_name"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:layout_below="@id/subway_img"
+			android:layout_below="@id/subway_img_bg"
 			android:layout_centerHorizontal="true"
 			android:singleLine="true" android:ellipsize="end" android:gravity="center"
 			android:textAppearance="?android:attr/textAppearanceMedium" />

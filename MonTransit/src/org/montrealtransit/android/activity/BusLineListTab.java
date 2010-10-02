@@ -35,16 +35,12 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ExpandableListView.OnChildClickListener;
-import android.widget.SimpleCursorAdapter.ViewBinder;
 
 /**
  * This activity show a list of the bus lines. They can be grouped by number or name.
  * @author Mathieu Méa
  */
-public class BusLineListTab extends Activity implements OnChildClickListener, OnItemClickListener, ViewBinder,
-        FilterQueryProvider, OnSharedPreferenceChangeListener {
+public class BusLineListTab extends Activity implements OnSharedPreferenceChangeListener {
 
 	/**
 	 * The log tag.
@@ -88,8 +84,49 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 		// set the UI
 		setContentView(R.layout.bus_line_list_tab);
 		PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
-		((ExpandableListView) findViewById(R.id.elist)).setOnChildClickListener(this);
-		((ListView) findViewById(R.id.list)).setOnItemClickListener(this);
+		((ExpandableListView) findViewById(R.id.elist))
+		        .setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+			        @Override
+			        public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
+			                int childPosition, long id) {
+				        MyLog.v(TAG, "onChildClick(" + parent.getId() + "," + v.getId() + "," + groupPosition + ","
+				                + childPosition + "," + id + ")");
+				        if (parent.getId() == R.id.elist) {
+					        String lineNumber;
+					        if (getBusListGroupByFromPreferences().equals(
+					                UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
+						        lineNumber = BusLineListTab.this.currentChildDataByType.get(groupPosition).get(
+						                childPosition).get(StmStore.BusLine.LINE_NUMBER);
+					        } else {
+						        lineNumber = BusLineListTab.this.currentChildDataByNumber.get(groupPosition).get(
+						                childPosition).get(StmStore.BusLine.LINE_NUMBER);
+					        }
+					        MyLog.v(TAG, "bus line number:" + lineNumber + ".");
+					        BusLineSelectDirection busLineSelectDirection = new BusLineSelectDirection(
+					                BusLineListTab.this, lineNumber);
+					        busLineSelectDirection.showDialog();
+					        return true;
+				        } else {
+					        MyLog.w(TAG, "unknown view id:" + parent.getId());
+					        return false;
+				        }
+			        }
+		        });
+		((ListView) findViewById(R.id.list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> l, View v, int position, long id) {
+				MyLog.v(TAG, "onItemClick(" + l.getId() + "," + v.getId() + "," + position + "," + id + ")");
+				if (l.getId() == R.id.list) {
+					String lineNumber = String.valueOf(id);
+					MyLog.v(TAG, "lineNumber:" + lineNumber);
+					BusLineSelectDirection busLineSelectDirection = new BusLineSelectDirection(BusLineListTab.this,
+					        lineNumber);
+					busLineSelectDirection.showDialog();
+				} else {
+					MyLog.w(TAG, "unknown view id:" + v.getId());
+				}
+			}
+		});
 		// refresh the bus list
 		refreshAll();
 	}
@@ -106,7 +143,7 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 		} else {
 			showListView();
 		}
-	    super.onRestart();
+		super.onRestart();
 	}
 
 	/**
@@ -157,12 +194,12 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	 */
 	private void showEListView() {
 		MyLog.v(TAG, "showEListView()");
-		((ExpandableListView) findViewById(R.id.elist)).setVisibility(View.VISIBLE);
-		((TextView) findViewById(R.id.elist_empty)).setVisibility(View.VISIBLE);
+		findViewById(R.id.elist).setVisibility(View.VISIBLE);
+		findViewById(R.id.elist_empty).setVisibility(View.VISIBLE);
 		((ExpandableListView) findViewById(R.id.elist)).setEmptyView(findViewById(R.id.elist_empty));
 
-		((ListView) findViewById(R.id.list)).setVisibility(View.GONE);
-		((TextView) findViewById(R.id.list_empty)).setVisibility(View.GONE);
+		findViewById(R.id.list).setVisibility(View.GONE);
+		findViewById(R.id.list_empty).setVisibility(View.GONE);
 	}
 
 	/**
@@ -170,11 +207,11 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 	 */
 	private void showListView() {
 		MyLog.v(TAG, "showListView()");
-		((ExpandableListView) findViewById(R.id.elist)).setVisibility(View.GONE);
-		((TextView) findViewById(R.id.elist_empty)).setVisibility(View.GONE);
+		findViewById(R.id.elist).setVisibility(View.GONE);
+		findViewById(R.id.elist_empty).setVisibility(View.GONE);
 
-		((ListView) findViewById(R.id.list)).setVisibility(View.VISIBLE);
-		((TextView) findViewById(R.id.list_empty)).setVisibility(View.VISIBLE);
+		findViewById(R.id.list).setVisibility(View.VISIBLE);
+		findViewById(R.id.list_empty).setVisibility(View.VISIBLE);
 		((ListView) findViewById(R.id.list)).setEmptyView(findViewById(R.id.list_empty));
 	}
 
@@ -362,36 +399,38 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 		        StmStore.BusLine.LINE_HOURS, StmStore.BusLine.LINE_TYPE };
 		int[] to = new int[] { R.id.line_number, R.id.line_name, R.id.hours, R.id.line_type };
 		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.bus_line_list_item, this.cursor, from, to);
-		adapter.setViewBinder(this);
-		adapter.setFilterQueryProvider(this);
+		adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+			@Override
+			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+				switch (view.getId()) {
+				case R.id.line_type:
+					String type = cursor.getString(cursor.getColumnIndex(StmStore.BusLine.LINE_TYPE));
+					((ImageView) view).setImageResource(Utils.getBusLineTypeImgFromType(type));
+					return true;
+				case R.id.hours:
+					String shours = cursor.getString(cursor.getColumnIndex(StmStore.BusLine.LINE_HOURS));
+					((TextView) view).setText(Utils.getFormatted2Hours(BusLineListTab.this, shours, "-"));
+					return true;
+				case R.id.line_number:
+					String number = cursor.getString(cursor.getColumnIndex(StmStore.BusLine.LINE_NUMBER));
+					((TextView) view).setText(number);
+					String type2 = cursor.getString(cursor.getColumnIndex(StmStore.BusLine.LINE_TYPE));
+					((TextView) view).setBackgroundColor(Utils.getBusLineTypeBgColorFromType(type2));
+					return true;
+				default:
+					return false;
+				}
+			}
+		});
+		adapter.setFilterQueryProvider(new FilterQueryProvider() {
+			@Override
+			public Cursor runQuery(CharSequence constraint) {
+				MyLog.v(TAG, "runQuery(" + constraint + ")");
+				return StmManager.searchAllBusLines(BusLineListTab.this.getContentResolver(), constraint.toString());
+			}
+		});
 		startManagingCursor(cursor);
 		return adapter;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Cursor runQuery(CharSequence constraint) {
-		MyLog.v(TAG, "runQuery(" + constraint + ")");
-		return StmManager.searchAllBusLines(this.getContentResolver(), constraint.toString());
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-		if (columnIndex == cursor.getColumnIndex(StmStore.BusLine.LINE_TYPE)) {
-			String type = cursor.getString(cursor.getColumnIndex(StmStore.BusLine.LINE_TYPE));
-			((ImageView) view).setImageResource(Utils.getBusLineTypeImgFromType(type));
-			return true;
-		} else if (columnIndex == cursor.getColumnIndex(StmStore.BusLine.LINE_HOURS)) {
-			String shours = cursor.getString(cursor.getColumnIndex(StmStore.BusLine.LINE_HOURS));
-			((TextView) view).setText(Utils.getFormatted2Hours(this, shours, "-"));
-			return true;
-		}
-		return false;
 	}
 
 	/**
@@ -415,8 +454,8 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 					Map<String, String> curGroupMap = new HashMap<String, String>();
 					currentGroup = getBusLineGroup(busLine.getNumber());
 					int currentGroupI = Integer.valueOf(String.valueOf(currentGroup) + "00");
-					curGroupMap.put("lines", getResources().getString(R.string.bus_line_string) + " " + currentGroupI
-					        + " " + getResources().getString(R.string.to) + " " + (currentGroupI + 99));
+					curGroupMap.put("lines", getString(R.string.bus_line_string) + " " + currentGroupI + " "
+					        + getString(R.string.to) + " " + (currentGroupI + 99));
 					groupData.add(curGroupMap);
 					// create the children list
 					currrentChildren = new ArrayList<Map<String, String>>();
@@ -499,53 +538,13 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 		 */
 		private void bindView(View view, Map<String, String> data) {
 			((TextView) view.findViewById(R.id.line_number)).setText(data.get(StmStore.BusLine.LINE_NUMBER));
+			int color = Utils.getBusLineTypeBgColorFromType(data.get(StmStore.BusLine.LINE_TYPE));
+			((TextView) view.findViewById(R.id.line_number)).setBackgroundColor(color);
 			((TextView) view.findViewById(R.id.line_name)).setText(data.get(StmStore.BusLine.LINE_NAME));
 			String hours = Utils.getFormatted2Hours(BusLineListTab.this, data.get(StmStore.BusLine.LINE_HOURS), "-");
 			((TextView) view.findViewById(R.id.hours)).setText(hours);
 			int busImg = Utils.getBusLineTypeImgFromType(data.get(StmStore.BusLine.LINE_TYPE));
 			((ImageView) view.findViewById(R.id.line_type)).setImageResource(busImg);
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-		MyLog.v(TAG, "onChildClick(" + parent.getId() + "," + v.getId() + "," + groupPosition + "," + childPosition
-		        + "," + id + ")");
-		if (parent.getId() == R.id.elist) {
-			String lineNumber;
-			if (getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
-				lineNumber = this.currentChildDataByType.get(groupPosition).get(childPosition).get(
-				        StmStore.BusLine.LINE_NUMBER);
-			} else {
-				lineNumber = this.currentChildDataByNumber.get(groupPosition).get(childPosition).get(
-				        StmStore.BusLine.LINE_NUMBER);
-			}
-			MyLog.v(TAG, "bus line number:" + lineNumber + ".");
-			BusLineSelectDirection busLineSelectDirection = new BusLineSelectDirection(this, lineNumber);
-			busLineSelectDirection.showDialog();
-			return true;
-		} else {
-			MyLog.w(TAG, "unknown view id:" + parent.getId());
-			return false;
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-		MyLog.v(TAG, "onItemClick(" + l.getId() + "," + v.getId() + "," + position + "," + id + ")");
-		if (l.getId() == R.id.list) {
-			String lineNumber = String.valueOf(id);
-			MyLog.v(TAG, "lineNumber:" + lineNumber);
-			BusLineSelectDirection busLineSelectDirection = new BusLineSelectDirection(this, lineNumber);
-			busLineSelectDirection.showDialog();
-		} else {
-			MyLog.w(TAG, "unknown view id:" + v.getId());
 		}
 	}
 
@@ -643,7 +642,7 @@ public class BusLineListTab extends Activity implements OnChildClickListener, On
 			return v;
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */

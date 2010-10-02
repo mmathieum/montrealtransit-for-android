@@ -35,10 +35,11 @@ public class FavListLiveFolder extends Activity {
 			List<DataStore.Fav> favList = DataManager.findFavsByTypeList(getContentResolver(),
 			        DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
 			if (Utils.getListSize(favList) > 0) {
-				setResult(RESULT_OK, createLiveFolder(this, StmManager.getBusStopsFavUri(favList), getResources()
-				        .getString(R.string.favorite_bus_stop_live_folder_name), R.drawable.ic_launcher_folder_live_favorites));
+				setResult(RESULT_OK, createLiveFolder(this, StmManager.getBusStopsFavUri(favList),
+				        getString(R.string.favorite_bus_stop_live_folder_name),
+				        R.drawable.ic_launcher_folder_live_favorites));
 			} else {
-				Utils.notifyTheUser(this, getResources().getString(R.string.favorite_bus_stop_live_folder_need_to_add_fav));
+				Utils.notifyTheUser(this, getString(R.string.favorite_bus_stop_live_folder_need_to_add_fav));
 				setResult(RESULT_CANCELED);
 			}
 		} else {

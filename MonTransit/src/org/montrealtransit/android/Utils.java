@@ -331,6 +331,32 @@ public class Utils {
 			return android.R.drawable.ic_dialog_alert;
 		}
 	}
+	
+	/**
+	 * @param type the bus line type
+	 * @return the color ID matching the bus line type
+	 */
+	public static int getBusLineTypeBgColorFromType(String type) {
+		// MyLog.v(TAG, "getBusLineTypeImgFromType(" + type + ")");
+		if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_REGULAR_SERVICE)) {
+			return Color.rgb(0, 96, 170); // BLUE;
+		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_RUSH_HOUR_SERVICE)) {
+			return Color.RED;
+		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_METROBUS_SERVICE)) {
+			return Color.rgb(0, 115, 57); // GREEN
+		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_TRAINBUS)) {
+			return Color.rgb(0, 156, 33); // GREEN light
+		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_NIGHT_SERVICE)) {
+			return Color.BLACK;
+		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_EXPRESS_SERVICE)) {
+			return Color.rgb(0, 115, 57); // GREEN
+		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_RESERVED_LANE_SERVICE)) {
+			return Color.rgb(0, 115, 57); // GREEN
+		} else {
+			MyLog.w(TAG, "Unknown bus line type \"" + type + "\".");
+			return Color.GRAY;
+		}
+	}
 
 	/**
 	 * Return the bus line type string ID from the bus line type code.
@@ -417,7 +443,7 @@ public class Utils {
 	 * @param context the context used to get the device settings
 	 * @return the date formatter matching the device settings
 	 */
-	private static DateFormat getDateFormatter(Context context) {
+	public static DateFormat getDateFormatter(Context context) {
 		// IF no current local OR no current data formatter OR the country/language has changed DO
 		if (currentLocale == null || dateFormatter == null
 		        || currentLocale != context.getResources().getConfiguration().locale) {
@@ -530,7 +556,7 @@ public class Utils {
 	 * @param number the subway line number
 	 * @return the subway line image ID
 	 */
-	public static int getSubwayLineImg(int number) {
+	public static int getSubwayLineImgId(int number) {
 		//MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
 		switch (number) {
 		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
@@ -546,6 +572,90 @@ public class Utils {
 			return R.drawable.yellow;
 		}
 	}
+	
+	/**
+	 * @param the subway line number
+	 * @return the subway line list image
+	 */
+	public static int getSubwayLineImgListId(int number) {
+		//MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
+		switch (number) {
+		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
+			return R.drawable.green_list;
+		case StmStore.SubwayLine.ORANGE_LINE_NUMBER:
+			return R.drawable.orange_list;
+		case StmStore.SubwayLine.YELLOW_LINE_NUMBER:
+			return R.drawable.yellow_list;
+		case StmStore.SubwayLine.BLUE_LINE_NUMBER:
+			return R.drawable.blue_list;
+		default:
+			MyLog.w(TAG, "Unknown image for subway line number \"" + number + "\".");
+			return R.drawable.yellow;
+		}
+	}
+	
+	/**
+	 * @param the subway line number
+	 * @return the subway line list top image
+	 */
+	public static int getSubwayLineImgListTopId(int number) {
+		//MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
+		switch (number) {
+		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
+			return R.drawable.green_list_top;
+		case StmStore.SubwayLine.ORANGE_LINE_NUMBER:
+			return R.drawable.orange_list_top;
+		case StmStore.SubwayLine.YELLOW_LINE_NUMBER:
+			return R.drawable.yellow_list_top;
+		case StmStore.SubwayLine.BLUE_LINE_NUMBER:
+			return R.drawable.blue_list_top;
+		default:
+			MyLog.w(TAG, "Unknown image for subway line number \"" + number + "\".");
+			return R.drawable.yellow;
+		}
+	}
+	
+	/**
+	 * @param the subway line number
+	 * @return the subway line list middle image
+	 */
+	public static int getSubwayLineImgListMiddleId(int number) {
+		//MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
+		switch (number) {
+		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
+			return R.drawable.green_list_middle;
+		case StmStore.SubwayLine.ORANGE_LINE_NUMBER:
+			return R.drawable.orange_list_middle;
+		case StmStore.SubwayLine.YELLOW_LINE_NUMBER:
+			return R.drawable.yellow_list_middle;
+		case StmStore.SubwayLine.BLUE_LINE_NUMBER:
+			return R.drawable.blue_list_middle;
+		default:
+			MyLog.w(TAG, "Unknown image for subway line number \"" + number + "\".");
+			return R.drawable.yellow;
+		}
+	}
+	
+	/**
+	 * @param the subway line number
+	 * @return the subway line list bottom image
+	 */
+	public static int getSubwayLineImgListBottomId(int number) {
+		//MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
+		switch (number) {
+		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
+			return R.drawable.green_list_bottom;
+		case StmStore.SubwayLine.ORANGE_LINE_NUMBER:
+			return R.drawable.orange_list_bottom;
+		case StmStore.SubwayLine.YELLOW_LINE_NUMBER:
+			return R.drawable.yellow_list_bottom;
+		case StmStore.SubwayLine.BLUE_LINE_NUMBER:
+			return R.drawable.blue_list_bottom;
+		default:
+			MyLog.w(TAG, "Unknown image for subway line number \"" + number + "\".");
+			return R.drawable.yellow;
+		}
+	}
 
 	/**
 	 * Return the subway line color ID from the subway line number
@@ -556,16 +666,16 @@ public class Utils {
 		MyLog.v(TAG, "getSubwayLineColor(" + number + ")");
 		switch (number) {
 		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
-			return Color.GREEN;
+			return Color.rgb(0, 148, 52);// green
 		case StmStore.SubwayLine.ORANGE_LINE_NUMBER:
-			return Color.rgb(255, 165, 0); // Orange
+			return Color.rgb(236, 127, 0); // Orange
 		case StmStore.SubwayLine.YELLOW_LINE_NUMBER:
-			return Color.YELLOW;
+			return Color.rgb(255, 227, 1); // yellow
 		case StmStore.SubwayLine.BLUE_LINE_NUMBER:
-			return Color.BLUE;
+			return Color.rgb(0, 157, 224); // blue
 		default:
 			MyLog.w(TAG, "Unknown color for subway line number \"" + number + "\".");
-			return Color.BLACK;
+			return Color.WHITE;
 		}
 	}
 
@@ -805,10 +915,10 @@ public class Utils {
 			PackageInfo packageInfo = context.getPackageManager().getPackageInfo(Constant.PKG, 0);
 			String versionName = packageInfo.versionName;
 			int versionCode = packageInfo.versionCode;
-			MyLog.i(TAG, context.getResources().getString(R.string.app_name) + " \"" + versionName + "\" (v"
+			MyLog.i(TAG, context.getString(R.string.app_name) + " \"" + versionName + "\" (v"
 			        + versionCode + ")");
 		} catch (NameNotFoundException e) {
-			MyLog.w(TAG, "No VERSION for " + context.getResources().getString(R.string.app_name) + "!", e);
+			MyLog.w(TAG, "No VERSION for " + context.getString(R.string.app_name) + "!", e);
 		}
 	}
 
@@ -867,7 +977,7 @@ public class Utils {
 		View view = activity.getLayoutInflater().inflate(R.layout.about, null, false);
 
 		TextView contributosTv = (TextView) view.findViewById(R.id.contributors);
-		contributosTv.setText(activity.getResources().getString(R.string.about_contributors));
+		contributosTv.setText(activity.getString(R.string.about_contributors));
 		
 		TextView versionTv = (TextView) view.findViewById(R.id.version);
 		versionTv.setText(activity.getString(R.string.about_version, versionName, versionCode));

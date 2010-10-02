@@ -14,7 +14,7 @@ import android.widget.TabHost.TabSpec;
  * This class is the first screen displayed by the application. It contains, 4 tabs.
  * @author Mathieu Méa
  */
-// TODO offer the options to just show a list of the "tabs".
+// TODO offer the options to just show a list of the "tabs" == Dashboard UI
 public class MainScreen extends TabActivity {
 
 	/**
@@ -51,26 +51,24 @@ public class MainScreen extends TabActivity {
 
 		// the favorites list
 		TabSpec favListTab = getTabHost().newTabSpec(TAB_FAV);
-		favListTab.setIndicator(getResources().getString(R.string.favorite), getResources().getDrawable(
-		        R.drawable.ic_tab_starred));
+		favListTab.setIndicator(getString(R.string.favorite), getResources().getDrawable(R.drawable.ic_tab_starred));
 		favListTab.setContent(new Intent(this, FavListTab.class));
 		getTabHost().addTab(favListTab);
 		// the bus stop code
 		TabSpec busStopCodeTab = getTabHost().newTabSpec(TAB_STOP_CODE);
-		busStopCodeTab.setIndicator(getResources().getString(R.string.stop_code), getResources().getDrawable(
+		busStopCodeTab.setIndicator(getString(R.string.stop_code), getResources().getDrawable(
 		        R.drawable.ic_tab_stop_code));
 		busStopCodeTab.setContent(new Intent(this, BusStopCodeTab.class));
 		getTabHost().addTab(busStopCodeTab);
 		// the bus lines list
 		TabSpec busLinesListTab = getTabHost().newTabSpec(TAB_BUS);
-		busLinesListTab.setIndicator(getResources().getString(R.string.bus), getResources().getDrawable(
-		        R.drawable.ic_tab_bus));
+		busLinesListTab.setIndicator(getString(R.string.bus), getResources().getDrawable(R.drawable.ic_tab_bus));
 		busLinesListTab.setContent(new Intent(this, BusLineListTab.class));
 		getTabHost().addTab(busLinesListTab);
 		// the subway lines list
 		TabSpec subwayLinesListTab = getTabHost().newTabSpec(TAB_SUBWAY);
-		subwayLinesListTab.setIndicator(getResources().getString(R.string.subway), getResources().getDrawable(
-		        R.drawable.ic_tab_subway));
+		subwayLinesListTab.setIndicator(getString(R.string.subway), getResources()
+		        .getDrawable(R.drawable.ic_tab_subway));
 		subwayLinesListTab.setContent(new Intent(this, SubwayTab.class));
 		getTabHost().addTab(subwayLinesListTab);
 		try {

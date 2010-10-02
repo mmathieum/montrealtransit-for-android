@@ -18,8 +18,7 @@ import android.view.View;
  * This class handle the subway line direction selection.
  * @author Mathieu Méa
  */
-public class SubwayLineSelectDirection implements android.view.View.OnClickListener,
-        android.content.DialogInterface.OnClickListener, SubwayLineSelectDirectionDialogListener {
+public class SubwayLineSelectDirection implements View.OnClickListener, SubwayLineSelectDirectionDialogListener {
 
 	/**
 	 * The log tag.
@@ -90,10 +89,26 @@ public class SubwayLineSelectDirection implements android.view.View.OnClickListe
 	private AlertDialog getAlertDialog() {
 		MyLog.v(TAG, "getAlertDialog()");
 		AlertDialog.Builder builder = new AlertDialog.Builder(this.context);
-		builder.setTitle(this.context.getResources().getString(Utils.getSubwayLineName(this.subwayLine.getNumber()))
-		        + " - " + this.context.getResources().getString(R.string.select_subway_direction));
-		builder.setSingleChoiceItems(getItems(), getCheckedItemFromPref(), this);
-		builder.setNegativeButton(R.string.cancel, this);
+		String lineName = context.getString(Utils.getSubwayLineName(this.subwayLine.getNumber()));
+		builder.setTitle(context.getString(R.string.select_subway_direction_and_name, lineName));
+		builder.setSingleChoiceItems(getItems(), getCheckedItemFromPref(), new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				MyLog.v(TAG, "onClick(" + which + ")");
+				dialog.dismiss(); // close the dialog
+				int lineNumber = SubwayLineSelectDirection.this.subwayLine.getNumber();
+				String orderPref = SubwayLineSelectDirection.this.orderPref[which];
+				SubwayLineSelectDirection.this.listener.showNewSubway(lineNumber, orderPref);
+			}
+		});
+		// CANCEL
+		builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				MyLog.v(TAG, "onClick(" + which + ")");
+				dialog.dismiss(); // close the dialog (do nothing)
+			}
+		});
 		AlertDialog alert = builder.create();
 		return alert;
 	}
@@ -130,26 +145,12 @@ public class SubwayLineSelectDirection implements android.view.View.OnClickListe
 		orderPref = new String[3];
 
 		orderPref[0] = UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_AZ;
-		items[0] = this.context.getResources().getString(R.string.alphabetical_order);
+		items[0] = this.context.getString(R.string.alphabetical_order);
 		orderPref[1] = UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL;
 		items[1] = firstSubwayStationDirection.getName();
 		orderPref[2] = UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL_DESC;
 		items[2] = lastSubwayStationDirection.getName();
 		return items;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void onClick(DialogInterface dialog, int which) {
-		MyLog.v(TAG, "onClick(" + which + ")");
-		if (which == -2) { // CANCEL
-			dialog.dismiss(); // close the dialog (do nothing)
-		} else {
-			dialog.dismiss(); // close the dialog
-			this.listener.showNewSubway(this.subwayLine.getNumber(), this.orderPref[which]);
-		}
 	}
 
 	/**

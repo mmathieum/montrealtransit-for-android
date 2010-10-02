@@ -14,11 +14,11 @@ import android.os.AsyncTask;
 public abstract class AbstractNextStopProvider extends AsyncTask<StmStore.BusStop, String, BusStopHours> {
 
 	/**
-	 * The class asking for the info
+	 * The class that will handle the response.
 	 */
 	protected NextStopListener from;
 	/**
-	 * The context.
+	 * The class asking for the info.
 	 */
 	protected Context context;
 

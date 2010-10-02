@@ -24,15 +24,12 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.SimpleCursorAdapter.ViewBinder;
 
 /**
  * This activity display information about a bus line.
  * @author Mathieu Méa
  */
-public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDirectionDialogListener,
-        OnItemClickListener, FilterQueryProvider {
+public class BusLineInfo extends Activity implements BusLineSelectDirectionDialogListener {
 
 	/**
 	 * The current bus line.
@@ -69,7 +66,18 @@ public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDi
 		// set the UI
 		setContentView(R.layout.bus_line_info);
 		((ListView) findViewById(R.id.list)).setEmptyView(findViewById(R.id.list_empty));
-		((ListView) findViewById(R.id.list)).setOnItemClickListener(this);
+		((ListView) findViewById(R.id.list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> l, View v, int position, long id) {
+				MyLog.v(TAG, "onItemClick(" + v.getId() + "," + v.getId() + "," + position + "," + id + ")");
+				if (id > 0) {
+					Intent intent = new Intent(BusLineInfo.this, BusStopInfo.class);
+					intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, String.valueOf(id));
+					intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, BusLineInfo.this.busLine.getNumber());
+					startActivity(intent);
+				}
+			}
+		});
 		// get the bus line ID and bus line direction ID from the intent.
 		String lineNumber = Utils.getSavedStringValue(this.getIntent(), savedInstanceState,
 		        BusLineInfo.EXTRA_LINE_NUMBER);
@@ -116,18 +124,19 @@ public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDi
 		int busLineTypeImg = Utils.getBusLineTypeImgFromType(this.busLine.getType());
 		((ImageView) findViewById(R.id.bus_type)).setImageResource(busLineTypeImg);
 
+		// bus line hours
+		((TextView) findViewById(R.id.hours)).setText(Utils.getFormatted2Hours(this, this.busLine.getHours(), "-"));
+
 		// bus line direction
 		BusLineSelectDirection selectBusLineDirection = new BusLineSelectDirection(this, this.busLine.getNumber(), this);
 		((TextView) findViewById(R.id.bus_line_stop_string)).setOnClickListener(selectBusLineDirection);
 		List<Integer> busLineDirection = Utils.getBusLineDirectionStringIdFromId(this.busLineDirection.getId());
-		String separtorText = getResources().getString(R.string.bus_stops);
-		separtorText += " (" + getResources().getString(R.string.direction);
-		separtorText += " " + getResources().getString(busLineDirection.get(0));
+		String direction = getString(busLineDirection.get(0));
 		if (busLineDirection.size() >= 2) {
-			separtorText += " " + getResources().getString(busLineDirection.get(1));
+			direction += " " + getString(busLineDirection.get(1));
 		}
-		separtorText += ")";
-		((TextView) findViewById(R.id.bus_line_stop_string)).setText(separtorText);
+		((TextView) findViewById(R.id.bus_line_stop_string)).setText(getString(R.string.bus_stops_short_and_direction,
+		        direction));
 	}
 
 	/**
@@ -145,55 +154,37 @@ public class BusLineInfo extends Activity implements ViewBinder, BusLineSelectDi
 		this.cursor = StmManager.findBusLineStops(this.getContentResolver(), this.busLine.getNumber(),
 		        this.busLineDirection.getId());
 		String[] from = new String[] { StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE,
-				StmStore.BusStop.STATION_NAME, StmStore.BusStop.STOP_SUBWAY_STATION_ID };
+		        StmStore.BusStop.STATION_NAME, StmStore.BusStop.STOP_SUBWAY_STATION_ID };
 		int[] to = new int[] { R.id.stop_code, R.id.place, R.id.station_name, R.id.subway_img };
 		SimpleCursorAdapter busStops = new SimpleCursorAdapter(this, R.layout.bus_line_info_stops_list_item,
 		        this.cursor, from, to);
-		busStops.setViewBinder(this);
-		busStops.setFilterQueryProvider(this);
+		busStops.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+			@Override
+			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+				switch (view.getId()) {
+				case R.id.subway_img:
+					view.setVisibility(cursor.getInt(columnIndex) != 0 ? View.VISIBLE : View.GONE);
+					return true;
+				case R.id.place:
+					String cleanBusStopPlace = Utils.cleanBusStopPlace(cursor.getString(columnIndex));
+					((TextView) view).setText(cleanBusStopPlace);
+					return true;
+				default:
+					return false;
+				}
+			}
+		});
+		busStops.setFilterQueryProvider(new FilterQueryProvider() {
+			@Override
+			public Cursor runQuery(CharSequence constraint) {
+				String lineNumber = BusLineInfo.this.busLine.getNumber();
+				String directionID = BusLineInfo.this.busLineDirection.getId();
+				return StmManager.searchBusLineStops(BusLineInfo.this.getContentResolver(), lineNumber, directionID,
+				        constraint.toString());
+			}
+		});
 		startManagingCursor(cursor);
 		return busStops;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Cursor runQuery(CharSequence constraint) {
-		return StmManager.searchBusLineStops(this.getContentResolver(), this.busLine.getNumber(), this.busLineDirection
-		        .getId(), constraint.toString());
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-		switch (view.getId()) {
-		case R.id.subway_img:
-			((ImageView) view).setVisibility(cursor.getInt(columnIndex) != 0 ? View.VISIBLE : View.GONE);
-			return true;
-		case R.id.place:
-			String cleanBusStopPlace = Utils.cleanBusStopPlace(cursor.getString(columnIndex));
-			((TextView) view).setText(cleanBusStopPlace);
-			return true;
-		default:
-			return false;
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-		MyLog.v(TAG, "onItemClick(" + v.getId() + "," + v.getId() + "," + position + "," + id + ")");
-		if (id > 0) {
-			Intent intent = new Intent(this, BusStopInfo.class);
-			intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, String.valueOf(id));
-			intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, this.busLine.getNumber());
-			startActivity(intent);
-		}
 	}
 
 	/**

@@ -6,7 +6,7 @@ import org.xml.sax.SAXException;
 
 /**
  * This class handle m.stm.info page parsing.
- * @author Mathieu Méa
+ * @author Mathieu MÃ©a
  */
 public class StmMobileHandler extends AbstractXHTMLHandler {
 

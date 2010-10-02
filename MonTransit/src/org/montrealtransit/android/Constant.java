@@ -45,7 +45,9 @@ public class Constant {
 
 	public static final CharSequence HTML_CODE_SPACE = "&nbsp;";
 	public static final String HTML_CODE_EACUTE = "&eacute;";
+	public static final String HTML_CODE_EACUTE_2 = "&#233;";
 	public static final String HTML_CODE_ECIRC = "&ecirc;";
+	public static final String HTML_CODE_ECIRC_2 = "&#234;";
 	public static final String HTML_TABLE_END = "</table>";
 	public static final String HTML_TAG = "<html>";
 	public static final String HTML_TAG_END = "</html>";

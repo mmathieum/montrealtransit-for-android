@@ -59,8 +59,7 @@ public class GeocodingTask extends AsyncTask<String, String, List<Address>> {
 		MyLog.v(TAG, "doInBackground()");
 		try {
 			String locationName = params[0];
-			publishProgress(this.context.getResources().getString(R.string.reverse_geocoding_1) + " " + locationName
-			        + this.context.getResources().getString(R.string.ellipsis));
+			publishProgress(this.context.getString(R.string.geocoding_and_location, locationName));
 			MyLog.v(TAG, "Geocode: " + locationName + ".");
 			Geocoder geocoder = new Geocoder(this.context);
 			return geocoder.getFromLocationName(locationName, this.maxResults, Constant.STM_LOWER_LEFT_LAT,

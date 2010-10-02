@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="?android:attr/listPreferredItemHeight"
-	android:padding="5dip">
+	android:paddingLeft="5dip" android:paddingRight="5dip" android:paddingTop="0dip" android:paddingBottom="0dip">
 
 	<!-- SUBWAY LINEs IMG -->	
 	<ImageView android:id="@+id/subway_img_3"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:layout_width="wrap_content" android:layout_height="fill_parent"
 		android:layout_alignParentBottom="true" android:layout_alignParentTop="true"
 		android:layout_alignParentLeft="true" android:layout_alignWithParentIfMissing="true"
 		android:layout_marginRight="3dip"
-		android:gravity="center_horizontal" />
+		android:scaleType="fitXY" android:gravity="center_vertical" />
 	<ImageView android:id="@+id/subway_img_2"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:layout_width="wrap_content" android:layout_height="fill_parent"
 		android:layout_alignParentTop="true" android:layout_alignParentBottom="true"
 		android:layout_toRightOf="@id/subway_img_3" android:layout_alignWithParentIfMissing="true"
 		android:layout_marginRight="3dip"
-		android:gravity="center_horizontal" />
+		android:scaleType="fitXY" android:gravity="center_vertical" />
 	<ImageView android:id="@+id/subway_img_1"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:layout_width="wrap_content" android:layout_height="fill_parent"
 		android:layout_alignParentTop="true" android:layout_alignParentBottom="true"
 		android:layout_toRightOf="@id/subway_img_2" android:layout_alignWithParentIfMissing="true"
 		android:layout_marginRight="3dip"
-		android:gravity="center_horizontal" />
+		android:scaleType="fitXY" android:gravity="center_vertical" />
 
 	<!-- DISTANCE-->
 	<TextView android:id="@+id/distance"

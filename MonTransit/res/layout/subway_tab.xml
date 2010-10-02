@@ -21,19 +21,83 @@
 		 	<include layout="@layout/subway_tab_subway_line_item" />
 		 	<include layout="@layout/subway_tab_subway_line_item" />
 
-		</LinearLayout> 
+		</LinearLayout>
+		
+		<!-- SUBWAY STATUS -->
+		<RelativeLayout
+			android:layout_width="match_parent" android:layout_height="25dip"
+			android:background="@drawable/dark_header_dither"
+			android:paddingLeft="5sp">
+			<TextView android:id="@+id/subway_status_section"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:layout_alignParentLeft="true"
+				android:textStyle="bold" android:textSize="14sp"
+				android:textColor="?android:attr/textColorSecondary"
+				android:gravity="center_vertical"
+				android:text="@string/subway_status" />
+			<ImageView android:id="@+id/subway_status_section_refresh"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:layout_alignParentRight="true"
+				android:src="@drawable/ic_btn_refresh"
+				android:background="@android:drawable/list_selector_background"
+				android:onClick="refreshSubwayStatus"
+				android:focusable="true" />
+			<ImageView android:id="@+id/subway_status_section_info"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:layout_toLeftOf="@id/subway_status_section_refresh"
+				android:src="@drawable/ic_btn_info_details"
+				android:background="@android:drawable/list_selector_background"
+				android:onClick="showSubwayStatusInfoDialog"
+				android:focusable="true" />
+		</RelativeLayout>
+		<include android:id="@+id/subway_status_loading" layout="@layout/loading_layout" />
+		<RelativeLayout android:id="@+id/subway_status"
+			android:layout_width="fill_parent"  android:layout_height="wrap_content"
+			android:padding="5dip"
+			android:focusable="false"
+			android:visibility="gone">
+			<ImageView android:id="@+id/subway_status_img"
+				android:layout_width="40dip" android:layout_height="40dip"
+				android:layout_alignParentTop="true" android:layout_alignParentBottom="true"
+				android:layout_alignParentLeft="true" android:layout_alignWithParentIfMissing="true"
+				android:layout_centerVertical="true"
+				android:gravity="center_vertical"
+				android:layout_marginRight="5dip" 
+				android:visibility="gone" />
+			<TextView android:id="@+id/subway_status_message"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				android:layout_alignParentTop="true" android:layout_alignParentBottom="true"
+				android:layout_toRightOf="@id/subway_status_img"
+				android:textAppearance="?android:attr/textAppearanceMedium"
+				android:gravity="center_vertical" />
+			</RelativeLayout>
 
 		<!-- CLOSEST SUBWAY STATIONs -->
-		<TextView android:id="@+id/closest_subway_stations"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			style="?android:attr/listSeparatorTextViewStyle" android:paddingLeft="5dp"
-			android:singleLine="true" android:ellipsize="middle"
-			android:focusable="false"
-			android:text="@string/closest_subway_stations" />
-
+		<RelativeLayout
+			android:layout_width="match_parent" android:layout_height="25dip"
+			android:background="@drawable/dark_header_dither"
+			android:paddingLeft="5sp">
+			<ImageView android:id="@+id/closest_subway_stations_refresh"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:layout_alignParentRight="true"
+				android:src="@drawable/ic_btn_refresh"
+				android:focusable="true"
+				android:onClick="refreshClosestSubwayStations"
+				android:background="@android:drawable/list_selector_background" />
+			<TextView android:id="@+id/closest_subway_stations"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:layout_alignParentLeft="true"
+				android:layout_toLeftOf="@id/closest_subway_stations_refresh"
+				android:textStyle="bold" android:textSize="14sp"
+				android:textColor="?android:attr/textColorSecondary"
+				android:gravity="center_vertical"
+				android:singleLine="true" android:ellipsize="middle"
+				android:text="@string/closest_subway_stations" />
+		</RelativeLayout>
+		<include android:id="@+id/closest_stations_loading" layout="@layout/loading_layout" />
 		<LinearLayout android:id="@+id/subway_stations_list"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:orientation="vertical" />
+			android:orientation="vertical" android:visibility="gone" />
 
 	</LinearLayout>
 </ScrollView>

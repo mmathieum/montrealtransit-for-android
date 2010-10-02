@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="?android:attr/listPreferredItemHeight"
+	android:padding="5dip"
+	android:focusable="false">
+	<!-- Indeterminate progress bar -->
+	<ProgressBar android:id="@+id/progress_bar"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"
+		android:layout_alignParentTop="true" android:layout_alignParentBottom="true"
+		android:indeterminate="true"
+		android:layout_marginRight="3dip" />
+	<!-- Loading message (GONE by default) -->
+	<TextView android:id="@+id/detail_msg"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:layout_toRightOf="@id/progress_bar" 
+		android:layout_alignParentBottom="true"  android:layout_alignParentRight="true" 
+		android:singleLine="true" android:ellipsize="marquee"
+		android:textAppearance="?android:attr/textAppearanceSmall"
+		android:visibility="gone"
+		android:text="@string/loading" /><!-- -->
+	<!-- Please wait message -->
+	<TextView android:id="@+id/main_msg"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:layout_alignParentTop="true" android:layout_alignParentRight="true"
+		android:layout_above="@id/detail_msg"
+        android:layout_alignWithParentIfMissing="true"
+		android:layout_toRightOf="@id/progress_bar"
+		android:textAppearance="?android:attr/textAppearanceMedium"
+		android:gravity="center_vertical"
+		android:text="@string/please_wait" />
+</RelativeLayout>

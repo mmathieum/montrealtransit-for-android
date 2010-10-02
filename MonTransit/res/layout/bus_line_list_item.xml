@@ -1,25 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="?android:attr/listPreferredItemHeight"
-	android:padding="5dip">
+	android:paddingRight="5dip" android:paddingTop="2dip" android:paddingBottom="2dip">
 
 	<!-- BUS LINE TYPE -->
 	<ImageView android:id="@+id/line_type"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:layout_alignParentRight="true" />
+		android:layout_alignParentRight="true"
+		android:layout_marginTop="3dip" />
 	<!-- BUS LINE NUMBER -->
 	<TextView android:id="@+id/line_number"
-		android:layout_width="wrap_content"	android:layout_height="wrap_content" 
-		android:layout_alignParentLeft="true" android:layout_alignParentTop="true"
-		android:layout_marginRight="8dip" android:layout_marginTop="-8dip"
-		android:textSize="40sp" android:textStyle="bold"/>
+		android:layout_width="77dip" android:layout_height="fill_parent" 
+		android:layout_alignParentLeft="true" 
+		android:layout_alignParentTop="true" android:layout_alignParentBottom="true"
+		android:layout_marginLeft="-8dip" android:layout_marginRight="5dip"
+		android:paddingLeft="1dip" android:paddingRight="1dip"
+		android:singleLine="true" android:gravity="center_vertical|right"
+		android:textSize="40dip" android:textStyle="bold" android:textColor="#FFFFFF" />
 	<!-- BUS LINE NAME -->
 	<TextView android:id="@+id/line_name"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		android:layout_alignParentTop="true"
 		android:layout_toRightOf="@id/line_number" android:layout_toLeftOf="@id/line_type"
+		android:layout_marginRight="3dip" android:layout_marginTop="5dip"
 		android:singleLine="true" android:ellipsize="marquee" android:gravity="center_vertical|left"
-		android:layout_marginRight="3dip"
 		android:textAppearance="?android:attr/textAppearanceLarge" />
 	<!-- BUS SCHEDULE STRING -->
 	<TextView android:id="@+id/hours_string"
