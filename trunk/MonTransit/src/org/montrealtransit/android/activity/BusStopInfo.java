@@ -299,8 +299,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 			// show the stopped message
 			hideAll();
 			findViewById(R.id.next_stops_msg).setVisibility(View.VISIBLE);
-			((TextView) findViewById(R.id.next_stops_msg).findViewById(R.id.the_next_stop))
-			        .setText(R.string.next_bus_stop_load_cancelled);
+			((TextView) findViewById(R.id.next_stops_msg)).setText(R.string.next_bus_stop_load_cancelled);
 		}
 	}
 
