@@ -3,6 +3,10 @@
 
 = !ChangeLog =
 
+ * 1.3 (r300)
+  * ajout du statut du métro depuis twitter.com/stminfo
+  * plusieurs améliorations de l'UI
+
  * 1.2.5 (r287)
   * ajout de la compatibilité avec les appareils LDPI
 
