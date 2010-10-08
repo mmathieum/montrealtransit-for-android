@@ -396,6 +396,12 @@ public class StmProvider extends ContentProvider {
 	}
 
 	/**
+	 * Excluded bus lines.
+	 */
+	private static final String EXCLUDED_BUS_LINES = StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER
+	        + " NOT IN(167,169)";
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -409,13 +415,14 @@ public class StmProvider extends ContentProvider {
 		case BUS_LINES:
 			MyLog.v(TAG, "query>BUS_LINES");
 			qb.setTables(StmDbHelper.T_BUS_LINES);
+			qb.appendWhere(EXCLUDED_BUS_LINES);
 			break;
 		case BUS_LINES_SEARCH:
 			MyLog.v(TAG, "query>BUS_LINES_SEARCH");
 			qb.setTables(StmDbHelper.T_BUS_LINES);
 			if (!TextUtils.isEmpty(uri.getPathSegments().get(2))) {
 				String[] keywords = uri.getPathSegments().get(2).split(" ");
-				String inWhere = "";
+				String inWhere = EXCLUDED_BUS_LINES;
 				for (String keyword : keywords) {
 					if (inWhere.length() > 0) {
 						inWhere += " AND ";
@@ -441,11 +448,13 @@ public class StmProvider extends ContentProvider {
 				qb.appendWhere(busLineIds[i]);
 			}
 			qb.appendWhere(")");
+			qb.appendWhere(" AND " + EXCLUDED_BUS_LINES);
 			break;
 		case BUS_LINE_ID:
 			MyLog.v(TAG, "query>BUS_LINE_ID");
 			qb.setTables(StmDbHelper.T_BUS_LINES);
 			qb.appendWhere(StmDbHelper.T_BUS_LINES_K_NUMBER + "=" + uri.getPathSegments().get(1));
+			qb.appendWhere(" AND " + EXCLUDED_BUS_LINES);
 			break;
 		case BUS_LINE_ID_STOPS:
 			MyLog.v(TAG, "query>BUS_LINE_ID_STOPS");
