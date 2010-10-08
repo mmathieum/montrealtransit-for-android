@@ -3,6 +3,9 @@
 
 = !ChangeLog =
 
+ * 1.3.2 (r308)
+  * correction d'un bug avec certaines lignes de bus
+
  * 1.3 (r300)
   * ajout du statut du métro depuis twitter.com/stminfo
   * plusieurs améliorations de l'UI

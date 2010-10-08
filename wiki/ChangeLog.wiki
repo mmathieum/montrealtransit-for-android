@@ -3,6 +3,9 @@
 
 = !ChangeLog =
 
+ * 1.3.2 (r308)
+  * fix a bug with some bus lines
+
  * 1.3 (r300)
   * add subway status from twitter.com/stminfo
   * multiple UI improvements
