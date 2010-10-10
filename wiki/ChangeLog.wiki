@@ -3,6 +3,9 @@
 
 = !ChangeLog =
 
+ * 1.3.3 (r311)
+  * new app icon by Robert Tremblay
+
  * 1.3.2 (r308)
   * fix a bug with some bus lines
 
