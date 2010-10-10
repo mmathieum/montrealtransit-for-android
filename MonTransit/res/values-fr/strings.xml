@@ -235,6 +235,6 @@
     <string name="about_text2_authors">"Mathieu Méa http://twitter.com/mmathieum"</string>
     <string name="about_text3_website">"Site web : http://montrealtransit-for-android.googlecode.com/"</string>
     <string name="about_text4_source">"Code source : http://code.google.com/p/montrealtransit-for-android/source/"</string>
-    <string name="about_contributors">Contributeur : Ian Cloutier.</string>
+    <string name="about_contributors">Contributeurs : Ian Cloutier, Robert Tremblay.</string>
     <string name="about_version">"Version %s (r%s)"</string>
 </resources>
