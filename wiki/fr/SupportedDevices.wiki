@@ -7,7 +7,7 @@ Parce que Android est _[http://android.git.kernel.org/ ouvert] et gratuit_, nous
 Nous n'avons pas tous ces appareils mais nous testons chaque nouvelle version sur :
  * le _plus vieux_ téléphone intelligent sous Android 1.5 avec un clavier physique disponible au Canada (le HTC Dream de Rogers)
  * le _meilleur_ téléphone intelligent sous Android 2.2 (le Nexus One de Google)
- * un téléphone intéligent de milieu de gamme (le HTC Magic) sous Android 2.1 de la communauté (!CyanogenMod-5)
+ * un téléphone intelligent de milieu de gamme (le HTC Magic) sous Android 2.1 de la communauté (!CyanogenMod-5)
  * une tablette de 5" sous Android 1.6 (l'Archos 5 IT)
 Nous pensons que couvre quasiment tous les appareils Android sur le marché.
 
