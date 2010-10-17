@@ -1,5 +1,17 @@
 #labels Phase-Support,Phase-Requirements
-= Supported Android devices: =
+#summary The list of supported devices.
+We support all Android devices with screen from 2" to 10.1", with or without hardware keyboard, running any Android 1.5 or higher.
+
+Because Android is _open and free_, we also support Android version from the _community_ (like the popular [http://www.cyanogenmod.com/ CyanogenMod]).
+
+We don't have all these devices but we are testing each release on:
+ * the _oldest_ Android 1.5 smartphone with hardware keyboard available in Canada (the Rogers HTC Dream)
+ * the _best_ Android 2.2 smartphone (the Google Nexus One).
+ * a mid-range smartphone (the HTC Magic) running Android 2.1 from the community (!CyanogenMod-5)
+ * a 5" tablet running Android 1.6 (the Archos 5 IT)
+We think that covers pretty much all Android devices in the market.
+
+= Android devices =
 || *Release Date* || *Carrier* || *Manufacturer* || *Name* || *Android Version* || *Upcoming update* || *Notes* ||
 || June 2009 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Dream ([http://en.wikipedia.org/wiki/HTC_Dream wikipedia]) || 1.5 || ? || ||
 || June 2009 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png http://upload.wikimedia.org/wikipedia/en/thumb/5/54/Primus_Canada.png/77px-Primus_Canada.png || http://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Magic+ ([http://en.wikipedia.org/wiki/HTC_Magic wikipedia]) || 2.1 || ? || HTC Sense UI ||
@@ -27,11 +39,14 @@
 || September 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/7/79/Videotron_logo.svg/77px-Videotron_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/c/c7/Garmin_logo.svg/77px-Garmin_logo.svg.png || A50 (Nüvifone) ([http://en.wikipedia.org/wiki/Garmin_N%C3%BCvifone wikipedia]) || 1.6? || ? || ||
 || September 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/7/79/Videotron_logo.svg/77px-Videotron_logo.svg.png http://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Wind_Mobile.png/77px-Wind_Mobile.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || XT720 (MOTOROI) || 2.1 || ? || Motorola UI ||
 || September 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/77px-Samsung_Logo.svg.png || Galaxy Apollo || 2.1 || ? || Samsung UI ||
+|| October 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Mike i1 || 2.1 || ? || Motorola UI ||
 
-= Upcoming Android devices: =
+= Upcoming Android devices =
 || *Release Date* || *Carrier* || *Manufacturer* || *Name* || *Android Version* || *Upcoming update* || *Notes* ||
 || 2010 || Rogers || Sony Ericsson|| Xperia X10 Mini Pro || ? || ? || SE custom UI ||
 || 2010 || Telus || Motorola || i1 || 1.5? || ? || MOTOBLUR UI ||
+|| November 2010 || Rogers || Dell || Streak || 1.6? || 2.x? || Dell custom UI ||
+|| 2010 || Bell || HTC || Desire Z || 2.2 || ? || HTC Sense UI ||
 || ? || X || `*` || `*` || 2.1 || 2.2? || Google TV UI ||
 
 _Cette page est également disponible [http://code.google.com/p/montrealtransit-for-android/wiki/SupportedDevices?wl=fr en français] mais votre navigateur est configuré pour afficher la version en anglais._

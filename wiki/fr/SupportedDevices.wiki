@@ -1,5 +1,17 @@
 #labels Phase-Support,Phase-Requirements
-= Appareils Android supportés : =
+#summary La liste des appareils Android supportés.
+Nous supportons tous les appareils Android avec un écran de 2" à 10.1", avec ou sans clavier physique, fonctionnant sur Android 1.5 ou supérieur.
+
+Parce que Android est _[http://android.git.kernel.org/ ouvert] et gratuit_, nous supportons également les versions d'Android venant de la _communauté_ (tel que la populaire [http://www.cyanogenmod.com/ CyanogenMod]).
+
+Nous n'avons pas tous ces appareils mais nous testons chaque nouvelle version sur :
+ * le _plus vieux_ téléphone intelligent sous Android 1.5 avec un clavier physique disponible au Canada (le HTC Dream de Rogers)
+ * le _meilleur_ téléphone intelligent sous Android 2.2 (le Nexus One de Google)
+ * un téléphone intéligent de milieu de gamme (le HTC Magic) sous Android 2.1 de la communauté (!CyanogenMod-5)
+ * une tablette de 5" sous Android 1.6 (l'Archos 5 IT)
+Nous pensons que couvre quasiment tous les appareils Android sur le marché.
+
+= Appareils Android =
 || *Date de sortie* || *Opérateur* || *Constructeur* || *Modèle* || *Version Android* || *Prochaine mise à jour* || *Notes* ||
 || juin 2009 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Dream ([http://fr.wikipedia.org/wiki/HTC_G1 wikipédia]) || 1.5 || ? || ||
 || juin 2009 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png http://upload.wikimedia.org/wikipedia/en/thumb/5/54/Primus_Canada.png/77px-Primus_Canada.png || http://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Magic+ ([http://fr.wikipedia.org/wiki/HTC_Magic wikipédia]) || 2.1 || ? || Interface HTC Sense ||
@@ -25,13 +37,16 @@
 || août 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/5/54/LG_Logo.svg/77px-LG_Logo.svg.png || Loop (GT540) ([http://en.wikipedia.org/wiki/LG_GT540 wikipédia anglais]) || 1.6 || ? || Interface LG ||
 || septembre 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/5/54/LG_Logo.svg/77px-LG_Logo.svg.png || Shine Plus ([http://en.wikipedia.org/wiki/LG_VS740 wikipédia anglais]) || 2.1 || ? || Interface LG ||
 || septembre 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/7/79/Videotron_logo.svg/77px-Videotron_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/c/c7/Garmin_logo.svg/77px-Garmin_logo.svg.png || A50 (Nüvifone) ([http://en.wikipedia.org/wiki/Garmin_N%C3%BCvifone wikipédia anglais]) || 1.6? || ? || ||
-|| septembre 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/7/79/Videotron_logo.svg/77px-Videotron_logo.svg.png http://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Wind_Mobile.png/77px-Wind_Mobile.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || XT720 (MOTOROI) || 2.1 || ? || Interface Motorola ||
+|| septembre 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/7/79/Videotron_logo.svg/77px-Videotron_logo.svg.png http://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Wind_Mobile.png/77px-Wind_Mobile.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || XT720 (MOTOROI) || 2.1 || ? || Interface MOTOBLUR ||
 || septembre 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/77px-Samsung_Logo.svg.png || Galaxy Apollo || 2.1 || ? || Interface Samsung ||
+|| octobre 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Mike i1 || 2.1 || ? || Interface MOTOBLUR ||
 
-= Appareils Android à  venir : =
+= Appareils Android à venir =
 || *Date de sortie* || *Opérateur* || *Constructeur* || *Modèle* || *Version Android* || *Prochaine mise à  jour* || *Notes* ||
 || 2010 || Rogers || Sony Ericsson|| Xperia X10 Mini Pro || ? || ? || Interface Sony Ericsson ||
-|| 2010 || Telus || Motorola || i1 || 1.5? || ? || Interface MOTOBLUR  ||
-|| ? || X || `*` || `*` || 2.1 || 2.2? || Google TV UI ||
+|| 2010 || Telus || Motorola || i1 || 1.5? || ? || Interface MOTOBLUR ||
+|| novembre 2010 || Rogers || Dell || Streak || 1.6? || 2.x? || Interface Dell ||
+|| 2010 || Bell || HTC || Desire Z || 2.2 || ? || Interface HTC Sense ||
+|| ? || X || `*` || `*` || 2.1 || 2.2? || Interface Google TV ||
 
 _This page is also available [http://code.google.com/p/montrealtransit-for-android/wiki/SupportedDevices?wl=en in English], but your browser is configured to display the French version._
