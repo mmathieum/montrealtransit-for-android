@@ -371,6 +371,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 					// ELSE IF there is only an error message from the STM DO
 				} else if (!TextUtils.isEmpty(this.hours.getMessage())) {
 					((TextView) findViewById(R.id.next_stops_msg)).setText(hours.getMessage());
+					Linkify.addLinks(((TextView) findViewById(R.id.next_stops_msg)), Linkify.ALL);
 					// ELSE
 				} else {
 					// DEFAULT MESSAGE > no more bus stop for this bus line
