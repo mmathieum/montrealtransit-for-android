@@ -39,6 +39,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.util.Linkify;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -244,10 +245,14 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		AlertDialog.Builder builder = new AlertDialog.Builder(SubwayTab.this);
 		builder.setTitle(SubwayTab.this.getString(R.string.subway_status));
 		builder.setIcon(R.drawable.ic_btn_info_details);
-		builder.setMessage(SubwayTab.this.getString(R.string.subway_status_message));
+		TextView messageTv = new TextView(this);
+		messageTv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		messageTv.setPadding(15, 15, 15, 15); //TODO custom dialog
+		messageTv.setText(SubwayTab.this.getString(R.string.subway_status_message));
+		Linkify.addLinks(messageTv, Linkify.WEB_URLS);
+		builder.setView(messageTv);
 		builder.setPositiveButton(SubwayTab.this.getString(android.R.string.ok), null);
 		builder.setCancelable(true);
-
 		builder.create();
 		builder.show();
 	}

@@ -73,7 +73,7 @@
 	<string name="no_location_provider_available">Aucune information de localisation n\'est disponible.\nVous devez activer la localisation par réseaux sans fil et/ou satellites GPS dans les paramètres du téléphone.</string>
     <string name="subway_status">État du service</string>
     <string name="subway_status_hour">État du service (%s)</string>
-    <string name="subway_status_message">La STM diffuse les interruptions de service du métro de plus de 20 minutes.</string>
+    <string name="subway_status_message">La STM diffuse les interruptions de service du métro de plus de 20 minutes.\n\nhttp://twitter.com/stminfo</string>
     
     <string name="display_pref_cat_title">Préférences d\'affichage</string>
     <string name="data_pref_cat_title">Source de données</string>
@@ -184,6 +184,7 @@
     <string name="ellipsis">&#160;...</string>
     <string name="colon">&#160;:&#160;</string>
     <string name="error">Erreur</string>
+    <string name="error_http_500">Erreur interne du serveur</string>
     <string name="loading">Chargement ...</string>
     <string name="select_next_stop_data_source">Choisir source</string>
     <string name="data_source">Source</string>

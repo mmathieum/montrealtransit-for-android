@@ -85,6 +85,7 @@ public class StmInfoTask extends AbstractNextStopProvider {
 		String stopCode = busStops[0].getCode();
 		String lineNumber = busStops[0].getLineNumber();
 		Utils.logAppVersion(this.context);
+		String errorMessage = this.context.getString(R.string.error); // set the default error message
 		try {
 			publishProgress(context.getString(R.string.downloading_data_from_and_source, StmInfoTask.SOURCE_NAME));
 			String URLString = URL_PART_1_BEFORE_BUS_STOP + stopCode;
@@ -96,7 +97,8 @@ public class StmInfoTask extends AbstractNextStopProvider {
 			URL url = new URL(URLString + stopCode);
 			URLConnection urlc = url.openConnection();
 			HttpURLConnection httpUrlConnection = (HttpURLConnection) urlc;
-			if (httpUrlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+			switch (httpUrlConnection.getResponseCode()) {
+			case HttpURLConnection.HTTP_OK:
 				// download the the page.
 				Utils.getInputStreamToFile(urlc.getInputStream(), this.context.openFileOutput(Constant.FILE1,
 				        Context.MODE_WORLD_READABLE), "iso-8859-1");
@@ -118,9 +120,12 @@ public class StmInfoTask extends AbstractNextStopProvider {
 				MyLog.v(TAG, "Parsing data... DONE");
 				publishProgress(this.context.getString(R.string.done));
 				return busStopHandler.getHours();
-			} else {
-				MyLog.w(TAG, "Error: HTTP URL-Connection Response Code:" + httpUrlConnection.getResponseCode());
-				return new BusStopHours(StmInfoTask.SOURCE_NAME, this.context.getString(R.string.error));
+			case HttpURLConnection.HTTP_INTERNAL_ERROR:
+				errorMessage = this.context.getString(R.string.error_http_500);
+			default:
+				MyLog.w(TAG, "Error: HTTP URL-Connection Response Code:" + httpUrlConnection.getResponseCode()
+				        + "(Message: " + httpUrlConnection.getResponseMessage() + ")");
+				return new BusStopHours(StmInfoTask.SOURCE_NAME, errorMessage);
 			}
 		} catch (UnknownHostException uhe) {
 			MyLog.w(TAG, "No Internet Connection!", uhe);
@@ -132,8 +137,8 @@ public class StmInfoTask extends AbstractNextStopProvider {
 			return new BusStopHours(StmInfoTask.SOURCE_NAME, this.context.getString(R.string.no_internet));
 		} catch (Exception e) {
 			MyLog.e(TAG, "INTERNAL ERROR: Unknown Exception", e);
-			publishProgress(this.context.getString(R.string.error));
-			return new BusStopHours(StmInfoTask.SOURCE_NAME, this.context.getString(R.string.error));
+			publishProgress(errorMessage);
+			return new BusStopHours(StmInfoTask.SOURCE_NAME, errorMessage);
 		}
 	}
 

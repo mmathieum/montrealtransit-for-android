@@ -171,6 +171,9 @@ public class StmInfoStatusReader extends AsyncTask<String, String, StmInfoStatus
 		if (string.contains(Constant.HTML_CODE_ECIRC_2)) {
 			string = string.replace(Constant.HTML_CODE_ECIRC_2, "ê");
 		}
+		if (string.contains(Constant.HTML_CODE_OCIRC)) {
+			string = string.replace(Constant.HTML_CODE_OCIRC, "ô");
+		}
 		return string;
 	}
 
