@@ -32,7 +32,7 @@ public class BusStopHours {
 	private String sourceName;
 	
 	/**
-	 * True if there was an error.
+	 * The error message.
 	 */
 	private String error = null;
 
@@ -131,9 +131,16 @@ public class BusStopHours {
     }
 	
 	/**
-	 * @return true if there was an error.
+	 * @return the error message
 	 */
 	public String getError() {
 	    return error;
+    }
+	
+	/**
+	 * @param error the new error message
+	 */
+	public void setError(String error) {
+	    this.error = error;
     }
 }

@@ -1,32 +1,20 @@
 package org.montrealtransit.android.services.nextstop;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
-import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.BusStopHours;
 import org.montrealtransit.android.provider.StmStore;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
 
 import android.content.Context;
-import android.text.TextUtils;
 
 /**
  * This task retrieve next bus stop from the m.stm.info web site.
@@ -53,15 +41,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	/**
 	 * The URL part 1 with the bus stop code
 	 */
-	private static final String URL_PART_1_BEFORE_STOP_CODE = "http://m.stm.info/stm/bus/schedule?stop_code=";
-	/**
-	 * The URL part 2 with the bus line number.
-	 */
-	private static final String URL_PART_2_BEFORE_LINE_NUMBER = "&line_number=";
-	/**
-	 * The URL part 3 with the UI language.
-	 */
-	private static final String URL_PART_3_BEFORE_LANG = "&lang=";
+	private static final String URL_PART_1_BEFORE_STOP_CODE = "http://m.stm.info/bus/arret/";
 
 	/**
 	 * {@inheritDoc}
@@ -70,112 +50,90 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	protected BusStopHours doInBackground(StmStore.BusStop... stopInfo) {
 		String stopCode = stopInfo[0].getCode();
 		String lineNumber = stopInfo[0].getLineNumber();
-		String URLString = URL_PART_1_BEFORE_STOP_CODE + stopCode;
-		if (!TextUtils.isEmpty(lineNumber)) {
-			URLString += URL_PART_2_BEFORE_LINE_NUMBER + lineNumber;
-		}
-		if (Utils.getUserLocale().equals("fr")) {
-			URLString += URL_PART_3_BEFORE_LANG + "fr";
-		} else {
-			URLString += URL_PART_3_BEFORE_LANG + "en";
-		}
+		String URLString = getUrlString(stopCode);
+		String errorMessage = this.context.getString(R.string.error); // set the default error message
 		try {
 			publishProgress(context.getString(R.string.downloading_data_from_and_source, StmMobileTask.SOURCE_NAME));
 			URL url = new URL(URLString);
 			// faking a real browser
 			URLConnection urlc = url.openConnection();
-			urlc.setRequestProperty("Accept", "application/xhtml+xml");
-			urlc.setRequestProperty("Accept-Charset", "iso-8859-1");
-			urlc.setRequestProperty("Accept-Encoding", "gzip");
-			urlc.setRequestProperty("Accept-Language", "en-CA, en-US");
-			urlc.setRequestProperty("User-Agent", "Android");
 			MyLog.v(TAG, "URL created:" + url.toString());
 			HttpURLConnection httpUrlConnection = (HttpURLConnection) urlc;
-			if (httpUrlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-				Utils.getInputStreamToFile(urlc.getInputStream(), this.context.openFileOutput(Constant.FILE1,
-				        Context.MODE_WORLD_READABLE), "iso-8859-1");
+			switch (httpUrlConnection.getResponseCode()) {
+			case HttpURLConnection.HTTP_OK:
+				String html = Utils.getInputStreamToString(urlc.getInputStream(), "utf-8");
 				publishProgress(this.context.getResources().getString(R.string.processing_data));
-				// remove useless code from the page
-				cleanHtmlCodes(this.context.openFileInput(Constant.FILE1), this.context.openFileOutput(Constant.FILE2,
-				        Context.MODE_WORLD_READABLE));
-				SAXParserFactory parserFactory = SAXParserFactory.newInstance();
-				SAXParser parser = parserFactory.newSAXParser();
-				// MyTrace.d(TAG, "SAX parser initiate");
-				// Get the XMLReader of the SAXParser we created.
-				XMLReader xmlReader = parser.getXMLReader();
-				// Create a new ContentHandler and apply it to the XML-Reader
-				StmMobileHandler stmMobileHandler = new StmMobileHandler();
-				xmlReader.setContentHandler(stmMobileHandler);
-				// MyTrace.d(TAG, "content handler instantiate");
-				MyLog.d(TAG, "Parsing data ...");
-				InputSource inputSource = new InputSource(this.context.openFileInput(Constant.FILE2));
-				xmlReader.parse(inputSource);
-				MyLog.d(TAG, "Parsing data ... OK");
+				BusStopHours hours = getBusStopHoursFromString(html, lineNumber);
 				publishProgress(this.context.getResources().getString(R.string.done));
-				return stmMobileHandler.getHours();
-			} else {
-				MyLog.w(TAG, "Error: HTTP URL-Connection Response Code:" + httpUrlConnection.getResponseCode());
-				return new BusStopHours(StmInfoTask.SOURCE_NAME, this.context.getString(R.string.error));
+				return hours;
+			case HttpURLConnection.HTTP_INTERNAL_ERROR:
+				errorMessage = this.context.getString(R.string.error_http_500);
+			default:
+				MyLog.w(TAG, "Error: HTTP URL-Connection Response Code:" + httpUrlConnection.getResponseCode()
+				        + "(Message: " + httpUrlConnection.getResponseMessage() + ")");
+				return new BusStopHours(SOURCE_NAME, errorMessage);
 			}
 		} catch (UnknownHostException uhe) {
 			MyLog.w(TAG, "No Internet Connection!", uhe);
 			publishProgress(this.context.getString(R.string.no_internet));
-			return new BusStopHours(StmInfoTask.SOURCE_NAME, this.context.getString(R.string.no_internet));
+			return new BusStopHours(SOURCE_NAME, this.context.getString(R.string.no_internet));
 		} catch (SocketException se) {
 			MyLog.w(TAG, "No Internet Connection!", se);
 			publishProgress(this.context.getString(R.string.no_internet));
-			return new BusStopHours(StmInfoTask.SOURCE_NAME, this.context.getString(R.string.no_internet));
+			return new BusStopHours(SOURCE_NAME, this.context.getString(R.string.no_internet));
 		} catch (Exception e) {
 			MyLog.e(TAG, "INTERNAL ERROR: Unknown Exception", e);
 			publishProgress(this.context.getString(R.string.error));
-			return new BusStopHours(StmInfoTask.SOURCE_NAME, this.context.getString(R.string.error));
+			return new BusStopHours(SOURCE_NAME, this.context.getString(R.string.error));
 		}
+	}
+	
+	public static String getUrlString(String stopCode) {
+	    return URL_PART_1_BEFORE_STOP_CODE + stopCode;
+    }
+
+	/**
+	 * The pattern for the hours.
+	 */
+	private static final Pattern PATTERN_REGEX_FOR_HOURS = Pattern.compile("[0-9]{1,2}h[0-9]{1,2}");
+
+	/**
+	 * @param html the HTML source
+	 * @param lineNumber the bus line number
+	 * @return the bus stop hours
+	 */
+	private BusStopHours getBusStopHoursFromString(String html, String lineNumber) {
+		MyLog.v(TAG, "getBusStopHoursFromString(" + html.length() + ", " + lineNumber + ")");
+		BusStopHours result = new BusStopHours(SOURCE_NAME);
+		String interestingPart = getInterestingPart(html, lineNumber);
+		if (interestingPart == null) {
+			result.setError(this.context.getString(R.string.error));
+		} else {
+			Matcher matcher = PATTERN_REGEX_FOR_HOURS.matcher(interestingPart);
+			while (matcher.find()) {
+				result.addSHour(matcher.group());
+			}
+		}
+		return result;
 	}
 
 	/**
-	 * Clean the HTML code.
-	 * @param is the source file.
-	 * @param os the result file.
+	 * @param html the HTML source
+	 * @param lineNumber the bus line number
+	 * @return the interesting part of the HTML source matching the bus line number
 	 */
-	private void cleanHtmlCodes(FileInputStream is, FileOutputStream os) {
-		MyLog.v(TAG, "removeHtmlCodes()");
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os));
-		try {
-			String line = reader.readLine();
-			while (line != null) {
-				writer.write(removeHref(line.trim()) + " ");
-				line = reader.readLine();
-			}
-		} catch (IOException ioe) {
-			MyLog.e(TAG, "Error while removing the useless HTML code from the file.", ioe);
-		} finally {
-			try {
-				writer.flush();
-				writer.close();
-				os.flush();
-				os.close();
-				is.close();
-			} catch (IOException ioe) {
-				MyLog.w(TAG, "Error while finishing and closing the input/output stream files.", ioe);
-			}
+	private String getInterestingPart(String html, String lineNumber) {
+		MyLog.v(TAG, "getInterestingPart(" + html.length() + ", " + lineNumber + ")");
+		String result = null;
+		String regex = "<p class=\"route-desc\">[\\s]*<a href=\"/bus/arrets/"
+		        + lineNumber
+		        + "\" class=\"stm-link\">[^</]*</a>[^<]*</p>[^<]*<p class=\"route-schedules\">[(((([0-9]{1,2}h[0-9]{1,2}[\\s]*]*</p>";
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(html);
+		while (matcher.find()) {
+			result = matcher.group();
 		}
-	}
-
-	/**
-	 * Remove unreadable HREF code.
-	 * @param string the string to clean
-	 * @return the cleaned string
-	 */
-	private String removeHref(String string) {
-		// MyLog.v(TAG, "removeHref(" + string + ")");
-		if (string.contains(Constant.HTML_CODE_EACUTE)) {
-			string = string.replaceAll(Constant.HTML_CODE_EACUTE, "�");
-		}
-		if (string.contains(Constant.HTML_CODE_ECIRC)) {
-			string = string.replaceAll(Constant.HTML_CODE_ECIRC, "�");
-		}
-		return string;
+		return result;
 	}
 
 	/**

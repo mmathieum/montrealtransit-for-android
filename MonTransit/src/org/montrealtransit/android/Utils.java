@@ -89,6 +89,33 @@ public class Utils {
 	}
 
 	/**
+	 * Read the input stream and return the content as a string
+	 * @param is the input stream
+	 * @param encoding the encoding
+	 * @return the string
+	 */
+	public static String getInputStreamToString(InputStream is, String encoding) {
+		MyLog.v(TAG, "getInputStreamToString(" + encoding + ")");
+		String result = "";
+		byte[] b = new byte[4096];
+		try {
+			for (int n; (n = is.read(b)) != -1;) {
+				String string = new String(b, 0, n, encoding);
+				result += string;
+			}
+		} catch (IOException ioe) {
+			MyLog.e(TAG, "Error while reading the input stream and writing into a string.", ioe);
+		} finally {
+			try {
+				is.close();
+			} catch (IOException ioe) {
+				MyLog.w(TAG, "Error while finishing and closing the file.", ioe);
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Return a list of 2 R.string.<ID> for the bus line direction string.
 	 * @param directionId the direction string
 	 * @return the 2 R.string.<ID>
