@@ -125,20 +125,20 @@ public class StmInfoTask extends AbstractNextStopProvider {
 			default:
 				MyLog.w(TAG, "Error: HTTP URL-Connection Response Code:" + httpUrlConnection.getResponseCode()
 				        + "(Message: " + httpUrlConnection.getResponseMessage() + ")");
-				return new BusStopHours(StmInfoTask.SOURCE_NAME, errorMessage);
+				return new BusStopHours(SOURCE_NAME, errorMessage);
 			}
 		} catch (UnknownHostException uhe) {
 			MyLog.w(TAG, "No Internet Connection!", uhe);
 			publishProgress(this.context.getString(R.string.no_internet));
-			return new BusStopHours(StmInfoTask.SOURCE_NAME, this.context.getString(R.string.no_internet));
+			return new BusStopHours(SOURCE_NAME, this.context.getString(R.string.no_internet));
 		} catch (SocketException se) {
 			MyLog.w(TAG, "No Internet Connection!", se);
 			publishProgress(this.context.getString(R.string.no_internet));
-			return new BusStopHours(StmInfoTask.SOURCE_NAME, this.context.getString(R.string.no_internet));
+			return new BusStopHours(SOURCE_NAME, this.context.getString(R.string.no_internet));
 		} catch (Exception e) {
 			MyLog.e(TAG, "INTERNAL ERROR: Unknown Exception", e);
 			publishProgress(errorMessage);
-			return new BusStopHours(StmInfoTask.SOURCE_NAME, errorMessage);
+			return new BusStopHours(SOURCE_NAME, errorMessage);
 		}
 	}
 
