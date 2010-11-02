@@ -82,17 +82,17 @@ public class StmInfoStatusReader extends AsyncTask<String, String, StmInfoStatus
 	@Override
 	protected StmInfoStatuses doInBackground(String... params) {
 		MyLog.v(TAG, "doInBackground()");
+		String errorMessage = this.context.getString(R.string.error); // set the default error message
 		try {
 			URL url = new URL(RSS);
 			URLConnection urlc = url.openConnection();
 			HttpURLConnection httpUrlConnection = (HttpURLConnection) urlc;
-			if (httpUrlConnection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+			switch (httpUrlConnection.getResponseCode()) {
+			case HttpURLConnection.HTTP_OK:
 				Utils.getInputStreamToFile(urlc.getInputStream(), this.context.openFileOutput(Constant.FILE1,
 				        Context.MODE_WORLD_READABLE), "UTF-8");
-
 				cleanHTMLCodes(this.context.openFileInput(Constant.FILE1), this.context.openFileOutput(Constant.FILE2,
 				        Context.MODE_WORLD_READABLE));
-
 				// Get a SAX Parser from the SAX PArser Factory
 				SAXParserFactory spf = SAXParserFactory.newInstance();
 				SAXParser sp = spf.newSAXParser();
@@ -104,10 +104,19 @@ public class StmInfoStatusReader extends AsyncTask<String, String, StmInfoStatus
 				InputSource inputSource = new InputSource(this.context.openFileInput(Constant.FILE2));
 				xr.parse(inputSource);
 				return contentHandler.getStatuses();
-			} else {
-				MyLog.w(TAG, "Error: HTTP URL-Connection Response Code:" + httpUrlConnection.getResponseCode());
-				return new StmInfoStatuses(this.context.getString(R.string.error));
+			case HttpURLConnection.HTTP_INTERNAL_ERROR:
+				errorMessage = this.context.getString(R.string.error_http_500);
+				break;
+			case HttpURLConnection.HTTP_BAD_REQUEST:
+				errorMessage = this.context.getString(R.string.error_http_400_twitter);
+				//TODO read from twitter.com/stminfo HTML?
+				//TODO read from another Twitter client (twidroyd?)?
+				//TODO read from stm.info HTML?
+				break;
 			}
+			MyLog.w(TAG, "Error: HTTP URL-Connection Response Code:" + httpUrlConnection.getResponseCode()
+			        + "(Message: " + httpUrlConnection.getResponseMessage() + ")");
+			return new StmInfoStatuses(errorMessage);
 		} catch (UnknownHostException uhe) {
 			MyLog.w(TAG, "No Internet Connection!", uhe);
 			publishProgress(this.context.getString(R.string.no_internet));
@@ -262,8 +271,7 @@ public class StmInfoStatusReader extends AsyncTask<String, String, StmInfoStatus
 					}
 				} else if (inPubDate) {
 					if (this.currentStatus != null) {
-						SimpleDateFormat formatter = new SimpleDateFormat(TWITTER_RSS_FEED_DATE_FORMAT,
-						        Locale.ENGLISH);
+						SimpleDateFormat formatter = new SimpleDateFormat(TWITTER_RSS_FEED_DATE_FORMAT, Locale.ENGLISH);
 						try {
 							Date date = formatter.parse(string);
 							this.currentStatus.setDate(date);

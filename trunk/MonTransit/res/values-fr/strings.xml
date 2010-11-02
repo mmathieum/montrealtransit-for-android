@@ -185,6 +185,7 @@
     <string name="colon">&#160;:&#160;</string>
     <string name="error">Erreur</string>
     <string name="error_http_500">Erreur interne du serveur</string>
+    <string name="error_http_400_twitter">Erreur Twitter (limite dépassée). Réessayer plus tard.</string>
     <string name="loading">Chargement ...</string>
     <string name="select_next_stop_data_source">Choisir source</string>
     <string name="data_source">Source</string>
