@@ -753,15 +753,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case MENU_SHOW_STM_MOBILE_WEBSITE:
-			String url = "http://m.stm.info/stm/bus/schedule?stop_code=" + this.busStop.getCode();
-			if (!TextUtils.isEmpty(this.busStop.getLineNumber())) {
-				url += "&line_number=" + this.busStop.getLineNumber();
-			}
-			if (Utils.getUserLocale().equals("fr")) {
-				url += "&lang=" + "fr";
-			} else {
-				url += "&lang=" + "en";
-			}
+			String url = StmMobileTask.getUrlString(busStop.getCode());
 			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
 			return true;
 		case MENU_REFRESH_NEXT_STOP:

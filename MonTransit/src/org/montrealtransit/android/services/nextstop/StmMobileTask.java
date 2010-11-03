@@ -55,7 +55,6 @@ public class StmMobileTask extends AbstractNextStopProvider {
 		try {
 			publishProgress(context.getString(R.string.downloading_data_from_and_source, StmMobileTask.SOURCE_NAME));
 			URL url = new URL(URLString);
-			// faking a real browser
 			URLConnection urlc = url.openConnection();
 			MyLog.v(TAG, "URL created:" + url.toString());
 			HttpURLConnection httpUrlConnection = (HttpURLConnection) urlc;
@@ -87,10 +86,14 @@ public class StmMobileTask extends AbstractNextStopProvider {
 			return new BusStopHours(SOURCE_NAME, this.context.getString(R.string.error));
 		}
 	}
-	
+
+	/**
+	 * @param stopCode the bus stop code
+	 * @return the URL of the bus stop page on m.stm.info
+	 */
 	public static String getUrlString(String stopCode) {
-	    return URL_PART_1_BEFORE_STOP_CODE + stopCode;
-    }
+		return URL_PART_1_BEFORE_STOP_CODE + stopCode;
+	}
 
 	/**
 	 * The pattern for the hours.
@@ -106,9 +109,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 		MyLog.v(TAG, "getBusStopHoursFromString(" + html.length() + ", " + lineNumber + ")");
 		BusStopHours result = new BusStopHours(SOURCE_NAME);
 		String interestingPart = getInterestingPart(html, lineNumber);
-		if (interestingPart == null) {
-			result.setError(this.context.getString(R.string.error));
-		} else {
+		if (interestingPart != null) {
 			Matcher matcher = PATTERN_REGEX_FOR_HOURS.matcher(interestingPart);
 			while (matcher.find()) {
 				result.addSHour(matcher.group());
