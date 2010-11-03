@@ -3,6 +3,9 @@
 
 = !ChangeLog =
 
+ * 1.3.5 (r325)
+  * corrige le problème avec le nouveau site http://m.stm.info/
+
  * 1.3.3 (r311)
   * nouvel icône de l'application par Robert Tremblay
 
