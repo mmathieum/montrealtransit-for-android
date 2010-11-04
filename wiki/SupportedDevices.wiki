@@ -40,13 +40,13 @@ We think that covers pretty much all Android devices in the market.
 || September 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/7/79/Videotron_logo.svg/77px-Videotron_logo.svg.png http://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Wind_Mobile.png/77px-Wind_Mobile.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || XT720 (MOTOROI) || 2.1 || ? || Motorola UI ||
 || September 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/77px-Samsung_Logo.svg.png || Galaxy Apollo || 2.1 || ? || Samsung UI ||
 || October 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Mike i1 || 2.1 || ? || Motorola UI ||
+|| November 2010 || http://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Bell_logo.svg/77px-Bell_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Desire Z || 2.2 || ? || HTC Sense UI ||
+
 
 = Upcoming Android devices =
 || *Release Date* || *Carrier* || *Manufacturer* || *Name* || *Android Version* || *Upcoming update* || *Notes* ||
 || 2010 || Rogers || Sony Ericsson|| Xperia X10 Mini Pro || ? || ? || SE custom UI ||
-|| 2010 || Telus || Motorola || i1 || 1.5? || ? || MOTOBLUR UI ||
 || November 2010 || Rogers || Dell || Streak || 1.6? || 2.x? || Dell custom UI ||
-|| 2010 || Bell || HTC || Desire Z || 2.2 || ? || HTC Sense UI ||
 || ? || X || `*` || `*` || 2.1 || 2.2? || Google TV UI ||
 
 _Cette page est également disponible [http://code.google.com/p/montrealtransit-for-android/wiki/SupportedDevices?wl=fr en français] mais votre navigateur est configuré pour afficher la version en anglais._

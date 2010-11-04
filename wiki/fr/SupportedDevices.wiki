@@ -40,13 +40,12 @@ Nous pensons que couvre quasiment tous les appareils Android sur le marché.
 || septembre 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/7/79/Videotron_logo.svg/77px-Videotron_logo.svg.png http://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Wind_Mobile.png/77px-Wind_Mobile.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || XT720 (MOTOROI) || 2.1 || ? || Interface MOTOBLUR ||
 || septembre 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/77px-Samsung_Logo.svg.png || Galaxy Apollo || 2.1 || ? || Interface Samsung ||
 || octobre 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Mike i1 || 2.1 || ? || Interface MOTOBLUR ||
+|| novembre 2010 || http://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Bell_logo.svg/77px-Bell_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Desire Z || 2.2 || ? || Interface HTC Sense ||
 
 = Appareils Android à venir =
 || *Date de sortie* || *Opérateur* || *Constructeur* || *Modèle* || *Version Android* || *Prochaine mise à  jour* || *Notes* ||
 || 2010 || Rogers || Sony Ericsson|| Xperia X10 Mini Pro || ? || ? || Interface Sony Ericsson ||
-|| 2010 || Telus || Motorola || i1 || 1.5? || ? || Interface MOTOBLUR ||
 || novembre 2010 || Rogers || Dell || Streak || 1.6? || 2.x? || Interface Dell ||
-|| 2010 || Bell || HTC || Desire Z || 2.2 || ? || Interface HTC Sense ||
 || ? || X || `*` || `*` || 2.1 || 2.2? || Interface Google TV ||
 
 _This page is also available [http://code.google.com/p/montrealtransit-for-android/wiki/SupportedDevices?wl=en in English], but your browser is configured to display the French version._
