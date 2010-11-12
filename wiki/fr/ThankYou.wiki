@@ -1,0 +1,10 @@
+#summary Merci
+
+= MERCI =
+== MERCI ==
+=== MERCI ===
+==== MERCI ====
+===== MERCI =====
+====== MERCI ======
+
+_This page is also available [http://code.google.com/p/montrealtransit-for-android/wiki/ThankYou?wl=en in English], but your browser is configured to display the French version._

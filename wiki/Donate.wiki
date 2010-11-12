@@ -13,3 +13,5 @@ https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif
 [https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=X52W99DMRPDKQ 10 tickets ($21,00)] or
 [https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FMU9VC3NLXZVU Monthly CAM ($70.00)] or
 [https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=EZ6F8C3A9PXN4 more]
+
+_Cette page est également disponible [http://code.google.com/p/montrealtransit-for-android/wiki/Donate?wl=fr en français] mais votre navigateur est configuré pour afficher la version en anglais._

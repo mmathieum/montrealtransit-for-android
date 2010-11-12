@@ -6,3 +6,5 @@
 ==== THANK YOU ====
 ===== THANK YOU =====
 ====== THANK YOU ======
+
+_Cette page est également disponible [http://code.google.com/p/montrealtransit-for-android/wiki/ThankYou?wl=fr en français] mais votre navigateur est configuré pour afficher la version en anglais._
