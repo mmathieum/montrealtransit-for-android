@@ -6,9 +6,9 @@ Because Android is _open and free_, we also support Android version from the _co
 
 We don't have all these devices but we are testing each release on:
  * the _oldest_ Android 1.5 smartphone with hardware keyboard available in Canada (the Rogers HTC Dream)
- * the _best_ Android 2.2 smartphone (the Google Nexus One).
- * a mid-range smartphone (the HTC Magic) running Android 2.1 from the community (!CyanogenMod-5)
  * a 5" tablet running Android 1.6 (the Archos 5 IT)
+ * a mid-range smartphone (the HTC Magic) running Android 2.1 from the community (!CyanogenMod-5)
+ * the _best_ Android 2.2 smartphone (the Google Nexus One).
 We think that covers pretty much all Android devices in the market.
 
 = Android devices =
@@ -32,7 +32,7 @@ We think that covers pretty much all Android devices in the market.
 || August 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Wind_Mobile.png/77px-Wind_Mobile.png || http://upload.wikimedia.org/wikipedia/en/thumb/9/9f/Huawei_Logo.jpg/77px-Huawei_Logo.jpg || U8100 || 2.1 || ? || ||
 || August 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Flipout || 2.1 || ? || MOTOBLUR UI ||
 || August 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Desire ([http://en.wikipedia.org/wiki/HTC_Desire wikipedia]) || 2.1 || 2.2? || HTC Sense UI ||
-|| August 2010 || http://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Bell_logo.svg/77px-Bell_logo.svg.png http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/77px-Samsung_Logo.svg.png || Galaxy S ([http://en.wikipedia.org/wiki/Samsung_i9000_Galaxy_S wikipedia]) || 2.1 || 2.2? || Samsung UI ||
+|| August 2010 || http://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Bell_logo.svg/77px-Bell_logo.svg.png http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png http://upload.wikimedia.org/wikipedia/en/thumb/0/0e/Virgin_Mobile_logo(original).png/77px-Virgin_Mobile_logo(original).png || http://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/77px-Samsung_Logo.svg.png || Galaxy S ([http://en.wikipedia.org/wiki/Samsung_i9000_Galaxy_S wikipedia]) || 2.1 || 2.2? || Samsung UI ||
 || August 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Charm ([http://en.wikipedia.org/wiki/Motorola_Charm wikipedia]) || 2.1 || ? || MOTOBLUR UI ||
 || August 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/5/54/LG_Logo.svg/77px-LG_Logo.svg.png || Loop (GT540) ([http://en.wikipedia.org/wiki/LG_GT540 wikipedia]) || 1.6 || ? || LG UI ||
 || September 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/5/54/LG_Logo.svg/77px-LG_Logo.svg.png || Shine Plus ([http://en.wikipedia.org/wiki/LG_VS740 wikipedia])  || 2.1 || ? || LG UI ||
@@ -40,13 +40,13 @@ We think that covers pretty much all Android devices in the market.
 || September 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/7/79/Videotron_logo.svg/77px-Videotron_logo.svg.png http://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Wind_Mobile.png/77px-Wind_Mobile.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || XT720 (MOTOROI) || 2.1 || ? || Motorola UI ||
 || September 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/77px-Samsung_Logo.svg.png || Galaxy Apollo || 2.1 || ? || Samsung UI ||
 || October 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Mike i1 || 2.1 || ? || Motorola UI ||
-|| November 2010 || http://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Bell_logo.svg/77px-Bell_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Desire Z || 2.2 || ? || HTC Sense UI ||
-
+|| November 2010 || http://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Bell_logo.svg/77px-Bell_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Desire Z ([http://en.wikipedia.org/wiki/HTC_Desire_Z wikipedia]) || 2.2 || ? || HTC Sense UI ||
+|| November 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/8/88/Dell.svg/77px-Dell.svg.png || Streak ([http://en.wikipedia.org/wiki/Dell_Streak wikipedia]) || 1.6 || 2.1? || Dell Custom UI ||
 
 = Upcoming Android devices =
 || *Release Date* || *Carrier* || *Manufacturer* || *Name* || *Android Version* || *Upcoming update* || *Notes* ||
 || 2010 || Rogers || Sony Ericsson|| Xperia X10 Mini Pro || ? || ? || SE custom UI ||
-|| November 2010 || Rogers || Dell || Streak || 1.6? || 2.x? || Dell custom UI ||
-|| ? || X || `*` || `*` || 2.1 || 2.2? || Google TV UI ||
+|| 2010 || Videotron || Motorola || Spice || ? || ? || MOTOBLUR UI ||
+|| 2011 || N/A || `*` || `*` || 2.1 || 2.2? || Google TV UI ||
 
 _Cette page est également disponible [http://code.google.com/p/montrealtransit-for-android/wiki/SupportedDevices?wl=fr en français] mais votre navigateur est configuré pour afficher la version en anglais._

@@ -6,9 +6,9 @@ Parce que Android est _[http://android.git.kernel.org/ ouvert] et gratuit_, nous
 
 Nous n'avons pas tous ces appareils mais nous testons chaque nouvelle version sur :
  * le _plus vieux_ téléphone intelligent sous Android 1.5 avec un clavier physique disponible au Canada (le HTC Dream de Rogers)
- * le _meilleur_ téléphone intelligent sous Android 2.2 (le Nexus One de Google)
- * un téléphone intelligent de milieu de gamme (le HTC Magic) sous Android 2.1 de la communauté (!CyanogenMod-5)
  * une tablette de 5" sous Android 1.6 (l'Archos 5 IT)
+ * un téléphone intelligent de milieu de gamme (le HTC Magic) sous Android 2.1 de la communauté (!CyanogenMod-5)
+ * le _meilleur_ téléphone intelligent sous Android 2.2 (le Nexus One de Google)
 Nous pensons que couvre quasiment tous les appareils Android sur le marché.
 
 = Appareils Android =
@@ -32,7 +32,7 @@ Nous pensons que couvre quasiment tous les appareils Android sur le marché.
 || août 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Wind_Mobile.png/77px-Wind_Mobile.png || http://upload.wikimedia.org/wikipedia/en/thumb/9/9f/Huawei_Logo.jpg/77px-Huawei_Logo.jpg || U8100 || 2.1 || ? || ||
 || août 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Flipout || 2.1 || ? || Interface MOTOBLUR ||
 || août 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Desire ([http://fr.wikipedia.org/wiki/HTC_Desire wikipédia]) || 2.1 || 2.2? || Interface HTC Sense ||
-|| août 2010 || http://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Bell_logo.svg/77px-Bell_logo.svg.png http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/77px-Samsung_Logo.svg.png || Galaxy S ([http://fr.wikipedia.org/wiki/Samsung_i9000_Galaxy_S wikipédia]) || 2.1 || 2.2? || Interface Samsung ||
+|| août 2010 || http://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Bell_logo.svg/77px-Bell_logo.svg.png http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png http://upload.wikimedia.org/wikipedia/en/thumb/0/0e/Virgin_Mobile_logo(original).png/77px-Virgin_Mobile_logo(original).png || http://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/77px-Samsung_Logo.svg.png || Galaxy S ([http://fr.wikipedia.org/wiki/Samsung_i9000_Galaxy_S wikipédia]) || 2.1 || 2.2? || Interface Samsung ||
 || août 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Charm ([http://en.wikipedia.org/wiki/Motorola_Charm wikipédia anglais]) || 2.1 || ? || Interface MOTOBLUR ||
 || août 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/5/54/LG_Logo.svg/77px-LG_Logo.svg.png || Loop (GT540) ([http://en.wikipedia.org/wiki/LG_GT540 wikipédia anglais]) || 1.6 || ? || Interface LG ||
 || septembre 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/5/54/LG_Logo.svg/77px-LG_Logo.svg.png || Shine Plus ([http://en.wikipedia.org/wiki/LG_VS740 wikipédia anglais]) || 2.1 || ? || Interface LG ||
@@ -40,12 +40,13 @@ Nous pensons que couvre quasiment tous les appareils Android sur le marché.
 || septembre 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/7/79/Videotron_logo.svg/77px-Videotron_logo.svg.png http://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Wind_Mobile.png/77px-Wind_Mobile.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || XT720 (MOTOROI) || 2.1 || ? || Interface MOTOBLUR ||
 || septembre 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/77px-Samsung_Logo.svg.png || Galaxy Apollo || 2.1 || ? || Interface Samsung ||
 || octobre 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || Mike i1 || 2.1 || ? || Interface MOTOBLUR ||
-|| novembre 2010 || http://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Bell_logo.svg/77px-Bell_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Desire Z || 2.2 || ? || Interface HTC Sense ||
+|| novembre 2010 || http://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Bell_logo.svg/77px-Bell_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/Htc_new_logo.svg/77px-Htc_new_logo.svg.png || Desire Z ([http://en.wikipedia.org/wiki/HTC_Desire_Z wikipédia anglais]) || 2.2 || ? || Interface HTC Sense ||
+|| novembre 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/8/88/Dell.svg/77px-Dell.svg.png || Streak ([http://fr.wikipedia.org/wiki/Dell_Streak wikipédia]) || 1.6 || 2.1? || Interface Dell ||
 
 = Appareils Android à venir =
 || *Date de sortie* || *Opérateur* || *Constructeur* || *Modèle* || *Version Android* || *Prochaine mise à  jour* || *Notes* ||
 || 2010 || Rogers || Sony Ericsson|| Xperia X10 Mini Pro || ? || ? || Interface Sony Ericsson ||
-|| novembre 2010 || Rogers || Dell || Streak || 1.6? || 2.x? || Interface Dell ||
-|| ? || X || `*` || `*` || 2.1 || 2.2? || Interface Google TV ||
+|| 2010 || Videotron || Motorola || Spice || ? || ? || Interface MOTOBLUR ||
+|| 2011 || N/A || `*` || `*` || 2.1 || 2.2? || Interface Google TV ||
 
 _This page is also available [http://code.google.com/p/montrealtransit-for-android/wiki/SupportedDevices?wl=en in English], but your browser is configured to display the French version._
