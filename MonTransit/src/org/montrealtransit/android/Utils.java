@@ -1002,10 +1002,7 @@ public class Utils {
 		} catch (NameNotFoundException e) {
 		}
 		View view = activity.getLayoutInflater().inflate(R.layout.about, null, false);
-
-		TextView contributosTv = (TextView) view.findViewById(R.id.contributors);
-		contributosTv.setText(activity.getString(R.string.about_contributors));
-		
+		// set the version
 		TextView versionTv = (TextView) view.findViewById(R.id.version);
 		versionTv.setText(activity.getString(R.string.about_version, versionName, versionCode));
 
