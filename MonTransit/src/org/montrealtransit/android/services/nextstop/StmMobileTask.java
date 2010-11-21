@@ -15,6 +15,7 @@ import org.montrealtransit.android.data.BusStopHours;
 import org.montrealtransit.android.provider.StmStore;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 /**
  * This task retrieve next bus stop from the m.stm.info web site.
@@ -44,6 +45,11 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	private static final String URL_PART_1_BEFORE_STOP_CODE = "http://m.stm.info/bus/arret/";
 
 	/**
+	 * The URL part 2 with the UI language.
+	 */
+	private static final String URL_PART_2_BEFORE_LANG = "?lang=";
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -56,7 +62,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 			publishProgress(context.getString(R.string.downloading_data_from_and_source, StmMobileTask.SOURCE_NAME));
 			URL url = new URL(URLString);
 			URLConnection urlc = url.openConnection();
-			MyLog.v(TAG, "URL created:" + url.toString());
+			MyLog.v(TAG, String.format("URL created: '%s'", url.toString()));
 			HttpURLConnection httpUrlConnection = (HttpURLConnection) urlc;
 			switch (httpUrlConnection.getResponseCode()) {
 			case HttpURLConnection.HTTP_OK:
@@ -68,8 +74,8 @@ public class StmMobileTask extends AbstractNextStopProvider {
 			case HttpURLConnection.HTTP_INTERNAL_ERROR:
 				errorMessage = this.context.getString(R.string.error_http_500);
 			default:
-				MyLog.w(TAG, "Error: HTTP URL-Connection Response Code:" + httpUrlConnection.getResponseCode()
-				        + "(Message: " + httpUrlConnection.getResponseMessage() + ")");
+				MyLog.w(TAG, String.format("Error: HTTP URL-Connection Response Code:%s (Message: %s)",
+				        httpUrlConnection.getResponseCode(), httpUrlConnection.getResponseMessage()));
 				return new BusStopHours(SOURCE_NAME, errorMessage);
 			}
 		} catch (UnknownHostException uhe) {
@@ -92,13 +98,19 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	 * @return the URL of the bus stop page on m.stm.info
 	 */
 	public static String getUrlString(String stopCode) {
-		return URL_PART_1_BEFORE_STOP_CODE + stopCode;
+		String result = URL_PART_1_BEFORE_STOP_CODE + stopCode;
+		if (Utils.getUserLocale().equals("fr")) {
+			result += URL_PART_2_BEFORE_LANG + "fr";
+		} else {
+			result += URL_PART_2_BEFORE_LANG + "en";
+		}
+		return result;
 	}
 
 	/**
 	 * The pattern for the hours.
 	 */
-	private static final Pattern PATTERN_REGEX_FOR_HOURS = Pattern.compile("[0-9]{1,2}h[0-9]{1,2}");
+	private static final Pattern PATTERN_REGEX_FOR_HOURS = Pattern.compile("[0-9]{1,2}(h|:)[0-9]{1,2}");
 
 	/**
 	 * @param html the HTML source
@@ -106,14 +118,42 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	 * @return the bus stop hours
 	 */
 	private BusStopHours getBusStopHoursFromString(String html, String lineNumber) {
-		MyLog.v(TAG, "getBusStopHoursFromString(" + html.length() + ", " + lineNumber + ")");
+		MyLog.v(TAG, String.format("getBusStopHoursFromString(%s, %s)", html.length(), lineNumber));
 		BusStopHours result = new BusStopHours(SOURCE_NAME);
 		String interestingPart = getInterestingPart(html, lineNumber);
 		if (interestingPart != null) {
+			// find hours
 			Matcher matcher = PATTERN_REGEX_FOR_HOURS.matcher(interestingPart);
 			while (matcher.find()) {
-				result.addSHour(matcher.group());
+				// considering 00h00 the standard (instead of the 00:00 provided by m.stm.info in English)
+                String hour = matcher.group().replaceAll(":", "h");
+				result.addSHour(hour);
 			}
+			// find message
+			String message = findMessage(interestingPart, lineNumber);
+			if (!TextUtils.isEmpty(message)) {
+				result.addMessageString(message);
+			}
+		} else {
+			MyLog.w(TAG, String.format("Can't find the next bus stops for line %s!", lineNumber));
+		}
+		return result;
+	}
+
+	/**
+	 * @param interestingPart the interesting part
+	 * @param lineNumber the line number
+	 * @return the message or null
+	 */
+	private String findMessage(String interestingPart, String lineNumber) {
+		MyLog.v(TAG, String.format("findMessage(%s, %s)", interestingPart.length(), lineNumber));
+		String result = null;
+		String regex = "<div class=\"ligne\">" + lineNumber + "</div>[\\s]*"
+		        + "<div class=\"message\">(([^</])*)</div>";
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(interestingPart);
+		while (matcher.find()) {
+			result = matcher.group(1);
 		}
 		return result;
 	}
@@ -124,11 +164,15 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	 * @return the interesting part of the HTML source matching the bus line number
 	 */
 	private String getInterestingPart(String html, String lineNumber) {
-		MyLog.v(TAG, "getInterestingPart(" + html.length() + ", " + lineNumber + ")");
+		MyLog.v(TAG, String.format("getInterestingPart(%s, %s)", html.length(), lineNumber));
 		String result = null;
-		String regex = "<p class=\"route-desc\">[\\s]*<a href=\"/bus/arrets/"
+		String regex = "<div class=\"route\">[\\s]*"
+		        + "<p class=\"route-desc\">[\\s]*"
+		        + "<a href=\"/bus/arrets/"
 		        + lineNumber
-		        + "\" class=\"stm-link\">[^</]*</a>[^<]*</p>[^<]*<p class=\"route-schedules\">[(((([0-9]{1,2}h[0-9]{1,2}[\\s]*]*</p>";
+		        + "\" class=\"stm-link\">[^</]*</a>[^<]*</p>[^<]*<p class=\"route-schedules\">[^<]*"
+		        + "</p>[\\s]*" + "(" + "</div>" + "|" + "<div class=\"mips\">[\\s]*" + "<div class=\"wrapper\">[\\s]*"
+		        + "<div class=\"ligne\">" + lineNumber + "</div>[\\s]*" + "<div class=\"message\">[^</]*</div>" + ")";
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(html);
 		while (matcher.find()) {

@@ -21,7 +21,7 @@ public class BusStopHours {
 	/**
 	 * The first message from the STM.
 	 */
-	private String message;
+	private String message = "";
 	/**
 	 * The second message from the STM.
 	 */
