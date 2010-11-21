@@ -330,6 +330,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 		MyLog.v(TAG, "setNextStops(" + hours.getSHours() + ")");
 		String nextBusStop = getString(R.string.next_bus_stops_and_source, this.hours.getSourceName());
 		((TextView) findViewById(R.id.next_stops_string)).setText(nextBusStop);
+		// IF there next stops found DO
 		if (hours.getSHours().size() > 0) {
 			List<String> fHours = hours.getFormattedHours(this);
 			showNextBusStop();
@@ -351,6 +352,12 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 					}
 					((TextView) findViewById(R.id.other_stops)).setText(hoursS);
 				}
+			}
+			// show message
+			if (!TextUtils.isEmpty(this.hours.getMessage())) {
+				findViewById(R.id.next_stops_msg).setVisibility(View.VISIBLE);
+				((TextView) findViewById(R.id.next_stops_msg)).setText(hours.getMessage());
+				Linkify.addLinks(((TextView) findViewById(R.id.next_stops_msg)), Linkify.ALL);
 			}
 		} else {
 			hideAll();
@@ -374,6 +381,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 					Linkify.addLinks(((TextView) findViewById(R.id.next_stops_msg)), Linkify.ALL);
 					// ELSE
 				} else {
+					MyLog.d(TAG, String.format("no next stop, no message and no error for {} {}!", this.busStop.getCode(), this.busLine.getNumber()));
 					// DEFAULT MESSAGE > no more bus stop for this bus line
 					String defaultMessage = getString(R.string.no_more_stops_for_this_bus_line, busLine.getNumber());
 					((TextView) findViewById(R.id.next_stops_msg)).setText(defaultMessage);
