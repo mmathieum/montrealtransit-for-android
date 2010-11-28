@@ -85,9 +85,13 @@
 				android:layout_width="fill_parent" android:layout_height="wrap_content"
 				style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
 				android:text="@string/bus_lines_connecting" />
-			<LinearLayout android:id="@+id/bus_line_list"
-				android:layout_width="fill_parent" android:layout_height="wrap_content"
-				android:orientation="vertical" />
+			<HorizontalScrollView android:id="@+id/bus_lines"
+				android:layout_width="fill_parent" android:layout_height="wrap_content">
+				<LinearLayout android:id="@+id/bus_line_list"
+					android:layout_width="fill_parent" android:layout_height="fill_parent"
+					android:orientation="horizontal" android:gravity="bottom"
+					android:padding="2dip" />
+			</HorizontalScrollView>
 		</LinearLayout>
 	</ScrollView>
 </LinearLayout>

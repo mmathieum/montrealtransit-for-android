@@ -30,6 +30,7 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
@@ -1121,4 +1122,12 @@ public class Utils {
 		}
 		return result;
 	}
+
+	/**
+	 * @param version {@link Build#VERSION_CODES} value
+	 * @return true if the version is older than the current version
+	 */
+	public static boolean isVersionOlderThan(int version) {
+	    return Integer.parseInt(Build.VERSION.SDK) < version;
+    }
 }
