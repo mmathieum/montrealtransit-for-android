@@ -8,6 +8,7 @@ import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.Pair;
+import org.montrealtransit.android.dialog.BusLineSelectDirection;
 import org.montrealtransit.android.dialog.NoRadarInstalled;
 import org.montrealtransit.android.dialog.SubwayStationSelectBusLineStop;
 import org.montrealtransit.android.provider.DataManager;
@@ -74,8 +75,10 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 			@Override
 			public void onClick(View v) {
 				// manage favorite star click
-				DataStore.Fav fav = DataManager.findFav(SubwayStationInfo.this.getContentResolver(),
-				        DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION, SubwayStationInfo.this.subwayStation.getId(), null);
+				DataStore.Fav fav = DataManager
+				        .findFav(SubwayStationInfo.this.getContentResolver(),
+				                DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION, SubwayStationInfo.this.subwayStation
+				                        .getId(), null);
 				// IF the station is already a favorite DO
 				if (fav != null) {
 					// delete the favorite
@@ -132,7 +135,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	 * @param newStationId the new subway station ID
 	 */
 	private void showNewSubwayStation(String newStationId) {
-		MyLog.v(TAG, "showNewSubwayStation(" + newStationId + ")");
+		MyLog.v(TAG, String.format("showNewSubwayStation(%s)", newStationId));
 		if (this.subwayStation == null || !this.subwayStation.getId().equals(newStationId)) {
 			MyLog.v(TAG, "display a new subway station");
 			this.subwayStation = StmManager.findSubwayStation(getContentResolver(), newStationId);
@@ -251,7 +254,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 			((ImageView) findViewById(R.id.subway_line_1)).setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					MyLog.v(TAG, "onClick(" + v.getId() + ")");
+					MyLog.v(TAG, String.format("onClick(%s)", v.getId()));
 					Intent intent = new Intent(SubwayStationInfo.this, SubwayLineInfo.class);
 					String subwayLineNumber = String.valueOf(SubwayStationInfo.this.subwayLines.get(0).getNumber());
 					intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumber);
@@ -265,7 +268,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 				((ImageView) findViewById(R.id.subway_line_2)).setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						MyLog.v(TAG, "onClick(" + v.getId() + ")");
+						MyLog.v(TAG, String.format("onClick(%s)", v.getId()));
 						Intent intent = new Intent(SubwayStationInfo.this, SubwayLineInfo.class);
 						String subwayLineNumber = String.valueOf(SubwayStationInfo.this.subwayLines.get(1).getNumber());
 						intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumber);
@@ -279,7 +282,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 					((ImageView) findViewById(R.id.subway_line_3)).setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View v) {
-							MyLog.v(TAG, "onClick(" + v.getId() + ")");
+							MyLog.v(TAG, String.format("onClick(%s)", v.getId()));
 							Intent intent = new Intent(SubwayStationInfo.this, SubwayLineInfo.class);
 							int lineNumber = SubwayStationInfo.this.subwayLines.get(2).getNumber();
 							String subwayLineNumber = String.valueOf(lineNumber);
@@ -296,7 +299,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	 * Update the distance with the latest device location.
 	 */
 	private void updateDistanceWithNewLocation() {
-		MyLog.v(TAG, "updateDistanceWithNewLocation(" + getLocation() + ")");
+		MyLog.v(TAG, String.format("updateDistanceWithNewLocation(%s)", getLocation()));
 		if (getLocation() != null && this.subwayStation != null) {
 			// distance & accuracy
 			Location stationLocation = LocationUtils.getNewLocation(subwayStation.getLat(), subwayStation.getLng());
@@ -337,8 +340,8 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	 */
 	public void setLocation(Location newLocation) {
 		if (newLocation != null) {
-			MyLog.v(TAG, "new location: '" + newLocation.getProvider() + "' " + newLocation.getLatitude() + ","
-			        + newLocation.getLongitude() + " (" + newLocation.getAccuracy() + ")", this, MyLog.SHOW_LOCATION);
+			MyLog.v(TAG, String.format("new location: '%s' %s,%s (%s)", newLocation.getProvider(), newLocation
+			        .getLatitude(), newLocation.getLongitude(), newLocation.getAccuracy()), this, MyLog.SHOW_LOCATION);
 			if (this.location == null || LocationUtils.isMorePrecise(this.location, newLocation)) {
 				this.location = newLocation;
 			}
@@ -360,7 +363,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	 */
 	@Override
 	public void onProviderEnabled(String provider) {
-		MyLog.v(TAG, "onProviderEnabled(" + provider + ")");
+		MyLog.v(TAG, String.format("onProviderEnabled(%s)", provider));
 	}
 
 	/**
@@ -368,7 +371,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	 */
 	@Override
 	public void onProviderDisabled(String provider) {
-		MyLog.v(TAG, "onProviderDisabled(" + provider + ")");
+		MyLog.v(TAG, String.format("onProviderDisabled(%s)", provider));
 	}
 
 	/**
@@ -376,7 +379,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	 */
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-		MyLog.v(TAG, "onStatusChanged(" + provider + ", " + status + ")");
+		MyLog.v(TAG, String.format("onStatusChanged(%s, %s)", provider, status));
 	}
 
 	/**
@@ -389,7 +392,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 		if (fav == null) {
 			MyLog.d(TAG, "fav:NULL");
 		} else {
-			MyLog.d(TAG, "fav:NOT NULL " + fav.getFkId() + ".");
+			MyLog.d(TAG, String.format("fav:NOT NULL %s.", fav.getFkId()));
 		}
 		((CheckBox) findViewById(R.id.star)).setChecked(fav != null);
 	}
@@ -415,21 +418,23 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 				}
 				// create view
 				View view = getLayoutInflater().inflate(R.layout.subway_station_info_bus_line_list_item, null);
-				// bus line type image
-				int busLineTypeImg = Utils.getBusLineTypeImgFromType(busLine.getType());
-				((ImageView) view.findViewById(R.id.line_type)).setImageResource(busLineTypeImg);
 				// bus line number
-				String lineNumber = busLine.getNumber();
+				final String lineNumber = busLine.getNumber();
 				((TextView) view.findViewById(R.id.line_number)).setText(lineNumber);
 				int color = Utils.getBusLineTypeBgColorFromType(busLine.getType());
 				((TextView) view.findViewById(R.id.line_number)).setBackgroundColor(color);
-				// bus line name
-				((TextView) view.findViewById(R.id.line_name)).setText(busLine.getName());
-				// bus line hours
-				String formattedHours = Utils.getFormatted2Hours(this, busLine.getHours(), "-");
-				((TextView) view.findViewById(R.id.hours)).setText(formattedHours);
 				// add click listener
 				view.setOnClickListener(new SubwayStationSelectBusLineStop(this, subwayStation.getId(), lineNumber));
+				view.setOnLongClickListener(new View.OnLongClickListener() {
+					@Override
+					public boolean onLongClick(View v) {
+						MyLog.d(TAG, String.format("bus line number: %s", lineNumber));
+						BusLineSelectDirection busLineSelectDirection = new BusLineSelectDirection(
+						        SubwayStationInfo.this, lineNumber);
+						busLineSelectDirection.showDialog();
+						return true;
+					}
+				});
 				busLinesLayout.addView(view);
 			}
 		} else {
@@ -479,7 +484,8 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 		switch (item.getItemId()) {
 		case MENU_SHOW_SUBWAY_STATION_IN_MAPS:
 			try {
-				Uri uri = Uri.parse("geo:" + this.subwayStation.getLat() + "," + this.subwayStation.getLng());
+				Uri uri = Uri.parse(String
+				        .format("geo:%s,%s", this.subwayStation.getLat(), this.subwayStation.getLng()));
 				startActivity(new Intent(android.content.Intent.ACTION_VIEW, uri));
 				return true;
 			} catch (Exception e) {
@@ -513,7 +519,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 			Utils.showAboutDialog(this);
 			return true;
 		default:
-			MyLog.d(TAG, "Unknow menu id: " + item.getItemId() + ".");
+			MyLog.d(TAG, String.format("Unknow menu id: %s.", item.getItemId()));
 			return false;
 		}
 	}

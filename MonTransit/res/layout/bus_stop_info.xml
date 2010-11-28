@@ -108,7 +108,7 @@
 		</RelativeLayout>
 		<include android:id="@+id/next_stops_loading" layout="@layout/loading_layout" />
 		<HorizontalScrollView android:id="@+id/next_stops_group"
-			android:layout_width="fill_parent" android:layout_height="?android:attr/listPreferredItemHeight"><!--  -->
+			android:layout_width="fill_parent" android:layout_height="?android:attr/listPreferredItemHeight">
 			<LinearLayout android:id="@+id/next_stops_group"
 				android:layout_width="fill_parent" android:layout_height="fill_parent"
 				android:orientation="horizontal" android:gravity="bottom"
@@ -146,9 +146,13 @@
 			style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
 			android:visibility="gone"
 			android:text="@string/other_bus_line" />
-		<LinearLayout android:id="@+id/other_bus_line_list"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:orientation="vertical" />
+		<HorizontalScrollView android:id="@+id/other_bus_lines"
+			android:layout_width="fill_parent" android:layout_height="wrap_content">
+			<LinearLayout android:id="@+id/other_bus_line_list"
+				android:layout_width="fill_parent" android:layout_height="fill_parent"
+				android:orientation="horizontal" android:gravity="bottom"
+				android:padding="2dip" />
+		</HorizontalScrollView>
 	
 		<!-- SUBWAY STATION -->
 		<TextView android:id="@+id/subway_station"
