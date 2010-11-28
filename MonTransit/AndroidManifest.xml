@@ -9,8 +9,14 @@
 	<!-- TraceView uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /-->
 	<!-- mock location dev uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" /-->
 	<uses-sdk android:minSdkVersion="3" android:targetSdkVersion="8" />
-	<supports-screens android:smallScreens="true" android:normalScreens="true" android:largeScreens="true"
+	<supports-screens
+		android:smallScreens="true" android:normalScreens="true" android:largeScreens="true"
 		android:anyDensity="true" />
+		
+	<uses-feature android:name="android.hardware.location" android:required="false" />
+	<uses-feature android:name="android.hardware.location.gps" android:required="false" />
+	<uses-feature android:name="android.hardware.location.network" android:required="false" />
+	<uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
 	<application android:icon="@drawable/ic_launcher_icon" android:label="@string/app_name"
 		android:description="@string/app_desc" android:theme="@android:style/Theme.NoTitleBar"
@@ -20,7 +26,8 @@
 		<provider android:name=".provider.DataProvider" android:authorities="org.montrealtransit.android.data" />
 		<provider android:name=".provider.StmProvider" android:authorities="org.montrealtransit.android" />
 		<!-- MAIN SCREEN -->
-		<activity android:name=".activity.MainScreen" android:label="@string/app_name"
+		<activity android:name=".activity.MainScreen"
+			android:label="@string/app_name" android:icon="@drawable/ic_launcher_icon"
             android:configChanges="orientation|keyboardHidden">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
