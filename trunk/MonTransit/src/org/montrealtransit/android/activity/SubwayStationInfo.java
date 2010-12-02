@@ -135,7 +135,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	 * @param newStationId the new subway station ID
 	 */
 	private void showNewSubwayStation(String newStationId) {
-		MyLog.v(TAG, String.format("showNewSubwayStation(%s)", newStationId));
+		MyLog.v(TAG, "showNewSubwayStation(%s)", newStationId);
 		if (this.subwayStation == null || !this.subwayStation.getId().equals(newStationId)) {
 			MyLog.v(TAG, "display a new subway station");
 			this.subwayStation = StmManager.findSubwayStation(getContentResolver(), newStationId);
@@ -254,7 +254,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 			((ImageView) findViewById(R.id.subway_line_1)).setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					MyLog.v(TAG, String.format("onClick(%s)", v.getId()));
+					MyLog.v(TAG, "onClick(%s)", v.getId());
 					Intent intent = new Intent(SubwayStationInfo.this, SubwayLineInfo.class);
 					String subwayLineNumber = String.valueOf(SubwayStationInfo.this.subwayLines.get(0).getNumber());
 					intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumber);
@@ -268,7 +268,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 				((ImageView) findViewById(R.id.subway_line_2)).setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						MyLog.v(TAG, String.format("onClick(%s)", v.getId()));
+						MyLog.v(TAG, "onClick(%s)", v.getId());
 						Intent intent = new Intent(SubwayStationInfo.this, SubwayLineInfo.class);
 						String subwayLineNumber = String.valueOf(SubwayStationInfo.this.subwayLines.get(1).getNumber());
 						intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumber);
@@ -282,7 +282,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 					((ImageView) findViewById(R.id.subway_line_3)).setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View v) {
-							MyLog.v(TAG, String.format("onClick(%s)", v.getId()));
+							MyLog.v(TAG, "onClick(%s)", v.getId());
 							Intent intent = new Intent(SubwayStationInfo.this, SubwayLineInfo.class);
 							int lineNumber = SubwayStationInfo.this.subwayLines.get(2).getNumber();
 							String subwayLineNumber = String.valueOf(lineNumber);
@@ -299,7 +299,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	 * Update the distance with the latest device location.
 	 */
 	private void updateDistanceWithNewLocation() {
-		MyLog.v(TAG, String.format("updateDistanceWithNewLocation(%s)", getLocation()));
+		MyLog.v(TAG, "updateDistanceWithNewLocation(%s)", getLocation());
 		if (getLocation() != null && this.subwayStation != null) {
 			// distance & accuracy
 			Location stationLocation = LocationUtils.getNewLocation(subwayStation.getLat(), subwayStation.getLng());
@@ -341,7 +341,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	public void setLocation(Location newLocation) {
 		if (newLocation != null) {
 			MyLog.v(TAG, String.format("new location: '%s' %s,%s (%s)", newLocation.getProvider(), newLocation
-			        .getLatitude(), newLocation.getLongitude(), newLocation.getAccuracy()), this, MyLog.SHOW_LOCATION);
+			        .getLatitude(), newLocation.getLongitude(), newLocation.getAccuracy()));
 			if (this.location == null || LocationUtils.isMorePrecise(this.location, newLocation)) {
 				this.location = newLocation;
 			}
@@ -363,7 +363,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	 */
 	@Override
 	public void onProviderEnabled(String provider) {
-		MyLog.v(TAG, String.format("onProviderEnabled(%s)", provider));
+		MyLog.v(TAG, "onProviderEnabled(%s)", provider);
 	}
 
 	/**
@@ -371,7 +371,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	 */
 	@Override
 	public void onProviderDisabled(String provider) {
-		MyLog.v(TAG, String.format("onProviderDisabled(%s)", provider));
+		MyLog.v(TAG, "onProviderDisabled(%s)", provider);
 	}
 
 	/**
@@ -379,7 +379,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	 */
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-		MyLog.v(TAG, String.format("onStatusChanged(%s, %s)", provider, status));
+		MyLog.v(TAG, "onStatusChanged(%s, %s)", provider, status);
 	}
 
 	/**
@@ -392,7 +392,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 		if (fav == null) {
 			MyLog.d(TAG, "fav:NULL");
 		} else {
-			MyLog.d(TAG, String.format("fav:NOT NULL %s.", fav.getFkId()));
+			MyLog.d(TAG, "fav:NOT NULL %s.", fav.getFkId());
 		}
 		((CheckBox) findViewById(R.id.star)).setChecked(fav != null);
 	}
@@ -428,7 +428,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 				view.setOnLongClickListener(new View.OnLongClickListener() {
 					@Override
 					public boolean onLongClick(View v) {
-						MyLog.d(TAG, String.format("bus line number: %s", lineNumber));
+						MyLog.d(TAG, "bus line number: %s", lineNumber);
 						BusLineSelectDirection busLineSelectDirection = new BusLineSelectDirection(
 						        SubwayStationInfo.this, lineNumber);
 						busLineSelectDirection.showDialog();
@@ -484,8 +484,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 		switch (item.getItemId()) {
 		case MENU_SHOW_SUBWAY_STATION_IN_MAPS:
 			try {
-				Uri uri = Uri.parse(String
-				        .format("geo:%s,%s", this.subwayStation.getLat(), this.subwayStation.getLng()));
+				Uri uri = Uri.parse(String.format("geo:%s,%s", subwayStation.getLat(), subwayStation.getLng()));
 				startActivity(new Intent(android.content.Intent.ACTION_VIEW, uri));
 				return true;
 			} catch (Exception e) {
@@ -519,7 +518,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 			Utils.showAboutDialog(this);
 			return true;
 		default:
-			MyLog.d(TAG, String.format("Unknow menu id: %s.", item.getItemId()));
+			MyLog.d(TAG, "Unknow menu id: %s.", item.getItemId());
 			return false;
 		}
 	}

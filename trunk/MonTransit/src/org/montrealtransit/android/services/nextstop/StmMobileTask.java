@@ -62,7 +62,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 			publishProgress(context.getString(R.string.downloading_data_from_and_source, StmMobileTask.SOURCE_NAME));
 			URL url = new URL(URLString);
 			URLConnection urlc = url.openConnection();
-			MyLog.v(TAG, String.format("URL created: '%s'", url.toString()));
+			MyLog.v(TAG, "URL created: '%s'", url.toString());
 			HttpURLConnection httpUrlConnection = (HttpURLConnection) urlc;
 			switch (httpUrlConnection.getResponseCode()) {
 			case HttpURLConnection.HTTP_OK:
@@ -74,8 +74,8 @@ public class StmMobileTask extends AbstractNextStopProvider {
 			case HttpURLConnection.HTTP_INTERNAL_ERROR:
 				errorMessage = this.context.getString(R.string.error_http_500);
 			default:
-				MyLog.w(TAG, String.format("Error: HTTP URL-Connection Response Code:%s (Message: %s)",
-				        httpUrlConnection.getResponseCode(), httpUrlConnection.getResponseMessage()));
+				MyLog.w(TAG, "Error: HTTP URL-Connection Response Code:%s (Message: %s)",
+				        httpUrlConnection.getResponseCode(), httpUrlConnection.getResponseMessage());
 				return new BusStopHours(SOURCE_NAME, errorMessage);
 			}
 		} catch (UnknownHostException uhe) {
@@ -118,7 +118,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	 * @return the bus stop hours
 	 */
 	private BusStopHours getBusStopHoursFromString(String html, String lineNumber) {
-		MyLog.v(TAG, String.format("getBusStopHoursFromString(%s, %s)", html.length(), lineNumber));
+		MyLog.v(TAG, "getBusStopHoursFromString(%s, %s)", html.length(), lineNumber);
 		BusStopHours result = new BusStopHours(SOURCE_NAME);
 		String interestingPart = getInterestingPart(html, lineNumber);
 		if (interestingPart != null) {
@@ -135,7 +135,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 				result.addMessageString(message);
 			}
 		} else {
-			MyLog.w(TAG, String.format("Can't find the next bus stops for line %s!", lineNumber));
+			MyLog.w(TAG, "Can't find the next bus stops for line %s!", lineNumber);
 		}
 		return result;
 	}
@@ -146,7 +146,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	 * @return the message or null
 	 */
 	private String findMessage(String interestingPart, String lineNumber) {
-		MyLog.v(TAG, String.format("findMessage(%s, %s)", interestingPart.length(), lineNumber));
+		MyLog.v(TAG, "findMessage(%s, %s)", interestingPart.length(), lineNumber);
 		String result = null;
 		String regex = "<div class=\"ligne\">" + lineNumber + "</div>[\\s]*"
 		        + "<div class=\"message\">(([^</])*)</div>";
@@ -164,7 +164,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	 * @return the interesting part of the HTML source matching the bus line number
 	 */
 	private String getInterestingPart(String html, String lineNumber) {
-		MyLog.v(TAG, String.format("getInterestingPart(%s, %s)", html.length(), lineNumber));
+		MyLog.v(TAG, "getInterestingPart(%s, %s)", html.length(), lineNumber);
 		String result = null;
 		String regex = "<div class=\"route\">[\\s]*"
 		        + "<p class=\"route-desc\">[\\s]*"

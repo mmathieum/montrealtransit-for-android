@@ -751,7 +751,7 @@ public class Utils {
 	 * @return the saved string value
 	 */
 	public static String getSavedStringValue(Intent intent, Bundle savedInstanceState, String id) {
-		MyLog.v(TAG, "getSavedStringValue(" + id + ")");
+		MyLog.v(TAG, "getSavedStringValue(%s)", id);
 		String result = savedInstanceState != null ? savedInstanceState.getString(id) : null;
 		// IF the activity was already launch, get the last id
 		if (result == null) {
@@ -761,7 +761,7 @@ public class Utils {
 			result = extras != null ? extras.getString(id) : null;
 		}
 		if (result == null) {
-			MyLog.w(TAG, "Can't find the saved string value for string ID \"" + id + "\" (returned null)");
+			MyLog.w(TAG, "Can't find the saved string value for string ID '%s' (returned null)", id);
 		}
 		return result;
 	}

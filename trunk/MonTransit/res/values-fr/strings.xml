@@ -98,7 +98,7 @@
     <string name="show_map_from_stm_website">Plan du Métro (stm.info)</string>
     <string name="refresh_next_bus_stop">Rafraîchir prochains passages</string>
     <string name="stop_refresh_next_bus_stop">Interrompre</string>
-    <string name="next_bus_stop_load_cancelled">Chargement des prochaines passages interrompu</string>
+    <string name="next_bus_stop_load_cancelled">Chargement interrompu</string>
     <string name="show_in_map">Voir Maps</string>
     <string name="show_in_map_exp">Voir Maps (BETA)</string>
 
