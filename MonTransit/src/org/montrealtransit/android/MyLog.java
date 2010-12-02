@@ -1,6 +1,5 @@
 package org.montrealtransit.android;
 
-import android.content.Context;
 import android.util.Log;
 
 /**
@@ -26,23 +25,21 @@ public class MyLog {
 	 */
 	public static void v(String tag, String msg) {
 		if (DEBUG || Log.isLoggable(Constant.MAIN_TAG, Log.VERBOSE)) {
-			Log.v(Constant.MAIN_TAG, tag + ">" + msg);
+			Log.v(Constant.MAIN_TAG, String.format("%s>%s", tag, msg));
 		}
 	}
 
 	/**
-	 * @see MyLog#v(String, String)
-	 * @param the class tag
+	 * @see Log#v(String, String)
+	 * @param tag the class tag
 	 * @param msg the message
-	 * @param context the context
-	 * @param show true to show the log with a toast
+	 * @param args the message arguments
 	 */
-	public static void v(String tag, String msg, Context context, boolean show) {
-	   if (DEBUG && show) {
-		   Utils.notifyTheUser(context, msg);
-	   }
-	   v(tag,msg);
-    }
+	public static void v(String tag, String msg, Object... args) {
+		if (DEBUG || Log.isLoggable(Constant.MAIN_TAG, Log.VERBOSE)) {
+			Log.v(Constant.MAIN_TAG, String.format("%s>%s", tag, String.format(msg, args)));
+		}
+	}
 
 	/**
 	 * @see Log#w(String, String)
@@ -51,7 +48,19 @@ public class MyLog {
 	 */
 	public static void w(String tag, String msg) {
 		if (DEBUG || Log.isLoggable(Constant.MAIN_TAG, Log.WARN)) {
-			Log.w(Constant.MAIN_TAG, tag + ">" + msg);
+			Log.w(Constant.MAIN_TAG, String.format("%s>%s", tag, msg));
+		}
+	}
+	
+	/**
+	 * @see Log#w(String, String)
+	 * @param tag the class tag
+	 * @param msg the message
+	 * @param args the message arguments
+	 */
+	public static void w(String tag, String msg, Object... args) {
+		if (DEBUG || Log.isLoggable(Constant.MAIN_TAG, Log.WARN)) {
+			Log.w(Constant.MAIN_TAG, String.format("%s>%s", tag, String.format(msg, args)));
 		}
 	}
 
@@ -63,7 +72,7 @@ public class MyLog {
 	 */
 	public static void w(String tag, String msg, Exception e) {
 		if (DEBUG || Log.isLoggable(Constant.MAIN_TAG, Log.WARN)) {
-			Log.w(Constant.MAIN_TAG, tag + ">" + msg, e);
+			Log.w(Constant.MAIN_TAG, String.format("%s>%s", tag, msg), e);
 		}
 	}
 
@@ -74,7 +83,19 @@ public class MyLog {
 	 */
 	public static void d(String tag, String msg) {
 		if (DEBUG || Log.isLoggable(Constant.MAIN_TAG, Log.DEBUG)) {
-			Log.d(Constant.MAIN_TAG, tag + ">" + msg);
+			Log.d(Constant.MAIN_TAG, String.format("%s>%s", tag, msg));
+		}
+	}
+	
+	/**
+	 * @see Log#d(String, String)
+	 * @param tag the class tag
+	 * @param msg the message
+	 * @param args the message arguments
+	 */
+	public static void d(String tag, String msg, Object... args) {
+		if (DEBUG || Log.isLoggable(Constant.MAIN_TAG, Log.DEBUG)) {
+			Log.d(Constant.MAIN_TAG, String.format("%s>%s", tag, String.format(msg, args)));
 		}
 	}
 
@@ -86,7 +107,7 @@ public class MyLog {
 	 */
 	public static void e(String tag, String msg, Exception e) {
 		if (DEBUG || Log.isLoggable(Constant.MAIN_TAG, Log.ERROR)) {
-			Log.e(Constant.MAIN_TAG, tag + ">" + msg, e);
+			Log.e(Constant.MAIN_TAG, String.format("%s>%s", tag, msg), e);
 		}
 	}
 
@@ -97,7 +118,7 @@ public class MyLog {
 	 */
 	public static void i(String tag, String msg) {
 		if (DEBUG || Log.isLoggable(Constant.MAIN_TAG, Log.INFO)) {
-			Log.i(Constant.MAIN_TAG, tag + ">" + msg);
+			Log.i(Constant.MAIN_TAG, String.format("%s>%s", tag, msg));
 		}
 	}
 }
