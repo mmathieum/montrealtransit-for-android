@@ -138,9 +138,12 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 
 		PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
 
-		getBusStopFromIntent(savedInstanceState);
+		setBusStopFromIntent(getIntent(), savedInstanceState);
 	}
 
+	/**
+	 * onCreate() method only for Android version older than Android 1.6.
+	 */
 	private void onCreatePreDonut() {
 		// since 'android:onClick' requires API Level 4
 		((ImageView) findViewById(R.id.next_stops_refresh)).setOnClickListener(new View.OnClickListener() {
@@ -158,26 +161,34 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onNewIntent(Intent intent) {
+		MyLog.v(TAG, "onNewIntent()");
+		super.onNewIntent(intent);
+		setBusStopFromIntent(intent, null);
+	}
+
+	/**
 	 * Retrieve the bus stop from the Intent or from the Bundle.
+	 * @param intent the intent
 	 * @param savedInstanceState the saved instance state (Bundle)
 	 */
-	private void getBusStopFromIntent(Bundle savedInstanceState) {
-		MyLog.v(TAG, "getBusStopFromIntent()");
-		final Intent intent = getIntent();
+	private void setBusStopFromIntent(Intent intent, Bundle savedInstanceState) {
+		MyLog.v(TAG, "setBusStopFromIntent()");
 		if (intent != null) {
-			final String action = intent.getAction();
-			if (Intent.ACTION_VIEW.equals(action)) {
-				List<String> pathSegments = intent.getData().getPathSegments();
-				String stopCode = pathSegments.get(1).substring(0, 5);
-				String lineNumber = pathSegments.get(1).substring(5);
-				showNewBusStop(stopCode, lineNumber);
+			String stopCode;
+			String lineNumber;
+			if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+				String pathSegment = intent.getData().getPathSegments().get(1);
+				stopCode = pathSegment.substring(0, 5);
+				lineNumber = pathSegment.substring(5);
 			} else {
-				String stopCode = Utils.getSavedStringValue(this.getIntent(), savedInstanceState,
-				        BusStopInfo.EXTRA_STOP_CODE);
-				String lineNumber = Utils.getSavedStringValue(this.getIntent(), savedInstanceState,
-				        BusStopInfo.EXTRA_STOP_LINE_NUMBER);
-				showNewBusStop(stopCode, lineNumber);
+				stopCode = Utils.getSavedStringValue(intent, savedInstanceState, EXTRA_STOP_CODE);
+				lineNumber = Utils.getSavedStringValue(intent, savedInstanceState, EXTRA_STOP_LINE_NUMBER);
 			}
+			showNewBusStop(stopCode, lineNumber);
 		}
 	}
 
@@ -186,7 +197,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	 * @param stopCode the bus stop code
 	 */
 	private void setStopCode(String stopCode) {
-		MyLog.v(TAG, String.format("setStopCode(%s)", stopCode));
+		MyLog.v(TAG, "setStopCode(%s)", stopCode);
 		((TextView) findViewById(R.id.stop_code)).setText(stopCode);
 	}
 
@@ -211,6 +222,11 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 			this.hours = (BusStopHours) data;
 			setNextStops();
 		} else {
+			// IF a task is already running DO
+			if (this.task != null && this.task.getStatus().equals(AsyncTask.Status.RUNNING)) {
+				// cancel the task
+				this.task.cancel(true);
+			}
 			showProgressBar();
 			if (getNextStopProviderFromPreferences().equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_INFO)) {
 				this.task = new StmInfoTask(this, this.getApplicationContext());
@@ -219,7 +235,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 				this.task = new StmMobileTask(this, this.getApplicationContext());
 				this.task.execute(this.busStop);
 			} else {
-				MyLog.w(TAG, String.format("Unknow next stop provider '%s'", getNextStopProviderFromPreferences()));
+				MyLog.w(TAG, "Unknow next stop provider '%s'", getNextStopProviderFromPreferences());
 				this.task = new StmMobileTask(this, this.getApplicationContext()); // default stm mobile
 				this.task.execute(this.busStop);
 			}
@@ -243,7 +259,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 			} else if (getNextStopProviderFromPreferences().equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_MOBILE)) {
 				source = StmMobileTask.SOURCE_NAME;
 			} else {
-				MyLog.w(TAG, String.format("Unknow next stop provider '%s'", getNextStopProviderFromPreferences()));
+				MyLog.w(TAG, "Unknow next stop provider '%s'", getNextStopProviderFromPreferences());
 				source = StmMobileTask.SOURCE_NAME; // default stm mobile
 			}
 		}
@@ -271,7 +287,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	 */
 	@Override
 	public void updateProgress(String progress) {
-		MyLog.v(TAG, String.format("updateProgress(%s)", progress));
+		MyLog.v(TAG, "updateProgress(%s)", progress);
 		if (progress != null && progress.length() > 0) {
 			// ((TextView) findViewById(R.id.progress_bar_text)).setText(progress);
 			TextView detailMsgTv = (TextView) findViewById(R.id.next_stops_loading).findViewById(R.id.detail_msg);
@@ -299,11 +315,14 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 		if (this.hours != null) {
 			// show the last loaded hours
 			setNextStops();
+		} else if (this.task != null && this.task.getStatus().equals(AsyncTask.Status.RUNNING)) {
+			// still running
 		} else {
 			// show the stopped message
 			hideAll();
-			findViewById(R.id.next_stops_msg).setVisibility(View.VISIBLE);
-			((TextView) findViewById(R.id.next_stops_msg)).setText(R.string.next_bus_stop_load_cancelled);
+			TextView msgTv = (TextView) findViewById(R.id.next_stops_msg);
+			msgTv.setVisibility(View.VISIBLE);
+			msgTv.setText(R.string.next_bus_stop_load_cancelled);
 		}
 	}
 
@@ -331,7 +350,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	 * Set the next bus stops hours.
 	 */
 	private void setNextStops() {
-		MyLog.v(TAG, String.format("setNextStops(%s)", hours.getSHours()));
+		MyLog.v(TAG, "setNextStops(%s)", hours.getSHours());
 		String nextBusStop = getString(R.string.next_bus_stops_and_source, this.hours.getSourceName());
 		((TextView) findViewById(R.id.next_stops_string)).setText(nextBusStop);
 		// IF there next stops found DO
@@ -385,8 +404,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 					Linkify.addLinks(((TextView) findViewById(R.id.next_stops_msg)), Linkify.ALL);
 					// ELSE
 				} else {
-					MyLog.d(TAG, String.format("no next stop, no message and no error for %s %s!", this.busStop
-					        .getCode(), this.busLine.getNumber()));
+					MyLog.w(TAG, "no next stop or message or error for %s %s!", busStop.getCode(), busLine.getNumber());
 					// DEFAULT MESSAGE > no more bus stop for this bus line
 					String defaultMessage = getString(R.string.no_more_stops_for_this_bus_line, busLine.getNumber());
 					((TextView) findViewById(R.id.next_stops_msg)).setText(defaultMessage);
@@ -439,7 +457,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	private void refreshSubwayStationInfo() {
 		MyLog.v(TAG, "setSubwayStations()");
 		if (!TextUtils.isEmpty(this.busStop.getSubwayStationId())) {
-			MyLog.d(TAG, String.format("SubwayStationId: %s.", this.busStop.getSubwayStationId()));
+			MyLog.d(TAG, "SubwayStationId: %s.", this.busStop.getSubwayStationId());
 			findViewById(R.id.subway_station).setVisibility(View.VISIBLE);
 			findViewById(R.id.the_subway_station).setVisibility(View.VISIBLE);
 
@@ -516,17 +534,20 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 				view.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						MyLog.d(TAG, String.format("bus line number: %s", lineNumber));
-						showNewBusStop(BusStopInfo.this.busStop.getCode(), lineNumber);
+						MyLog.v(TAG, "onClick(%s)");
+						MyLog.d(TAG, "bus line number: %s", lineNumber);
+						Intent intent = new Intent(BusStopInfo.this, BusStopInfo.class);
+						intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, lineNumber);
+						intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, BusStopInfo.this.busStop.getCode());
+						startActivity(intent);
 					}
 				});
 				view.setOnLongClickListener(new View.OnLongClickListener() {
 					@Override
 					public boolean onLongClick(View v) {
-						MyLog.d(TAG, String.format("bus line number: %s", lineNumber));
-						BusLineSelectDirection busLineSelectDirection = new BusLineSelectDirection(BusStopInfo.this,
-						        lineNumber);
-						busLineSelectDirection.showDialog();
+						MyLog.d(TAG, "bus line number: %s", lineNumber);
+						BusLineSelectDirection busLineSelDir = new BusLineSelectDirection(BusStopInfo.this, lineNumber);
+						busLineSelDir.showDialog();
 						return true;
 					}
 				});
@@ -544,10 +565,10 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	 * @param newLineNumber the new bus line number (optional)
 	 */
 	public void showNewBusStop(String newStopCode, String newLineNumber) {
-		MyLog.v(TAG, String.format("showNewBusStop(%s, %s)", newStopCode, newLineNumber));
+		MyLog.v(TAG, "showNewBusStop(%s, %s)", newStopCode, newLineNumber);
 		if ((this.busStop == null)
 		        || (!this.busStop.getCode().equals(newStopCode) || !this.busStop.getLineNumber().equals(newLineNumber))) {
-			MyLog.v(TAG, String.format("New bus stop '%s' line '%s'.", newStopCode, newLineNumber));
+			MyLog.v(TAG, "New bus stop '%s' line '%s'.", newStopCode, newLineNumber);
 			setStopCode(newStopCode);
 			checkStopCode(newStopCode);
 
@@ -601,7 +622,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	 */
 	private void showAlertDialog(String wrongStopCode) {
 		MyLog.v(TAG, "showAlertDialog()");
-		MyLog.w(TAG, String.format("Wrong StopCode '%s'?", wrongStopCode));
+		MyLog.w(TAG, "Wrong StopCode '%s'?", wrongStopCode);
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setIcon(android.R.drawable.ic_dialog_alert);
 		builder.setTitle(R.string.warning);
@@ -619,7 +640,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	 */
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
-		MyLog.v(TAG, String.format("onClick(%s)", which));
+		MyLog.v(TAG, "onClick(%s)", which);
 		if (which == -2) {
 			dialog.dismiss();// CANCEL
 			this.finish(); // close the activity.
@@ -791,7 +812,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 						if (addresses != null && addresses.size() > 0 && addresses.get(0) != null) {
 							double lat = addresses.get(0).getLatitude();
 							double lng = addresses.get(0).getLongitude();
-							MyLog.d(TAG, String.format("Bus stop GPS > lat:%s, lng:%s", lat, lng));
+							MyLog.d(TAG, "Bus stop GPS > lat:%s, lng:%s", lat, lng);
 							// Launch the map activity
 							Uri uri = Uri.parse(String.format("geo:%s,%s", lat, lng)); // geo:0,0?q="+busStop.getPlace()
 							startActivity(new Intent(android.content.Intent.ACTION_VIEW, uri));
@@ -823,7 +844,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 						if (addresses != null && addresses.size() > 0 && addresses.get(0) != null) {
 							float lat = (float) addresses.get(0).getLatitude();
 							float lng = (float) addresses.get(0).getLongitude();
-							MyLog.d(TAG, String.format("Bus stop GPS > lat:%s,lng:%s", lat, lng));
+							MyLog.d(TAG, "Bus stop GPS > lat:%s,lng:%s", lat, lng);
 							// Launch the radar activity
 							Intent intent = new Intent("com.google.android.radar.SHOW_RADAR");
 							intent.putExtra("latitude", (float) lat);
@@ -864,7 +885,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 			Utils.showAboutDialog(this);
 			return true;
 		default:
-			MyLog.d(TAG, String.format("Unknow menu action: %s.", item.getItemId()));
+			MyLog.d(TAG, "Unknow menu action: %s.", item.getItemId());
 			return false;
 		}
 	}

@@ -98,7 +98,7 @@
 	<string name="show_map_from_stm_website">Subway Map (stm.info)</string>
 	<string name="refresh_next_bus_stop">Refresh next passing</string>
 	<string name="stop_refresh_next_bus_stop">Stop</string>
-	<string name="next_bus_stop_load_cancelled">Next bus stop loading cancelled</string>
+	<string name="next_bus_stop_load_cancelled">Loading aborted</string>
 	<string name="show_in_map">View Maps</string>
 	<string name="show_in_map_exp">View Maps (BETA)</string>
 

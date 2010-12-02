@@ -44,9 +44,9 @@
 			android:configChanges="orientation|keyboardHidden" />
 		<!-- BUS STOP INFO -->
 		<activity android:name=".activity.BusStopInfo"
-			android:configChanges="orientation|keyboardHidden">
-			<intent-filter android:label="@string/viewBusStopInfo"
-				android:launchMode="singleTask">
+			android:configChanges="orientation|keyboardHidden"
+			android:launchMode="singleTop">
+			<intent-filter android:label="@string/viewBusStopInfo">
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
 				<data
