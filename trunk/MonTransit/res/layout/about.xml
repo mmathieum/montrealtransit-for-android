@@ -17,18 +17,18 @@
 	
 		<TextView
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:text="@string/about_text3_website" android:autoLink="web"
+			android:text="@string/about_text3_contributors"
+			android:textAppearance="?android:attr/textAppearanceSmallInverse" android:textColor="#ffff" />
+	
+		<TextView
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:text="@string/about_text4_website" android:autoLink="web"
 			android:textAppearance="?android:attr/textAppearanceSmall" android:textColor="#ffff" />
 	
 		<TextView
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:text="@string/about_text4_source" android:autoLink="web"
+			android:text="@string/about_text5_source" android:autoLink="web"
 			android:textAppearance="?android:attr/textAppearanceSmall" android:textColor="#ffff" />
-			
-		<TextView
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:text="@string/about_text5_contributors"
-			android:textAppearance="?android:attr/textAppearanceSmallInverse" android:textColor="#ffff" />
 			
 		<TextView
 			android:layout_width="fill_parent" android:layout_height="wrap_content"

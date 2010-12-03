@@ -235,9 +235,9 @@
     
     <string name="about_text1">MonTransit vous permet d\'accéder aux informations sur les autobus et les métro de la STM. Cette application n\'est pas associée à la Société de Transport de Montréal. Le code source de l\'application est publié sous la license Apache 2.0 par:"</string>
     <string name="about_text2_authors">Mathieu Méa http://twitter.com/mmathieum</string>
-    <string name="about_text3_website">Site web : http://tiny.cc/MTLTransit</string>
-    <string name="about_text4_source">Code source : http://tiny.cc/MTLSource</string>
-    <string name="about_text5_contributors">Contributeurs : Ian Cloutier, Robert Tremblay.</string>
-     <string name="about_text6_donate">Faire un don: http://tiny.cc/MTLDonate</string>
+    <string name="about_text3_contributors">Contributeurs : Ian Cloutier, Robert Tremblay.</string>
+    <string name="about_text4_website">Site web : http://tiny.cc/MTLTransit</string>
+    <string name="about_text5_source">Code source : http://tiny.cc/MTLSource</string>
+    <string name="about_text6_donate">Faire un don : http://tiny.cc/MTLDonate</string>
     <string name="about_version">Version %s (r%s)</string>
 </resources>
