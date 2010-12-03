@@ -235,9 +235,9 @@
     
     <string name="about_text1">MonTransit allows you to access information about the buses and subway from the STM. This app is not related with the Société de Transport de Montréal. The source code is released under an Apache 2.0 license by:"</string>
     <string name="about_text2_authors">Mathieu Méa http://twitter.com/mmathieum</string>
-    <string name="about_text3_website">Website: http://tiny.cc/MTLTransit</string>
-    <string name="about_text4_source">Source code: http://tiny.cc/MTLSource</string>
-    <string name="about_text5_contributors">Contributors: Ian Cloutier, Robert Tremblay.</string>
+    <string name="about_text3_contributors">Contributors: Ian Cloutier, Robert Tremblay.</string>
+    <string name="about_text4_website">Website: http://tiny.cc/MTLTransit</string>
+    <string name="about_text5_source">Source code: http://tiny.cc/MTLSource</string>
     <string name="about_text6_donate">Donate: http://tiny.cc/MTLDonate</string>
     <string name="about_version">Version %s (r%s)</string>
 </resources>
