@@ -412,10 +412,6 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 			busLinesLayout.setVisibility(View.VISIBLE);
 			// FOR EACH bus line DO
 			for (StmStore.BusLine busLine : busLinesList) {
-				// list view divider
-				if (busLinesLayout.getChildCount() > 0) {
-					busLinesLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
-				}
 				// create view
 				View view = getLayoutInflater().inflate(R.layout.subway_station_info_bus_line_list_item, null);
 				// bus line number
