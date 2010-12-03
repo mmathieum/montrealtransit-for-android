@@ -6,7 +6,7 @@ Nous ne travaillons pas sur cette application pour l'argent.
 
 Néanmoins, nous acceptons vos dons si vous souhaitez nous aider à payer nos tickets de bus ;)
 
-https://www.paypal.com/fr_CA/i/btn/btn_donateCC_LG.gif
+[https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=5C8YD793YJ9HU https://www.paypal.com/fr_CA/i/btn/btn_donateCC_LG.gif]
 
 [https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TPB458DUSQFXJ 1 ticket (2.75$)] ou
 [https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3HGPF7DVRJUDU 6 tickets (13.25$)] ou
