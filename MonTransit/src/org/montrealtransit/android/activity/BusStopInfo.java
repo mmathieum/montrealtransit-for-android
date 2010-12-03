@@ -521,10 +521,6 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 			findViewById(R.id.other_bus_line).setVisibility(View.VISIBLE);
 			otherBusLinesLayout.setVisibility(View.VISIBLE);
 			for (StmStore.BusLine busLine : allBusLines) {
-				// list view divider
-				if (otherBusLinesLayout.getChildCount() > 0) {
-					otherBusLinesLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
-				}
 				// the view
 				View view = getLayoutInflater().inflate(R.layout.bus_stop_info_bus_line_list_item, null);
 				final String lineNumber = busLine.getNumber();
