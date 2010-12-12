@@ -44,6 +44,7 @@ We think that covers pretty much all Android devices in the market.
 || November 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/8/88/Dell.svg/77px-Dell.svg.png || Streak ([http://en.wikipedia.org/wiki/Dell_Streak wikipedia]) || 1.6 || 2.1? || Dell Custom UI ||
 || November 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/0/09/Rogers_logo.svg/77px-Rogers_logo.svg.png http://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Bell_logo.svg/77px-Bell_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Samsung_Logo.svg/77px-Samsung_Logo.svg.png || Galaxy Tab || 2.2 || ? || Samsung UI ||
 || November 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/b/b5/Telus_logo.svg/77px-Telus_logo.svg.png || http://upload.wikimedia.org/wikipedia/commons/thumb/5/54/LG_Logo.svg/77px-LG_Logo.svg.png || Optimus One ([http://en.wikipedia.org/wiki/LG_Optimus_One_P500 wikipedia]) || 2.2 || ? || LG UI ||
+|| December 2010 || http://upload.wikimedia.org/wikipedia/en/thumb/7/79/Videotron_logo.svg/77px-Videotron_logo.svg.png || http://upload.wikimedia.org/wikipedia/en/thumb/d/de/Motorola.svg/77px-Motorola.svg.png || SPICE || 2.1 || ? || MOTOBLUR UI ||
 
 = Upcoming Android devices =
 || *Release Date* || *Carrier* || *Manufacturer* || *Name* || *Android Version* || *Upcoming update* || *Notes* ||
