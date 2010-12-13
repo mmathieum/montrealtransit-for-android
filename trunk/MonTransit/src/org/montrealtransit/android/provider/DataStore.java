@@ -245,4 +245,106 @@ public class DataStore {
 		public static final String VALUE = DataDbHelper.T_HISTORY_K_VALUE;
 	}
 
+	/**
+	 * This class represent an Twitter API entry.
+	 * @author Mathieu Méa
+	 */
+	public static class TwitterApi implements BaseColumns, TwitterApiColumns {
+		/**
+		 * The content URI for history.
+		 */
+		public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/twitterapi");
+		/**
+		 * The MIME type of {@link #CONTENT_URI} providing a directory of Twitter API entries.
+		 */
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd." + AUTHORITY + ".provider.twitterapi";
+		/**
+		 * The MIME type of a {@link #CONTENT_URI} sub-directory of a single Twitter API entry.
+		 */
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY + ".provider.twitterapi";
+		/**
+		 * The default order for Twitter API.
+		 */
+		public static final String DEFAULT_SORT_ORDER = DataDbHelper.T_TWITTER_API_K_ID + " DESC";
+		/**
+		 * The Twitter API ID.
+		 */
+		private int id;
+		/**
+		 * The Twitter API token.
+		 */
+		private String token;
+		/**
+		 * The Twitter API token secret.
+		 */
+		private String tokenSecret;
+
+		/**
+		 * @param c the cursor
+		 * @return an history entry from the cursor values.
+		 */
+		public static TwitterApi fromCursor(Cursor c) {
+			final TwitterApi twitterApi = new TwitterApi();
+			twitterApi.id = c.getInt(c.getColumnIndexOrThrow(BaseColumns._ID));
+			twitterApi.token = c.getString(c.getColumnIndexOrThrow(TwitterApiColumns.TOKEN));
+			twitterApi.tokenSecret = c.getString(c.getColumnIndexOrThrow(TwitterApiColumns.TOKEN_SECRET));
+			return twitterApi;
+		}
+
+		/**
+		 * @return the ID
+		 */
+		public int getId() {
+			return id;
+		}
+
+		/**
+		 * @param token the new token
+		 */
+		public void setToken(String token) {
+			this.token = token;
+		}
+
+		/**
+		 * @return the token
+		 */
+		public String getToken() {
+			return token;
+		}
+		
+		/**
+		 * @param token the new token secret
+		 */
+		public void setTokenSecret(String tokenSecret) {
+			this.tokenSecret = tokenSecret;
+		}
+
+		/**
+		 * @return the token secret
+		 */
+		public String getTokenSecret() {
+			return tokenSecret;
+		}
+
+		/**
+		 * @return the content values representing this Twitter API entry.
+		 */
+		public ContentValues getContentValues() {
+			final ContentValues values = new ContentValues();
+			values.put(TwitterApiColumns.TOKEN, getToken());
+			values.put(TwitterApiColumns.TOKEN_SECRET, getTokenSecret());
+			return values;
+		}
+	}
+	
+	/**
+	 * The Twitter API columns
+	 * @author Mathieu Méa
+	 */
+	public interface TwitterApiColumns {
+		// TODO release this columns from their link to the real DB column name. Should use projection.
+		public static final String TOKEN = DataDbHelper.T_TWITTER_API_K_TOKEN;
+		public static final String TOKEN_SECRET = DataDbHelper.T_TWITTER_API_K_TOKEN_SECRET;
+	}
+
 }

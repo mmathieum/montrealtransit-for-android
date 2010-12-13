@@ -121,4 +121,16 @@ public class MyLog {
 			Log.i(Constant.MAIN_TAG, String.format("%s>%s", tag, msg));
 		}
 	}
+
+	/**
+	 * @see Log#i(String, String)
+	 * @param tag the class log
+	 * @param msg the message
+	 * @param args the message arguments
+	 */
+	public static void i(String tag, String msg, Object... args) {
+		if (DEBUG || Log.isLoggable(Constant.MAIN_TAG, Log.INFO)) {
+			Log.i(Constant.MAIN_TAG, String.format("%s>%s", tag, String.format(msg, args)));
+		}
+	}
 }

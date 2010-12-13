@@ -17,7 +17,7 @@
     
     <string name="select_bus_direction">Direction</string>
     <string name="select_bus_line_direction_and_number">Line %s - Direction</string>
-    <string name="select_bus_line_detail_direction_and_number_and_direction">Line %1s - Direction %2s</string>
+    <string name="select_bus_line_detail_direction_and_number_and_direction">Line %1$s - Direction %2$s</string>
     <string name="select_bus_line_stop_and_number">Line %s - Stops</string>
     <string name="direction">Direction</string>
     <string name="direction_and_string">Direction %s</string>
@@ -62,7 +62,7 @@
 	<string name="stations_and_order">Stations (%s)</string>
 	<string name="subway_stations_short">Stations</string>
 	<string name="closest_subway_stations">Closest stations</string>
-	<string name="reload_closest_stations">Reload closest stations</string>
+	<string name="reload_closest_stations">Closest stations</string>
 	<string name="bus_stops">Bus stops</string>
 	<string name="bus_stops_short">Stops</string>
 	<string name="bus_stops_short_and_direction">Stops (Direction %s)</string>
@@ -74,6 +74,7 @@
 	<string name="subway_status">Service status</string>
 	<string name="subway_status_hour">Service status (%s)</string>
 	<string name="subway_status_message">The STM post métro service disruptions lasting 20 minutes and more.\n\nhttp://twitter.com/stminfo</string>
+	<string name="reload_subway_status">Service status</string>
 	
 	<string name="display_pref_cat_title">Display preferences</string>
 	<string name="data_pref_cat_title">Data source</string>
@@ -94,18 +95,18 @@
 	<string name="bus_line_string">Lines</string>
 	<string name="to">to</string>
 	
-	<string name="see_in_stm_mobile_web_site">View in m.stm.info</string>
-	<string name="show_map_from_stm_website">Subway Map (stm.info)</string>
-	<string name="refresh_next_bus_stop">Refresh next passing</string>
+	<string name="see_in_stm_mobile_web_site">m.stm.info</string>
+	<string name="show_map_from_stm_website">Map (stm.info)</string>
+	<string name="refresh_next_bus_stop">Next passing</string>
 	<string name="stop_refresh_next_bus_stop">Stop</string>
 	<string name="next_bus_stop_load_cancelled">Loading aborted</string>
 	<string name="show_in_map">View Maps</string>
-	<string name="show_in_map_exp">View Maps (BETA)</string>
+	<string name="show_in_map_exp">Maps(BETA)</string>
 
 	<string name="geocoding_and_location">Looking for the GPS coordinates of %s...</string>
 	<string name="bus_stop_location_not_found">Bus stop location not found.</string>
 
-	<string name="use_radar">Use a radar</string>
+	<string name="use_radar">Radar</string>
 	<string name="no_radar_title">No radar installed.</string>
 	<string name="download_radar_app">Download the free Radar app (Market).</string>
 	<string name="search_for_other_radar_app">Search for another app (Market).</string>
@@ -177,7 +178,7 @@
     
     <string name="cancel">Cancel</string>
     <string name="done">Done</string>
-    <string name="downloading_data_from_and_source">Downloading data from %s...</string>
+    <string name="downloading_data_from_and_source">Loading from %s...</string>
     <string name="processing">Processing...</string>
     <string name="processing_data">Processing the data</string>
     <string name="please_wait">Please wait...</string>
@@ -187,7 +188,7 @@
     <string name="error_http_500">Internal Server Error</string>
     <string name="error_http_400_twitter">Twitter error (rate limit exceeded). Try again later.</string>
     <string name="loading">Loading...</string>
-    <string name="select_next_stop_data_source">Select source</string>
+    <string name="select_next_stop_data_source">Source</string>
     <string name="data_source">Source</string>
     
     <string name="next_stop_pref_title">Next bus stops</string>
@@ -239,5 +240,12 @@
     <string name="about_text4_website">Website: http://tiny.cc/MTLTransit</string>
     <string name="about_text5_source">Source code: http://tiny.cc/MTLSource</string>
     <string name="about_text6_donate">Donate: http://tiny.cc/MTLDonate</string>
-    <string name="about_version">Version %s (r%s)</string>
+    <string name="about_version">Version %1$s (r%2$s)</string>
+    
+    <string name="menu_twitter_login">Login</string>
+    <string name="menu_twitter_logout">Logout</string>
+    <string name="twitter_pre_auth">You are directed to the Twitter web site to allow MonTransit to use your account.</string>
+    <string name="twitter_auth_success">Twitter authentication completed.</string>
+    <string name="twitter_auth_failed">Twitter authentication failed.</string>
+    <string name="twitter_logout_success">Disconnected from Twitter.</string>
 </resources>

@@ -2,6 +2,7 @@ package org.montrealtransit.android.activity;
 
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
+import org.montrealtransit.android.TwitterUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.provider.DataManager;
 
@@ -81,5 +82,17 @@ public class MainScreen extends TabActivity {
 		} catch (Exception e) {
 			MyLog.w(TAG, "Error while determing the select tab", e);
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onNewIntent(Intent intent) {
+		MyLog.v(TAG, "onNewIntent()");
+		if (TwitterUtils.isTwitterCallback(intent)) {
+			TwitterUtils.getInstance().login(this, intent.getData());
+		}
+	    super.onNewIntent(intent);
 	}
 }

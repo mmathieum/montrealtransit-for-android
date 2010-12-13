@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+	<string name="twitter_api_consumer_key">ENTER_THE_TWITTER_API_CONSUMER_KEY_HERE</string>
+	<string name="twitter_api_consumer_secret">ENTER_THE_TWITTER_API_CONSUMER_SECRET_HERE</string>
+</resources>
