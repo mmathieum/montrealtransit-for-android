@@ -1,37 +1,22 @@
 package org.montrealtransit.android.services;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.SocketException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.UnknownHostException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+import java.util.Arrays;
+import java.util.List;
 
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
-import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
+import org.montrealtransit.android.TwitterUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.StmInfoStatus;
 import org.montrealtransit.android.data.StmInfoStatuses;
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
+import org.montrealtransit.android.provider.DataManager;
+import org.montrealtransit.android.provider.DataStore.TwitterApi;
 
+import twitter4j.ResponseList;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
+import twitter4j.http.AccessToken;
 import android.content.Context;
 import android.os.AsyncTask;
 
@@ -45,11 +30,6 @@ public class StmInfoStatusReader extends AsyncTask<String, String, StmInfoStatus
 	 * The log tag.
 	 */
 	private static final String TAG = StmInfoStatusReader.class.getSimpleName();
-
-	/**
-	 * The Twitter RSS feed.
-	 */
-	private static final String RSS = "http://twitter.com/statuses/user_timeline/54692326.rss";
 
 	/**
 	 * The source string.
@@ -81,50 +61,61 @@ public class StmInfoStatusReader extends AsyncTask<String, String, StmInfoStatus
 	 */
 	@Override
 	protected StmInfoStatuses doInBackground(String... params) {
-		MyLog.v(TAG, "doInBackground()");
-		String errorMessage = this.context.getString(R.string.error); // set the default error message
+		MyLog.v(TAG, "doInBackground(%s)", Arrays.asList(params));
 		try {
-			URL url = new URL(RSS);
-			URLConnection urlc = url.openConnection();
-			HttpURLConnection httpUrlConnection = (HttpURLConnection) urlc;
-			switch (httpUrlConnection.getResponseCode()) {
-			case HttpURLConnection.HTTP_OK:
-				Utils.getInputStreamToFile(urlc.getInputStream(), this.context.openFileOutput(Constant.FILE1,
-				        Context.MODE_WORLD_READABLE), "UTF-8");
-				cleanHTMLCodes(this.context.openFileInput(Constant.FILE1), this.context.openFileOutput(Constant.FILE2,
-				        Context.MODE_WORLD_READABLE));
-				// Get a SAX Parser from the SAX PArser Factory
-				SAXParserFactory spf = SAXParserFactory.newInstance();
-				SAXParser sp = spf.newSAXParser();
-				// Get the XML Reader of the SAX Parser we created
-				XMLReader xr = sp.getXMLReader();
-				// Create a new ContentHandler and apply it to the XML-Reader
-				StmInfoStatusHandler contentHandler = new StmInfoStatusHandler();
-				xr.setContentHandler(contentHandler);
-				InputSource inputSource = new InputSource(this.context.openFileInput(Constant.FILE2));
-				xr.parse(inputSource);
-				return contentHandler.getStatuses();
-			case HttpURLConnection.HTTP_INTERNAL_ERROR:
-				errorMessage = this.context.getString(R.string.error_http_500);
-				break;
-			case HttpURLConnection.HTTP_BAD_REQUEST:
-				errorMessage = this.context.getString(R.string.error_http_400_twitter);
-				//TODO read from twitter.com/stminfo HTML?
-				//TODO read from another Twitter client (twidroyd?)?
-				//TODO read from stm.info HTML?
-				break;
+			List<TwitterApi> twitterApis = DataManager.findAllTwitterApisList(this.context.getContentResolver());
+			Twitter twitter;
+			// IF user is authenticated with Twitter DO
+			if (TwitterUtils.isConnected(twitterApis)) {
+				MyLog.d(TAG, "Connecting to Twitter using authentication...");
+				publishProgress();
+				TwitterApi twitterUserAccount = twitterApis.get(0);;
+				String consumerKey = TwitterUtils.getConsumerKey(this.context);
+				String consumerSecret = TwitterUtils.getConsumerSecret(this.context);
+				AccessToken accessToken = new AccessToken(twitterUserAccount.getToken(), twitterUserAccount.getTokenSecret());
+				twitter = new TwitterFactory().getOAuthAuthorizedInstance(consumerKey, consumerSecret, accessToken);
+			} else {
+				MyLog.d(TAG, "Connecting to Twitter anonymously...");
+				twitter = new TwitterFactory().getInstance(); // Anonymous
 			}
-			MyLog.w(TAG, "Error: HTTP URL-Connection Response Code:" + httpUrlConnection.getResponseCode()
-			        + "(Message: " + httpUrlConnection.getResponseMessage() + ")");
-			return new StmInfoStatuses(errorMessage);
-		} catch (UnknownHostException uhe) {
-			MyLog.w(TAG, "No Internet Connection!", uhe);
-			publishProgress(this.context.getString(R.string.no_internet));
-			return new StmInfoStatuses(this.context.getString(R.string.no_internet));
-		} catch (SocketException se) {
-			MyLog.w(TAG, "No Internet Connection!", se);
-			publishProgress(this.context.getString(R.string.no_internet));
-			return new StmInfoStatuses(this.context.getString(R.string.no_internet));
+			StmInfoStatuses statuses = new StmInfoStatuses();
+			boolean french = false;
+			if (Utils.getUserLocale().equals("fr")) {
+				french = true;
+			}
+			ResponseList<twitter4j.Status> userTimeline = twitter.getUserTimeline("stminfo");
+			for (twitter4j.Status status : userTimeline) {
+				String message = status.getText();
+				if ((french && message.endsWith("F")) || (!french && message.endsWith("E"))) {
+					StmInfoStatus stmStatus = new StmInfoStatus(status.getText());
+					stmStatus.setDate(status.getCreatedAt());
+					statuses.add(stmStatus);
+				}
+			}
+			return statuses;
+		} catch (TwitterException e) {
+			MyLog.e(TAG, "Twitter Error!", e);
+			if (e.isCausedByNetworkIssue()) {
+				publishProgress(this.context.getString(R.string.no_internet));
+				return new StmInfoStatuses(this.context.getString(R.string.no_internet));
+			} else if (e.exceededRateLimitation()) {
+				//TODO handle twitter API error // RateLimitStatus
+				if (e.getRateLimitStatus() != null) {
+					MyLog.d(TAG, "RateLimitStatus:");
+					MyLog.d(TAG, "getHourlyLimit():" + e.getRateLimitStatus().getHourlyLimit());
+					MyLog.d(TAG, "getRemainingHits():" + e.getRateLimitStatus().getRemainingHits());
+					MyLog.d(TAG, "getResetTimeInSeconds():" + e.getRateLimitStatus().getResetTimeInSeconds());
+					MyLog.d(TAG, "getSecondsUntilReset():" + e.getRateLimitStatus().getSecondsUntilReset());
+					MyLog.d(TAG, "getResetTime():" + e.getRateLimitStatus().getResetTime());
+				} else {
+					MyLog.d(TAG, "NO RateLimitStatus!");
+				}
+				publishProgress(this.context.getString(R.string.error_http_400_twitter));
+				return new StmInfoStatuses(this.context.getString(R.string.error_http_400_twitter));
+			} else {
+				publishProgress(this.context.getString(R.string.error_http_400_twitter));
+				return new StmInfoStatuses(this.context.getString(R.string.error_http_400_twitter));
+			}
 		} catch (Exception e) {
 			MyLog.e(TAG, "INTERNAL ERROR: Unknown Exception", e);
 			publishProgress(this.context.getString(R.string.error));
@@ -139,173 +130,5 @@ public class StmInfoStatusReader extends AsyncTask<String, String, StmInfoStatus
 	protected void onPostExecute(StmInfoStatuses result) {
 		from.onStmInfoStatusesLoaded(result);
 		super.onPostExecute(result);
-	}
-
-	/**
-	 * Clean the code
-	 * @param is the original file
-	 * @param os the cleaned file
-	 */
-	private void cleanHTMLCodes(FileInputStream is, FileOutputStream os) {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is), 4096);
-		OutputStreamWriter writer = new OutputStreamWriter(os);
-		try {
-			String line = reader.readLine();
-			while (line != null) {
-				writer.write(removeHref(line.trim()));
-				line = reader.readLine();
-			}
-		} catch (IOException ioe) {
-			MyLog.e(TAG, "Error while removing useless code.", ioe);
-		} finally {
-			try {
-				writer.flush();
-				writer.close();
-				is.close();
-			} catch (IOException ioe) {
-				MyLog.w(TAG, "Error while closing the file.", ioe);
-			}
-		}
-	}
-
-	/**
-	 * Remove unwanted HTML code.
-	 * @param string the string the clean
-	 * @return the cleaned string
-	 */
-	private String removeHref(String string) {
-		if (string.contains(Constant.HTML_CODE_EACUTE_2)) {
-			string = string.replace(Constant.HTML_CODE_EACUTE_2, "é");
-		}
-		if (string.contains(Constant.HTML_CODE_ECIRC_2)) {
-			string = string.replace(Constant.HTML_CODE_ECIRC_2, "ê");
-		}
-		if (string.contains(Constant.HTML_CODE_OCIRC)) {
-			string = string.replace(Constant.HTML_CODE_OCIRC, "ô");
-		}
-		return string;
-	}
-
-	/**
-	 * Handle the processing of the STM info RSS feed (XML).
-	 * @author Mathieu Méa
-	 */
-	private class StmInfoStatusHandler extends DefaultHandler implements ContentHandler {
-
-		private static final String TWITTER_RSS_FEED_DATE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss ZZZZ";
-
-		/**
-		 * The STM statuses.
-		 */
-		private StmInfoStatuses statuses = new StmInfoStatuses();
-
-		/**
-		 * The current status.
-		 */
-		private StmInfoStatus currentStatus;
-
-		/**
-		 * The RSS XML elements.
-		 */
-		// protected static final String RSS = "rss";
-		// protected static final String CHANNEL = "channel";
-		protected static final String TITLE = "title";
-		// protected static final String LINK = "link";
-		// protected static final String DESCRIPTION = "description";
-		// protected static final String LANGUAGE = "language";
-		// protected static final String TTL = "ttl";
-		protected static final String ITEM = "item";
-		protected static final String PUB_DATE = "pubDate";
-		// protected static final String GUID = "guid";
-
-		/**
-		 * True if in 'title' element.
-		 */
-		private boolean inTitle = false;
-		/**
-		 * True if in 'pubDate' element.
-		 */
-		private boolean inPubDate = false;
-
-		/**
-		 * True if the message is tagged as French.
-		 */
-		private boolean isInFrench = false;
-		/**
-		 * True if the message is tagged as English.
-		 */
-		private boolean isInEnglish = false;
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
-			// MyLog.v(TAG, "startElement(" + localName + ")");
-			if (TITLE.equals(localName)) {
-				inTitle = true;
-			} else if (PUB_DATE.equals(localName)) {
-				inPubDate = true;
-			} else if (ITEM.equals(localName)) {
-				this.currentStatus = null;
-			}
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public void characters(char[] ch, int start, int length) throws SAXException {
-			String string = new String(ch, start, length).trim();
-			// MyLog.v(TAG, "characters(" + string + ").");
-			if (string.length() > 0) {
-				if (inTitle) {
-					isInFrench = string.endsWith("F");
-					isInEnglish = string.endsWith("E");
-					if (Utils.getUserLocale().equals("fr")) {
-						if (isInFrench) {
-							this.currentStatus = new StmInfoStatus(string);
-						}
-					} else if (isInEnglish) {
-						this.currentStatus = new StmInfoStatus(string);
-					}
-				} else if (inPubDate) {
-					if (this.currentStatus != null) {
-						SimpleDateFormat formatter = new SimpleDateFormat(TWITTER_RSS_FEED_DATE_FORMAT, Locale.ENGLISH);
-						try {
-							Date date = formatter.parse(string);
-							this.currentStatus.setDate(date);
-						} catch (ParseException pe) {
-							MyLog.w(TAG, "Error while parsing the date from Twitter RSS feed!", pe);
-						}
-					}
-				}
-			}
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public void endElement(String uri, String localName, String qName) throws SAXException {
-			// MyLog.v(TAG, "endElement(" + localName + ")");
-			if (TITLE.equals(localName)) {
-				inTitle = false;
-			} else if (PUB_DATE.equals(localName)) {
-				inPubDate = false;
-			} else if (ITEM.equals(localName)) {
-				if (this.currentStatus != null) {
-					this.statuses.add(this.currentStatus);
-				}
-			}
-		}
-
-		/**
-		 * @return the statuses
-		 */
-		public StmInfoStatuses getStatuses() {
-			return statuses;
-		}
-
 	}
 }

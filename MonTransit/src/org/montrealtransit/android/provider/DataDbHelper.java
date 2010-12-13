@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * This database helper is used to access the user data.
- * @author Mathieu M�a
+ * @author Mathieu Méa
  */
 public class DataDbHelper extends SQLiteOpenHelper {
 
@@ -27,7 +27,7 @@ public class DataDbHelper extends SQLiteOpenHelper {
 	/**
 	 * The database version use to manage database changes.
 	 */
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 3;
 
 	/**
 	 * The favorites table.
@@ -77,25 +77,44 @@ public class DataDbHelper extends SQLiteOpenHelper {
 	public static final String T_HISTORY_K_VALUE = "value";
 
 	/**
-	 * Constant for opening writable database.
+	 * The Twitter API table.
 	 */
-	//public static final String OPEN_WRITABLE = "W";
+	public static final String T_TWITTER_API = "twitter_api";
 	/**
-	 * Constant for opening read only database.
+	 * The Twitter API ID field.
 	 */
-	//public static final String OPEN_READABLE = "R";
+	public static final String T_TWITTER_API_K_ID = "_id";
+	/**
+	 * The Twitter API OAuth token field.
+	 */
+	public static final String T_TWITTER_API_K_TOKEN = "oauth_token";
+	/**
+	 * The Twitter API OAuth token secret field.
+	 */
+	public static final String T_TWITTER_API_K_TOKEN_SECRET = "oauth_token_secret";
 
 	/**
 	 * Database creation SQL statement for the favorite table.
 	 */
-	private static final String DATABASE_CREATE_T_FAVS = "create table " + T_FAVS + " (" + T_FAVS_K_ID + " integer primary key autoincrement, " + T_FAVS_K_TYPE
-	        + " integer, " + T_FAVS_K_FK_ID + " text, " + T_FAVS_K_FK_ID_2 + " text, " + T_FAVS_K_TITLE + " text);";
+	private static final String DATABASE_CREATE_T_FAVS = "create table " + T_FAVS + " (" + T_FAVS_K_ID
+	        + " integer primary key autoincrement, " + T_FAVS_K_TYPE + " integer, " + T_FAVS_K_FK_ID + " text, "
+	        + T_FAVS_K_FK_ID_2 + " text, " + T_FAVS_K_TITLE + " text);";
 	/**
 	 * Database creation SQL statement for the history table.
 	 */
-	private static final String DATABASE_CREATE_T_HISTORY = "create table " + T_HISTORY + " (" + T_HISTORY_K_ID + " integer primary key autoincrement, "
-	        + T_HISTORY_K_VALUE + " text);";
+	private static final String DATABASE_CREATE_T_HISTORY = "create table " + T_HISTORY + " (" + T_HISTORY_K_ID
+	        + " integer primary key autoincrement, " + T_HISTORY_K_VALUE + " text);";
 
+	/**
+	 * Database creation SQL statement for the Twitter API table.
+	 */
+	private static final String DATABASE_CREATE_T_TWITTER_API = "create table " + T_TWITTER_API + " ("
+	        + T_TWITTER_API_K_ID + " integer primary key autoincrement, " + T_TWITTER_API_K_TOKEN + " text, "
+	        + T_TWITTER_API_K_TOKEN_SECRET + " text);";
+
+	/**
+	 * Default constructor.
+	 */
 	public DataDbHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
@@ -107,6 +126,7 @@ public class DataDbHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL(DATABASE_CREATE_T_FAVS);
 		db.execSQL(DATABASE_CREATE_T_HISTORY);
+		db.execSQL(DATABASE_CREATE_T_TWITTER_API);
 	}
 
 	/**
@@ -114,34 +134,30 @@ public class DataDbHelper extends SQLiteOpenHelper {
 	 */
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		MyLog.w(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion + ", which may destroy all old data");
-		if (oldVersion == 1 && newVersion == 2) {
-			MyLog.v(TAG, "old data not destroyed, just create the history table");
-			// just create the history database
+		MyLog.v(TAG, "onUpgrade(%s, %s)", oldVersion, newVersion);
+		MyLog.i(TAG, "Upgrading database from version %s to %s, which may destroy all old data!", oldVersion, newVersion);
+		switch (oldVersion) {
+		case 1:
+			MyLog.v(TAG, "old data not destroyed, just create the history and data table");
+			// just create the history table
 			db.execSQL(DATABASE_CREATE_T_HISTORY);
-		} else {
+			// just create the Twitter API table
+			db.execSQL(DATABASE_CREATE_T_TWITTER_API);
+			break;
+		case 2:
+			MyLog.v(TAG, "old data not destroyed, just create the data table");
+			// just create the Twitter API table
+			db.execSQL(DATABASE_CREATE_T_TWITTER_API);
+			break;
+		default:
 			MyLog.v(TAG, "old data destroyed");
 			db.execSQL("DROP TABLE IF EXISTS " + T_FAVS);
 			db.execSQL("DROP TABLE IF EXISTS " + T_HISTORY);
+			db.execSQL("DROP TABLE IF EXISTS " + T_TWITTER_API);
 			onCreate(db);
+			break;
 		}
 	}
-
-	/*public synchronized void open(String mode) {
-		MyTrace.v(TAG, "open()");
-		try {
-			if (mode.equals(DataDbHelper.OPEN_WRITABLE)) {
-				myDataBase = this.getWritableDatabase();
-			} else if (mode.equals(DataDbHelper.OPEN_READABLE)) {
-				myDataBase = this.getReadableDatabase();
-			}
-		} catch (NullPointerException npe) {
-			MyTrace.e(TAG, "Null Pointer Exception", npe);
-		} catch (SQLException sqle) {
-			MyTrace.e(TAG, "SQL Exception", sqle);
-			throw sqle;
-		}
-	}*/
 
 	/**
 	 * {@inheritDoc}

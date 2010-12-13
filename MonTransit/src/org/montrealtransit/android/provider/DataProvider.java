@@ -43,6 +43,8 @@ public class DataProvider extends ContentProvider {
 	private static final int HISTORY_ID = 6;
 	private static final int HISTORY_IDS = 7;
 	private static final int FAVS_TYPE_ID = 8;
+	private static final int TWITTER_API = 9;
+	private static final int TWITTER_API_ID = 10;
 
 	/**
 	 * The URI matcher filter the content URI calls.
@@ -58,6 +60,8 @@ public class DataProvider extends ContentProvider {
 		URI_MATCHER.addURI(AUTHORITY, "history", HISTORY);
 		URI_MATCHER.addURI(AUTHORITY, "history/#", HISTORY_ID);
 		URI_MATCHER.addURI(AUTHORITY, "history/*", HISTORY_IDS);
+		URI_MATCHER.addURI(AUTHORITY, "twitterapi", TWITTER_API);
+		URI_MATCHER.addURI(AUTHORITY, "twitterapi/#", TWITTER_API_ID);
 	}
 
 	/**
@@ -77,10 +81,10 @@ public class DataProvider extends ContentProvider {
 	 */
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-		MyLog.v(TAG, "query(" + uri.getPath() + ", " + Arrays.toString(projection) + ", " + selection + ", "
-		        + Arrays.toString(selectionArgs) + ", " + sortOrder + ")");
+		MyLog.v(TAG, "query(%s, %s, %s, %s, %s)", uri.getPath(), Arrays.toString(projection), selection, Arrays
+		        .toString(selectionArgs), sortOrder);
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-		MyLog.i(TAG, "[" + uri + "]");
+		MyLog.i(TAG, "[%s]", uri);
 		switch (URI_MATCHER.match(uri)) {
 		case FAVS:
 			MyLog.v(TAG, "FAVS");
@@ -128,8 +132,17 @@ public class DataProvider extends ContentProvider {
 			qb.appendWhere(DataDbHelper.T_HISTORY + "." + DataDbHelper.T_HISTORY_K_ID + "="
 			        + uri.getPathSegments().get(1));
 			break;
+		case TWITTER_API:
+			MyLog.v(TAG, "TWITTER_API");
+			qb.setTables(DataDbHelper.T_TWITTER_API);
+			break;
+		case TWITTER_API_ID:
+			MyLog.v(TAG, "TWITTER_API_ID");
+			qb.setTables(DataDbHelper.T_TWITTER_API);
+			qb.appendWhere(DataDbHelper.T_TWITTER_API + "." + DataDbHelper.T_TWITTER_API_K_ID + "=" + uri.getPathSegments().get(1));
+			break;
 		default:
-			throw new IllegalArgumentException("Unknown URI (query) " + uri);
+			throw new IllegalArgumentException("Unknown URI (query) :" + uri);
 		}
 
 		// If no sort order is specified use the default
@@ -148,8 +161,12 @@ public class DataProvider extends ContentProvider {
 			case HISTORY_IDS:
 				orderBy = DataStore.History.DEFAULT_SORT_ORDER;
 				break;
+			case TWITTER_API:
+			case TWITTER_API_ID:
+				orderBy = DataStore.TwitterApi.DEFAULT_SORT_ORDER;
+				break;
 			default:
-				throw new IllegalArgumentException("Unknown URI (order) " + uri);
+				throw new IllegalArgumentException("Unknown URI (order) :" + uri);
 			}
 		} else {
 			orderBy = sortOrder;
@@ -167,7 +184,7 @@ public class DataProvider extends ContentProvider {
 	 */
 	@Override
 	public String getType(Uri uri) {
-		MyLog.v(TAG, "getType(" + uri.getPath() + ")");
+		MyLog.v(TAG, "getType(%s)", uri.getPath());
 		switch (URI_MATCHER.match(uri)) {
 		case FAVS:
 		case FAVS_IDS:
@@ -180,8 +197,12 @@ public class DataProvider extends ContentProvider {
 			return DataStore.History.CONTENT_TYPE;
 		case HISTORY_ID:
 			return DataStore.History.CONTENT_ITEM_TYPE;
+		case TWITTER_API:
+			return DataStore.TwitterApi.CONTENT_TYPE;
+		case TWITTER_API_ID:
+			return DataStore.TwitterApi.CONTENT_ITEM_TYPE;
 		default:
-			throw new IllegalArgumentException("Unknown URI (type) " + uri);
+			throw new IllegalArgumentException("Unknown URI (type) :" + uri);
 		}
 	}
 
@@ -190,7 +211,7 @@ public class DataProvider extends ContentProvider {
 	 */
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
-		MyLog.v(TAG, "delete(" + uri.getPath() + "," + selection + "," + Arrays.toString(selectionArgs) + ")");
+		MyLog.v(TAG, "delete(%s, %s, %s)", uri.getPath(), selection, Arrays.toString(selectionArgs));
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 
 		int count = 0;
@@ -220,6 +241,10 @@ public class DataProvider extends ContentProvider {
 			MyLog.v(TAG, "DELETE>HISTORY");
 			count = db.delete(DataDbHelper.T_HISTORY, null, null);
 			break;
+		case TWITTER_API:
+			MyLog.v(TAG, "DELETE>TWITTER_API");
+			count = db.delete(DataDbHelper.T_TWITTER_API, null, null);
+			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI (delete) " + uri);
 		}
@@ -232,7 +257,7 @@ public class DataProvider extends ContentProvider {
 	 */
 	@Override
 	public Uri insert(Uri uri, ContentValues initialValues) {
-		MyLog.v(TAG, "insert(" + uri + ", " + initialValues.size() + ")");
+		MyLog.v(TAG, "insert(%s, %s)", uri, initialValues.size());
 		ContentValues values;
 		if (initialValues != null) {
 			values = new ContentValues(initialValues);
@@ -252,6 +277,12 @@ public class DataProvider extends ContentProvider {
 			long historyId = db.insert(DataDbHelper.T_HISTORY, DataDbHelper.T_HISTORY_K_VALUE, values);
 			if (historyId > 0) {
 				insertUri = ContentUris.withAppendedId(DataStore.History.CONTENT_URI, historyId);
+			}
+			break;
+		case TWITTER_API:
+			long twitterApiId = db.insert(DataDbHelper.T_TWITTER_API, DataDbHelper.T_TWITTER_API_K_TOKEN, values);
+			if (twitterApiId > 0) {
+				insertUri = ContentUris.withAppendedId(DataStore.TwitterApi.CONTENT_URI, twitterApiId);
 			}
 			break;
 		default:

@@ -48,7 +48,7 @@ public class StmInfoStatus {
 	 * @param message
 	 */
 	public void setMessage(String message) {
-		MyLog.v(TAG, "setMessage(" + message + ")");
+		MyLog.v(TAG, "setMessage(%s)", message);
 		// extract the subway status from the code
 		String statusChar = message.substring(message.length() - 2, message.length() - 1);
 		if (statusChar.equals("V")) {
@@ -58,8 +58,8 @@ public class StmInfoStatus {
 		} else if (statusChar.equals("R")) {
 			setStatus(Status.RED);
 		}
-		// clean message (remove 'stminfo: ' and ' #STM XY')
-		message = message.substring(9, message.length() - 8);
+		// clean message (remove ' #STM XY')
+		message = message.substring(0, message.length() - 8);
 		this.message = message;
 	}
 
