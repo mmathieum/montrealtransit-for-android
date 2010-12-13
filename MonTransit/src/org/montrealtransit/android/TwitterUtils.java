@@ -8,6 +8,7 @@ import oauth.signpost.commonshttp.CommonsHttpOAuthProvider;
 import oauth.signpost.exception.OAuthException;
 import oauth.signpost.signature.HmacSha1MessageSigner;
 
+import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore.TwitterApi;
 
@@ -146,7 +147,7 @@ public class TwitterUtils {
 			SharedPreferences.Editor editor = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit();
 			editor.putString(REQUEST_TOKEN, getConsumer(context).getToken());
 			editor.putString(REQUEST_SECRET, getConsumer(context).getTokenSecret());
-			editor.commit();
+			SupportFactory.getInstance(context).applySharedPreferencesEditor(editor);
 			// launching the browser
 			context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(authUrl)));
 		} catch (Exception e) {

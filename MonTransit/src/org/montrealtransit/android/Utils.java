@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.montrealtransit.android.activity.UserPreferences;
+import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
@@ -918,8 +919,9 @@ public class Utils {
 	 */
 	public static void saveSharedPreferences(Context context, String prefKey, String newValue) {
 		MyLog.v(TAG, "saveSharedPreferences(" + prefKey + ", " + newValue + ")");
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-		settings.edit().putString(prefKey, newValue).commit();
+		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+		editor.putString(prefKey, newValue);
+		SupportFactory.getInstance(context).applySharedPreferencesEditor(editor);
 	}
 
 	/**
