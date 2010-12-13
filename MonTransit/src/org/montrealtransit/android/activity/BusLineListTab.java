@@ -302,6 +302,8 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+		case MENU_GROUP_BY_GROUP:
+			return false;
 		case MENU_GROUP_BY_NO_GROUP_BY:
 			if (!getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP)) {
 				Utils.saveSharedPreferences(this, UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY,
