@@ -8,6 +8,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -34,6 +35,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -360,7 +362,7 @@ public class Utils {
 			return android.R.drawable.ic_dialog_alert;
 		}
 	}
-	
+
 	/**
 	 * @param type the bus line type
 	 * @return the color ID matching the bus line type
@@ -459,7 +461,7 @@ public class Utils {
 		// MyLog.v(TAG, "formatHours(" + noFormatHour + ")");
 		String result = "";
 		try {
-			result = getDateFormatter(context).format(simpleDateFormatter.parse(noFormatHour.replace("h", ":")));
+			result = getTimeFormatter(context).format(simpleDateFormatter.parse(noFormatHour.replace("h", ":")));
 		} catch (Exception e) {
 			MyLog.w(TAG, "Error while formatting '" + noFormatHour + "'.", e);
 			result = noFormatHour;
@@ -468,11 +470,38 @@ public class Utils {
 	}
 
 	/**
+	 * Format a date / time such that if the date is on same day as now, it shows just the time and if it's a different day, it shows just the date.
+	 * @param date the date
+	 * @return the formatted date
+	 */
+	public static CharSequence formatSameDayDate(Date date) {
+		return formatSameDayDateInMs(date.getTime());
+	}
+
+	/**
+	 * Format a date / time such that if the date is on same day as now, it shows just the time and if it's a different day, it shows just the date.
+	 * @param dateInSec the date in seconds
+	 * @return the formatted date
+	 */
+	public static CharSequence formatSameDayDateInSec(int dateInSec) {
+		return formatSameDayDateInMs(((long) dateInSec) * 1000);
+	}
+
+	/**
+	 * Format a date / time such that if the date is on same day as now, it shows just the time and if it's a different day, it shows just the date.
+	 * @param dateInMs the date in milliseconds
+	 * @return the formatted date
+	 */
+	public static CharSequence formatSameDayDateInMs(long dateInMs) {
+		return DateUtils.formatSameDayTime(dateInMs, System.currentTimeMillis(), DateFormat.MEDIUM, DateFormat.SHORT);
+	}
+
+	/**
 	 * Use a static field to store the DateFormatter for improve the performance.
 	 * @param context the context used to get the device settings
 	 * @return the date formatter matching the device settings
 	 */
-	public static DateFormat getDateFormatter(Context context) {
+	public static DateFormat getTimeFormatter(Context context) {
 		// IF no current local OR no current data formatter OR the country/language has changed DO
 		if (currentLocale == null || dateFormatter == null
 		        || currentLocale != context.getResources().getConfiguration().locale) {
@@ -586,7 +615,7 @@ public class Utils {
 	 * @return the subway line image ID
 	 */
 	public static int getSubwayLineImgId(int number) {
-		//MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
+		// MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
 		switch (number) {
 		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
 			return R.drawable.green;
@@ -601,13 +630,13 @@ public class Utils {
 			return R.drawable.yellow;
 		}
 	}
-	
+
 	/**
 	 * @param the subway line number
 	 * @return the subway line list image
 	 */
 	public static int getSubwayLineImgListId(int number) {
-		//MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
+		// MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
 		switch (number) {
 		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
 			return R.drawable.green_list;
@@ -622,13 +651,13 @@ public class Utils {
 			return R.drawable.yellow;
 		}
 	}
-	
+
 	/**
 	 * @param the subway line number
 	 * @return the subway line list top image
 	 */
 	public static int getSubwayLineImgListTopId(int number) {
-		//MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
+		// MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
 		switch (number) {
 		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
 			return R.drawable.green_list_top;
@@ -643,13 +672,13 @@ public class Utils {
 			return R.drawable.yellow;
 		}
 	}
-	
+
 	/**
 	 * @param the subway line number
 	 * @return the subway line list middle image
 	 */
 	public static int getSubwayLineImgListMiddleId(int number) {
-		//MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
+		// MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
 		switch (number) {
 		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
 			return R.drawable.green_list_middle;
@@ -664,13 +693,13 @@ public class Utils {
 			return R.drawable.yellow;
 		}
 	}
-	
+
 	/**
 	 * @param the subway line number
 	 * @return the subway line list bottom image
 	 */
 	public static int getSubwayLineImgListBottomId(int number) {
-		//MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
+		// MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
 		switch (number) {
 		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
 			return R.drawable.green_list_bottom;
@@ -773,7 +802,7 @@ public class Utils {
 	public static String getDayOfTheWeek() {
 		return getDayOfTheWeek(Calendar.getInstance());
 	}
-	
+
 	/**
 	 * @param calendar the date
 	 * @return the day of the week value in the DB
@@ -788,7 +817,7 @@ public class Utils {
 			return StmStore.SubwayLine.FREQUENCES_K_DAY_WEEK;
 		}
 	}
-	
+
 	/**
 	 * @param calendar the date and time
 	 * @return the hour formatted for the DB
@@ -796,15 +825,15 @@ public class Utils {
 	public static String getTimeOfTheDay(Calendar calendar) {
 		String hours = String.valueOf(calendar.get(Calendar.HOUR_OF_DAY));
 		if (hours.length() < 2) {
-			hours = "0"+ hours;
+			hours = "0" + hours;
 		}
 		String minutes = String.valueOf(calendar.get(Calendar.MINUTE));
 		if (minutes.length() < 2) {
-			minutes = "0"+ hours;
+			minutes = "0" + hours;
 		}
 		String result = hours + ":" + minutes + ":00";
-		//String result = hours + "h" + minutes;
-		MyLog.d(TAG, "hour:"+result);
+		// String result = hours + "h" + minutes;
+		MyLog.d(TAG, "hour:" + result);
 		return result;
 	}
 
@@ -851,8 +880,9 @@ public class Utils {
 		int utm = (int) Math.floor(1440.0 * (day - Math.floor(day) - uth / 24.0));
 		double uts = 86400.0 * (day - Math.floor(day) - uth / 24.0 - utm / 1440.0);
 		// TODO remove unnecessary code.
-		MyLog.v(TAG, "[" + yearS + "]-[" + monthS + "]-[" + dayS + "] " + "[" + uth + "]:[" + utm + "]:["
-		        + String.valueOf(uts) + "].");
+		MyLog.v(TAG,
+		        "[" + yearS + "]-[" + monthS + "]-[" + dayS + "] " + "[" + uth + "]:[" + utm + "]:["
+		                + String.valueOf(uts) + "].");
 		String hourS = String.valueOf(uth);
 		String minuteS = String.valueOf(utm);
 		while (minuteS.length() < 2) {
@@ -932,7 +962,7 @@ public class Utils {
 	 * @return the preference value
 	 */
 	public static String getSharedPreferences(Context context, String prefKey, String defaultValue) {
-		//MyLog.v(TAG, "getSharedPreferences(" + prefKey + ", " + defaultValue + ")");
+		// MyLog.v(TAG, "getSharedPreferences(" + prefKey + ", " + defaultValue + ")");
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 		return settings.getString(prefKey, defaultValue);
 	}
@@ -945,8 +975,7 @@ public class Utils {
 			PackageInfo packageInfo = context.getPackageManager().getPackageInfo(Constant.PKG, 0);
 			String versionName = packageInfo.versionName;
 			int versionCode = packageInfo.versionCode;
-			MyLog.i(TAG, context.getString(R.string.app_name) + " \"" + versionName + "\" (v"
-			        + versionCode + ")");
+			MyLog.i(TAG, context.getString(R.string.app_name) + " \"" + versionName + "\" (v" + versionCode + ")");
 		} catch (NameNotFoundException e) {
 			MyLog.w(TAG, "No VERSION for " + context.getString(R.string.app_name) + "!", e);
 		}
@@ -1130,6 +1159,6 @@ public class Utils {
 	 * @return true if the version is older than the current version
 	 */
 	public static boolean isVersionOlderThan(int version) {
-	    return Integer.parseInt(Build.VERSION.SDK) < version;
-    }
+		return Integer.parseInt(Build.VERSION.SDK) < version;
+	}
 }

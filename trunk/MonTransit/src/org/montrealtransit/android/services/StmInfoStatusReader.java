@@ -1,5 +1,6 @@
 package org.montrealtransit.android.services;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -7,9 +8,8 @@ import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.TwitterUtils;
 import org.montrealtransit.android.Utils;
-import org.montrealtransit.android.data.StmInfoStatus;
-import org.montrealtransit.android.data.StmInfoStatuses;
 import org.montrealtransit.android.provider.DataManager;
+import org.montrealtransit.android.provider.DataStore.ServiceStatus;
 import org.montrealtransit.android.provider.DataStore.TwitterApi;
 
 import twitter4j.ResponseList;
@@ -24,7 +24,7 @@ import android.os.AsyncTask;
  * This task get the STM info status from twitter.com/stminfo
  * @author Mathieu Méa
  */
-public class StmInfoStatusReader extends AsyncTask<String, String, StmInfoStatuses> {
+public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 
 	/**
 	 * The log tag.
@@ -60,75 +60,137 @@ public class StmInfoStatusReader extends AsyncTask<String, String, StmInfoStatus
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected StmInfoStatuses doInBackground(String... params) {
+	protected String doInBackground(String... params) {
 		MyLog.v(TAG, "doInBackground(%s)", Arrays.asList(params));
+		boolean isConnected = false;
 		try {
 			List<TwitterApi> twitterApis = DataManager.findAllTwitterApisList(this.context.getContentResolver());
 			Twitter twitter;
 			// IF user is authenticated with Twitter DO
 			if (TwitterUtils.isConnected(twitterApis)) {
 				MyLog.d(TAG, "Connecting to Twitter using authentication...");
+				isConnected = true;
 				publishProgress();
-				TwitterApi twitterUserAccount = twitterApis.get(0);;
+				TwitterApi twitterUserAccount = twitterApis.get(0);
 				String consumerKey = TwitterUtils.getConsumerKey(this.context);
 				String consumerSecret = TwitterUtils.getConsumerSecret(this.context);
-				AccessToken accessToken = new AccessToken(twitterUserAccount.getToken(), twitterUserAccount.getTokenSecret());
+				AccessToken accessToken = new AccessToken(twitterUserAccount.getToken(),
+				        twitterUserAccount.getTokenSecret());
 				twitter = new TwitterFactory().getOAuthAuthorizedInstance(consumerKey, consumerSecret, accessToken);
 			} else {
 				MyLog.d(TAG, "Connecting to Twitter anonymously...");
 				twitter = new TwitterFactory().getInstance(); // Anonymous
 			}
-			StmInfoStatuses statuses = new StmInfoStatuses();
-			boolean french = false;
-			if (Utils.getUserLocale().equals("fr")) {
-				french = true;
-			}
 			ResponseList<twitter4j.Status> userTimeline = twitter.getUserTimeline("stminfo");
-			for (twitter4j.Status status : userTimeline) {
-				String message = status.getText();
-				if ((french && message.endsWith("F")) || (!french && message.endsWith("E"))) {
-					StmInfoStatus stmStatus = new StmInfoStatus(status.getText());
-					stmStatus.setDate(status.getCreatedAt());
-					statuses.add(stmStatus);
-				}
-			}
-			return statuses;
-		} catch (TwitterException e) {
-			MyLog.e(TAG, "Twitter Error!", e);
-			if (e.isCausedByNetworkIssue()) {
-				publishProgress(this.context.getString(R.string.no_internet));
-				return new StmInfoStatuses(this.context.getString(R.string.no_internet));
-			} else if (e.exceededRateLimitation()) {
-				//TODO handle twitter API error // RateLimitStatus
-				if (e.getRateLimitStatus() != null) {
-					MyLog.d(TAG, "RateLimitStatus:");
-					MyLog.d(TAG, "getHourlyLimit():" + e.getRateLimitStatus().getHourlyLimit());
-					MyLog.d(TAG, "getRemainingHits():" + e.getRateLimitStatus().getRemainingHits());
-					MyLog.d(TAG, "getResetTimeInSeconds():" + e.getRateLimitStatus().getResetTimeInSeconds());
-					MyLog.d(TAG, "getSecondsUntilReset():" + e.getRateLimitStatus().getSecondsUntilReset());
-					MyLog.d(TAG, "getResetTime():" + e.getRateLimitStatus().getResetTime());
+
+			List<ServiceStatus> allServiceStatus = new ArrayList<ServiceStatus>();
+			// FOR each status DO
+			for (twitter4j.Status twitterStatus : userTimeline) {
+				// extract the info from the Twitter message
+				ServiceStatus serviceStatus = new ServiceStatus();
+				String statusText = twitterStatus.getText();
+				// extract the service status from the code
+				String statusChar = statusText.substring(statusText.length() - 2, statusText.length() - 1);
+				if (statusChar.equals("V")) {
+					serviceStatus.setType(ServiceStatus.STATUS_TYPE_GREEN);
+				} else if (statusChar.equals("J")) {
+					serviceStatus.setType(ServiceStatus.STATUS_TYPE_YELLOW);
+				} else if (statusChar.equals("R")) {
+					serviceStatus.setType(ServiceStatus.STATUS_TYPE_RED);
 				} else {
-					MyLog.d(TAG, "NO RateLimitStatus!");
+					serviceStatus.setType(ServiceStatus.STATUS_TYPE_DEFAULT);
 				}
-				publishProgress(this.context.getString(R.string.error_http_400_twitter));
-				return new StmInfoStatuses(this.context.getString(R.string.error_http_400_twitter));
+				// clean message (remove ' #STM XY')
+				serviceStatus.setMessage(statusText.substring(0, statusText.length() - 8));
+				// set language
+				if (statusText.endsWith("F")) {
+					serviceStatus.setLanguage(ServiceStatus.STATUS_LANG_FRENCH);
+				} else if (statusText.endsWith("E")) {
+					serviceStatus.setLanguage(ServiceStatus.STATUS_LANG_ENGLISH);
+				} else {
+					serviceStatus.setLanguage(ServiceStatus.STATUS_LANG_UNKNOWN);
+				}
+				// dates
+				int pubDate = (int) (twitterStatus.getCreatedAt().getTime() / 1000);
+				serviceStatus.setPubDate(pubDate);
+				int readDate = (int) (System.currentTimeMillis() / 1000);
+				serviceStatus.setReadDate(readDate);
+				// source name
+				serviceStatus.setSourceName("stminfo");
+				// source link
+				serviceStatus.setSourceLink(TwitterUtils.getTwitterStatusURL("stminfo", twitterStatus.getId()));
+				// add the status to the list
+				allServiceStatus.add(serviceStatus);
+			}
+			// delete existing status
+			DataManager.deleteAllServiceStatus(this.context.getContentResolver());
+			// add new status
+			for (ServiceStatus serviceStatus : allServiceStatus) {
+				DataManager.addServiceStatus(context.getContentResolver(), serviceStatus);
+			}
+			return null;
+		} catch (TwitterException e) {
+			MyLog.d(TAG, "Twitter Error!", e);
+			if (e.isCausedByNetworkIssue()) {
+				// no Internet
+				publishProgress(this.context.getString(R.string.no_internet));
+				return this.context.getString(R.string.no_internet);
+			} else if (e.exceededRateLimitation()) {
+				// Twitter rate limit exceeded.
+				return handleTwitterError(isConnected, e);
 			} else {
-				publishProgress(this.context.getString(R.string.error_http_400_twitter));
-				return new StmInfoStatuses(this.context.getString(R.string.error_http_400_twitter));
+				// Unknown Twitter error
+				publishProgress(this.context.getString(R.string.twitter_error));
+				return this.context.getString(R.string.twitter_error);
 			}
 		} catch (Exception e) {
+			// Unknown error
 			MyLog.e(TAG, "INTERNAL ERROR: Unknown Exception", e);
 			publishProgress(this.context.getString(R.string.error));
-			return new StmInfoStatuses(this.context.getString(R.string.error));
+			return this.context.getString(R.string.error);
 		}
 	}
+
+	/**
+	 * Handle Twitter error
+	 * @param isConnected true if the user is authenticated
+	 * @param e the twitter error
+	 * @return the error message
+	 */
+	private String handleTwitterError(boolean isConnected, TwitterException e) {
+	    String loginString = context.getString(R.string.menu_twitter_login);
+	    if (e.getRateLimitStatus() != null) {
+	    	CharSequence readTime = Utils.formatSameDayDate(e.getRateLimitStatus().getResetTime());
+	    	if (isConnected) {
+	    		String message = context.getString(R.string.twitter_error_http_400_auth_and_time, readTime,
+	    		        loginString);
+	    		publishProgress(message);
+	    		return message;
+	    	} else {
+	    		String message = context.getString(R.string.twitter_error_http_400_anonymous_and_time,
+	    		        readTime, loginString);
+	    		publishProgress(message);
+	    		return message;
+	    	}
+	    } else {
+	    	if (isConnected) {
+	    		String message = context.getString(R.string.twitter_error_http_400_auth, loginString);
+	    		publishProgress(message);
+	    		return message;
+	    	} else {
+	    		String message = context.getString(R.string.twitter_error_http_400_anonymous, loginString);
+	    		publishProgress(message);
+	    		return message;
+	    	}
+	    }
+    }
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void onPostExecute(StmInfoStatuses result) {
-		from.onStmInfoStatusesLoaded(result);
-		super.onPostExecute(result);
+	protected void onPostExecute(String errorMessage) {
+		from.onStmInfoStatusesLoaded(errorMessage);
+		super.onPostExecute(errorMessage);
 	}
 }

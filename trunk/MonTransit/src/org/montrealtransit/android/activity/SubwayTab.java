@@ -1,14 +1,6 @@
 package org.montrealtransit.android.activity;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MyLog;
@@ -16,14 +8,14 @@ import org.montrealtransit.android.R;
 import org.montrealtransit.android.TwitterUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.ASubwayStation;
-import org.montrealtransit.android.data.Pair;
-import org.montrealtransit.android.data.StmInfoStatus;
-import org.montrealtransit.android.data.StmInfoStatuses;
-import org.montrealtransit.android.data.SubwayStationDistancesComparator;
+import org.montrealtransit.android.data.ClosestSubwayStations;
 import org.montrealtransit.android.dialog.SubwayLineSelectDirection;
+import org.montrealtransit.android.provider.DataManager;
+import org.montrealtransit.android.provider.DataStore.ServiceStatus;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore.SubwayLine;
-import org.montrealtransit.android.provider.StmStore.SubwayStation;
+import org.montrealtransit.android.services.ClosestSubwayStationsFinderListener;
+import org.montrealtransit.android.services.ClosestSubwayStationsFinderTask;
 import org.montrealtransit.android.services.StmInfoStatusReader;
 import org.montrealtransit.android.services.StmInfoStatusReaderListener;
 
@@ -31,8 +23,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.Cursor;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.net.Uri;
@@ -54,7 +44,8 @@ import android.widget.TextView;
  * Display a list of subway lines.
  * @author Mathieu Méa
  */
-public class SubwayTab extends Activity implements LocationListener, StmInfoStatusReaderListener {
+public class SubwayTab extends Activity implements LocationListener, StmInfoStatusReaderListener,
+        ClosestSubwayStationsFinderListener {
 
 	/**
 	 * The log tag.
@@ -77,24 +68,9 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	private boolean locationUpdatesEnabled = false;
 
 	/**
-	 * The address used for the closest stations.
-	 */
-	public Address locationAddress = null;
-
-	/**
-	 * The accuracy of the address used for the closest stations.
-	 */
-	public Float locationAdressAccuracy = null;
-
-	/**
-	 * The location used for the closest stations.
-	 */
-	private Location closestStationsLocation = null;
-
-	/**
 	 * The closest stations.
 	 */
-	private ASubwayStation[] closestStations;
+	private ClosestSubwayStations closestStations;
 
 	/**
 	 * The task used to load the subway status.
@@ -102,13 +78,64 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	private StmInfoStatusReader statusTask;
 
 	/**
-	 * The minimum number of closest stations in the list.
+	 * The task used to find the closest stations.
 	 */
-	private static final int MIN_CLOSEST_STATIONS_LIST_SIZE = 3;
+	private ClosestSubwayStationsFinderTask closestStationsTask;
+
 	/**
-	 * The maximum number of closest stations in the list.
+	 * Refresh or not refresh status image.
 	 */
-	private static final int MAX_CLOSEST_STATIONS_LIST_SIZE = 5;
+	private ImageView statusRefreshOrNotImg;
+	/**
+	 * Refresh of not refresh closest stations image.
+	 */
+	private ImageView closestStationsRefreshOrNorImg;
+	/**
+	 * Closest stations progress bar.
+	 */
+	private View closestStationsProgressBarView;
+	/**
+	 * Status progress bar.
+	 */
+	private View statusProgressBarView;
+	/**
+	 * Status layout.
+	 */
+	private RelativeLayout statusLayout;
+	/**
+	 * Status title text view.
+	 */
+	private TextView statusTitleTv;
+	/**
+	 * Status loading layout.
+	 */
+	private RelativeLayout statusLoadingLayout;
+	/**
+	 * Status message text view.
+	 */
+	private TextView statusMsgTv;
+	/**
+	 * Closest stations title text view.
+	 */
+	private TextView closestStationsTitleTv;
+	/**
+	 * Closest stations layout.
+	 */
+	private LinearLayout closestStationsLayout;
+	/**
+	 * Closest stations loading layout.
+	 */
+	private RelativeLayout closestStationsLoadingLayout;
+
+	/**
+	 * The current service status.
+	 */
+	private ServiceStatus serviceStatus = null;
+
+	/**
+	 * The validity of the current status (in seconds).
+	 */
+	private static final int STATUS_TOO_OLD_IN_SEC = 20 * 60; // 20 minutes
 
 	/**
 	 * {@inheritDoc}
@@ -119,31 +146,50 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		super.onCreate(savedInstanceState);
 		// set the UI
 		setContentView(R.layout.subway_tab);
-		if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.DONUT) {
-			// since 'android:onClick' requires API Level 4
-			((ImageView) findViewById(R.id.subway_status_section_refresh))
-			        .setOnClickListener(new View.OnClickListener() {
-				        @Override
-				        public void onClick(View v) {
-					        refreshSubwayStatus(v);
-				        }
-			        });
-			((ImageView) findViewById(R.id.subway_status_section_info)).setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					showSubwayStatusInfoDialog(v);
-				}
-			});
-			((ImageView) findViewById(R.id.closest_subway_stations_refresh))
-			        .setOnClickListener(new View.OnClickListener() {
-				        @Override
-				        public void onClick(View v) {
-					        refreshClosestSubwayStations(v);
-				        }
-			        });
-		}
+		// find the views.
+		this.statusRefreshOrNotImg = (ImageView) findViewById(R.id.subway_status_section_refresh_or_stop_refresh);
+		this.closestStationsRefreshOrNorImg = (ImageView) findViewById(R.id.closest_subway_stations_refresh);
+		View statusTitleSectionView = findViewById(R.id.subway_status_title);
+		this.statusProgressBarView = statusTitleSectionView.findViewById(R.id.progress_bar);
+		this.closestStationsProgressBarView = findViewById(R.id.closest_stations_title).findViewById(R.id.progress_bar);
+		this.statusLayout = (RelativeLayout) findViewById(R.id.subway_status);
+		this.statusTitleTv = (TextView) statusTitleSectionView.findViewById(R.id.subway_status_section);
+		this.statusLoadingLayout = (RelativeLayout) findViewById(R.id.subway_status_loading);
+		this.statusMsgTv = (TextView) this.statusLayout.findViewById(R.id.subway_status_message);
+		this.closestStationsTitleTv = (TextView) findViewById(R.id.closest_subway_stations);
+		this.closestStationsLayout = (LinearLayout) findViewById(R.id.subway_stations_list);
+		this.closestStationsLoadingLayout = (RelativeLayout) findViewById(R.id.closest_stations_loading);
 
-		refreshAll();
+		if (Utils.isVersionOlderThan(Build.VERSION_CODES.DONUT)) {
+			onCreatePreDonut();
+		}
+		showAll();
+	}
+
+	/**
+	 * onCreate() method only for Android version older than Android 1.6.
+	 */
+	private void onCreatePreDonut() {
+		// since 'android:onClick' requires API Level 4
+		this.statusRefreshOrNotImg.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				refreshOrStopRefreshStatus(v);
+			}
+		});
+		View statusInfoView = findViewById(R.id.subway_status_section_info);
+		statusInfoView.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				showSubwayStatusInfoDialog(v);
+			}
+		});
+		this.closestStationsRefreshOrNorImg.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				refreshOrStopRefreshClosestStations(v);
+			}
+		});
 	}
 
 	/**
@@ -179,83 +225,10 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	/**
 	 * Refresh all the UI.
 	 */
-	private void refreshAll() {
+	private void showAll() {
 		refreshSubwayLines();
-		refreshSubwayStatus(null);
-		refreshClosestSubwayStations(null);
-	}
-
-	public void refreshSubwayStatus(View v) {
-		// set the loading message
-		RelativeLayout statusLayout = (RelativeLayout) findViewById(R.id.subway_status);
-		statusLayout.setVisibility(View.GONE);
-		TextView section = (TextView) findViewById(R.id.subway_status_section);
-		section.setText(R.string.subway_status);
-		RelativeLayout loadingLayout = (RelativeLayout) findViewById(R.id.subway_status_loading);
-		loadingLayout.setVisibility(View.VISIBLE);
-		TextView progressBarLoading = (TextView) loadingLayout.findViewById(R.id.detail_msg);
-		progressBarLoading.setVisibility(View.VISIBLE);
-		progressBarLoading.setText(getString(R.string.downloading_data_from_and_source, StmInfoStatusReader.SOURCE));
-		// read the subway status from twitter.com/stminfo
-		this.statusTask = new StmInfoStatusReader(this, this);
-		this.statusTask.execute();
-	}
-
-	public void onStmInfoStatusesLoaded(StmInfoStatuses statuses) {
-		RelativeLayout statusLayout = (RelativeLayout) findViewById(R.id.subway_status);
-		TextView statusMsgTv = (TextView) statusLayout.findViewById(R.id.subway_status_message);
-		ImageView statusImg = (ImageView) statusLayout.findViewById(R.id.subway_status_img);
-		RelativeLayout loadingLayout = (RelativeLayout) findViewById(R.id.subway_status_loading);
-		// hide loading (progress bar)
-		loadingLayout.setVisibility(View.GONE);
-		// show message
-		statusLayout.setVisibility(View.VISIBLE);
-		if (statuses != null && statuses.size() > 0) {
-			TextView section = (TextView) findViewById(R.id.subway_status_section);
-			String time = Utils.getDateFormatter(this).format(new Date());
-			section.setText(getString(R.string.subway_status_hour, time));
-			StmInfoStatus lastStatus = statuses.get(0);
-			statusMsgTv.setText(lastStatus.getMessage());
-			// show image (or not)
-			if (lastStatus.getStatus().equals(StmInfoStatus.Status.RED)) {
-				statusImg.setVisibility(View.VISIBLE);
-				statusImg.setImageResource(R.drawable.status_red);
-			} else if (lastStatus.getStatus().equals(StmInfoStatus.Status.YELLOW)) {
-				statusImg.setVisibility(View.VISIBLE);
-				statusImg.setImageResource(R.drawable.status_yellow);
-			} else if (lastStatus.getStatus().equals(StmInfoStatus.Status.GREEN)) {
-				statusImg.setVisibility(View.VISIBLE);
-				statusImg.setImageResource(R.drawable.status_green);
-			}
-		} else {
-			if (!TextUtils.isEmpty(statuses.getError())) {
-				statusMsgTv.setText(statuses.getError());
-			} else {
-				// default error messaged
-				statusMsgTv.setText(getString(R.string.error));
-			}
-		}
-	}
-
-	/**
-	 * Show the subway status info dialog.
-	 * @param v useless - can be null
-	 */
-	public void showSubwayStatusInfoDialog(View v) {
-		MyLog.v(TAG, "showSubwayStatusInfoDialog()");
-		AlertDialog.Builder builder = new AlertDialog.Builder(SubwayTab.this);
-		builder.setTitle(SubwayTab.this.getString(R.string.subway_status));
-		builder.setIcon(R.drawable.ic_btn_info_details);
-		TextView messageTv = new TextView(this);
-		messageTv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-		messageTv.setPadding(15, 15, 15, 15); //TODO custom dialog
-		messageTv.setText(SubwayTab.this.getString(R.string.subway_status_message));
-		Linkify.addLinks(messageTv, Linkify.WEB_URLS);
-		builder.setView(messageTv);
-		builder.setPositiveButton(SubwayTab.this.getString(android.R.string.ok), null);
-		builder.setCancelable(true);
-		builder.create();
-		builder.show();
+		showStatus();
+		showClosestStations();
 	}
 
 	/**
@@ -279,9 +252,6 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			final String subwayLineNumberS = String.valueOf(lineNumber);
 			// add click listener
 			view.setOnClickListener(new View.OnClickListener() {
-				/**
-				 * {@inheritDoc}
-				 */
 				@Override
 				public void onClick(View v) {
 					MyLog.v(TAG, "onClick(%s)", v.getId());
@@ -290,11 +260,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 					startActivity(intent);
 				}
 			});
-			// final int subwayLineNumberI = lineNumber;
 			view.setOnLongClickListener(new View.OnLongClickListener() {
-				/**
-				 * {@inheritDoc}
-				 */
 				@Override
 				public boolean onLongClick(View v) {
 					MyLog.v(TAG, "onLongClick(%s)", v.getId());
@@ -307,226 +273,291 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	}
 
 	/**
-	 * Refresh the closest stations UI.
+	 * Show the subway status. Try to load the subway status if not exist
 	 */
-	public void refreshClosestSubwayStations(View v) {
-		// clean the list divider
-		TextView tv = (TextView) findViewById(R.id.closest_subway_stations);
-		tv.setText(R.string.closest_subway_stations);
-		LinearLayout subwayStationsLayout = (LinearLayout) findViewById(R.id.subway_stations_list);
-		RelativeLayout loadingLayout = (RelativeLayout) findViewById(R.id.closest_stations_loading);
-		// clean the list
-		subwayStationsLayout.removeAllViews();
-		subwayStationsLayout.setVisibility(View.GONE);
-		loadingLayout.setVisibility(View.VISIBLE);
-		// IF no location providers available DO
-		if (LocationUtils.getProviders(this).size() == 0) {
-			MyLog.w(TAG, "no location provider available");
-			// set the loading message
-			TextView noLocationProviderTv = new TextView(this);
-			noLocationProviderTv
-			        .setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
-			noLocationProviderTv.setText(R.string.no_location_provider_available);
-			loadingLayout.setVisibility(View.GONE);
-			subwayStationsLayout.setVisibility(View.VISIBLE);
-			subwayStationsLayout.addView(noLocationProviderTv);
+	public void showStatus() {
+		MyLog.v(TAG, "showStatus()");
+		// get the latest service status in the local database or NULL
+		this.serviceStatus = DataManager.findLatestServiceStatus(getContentResolver(), Utils.getUserLocale());
+		// IF there is no service status DO
+		if (this.serviceStatus == null) {
+			// look for new service status
+			refreshStatus();
 		} else {
-			if (this.closestStationsLocation == null
-			        || this.closestStationsLocation.getTime() == getLocation().getTime()) {
-				// set the loading text message
-				TextView loadingTv = (TextView) loadingLayout.findViewById(R.id.detail_msg);
-				loadingTv.setVisibility(View.VISIBLE);
-				loadingTv.setText(R.string.waiting_for_location_fix);
-				// use last know location if available
-				if (LocationUtils.getBestLastKnownLocation(this) != null) {
-					// set the distance before showing the list
-					setLocation(LocationUtils.getBestLastKnownLocation(this));
-					updateDistancesWithNewLocation();
-				}
-			} else {
-				// use the last location
-				this.closestStations = null;
-				updateDistancesWithNewLocation();
-			}
-			// enable location updates
-			// IF location updates are not already enabled DO
-			if (!this.locationUpdatesEnabled) {
-				// enable
-				LocationUtils.enableLocationUpdates(this, this);
-				this.locationUpdatesEnabled = true;
+			// show latest service status
+			showNewStatus();
+			// check service age
+			int nowInSec = (int) (System.currentTimeMillis() / 1000);
+			// IF the latest service is too old DO
+			if (nowInSec >= this.serviceStatus.getReadDate() + STATUS_TOO_OLD_IN_SEC) {
+				// look for new service status
+				refreshStatus();
 			}
 		}
 	}
 
 	/**
-	 * Find the closest subway stations.
-	 * @author Mathieu Méa
+	 * Show the new status.
 	 */
-	private class FindClosestSubwayStationsTask extends AsyncTask<String, String, ASubwayStation[]> {
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		protected ASubwayStation[] doInBackground(String... params) {
-			SubwayTab.this.closestStationsLocation = SubwayTab.this.getLocation();
-			if (SubwayTab.this.closestStationsLocation != null) {
-				SubwayTab.this.locationAdressAccuracy = SubwayTab.this.closestStationsLocation.getAccuracy();
-
-				publishProgress(getString(R.string.processing));
-
-				// reverse geocoding of the location
-				SubwayTab.this.locationAddress = null;
-				Geocoder geocoder = new Geocoder(SubwayTab.this);
-				try {
-					int maxResults = 1;
-					List<Address> addresses = geocoder.getFromLocation(SubwayTab.this.closestStationsLocation
-					        .getLatitude(), SubwayTab.this.closestStationsLocation.getLongitude(), maxResults);
-					if (addresses != null && addresses.size() >= 1) {
-						SubwayTab.this.locationAddress = addresses.get(0);
-						MyLog.d(TAG, "address: %s", SubwayTab.this.locationAddress.getAddressLine(0));
-					}
-				} catch (IOException e) {
-					MyLog.e(TAG, "Can't find the adress of the current location", e);
-				}
-
-				Map<String, Set<Integer>> stationsWithOtherLines = new HashMap<String, Set<Integer>>();
-				for (Pair<SubwayLine, SubwayStation> lineStation : StmManager
-				        .findSubwayStationsAndLinesList(SubwayTab.this.getContentResolver())) {
-					int subwayLineNumber = lineStation.first.getNumber();
-					String subwayStationId = lineStation.second.getId();
-					if (stationsWithOtherLines.get(subwayStationId) == null) {
-						stationsWithOtherLines.put(subwayStationId, new HashSet<Integer>());
-					}
-					stationsWithOtherLines.get(subwayStationId).add(subwayLineNumber);
-				}
-
-				List<SubwayStation> subwayStationsList = StmManager.findAllSubwayStationsList(getContentResolver());
-				List<ASubwayStation> stations = new ArrayList<ASubwayStation>();
-				for (SubwayStation subwayStation : subwayStationsList) {
-					ASubwayStation station = new ASubwayStation();
-					station.setId(subwayStation.getId());
-					station.setName(subwayStation.getName());
-					station.setLat(subwayStation.getLat());
-					station.setLng(subwayStation.getLng());
-					// add other subway lines
-					if (stationsWithOtherLines.containsKey(station.getId())) {
-						station.addOtherLinesId(stationsWithOtherLines.get(station.getId()));
-					}
-					// location
-					Location stationLocation = LocationUtils.getNewLocation(subwayStation.getLat(), subwayStation
-					        .getLng());
-					station.setDistance(SubwayTab.this.closestStationsLocation.distanceTo(stationLocation));
-					String distanceString = Utils.getDistanceString(SubwayTab.this, station.getDistance(),
-					        locationAdressAccuracy);
-					station.setDistanceString(distanceString);
-					stations.add(station);
-				}
-				// order the stations list by distance (closest first)
-				SubwayStationDistancesComparator comparator = new SubwayStationDistancesComparator();
-				Collections.sort(stations, comparator);
-
-				// select only the firsts stations
-				List<ASubwayStation> displayedStations = new ArrayList<ASubwayStation>();
-				for (ASubwayStation station : stations) {
-					if ((station.getDistance() < locationAdressAccuracy && displayedStations.size() < MAX_CLOSEST_STATIONS_LIST_SIZE)
-					        || displayedStations.size() < MIN_CLOSEST_STATIONS_LIST_SIZE) {
-						displayedStations.add(station);
-					} else {
-						break;
-					}
-				}
-				return displayedStations.toArray(new ASubwayStation[0]);
-			} else {
-				return null;
-			}
+	private void showNewStatus() {
+		ImageView statusImg = (ImageView) this.statusLayout.findViewById(R.id.subway_status_img);
+		// hide loading (progress bar)
+		this.statusLoadingLayout.setVisibility(View.GONE);
+		// set the status title with the date
+		CharSequence readTime = Utils.formatSameDayDateInSec(this.serviceStatus.getReadDate());
+		this.statusTitleTv.setText(getString(R.string.subway_status_hour, readTime));
+		// set the status message text
+		this.statusMsgTv.setText(this.serviceStatus.getMessage());
+		// set the status image (or not)
+		switch (this.serviceStatus.getType()) {
+		case ServiceStatus.STATUS_TYPE_RED:
+			statusImg.setVisibility(View.VISIBLE);
+			statusImg.setImageResource(R.drawable.status_red);
+			break;
+		case ServiceStatus.STATUS_TYPE_YELLOW:
+			statusImg.setVisibility(View.VISIBLE);
+			statusImg.setImageResource(R.drawable.status_yellow);
+			break;
+		case ServiceStatus.STATUS_TYPE_GREEN:
+			statusImg.setVisibility(View.VISIBLE);
+			statusImg.setImageResource(R.drawable.status_green);
+			break;
+		default:
+			statusImg.setVisibility(View.GONE);
+			break;
 		}
+		// show message
+		this.statusLayout.setVisibility(View.VISIBLE);
+	}
 
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		protected void onProgressUpdate(String... values) {
-			if (values.length > 0) {
-				RelativeLayout loadingLayout = (RelativeLayout) findViewById(R.id.closest_stations_loading);
-				loadingLayout.setVisibility(View.VISIBLE);
-				TextView detailMsgTv = (TextView) loadingLayout.findViewById(R.id.detail_msg);
-				detailMsgTv.setVisibility(View.VISIBLE);
-				detailMsgTv.setText(values[0]);
-				super.onProgressUpdate(values);
-			}
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		protected void onPostExecute(ASubwayStation[] result) {
-			SubwayTab.this.closestStations = result;
-			refreshClosestSubwayStationsList();
-			super.onPostExecute(result);
+	/**
+	 * Start the refresh status task if not running.
+	 */
+	public void refreshStatus() {
+		MyLog.v(TAG, "refreshStatus()");
+		// IF the task is NOT already running DO
+		if (this.statusTask == null || !this.statusTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
+			setStatusLoading();
+			// read the subway status from twitter.com/stminfo
+			this.statusTask = new StmInfoStatusReader(this, this);
+			this.statusTask.execute();
 		}
 	}
 
 	/**
-	 * Refresh the closest subway stations list.
+	 * Refresh or not refresh the status depending of the task status.
+	 * @param v
 	 */
-	private void refreshClosestSubwayStationsList() {
+	public void refreshOrStopRefreshStatus(View v) {
+		MyLog.v(TAG, "refreshOrStopRefreshStatus()");
+		// IF the task is running DO
+		if (this.statusTask != null && this.statusTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
+			// stopping the task
+			this.statusTask.cancel(true);
+			this.statusTask = null;
+			setStatusCancelled();
+		} else {
+			refreshStatus();
+		}
+	}
+
+	/**
+	 * Set the status as loading.
+	 */
+	private void setStatusLoading() {
+		MyLog.v(TAG, "setStatusLoading()");
+		if (this.serviceStatus == null) {
+			// set the BIG loading message
+			// hide the status layout
+			this.statusLayout.setVisibility(View.GONE);
+			// clean the status
+			this.statusTitleTv.setText(R.string.subway_status);
+			// show the loading layout
+			this.statusLoadingLayout.setVisibility(View.VISIBLE);
+			// set the progress bar
+			TextView progressBarLoading = (TextView) this.statusLoadingLayout.findViewById(R.id.detail_msg);
+			String loadingMsg = getString(R.string.downloading_data_from_and_source, StmInfoStatusReader.SOURCE);
+			progressBarLoading.setText(loadingMsg);
+			progressBarLoading.setVisibility(View.VISIBLE);
+		} else {
+			// just notify the user ?
+		}
+		// show stop icon instead of refresh
+		this.statusRefreshOrNotImg.setImageResource(R.drawable.ic_btn_stop);
+		// show progress bar
+		this.statusProgressBarView.setVisibility(View.VISIBLE);
+	}
+
+	/**
+	 * Set the status as not loading.
+	 */
+	private void setStatusNotLoading() {
+		MyLog.v(TAG, "setStatusNotLoading()");
+		// show refresh icon instead of loading
+		this.statusRefreshOrNotImg.setImageResource(R.drawable.ic_btn_refresh);
+		// hide progress bar
+		this.statusProgressBarView.setVisibility(View.GONE);
+	}
+
+	/**
+	 * Set the status as cancelled.
+	 */
+	private void setStatusCancelled() {
+		MyLog.v(TAG, "setStatusCancelled()");
+		if (this.serviceStatus != null) {
+			// notify the user but keep showing the old status ?
+			Utils.notifyTheUser(this, getString(R.string.subway_status_loading_cancelled));
+		} else {
+			// show the BIG cancel message
+			this.statusMsgTv.setText(getString(R.string.subway_status_loading_cancelled));
+			this.statusLayout.setVisibility(View.VISIBLE);
+			// hide loading (progress bar)
+			this.statusLoadingLayout.setVisibility(View.GONE);
+		}
+		setStatusNotLoading();
+	}
+
+	/**
+	 * Set the status as error.
+	 * @param errorMessage the error message
+	 */
+	private void setStatusError(String errorMessage) {
+		MyLog.v(TAG, "setStatusError(%s)", errorMessage);
+		// IF there is already a status DO
+		if (this.serviceStatus != null) {
+			// notify the user but keep showing the old status
+			Utils.notifyTheUser(this, errorMessage);
+		} else {
+			// show the BIG error message
+			// hide loading (progress bar)
+			this.statusLoadingLayout.setVisibility(View.GONE);
+			// show message
+			this.statusLayout.setVisibility(View.VISIBLE);
+			this.statusMsgTv.setText(errorMessage);
+		}
+		setStatusNotLoading();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onStmInfoStatusesLoaded(String errorMessage) {
+		MyLog.v(TAG, "onStmInfoStatusesLoaded(%s)", errorMessage);
+		// IF there is an error message DO
+		if (errorMessage != null) {
+			// update the BIG message
+			setStatusError(errorMessage);
+		} else {
+			// notify the user ?
+			// get the latest service status in the local database or NULL
+			this.serviceStatus = DataManager.findLatestServiceStatus(getContentResolver(), Utils.getUserLocale());
+			// show latest service status
+			showNewStatus();
+			setStatusNotLoading();
+		}
+	}
+
+	/**
+	 * Show the subway status info dialog.
+	 * @param v useless - can be null
+	 */
+	public void showSubwayStatusInfoDialog(View v) {
+		MyLog.v(TAG, "showSubwayStatusInfoDialog()");
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(getString(R.string.subway_status));
+		builder.setIcon(R.drawable.ic_btn_info_details);
+		TextView messageTv = new TextView(this);
+		messageTv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		messageTv.setPadding(15, 15, 15, 15); // TODO custom dialog
+		messageTv.setText(getString(R.string.subway_status_message));
+		Linkify.addLinks(messageTv, Linkify.WEB_URLS);
+		builder.setView(messageTv);
+		builder.setPositiveButton(getString(android.R.string.ok), null);
+		builder.setCancelable(true);
+		builder.create();
+		builder.show();
+	}
+
+	/**
+	 * Show the closest stations UI.
+	 */
+	public void showClosestStations() {
+		MyLog.v(TAG, "showClosestStations()");
+		// enable location updates
+		// IF location updates are not already enabled DO
+		if (!this.locationUpdatesEnabled) {
+			// enable
+			LocationUtils.enableLocationUpdates(this, this);
+			this.locationUpdatesEnabled = true;
+		}
+		// IF there is no closest stations DO
+		if (this.closestStations == null) {
+			// look for the closest stations
+			refreshClosestStations();
+		} else {
+			// show the closest stations
+			showNewClosestStations();
+			// IF the latest location is too old DO
+			if (LocationUtils.isTooOld(this.closestStations.getLocation())) {
+				// start refreshing
+				refreshClosestStations();
+			}
+		}
+	}
+
+	/**
+	 * Show the new closest stations.
+	 */
+	private void showNewClosestStations() {
+		MyLog.v(TAG, "showNewClosestStations()");
 		if (this.closestStations != null) {
-			TextView tv = (TextView) findViewById(R.id.closest_subway_stations);
-			String text = "" + getResources().getText(R.string.closest_subway_stations);
-			if (this.locationAddress != null) {
-				text += " (";
-				if (this.locationAddress.getThoroughfare() != null) {
-					text += this.locationAddress.getThoroughfare();
-				}
-				if (this.locationAddress.getLocality() != null) {
-					text += ", " + this.locationAddress.getLocality();
-				}
-				if (this.locationAdressAccuracy != null) {
-					text += " ± " + Utils.getDistanceString(this, this.locationAdressAccuracy, 0);
-				}
-				text += ")";
-			}
-			tv.setText(text);
-
-			LinearLayout subwayStationsLayout = (LinearLayout) findViewById(R.id.subway_stations_list);
-			RelativeLayout loadingLayout = (RelativeLayout) findViewById(R.id.closest_stations_loading);
-			loadingLayout.setVisibility(View.GONE);
-			subwayStationsLayout.setVisibility(View.VISIBLE);
-			subwayStationsLayout.removeAllViews();
+			// set the closest station title
+			String text = LocationUtils.getLocationString(this, this.closestStations.getLocationAddress(),
+			        this.closestStations.getLocation().getAccuracy());
+			// MyLog.d(TAG, "text:" + text);
+			this.closestStationsTitleTv.setText(text);
+			// hide loading
+			this.closestStationsLoadingLayout.setVisibility(View.GONE);
+			// clear the previous list
+			this.closestStationsLayout.removeAllViews();
+			// show stations list
+			this.closestStationsLayout.setVisibility(View.VISIBLE);
 			int i = 1;
-			for (ASubwayStation station : this.closestStations) {
+			for (ASubwayStation station : this.closestStations.getStations()) {
 				// list view divider
-				if (subwayStationsLayout.getChildCount() > 0) {
-					subwayStationsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+				if (this.closestStationsLayout.getChildCount() > 0) {
+					this.closestStationsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
 				}
 				// create view
 				View view = getLayoutInflater().inflate(R.layout.subway_tab_subway_stations_list_item, null);
 				view.setTag("station" + i++);
 				// subway station name
 				((TextView) view.findViewById(R.id.station_name)).setText(station.getName());
+				ImageView subwayImg1 = (ImageView) view.findViewById(R.id.subway_img_1);
+				ImageView subwayImg2 = (ImageView) view.findViewById(R.id.subway_img_2);
+				ImageView subwayImg3 = (ImageView) view.findViewById(R.id.subway_img_3);
 				// station lines color
 				if (station.getOtherLinesId() != null && station.getOtherLinesId().size() > 0) {
 					int subwayLineImg1 = Utils.getSubwayLineImgId(station.getOtherLinesId().get(0));
-					((ImageView) view.findViewById(R.id.subway_img_1)).setImageResource(subwayLineImg1);
+					subwayImg1.setImageResource(subwayLineImg1);
 					if (station.getOtherLinesId().size() > 1) {
 						int subwayLineImg2 = Utils.getSubwayLineImgId(station.getOtherLinesId().get(1));
-						((ImageView) view.findViewById(R.id.subway_img_2)).setImageResource(subwayLineImg2);
+						subwayImg2.setImageResource(subwayLineImg2);
 						if (station.getOtherLinesId().size() > 2) {
 							int subwayLineImg3 = Utils.getSubwayLineImgId(station.getOtherLinesId().get(2));
-							((ImageView) view.findViewById(R.id.subway_img_3)).setImageResource(subwayLineImg3);
+							subwayImg3.setImageResource(subwayLineImg3);
 						} else {
-							view.findViewById(R.id.subway_img_3).setVisibility(View.GONE);
+							subwayImg3.setVisibility(View.GONE);
 						}
 					} else {
-						view.findViewById(R.id.subway_img_2).setVisibility(View.GONE);
-						view.findViewById(R.id.subway_img_3).setVisibility(View.GONE);
+						subwayImg2.setVisibility(View.GONE);
+						subwayImg3.setVisibility(View.GONE);
 					}
 				} else {
-					view.findViewById(R.id.subway_img_1).setVisibility(View.GONE);
-					view.findViewById(R.id.subway_img_2).setVisibility(View.GONE);
-					view.findViewById(R.id.subway_img_3).setVisibility(View.GONE);
+					subwayImg1.setVisibility(View.GONE);
+					subwayImg2.setVisibility(View.GONE);
+					subwayImg3.setVisibility(View.GONE);
 				}
 				// station distance
 				if (!TextUtils.isEmpty(station.getDistanceString())) {
@@ -535,9 +566,6 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 				// add click listener
 				final String subwayStationId = station.getId();
 				view.setOnClickListener(new View.OnClickListener() {
-					/**
-					 * {@inheritDoc}
-					 */
 					@Override
 					public void onClick(View v) {
 						MyLog.v(TAG, "onClick(%s)", v.getId());
@@ -546,8 +574,161 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 						startActivity(intent);
 					}
 				});
-				subwayStationsLayout.addView(view);
+				this.closestStationsLayout.addView(view);
 			}
+		}
+	}
+
+	/**
+	 * Start the refresh closest stations tasks if necessary.
+	 */
+	private void refreshClosestStations() {
+		MyLog.v(TAG, "refreshClosestStations()");
+		// IF the task is NOT already running DO
+		if (this.closestStationsTask == null || !this.closestStationsTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
+			setClosestStationsLoading();
+			// IF location found DO
+			if (getLocation() != null) {
+				// find the closest stations
+				this.closestStationsTask = new ClosestSubwayStationsFinderTask(this, this);
+				this.closestStationsTask.execute(getLocation());
+			}
+			// ELSE wait for location...
+		}
+	}
+
+	/**
+	 * Refresh or stop refresh the closest stations depending if running.
+	 * @param v a view (not used)
+	 */
+	public void refreshOrStopRefreshClosestStations(View v) {
+		MyLog.v(TAG, "refreshOrStopRefreshClosestStations()");
+		// IF the task is running DO
+		if (this.closestStationsTask != null && this.closestStationsTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
+			// stopping the task
+			this.closestStationsTask.cancel(true);
+			this.closestStationsTask = null;
+			setClosestStationsCancelled();
+		} else {
+			// refreshSubwayStatus();
+			refreshClosestStations();
+		}
+	}
+
+	/**
+	 * Set the closest stations as loading.
+	 */
+	private void setClosestStationsLoading() {
+		MyLog.v(TAG, "setClosestStationsLoading()");
+		if (this.closestStations == null) {
+			// set the BIG loading message
+			// remove last location from the list divider
+			this.closestStationsTitleTv.setText(R.string.closest_subway_stations);
+			// hide the list
+			this.closestStationsLayout.setVisibility(View.GONE);
+			// clean the list
+			this.closestStationsLayout.removeAllViews(); // useful ?
+			// show loading
+			this.closestStationsLoadingLayout.setVisibility(View.VISIBLE);
+			// show waiting for location
+			TextView detailMsgTv = (TextView) this.closestStationsLoadingLayout.findViewById(R.id.detail_msg);
+			detailMsgTv.setText(R.string.waiting_for_location_fix);
+			detailMsgTv.setVisibility(View.VISIBLE);
+		} else {
+			// just notify the user ?
+		}
+		// show stop icon instead of refresh
+		this.closestStationsRefreshOrNorImg.setImageResource(R.drawable.ic_btn_stop);
+		// show progress bar
+		this.closestStationsProgressBarView.setVisibility(View.VISIBLE);
+	}
+
+	/**
+	 * Set the closest stations as not loading.
+	 */
+	private void setClosestStationsNotLoading() {
+		MyLog.v(TAG, "setClosestStationsNotLoading()");
+		// show refresh icon instead of loading
+		this.closestStationsRefreshOrNorImg.setImageResource(R.drawable.ic_btn_refresh);
+		// hide progress bar
+		this.closestStationsProgressBarView.setVisibility(View.INVISIBLE);
+	}
+
+	/**
+	 * Set the closest stations as cancelled.
+	 */
+	private void setClosestStationsCancelled() {
+		MyLog.v(TAG, "setClosestStationsCancelled()");
+		if (this.closestStations != null) {
+			// notify the user ?
+			// Utils.notifyTheUser(this, getString(R.string.closest_subway_stations_cancelled));
+		} else {
+			// update the BIG cancel message
+			TextView cancelMsgTv = new TextView(this);
+			cancelMsgTv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+			cancelMsgTv.setText(getString(R.string.closest_subway_stations_cancelled));
+			this.closestStationsLayout.addView(cancelMsgTv);
+			// hide loading
+			this.closestStationsLoadingLayout.setVisibility(View.GONE);
+			this.closestStationsLayout.setVisibility(View.VISIBLE);
+		}
+		setClosestStationsNotLoading();
+	}
+
+	/**
+	 * Set the closest stations as error.
+	 */
+	private void setClosestStationsError() {
+		MyLog.v(TAG, "setClosestStationsError()");
+		// IF there are already stations DO
+		if (this.closestStations != null) {
+			// notify the user but keep showing the old stations
+			Utils.notifyTheUser(this, getString(R.string.closest_subway_stations_error));
+		} else {
+			// show the BIG message
+			TextView cancelMsgTv = new TextView(this);
+			cancelMsgTv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+			cancelMsgTv.setText(getString(R.string.closest_subway_stations_error));
+			this.closestStationsLayout.addView(cancelMsgTv);
+			// hide loading
+			this.closestStationsLoadingLayout.setVisibility(View.GONE);
+			this.closestStationsLayout.setVisibility(View.VISIBLE);
+		}
+		setClosestStationsNotLoading();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onClosestStationsProgress(String progress) {
+		MyLog.v(TAG, "onClosestStationsProgress()");
+		if (this.closestStations != null) {
+			// notify the user ?
+		} else {
+			// update the BIG message
+			this.closestStationsLoadingLayout.setVisibility(View.VISIBLE);
+			TextView detailMsgTv = (TextView) this.closestStationsLoadingLayout.findViewById(R.id.detail_msg);
+			detailMsgTv.setText(progress);
+			detailMsgTv.setVisibility(View.VISIBLE);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onClosestStationsDone(ClosestSubwayStations result) {
+		MyLog.v(TAG, "onClosestStationsDone()");
+		if (result == null) {
+			// show the error
+			setClosestStationsError();
+		} else {
+			// get the result
+			this.closestStations = result;
+			// shot the result
+			showNewClosestStations();
+			setClosestStationsNotLoading();
 		}
 	}
 
@@ -555,13 +736,18 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 * Update the subway stations distances with the new location.
 	 */
 	private void updateDistancesWithNewLocation() {
-		if (getLocation() != null && this.closestStations == null) {
-			// create the closest stations list
-			new FindClosestSubwayStationsTask().execute();
-		} else if (getLocation() != null && this.closestStations != null) {
+		MyLog.v(TAG, "updateDistancesWithNewLocation()");
+		// IF no closest stations AND new location DO
+		if (this.closestStations == null && getLocation() != null) {
+			// start refreshing if not running.
+			refreshClosestStations();
+			return;
+		}
+		// ELSE IF there are closest stations AND new location DO
+		if (this.closestStations != null && getLocation() != null) {
 			// update the list distances
 			float accuracyInMeters = getLocation().getAccuracy();
-			for (ASubwayStation station : this.closestStations) {
+			for (ASubwayStation station : this.closestStations.getStations()) {
 				// distance
 				Location stationLocation = LocationUtils.getNewLocation(station.getLat(), station.getLng());
 				float distanceInMeters = getLocation().distanceTo(stationLocation);
@@ -578,11 +764,11 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 * Refresh the closest subway stations <b>distances</b> ONLY in the list.
 	 */
 	private void refreshClosestSubwayStationsDistancesList() {
-		LinearLayout subwayStationsLayout = (LinearLayout) findViewById(R.id.subway_stations_list);
-		subwayStationsLayout.setVisibility(View.VISIBLE);
+		MyLog.v(TAG, "refreshClosestSubwayStationsDistancesList()");
+		this.closestStationsLayout.setVisibility(View.VISIBLE);
 		int i = 1;
-		for (ASubwayStation station : this.closestStations) {
-			View stationView = subwayStationsLayout.findViewWithTag("station" + i++);
+		for (ASubwayStation station : this.closestStations.getStations()) {
+			View stationView = this.closestStationsLayout.findViewWithTag("station" + i++);
 			if (stationView != null && !TextUtils.isEmpty(station.getDistanceString())) {
 				((TextView) stationView.findViewById(R.id.distance)).setText(station.getDistanceString());
 			}
@@ -689,8 +875,9 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		MenuItem menuReloadStatus = menu.add(0, MENU_RELOAD_STATUS, Menu.NONE, R.string.reload_subway_status);
 		menuReloadStatus.setIcon(R.drawable.ic_menu_refresh);
 
-		MenuItem menuReloadClosestStation = menu.add(0, MENU_RELOAD_CLOSEST_STATIONS, Menu.NONE, R.string.reload_closest_stations);
-		menuReloadClosestStation.setIcon(R.drawable.ic_menu_refresh);
+		MenuItem menuClosestStations = menu.add(0, MENU_RELOAD_CLOSEST_STATIONS, Menu.NONE,
+		        R.string.reload_closest_stations);
+		menuClosestStations.setIcon(R.drawable.ic_menu_refresh);
 
 		menu.add(0, MENU_SHOW_MAP_ON_THE_STM_WEBSITE, 0, R.string.show_map_from_stm_website);
 
@@ -708,16 +895,38 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		if (super.onPrepareOptionsMenu(menu)) {
+			// TWITTER
 			if (TwitterUtils.isConnected(this)) {
 				// CANCEL REFRESH
 				MenuItem menuTwitterApi = menu.findItem(MENU_LOGIN_TWITTER_API);
-				//TODO menuTwitterApi.setIcon(R.drawable.ic_menu_twitter);
+				// TODO menuTwitterApi.setIcon(R.drawable.ic_menu_twitter);
 				menuTwitterApi.setTitle(R.string.menu_twitter_logout);
 			} else {
 				// REFRESH
 				MenuItem menuTwitterApi = menu.findItem(MENU_LOGIN_TWITTER_API);
-				//TODO menuTwitterApi.setIcon(R.drawable.ic_menu_twitter);
+				// TODO menuTwitterApi.setIcon(R.drawable.ic_menu_twitter);
 				menuTwitterApi.setTitle(R.string.menu_twitter_login);
+			}
+			// SERVICE STATUS REFRESH
+			if (this.statusTask != null && this.statusTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
+				// CANCEL REFRESH
+				MenuItem menuRefresh = menu.findItem(MENU_RELOAD_STATUS);
+				menuRefresh.setIcon(R.drawable.ic_menu_stop); // not in SDK 1.5!
+			} else {
+				// REFRESH
+				MenuItem menuRefresh = menu.findItem(MENU_RELOAD_STATUS);
+				menuRefresh.setIcon(R.drawable.ic_menu_refresh); // not in SDK 1.5!
+			}
+			// CLOSEST STATIONs REFRESH
+			if (this.closestStationsTask != null
+			        && this.closestStationsTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
+				// CANCEL REFRESH
+				MenuItem menuRefresh = menu.findItem(MENU_RELOAD_CLOSEST_STATIONS);
+				menuRefresh.setIcon(R.drawable.ic_menu_stop); // not in SDK 1.5!
+			} else {
+				// REFRESH
+				MenuItem menuRefresh = menu.findItem(MENU_RELOAD_CLOSEST_STATIONS);
+				menuRefresh.setIcon(R.drawable.ic_menu_refresh); // not in SDK 1.5!
 			}
 			return true;
 		} else {
@@ -741,17 +950,17 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 				TwitterUtils.getInstance().startLoginProcess(this);
 			}
 			break;
-		case MENU_SHOW_MAP_ON_THE_STM_WEBSITE:
-			String url = "http://www.stm.info/metro/images/plan-metro.jpg";
-			// TODO store the map on the sd card the first time and then re-open it
-			// TODO add a menu to reload the map from the web site in the image viewer?
-			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-			break;
 		case MENU_RELOAD_STATUS:
-			refreshSubwayStatus(null);
+			refreshOrStopRefreshStatus(null);
 			break;
 		case MENU_RELOAD_CLOSEST_STATIONS:
-			refreshClosestSubwayStations(null);
+			refreshOrStopRefreshClosestStations(null);
+			break;
+		case MENU_SHOW_MAP_ON_THE_STM_WEBSITE:
+			String url = "http://www.stm.info/metro/images/plan-metro.jpg";
+			// TODO store the map on the SD card the first time and then re-open it
+			// TODO add a menu to reload the map from the web site in the image viewer?
+			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
 			break;
 		case MENU_PREFERENCES:
 			startActivity(new Intent(this, UserPreferences.class));
@@ -774,6 +983,10 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		if (this.statusTask != null) {
 			this.statusTask.cancel(true);
 			this.statusTask = null;
+		}
+		if (this.closestStationsTask != null) {
+			this.closestStationsTask.cancel(true);
+			this.closestStations = null;
 		}
 		if (this.cursor != null && !this.cursor.isClosed()) {
 			this.cursor.close();

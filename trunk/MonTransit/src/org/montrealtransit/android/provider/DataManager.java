@@ -6,6 +6,7 @@ import java.util.List;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.DataStore.History;
+import org.montrealtransit.android.provider.DataStore.ServiceStatus;
 import org.montrealtransit.android.provider.DataStore.TwitterApi;
 
 import android.content.ContentResolver;
@@ -37,24 +38,32 @@ public class DataManager {
 	}
 
 	/**
-	 * Delete a history entry
+	 * Delete ALL history entries
 	 * @param contentResolver the content resolver
-	 * @param favId the favorite ID
-	 * @return true if one (or more) favorite have been deleted.
+	 * @return true if one (or more) history entries have been deleted.
 	 */
-	public static boolean deleteHistory(ContentResolver contentResolver) {
+	public static boolean deleteAllHistory(ContentResolver contentResolver) {
 		int count = contentResolver.delete(DataStore.History.CONTENT_URI, null, null);
 		return count > 0;
 	}
 
 	/**
-	 * Delete a Twitter API entry
+	 * Delete ALL Twitter API entries
 	 * @param contentResolver the content resolver
-	 * @param favId the favorite ID
-	 * @return true if one (or more) favorite have been deleted.
+	 * @return true if one (or more) Twitter API entries have been deleted.
 	 */
-	public static boolean deleteTwitterAPI(ContentResolver contentResolver) {
+	public static boolean deleteAllTwitterAPI(ContentResolver contentResolver) {
 		int count = contentResolver.delete(DataStore.TwitterApi.CONTENT_URI, null, null);
+		return count > 0;
+	}
+
+	/**
+	 * Delete ALL service status entries
+	 * @param contentResolver the content resolver
+	 * @return true if one (or more) service status entries have been deleted.
+	 */
+	public static boolean deleteAllServiceStatus(ContentResolver contentResolver) {
+		int count = contentResolver.delete(DataStore.ServiceStatus.CONTENT_URI, null, null);
 		return count > 0;
 	}
 
@@ -63,16 +72,17 @@ public class DataManager {
 	 */
 	private static final String[] PROJECTION_FAVS = new String[] { DataStore.Fav._ID, DataStore.Fav.FAV_FK_ID,
 	        DataStore.Fav.FAV_FK_ID2, DataStore.Fav.FAV_TYPE };
-	
+
 	/**
 	 * Represents the fields the content provider will return for a Twitter API entry.
 	 */
-	private static final String[] PROJECTION_TWITTER_APIS = new String[] { DataStore.TwitterApi._ID, DataStore.TwitterApi.TOKEN, DataStore.TwitterApi.TOKEN_SECRET};
+	private static final String[] PROJECTION_TWITTER_APIS = new String[] { DataStore.TwitterApi._ID,
+	        DataStore.TwitterApi.TOKEN, DataStore.TwitterApi.TOKEN_SECRET };
 
 	/**
 	 * Represents the fields the content provider will return for an history entry.
 	 */
-	private static final String[] PROJECTION_HISTORY = new String[] { DataStore.History._ID, DataStore.History.VALUE};
+	private static final String[] PROJECTION_HISTORY = new String[] { DataStore.History._ID, DataStore.History.VALUE };
 
 	/**
 	 * @param contentResolver the content resolver
@@ -81,7 +91,7 @@ public class DataManager {
 	public static Cursor findAllFavs(ContentResolver contentResolver) {
 		return contentResolver.query(DataStore.Fav.CONTENT_URI, PROJECTION_FAVS, null, null, null);
 	}
-	
+
 	/**
 	 * @param contentResolver the content resolver
 	 * @return all Twitter API entries
@@ -147,7 +157,7 @@ public class DataManager {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * @param contentResolver the content resolver
 	 * @return all Twitter API entries a list
@@ -221,7 +231,7 @@ public class DataManager {
 
 	/**
 	 * @param contentResolver the content resolver
-	 * @param uri the history entry URI
+	 * @param uri the Twitter API entry URI
 	 * @return the Twitter API or <b>NULL</b>
 	 */
 	private static DataStore.TwitterApi findTwitterApi(ContentResolver contentResolver, Uri uri) {
@@ -241,7 +251,30 @@ public class DataManager {
 		}
 		return twitterApi;
 	}
-	
+
+	/**
+	 * @param contentResolver the content resolver
+	 * @param uri the service status entry URI
+	 * @return the service status or <b>NULL</b>
+	 */
+	private static DataStore.ServiceStatus findServiceStatus(ContentResolver contentResolver, Uri uri) {
+		MyLog.v(TAG, "findServiceStatus(%s)", uri.getPath());
+		DataStore.ServiceStatus serviceStatus = null;
+		Cursor cursor = null;
+		try {
+			cursor = contentResolver.query(uri, null, null, null, null);
+			if (cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
+					serviceStatus = DataStore.ServiceStatus.fromCursor(cursor);
+				}
+			}
+		} finally {
+			if (cursor != null)
+				cursor.close();
+		}
+		return serviceStatus;
+	}
+
 	/**
 	 * @param contentResolver the content resolver
 	 * @param type the favorite entry type
@@ -250,7 +283,7 @@ public class DataManager {
 	 * @return the favorite entry matching the parameter.
 	 */
 	public static DataStore.Fav findFav(ContentResolver contentResolver, int type, String fkId, String fkId2) {
-		MyLog.v(TAG, "findFav(%s, %s, %s)", type, fkId,fkId2);
+		MyLog.v(TAG, "findFav(%s, %s, %s)", type, fkId, fkId2);
 		DataStore.Fav fav = null;
 		Cursor cursor = null;
 		try {
@@ -266,6 +299,32 @@ public class DataManager {
 				cursor.close();
 		}
 		return fav;
+	}
+	
+	/**
+	 * Find the latest service status.
+	 * @param contentResolver the content resolver
+	 * @param lang the language
+	 * @return the latest service status or NULL
+	 */
+	public static DataStore.ServiceStatus findLatestServiceStatus(ContentResolver contentResolver, String lang) {
+		MyLog.v(TAG, "findLatestServiceStatus(%s)", lang);
+		DataStore.ServiceStatus serviceStatus = null;
+		Cursor cursor = null;
+		try {
+			Uri uri = DataStore.ServiceStatus.CONTENT_URI;
+			String selection = DataDbHelper.T_SERVICE_STATUS_K_LANGUAGE + "='" + lang+ "'";
+			cursor = contentResolver.query(uri, null, selection, null, DataStore.ServiceStatus.ORDER_BY_LATEST_PUB_DATE);
+			if (cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
+					serviceStatus = DataStore.ServiceStatus.fromCursor(cursor);
+				}
+			}
+		} finally {
+			if (cursor != null)
+				cursor.close();
+		}
+		return serviceStatus;
 	}
 
 	/**
@@ -339,6 +398,23 @@ public class DataManager {
 		final Uri uri = contentResolver.insert(DataStore.TwitterApi.CONTENT_URI, newTwitterApi.getContentValues());
 		if (uri != null) {
 			return findTwitterApi(contentResolver, uri);
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Add a service status entry to the content provider
+	 * @param contentResolver the content resolver
+	 * @param newServiceStatus the new service status entry
+	 * @return the added service status entry or <b>NULL</b>
+	 */
+	public static DataStore.ServiceStatus addServiceStatus(ContentResolver contentResolver,
+	        ServiceStatus newServiceStatus) {
+		final Uri uri = contentResolver
+		        .insert(DataStore.ServiceStatus.CONTENT_URI, newServiceStatus.getContentValues());
+		if (uri != null) {
+			return findServiceStatus(contentResolver, uri);
 		} else {
 			return null;
 		}

@@ -138,6 +138,7 @@ public class TwitterUtils {
 	 * @param context the context
 	 */
 	public void startLoginProcess(Context context) {
+		MyLog.v(TAG, "startLoginProcess()");
 		try {
 			//TODO show a dialog with more information who/what/why/how
 			Utils.notifyTheUserLong(context, context.getString(R.string.twitter_pre_auth));
@@ -209,11 +210,20 @@ public class TwitterUtils {
 	public static void logout(Context context) {
 		MyLog.v(TAG, "logout()");
 		try {
-			DataManager.deleteTwitterAPI(context.getContentResolver());
+			DataManager.deleteAllTwitterAPI(context.getContentResolver());
 			Utils.notifyTheUser(context, context.getString(R.string.twitter_logout_success));
 		} catch (Exception e) {
 			MyLog.w(TAG, "ERROR while disconnecting!", e);
 		}
 	}
 
+	/**
+	 * @param username the Twitter user name
+	 * @param id the Twitter status id
+	 * @return the Twitter status URL
+	 */
+	public static String getTwitterStatusURL(String username, long id) {
+	    // Twitter Status Link: http://twitter.com/<username>/statuses/<id>
+	    return String.format("http://twitter.com/%s/statuses/%s", username, id);
+    }
 }

@@ -6,9 +6,10 @@
 	<!-- Indeterminate progress bar -->
 	<ProgressBar android:id="@+id/progress_bar"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:layout_alignParentTop="true" android:layout_alignParentBottom="true"
-		android:indeterminate="true"
-		android:layout_marginRight="3dip" />
+		android:layout_centerVertical="true"
+		android:layout_marginRight="3dip"
+		style="?android:attr/android:progressBarStyle"
+		android:indeterminate="true" />
 	<!-- Loading message (GONE by default) -->
 	<TextView android:id="@+id/detail_msg"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"

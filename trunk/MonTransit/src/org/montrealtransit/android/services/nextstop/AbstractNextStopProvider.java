@@ -44,7 +44,7 @@ public abstract class AbstractNextStopProvider extends AsyncTask<StmStore.BusSto
 	protected void onPostExecute(BusStopHours result) {
 		MyLog.v(getTag(), "onPostExecute()");
 		if (result != null) {
-			this.from.onPostExectute(result);
+			this.from.onNextStopsLoaded(result);
 		}
 	}
 
@@ -53,18 +53,8 @@ public abstract class AbstractNextStopProvider extends AsyncTask<StmStore.BusSto
 	 */
 	@Override
 	protected void onProgressUpdate(String... values) {
-		MyLog.v(getTag(), "onProgressUpdate(" + values[0] + ")");
-		this.from.updateProgress(values[0]);
+		MyLog.v(getTag(), "onProgressUpdate(%s)", values[0]);
+		this.from.onNextStopsProgress(values[0]);
 		super.onProgressUpdate(values);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void onCancelled() {
-		MyLog.v(getTag(), "onCancelled()");
-		this.from.onCancelled();
-	    super.onCancelled();
 	}
 }

@@ -45,6 +45,8 @@ public class DataProvider extends ContentProvider {
 	private static final int FAVS_TYPE_ID = 8;
 	private static final int TWITTER_API = 9;
 	private static final int TWITTER_API_ID = 10;
+	private static final int SERVICE_STATUS = 11;
+	private static final int SERVICE_STATUS_ID = 12;
 
 	/**
 	 * The URI matcher filter the content URI calls.
@@ -62,6 +64,8 @@ public class DataProvider extends ContentProvider {
 		URI_MATCHER.addURI(AUTHORITY, "history/*", HISTORY_IDS);
 		URI_MATCHER.addURI(AUTHORITY, "twitterapi", TWITTER_API);
 		URI_MATCHER.addURI(AUTHORITY, "twitterapi/#", TWITTER_API_ID);
+		URI_MATCHER.addURI(AUTHORITY, "servicestatus", SERVICE_STATUS);
+		URI_MATCHER.addURI(AUTHORITY, "servicestatus/#", SERVICE_STATUS_ID);
 	}
 
 	/**
@@ -141,6 +145,15 @@ public class DataProvider extends ContentProvider {
 			qb.setTables(DataDbHelper.T_TWITTER_API);
 			qb.appendWhere(DataDbHelper.T_TWITTER_API + "." + DataDbHelper.T_TWITTER_API_K_ID + "=" + uri.getPathSegments().get(1));
 			break;
+		case SERVICE_STATUS:
+			MyLog.v(TAG, "SERVICE_STATUS");
+			qb.setTables(DataDbHelper.T_SERVICE_STATUS);
+			break;
+		case SERVICE_STATUS_ID:
+			MyLog.v(TAG, "SERVICE_STATUS_ID");
+			qb.setTables(DataDbHelper.T_SERVICE_STATUS);
+			qb.appendWhere(DataDbHelper.T_SERVICE_STATUS + "." + DataDbHelper.T_SERVICE_STATUS_K_ID + "=" + uri.getPathSegments().get(1));
+			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI (query) :" + uri);
 		}
@@ -164,6 +177,10 @@ public class DataProvider extends ContentProvider {
 			case TWITTER_API:
 			case TWITTER_API_ID:
 				orderBy = DataStore.TwitterApi.DEFAULT_SORT_ORDER;
+				break;
+			case SERVICE_STATUS:
+			case SERVICE_STATUS_ID:
+				orderBy = DataStore.ServiceStatus.DEFAULT_SORT_ORDER;
 				break;
 			default:
 				throw new IllegalArgumentException("Unknown URI (order) :" + uri);
@@ -201,6 +218,10 @@ public class DataProvider extends ContentProvider {
 			return DataStore.TwitterApi.CONTENT_TYPE;
 		case TWITTER_API_ID:
 			return DataStore.TwitterApi.CONTENT_ITEM_TYPE;
+		case SERVICE_STATUS:
+			return DataStore.ServiceStatus.CONTENT_TYPE;
+		case SERVICE_STATUS_ID:
+			return DataStore.ServiceStatus.CONTENT_ITEM_TYPE;
 		default:
 			throw new IllegalArgumentException("Unknown URI (type) :" + uri);
 		}
@@ -245,6 +266,10 @@ public class DataProvider extends ContentProvider {
 			MyLog.v(TAG, "DELETE>TWITTER_API");
 			count = db.delete(DataDbHelper.T_TWITTER_API, null, null);
 			break;
+		case SERVICE_STATUS:
+			MyLog.v(TAG, "DELETE>SERVICE_STATUS");
+			count = db.delete(DataDbHelper.T_SERVICE_STATUS, null, null);
+			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI (delete) " + uri);
 		}
@@ -283,6 +308,12 @@ public class DataProvider extends ContentProvider {
 			long twitterApiId = db.insert(DataDbHelper.T_TWITTER_API, DataDbHelper.T_TWITTER_API_K_TOKEN, values);
 			if (twitterApiId > 0) {
 				insertUri = ContentUris.withAppendedId(DataStore.TwitterApi.CONTENT_URI, twitterApiId);
+			}
+			break;
+		case SERVICE_STATUS:
+			long serviceStatusId = db.insert(DataDbHelper.T_SERVICE_STATUS, DataDbHelper.T_SERVICE_STATUS_K_MESSAGE, values);
+			if (serviceStatusId > 0) {
+				insertUri = ContentUris.withAppendedId(DataStore.ServiceStatus.CONTENT_URI, serviceStatusId);
 			}
 			break;
 		default:

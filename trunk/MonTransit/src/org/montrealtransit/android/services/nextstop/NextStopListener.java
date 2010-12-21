@@ -12,16 +12,12 @@ public interface NextStopListener {
 	 * Update the progress status.
 	 * @param progress the progress message 
 	 */
-	void updateProgress(String progress);
+	void onNextStopsProgress(String progress);
 	
 	/**
 	 * Methods calls after the execution of the task.
 	 * @param result the result
 	 */
-	void onPostExectute(BusStopHours result);
+	void onNextStopsLoaded(BusStopHours result);
 
-	/**
-	 * Methods calls when the task is cancelled.
-	 */
-	void onCancelled();
 }

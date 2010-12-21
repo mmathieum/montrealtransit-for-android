@@ -15,6 +15,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.provider.BaseColumns;
 
 /**
  * This SQLite database helper is used to access the STM database.
@@ -49,7 +50,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 
 	// BUS LINE
 	public static final String T_BUS_LINES = "lignes_autobus";
-	public static final String T_BUS_LINES_K_NUMBER = "_id";
+	public static final String T_BUS_LINES_K_NUMBER = BaseColumns._ID;
 	public static final String T_BUS_LINES_K_NAME = "name";
 	public static final String T_BUS_LINES_K_HOURS = "schedule";
 	public static final String T_BUS_LINES_K_TYPE = "type";
@@ -70,7 +71,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 
 	// BUS STOP
 	public static final String T_BUS_STOPS = "arrets_autobus";
-	public static final String T_BUS_STOPS_K_CODE = "_id";
+	public static final String T_BUS_STOPS_K_CODE = BaseColumns._ID;
 	public static final String T_BUS_STOPS_K_PLACE = "lieu";
 	public static final String T_BUS_STOPS_K_LINE_NUMBER = "ligne_id";
 	public static final String T_BUS_STOPS_K_DIRECTION_ID = "direction_id";
@@ -80,7 +81,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 
 	// SUBWAY LINE
 	public static final String T_SUBWAY_LINES = "lignes_metro";
-	public static final String T_SUBWAY_LINES_K_NUMBER = "_id";
+	public static final String T_SUBWAY_LINES_K_NUMBER = BaseColumns._ID;
 	public static final String T_SUBWAY_LINES_K_NAME = "name";
 
 	// SUBWAY FREQUENCES
@@ -118,7 +119,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 
 	// SUBWAY STATIONS
 	public static final String T_SUBWAY_STATIONS = "stations_metro";
-	public static final String T_SUBWAY_STATIONS_K_STATION_ID = "_id";
+	public static final String T_SUBWAY_STATIONS_K_STATION_ID = BaseColumns._ID;
 	public static final String T_SUBWAY_STATIONS_K_STATION_NAME = "name";
 	public static final String T_SUBWAY_STATIONS_K_STATION_LAT = "lat";
 	public static final String T_SUBWAY_STATIONS_K_STATION_LNG = "lng";
@@ -203,6 +204,9 @@ public class StmDbHelper extends SQLiteOpenHelper {
 		}
 	}
 
+	/**
+	 * @return the existing database version
+	 */
 	private int getExistingDbVersion() {
 		int result = 0;
 		if (myDataBase != null) {
