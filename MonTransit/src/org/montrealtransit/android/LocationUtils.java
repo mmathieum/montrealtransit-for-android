@@ -1,13 +1,17 @@
 package org.montrealtransit.android;
 
+import java.io.IOException;
 import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
+import android.location.Address;
 import android.location.Criteria;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.util.Log;
 
 /**
  * Location useful methods.
@@ -31,7 +35,7 @@ public class LocationUtils {
 	/**
 	 * How long do we prefer accuracy over time?
 	 */
-	public static final int PREFER_MORE_PRECISE_LAST_KNOWN_LOC_TIME = 5000; // 5 seconds
+	public static final long PREFER_MORE_PRECISE_LAST_KNOWN_LOC_TIME = 5000; // 5 seconds
 	/**
 	 * The validity of a last know location (in milliseconds)
 	 */
@@ -69,7 +73,7 @@ public class LocationUtils {
 
 	/**
 	 * @param activity the activity
-	 * @return the best valid last know location or <b>NULL</b>
+	 * @return the best not too old last know location or <b>NULL</b>
 	 */
 	public static Location getBestLastKnownLocation(Activity activity) {
 		Location result = null;
@@ -80,7 +84,7 @@ public class LocationUtils {
 				// IF no last location candidate DO
 				if (result == null) {
 					// IF this location candidate is not too old DO
-					if (isNotTooOld(lastLocation)) {
+					if (!isTooOld(lastLocation)) {
 						result = lastLocation;
 					}
 				} else {
@@ -93,9 +97,11 @@ public class LocationUtils {
 			}
 		}
 		if (result != null) {
-			MyLog.v(TAG, "last know location:" + result.getProvider() + " > " + result.getLatitude() + ", "
-			        + result.getLongitude() + "(" + result.getAccuracy() + ") "
-			        + ((System.currentTimeMillis() - result.getTime()) / 1000) + " seconds ago.");
+			if (MyLog.isLoggable(Log.VERBOSE)) {
+				MyLog.v(TAG, "last know location:" + result.getProvider() + " > " + result.getLatitude() + ", "
+				        + result.getLongitude() + "(" + result.getAccuracy() + ") "
+				        + ((System.currentTimeMillis() - result.getTime()) / 1000) + " seconds ago.");
+			}
 		} else {
 			MyLog.v(TAG, "no valid last location found!");
 		}
@@ -104,10 +110,10 @@ public class LocationUtils {
 
 	/**
 	 * @param location the location
-	 * @return true if the location is not too "old"
+	 * @return true if the location is too "old"
 	 */
-	public static boolean isNotTooOld(Location location) {
-		return System.currentTimeMillis() - location.getTime() < MAX_LAST_KNOW_LOCATION_TIME;
+	public static boolean isTooOld(Location location) {
+		return location.getTime() + MAX_LAST_KNOW_LOCATION_TIME > System.currentTimeMillis();
 	}
 
 	/**
@@ -154,11 +160,64 @@ public class LocationUtils {
 		if (newLocation.getAccuracy() < currentLocation.getAccuracy()) {
 			// the new location is more precise
 			return true;
-		} else if (newLocation.getTime()-currentLocation.getTime() > PREFER_MORE_PRECISE_LAST_KNOWN_LOC_TIME) {
+		} else if (newLocation.getTime() - currentLocation.getTime() > PREFER_MORE_PRECISE_LAST_KNOWN_LOC_TIME) {
 			// the new location is less precise but more recent
 			return true;
 		} else {
 			return false;
 		}
-    }
+	}
+
+	/**
+	 * @param context the context
+	 * @param location the location
+	 * @return the location address
+	 */
+	public static Address getLocationAddress(Context context, Location location) {
+		MyLog.v(TAG, "getLocationAddress()");
+		Address result = null;
+		Geocoder geocoder = new Geocoder(context);
+		try {
+			int maxResults = 1;
+			List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(),
+			        maxResults);
+			if (addresses != null && addresses.size() >= 1) {
+				result = addresses.get(0);
+				// MyLog.d(TAG, "Found address: %s", result.getAddressLine(0));
+			}
+		} catch (IOException e) {
+			MyLog.w(TAG, "Can't find the adress of the current location!", e);
+		}
+		return result;
+	}
+
+	/**
+	 * @param context the context
+	 * @param locationAddress the location address
+	 * @param accuracy the accuracy
+	 * @return the location string
+	 */
+	public static String getLocationString(Context context, Address locationAddress, Float accuracy) {
+		MyLog.v(TAG, "getLocationString()");
+		String text = context.getString(R.string.closest_subway_stations);
+		if (locationAddress != null) {
+			text += " (";
+			if (locationAddress.getAddressLine(0) != null) {
+				// first line of the address (1234, street name)
+				text += locationAddress.getAddressLine(0);
+			} else if (locationAddress.getThoroughfare() != null) {
+				// street name only
+				text += locationAddress.getThoroughfare();
+			} else if (locationAddress.getLocality() != null) {
+				// city
+				text += ", " + locationAddress.getLocality();
+			}
+			if (accuracy != null) {
+				text += " ± " + Utils.getDistanceString(context, accuracy, 0);
+			}
+			text += ")";
+		}
+		// MyLog.d(TAG, "text: " + text);
+		return text;
+	}
 }

@@ -7,7 +7,7 @@ import java.util.Set;
 import org.montrealtransit.android.provider.StmStore.SubwayStation;
 
 /**
- * Represents a subway station.
+ * Represents a localized subway station.
  * @author Mathieu Méa
  */
 public class ASubwayStation extends SubwayStation {
@@ -30,6 +30,24 @@ public class ASubwayStation extends SubwayStation {
 	private float distance;
 
 	/**
+	 * The default constructor.
+	 */
+	public ASubwayStation() {
+	}
+
+	/**
+	 * A constructor initializing the properties with a subway station object.
+	 * @param subwayStation the subway station object.
+	 */
+	public ASubwayStation(SubwayStation subwayStation) {
+	    setId(subwayStation.getId());
+	    this.setId(subwayStation.getId());
+	    this.setName(subwayStation.getName());
+	    this.setLat(subwayStation.getLat());
+	    this.setLng(subwayStation.getLng());
+    }
+
+	/**
 	 * @param lineId the new current subway line ID
 	 */
 	public void setLineId(int lineId) {
@@ -46,7 +64,7 @@ public class ASubwayStation extends SubwayStation {
 	/**
 	 * @param newLineNumber a new other subway line ID
 	 */
-	public void addOtherLinesId(Integer newLineNumber) {
+	public void addOtherLineId(Integer newLineNumber) {
 		if (!this.getOtherLinesId().contains(newLineNumber)) {
 			this.getOtherLinesId().add(newLineNumber);
 		}
@@ -57,7 +75,7 @@ public class ASubwayStation extends SubwayStation {
 	 */
 	public void addOtherLinesId(Set<Integer> newLinesNumber) {
 		for (Integer newLineNumber : newLinesNumber) {
-			addOtherLinesId(newLineNumber);
+			addOtherLineId(newLineNumber);
 		}
 	}
 

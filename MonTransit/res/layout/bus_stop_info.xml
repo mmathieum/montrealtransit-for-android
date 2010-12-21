@@ -9,7 +9,6 @@
 		android:orientation="horizontal" android:background="@android:drawable/title_bar"
 		android:paddingRight="5dip" android:paddingLeft="5dip"
 		android:gravity="fill_horizontal">
-
 		<!-- BUS STOP LOGO -->
 		<ImageView android:id="@+id/img"
 			android:layout_width="40dip" android:layout_height="40dip"
@@ -18,20 +17,18 @@
 			android:layout_marginTop="10dip"
 			android:gravity="center" android:scaleType="centerInside"
 			android:background="@drawable/bus_stop_blue" />
-
 		<!-- BUS STOP CODE -->
 		<TextView android:id="@+id/stop_code"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
 			android:layout_alignParentLeft="true" android:layout_below="@id/img"
 			android:singleLine="true" android:padding="3dip"
 			android:textAppearance="?android:attr/textAppearanceMedium" android:textStyle="bold" />
-
 		<!-- FAVORITE ICON -->
 		<CheckBox android:id="@+id/star"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
 			android:layout_alignParentTop="true" android:layout_alignParentRight="true"
+			android:onClick="addOrRemoveFavorite"
 			style="?android:attr/starStyle" />
-
 		<!-- BUS STOP PLACE -->
 		<TextView android:id="@+id/bus_stop_place"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -42,7 +39,6 @@
 			android:singleLine="true" android:ellipsize="marquee"
 			android:focusable="true" android:gravity="center_vertical|left"
 			android:text="@string/unknow_stop_place" />
-
 		<!-- BUS LINE -->
 		<TextView android:id="@+id/line_number"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -62,14 +58,12 @@
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
 			android:layout_alignParentBottom="true" android:layout_alignParentRight="true"
 			android:paddingBottom="5dip" />
-
 		<!-- DIRECTION LINE -->
 		<TextView android:id="@+id/direction_main"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
 			android:textAppearance="?android:attr/textAppearanceMedium"
 			android:layout_toRightOf="@id/img" android:layout_marginLeft="5dip"
 			android:layout_below="@id/line_number" android:text="@string/unknow_direction" />
-
 	</RelativeLayout>
 	
 	<ScrollView
@@ -77,91 +71,97 @@
 		<LinearLayout
 			android:layout_width="fill_parent" android:layout_height="fill_parent"
 			android:orientation="vertical">
-		<!-- NEXT BUS STOPS  -->
-		<RelativeLayout
-			android:layout_width="match_parent" android:layout_height="25dip"
-			android:background="@drawable/dark_header_dither"
-			android:paddingLeft="5sp">
-			<ImageView android:id="@+id/next_stops_refresh"
-				android:layout_width="wrap_content" android:layout_height="wrap_content"
-				android:layout_alignParentRight="true"
-				android:src="@drawable/ic_btn_refresh"
-				android:background="@android:drawable/list_selector_background"
-				android:onClick="reloadNextBusStops"
-				android:focusable="true" />
-			<ImageView android:id="@+id/next_stops_section_info"
-				android:layout_width="wrap_content" android:layout_height="wrap_content"
-				android:layout_toLeftOf="@id/next_stops_refresh"
-				android:src="@drawable/ic_btn_info_details"
-				android:background="@android:drawable/list_selector_background"
-				android:onClick="showNextStopsInfoDialog"
-				android:focusable="true" />
-			<TextView android:id="@+id/next_stops_string"
-				android:layout_width="wrap_content" android:layout_height="wrap_content"
-				android:layout_alignParentLeft="true"
-				android:layout_toLeftOf="@id/next_stops_section_info"
-				android:textStyle="bold" android:textSize="14sp"
-				android:textColor="?android:attr/textColorSecondary"
-				android:gravity="center_vertical"
-				android:singleLine="true"
-				android:text="@string/next_bus_stops" />
-		</RelativeLayout>
-		<include android:id="@+id/next_stops_loading" layout="@layout/loading_layout" />
-		<HorizontalScrollView android:id="@+id/next_stops_group"
-			android:layout_width="fill_parent" android:layout_height="?android:attr/listPreferredItemHeight">
-			<LinearLayout android:id="@+id/next_stops_group"
-				android:layout_width="fill_parent" android:layout_height="fill_parent"
-				android:orientation="horizontal" android:gravity="bottom"
-				android:padding="5dip" > <!-- android:gravity="center_vertical" -->
-				<TextView android:id="@+id/the_next_stop"
+			<!-- NEXT BUS STOPS  -->
+			<RelativeLayout android:id="@+id/next_stops_title"
+				android:layout_width="match_parent" android:layout_height="25dip"
+				android:background="@drawable/dark_header_dither"
+				android:paddingLeft="5sp">
+				<TextView android:id="@+id/next_stops_string"
 					android:layout_width="wrap_content" android:layout_height="wrap_content"
-					android:layout_marginRight="7dip"
-					android:textAppearance="?android:attr/textAppearanceLarge"
-					android:textSize="40dip" android:textStyle="bold" />
-				<TextView android:id="@+id/the_second_next_stop"
+					android:layout_alignParentLeft="true"
+					android:textStyle="bold" android:textSize="14sp"
+					android:textColor="?android:attr/textColorSecondary"
+					android:gravity="center_vertical"
+					android:singleLine="true"
+					android:text="@string/next_bus_stops" />
+				<ImageView android:id="@+id/next_stops_refresh"
 					android:layout_width="wrap_content" android:layout_height="wrap_content"
-					android:layout_marginRight="5dip"
-					android:textAppearance="?android:attr/textAppearanceMedium"
-					android:textSize="35dip" />
-				<TextView android:id="@+id/other_stops"
+					android:layout_alignParentRight="true"
+					android:src="@drawable/ic_btn_refresh"
+					android:background="@android:drawable/list_selector_background"
+					android:onClick="refreshOrStopRefreshNextStops"
+					android:focusable="true" />
+				<ImageView android:id="@+id/next_stops_section_info"
 					android:layout_width="wrap_content" android:layout_height="wrap_content"
-					android:textAppearance="?android:attr/textAppearanceSmall"
-					android:textSize="30dip" />
-			</LinearLayout>
-		</HorizontalScrollView>
-		<TextView android:id="@+id/next_stops_msg"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:padding="5dip"
-			android:textAppearance="?android:attr/textAppearanceLarge"
-			android:visibility="gone" />
-		<TextView android:id="@+id/next_stops_msg2"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:padding="5dip"
-			android:textAppearance="?android:attr/textAppearanceMedium"
-			android:visibility="gone" />
-
-		<!-- OTHER BUS LINE -->
-		<TextView android:id="@+id/other_bus_line"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
-			android:visibility="gone"
-			android:text="@string/other_bus_line" />
-		<HorizontalScrollView android:id="@+id/other_bus_lines"
-			android:layout_width="fill_parent" android:layout_height="wrap_content">
-			<LinearLayout android:id="@+id/other_bus_line_list"
-				android:layout_width="fill_parent" android:layout_height="fill_parent"
-				android:orientation="horizontal" android:gravity="bottom"
-				android:padding="2dip" />
-		</HorizontalScrollView>
+					android:layout_toLeftOf="@id/next_stops_refresh"
+					android:src="@drawable/ic_btn_info_details"
+					android:background="@android:drawable/list_selector_background"
+					android:onClick="showNextStopsInfoDialog"
+					android:focusable="true" />
+				<ProgressBar android:id="@+id/progress_bar"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:layout_toLeftOf="@id/next_stops_section_info"
+					android:indeterminate="true"
+					style="?android:attr/android:progressBarStyleSmall"
+					android:layout_centerVertical="true"
+					android:visibility="gone" />
+			</RelativeLayout>
+			<include android:id="@+id/next_stops_loading" layout="@layout/loading_layout" />
+			<HorizontalScrollView android:id="@+id/next_stops_group"
+				android:layout_width="fill_parent" android:layout_height="?android:attr/listPreferredItemHeight">
+				<LinearLayout android:id="@+id/next_stops_group"
+					android:layout_width="fill_parent" android:layout_height="fill_parent"
+					android:orientation="horizontal" android:gravity="bottom"
+					android:padding="5dip" > <!-- android:gravity="center_vertical" -->
+					<TextView android:id="@+id/the_next_stop"
+						android:layout_width="wrap_content" android:layout_height="wrap_content"
+						android:layout_marginRight="7dip"
+						android:textAppearance="?android:attr/textAppearanceLarge"
+						android:textSize="40dip" android:textStyle="bold" />
+					<TextView android:id="@+id/the_second_next_stop"
+						android:layout_width="wrap_content" android:layout_height="wrap_content"
+						android:layout_marginRight="5dip"
+						android:textAppearance="?android:attr/textAppearanceMedium"
+						android:textSize="35dip" />
+					<TextView android:id="@+id/other_stops"
+						android:layout_width="wrap_content" android:layout_height="wrap_content"
+						android:textAppearance="?android:attr/textAppearanceSmall"
+						android:textSize="30dip" />
+				</LinearLayout>
+			</HorizontalScrollView>
+			<TextView android:id="@+id/next_stops_msg"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				android:padding="5dip"
+				android:textAppearance="?android:attr/textAppearanceLarge"
+				android:visibility="gone" />
+			<TextView android:id="@+id/next_stops_msg2"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				android:padding="5dip"
+				android:textAppearance="?android:attr/textAppearanceMedium"
+				android:visibility="gone" />
 	
-		<!-- SUBWAY STATION -->
-		<TextView android:id="@+id/subway_station"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
-			android:visibility="gone"
-			android:text="@string/subway_station" />
-		<include android:id="@+id/the_subway_station"
-			layout="@layout/bus_stop_info_subway_line_list_item" />
+			<!-- OTHER BUS LINE -->
+			<TextView android:id="@+id/other_bus_line"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
+				android:visibility="gone"
+				android:text="@string/other_bus_line" />
+			<HorizontalScrollView android:id="@+id/other_bus_lines"
+				android:layout_width="fill_parent" android:layout_height="wrap_content">
+				<LinearLayout android:id="@+id/other_bus_line_list"
+					android:layout_width="fill_parent" android:layout_height="fill_parent"
+					android:orientation="horizontal" android:gravity="bottom"
+					android:padding="2dip" />
+			</HorizontalScrollView>
+		
+			<!-- SUBWAY STATION -->
+			<TextView android:id="@+id/subway_station"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
+				android:visibility="gone"
+				android:text="@string/subway_station" />
+			<include android:id="@+id/the_subway_station"
+				layout="@layout/bus_stop_info_subway_line_list_item" />
 		</LinearLayout>
 	</ScrollView>
 </LinearLayout>

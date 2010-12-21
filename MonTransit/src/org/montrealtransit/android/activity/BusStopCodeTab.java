@@ -20,7 +20,6 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -40,6 +39,11 @@ public class BusStopCodeTab extends Activity {
 	private static final String TAG = BusStopCodeTab.class.getSimpleName();
 
 	/**
+	 * The search field.
+	 */
+	private AutoCompleteTextView searchField;
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -48,11 +52,12 @@ public class BusStopCodeTab extends Activity {
 		super.onCreate(savedInstanceState);
 		// set the UI
 		setContentView(R.layout.bus_stop_code_tab);
-		((AutoCompleteTextView) findViewById(R.id.field)).setOnKeyListener(new View.OnKeyListener() {
+		this.searchField = (AutoCompleteTextView) findViewById(R.id.field);
+		this.searchField.setOnKeyListener(new View.OnKeyListener() {
 			@Override
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
 				if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-					searchFor(((EditText) findViewById(R.id.field)).getText().toString());
+					searchFor(BusStopCodeTab.this.searchField.getText().toString());
 					return true;
 				}
 				return false;
@@ -61,19 +66,20 @@ public class BusStopCodeTab extends Activity {
 		((ImageButton) findViewById(R.id.ok)).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				MyLog.v(TAG, "onItemClick(" + v.getId() + ")");
-				searchFor(((EditText) findViewById(R.id.field)).getText().toString());
+				MyLog.v(TAG, "onItemClick(%s)", v.getId());
+				searchFor(BusStopCodeTab.this.searchField.getText().toString());
 			}
 		});
-		((ListView) findViewById(R.id.list)).setEmptyView(findViewById(R.id.list_empty));
-		((ListView) findViewById(R.id.list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		ListView historyList = (ListView) findViewById(R.id.list);
+		historyList.setEmptyView(findViewById(R.id.list_empty));
+		historyList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-				MyLog.v(TAG, "onItemClick(" + l.getId() + "," + v.getId() + "," + position + "," + id + ")");
+				MyLog.v(TAG, "onItemClick(%s, %s, %s, %s)", l.getId(), v.getId(), position, id);
 				searchFor((((TextView) v).getText()).toString());
 			}
 		});
-		((ListView) findViewById(R.id.list)).setAdapter(getHistoryAdapter());
+		historyList.setAdapter(getHistoryAdapter());
 	}
 
 	/**
@@ -107,7 +113,7 @@ public class BusStopCodeTab extends Activity {
 		MyLog.v(TAG, "onResume()");
 		super.onResume();
 		// refresh the auto complete text data
-		((AutoCompleteTextView) findViewById(R.id.field)).setAdapter(getAutoCompleteAdapter());
+		this.searchField.setAdapter(getAutoCompleteAdapter());
 	}
 
 	/**
@@ -196,7 +202,7 @@ public class BusStopCodeTab extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case MENU_CLEAR_HISTOTY:
-			DataManager.deleteHistory(this.getContentResolver());
+			DataManager.deleteAllHistory(this.getContentResolver());
 			break;
 		case MENU_PREFERENCES:
 			startActivity(new Intent(this, UserPreferences.class));
