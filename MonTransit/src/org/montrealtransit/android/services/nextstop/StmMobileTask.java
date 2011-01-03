@@ -72,7 +72,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 				publishProgress(this.context.getResources().getString(R.string.done));
 				return hours;
 			case HttpURLConnection.HTTP_INTERNAL_ERROR:
-				errorMessage = this.context.getString(R.string.error_http_500);
+				errorMessage = this.context.getString(R.string.error_http_500_and_source, this.context.getString(R.string.select_next_stop_data_source));
 			default:
 				MyLog.w(TAG, "Error: HTTP URL-Connection Response Code:%s (Message: %s)",
 				        httpUrlConnection.getResponseCode(), httpUrlConnection.getResponseMessage());

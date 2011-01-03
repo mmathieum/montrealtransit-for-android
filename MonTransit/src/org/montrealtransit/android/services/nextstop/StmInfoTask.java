@@ -121,7 +121,7 @@ public class StmInfoTask extends AbstractNextStopProvider {
 				publishProgress(this.context.getString(R.string.done));
 				return busStopHandler.getHours();
 			case HttpURLConnection.HTTP_INTERNAL_ERROR:
-				errorMessage = this.context.getString(R.string.error_http_500);
+				errorMessage = this.context.getString(R.string.error_http_500_and_source, this.context.getString(R.string.select_next_stop_data_source));
 			default:
 				MyLog.w(TAG, "Error: HTTP URL-Connection Response Code:" + httpUrlConnection.getResponseCode()
 				        + "(Message: " + httpUrlConnection.getResponseMessage() + ")");
