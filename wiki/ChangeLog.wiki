@@ -3,6 +3,11 @@
 
 = !ChangeLog =
 
+ * 1.4 (r358)
+  * add Twitter authentication to remove rate limit for subway service status check
+  * improve UI in subway tab and bus stop info
+  * add Android 2.3 Gingerbread compatibility
+
  * 1.3.6 (r344)
   * display bus stops STM message from http://m.stm.info/
   * improve bus stop view other bus lines UI
