@@ -278,7 +278,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	public void showStatus() {
 		MyLog.v(TAG, "showStatus()");
 		// get the latest service status in the local database or NULL
-		this.serviceStatus = DataManager.findLatestServiceStatus(getContentResolver(), Utils.getUserLocale());
+		this.serviceStatus = DataManager.findLatestServiceStatus(getContentResolver(), Utils.getSupportedUserLocale());
 		// IF there is no service status DO
 		if (this.serviceStatus == null) {
 			// look for new service status
@@ -304,7 +304,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		// hide loading (progress bar)
 		this.statusLoadingLayout.setVisibility(View.GONE);
 		// set the status title with the date
-		CharSequence readTime = Utils.formatSameDayDateInSec(this.serviceStatus.getReadDate());
+		CharSequence readTime = Utils.formatSameDayDateInSec(this.serviceStatus.getReadDate()); //FIXME NPE!!!
 		this.statusTitleTv.setText(getString(R.string.subway_status_hour, readTime));
 		// set the status message text
 		this.statusMsgTv.setText(this.serviceStatus.getMessage());
@@ -451,7 +451,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		} else {
 			// notify the user ?
 			// get the latest service status in the local database or NULL
-			this.serviceStatus = DataManager.findLatestServiceStatus(getContentResolver(), Utils.getUserLocale());
+			this.serviceStatus = DataManager.findLatestServiceStatus(getContentResolver(), Utils.getSupportedUserLocale());
 			// show latest service status
 			showNewStatus();
 			setStatusNotLoading();

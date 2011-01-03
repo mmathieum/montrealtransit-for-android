@@ -1005,6 +1005,17 @@ public class Utils {
 	}
 
 	/**
+	 * @return the supported user language (fr or en)
+	 */
+	public static String getSupportedUserLocale() {
+		if (Locale.getDefault().getLanguage().equals("fr")) {
+			return "fr";
+		} else {
+			return "en"; //default
+		}
+	}
+
+	/**
 	 * Extract the bus stop IDs (bus stop code - bus line number) from the favorite list
 	 * @param favList the favorite list
 	 * @return the bus stop IDs string
