@@ -3,6 +3,12 @@
 
 = !ChangeLog =
 
+ * 1.4.2 (r362)
+  * fix issue with non supported languages
+
+ * 1.4.1 (r360)
+  * fix issue with Twitter API keys
+
  * 1.4 (r358)
   * add Twitter authentication to remove rate limit for subway service status check
   * improve UI in subway tab and bus stop info

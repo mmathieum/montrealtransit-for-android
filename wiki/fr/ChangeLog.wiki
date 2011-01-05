@@ -3,6 +3,12 @@
 
 = !ChangeLog =
 
+ * 1.4.2 (r362)
+  * corrige un problème avec les langues non supportées
+
+ * 1.4.1 (r360)
+  * corrige un problème avec les clés de l'API Twitter
+
  * 1.4 (r358)
   * authentication Twitter pour supprimer la limite lors de la vérification de l'état de service du métro.
   * amélioration de l'interface pour l'onglet Métro et les info sur les arrêts de bus
