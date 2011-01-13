@@ -25,10 +25,10 @@ public class SupportFactory {
 		} else if (sdkVersion == Build.VERSION_CODES.FROYO) {
 			className += "FroyoSupport"; // 8
 		} else if (sdkVersion == Build.VERSION_CODES.GINGERBREAD) {
-			className += "GingerBreadSupport"; // 9
+			className += "GingerbreadSupport"; // 9
 		} else if (sdkVersion > Build.VERSION_CODES.GINGERBREAD) {
 			Log.d(TAG, "Unknow API Level: " + Build.VERSION.SDK);
-			className += "GingerBreadSupport"; // default for newer SDK
+			className += "GingerbreadSupport"; // default for newer SDK
 		}
 
 		try {
