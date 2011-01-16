@@ -3,6 +3,9 @@
 
 = !ChangeLog =
 
+ * 1.4.3 (r364)
+  * corrige un problème avec les appareils avec Android 2.3+
+
  * 1.4.2 (r362)
   * corrige un problème avec les langues non supportées
 
