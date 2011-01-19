@@ -90,26 +90,11 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 				ServiceStatus serviceStatus = new ServiceStatus();
 				String statusText = twitterStatus.getText();
 				// extract the service status from the code
-				String statusChar = statusText.substring(statusText.length() - 2, statusText.length() - 1);
-				if (statusChar.equals("V")) {
-					serviceStatus.setType(ServiceStatus.STATUS_TYPE_GREEN);
-				} else if (statusChar.equals("J")) {
-					serviceStatus.setType(ServiceStatus.STATUS_TYPE_YELLOW);
-				} else if (statusChar.equals("R")) {
-					serviceStatus.setType(ServiceStatus.STATUS_TYPE_RED);
-				} else {
-					serviceStatus.setType(ServiceStatus.STATUS_TYPE_DEFAULT);
-				}
+				serviceStatus.setType(extractServiceStatus(statusText));
 				// clean message (remove ' #STM XY')
-				serviceStatus.setMessage(statusText.substring(0, statusText.length() - 8));
+				serviceStatus.setMessage(extractMessage(statusText));
 				// set language
-				if (statusText.endsWith("F")) {
-					serviceStatus.setLanguage(ServiceStatus.STATUS_LANG_FRENCH);
-				} else if (statusText.endsWith("E")) {
-					serviceStatus.setLanguage(ServiceStatus.STATUS_LANG_ENGLISH);
-				} else {
-					serviceStatus.setLanguage(ServiceStatus.STATUS_LANG_UNKNOWN);
-				}
+				serviceStatus.setLanguage(extractMessageLanguage(statusText));
 				// dates
 				int pubDate = (int) (twitterStatus.getCreatedAt().getTime() / 1000);
 				serviceStatus.setPubDate(pubDate);
@@ -150,6 +135,47 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 			return this.context.getString(R.string.error);
 		}
 	}
+
+	/**
+	 * Extract the message from the Twitter status.
+	 * @param statusText the Twitter status
+	 * @return the message
+	 */
+	private String extractMessage(String statusText) {
+	    return statusText.substring(0, statusText.indexOf("#STM"));
+    }
+
+	/**
+	 * Extract the message language from the Twitter status.
+	 * @param statusText the Twitter status
+	 * @return the message language
+	 */
+	private String extractMessageLanguage(String statusText) {
+		if (statusText.contains("VE") || statusText.contains("JE") || statusText.contains("RE")) {
+	    	return ServiceStatus.STATUS_LANG_ENGLISH;
+	    } else if ( statusText.contains("VF") || statusText.contains("JF") || statusText.contains("RF")) {
+	    	return ServiceStatus.STATUS_LANG_FRENCH;
+	    } else {
+	    	return ServiceStatus.STATUS_LANG_UNKNOWN;
+	    }
+    }
+
+	/**
+	 * Extract the service status from the Twitter status.
+	 * @param statusText the Twitter status
+	 * @return the service status
+	 */
+	private int extractServiceStatus(String statusText) {
+		if (statusText.contains("VE") || statusText.contains("VF")) {
+	    	return ServiceStatus.STATUS_TYPE_GREEN;
+	    } else if (statusText.contains("JE") || statusText.contains("JF")) {
+	    	return ServiceStatus.STATUS_TYPE_YELLOW;
+	    } else if (statusText.contains("RE") || statusText.contains("RF")) {
+	    	return ServiceStatus.STATUS_TYPE_GREEN;
+	    } else {
+	    	return ServiceStatus.STATUS_TYPE_DEFAULT;
+	    }
+    }
 
 	/**
 	 * Handle Twitter error
