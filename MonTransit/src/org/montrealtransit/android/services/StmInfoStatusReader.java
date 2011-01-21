@@ -171,7 +171,7 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 	    } else if (statusText.contains("JE") || statusText.contains("JF")) {
 	    	return ServiceStatus.STATUS_TYPE_YELLOW;
 	    } else if (statusText.contains("RE") || statusText.contains("RF")) {
-	    	return ServiceStatus.STATUS_TYPE_GREEN;
+	    	return ServiceStatus.STATUS_TYPE_RED;
 	    } else {
 	    	return ServiceStatus.STATUS_TYPE_DEFAULT;
 	    }
