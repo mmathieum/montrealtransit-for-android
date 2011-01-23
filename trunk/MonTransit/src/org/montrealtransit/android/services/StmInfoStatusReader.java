@@ -142,7 +142,12 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 	 * @return the message
 	 */
 	private String extractMessage(String statusText) {
-	    return statusText.substring(0, statusText.indexOf("#STM"));
+		int from = 0;
+		int to = statusText.length();
+		if (statusText.contains("#STM")) {
+			to = statusText.indexOf("#STM");
+		}
+	    return statusText.substring(from, to);
     }
 
 	/**
