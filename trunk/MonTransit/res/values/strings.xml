@@ -53,6 +53,7 @@
 	<string name="next_bus_stops">Next passing</string>
 	<string name="next_bus_stops_and_source">Next passing (%s)</string>
 	<string name="next_bus_stops_message_and_source">MonTransit gets the next bus stops from %s.</string>
+	<string name="next_bus_stops_note">%1$s: %2$s</string>
 	<string name="other_bus_line">Other bus line(s)</string>
 	<string name="subway_station">Subway station</string>
 	<string name="subway_station_short">Station</string>
