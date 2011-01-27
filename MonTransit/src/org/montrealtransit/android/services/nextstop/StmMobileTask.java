@@ -72,7 +72,8 @@ public class StmMobileTask extends AbstractNextStopProvider {
 				publishProgress(this.context.getResources().getString(R.string.done));
 				return hours;
 			case HttpURLConnection.HTTP_INTERNAL_ERROR:
-				errorMessage = this.context.getString(R.string.error_http_500_and_source, this.context.getString(R.string.select_next_stop_data_source));
+				errorMessage = this.context.getString(R.string.error_http_500_and_source,
+				        this.context.getString(R.string.select_next_stop_data_source));
 			default:
 				MyLog.w(TAG, "Error: HTTP URL-Connection Response Code:%s (Message: %s)",
 				        httpUrlConnection.getResponseCode(), httpUrlConnection.getResponseMessage());
@@ -110,7 +111,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	/**
 	 * The pattern for the hours.
 	 */
-	private static final Pattern PATTERN_REGEX_FOR_HOURS = Pattern.compile("[0-9]{1,2}(h|:)[0-9]{1,2}");
+	private static final Pattern PATTERN_REGEX_FOR_HOURS = Pattern.compile("[0-9]{1,2}[h|:][0-9]{1,2}");
 
 	/**
 	 * @param html the HTML source
@@ -126,16 +127,87 @@ public class StmMobileTask extends AbstractNextStopProvider {
 			Matcher matcher = PATTERN_REGEX_FOR_HOURS.matcher(interestingPart);
 			while (matcher.find()) {
 				// considering 00h00 the standard (instead of the 00:00 provided by m.stm.info in English)
-                String hour = matcher.group().replaceAll(":", "h");
-				result.addSHour(hour);
+				result.addSHour(matcher.group().replaceAll(":", "h"));
 			}
 			// find message
 			String message = findMessage(interestingPart, lineNumber);
 			if (!TextUtils.isEmpty(message)) {
 				result.addMessageString(message);
 			}
+			// find bus stops note
+			String concernedBusStops = findNoteStops(interestingPart);
+			String busStopNote = findNote(interestingPart);
+			if (!TextUtils.isEmpty(concernedBusStops) && !TextUtils.isEmpty(busStopNote)) {
+				result.addMessageString(this.context.getString(R.string.next_bus_stops_note, concernedBusStops,
+				        busStopNote));
+			}
 		} else {
 			MyLog.w(TAG, "Can't find the next bus stops for line %s!", lineNumber);
+		}
+		return result;
+	}
+
+	/**
+	 * The pattern used for stops note.
+	 */
+	private static final Pattern PATTERN_REGEX_STOPS_NOTE = Pattern
+	        .compile("<div class=\"heure\">[^d]*div>[\\s]*<div class=\"message\">(([^<])*)</div>");
+
+	/**
+	 * Find the bus stops note
+	 * @param interestingPart the HTML code where note is supposed to be
+	 * @return the note or <b>NULL</b>
+	 */
+	private String findNote(String interestingPart) {
+		MyLog.v(TAG, "findNote(%s)", interestingPart.length());
+		String result = null;
+		Matcher matcher = PATTERN_REGEX_STOPS_NOTE.matcher(interestingPart);
+		while (matcher.find()) {
+			result = matcher.group(1);
+		}
+		return result;
+	}
+
+	/**
+	 * Find the stops concerned by the note message.
+	 * @param interestingPart the HTML code where note is supposed to be
+	 * @return the concerned stop or <B>NULL</b>
+	 */
+	private String findNoteStops(String interestingPart) {
+		MyLog.v(TAG, "findNoteStops(%s)", interestingPart.length());
+		String result = null;
+		String noteHourPart = findNoteHourPart(interestingPart);
+		if (!TextUtils.isEmpty(noteHourPart)) {
+			Matcher matcher = PATTERN_REGEX_FOR_HOURS.matcher(noteHourPart);
+			while (matcher.find()) {
+				if (result == null) {
+					result = "";
+				} else { // if (result.length() > 0) {
+					result += " ";
+				}
+				result += Utils.formatHours(context, matcher.group().replaceAll(":", "h"));
+			}
+		}
+		return result;
+
+	}
+
+	/**
+	 * The pattern used for stops note.
+	 */
+	private static final Pattern PATTERN_REGEX_HOUR_PART = Pattern.compile("<div class=\"heure\">[^\bdiv\b]*");
+
+	/**
+	 * Find the part of the note containing the stops hours.
+	 * @param all the HTML code supposed to contains the stops hours
+	 * @return the part of the HTML code containing the stops hours or <B>NULL</B>
+	 */
+	private String findNoteHourPart(String all) {
+		MyLog.v(TAG, "findNoteHourPart(%s)", all.length());
+		String result = null;
+		Matcher matcher = PATTERN_REGEX_HOUR_PART.matcher(all);
+		while (matcher.find()) {
+			result = matcher.group();
 		}
 		return result;
 	}
@@ -166,13 +238,13 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	private String getInterestingPart(String html, String lineNumber) {
 		MyLog.v(TAG, "getInterestingPart(%s, %s)", html.length(), lineNumber);
 		String result = null;
-		String regex = "<div class=\"route\">[\\s]*"
-		        + "<p class=\"route-desc\">[\\s]*"
-		        + "<a href=\"/bus/arrets/"
-		        + lineNumber
-		        + "\" class=\"stm-link\">[^</]*</a>[^<]*</p>[^<]*<p class=\"route-schedules\">[^<]*"
-		        + "</p>[\\s]*" + "(" + "</div>" + "|" + "<div class=\"mips\">[\\s]*" + "<div class=\"wrapper\">[\\s]*"
-		        + "<div class=\"ligne\">" + lineNumber + "</div>[\\s]*" + "<div class=\"message\">[^</]*</div>" + ")";
+		String regex = "<div class=\"route\">[\\s]*" + "<p class=\"route-desc\">[\\s]*" + "<a href=\"/bus/arrets/"
+		        + lineNumber + "\" class=\"stm-link\">[^</]*</a>[^<]*" + "</p>[^<]*"
+		        + "<p class=\"route-schedules\">[^<]*</p>[\\s]*" + "(" + "</div>" + "|" + "<div class=\"mips\">[\\s]*"
+		        + "<div class=\"wrapper\">[\\s]*" + "<div class=\"ligne\">" + lineNumber + "</div>[\\s]*"
+		        + "<div class=\"message\">[^</]*</div>" + "|" + "<div class=\"notes\">[\\s]*"
+		        + "<div class=\"wrapper\">[\\s]*" + "<div class=\"heure\">[^d]*div>[\\s]*"
+		        + "<div class=\"message\">[^<]*</div>" + ")";
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(html);
 		while (matcher.find()) {
