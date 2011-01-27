@@ -78,7 +78,9 @@ public class BusStopHours {
 	 * @param newHour the new hour.
 	 */
 	public void addSHour(String newHour) {
-		this.getSHours().add(newHour);
+		if (!getSHours().contains(newHour)) {
+			this.getSHours().add(newHour);
+		}
 	}
 
 	/**
