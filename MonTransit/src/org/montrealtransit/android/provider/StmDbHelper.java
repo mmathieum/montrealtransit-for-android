@@ -41,7 +41,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	/**
 	 * The database version use to manage database changes.
 	 */
-	private static final int DB_VERSION = 2;
+	private static final int DB_VERSION = 3;
 
 	/**
 	 * The database object.
@@ -129,7 +129,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	 */
 	public StmDbHelper(Context context) {
 		super(context, DB_NAME, null, DB_VERSION);
-		MyLog.v(TAG, "StmDbHelper(" + DB_NAME + ", " + DB_VERSION + ")");
+		MyLog.v(TAG, "StmDbHelper(%s, %s)", DB_NAME, DB_VERSION);
 		createDbIfNecessary(context);
 	}
 
@@ -138,7 +138,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	 */
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		// MyLog.v(TAG, "onCreate()");
+		MyLog.v(TAG, "onCreate()");
 		// DO NOTHING
 	}
 
@@ -147,7 +147,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	 */
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// MyLog.v(TAG, "onUpgrade("+oldVersion+", "+newVersion+")");
+		MyLog.v(TAG, "onUpgrade(%s, %s)", oldVersion, newVersion);
 		// DO NOTHING
 	}
 
@@ -181,8 +181,8 @@ public class StmDbHelper extends SQLiteOpenHelper {
 			if (currentVersion != DB_VERSION) {
 				MyLog.d(TAG, "VERSION DIFF");
 				// upgrade
-				if (currentVersion == 1 && DB_VERSION == 2) {
-					MyLog.d(TAG, "UPGRADING...");
+				if (currentVersion < DB_VERSION) {
+					MyLog.d(TAG, "UPGRADING FROM '%s' to '%s' ...", currentVersion, DB_VERSION);
 					// close the db
 					close();
 					// remove the existing db
@@ -197,8 +197,8 @@ public class StmDbHelper extends SQLiteOpenHelper {
 						Utils.notifyTheUserLong(context, context.getString(R.string.update_stm_db_error_next));
 					}
 				} else {
-					MyLog.w(TAG, "Trying to upgrade the db from version '" + currentVersion + "' to version '"
-					        + DB_VERSION + "'.");
+					MyLog.w(TAG, "Trying to upgrade the db from version '%s' to version '%s'.", currentVersion,
+					        DB_VERSION);
 				}
 			}
 		}
@@ -237,7 +237,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 			checkDB.close();
 			return true;
 		} catch (SQLiteException e) {
-			MyLog.i(TAG, "The STM database doesn't exist yet.");
+			MyLog.d(TAG, "The STM database doesn't exist yet.");
 			return false;
 		}
 	}
