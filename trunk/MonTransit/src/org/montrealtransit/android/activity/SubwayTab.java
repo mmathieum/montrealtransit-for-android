@@ -304,7 +304,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		// hide loading (progress bar)
 		this.statusLoadingLayout.setVisibility(View.GONE);
 		// set the status title with the date
-		CharSequence readTime = Utils.formatSameDayDateInSec(this.serviceStatus.getReadDate()); //FIXME NPE!!!
+		CharSequence readTime = Utils.formatSameDayDateInSec(this.serviceStatus.getReadDate());
 		this.statusTitleTv.setText(getString(R.string.subway_status_hour, readTime));
 		// set the status message text
 		this.statusMsgTv.setText(this.serviceStatus.getMessage());
