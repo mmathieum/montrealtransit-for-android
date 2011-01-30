@@ -2,6 +2,7 @@ package org.montrealtransit.android.activity;
 
 import java.util.List;
 
+import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
@@ -61,6 +62,16 @@ public class BusStopCodeTab extends Activity {
 					return true;
 				}
 				return false;
+			}
+		});
+		this.searchField.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if (hasFocus) {
+					Utils.showKeyboard(BusStopCodeTab.this, v);
+		        } else {
+		        	Utils.hideKeyboard(BusStopCodeTab.this, v);
+		        }
 			}
 		});
 		((ImageButton) findViewById(R.id.ok)).setOnClickListener(new OnClickListener() {
@@ -127,7 +138,7 @@ public class BusStopCodeTab extends Activity {
 		} else {
 			if (search.length() <= 3) {
 				// search for a bus line number
-				if (Utils.isBusLineNumberValid(this, search)) {
+				if (BusUtils.isBusLineNumberValid(this, search)) {
 					addToHistory(search);
 					BusLineSelectDirection busLineSelectDirection = new BusLineSelectDirection(this, search);
 					busLineSelectDirection.showDialog();
@@ -136,7 +147,7 @@ public class BusStopCodeTab extends Activity {
 				}
 			} else if (search.length() == 5) {
 				// search for a bus stop code
-				if (Utils.isStopCodeValid(this, search)) {
+				if (BusUtils.isStopCodeValid(this, search)) {
 					addToHistory(search);
 					showBusStopInfo(search);
 				} else {
@@ -171,15 +182,14 @@ public class BusStopCodeTab extends Activity {
 	 * Menu item for clearing the history.
 	 */
 	private static final int MENU_CLEAR_HISTOTY = Menu.FIRST;
-
+	/**
+	 * The menu used to show the search UI.
+	 */
+	private static final int MENU_SEARCH = Menu.FIRST + 1;
 	/**
 	 * The menu used to show the user preferences.
 	 */
-	private static final int MENU_PREFERENCES = Menu.FIRST + 1;
-	/**
-	 * The menu used to show the about screen.
-	 */
-	private static final int MENU_ABOUT = Menu.FIRST + 2;
+	private static final int MENU_PREFERENCES = Menu.FIRST + 2;
 
 	/**
 	 * {@inheritDoc}
@@ -188,10 +198,10 @@ public class BusStopCodeTab extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuItem menuClearHistory = menu.add(0, MENU_CLEAR_HISTOTY, Menu.NONE, R.string.clear_history);
 		menuClearHistory.setIcon(android.R.drawable.ic_menu_delete);
+		MenuItem menuSearch = menu.add(0, MENU_SEARCH, Menu.NONE, R.string.menu_search);
+		menuSearch.setIcon(android.R.drawable.ic_menu_search);
 		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
 		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
-		MenuItem menuAbout = menu.add(0, MENU_ABOUT, Menu.NONE, R.string.menu_about);
-		menuAbout.setIcon(android.R.drawable.ic_menu_info_details);
 		return true;
 	}
 
@@ -204,14 +214,13 @@ public class BusStopCodeTab extends Activity {
 		case MENU_CLEAR_HISTOTY:
 			DataManager.deleteAllHistory(this.getContentResolver());
 			break;
+		case MENU_SEARCH:
+			return this.onSearchRequested();
 		case MENU_PREFERENCES:
 			startActivity(new Intent(this, UserPreferences.class));
 			break;
-		case MENU_ABOUT:
-			Utils.showAboutDialog(this);
-			break;
 		default:
-			MyLog.d(TAG, "Unknow menu action:" + item.getItemId() + ".");
+			MyLog.d(TAG, "Unknown option menu action: %s.", item.getItemId());
 		}
 		return false;
 	}

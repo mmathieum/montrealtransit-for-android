@@ -5,6 +5,7 @@ import java.util.List;
 import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
+import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.TwitterUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.ASubwayStation;
@@ -243,10 +244,10 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			View view = subwayLinesLayout.getChildAt(i++);
 			// subway line type image
 			final int lineNumber = subwayLine.getNumber();
-			String subwayLineName = getString(Utils.getSubwayLineNameShort(lineNumber));
+			String subwayLineName = getString(SubwayUtils.getSubwayLineNameShort(lineNumber));
 			((TextView) view.findViewById(R.id.line_name)).setText(subwayLineName);
 			// subway line colors
-			int color = Utils.getSubwayLineColor(lineNumber);
+			int color = SubwayUtils.getSubwayLineColor(lineNumber);
 			((RelativeLayout) view.findViewById(R.id.subway_img_bg)).setBackgroundColor(color);
 
 			final String subwayLineNumberS = String.valueOf(lineNumber);
@@ -539,13 +540,13 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 				ImageView subwayImg3 = (ImageView) view.findViewById(R.id.subway_img_3);
 				// station lines color
 				if (station.getOtherLinesId() != null && station.getOtherLinesId().size() > 0) {
-					int subwayLineImg1 = Utils.getSubwayLineImgId(station.getOtherLinesId().get(0));
+					int subwayLineImg1 = SubwayUtils.getSubwayLineImgId(station.getOtherLinesId().get(0));
 					subwayImg1.setImageResource(subwayLineImg1);
 					if (station.getOtherLinesId().size() > 1) {
-						int subwayLineImg2 = Utils.getSubwayLineImgId(station.getOtherLinesId().get(1));
+						int subwayLineImg2 = SubwayUtils.getSubwayLineImgId(station.getOtherLinesId().get(1));
 						subwayImg2.setImageResource(subwayLineImg2);
 						if (station.getOtherLinesId().size() > 2) {
-							int subwayLineImg3 = Utils.getSubwayLineImgId(station.getOtherLinesId().get(2));
+							int subwayLineImg3 = SubwayUtils.getSubwayLineImgId(station.getOtherLinesId().get(2));
 							subwayImg3.setImageResource(subwayLineImg3);
 						} else {
 							subwayImg3.setVisibility(View.GONE);
@@ -859,10 +860,6 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 * The menu used to show the user preferences.
 	 */
 	private static final int MENU_PREFERENCES = Menu.FIRST + 4;
-	/**
-	 * The menu used to show the about screen.
-	 */
-	private static final int MENU_ABOUT = Menu.FIRST + 5;
 
 	/**
 	 * {@inheritDoc}
@@ -884,8 +881,6 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
 		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
 
-		MenuItem menuAbout = menu.add(0, MENU_ABOUT, Menu.NONE, R.string.menu_about);
-		menuAbout.setIcon(android.R.drawable.ic_menu_info_details);
 		return true;
 	}
 
@@ -964,9 +959,6 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			break;
 		case MENU_PREFERENCES:
 			startActivity(new Intent(this, UserPreferences.class));
-			break;
-		case MENU_ABOUT:
-			Utils.showAboutDialog(this);
 			break;
 		default:
 			MyLog.d(TAG, "Unknow menu action: %s.", item.getItemId());

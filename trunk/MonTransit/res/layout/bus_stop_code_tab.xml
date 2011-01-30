@@ -16,7 +16,9 @@
 		android:numeric="integer" android:hint="@string/stop_code_hint"
 		android:textStyle="bold" android:lines="1" android:ellipsize="end"
 		android:marqueeRepeatLimit="1" android:singleLine="true"
-		android:maxLines="1" android:maxLength="5" android:imeOptions="actionSearch" />
+		android:maxLines="1" android:maxLength="5" android:imeOptions="actionSearch"
+		android:focusable="true" android:focusableInTouchMode="true"
+		android:nextFocusRight="@id/ok" />
 
 	<!-- HISTORY LIST -->
 	<ListView android:id="@+id/list" android:layout_width="fill_parent"

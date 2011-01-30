@@ -2,9 +2,9 @@ package org.montrealtransit.android.dialog;
 
 import java.util.List;
 
+import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
-import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.activity.BusStopInfo;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
@@ -71,8 +71,8 @@ public class SubwayStationSelectBusLineStop implements View.OnClickListener {
 	@Override
 	public void onClick(View v) {
 		MyLog.v(TAG, "onClick()");
-		List<StmStore.BusStop> busStops = StmManager.findSubwayStationBusLineStopsList(this.context
-		        .getContentResolver(), this.subwayStationId, this.busLineNumber);
+		List<StmStore.BusStop> busStops = StmManager.findSubwayStationBusLineStopsList(
+		        this.context.getContentResolver(), this.subwayStationId, this.busLineNumber);
 		// IF there is only 1 bus stop DO
 		if (busStops.size() == 1) {
 			// show the bus stop
@@ -107,7 +107,7 @@ public class SubwayStationSelectBusLineStop implements View.OnClickListener {
 		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-				MyLog.v(TAG, "onItemClick(" + v.getId() + "," + v.getId() + "," + position + "," + id + ")");
+				MyLog.v(TAG, "onItemClick(%s, %s, %s, %s)", l.getId(), v.getId(), position, id);
 				if (id > 0) {
 					showBusStop(String.valueOf(id), SubwayStationSelectBusLineStop.this.busLineNumber);
 				}
@@ -118,7 +118,7 @@ public class SubwayStationSelectBusLineStop implements View.OnClickListener {
 		builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				MyLog.v(TAG, "onClick(" + which + ")");
+				MyLog.v(TAG, "onClick(%s)", which);
 				// CANCEL
 				dialog.dismiss();
 				closeCursor();
@@ -142,14 +142,14 @@ public class SubwayStationSelectBusLineStop implements View.OnClickListener {
 		adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
 			@Override
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-				MyLog.v(TAG, "setViewValue(" + view.getId() + ", " + columnIndex + ")");
+				MyLog.v(TAG, "setViewValue(%s, %s)", view.getId(), columnIndex);
 				switch (view.getId()) {
 				case R.id.label:
-					String busStopPlace = Utils.cleanBusStopPlace(cursor.getString(columnIndex));
+					String busStopPlace = BusUtils.cleanBusStopPlace(cursor.getString(columnIndex));
 					((TextView) view).setText(busStopPlace);
 					return true;
 				case R.id.direction_main:
-					int simpleBusLineDirectionId = Utils.getBusLineDirectionStringIdFromId(
+					int simpleBusLineDirectionId = BusUtils.getBusLineDirectionStringIdFromId(
 					        cursor.getString(columnIndex)).get(0);
 					((TextView) view).setText(simpleBusLineDirectionId);
 					return true;

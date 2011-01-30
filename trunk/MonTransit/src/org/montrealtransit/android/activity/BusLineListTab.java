@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
@@ -216,128 +217,6 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 	}
 
 	/**
-	 * The menu group for the group by setting.
-	 */
-	private static final int MENU_GROUP_BY_GROUP = Menu.FIRST;
-	/**
-	 * The menu for the group by setting.
-	 */
-	private static final int MENU_GROUP_BY = Menu.FIRST;
-	/**
-	 * The menu item to show the list without group by.
-	 */
-	private static final int MENU_GROUP_BY_NO_GROUP_BY = Menu.FIRST + 1;
-	/**
-	 * The menu item to show the list group by type.
-	 */
-	private static final int MENU_GROUP_BY_TYPE = Menu.FIRST + 2;
-	/**
-	 * The menu item to show the list group by number.
-	 */
-	private static final int MENU_GROUP_BY_NUMBER = Menu.FIRST + 3;
-	/**
-	 * The menu used to show the user preferences.
-	 */
-	private static final int MENU_PREFERENCES = Menu.FIRST + 4;
-	/**
-	 * The menu used to show the about screen.
-	 */
-	private static final int MENU_ABOUT = Menu.FIRST + 5;
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		SubMenu subMenu = menu.addSubMenu(MENU_GROUP_BY_GROUP, MENU_GROUP_BY, 0, R.string.select_group_by);
-		subMenu.setIcon(android.R.drawable.ic_menu_view);
-		subMenu.add(MENU_GROUP_BY_GROUP, MENU_GROUP_BY_NUMBER, Menu.NONE, R.string.group_by_bus_line_number);
-		subMenu.add(MENU_GROUP_BY_GROUP, MENU_GROUP_BY_TYPE, Menu.NONE, R.string.group_by_bus_line_type);
-		subMenu.add(MENU_GROUP_BY_GROUP, MENU_GROUP_BY_NO_GROUP_BY, Menu.NONE, R.string.group_by_bus_line_no_group);
-		subMenu.setGroupCheckable(MENU_GROUP_BY_GROUP, true, true);
-
-		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
-		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
-
-		MenuItem menuAbout = menu.add(0, MENU_ABOUT, Menu.NONE, R.string.menu_about);
-		menuAbout.setIcon(android.R.drawable.ic_menu_info_details);
-		return true;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		// MyLog.v(TAG, "onPrepareOptionsMenu()");
-		if (super.onPrepareOptionsMenu(menu)) {
-			SubMenu subMenu = menu.findItem(MENU_GROUP_BY).getSubMenu();
-			for (int i = 0; i < subMenu.size(); i++) {
-				if (subMenu.getItem(i).getItemId() == MENU_GROUP_BY_NO_GROUP_BY
-				        && getBusListGroupByFromPreferences().equals(
-				                UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP)) {
-					subMenu.getItem(i).setChecked(true);
-					break;
-				} else if (subMenu.getItem(i).getItemId() == MENU_GROUP_BY_TYPE
-				        && getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
-					subMenu.getItem(i).setChecked(true);
-					break;
-				} else if (subMenu.getItem(i).getItemId() == MENU_GROUP_BY_NUMBER
-				        && getBusListGroupByFromPreferences().equals(
-				                UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)) {
-					subMenu.getItem(i).setChecked(true);
-					break;
-				}
-			}
-			return true;
-		} else {
-			MyLog.w(TAG, "Error in onPrepareOptionsMenu().");
-			return false;
-		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case MENU_GROUP_BY_GROUP:
-			return false;
-		case MENU_GROUP_BY_NO_GROUP_BY:
-			if (!getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP)) {
-				Utils.saveSharedPreferences(this, UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY,
-				        UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP);
-				refreshAll();
-			}
-			return true;
-		case MENU_GROUP_BY_TYPE:
-			if (!getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
-				Utils.saveSharedPreferences(this, UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY,
-				        UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE);
-				refreshAll();
-			}
-			return true;
-		case MENU_GROUP_BY_NUMBER:
-			if (!getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)) {
-				Utils.saveSharedPreferences(this, UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY,
-				        UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER);
-				refreshAll();
-			}
-			return true;
-		case MENU_PREFERENCES:
-			startActivity(new Intent(this, UserPreferences.class));
-			return true;
-		case MENU_ABOUT:
-			Utils.showAboutDialog(this);
-			return true;
-		default:
-			MyLog.w(TAG, "Unknow menu action:" + item.getItemId() + ".");
-			return false;
-		}
-	}
-
-	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -407,7 +286,7 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 				switch (view.getId()) {
 				case R.id.line_type:
 					String type = cursor.getString(cursor.getColumnIndex(StmStore.BusLine.LINE_TYPE));
-					((ImageView) view).setImageResource(Utils.getBusLineTypeImgFromType(type));
+					((ImageView) view).setImageResource(BusUtils.getBusLineTypeImgFromType(type));
 					return true;
 				case R.id.hours:
 					String shours = cursor.getString(cursor.getColumnIndex(StmStore.BusLine.LINE_HOURS));
@@ -417,7 +296,7 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 					String number = cursor.getString(cursor.getColumnIndex(StmStore.BusLine.LINE_NUMBER));
 					((TextView) view).setText(number);
 					String type2 = cursor.getString(cursor.getColumnIndex(StmStore.BusLine.LINE_TYPE));
-					((TextView) view).setBackgroundColor(Utils.getBusLineTypeBgColorFromType(type2));
+					((TextView) view).setBackgroundColor(BusUtils.getBusLineTypeBgColorFromType(type2));
 					return true;
 				default:
 					return false;
@@ -540,12 +419,12 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 		 */
 		private void bindView(View view, Map<String, String> data) {
 			((TextView) view.findViewById(R.id.line_number)).setText(data.get(StmStore.BusLine.LINE_NUMBER));
-			int color = Utils.getBusLineTypeBgColorFromType(data.get(StmStore.BusLine.LINE_TYPE));
+			int color = BusUtils.getBusLineTypeBgColorFromType(data.get(StmStore.BusLine.LINE_TYPE));
 			((TextView) view.findViewById(R.id.line_number)).setBackgroundColor(color);
 			((TextView) view.findViewById(R.id.line_name)).setText(data.get(StmStore.BusLine.LINE_NAME));
 			String hours = Utils.getFormatted2Hours(BusLineListTab.this, data.get(StmStore.BusLine.LINE_HOURS), "-");
 			((TextView) view.findViewById(R.id.hours)).setText(hours);
-			int busImg = Utils.getBusLineTypeImgFromType(data.get(StmStore.BusLine.LINE_TYPE));
+			int busImg = BusUtils.getBusLineTypeImgFromType(data.get(StmStore.BusLine.LINE_TYPE));
 			((ImageView) view.findViewById(R.id.line_type)).setImageResource(busImg);
 		}
 	}
@@ -639,9 +518,129 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 				v = convertView;
 			}
 			String type = currentGroupDataByType.get(groupPosition).get(BUS_TYPE);
-			((TextView) v.findViewById(R.id.bus_type_string)).setText(Utils.getBusStringFromType(type));
-			((ImageView) v.findViewById(R.id.bus_type_img)).setImageResource(Utils.getBusLineTypeImgFromType(type));
+			((TextView) v.findViewById(R.id.bus_type_string)).setText(BusUtils.getBusStringFromType(type));
+			((ImageView) v.findViewById(R.id.bus_type_img)).setImageResource(BusUtils.getBusLineTypeImgFromType(type));
 			return v;
+		}
+	}
+	
+	/**
+	 * The menu group for the group by setting.
+	 */
+	private static final int MENU_GROUP_BY_GROUP = Menu.FIRST;
+	/**
+	 * The menu for the group by setting.
+	 */
+	private static final int MENU_GROUP_BY = Menu.FIRST;
+	/**
+	 * The menu item to show the list without group by.
+	 */
+	private static final int MENU_GROUP_BY_NO_GROUP_BY = Menu.FIRST + 1;
+	/**
+	 * The menu item to show the list group by type.
+	 */
+	private static final int MENU_GROUP_BY_TYPE = Menu.FIRST + 2;
+	/**
+	 * The menu item to show the list group by number.
+	 */
+	private static final int MENU_GROUP_BY_NUMBER = Menu.FIRST + 3;
+	/**
+	 * The menu used to show the search UI.
+	 */
+	private static final int MENU_SEARCH = Menu.FIRST + 4;
+	/**
+	 * The menu used to show the user preferences.
+	 */
+	private static final int MENU_PREFERENCES = Menu.FIRST + 5;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		SubMenu subMenu = menu.addSubMenu(MENU_GROUP_BY_GROUP, MENU_GROUP_BY, 0, R.string.select_group_by);
+		subMenu.setIcon(android.R.drawable.ic_menu_view);
+		subMenu.add(MENU_GROUP_BY_GROUP, MENU_GROUP_BY_NUMBER, Menu.NONE, R.string.group_by_bus_line_number);
+		subMenu.add(MENU_GROUP_BY_GROUP, MENU_GROUP_BY_TYPE, Menu.NONE, R.string.group_by_bus_line_type);
+		subMenu.add(MENU_GROUP_BY_GROUP, MENU_GROUP_BY_NO_GROUP_BY, Menu.NONE, R.string.group_by_bus_line_no_group);
+		subMenu.setGroupCheckable(MENU_GROUP_BY_GROUP, true, true);
+
+		MenuItem menuSearch = menu.add(0, MENU_SEARCH, Menu.NONE, R.string.menu_search);
+		menuSearch.setIcon(android.R.drawable.ic_menu_search);
+		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
+		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
+		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		// MyLog.v(TAG, "onPrepareOptionsMenu()");
+		if (super.onPrepareOptionsMenu(menu)) {
+			SubMenu subMenu = menu.findItem(MENU_GROUP_BY).getSubMenu();
+			for (int i = 0; i < subMenu.size(); i++) {
+				if (subMenu.getItem(i).getItemId() == MENU_GROUP_BY_NO_GROUP_BY
+				        && getBusListGroupByFromPreferences().equals(
+				                UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP)) {
+					subMenu.getItem(i).setChecked(true);
+					break;
+				} else if (subMenu.getItem(i).getItemId() == MENU_GROUP_BY_TYPE
+				        && getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
+					subMenu.getItem(i).setChecked(true);
+					break;
+				} else if (subMenu.getItem(i).getItemId() == MENU_GROUP_BY_NUMBER
+				        && getBusListGroupByFromPreferences().equals(
+				                UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)) {
+					subMenu.getItem(i).setChecked(true);
+					break;
+				}
+			}
+			return true;
+		} else {
+			MyLog.w(TAG, "Error in onPrepareOptionsMenu().");
+			return false;
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case MENU_GROUP_BY_GROUP:
+			return false;
+		case MENU_GROUP_BY_NO_GROUP_BY:
+			if (!getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP)) {
+				Utils.saveSharedPreferences(this, UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY,
+				        UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP);
+				refreshAll();
+			}
+			return true;
+		case MENU_GROUP_BY_TYPE:
+			if (!getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
+				Utils.saveSharedPreferences(this, UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY,
+				        UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE);
+				refreshAll();
+			}
+			return true;
+		case MENU_GROUP_BY_NUMBER:
+			if (!getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)) {
+				Utils.saveSharedPreferences(this, UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY,
+				        UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER);
+				refreshAll();
+			}
+			return true;
+		case MENU_SEARCH:
+			return this.onSearchRequested();
+		case MENU_PREFERENCES:
+			startActivity(new Intent(this, UserPreferences.class));
+			return true;
+		default:
+			MyLog.d(TAG, "Unknown option menu action: %s.", item.getItemId());
+			return false;
 		}
 	}
 

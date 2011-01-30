@@ -1,5 +1,6 @@
 <searchable xmlns:android="http://schemas.android.com/apk/res/android"
     android:label="@string/search_label"
+    android:hint="@string/search_hint"
     android:searchSuggestAuthority="org.montrealtransit.android"
     android:searchSuggestIntentAction="android.intent.action.VIEW"
     android:searchSettingsDescription="@string/search_settings_description"

@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -16,10 +15,8 @@ import java.util.Map;
 import org.montrealtransit.android.activity.UserPreferences;
 import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.provider.DataStore;
-import org.montrealtransit.android.provider.StmManager;
-import org.montrealtransit.android.provider.StmStore;
 import org.montrealtransit.android.provider.DataStore.Fav;
-import org.montrealtransit.android.provider.StmStore.BusLine;
+import org.montrealtransit.android.provider.StmStore;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -28,15 +25,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.format.DateUtils;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -71,7 +68,7 @@ public class Utils {
 	 * @param encoding encoding
 	 */
 	public static void getInputStreamToFile(InputStream is, FileOutputStream os, String encoding) {
-		MyLog.v(TAG, "getInputStreamToFile(" + encoding + ")");
+		MyLog.v(TAG, "getInputStreamToFile(%s)", encoding);
 		OutputStreamWriter writer = new OutputStreamWriter(os);
 		byte[] b = new byte[4096];
 		try {
@@ -99,7 +96,7 @@ public class Utils {
 	 * @return the string
 	 */
 	public static String getInputStreamToString(InputStream is, String encoding) {
-		MyLog.v(TAG, "getInputStreamToString(" + encoding + ")");
+		MyLog.v(TAG, "getInputStreamToString(%s)", encoding);
 		String result = "";
 		byte[] b = new byte[4096];
 		try {
@@ -120,338 +117,6 @@ public class Utils {
 	}
 
 	/**
-	 * Return a list of 2 R.string.<ID> for the bus line direction string.
-	 * @param directionId the direction string
-	 * @return the 2 R.string.<ID>
-	 */
-	public static List<Integer> getBusLineDirectionStringIdFromId(String directionId) {
-		MyLog.v(TAG, "getBusLineDirectionStringIdFromId(" + directionId + ")");
-		int directionIdLength = directionId.length();
-		String mainDirection = directionId.substring(directionIdLength - 1);
-
-		List<Integer> results = new ArrayList<Integer>();
-		if (mainDirection.equalsIgnoreCase("N")) {
-			results.add(R.string.north);
-		} else if (mainDirection.equalsIgnoreCase("S")) {
-			results.add(R.string.south);
-		} else if (mainDirection.equalsIgnoreCase("E")) {
-			results.add(R.string.east);
-		} else if (mainDirection.equalsIgnoreCase("O")) {
-			results.add(R.string.west);
-		} else {
-			results.add(0);
-		}
-		if (directionIdLength > 1) {
-			String extraDirectionInfo = directionId.substring(directionIdLength - 3, directionIdLength - 1);
-			int lineNumber = Integer.valueOf(directionId.substring(0, directionIdLength - 3));
-			switch (lineNumber) {
-			case 11:
-				if (extraDirectionInfo.equals("SO")) {
-					results.add(R.string.post_9pm_route);
-				}
-				break;
-			case 15:
-				if (directionId.equals("15SOE")) {
-					results.add(R.string.evening_route);
-				}
-				break;
-			case 33:
-				if (extraDirectionInfo.equals("SO")) {
-					results.add(R.string.evening_route);
-				} else if (extraDirectionInfo.equals("JO")) {
-					results.add(R.string.morning_route);
-				}
-				break;
-			case 46:
-				if (extraDirectionInfo.equals("AC")) {
-					results.add(R.string.route_by_way_of_fairmount);
-				}
-				break;
-			case 52:
-				if (extraDirectionInfo.equals("AM")) {
-					results.add(R.string.am_route);
-				} else if (extraDirectionInfo.equals("PM")) {
-					results.add(R.string.pm_route);
-				}
-				break;
-			case 68:
-				if (extraDirectionInfo.equals("AC")) {
-					results.add(R.string.route_leading_to_timberlea);
-				}
-				break;
-			case 70:
-				if (extraDirectionInfo.equals("AB")) {
-					results.add(R.string.saturday_and_sunday_bus_route);
-				} else if (extraDirectionInfo.equals("AC")) {
-					results.add(R.string.weekday_bus_route);
-				}
-				break;
-			case 103:
-				if (directionId.equals("103ACO")) {
-					results.add(R.string.route_by_way_of_westhill);
-				}
-				break;
-			case 115:
-				if (extraDirectionInfo.equals("AM")) {
-					results.add(R.string.am_route);
-				} else if (extraDirectionInfo.equals("PM")) {
-					results.add(R.string.pm_route);
-				}
-				break;
-			case 131:
-				if (directionId.equals("131HPS") || directionId.equals("131HPN")) {
-					results.add(R.string.monday_to_friday_between_9am_and_330pm);
-				}
-				break;
-			case 135:
-				if (extraDirectionInfo.equals("AM")) {
-					results.add(R.string.am_route);
-				} else if (extraDirectionInfo.equals("PM")) {
-					results.add(R.string.pm_route);
-				}
-				break;
-			case 143:
-				if (extraDirectionInfo.equals("AM")) {
-					results.add(R.string.am_route);
-				} else if (extraDirectionInfo.equals("PM")) {
-					results.add(R.string.pm_route);
-				}
-				break;
-			case 146:
-				if (extraDirectionInfo.equals("SW")) {
-					results.add(R.string.route_leading_to_henri_bourassa_station);
-				}
-				break;
-			case 148:
-				if (extraDirectionInfo.equals("AM")) {
-					results.add(R.string.am_route);
-				} else if (extraDirectionInfo.equals("PM")) {
-					results.add(R.string.pm_route);
-				}
-				break;
-			case 166:
-				if (extraDirectionInfo.equals("L2")) {
-					results.add(R.string.route_after_8pm_by_way_of_ridgewood);
-				}
-				break;
-			case 182:
-				if (extraDirectionInfo.equals("AM")) {
-					results.add(R.string.am_route);
-				} else if (extraDirectionInfo.equals("PM")) {
-					results.add(R.string.pm_route);
-				}
-				break;
-			case 184:
-				if (extraDirectionInfo.equals("AM")) {
-					results.add(R.string.am_route);
-				} else if (extraDirectionInfo.equals("PM")) {
-					results.add(R.string.pm_route);
-				}
-				break;
-			case 188:
-				if (extraDirectionInfo.equals("AM")) {
-					results.add(R.string.am_route);
-				} else if (extraDirectionInfo.equals("PM")) {
-					results.add(R.string.pm_route);
-				}
-				break;
-			case 194:
-				if (extraDirectionInfo.equals("AM")) {
-					results.add(R.string.am_route_peak_period);
-				} else if (extraDirectionInfo.equals("PM")) {
-					results.add(R.string.pm_route_peak_period);
-				} else if (extraDirectionInfo.equals("HC")) {
-					results.add(R.string.route_off_peak_periods);
-				}
-				break;
-			case 197:
-				if (directionId.equals("197HPE")) {
-					results.add(R.string.route_by_way_of_pepiniere);
-				}
-				break;
-			case 199:
-				if (extraDirectionInfo.equals("PM")) {
-					results.add(R.string.pm_route_peak_period);
-				} else if (directionId.equals("199AMN")) {
-					results.add(R.string.am_route_peak_period);
-				} else if (directionId.equals("199AMS")) {
-					results.add(R.string.am_route_peak_period_and_off_peaks_periods);
-				} else if (directionId.equals("199HCN")) {
-					results.add(R.string.route_off_peak_periods);
-				}
-				break;
-			case 204:
-				if (extraDirectionInfo.equals("JO")) {
-					results.add(R.string.rush_hour_route);
-				} else if (extraDirectionInfo.equals("HP")) {
-					results.add(R.string.route_during_off_peak_periods);
-				}
-				break;
-			case 214:
-				if (extraDirectionInfo.equals("AM")) {
-					results.add(R.string.am_route);
-				} else if (extraDirectionInfo.equals("PM")) {
-					results.add(R.string.pm_route);
-				}
-				break;
-			case 261:
-				if (extraDirectionInfo.equals("AM")) {
-					results.add(R.string.am_route);
-				} else if (extraDirectionInfo.equals("PM")) {
-					results.add(R.string.pm_route);
-				}
-				break;
-			case 410:
-				if (extraDirectionInfo.equals("AM")) {
-					results.add(R.string.am_route);
-				} else if (extraDirectionInfo.equals("PM")) {
-					results.add(R.string.pm_route);
-				}
-				break;
-			case 460:
-				if (extraDirectionInfo.equals("AM")) {
-					results.add(R.string.am_route);
-				} else if (extraDirectionInfo.equals("PM")) {
-					results.add(R.string.pm_route);
-				}
-				break;
-			case 505:
-				if (extraDirectionInfo.equals("AM")) {
-					results.add(R.string.am_route);
-				} else if (extraDirectionInfo.equals("TP")) {
-					results.add(R.string.pm_route);
-				}
-				break;
-			case 515:
-				if (directionId.equals("51501E")) {
-					results.add(R.string.to_the_old_montreal);
-				} else if (directionId.equals("51501O")) {
-					results.add(R.string.to_the_old_port_of_montreal);
-				}
-				break;
-			default:
-				break;
-			}
-		}
-		return results;
-	}
-
-	/**
-	 * Return the R.drawable ID of the image matching the bus line type.
-	 * @param type the bus line type
-	 * @return the image ID
-	 */
-	public static int getBusLineTypeImgFromType(String type) {
-		// MyLog.v(TAG, "getBusLineTypeImgFromType(" + type + ")");
-		if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_REGULAR_SERVICE)) {
-			return R.drawable.bus_type_soleil;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_RUSH_HOUR_SERVICE)) {
-			return R.drawable.bus_type_hot;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_METROBUS_SERVICE)) {
-			return R.drawable.bus_type_mbus;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_TRAINBUS)) {
-			return R.drawable.bus_type_tbus;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_NIGHT_SERVICE)) {
-			return R.drawable.bus_type_snuit;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_EXPRESS_SERVICE)) {
-			return R.drawable.bus_type_express;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_RESERVED_LANE_SERVICE)) {
-			return R.drawable.bus_type_voieres;
-		} else {
-			MyLog.w(TAG, "Unknown bus line type \"" + type + "\".");
-			return android.R.drawable.ic_dialog_alert;
-		}
-	}
-
-	/**
-	 * @param type the bus line type
-	 * @return the color ID matching the bus line type
-	 */
-	public static int getBusLineTypeBgColorFromType(String type) {
-		// MyLog.v(TAG, "getBusLineTypeImgFromType(" + type + ")");
-		if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_REGULAR_SERVICE)) {
-			return Color.rgb(0, 96, 170); // BLUE;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_RUSH_HOUR_SERVICE)) {
-			return Color.RED;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_METROBUS_SERVICE)) {
-			return Color.rgb(0, 115, 57); // GREEN
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_TRAINBUS)) {
-			return Color.rgb(0, 156, 33); // GREEN light
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_NIGHT_SERVICE)) {
-			return Color.BLACK;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_EXPRESS_SERVICE)) {
-			return Color.rgb(0, 115, 57); // GREEN
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_RESERVED_LANE_SERVICE)) {
-			return Color.rgb(0, 115, 57); // GREEN
-		} else {
-			MyLog.w(TAG, "Unknown bus line type \"" + type + "\".");
-			return Color.GRAY;
-		}
-	}
-
-	/**
-	 * Return the bus line type string ID from the bus line type code.
-	 * @param type the bus line type code
-	 * @return the bus line type string ID
-	 */
-	public static int getBusStringFromType(String type) {
-		// MyLog.v(TAG, "getBusStringFromType(" + type + ")");
-		if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_REGULAR_SERVICE)) {
-			return R.string.bus_type_soleil;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_RUSH_HOUR_SERVICE)) {
-			return R.string.bus_type_hot;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_METROBUS_SERVICE)) {
-			return R.string.bus_type_mbus;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_TRAINBUS)) {
-			return R.string.bus_type_tbus;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_NIGHT_SERVICE)) {
-			return R.string.bus_type_snuit;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_EXPRESS_SERVICE)) {
-			return R.string.bus_type_express;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_RESERVED_LANE_SERVICE)) {
-			return R.string.bus_type_voieres;
-		} else {
-			MyLog.w(TAG, "Unknown bus line type \"" + type + "\".");
-			return R.string.error;
-		}
-	}
-
-	/**
-	 * Clean the bus stop place.
-	 * @param uncleanStopPlace the original bus stop place
-	 * @return the cleaned bus stop place
-	 */
-	public static String cleanBusStopPlace(String uncleanStopPlace) {
-		MyLog.v(TAG, "cleanBusStopPlace(" + uncleanStopPlace + ")");
-		String result = uncleanStopPlace;
-		if (result.startsWith(Constant.PLACE_CHAR_DE)) {
-			result = result.substring(Constant.PLACE_CHAR_DE_LENGTH);
-		} else if (result.startsWith(Constant.PLACE_CHAR_DES)) {
-			result = result.substring(Constant.PLACE_CHAR_DES_LENGTH);
-		} else if (result.startsWith(Constant.PLACE_CHAR_DU)) {
-			result = result.substring(Constant.PLACE_CHAR_DU_LENGTH);
-		}
-
-		if (result.startsWith(Constant.PLACE_CHAR_L)) {
-			result = result.substring(Constant.PLACE_CHAR_L_LENGTH);
-		}
-
-		if (result.contains(Constant.PLACE_CHAR_IN_DE)) {
-			result = result.replace(Constant.PLACE_CHAR_IN_DE, Constant.PLACE_CHAR_IN);
-		} else if (result.contains(Constant.PLACE_CHAR_IN_DES)) {
-			result = result.replace(Constant.PLACE_CHAR_IN_DES, Constant.PLACE_CHAR_IN);
-		} else if (result.contains(Constant.PLACE_CHAR_IN_DU)) {
-			result = result.replace(Constant.PLACE_CHAR_IN_DU, Constant.PLACE_CHAR_IN);
-		}
-
-		if (result.contains(Constant.PLACE_CHAR_PARENTHESE_STATION)) {
-			result = result.replace(Constant.PLACE_CHAR_PARENTHESE_STATION, Constant.PLACE_CHAR_PARENTHESE);
-		}
-		// TODO MORE ?
-		return result;
-	}
-
-	/**
 	 * Format the hours according to the device settings.
 	 * @param context the context used to get the device settings
 	 * @param noFormatHour the original hours string
@@ -463,7 +128,7 @@ public class Utils {
 		try {
 			result = getTimeFormatter(context).format(simpleDateFormatter.parse(noFormatHour.replace("h", ":")));
 		} catch (Exception e) {
-			MyLog.w(TAG, "Error while formatting '" + noFormatHour + "'.", e);
+			MyLog.w(TAG, String.format("Error while formatting '%s'.", noFormatHour), e);
 			result = noFormatHour;
 		}
 		return result;
@@ -528,7 +193,7 @@ public class Utils {
 			String noFormatHour2 = noFormatHours.substring(indexOfH + splitBy.length());
 			return Utils.formatHours(context, noFormatHour1) + " - " + Utils.formatHours(context, noFormatHour2);
 		} catch (Exception e) {
-			MyLog.w(TAG, "Error while formatting '" + noFormatHours + "'.");
+			MyLog.w(TAG, String.format("Error while formatting '%s'.", noFormatHours), e);
 			return noFormatHours;
 		}
 	}
@@ -563,178 +228,6 @@ public class Utils {
 			result = list.size();
 		}
 		return result;
-	}
-
-	/**
-	 * Return the subway line name string ID from the subway line number.
-	 * @param subwayLineNumber the subway line number
-	 * @return the subway line name string ID
-	 */
-	public static int getSubwayLineName(int number) {
-		MyLog.v(TAG, "getSubwayLineName(" + number + ")");
-		switch (number) {
-		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
-			return R.string.green_line;
-		case StmStore.SubwayLine.ORANGE_LINE_NUMBER:
-			return R.string.orange_line;
-		case StmStore.SubwayLine.YELLOW_LINE_NUMBER:
-			return R.string.yellow_line;
-		case StmStore.SubwayLine.BLUE_LINE_NUMBER:
-			return R.string.blue_line;
-		default:
-			MyLog.w(TAG, "Unknown subway line number \"" + number + "\".");
-			return R.string.error;
-		}
-	}
-
-	/**
-	 * Return the subway line short name string ID from the subway line number.
-	 * @param subwayLineNumber the subway line number
-	 * @return the subway line short name string ID
-	 */
-	public static int getSubwayLineNameShort(int number) {
-		MyLog.v(TAG, "getSubwayLineNameShort(" + number + ")");
-		switch (number) {
-		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
-			return R.string.green_line_short;
-		case StmStore.SubwayLine.ORANGE_LINE_NUMBER:
-			return R.string.orange_line_short;
-		case StmStore.SubwayLine.YELLOW_LINE_NUMBER:
-			return R.string.yellow_line_short;
-		case StmStore.SubwayLine.BLUE_LINE_NUMBER:
-			return R.string.blue_line_short;
-		default:
-			MyLog.w(TAG, "Unknown subway line number \"" + number + "\".");
-			return R.string.error;
-		}
-	}
-
-	/**
-	 * Return the subway line image ID for the subway line number
-	 * @param number the subway line number
-	 * @return the subway line image ID
-	 */
-	public static int getSubwayLineImgId(int number) {
-		// MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
-		switch (number) {
-		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
-			return R.drawable.green;
-		case StmStore.SubwayLine.ORANGE_LINE_NUMBER:
-			return R.drawable.orange;
-		case StmStore.SubwayLine.YELLOW_LINE_NUMBER:
-			return R.drawable.yellow;
-		case StmStore.SubwayLine.BLUE_LINE_NUMBER:
-			return R.drawable.blue;
-		default:
-			MyLog.w(TAG, "Unknown image for subway line number \"" + number + "\".");
-			return R.drawable.yellow;
-		}
-	}
-
-	/**
-	 * @param the subway line number
-	 * @return the subway line list image
-	 */
-	public static int getSubwayLineImgListId(int number) {
-		// MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
-		switch (number) {
-		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
-			return R.drawable.green_list;
-		case StmStore.SubwayLine.ORANGE_LINE_NUMBER:
-			return R.drawable.orange_list;
-		case StmStore.SubwayLine.YELLOW_LINE_NUMBER:
-			return R.drawable.yellow_list;
-		case StmStore.SubwayLine.BLUE_LINE_NUMBER:
-			return R.drawable.blue_list;
-		default:
-			MyLog.w(TAG, "Unknown image for subway line number \"" + number + "\".");
-			return R.drawable.yellow;
-		}
-	}
-
-	/**
-	 * @param the subway line number
-	 * @return the subway line list top image
-	 */
-	public static int getSubwayLineImgListTopId(int number) {
-		// MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
-		switch (number) {
-		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
-			return R.drawable.green_list_top;
-		case StmStore.SubwayLine.ORANGE_LINE_NUMBER:
-			return R.drawable.orange_list_top;
-		case StmStore.SubwayLine.YELLOW_LINE_NUMBER:
-			return R.drawable.yellow_list_top;
-		case StmStore.SubwayLine.BLUE_LINE_NUMBER:
-			return R.drawable.blue_list_top;
-		default:
-			MyLog.w(TAG, "Unknown image for subway line number \"" + number + "\".");
-			return R.drawable.yellow;
-		}
-	}
-
-	/**
-	 * @param the subway line number
-	 * @return the subway line list middle image
-	 */
-	public static int getSubwayLineImgListMiddleId(int number) {
-		// MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
-		switch (number) {
-		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
-			return R.drawable.green_list_middle;
-		case StmStore.SubwayLine.ORANGE_LINE_NUMBER:
-			return R.drawable.orange_list_middle;
-		case StmStore.SubwayLine.YELLOW_LINE_NUMBER:
-			return R.drawable.yellow_list_middle;
-		case StmStore.SubwayLine.BLUE_LINE_NUMBER:
-			return R.drawable.blue_list_middle;
-		default:
-			MyLog.w(TAG, "Unknown image for subway line number \"" + number + "\".");
-			return R.drawable.yellow;
-		}
-	}
-
-	/**
-	 * @param the subway line number
-	 * @return the subway line list bottom image
-	 */
-	public static int getSubwayLineImgListBottomId(int number) {
-		// MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
-		switch (number) {
-		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
-			return R.drawable.green_list_bottom;
-		case StmStore.SubwayLine.ORANGE_LINE_NUMBER:
-			return R.drawable.orange_list_bottom;
-		case StmStore.SubwayLine.YELLOW_LINE_NUMBER:
-			return R.drawable.yellow_list_bottom;
-		case StmStore.SubwayLine.BLUE_LINE_NUMBER:
-			return R.drawable.blue_list_bottom;
-		default:
-			MyLog.w(TAG, "Unknown image for subway line number \"" + number + "\".");
-			return R.drawable.yellow;
-		}
-	}
-
-	/**
-	 * Return the subway line color ID from the subway line number
-	 * @param number the subway line number
-	 * @return the subway line color ID
-	 */
-	public static int getSubwayLineColor(int number) {
-		MyLog.v(TAG, "getSubwayLineColor(" + number + ")");
-		switch (number) {
-		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
-			return Color.rgb(0, 148, 52);// green
-		case StmStore.SubwayLine.ORANGE_LINE_NUMBER:
-			return Color.rgb(236, 127, 0); // Orange
-		case StmStore.SubwayLine.YELLOW_LINE_NUMBER:
-			return Color.rgb(255, 227, 1); // yellow
-		case StmStore.SubwayLine.BLUE_LINE_NUMBER:
-			return Color.rgb(0, 157, 224); // blue
-		default:
-			MyLog.w(TAG, "Unknown color for subway line number \"" + number + "\".");
-			return Color.WHITE;
-		}
 	}
 
 	/**
@@ -796,6 +289,22 @@ public class Utils {
 		return result;
 	}
 
+	public static float getSavedFloatValue(Intent intent, Bundle savedInstanceState, String id) {
+		MyLog.v(TAG, "getSavedFloatValue(%s)", id);
+		Float result = savedInstanceState != null ? savedInstanceState.getFloat(id) : null;
+		// IF the activity was already launch, get the last id
+		if (result == null) {
+			// get the extras bundles from the intent
+			Bundle extras = intent.getExtras();
+			// IF there is extras, get the line id
+			result = extras != null ? extras.getFloat(id) : null;
+		}
+		if (result == null) {
+			MyLog.w(TAG, "Can't find the saved float value for string ID '%s' (returned null)", id);
+		}
+		return result;
+	}
+
 	/**
 	 * @return the day of the week value in the DB
 	 */
@@ -832,8 +341,7 @@ public class Utils {
 			minutes = "0" + hours;
 		}
 		String result = hours + ":" + minutes + ":00";
-		// String result = hours + "h" + minutes;
-		MyLog.d(TAG, "hour:" + result);
+		// MyLog.d(TAG, "hour:" + result);
 		return result;
 	}
 
@@ -916,39 +424,13 @@ public class Utils {
 	}
 
 	/**
-	 * Parse the subway line list to extract the subway line numbers.
-	 * @param subwayLines the subway line list
-	 * @return the subway line numbers list
-	 */
-	public static List<String> extractSubwayLineNumbers(List<StmStore.SubwayLine> subwayLines) {
-		List<String> result = new ArrayList<String>();
-		for (StmStore.SubwayLine subwayLine : subwayLines) {
-			result.add(String.valueOf(subwayLine.getNumber()));
-		}
-		return result;
-	}
-
-	/**
-	 * Parse the bus line list to extract the bus line numbers.
-	 * @param otherBusLine the bus line list
-	 * @return the bus line numbers list
-	 */
-	public static List<String> extractBusLineNumbersFromBusLine(List<BusLine> otherBusLine) {
-		List<String> result = new ArrayList<String>();
-		for (BusLine busLine : otherBusLine) {
-			result.add(busLine.getNumber());
-		}
-		return result;
-	}
-
-	/**
 	 * Save a new preference value.
 	 * @param context the context calling the method
 	 * @param prefKey the preference key
 	 * @param newValue the new preference value
 	 */
 	public static void saveSharedPreferences(Context context, String prefKey, String newValue) {
-		MyLog.v(TAG, "saveSharedPreferences(" + prefKey + ", " + newValue + ")");
+		MyLog.v(TAG, "saveSharedPreferences(%s, %s)", prefKey, newValue);
 		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
 		editor.putString(prefKey, newValue);
 		SupportFactory.getInstance(context).applySharedPreferencesEditor(editor);
@@ -962,7 +444,7 @@ public class Utils {
 	 * @return the preference value
 	 */
 	public static String getSharedPreferences(Context context, String prefKey, String defaultValue) {
-		// MyLog.v(TAG, "getSharedPreferences(" + prefKey + ", " + defaultValue + ")");
+		MyLog.v(TAG, "getSharedPreferences(%s, %s)", prefKey, defaultValue);
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 		return settings.getString(prefKey, defaultValue);
 	}
@@ -975,9 +457,9 @@ public class Utils {
 			PackageInfo packageInfo = context.getPackageManager().getPackageInfo(Constant.PKG, 0);
 			String versionName = packageInfo.versionName;
 			int versionCode = packageInfo.versionCode;
-			MyLog.i(TAG, context.getString(R.string.app_name) + " \"" + versionName + "\" (v" + versionCode + ")");
+			MyLog.i(TAG, "%s \"%s\" (v%s)", context.getString(R.string.app_name), versionName, versionCode);
 		} catch (NameNotFoundException e) {
-			MyLog.w(TAG, "No VERSION for " + context.getString(R.string.app_name) + "!", e);
+			MyLog.w(TAG, String.format("No VERSION for %s!", context.getString(R.string.app_name)), e);
 		}
 	}
 
@@ -1011,7 +493,7 @@ public class Utils {
 		if (Locale.getDefault().getLanguage().equals("fr")) {
 			return "fr";
 		} else {
-			return "en"; //default
+			return "en"; // default
 		}
 	}
 
@@ -1058,26 +540,6 @@ public class Utils {
 
 		builder.create();
 		builder.show();
-	}
-
-	/**
-	 * Check if a bus stop code is in the database.
-	 * @param context the activity
-	 * @param stopCode the bus stop code
-	 * @return true if the bus stop code exist
-	 */
-	public static boolean isStopCodeValid(Context context, String stopCode) {
-		return StmManager.findBusStop(context.getContentResolver(), stopCode) != null;
-	}
-
-	/**
-	 * Check if a bus line number is in the database.
-	 * @param context the activity
-	 * @param lineNumber the bus line number
-	 * @return true if the bus line exist
-	 */
-	public static boolean isBusLineNumberValid(Context context, String lineNumber) {
-		return StmManager.findBusLine(context.getContentResolver(), lineNumber) != null;
 	}
 
 	/**
@@ -1171,5 +633,29 @@ public class Utils {
 	 */
 	public static boolean isVersionOlderThan(int version) {
 		return Integer.parseInt(Build.VERSION.SDK) < version;
+	}
+
+	/**
+	 * Show soft keyboard (if no hardware keyboard).
+	 * @param context the context
+	 * @param view the focused view
+	 */
+	public static void showKeyboard(Activity context, View view) {
+		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+		if (imm != null) {
+			imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+		}
+	}
+
+	/**
+	 * Hide soft keyboard (if no hardware keyboard).
+	 * @param context the context
+	 * @param view the focused view
+	 */
+	public static void hideKeyboard(Activity context, View view) {
+		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+		if (imm != null) {
+			imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+		}
 	}
 }

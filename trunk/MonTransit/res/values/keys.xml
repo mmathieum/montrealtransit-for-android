@@ -2,4 +2,7 @@
 <resources>
 	<string name="twitter_api_consumer_key">ENTER_THE_TWITTER_API_CONSUMER_KEY_HERE</string>
 	<string name="twitter_api_consumer_secret">ENTER_THE_TWITTER_API_CONSUMER_SECRET_HERE</string>
+	<string name="paypal_app_id">ENTER_THE_PAYPAL_APP_ID_HERE</string><!-- TEST "APP-80W284485P519543T" -->
+	<string name="paypal_recipient_name_mathieu_mea">ENTER_DEV_NAME_HERE</string>
+	<string name="paypal_recipient_email_mathieu_mea">ENTER_DEV_EMAIL_HERE</string>
 </resources>

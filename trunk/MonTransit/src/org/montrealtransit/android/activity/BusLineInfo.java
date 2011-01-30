@@ -2,6 +2,7 @@ package org.montrealtransit.android.activity;
 
 import java.util.List;
 
+import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
@@ -121,7 +122,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		((TextView) findViewById(R.id.line_name)).setText(this.busLine.getName());
 
 		// bus line type
-		int busLineTypeImg = Utils.getBusLineTypeImgFromType(this.busLine.getType());
+		int busLineTypeImg = BusUtils.getBusLineTypeImgFromType(this.busLine.getType());
 		((ImageView) findViewById(R.id.bus_type)).setImageResource(busLineTypeImg);
 
 		// bus line hours
@@ -130,7 +131,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		// bus line direction
 		BusLineSelectDirection selectBusLineDirection = new BusLineSelectDirection(this, this.busLine.getNumber(), this);
 		((TextView) findViewById(R.id.bus_line_stop_string)).setOnClickListener(selectBusLineDirection);
-		List<Integer> busLineDirection = Utils.getBusLineDirectionStringIdFromId(this.busLineDirection.getId());
+		List<Integer> busLineDirection = BusUtils.getBusLineDirectionStringIdFromId(this.busLineDirection.getId());
 		String direction = getString(busLineDirection.get(0));
 		if (busLineDirection.size() >= 2) {
 			direction += " " + getString(busLineDirection.get(1));
@@ -166,7 +167,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 					view.setVisibility(cursor.getInt(columnIndex) != 0 ? View.VISIBLE : View.GONE);
 					return true;
 				case R.id.place:
-					String cleanBusStopPlace = Utils.cleanBusStopPlace(cursor.getString(columnIndex));
+					String cleanBusStopPlace = BusUtils.cleanBusStopPlace(cursor.getString(columnIndex));
 					((TextView) view).setText(cleanBusStopPlace);
 					return true;
 				default:
@@ -196,13 +197,13 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 */
 	private static final int MENU_CHANGE_DIRECTION = Menu.FIRST + 1;
 	/**
+	 * The menu used to show the search UI.
+	 */
+	private static final int MENU_SEARCH = Menu.FIRST + 2;
+	/**
 	 * The menu used to show the user preferences.
 	 */
-	private static final int MENU_PREFERENCES = Menu.FIRST + 2;
-	/**
-	 * The menu used to show the about screen.
-	 */
-	private static final int MENU_ABOUT = Menu.FIRST + 3;
+	private static final int MENU_PREFERENCES = Menu.FIRST + 3;
 
 	/**
 	 * {@inheritDoc}
@@ -213,10 +214,10 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		menuMap.setIcon(R.drawable.ic_menu_bus_line_plan);
 		MenuItem menuDirection = menu.add(0, MENU_CHANGE_DIRECTION, 0, R.string.change_direction);
 		menuDirection.setIcon(android.R.drawable.ic_menu_compass);
+		MenuItem menuSearch = menu.add(0, MENU_SEARCH, Menu.NONE, R.string.menu_search);
+		menuSearch.setIcon(android.R.drawable.ic_menu_search);
 		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
 		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
-		MenuItem menuAbout = menu.add(0, MENU_ABOUT, Menu.NONE, R.string.menu_about);
-		menuAbout.setIcon(android.R.drawable.ic_menu_info_details);
 		return true;
 	}
 
@@ -234,11 +235,10 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 			BusLineSelectDirection select = new BusLineSelectDirection(this, this.busLine.getNumber(), this);
 			select.showDialog();
 			break;
+		case MENU_SEARCH:
+			return this.onSearchRequested();
 		case MENU_PREFERENCES:
 			startActivity(new Intent(this, UserPreferences.class));
-			break;
-		case MENU_ABOUT:
-			Utils.showAboutDialog(this);
 			break;
 		}
 		return false;

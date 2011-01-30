@@ -5,9 +5,11 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
+import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
+import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.BusStopHours;
 import org.montrealtransit.android.dialog.BusLineSelectDirection;
@@ -275,7 +277,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 		MyLog.v(TAG, "refreshBusStopInfo()");
 		setStopCode(this.busStop.getCode());
 		// set bus stop place name
-		((TextView) findViewById(R.id.bus_stop_place)).setText(Utils.cleanBusStopPlace(this.busStop.getPlace()));
+		((TextView) findViewById(R.id.bus_stop_place)).setText(BusUtils.cleanBusStopPlace(this.busStop.getPlace()));
 		// set the favorite icon
 		setTheStar();
 		// set bus line number
@@ -288,12 +290,12 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 		lineNameTv.setText(this.busLine.getName());
 		lineNameTv.setOnClickListener(busLineSelectDirection);
 		// bus line type
-		((ImageView) findViewById(R.id.line_type)).setImageResource(Utils.getBusLineTypeImgFromType(this.busLine
+		((ImageView) findViewById(R.id.line_type)).setImageResource(BusUtils.getBusLineTypeImgFromType(this.busLine
 		        .getType()));
 		// set bus line direction
 		String directionId = this.busStop.getDirectionId();
 		BusLineDirection busLineDirection = StmManager.findBusLineDirection(this.getContentResolver(), directionId);
-		List<Integer> busLineDirectionIds = Utils.getBusLineDirectionStringIdFromId(busLineDirection.getId());
+		List<Integer> busLineDirectionIds = BusUtils.getBusLineDirectionStringIdFromId(busLineDirection.getId());
 		String directionText = getString(R.string.direction_and_string, getString(busLineDirectionIds.get(0)));
 		((TextView) findViewById(R.id.direction_main)).setText(directionText);
 	}
@@ -318,13 +320,13 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 			ImageView subwayImg2 = ((ImageView) findViewById(R.id.subway_img_2));
 			ImageView subwayImg3 = ((ImageView) findViewById(R.id.subway_img_3));
 			if (subwayLines != null && subwayLines.size() > 0) {
-				int subwayLineImg0 = Utils.getSubwayLineImgId(subwayLines.get(0).getNumber());
+				int subwayLineImg0 = SubwayUtils.getSubwayLineImgId(subwayLines.get(0).getNumber());
 				subwayImg1.setImageResource(subwayLineImg0);
 				if (subwayLines.size() > 1) {
-					int subwayLineImg1 = Utils.getSubwayLineImgId(subwayLines.get(1).getNumber());
+					int subwayLineImg1 = SubwayUtils.getSubwayLineImgId(subwayLines.get(1).getNumber());
 					subwayImg2.setImageResource(subwayLineImg1);
 					if (subwayLines.size() > 2) {
-						int subwayLineImg2 = Utils.getSubwayLineImgId(subwayLines.get(2).getNumber());
+						int subwayLineImg2 = SubwayUtils.getSubwayLineImgId(subwayLines.get(2).getNumber());
 						subwayImg3.setImageResource(subwayLineImg2);
 					} else {
 						subwayImg3.setVisibility(View.GONE);
@@ -377,7 +379,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 				TextView lineNumberTv = (TextView) view.findViewById(R.id.line_number);
 				final String lineNumber = busLine.getNumber();
 				lineNumberTv.setText(lineNumber);
-				int color = Utils.getBusLineTypeBgColorFromType(busLine.getType());
+				int color = BusUtils.getBusLineTypeBgColorFromType(busLine.getType());
 				lineNumberTv.setBackgroundColor(color);
 				view.setOnClickListener(new View.OnClickListener() {
 					@Override
@@ -841,13 +843,13 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	 */
 	private static final int MENU_SELECT_NEXT_STOP_PROVIDER_STM_INFO = Menu.FIRST + 7;
 	/**
+	 * The menu used to show the search UI.
+	 */
+	private static final int MENU_SEARCH = Menu.FIRST + 8;
+	/**
 	 * The menu used to show the user preferences.
 	 */
-	private static final int MENU_PREFERENCES = Menu.FIRST + 8;
-	/**
-	 * The menu used to show the about screen.
-	 */
-	private static final int MENU_ABOUT = Menu.FIRST + 9;
+	private static final int MENU_PREFERENCES = Menu.FIRST + 9;
 
 	/**
 	 * {@inheritDoc}
@@ -876,10 +878,10 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 		        StmInfoTask.SOURCE_NAME);
 		subMenu.setGroupCheckable(MENU_SELECT_NEXT_STOP_PROVIDER_GROUP, true, true);
 
+		MenuItem menuSearch = menu.add(0, MENU_SEARCH, Menu.NONE, R.string.menu_search);
+		menuSearch.setIcon(android.R.drawable.ic_menu_search);
 		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
 		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
-		MenuItem menuAbout = menu.add(0, MENU_ABOUT, Menu.NONE, R.string.menu_about);
-		menuAbout.setIcon(android.R.drawable.ic_menu_info_details);
 		return true;
 	}
 
@@ -1010,11 +1012,10 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 				// reloadNextBusStops();
 			}
 			return true;
+		case MENU_SEARCH:
+			return this.onSearchRequested();
 		case MENU_PREFERENCES:
 			startActivity(new Intent(this, UserPreferences.class));
-			return true;
-		case MENU_ABOUT:
-			Utils.showAboutDialog(this);
 			return true;
 		default:
 			MyLog.d(TAG, "Unknow menu action: %s.", item.getItemId());
