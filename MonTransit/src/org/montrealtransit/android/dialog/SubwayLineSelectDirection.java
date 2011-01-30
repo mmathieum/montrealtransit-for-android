@@ -2,6 +2,7 @@ package org.montrealtransit.android.dialog;
 
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
+import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.activity.SubwayLineInfo;
 import org.montrealtransit.android.activity.UserPreferences;
@@ -47,7 +48,7 @@ public class SubwayLineSelectDirection implements View.OnClickListener, SubwayLi
 	 * @param subwayLineId the bus line number
 	 */
 	public SubwayLineSelectDirection(Context context, int subwayLineId) {
-		MyLog.v(TAG, "SubwayLineSelectDirection(" + subwayLineId + ")");
+		MyLog.v(TAG, "SubwayLineSelectDirection(%s)", subwayLineId);
 		this.context = context;
 		this.listener = this;
 		this.subwayLine = StmManager.findSubwayLine(context.getContentResolver(), subwayLineId);
@@ -60,7 +61,7 @@ public class SubwayLineSelectDirection implements View.OnClickListener, SubwayLi
 	 * @param listener the dialog listener
 	 */
 	public SubwayLineSelectDirection(Context context, int subwayLineId, SubwayLineSelectDirectionDialogListener listener) {
-		MyLog.v(TAG, "SubwayLineSelectDirection(" + subwayLineId + ", listener)");
+		MyLog.v(TAG, "SubwayLineSelectDirection(%s, listener)", subwayLineId);
 		this.subwayLine = StmManager.findSubwayLine(context.getContentResolver(), subwayLineId);
 		this.context = context;
 		this.listener = listener;
@@ -89,12 +90,12 @@ public class SubwayLineSelectDirection implements View.OnClickListener, SubwayLi
 	private AlertDialog getAlertDialog() {
 		MyLog.v(TAG, "getAlertDialog()");
 		AlertDialog.Builder builder = new AlertDialog.Builder(this.context);
-		String lineName = context.getString(Utils.getSubwayLineName(this.subwayLine.getNumber()));
+		String lineName = context.getString(SubwayUtils.getSubwayLineName(this.subwayLine.getNumber()));
 		builder.setTitle(context.getString(R.string.select_subway_direction_and_name, lineName));
 		builder.setSingleChoiceItems(getItems(), getCheckedItemFromPref(), new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				MyLog.v(TAG, "onClick(" + which + ")");
+				MyLog.v(TAG, "onClick(%s)", which);
 				dialog.dismiss(); // close the dialog
 				int lineNumber = SubwayLineSelectDirection.this.subwayLine.getNumber();
 				String orderPref = SubwayLineSelectDirection.this.orderPref[which];
@@ -105,7 +106,7 @@ public class SubwayLineSelectDirection implements View.OnClickListener, SubwayLi
 		builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				MyLog.v(TAG, "onClick(" + which + ")");
+				MyLog.v(TAG, "onClick(%s)", which);
 				dialog.dismiss(); // close the dialog (do nothing)
 			}
 		});
@@ -117,8 +118,8 @@ public class SubwayLineSelectDirection implements View.OnClickListener, SubwayLi
 	 * @return the id of the checked choice
 	 */
 	private int getCheckedItemFromPref() {
-		String sharedPreferences = Utils.getSharedPreferences(context, UserPreferences
-		        .getPrefsSubwayStationsOrder(this.subwayLine.getNumber()),
+		String sharedPreferences = Utils.getSharedPreferences(context,
+		        UserPreferences.getPrefsSubwayStationsOrder(this.subwayLine.getNumber()),
 		        UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_DEFAULT);
 		if (sharedPreferences.equals(UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL)) {
 			return 1;
@@ -134,11 +135,13 @@ public class SubwayLineSelectDirection implements View.OnClickListener, SubwayLi
 	 */
 	private String[] getItems() {
 		MyLog.v(TAG, "getItems()");
-		StmStore.SubwayStation firstSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(this.context
-		        .getContentResolver(), this.subwayLine.getNumber(), StmStore.SubwayStation.NATURAL_SORT_ORDER);
+		StmStore.SubwayStation firstSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(
+		        this.context.getContentResolver(), this.subwayLine.getNumber(),
+		        StmStore.SubwayStation.NATURAL_SORT_ORDER);
 		// MyTrace.d(TAG, "First station: " + firstSubwayStationDirection.getName());
-		StmStore.SubwayStation lastSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(this.context
-		        .getContentResolver(), this.subwayLine.getNumber(), StmStore.SubwayStation.NATURAL_SORT_ORDER_DESC);
+		StmStore.SubwayStation lastSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(
+		        this.context.getContentResolver(), this.subwayLine.getNumber(),
+		        StmStore.SubwayStation.NATURAL_SORT_ORDER_DESC);
 		// MyTrace.d(TAG, "Last station: " + lastSubwayStationDirection.getName());
 
 		String[] items = new String[3];
@@ -158,7 +161,7 @@ public class SubwayLineSelectDirection implements View.OnClickListener, SubwayLi
 	 */
 	@Override
 	public void showNewSubway(int subwayLineId, String orderPref) {
-		MyLog.v(TAG, "showNewSubway(" + subwayLineId + ", " + orderPref + ")");
+		MyLog.v(TAG, "showNewSubway(%s, %s)", subwayLineId, orderPref);
 		Intent mIntent = new Intent(this.context, SubwayLineInfo.class);
 		mIntent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, String.valueOf(subwayLineId));
 		mIntent.putExtra(SubwayLineInfo.EXTRA_ORDER_PREF, orderPref);

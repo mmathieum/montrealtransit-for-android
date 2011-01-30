@@ -3,9 +3,11 @@ package org.montrealtransit.android.activity;
 import java.util.Calendar;
 import java.util.List;
 
+import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
+import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.dialog.BusLineSelectDirection;
@@ -218,7 +220,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 		View dView = getLayoutInflater().inflate(R.layout.subway_station_info_line_schedule_direction, null);
 		// SUBWAY LINE color
 		ImageView ivSubwayLineColor1 = (ImageView) dView.findViewById(R.id.subway_img);
-		ivSubwayLineColor1.setImageResource(Utils.getSubwayLineImgId(subwayLine.getNumber()));
+		ivSubwayLineColor1.setImageResource(SubwayUtils.getSubwayLineImgId(subwayLine.getNumber()));
 		// DIRECTION - SUBWAY STATION name
 		TextView tvSubwayStation1 = (TextView) dView.findViewById(R.id.direction_station);
 		tvSubwayStation1.setText(subwayStationDir.getName());
@@ -249,7 +251,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 		// subway lines colors
 		if (this.subwayLines.size() > 0) {
 			findViewById(R.id.subway_line_1).setVisibility(View.VISIBLE);
-			int subwayLineImg = Utils.getSubwayLineImgListMiddleId(this.subwayLines.get(0).getNumber());
+			int subwayLineImg = SubwayUtils.getSubwayLineImgListMiddleId(this.subwayLines.get(0).getNumber());
 			((ImageView) findViewById(R.id.subway_line_1)).setImageResource(subwayLineImg);
 			((ImageView) findViewById(R.id.subway_line_1)).setOnClickListener(new OnClickListener() {
 				@Override
@@ -263,7 +265,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 			});
 			if (this.subwayLines.size() > 1) {
 				findViewById(R.id.subway_line_2).setVisibility(View.VISIBLE);
-				int subwayLineImg2 = Utils.getSubwayLineImgListMiddleId(this.subwayLines.get(1).getNumber());
+				int subwayLineImg2 = SubwayUtils.getSubwayLineImgListMiddleId(this.subwayLines.get(1).getNumber());
 				((ImageView) findViewById(R.id.subway_line_2)).setImageResource(subwayLineImg2);
 				((ImageView) findViewById(R.id.subway_line_2)).setOnClickListener(new OnClickListener() {
 					@Override
@@ -277,7 +279,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 				});
 				if (this.subwayLines.size() > 2) {
 					findViewById(R.id.subway_line_3).setVisibility(View.VISIBLE);
-					int subwayLineImg3 = Utils.getSubwayLineImgListMiddleId(this.subwayLines.get(2).getNumber());
+					int subwayLineImg3 = SubwayUtils.getSubwayLineImgListMiddleId(this.subwayLines.get(2).getNumber());
 					((ImageView) findViewById(R.id.subway_line_3)).setImageResource(subwayLineImg3);
 					((ImageView) findViewById(R.id.subway_line_3)).setOnClickListener(new OnClickListener() {
 						@Override
@@ -417,7 +419,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 				// bus line number
 				final String lineNumber = busLine.getNumber();
 				((TextView) view.findViewById(R.id.line_number)).setText(lineNumber);
-				int color = Utils.getBusLineTypeBgColorFromType(busLine.getType());
+				int color = BusUtils.getBusLineTypeBgColorFromType(busLine.getType());
 				((TextView) view.findViewById(R.id.line_number)).setBackgroundColor(color);
 				// add click listener
 				view.setOnClickListener(new SubwayStationSelectBusLineStop(this, subwayStation.getId(), lineNumber));
@@ -451,10 +453,6 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	 * The menu used to show the user preferences.
 	 */
 	private static final int MENU_PREFERENCES = Menu.FIRST + 2;
-	/**
-	 * The menu used to show the about screen.
-	 */
-	private static final int MENU_ABOUT = Menu.FIRST + 3;
 
 	/**
 	 * {@inheritDoc}
@@ -467,8 +465,6 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 		menuUseRadar.setIcon(android.R.drawable.ic_menu_compass);
 		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
 		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
-		MenuItem menuAbout = menu.add(0, MENU_ABOUT, Menu.NONE, R.string.menu_about);
-		menuAbout.setIcon(android.R.drawable.ic_menu_info_details);
 		return true;
 	}
 
@@ -509,9 +505,6 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 			return true;
 		case MENU_PREFERENCES:
 			startActivity(new Intent(this, UserPreferences.class));
-			return true;
-		case MENU_ABOUT:
-			Utils.showAboutDialog(this);
 			return true;
 		default:
 			MyLog.d(TAG, "Unknow menu id: %s.", item.getItemId());

@@ -31,4 +31,10 @@
 		android:entries="@array/distance_pref_entries" android:entryValues="@array/distance_pref_values"
 		android:dialogTitle="@string/distance_pref_dialog_title"
 		android:defaultValue="simple" />
+	<!-- CREDITs -->
+	<PreferenceCategory android:title="@string/credits_pref_cat_title" />
+	<PreferenceScreen android:key="pDonate"
+		android:title="@string/donate_pref_title" android:summary="@string/donate_pref_summary" />
+	<PreferenceScreen android:key="pAbout"
+		android:title="@string/about_pref_title" android:summary="@string/about_pref_summary" />
 </PreferenceScreen>

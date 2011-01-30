@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent" android:layout_height="match_parent"
+	android:fillViewport="true">
+	<LinearLayout
+		android:layout_width="match_parent" android:layout_height="wrap_content"
+		android:orientation="vertical">
+
+		<LinearLayout
+			android:layout_width="match_parent" android:layout_height="wrap_content"
+			android:orientation="vertical"
+			android:layout_weight="1">
+			<!-- THANKS MESSAGE -->
+			<TextView android:id="@+id/thanks_tv"
+				android:layout_width="match_parent" android:layout_height="wrap_content"
+				android:layout_marginTop="10dip"
+				android:textAppearance="?android:attr/textAppearanceLarge"
+				android:text="@string/donate_thanks" />
+			<!-- EMPTY SPACE -->
+			<View
+				android:layout_width="match_parent" android:layout_height="0dip"
+				android:layout_weight="1" />
+			<!-- METHOD -->
+			<TextView android:id="@+id/method_tv"
+				android:layout_width="match_parent" android:layout_height="wrap_content"
+				android:textAppearance="?android:attr/textAppearanceMedium"
+				android:text="@string/donate_method" />
+			<Spinner android:id="@+id/method_spinner"
+				android:layout_height="wrap_content" android:layout_width="match_parent"
+				android:prompt="@string/donate_select_method" />
+			<!-- DEV --><!-- TODO ENABLE when multiple devs -->
+			<!--
+			<TextView android:id="@+id/dev_tv" android:layout_height="wrap_content"
+				android:layout_width="match_parent" android:textAppearance="?android:attr/textAppearanceMedium"
+				 android:text="@string/donate_dev"
+				 android:visibility="gone"/>
+			<Spinner android:id="@+id/dev_spinner" android:layout_height="wrap_content"
+				android:layout_width="match_parent" android:prompt="@string/donate_select_dev"
+				android:visibility="gone"/>
+			-->
+			<!-- EMPTY SPACE -->
+			<View
+				android:layout_width="match_parent" android:layout_height="0dip"
+				android:layout_weight="1" />
+		</LinearLayout>
+
+		<!-- BUTTONS -->
+		<RelativeLayout android:id="@+id/buttons"
+			android:layout_width="match_parent" android:layout_height="54dip"
+			android:background="@android:drawable/bottom_bar"> <!-- android:layout_alignParentBottom="true" -->
+			<!-- BACK -->
+			<Button android:id="@+id/back_bt" android:layout_width="wrap_content"
+				android:layout_height="wrap_content" android:layout_alignParentLeft="true"
+				android:layout_centerVertical="true" android:minWidth="100sp"
+				android:onClick="cancel"
+				android:text="@string/cancel" />
+			<!-- NEXT --><!-- android:layout_gravity="center" -->
+			<Button android:id="@+id/next_bt" android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_alignParentRight="true"
+				android:layout_centerVertical="true" android:minWidth="100sp"
+				android:onClick="next"
+				android:text="@string/next" />
+		</RelativeLayout>
+	</LinearLayout>
+</ScrollView>

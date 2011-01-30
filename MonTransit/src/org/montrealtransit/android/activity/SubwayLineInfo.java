@@ -9,6 +9,7 @@ import java.util.Set;
 import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
+import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.ASubwayStation;
 import org.montrealtransit.android.data.Pair;
@@ -185,8 +186,8 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 */
 	private void refreshSubwayLineInfo() {
 		// subway line name
-		((TextView) findViewById(R.id.line_name)).setText(Utils.getSubwayLineName(subwayLine.getNumber()));
-		((ImageView) findViewById(R.id.subway_img)).setImageResource(Utils.getSubwayLineImgId(subwayLine.getNumber()));
+		((TextView) findViewById(R.id.line_name)).setText(SubwayUtils.getSubwayLineName(subwayLine.getNumber()));
+		((ImageView) findViewById(R.id.subway_img)).setImageResource(SubwayUtils.getSubwayLineImgId(subwayLine.getNumber()));
 
 		// subway line direction
 		String orderId = getSortOrderFromOrderPref(this.subwayLine.getNumber());
@@ -343,18 +344,18 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 				// station lines color
 				List<Integer> otherLines = station.getOtherLinesId();
 				// 1 - find the station line image
-				int subwayLineImgId = Utils.getSubwayLineImgId(Utils.getSubwayLineImgId(station.getLineId()));
+				int subwayLineImgId = SubwayUtils.getSubwayLineImgId(SubwayUtils.getSubwayLineImgId(station.getLineId()));
 				if (!SubwayLineInfo.this.getSortOrderFromOrderPref(station.getLineId()).equals(
 				        StmStore.SubwayStation.DEFAULT_SORT_ORDER)) {
 					if (position == 0) {
-						subwayLineImgId = Utils.getSubwayLineImgListTopId(station.getLineId());
+						subwayLineImgId = SubwayUtils.getSubwayLineImgListTopId(station.getLineId());
 					} else if (position == this.stations.length - 1) {
-						subwayLineImgId = Utils.getSubwayLineImgListBottomId(station.getLineId());
+						subwayLineImgId = SubwayUtils.getSubwayLineImgListBottomId(station.getLineId());
 					} else {
-						subwayLineImgId = Utils.getSubwayLineImgListMiddleId(station.getLineId());
+						subwayLineImgId = SubwayUtils.getSubwayLineImgListMiddleId(station.getLineId());
 					}
 				} else {
-					subwayLineImgId = Utils.getSubwayLineImgListId(station.getLineId());
+					subwayLineImgId = SubwayUtils.getSubwayLineImgListId(station.getLineId());
 				}
 				// 2 - set the images to the right image view
 				// color 1 (on the right, closer to the text)
@@ -362,7 +363,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 					((ImageView) view.findViewById(R.id.subway_img_1)).setImageResource(subwayLineImgId);
 				} else {
 					int lastIndex = otherLines.size() - 1;
-					int otherLineImg = Utils.getSubwayLineImgListId(otherLines.get(lastIndex));
+					int otherLineImg = SubwayUtils.getSubwayLineImgListId(otherLines.get(lastIndex));
 					((ImageView) view.findViewById(R.id.subway_img_1)).setImageResource(otherLineImg);
 				}
 				// color 2 (on the middle)
@@ -373,7 +374,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 					if (otherLines.size() == 1) {
 						((ImageView) view.findViewById(R.id.subway_img_2)).setImageResource(subwayLineImgId);
 					} else {
-						int otherLineImg = Utils.getSubwayLineImgListId(otherLines.get(0));
+						int otherLineImg = SubwayUtils.getSubwayLineImgListId(otherLines.get(0));
 						((ImageView) view.findViewById(R.id.subway_img_2)).setImageResource(otherLineImg);
 					}
 				}
@@ -385,7 +386,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 					if (otherLines.size() == 2) {
 						((ImageView) view.findViewById(R.id.subway_img_3)).setImageResource(subwayLineImgId);
 					} else {
-						int otherLineImg = Utils.getSubwayLineImgListId(otherLines.get(1));
+						int otherLineImg = SubwayUtils.getSubwayLineImgListId(otherLines.get(1));
 						((ImageView) view.findViewById(R.id.subway_img_3)).setImageResource(otherLineImg);
 					}
 				}
@@ -489,10 +490,6 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 * The menu used to show the user preferences.
 	 */
 	private static final int MENU_PREFERENCES = Menu.FIRST + 1;
-	/**
-	 * The menu used to show the about screen.
-	 */
-	private static final int MENU_ABOUT = Menu.FIRST + 2;
 
 	/**
 	 * {@inheritDoc}
@@ -503,8 +500,6 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		menuDirection.setIcon(android.R.drawable.ic_menu_compass);
 		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
 		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
-		MenuItem menuAbout = menu.add(0, MENU_ABOUT, Menu.NONE, R.string.menu_about);
-		menuAbout.setIcon(android.R.drawable.ic_menu_info_details);
 		return true;
 	}
 
@@ -521,11 +516,8 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		case MENU_PREFERENCES:
 			startActivity(new Intent(this, UserPreferences.class));
 			return true;
-		case MENU_ABOUT:
-			Utils.showAboutDialog(this);
-			return true;
 		default:
-			MyLog.d(TAG, "Unknow menu id: " + item.getItemId() + ".");
+			MyLog.d(TAG, "Unknow menu id: %s.", item.getItemId());
 			return false;
 		}
 	}

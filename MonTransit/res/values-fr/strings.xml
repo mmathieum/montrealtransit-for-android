@@ -85,6 +85,7 @@
     <string name="display_pref_cat_title">Préférences d\'affichage</string>
     <string name="data_pref_cat_title">Source de données</string>
     <string name="advanced_pref_cat_title">Paramètres avancés</string>
+    <string name="credits_pref_cat_title">Crédits</string>
     
 	<string name="group_by_pref_title">Affichage des lignes de bus</string>
 	<string name="group_by_pref_summary">Comment les lignes de bus sont affichées dans la liste des lignes de bus.</string>
@@ -92,7 +93,12 @@
 	<string name="group_by_pref_no_group">ne pas grouper</string>
 	<string name="group_by_pref_type">par catégorie</string>
 	<string name="group_by_pref_number">par numéro de ligne</string>
-	
+
+	<string name="donate_pref_title">Faire un don</string>
+	<string name="donate_pref_summary">Supporter le développement de MonTransit.</string>
+	<string name="about_pref_title">À propos</string>
+	<string name="about_pref_summary">Plus d\'informations sur MonTransit.</string>
+
     <string name="select_group_by">Affichage</string>
     <string name="group_by_bus_line_no_group">Ne pas grouper</string>
 	<string name="group_by_bus_line_type">Grouper par type</string>
@@ -236,6 +242,7 @@
     <string name="update_stm_db_error">Erreur pendant la mise à jour des données (autobus, métro).</string>
     <string name="update_stm_db_error_next">Veuillez désinstaller puis re-installer l\'application.</string>
     
+    <string name="menu_search">Recherche</string>
     <string name="menu_preferences">Paramètres</string>
     <string name="menu_about">À propos</string>
     
@@ -258,4 +265,30 @@
     <string name="twitter_error_http_400_auth_and_time">Twitter limite dépassée. Réessayer à %s.</string>
     <string name="twitter_error_http_400_anonymous">Twitter limite dépassée. Réessayer plus tard ou connectez-vous avec votre compte Twitter (Menu > %s).</string>
     <string name="twitter_error_http_400_anonymous_and_time">Twitter limite dépassée. Réessayer à %1$s ou connectez-vous avec votre compte Twitter (Menu > %2$s).</string>
+
+    <string name="donate_dialog_title">Faire un don</string>
+    <string name="donate_thanks">Merci de supporter le développement de MonTransit.</string>
+    <string name="donate_amount">Montant : </string>
+    <string name="donate_select_amount">Choisir le montant</string>
+    <string name="donate_1_trip">1 passage (3$)</string>
+    <string name="donate_2_trips">2 passages (5.50$)</string>
+    <string name="donate_6_trips">6 passages (14.25$)</string>
+    <string name="donate_10_trips">10 passages (22.50$)</string>
+    <string name="donate_weekly_cam">CAM Hebdo (22$)</string>
+    <string name="donate_montly_cam">CAM mensuelle (72.75$)</string>
+    <string name="donate_method">Méthode de paiement : </string>
+    <string name="donate_select_method">Choisir la méthode de paiement</string>
+    <string name="donate_method_paypal">PayPal</string>
+    <string name="donate_method_market">Android Market</string>
+    <string name="donate_dev">Développeur: </string>
+    <string name="donate_select_dev">Choisir le développeur</string>
+    <string name="donate_montransit_dev">MonTransit (%s)</string>
+    <string name="donate_loading_paypal">Connexion aux serveurs de PayPal ...</string>
+    <string name="donate_paypal_button_message">Sélectionner le montant Cliquer sur le bouton PayPal pour compléter la donation.</string>
+    <string name="donate_payment_completed">Donation complétée. Merci !</string>
+    <string name="donate_payment_cancelled">Donation annullée.</string>
+    <string name="donate_payment_failure">Échec de la donation ! Merci de réessayer plus tard.</string>
+    <string name="donate_opening_market">Ouverture de l\'Android Market ...</string>
+
+    <string name="next">Suivant</string>
 </resources>

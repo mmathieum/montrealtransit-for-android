@@ -3,6 +3,7 @@ package org.montrealtransit.android.dialog;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
@@ -150,7 +151,7 @@ public class BusLineSelectDirection implements View.OnClickListener, BusLineSele
 		}
 		List<String> items = new ArrayList<String>();
 		for (String itemId : this.simpleDirectionsId) {
-			items.add(this.context.getString(Utils.getBusLineDirectionStringIdFromId(itemId).get(0)));
+			items.add(this.context.getString(BusUtils.getBusLineDirectionStringIdFromId(itemId).get(0)));
 		}
 		return items.toArray(new String[0]);
 	}
@@ -194,7 +195,7 @@ public class BusLineSelectDirection implements View.OnClickListener, BusLineSele
 	 */
 	private AlertDialog getSecondAlertDialog(String simpleDirectionId) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this.context);
-		String direction = context.getString(Utils.getBusLineDirectionStringIdFromId(simpleDirectionId).get(0));
+		String direction = context.getString(BusUtils.getBusLineDirectionStringIdFromId(simpleDirectionId).get(0));
 		builder.setTitle(context.getString(R.string.select_bus_line_detail_direction_and_number_and_direction,
 		        this.lineNumber, direction));
 		builder.setItems(getSecondItems(simpleDirectionId), new DialogInterface.OnClickListener() {
@@ -233,7 +234,7 @@ public class BusLineSelectDirection implements View.OnClickListener, BusLineSele
 		}
 		List<String> items = new ArrayList<String>();
 		for (String itemId : this.detailDirectionsId) {
-			List<Integer> stringIds = Utils.getBusLineDirectionStringIdFromId(itemId);
+			List<Integer> stringIds = BusUtils.getBusLineDirectionStringIdFromId(itemId);
 			int stringId;
 			if (stringIds.size() >= 2) {
 				stringId = stringIds.get(1);
