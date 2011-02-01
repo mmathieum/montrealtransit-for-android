@@ -25,7 +25,7 @@ public class BusStopHours {
 	/**
 	 * The second message from the STM.
 	 */
-	private String message2;
+	private String message2 = "";
 	/**
 	 * The source name to display.
 	 */

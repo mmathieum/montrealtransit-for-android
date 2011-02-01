@@ -129,17 +129,27 @@ public class StmMobileTask extends AbstractNextStopProvider {
 				// considering 00h00 the standard (instead of the 00:00 provided by m.stm.info in English)
 				result.addSHour(matcher.group().replaceAll(":", "h"));
 			}
-			// find message
-			String message = findMessage(interestingPart, lineNumber);
-			if (!TextUtils.isEmpty(message)) {
-				result.addMessageString(message);
+			// find 'notes'
+			String notesPart = findNotesPart(interestingPart, lineNumber);
+			if (!TextUtils.isEmpty(notesPart)) {
+				String noteMessage = findMessage(notesPart);
+				if (!TextUtils.isEmpty(noteMessage)) {
+					String concernedBusStops = findNoteStops(notesPart);
+					if (!TextUtils.isEmpty(concernedBusStops)) {
+						result.addMessageString(this.context.getString(R.string.next_bus_stops_note, concernedBusStops,
+						        noteMessage));
+					} else {
+						result.addMessageString(noteMessage);
+					}
+				}
 			}
-			// find bus stops note
-			String concernedBusStops = findNoteStops(interestingPart);
-			String busStopNote = findNote(interestingPart);
-			if (!TextUtils.isEmpty(concernedBusStops) && !TextUtils.isEmpty(busStopNote)) {
-				result.addMessageString(this.context.getString(R.string.next_bus_stops_note, concernedBusStops,
-				        busStopNote));
+			// find 'mips'
+			String mipsPart = findMipsPart(interestingPart, lineNumber);
+			if (!TextUtils.isEmpty(mipsPart)) {
+				String mipsMessage = findMessage(mipsPart);
+				if (!TextUtils.isEmpty(mipsMessage)) {
+					result.addMessage2String(mipsMessage);
+				}
 			}
 		} else {
 			MyLog.w(TAG, "Can't find the next bus stops for line %s!", lineNumber);
@@ -148,20 +158,62 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	}
 
 	/**
-	 * The pattern used for stops note.
+	 * Find 'notes' part from the HTML code.
+	 * @param interestingPart the HTML code
+	 * @param lineNumber the concerned line number
+	 * @return the 'notes' part or <b>NULL</b>
 	 */
-	private static final Pattern PATTERN_REGEX_STOPS_NOTE = Pattern
-	        .compile("<div class=\"heure\">[^d]*div>[\\s]*<div class=\"message\">(([^<])*)</div>");
+	private String findNotesPart(String interestingPart, String lineNumber) {
+		MyLog.v(TAG, "findNotesPart(%s)", interestingPart.length(), lineNumber);
+		String result = null;
+		String regex = "<div class=\"notes\">[\\s]*" + "<div class=\"wrapper\">[\\s]*" + "("
+		        + "<div class=\"heure\">[^d]*div>[\\s]*" + "|" + "<div class=\"ligne\">" + lineNumber + "</div>[\\s]*"
+		        + ")" + "<div class=\"message\">[^<]*</div>[\\s]*" + "<div class=\"clearfloat\">[^<]*</div>[\\s]*"
+		        + "</div>[\\s]*" + "</div>[\\s]*";
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(interestingPart);
+		while (matcher.find()) {
+			result = matcher.group(0);
+		}
+		return result;
+
+	}
 
 	/**
-	 * Find the bus stops note
-	 * @param interestingPart the HTML code where note is supposed to be
-	 * @return the note or <b>NULL</b>
+	 * Find the 'mips' part of the HTML code.
+	 * @param interestingPart the HTML code
+	 * @param lineNumber the line number
+	 * @return the 'mips' part or <b>NULL</b>
 	 */
-	private String findNote(String interestingPart) {
-		MyLog.v(TAG, "findNote(%s)", interestingPart.length());
+	private String findMipsPart(String interestingPart, String lineNumber) {
+		MyLog.v(TAG, "findMipsPart(%s)", interestingPart.length(), lineNumber);
 		String result = null;
-		Matcher matcher = PATTERN_REGEX_STOPS_NOTE.matcher(interestingPart);
+		String regex = "<div class=\"mips\">[\\s]*" + "<div class=\"wrapper\">[\\s]*" + "<div class=\"ligne\">"
+		        + lineNumber + "</div>[\\s]*" + "<div class=\"message\">[^</]*</div>[\\s]*"
+		        + "<div class=\"clearfloat\">[^<]*</div>[\\s]*" + "</div>[\\s]*" + "</div>[\\s]*";
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(interestingPart);
+		while (matcher.find()) {
+			result = matcher.group(0);
+		}
+		return result;
+
+	}
+
+	/**
+	 * The pattern used for stops note.
+	 */
+	private static final Pattern PATTERN_REGEX_NOTE_MESSAGE = Pattern.compile("<div class=\"message\">(([^<])*)</div>");
+
+	/**
+	 * Find the message
+	 * @param interestingPart the HTML code where the message is
+	 * @return the message or <b>NULL</b>
+	 */
+	private String findMessage(String interestingPart) {
+		MyLog.v(TAG, "findMessage(%s)", interestingPart.length());
+		String result = null;
+		Matcher matcher = PATTERN_REGEX_NOTE_MESSAGE.matcher(interestingPart);
 		while (matcher.find()) {
 			result = matcher.group(1);
 		}
@@ -213,24 +265,6 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	}
 
 	/**
-	 * @param interestingPart the interesting part
-	 * @param lineNumber the line number
-	 * @return the message or null
-	 */
-	private String findMessage(String interestingPart, String lineNumber) {
-		MyLog.v(TAG, "findMessage(%s, %s)", interestingPart.length(), lineNumber);
-		String result = null;
-		String regex = "<div class=\"ligne\">" + lineNumber + "</div>[\\s]*"
-				+ "<div class=\"message\">(([^<])*)</div>";
-		Pattern pattern = Pattern.compile(regex);
-		Matcher matcher = pattern.matcher(interestingPart);
-		while (matcher.find()) {
-			result = matcher.group(1);
-		}
-		return result;
-	}
-
-	/**
 	 * @param html the HTML source
 	 * @param lineNumber the bus line number
 	 * @return the interesting part of the HTML source matching the bus line number
@@ -240,13 +274,16 @@ public class StmMobileTask extends AbstractNextStopProvider {
 		String result = null;
 		String regex = "<div class=\"route\">[\\s]*" + "<p class=\"route-desc\">[\\s]*" + "<a href=\"/bus/arrets/"
 		        + lineNumber + "\" class=\"stm-link\">[^</]*</a>[^<]*" + "</p>[^<]*"
-		        + "<p class=\"route-schedules\">[^<]*</p>[\\s]*" + "(" + "</div>" + "|" + "<div class=\"mips\">[\\s]*"
-		        + "<div class=\"wrapper\">[\\s]*" + "<div class=\"ligne\">" + lineNumber + "</div>[\\s]*"
-		        + "<div class=\"message\">[^</]*</div>" + "|" + "<div class=\"notes\">[\\s]*"
+		        + "<p class=\"route-schedules\">[^<]*</p>[\\s]*" + "(" + "<div class=\"notes\">[\\s]*"
 		        + "<div class=\"wrapper\">[\\s]*" + "<div class=\"heure\">[^d]*div>[\\s]*"
-		        + "<div class=\"message\">[^<]*</div>" + "|" + "<div class=\"notes\">[\\s]*"
+		        + "<div class=\"message\">[^<]*</div>[\\s]*" + "<div class=\"clearfloat\">[^<]*</div>[\\s]*"
+		        + "</div>[\\s]*" + "</div>[\\s]*" + ")?" + "(" + "<div class=\"notes\">[\\s]*"
 		        + "<div class=\"wrapper\">[\\s]*" + "<div class=\"ligne\">" + lineNumber + "</div>[\\s]*"
-		        + "<div class=\"message\">[^<]*</div>" + ")";
+		        + "<div class=\"message\">[^<]*</div>[\\s]*" + "<div class=\"clearfloat\">[^<]*</div>[\\s]*"
+		        + "</div>[\\s]*" + "</div>[\\s]*" + ")?" + "(" + "<div class=\"mips\">[\\s]*"
+		        + "<div class=\"wrapper\">[\\s]*" + "<div class=\"ligne\">" + lineNumber + "</div>[\\s]*"
+		        + "<div class=\"message\">[^</]*</div>[\\s]*" + "<div class=\"clearfloat\">[^<]*</div>[\\s]*"
+		        + "</div>[\\s]*" + "</div>[\\s]*" + ")?" + "</div>";
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(html);
 		while (matcher.find()) {

@@ -562,11 +562,16 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 						otherStopsTv.setText(hoursS);
 					}
 				}
-				// show message
+				// show messages
 				if (!TextUtils.isEmpty(hours.getMessage())) {
 					this.message1Tv.setVisibility(View.VISIBLE);
 					this.message1Tv.setText(hours.getMessage());
 					Linkify.addLinks(this.message1Tv, Linkify.ALL);
+				}
+				if (!TextUtils.isEmpty(hours.getMessage2())) {
+					this.message2Tv.setVisibility(View.VISIBLE);
+					this.message2Tv.setText(hours.getMessage2());
+					Linkify.addLinks(this.message2Tv, Linkify.ALL);
 				}
 			}
 		}
