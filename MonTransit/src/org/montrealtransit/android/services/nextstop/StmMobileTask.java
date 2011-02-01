@@ -221,7 +221,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 		MyLog.v(TAG, "findMessage(%s, %s)", interestingPart.length(), lineNumber);
 		String result = null;
 		String regex = "<div class=\"ligne\">" + lineNumber + "</div>[\\s]*"
-		        + "<div class=\"message\">(([^</])*)</div>";
+				+ "<div class=\"message\">(([^<])*)</div>";
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(interestingPart);
 		while (matcher.find()) {
@@ -244,6 +244,8 @@ public class StmMobileTask extends AbstractNextStopProvider {
 		        + "<div class=\"wrapper\">[\\s]*" + "<div class=\"ligne\">" + lineNumber + "</div>[\\s]*"
 		        + "<div class=\"message\">[^</]*</div>" + "|" + "<div class=\"notes\">[\\s]*"
 		        + "<div class=\"wrapper\">[\\s]*" + "<div class=\"heure\">[^d]*div>[\\s]*"
+		        + "<div class=\"message\">[^<]*</div>" + "|" + "<div class=\"notes\">[\\s]*"
+		        + "<div class=\"wrapper\">[\\s]*" + "<div class=\"ligne\">" + lineNumber + "</div>[\\s]*"
 		        + "<div class=\"message\">[^<]*</div>" + ")";
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(html);
