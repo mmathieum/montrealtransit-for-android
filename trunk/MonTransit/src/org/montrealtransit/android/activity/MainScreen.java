@@ -1,5 +1,6 @@
 package org.montrealtransit.android.activity;
 
+import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.TwitterUtils;
@@ -22,6 +23,10 @@ public class MainScreen extends TabActivity {
 	 * The log tag.
 	 */
 	private static final String TAG = MainScreen.class.getSimpleName();
+	/**
+	 * The tracker tag.
+	 */
+	private static final String TRACKER_TAG = "/Main";
 	/**
 	 * The favorite tab ID.
 	 */
@@ -82,6 +87,16 @@ public class MainScreen extends TabActivity {
 		} catch (Exception e) {
 			MyLog.w(TAG, "Error while determing the select tab", e);
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onResume() {
+		MyLog.v(TAG, "onResume()");
+		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
+	    super.onResume();
 	}
 
 	/**

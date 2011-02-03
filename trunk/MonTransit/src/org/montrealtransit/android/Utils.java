@@ -407,9 +407,7 @@ public class Utils {
 	 * @param message the message to display.
 	 */
 	public static void notifyTheUser(Context context, String message) {
-		int duration = Toast.LENGTH_SHORT;
-		Toast toast = Toast.makeText(context, message, duration);
-		toast.show();
+		Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
 	}
 
 	/**
@@ -418,9 +416,7 @@ public class Utils {
 	 * @param message the message to display.
 	 */
 	public static void notifyTheUserLong(Context context, String message) {
-		int duration = Toast.LENGTH_LONG;
-		Toast toast = Toast.makeText(context, message, duration);
-		toast.show();
+		Toast.makeText(context, message, Toast.LENGTH_LONG).show();
 	}
 
 	/**
@@ -444,7 +440,7 @@ public class Utils {
 	 * @return the preference value
 	 */
 	public static String getSharedPreferences(Context context, String prefKey, String defaultValue) {
-		MyLog.v(TAG, "getSharedPreferences(%s, %s)", prefKey, defaultValue);
+		// MyLog.v(TAG, "getSharedPreferences(%s, %s)", prefKey, defaultValue);
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 		return settings.getString(prefKey, defaultValue);
 	}

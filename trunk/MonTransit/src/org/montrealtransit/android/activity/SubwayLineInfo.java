@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
@@ -48,6 +49,10 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 * The log tag.
 	 */
 	private static final String TAG = SubwayLineInfo.class.getSimpleName();
+	/**
+	 * The tracker tag.
+	 */
+	private static final String TRACKER_TAG = "/SubwayLine";
 
 	/**
 	 * The extra for the subway line number.
@@ -106,7 +111,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 */
 	@Override
 	public void showNewSubway(int newLineNumber, String newOrderPref) {
-		MyLog.v(TAG, "showNewSubway(" + newLineNumber + ", " + newOrderPref + ")");
+		MyLog.v(TAG, "showNewSubway(%s, %s)", newLineNumber, newOrderPref);
 		if ((this.subwayLine == null || this.subwayLine.getNumber() != newLineNumber)
 		        || (this.orderPref != null && !this.orderPref.equals(newOrderPref))) {
 			MyLog.v(TAG, "new subway line / stations order");
@@ -152,6 +157,16 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 			LocationUtils.enableLocationUpdates(this, this);
 		}
 		super.onRestart();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onResume() {
+		MyLog.v(TAG, "onResume()");
+		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
+		super.onResume();
 	}
 
 	/**
@@ -463,7 +478,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 */
 	@Override
 	public void onProviderEnabled(String provider) {
-		MyLog.v(TAG, "onProviderEnabled(" + provider + ")");
+		MyLog.v(TAG, "onProviderEnabled(%s)", provider);
 	}
 
 	/**
@@ -471,7 +486,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 */
 	@Override
 	public void onProviderDisabled(String provider) {
-		MyLog.v(TAG, "onProviderDisabled(" + provider + ")");
+		MyLog.v(TAG, "onProviderDisabled(%s)", provider);
 	}
 
 	/**
@@ -479,7 +494,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 */
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-		MyLog.v(TAG, "onStatusChanged(" + provider + ", " + status + ")");
+		MyLog.v(TAG, "onStatusChanged(%s, %s)", provider, status);
 	}
 
 	/**

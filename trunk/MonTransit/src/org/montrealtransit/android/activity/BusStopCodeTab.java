@@ -2,6 +2,7 @@ package org.montrealtransit.android.activity;
 
 import java.util.List;
 
+import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
@@ -38,6 +39,10 @@ public class BusStopCodeTab extends Activity {
 	 * The log tag.
 	 */
 	private static final String TAG = BusStopCodeTab.class.getSimpleName();
+	/**
+	 * The tracker tag.
+	 */
+	private static final String TRACKER_TAG = "/BusStopCode";
 
 	/**
 	 * The search field.
@@ -125,6 +130,7 @@ public class BusStopCodeTab extends Activity {
 		super.onResume();
 		// refresh the auto complete text data
 		this.searchField.setAdapter(getAutoCompleteAdapter());
+		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 	}
 
 	/**

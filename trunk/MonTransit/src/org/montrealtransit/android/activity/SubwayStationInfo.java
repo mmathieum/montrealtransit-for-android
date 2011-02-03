@@ -3,6 +3,7 @@ package org.montrealtransit.android.activity;
 import java.util.Calendar;
 import java.util.List;
 
+import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MyLog;
@@ -44,13 +45,17 @@ import android.widget.TextView;
 public class SubwayStationInfo extends Activity implements LocationListener {
 
 	/**
-	 * Extra for the subway station ID.
-	 */
-	public static final String EXTRA_STATION_ID = "station_id";
-	/**
 	 * The log tag.
 	 */
 	private static final String TAG = SubwayStationInfo.class.getSimpleName();
+	/**
+	 * The tracker tag.
+	 */
+	private static final String TRACKER_TAG = "/SubwayStation";
+	/**
+	 * Extra for the subway station ID.
+	 */
+	public static final String EXTRA_STATION_ID = "station_id";
 	/**
 	 * The subway station.
 	 */
@@ -130,6 +135,16 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 			LocationUtils.enableLocationUpdates(this, this);
 		}
 		super.onRestart();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onResume() {
+		MyLog.v(TAG, "onResume()");
+		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
+		super.onResume();
 	}
 
 	/**

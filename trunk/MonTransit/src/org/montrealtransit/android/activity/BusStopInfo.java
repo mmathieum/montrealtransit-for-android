@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
+import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
@@ -61,6 +62,14 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
         OnSharedPreferenceChangeListener {
 
 	/**
+	 * The log tag.
+	 */
+	private static final String TAG = BusStopInfo.class.getSimpleName();
+	/**
+	 * The tracker tag.
+	 */
+	private static final String TRACKER_TAG = "/BusStop";
+	/**
 	 * The extra ID for the bus stop code.
 	 */
 	public static final String EXTRA_STOP_CODE = "extra_stop_code";
@@ -68,10 +77,6 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	 * The extra ID for the bus line number.
 	 */
 	public static final String EXTRA_STOP_LINE_NUMBER = "extra_line_number";
-	/**
-	 * The log tag.
-	 */
-	private static final String TAG = BusStopInfo.class.getSimpleName();
 	/**
 	 * The bus stop.
 	 */
@@ -179,6 +184,16 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 				showSubwayStation(v);
 			}
 		});
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onResume() {
+		MyLog.v(TAG, "onResume()");
+		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
+		super.onResume();
 	}
 
 	/**

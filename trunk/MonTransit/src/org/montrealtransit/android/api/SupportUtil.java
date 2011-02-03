@@ -7,4 +7,6 @@ public interface SupportUtil {
 
 	void applySharedPreferencesEditor(Editor editor);
 
+	String getBuildManufacturer();
+
 }

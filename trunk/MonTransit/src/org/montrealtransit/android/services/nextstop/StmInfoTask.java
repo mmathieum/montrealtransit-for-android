@@ -15,6 +15,7 @@ import java.net.UnknownHostException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
@@ -102,6 +103,7 @@ public class StmInfoTask extends AbstractNextStopProvider {
 				// download the the page.
 				Utils.getInputStreamToFile(urlc.getInputStream(), this.context.openFileOutput(Constant.FILE1,
 				        Context.MODE_WORLD_READABLE), "iso-8859-1");
+				AnalyticsUtils.dispatch(context); // while we are connected, sent the analytics data
 				publishProgress(this.context.getString(R.string.processing_data));
 				// remove useless code from the page
 				cleanHtmlCodes(this.context.openFileInput(Constant.FILE1), this.context.openFileOutput(Constant.FILE2,

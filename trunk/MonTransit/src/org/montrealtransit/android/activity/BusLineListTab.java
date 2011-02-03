@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
@@ -47,6 +48,10 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 	 * The log tag.
 	 */
 	private static final String TAG = BusLineListTab.class.getSimpleName();
+	/**
+	 * The tracker tag.
+	 */
+	private static final String TRACKER_TAG = "/BusLines";
 
 	/**
 	 * The cursor used to display the bus lines list (in no group mode).
@@ -90,25 +95,25 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 			        @Override
 			        public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
 			                int childPosition, long id) {
-				        MyLog.v(TAG, "onChildClick(" + parent.getId() + "," + v.getId() + "," + groupPosition + ","
-				                + childPosition + "," + id + ")");
+				        MyLog.v(TAG, "onChildClick(%s, %s, %s, %s, %s)", parent.getId(), v.getId(), groupPosition,
+				                childPosition, id);
 				        if (parent.getId() == R.id.elist) {
 					        String lineNumber;
 					        if (getBusListGroupByFromPreferences().equals(
 					                UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
-						        lineNumber = BusLineListTab.this.currentChildDataByType.get(groupPosition).get(
-						                childPosition).get(StmStore.BusLine.LINE_NUMBER);
+						        lineNumber = BusLineListTab.this.currentChildDataByType.get(groupPosition)
+						                .get(childPosition).get(StmStore.BusLine.LINE_NUMBER);
 					        } else {
-						        lineNumber = BusLineListTab.this.currentChildDataByNumber.get(groupPosition).get(
-						                childPosition).get(StmStore.BusLine.LINE_NUMBER);
+						        lineNumber = BusLineListTab.this.currentChildDataByNumber.get(groupPosition)
+						                .get(childPosition).get(StmStore.BusLine.LINE_NUMBER);
 					        }
-					        MyLog.v(TAG, "bus line number:" + lineNumber + ".");
+					        MyLog.v(TAG, "bus line number: %s.", lineNumber);
 					        BusLineSelectDirection busLineSelectDirection = new BusLineSelectDirection(
 					                BusLineListTab.this, lineNumber);
 					        busLineSelectDirection.showDialog();
 					        return true;
 				        } else {
-					        MyLog.w(TAG, "unknown view id:" + parent.getId());
+					        MyLog.w(TAG, "unknown view id: %s", parent.getId());
 					        return false;
 				        }
 			        }
@@ -116,20 +121,30 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 		((ListView) findViewById(R.id.list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-				MyLog.v(TAG, "onItemClick(" + l.getId() + "," + v.getId() + "," + position + "," + id + ")");
+				MyLog.v(TAG, "onItemClick(%s, %s,%s,%s)", l.getId(), v.getId(), position, id);
 				if (l.getId() == R.id.list) {
 					String lineNumber = String.valueOf(id);
-					MyLog.v(TAG, "lineNumber:" + lineNumber);
+					MyLog.v(TAG, "lineNumber: %s", lineNumber);
 					BusLineSelectDirection busLineSelectDirection = new BusLineSelectDirection(BusLineListTab.this,
 					        lineNumber);
 					busLineSelectDirection.showDialog();
 				} else {
-					MyLog.w(TAG, "unknown view id:" + v.getId());
+					MyLog.w(TAG, "unknown view id: %s", v.getId());
 				}
 			}
 		});
 		// refresh the bus list
 		refreshAll();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onResume() {
+		MyLog.v(TAG, "onResume()");
+		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
+		super.onResume();
 	}
 
 	/**
@@ -523,7 +538,7 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 			return v;
 		}
 	}
-	
+
 	/**
 	 * The menu group for the group by setting.
 	 */

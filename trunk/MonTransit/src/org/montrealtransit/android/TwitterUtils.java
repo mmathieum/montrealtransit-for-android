@@ -149,6 +149,7 @@ public class TwitterUtils {
 			editor.putString(REQUEST_TOKEN, getConsumer(context).getToken());
 			editor.putString(REQUEST_SECRET, getConsumer(context).getTokenSecret());
 			SupportFactory.getInstance(context).applySharedPreferencesEditor(editor);
+			AnalyticsUtils.dispatch(context); // while we are connected, sent the analytics data
 			// launching the browser
 			context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(authUrl)));
 		} catch (Exception e) {

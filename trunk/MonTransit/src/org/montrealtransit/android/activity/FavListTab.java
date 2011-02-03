@@ -2,6 +2,7 @@ package org.montrealtransit.android.activity;
 
 import java.util.List;
 
+import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
@@ -38,6 +39,10 @@ public class FavListTab extends Activity {
 	 * The log tag.
 	 */
 	private static final String TAG = FavListTab.class.getSimpleName();
+	/**
+	 * The tracker tag.
+	 */
+	private static final String TRACKER_TAG = "/FavList";
 
 	/**
 	 * The favorite subway stations list.
@@ -67,7 +72,6 @@ public class FavListTab extends Activity {
 	private void refreshAll() {
 		refreshBusStops();
 		refreshSubwayStations();
-
 	}
 
 	/**
@@ -299,8 +303,9 @@ public class FavListTab extends Activity {
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
-		super.onResume();
 		refreshAll();
+		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
+		super.onResume();
 	}
 
 	/**

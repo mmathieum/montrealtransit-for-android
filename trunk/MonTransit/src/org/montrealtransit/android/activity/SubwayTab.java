@@ -2,6 +2,7 @@ package org.montrealtransit.android.activity;
 
 import java.util.List;
 
+import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
@@ -52,6 +53,10 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 * The log tag.
 	 */
 	private static final String TAG = SubwayTab.class.getSimpleName();
+	/**
+	 * The tracker tag.
+	 */
+	private static final String TRACKER_TAG = "/Subways";
 
 	/**
 	 * The cursor used to display the subway lines.
@@ -210,6 +215,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			// re-enable
 			LocationUtils.enableLocationUpdates(this, this);
 		}
+		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		super.onResume();
 	}
 

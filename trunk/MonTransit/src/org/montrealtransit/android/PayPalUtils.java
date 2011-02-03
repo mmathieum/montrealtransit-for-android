@@ -34,6 +34,7 @@ public class PayPalUtils {
 			MyLog.v(TAG, "initWithAppID()");
 			instance = PayPal.initWithAppID(context, context.getString(R.string.paypal_app_id), PayPal.ENV_LIVE);
 			MyLog.v(TAG, "initWithAppID... DONE");
+			AnalyticsUtils.dispatch(context); // while we are connected, sent the analytics data
 			instance.setShippingEnabled(false);
 			instance.setLanguage(Locale.getDefault().toString()); // en_CA / fr_CA
 			// TODO check that language is PayPal valid
@@ -69,6 +70,7 @@ public class PayPalUtils {
 	 */
 	public static CheckoutButton getCheckoutButton(Context context) {
 		MyLog.v(TAG, "getCheckoutButton()");
+		AnalyticsUtils.dispatch(context); // while we are connected, sent the analytics data
 		return getInstance(context).getCheckoutButton(context, PayPal.BUTTON_294x45, CheckoutButton.TEXT_PAY);
 	}
 
