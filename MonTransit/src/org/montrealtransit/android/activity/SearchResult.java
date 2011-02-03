@@ -1,5 +1,6 @@
 package org.montrealtransit.android.activity;
 
+import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
@@ -24,18 +25,22 @@ import android.widget.TextView;
  * This activity shows the search results.
  * @author Mathieu Méa
  */
-public class SearchResult extends ListActivity{
+public class SearchResult extends ListActivity {
 
 	/**
 	 * The log tag.
 	 */
 	private static final String TAG = SearchResult.class.getSimpleName();
+	/**
+	 * The tracker tag.
+	 */
+	private static final String TRACKER_TAG = "/SearchResult";
 
 	/**
 	 * The bus line number index in the the view.
 	 */
 	private static final int LINE_NUMBER_VIEW_INDEX = 1;
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -47,8 +52,8 @@ public class SearchResult extends ListActivity{
 		setContentView(R.layout.search_result);
 		getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
-            public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-				MyLog.v(TAG, "onItemClick(" + l.getId() + "," + v.getId() + "," + position + "," + id + ")");
+			public void onItemClick(AdapterView<?> l, View v, int position, long id) {
+				MyLog.v(TAG, "onItemClick(%s, %s, %s, %s)", l.getId(), v.getId(), position, id);
 				if (id > 0) {
 					Intent intent = new Intent(SearchResult.this, BusStopInfo.class);
 					TextView lineNumberTextView = (TextView) ((RelativeLayout) v).getChildAt(LINE_NUMBER_VIEW_INDEX);
@@ -56,7 +61,7 @@ public class SearchResult extends ListActivity{
 					intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, String.valueOf(id));
 					startActivity(intent);
 				}
-            }
+			}
 		});
 		processIntent();
 	}
@@ -70,6 +75,16 @@ public class SearchResult extends ListActivity{
 		setIntent(intent);
 		processIntent();
 		super.onNewIntent(intent);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onResume() {
+		MyLog.v(TAG, "onResume()");
+		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
+		super.onResume();
 	}
 
 	/**

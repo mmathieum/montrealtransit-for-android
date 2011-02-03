@@ -1,5 +1,6 @@
 package org.montrealtransit.android.activity;
 
+import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.PayPalUtils;
 import org.montrealtransit.android.R;
@@ -34,6 +35,10 @@ public class DonatePayPalActivity extends Activity {
 	 * The log tag.
 	 */
 	private static final String TAG = DonatePayPalActivity.class.getSimpleName();
+	/**
+	 * The tracker tag.
+	 */
+	private static final String TRACKER_TAG = "/DonatePayPal";
 
 	/**
 	 * The activity content.
@@ -166,6 +171,16 @@ public class DonatePayPalActivity extends Activity {
 				// DonatePayPalActivity.this.buttonDialog.dismiss(); // close the dialog
 			}
 		});
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onResume() {
+		MyLog.v(TAG, "onResume()");
+		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
+	    super.onResume();
 	}
 	
 	/**

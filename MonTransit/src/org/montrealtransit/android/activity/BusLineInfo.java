@@ -2,6 +2,7 @@ package org.montrealtransit.android.activity;
 
 import java.util.List;
 
+import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
@@ -33,6 +34,14 @@ import android.widget.TextView;
 public class BusLineInfo extends Activity implements BusLineSelectDirectionDialogListener {
 
 	/**
+	 * The log tag.
+	 */
+	private static final String TAG = BusLineInfo.class.getSimpleName();
+	/**
+	 * The tracker tag.
+	 */
+	private static final String TRACKER_TAG = "/BusLine";
+	/**
 	 * The current bus line.
 	 */
 	private StmStore.BusLine busLine;
@@ -44,10 +53,6 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 * The cursor used to display the bus line stops.
 	 */
 	private Cursor cursor;
-	/**
-	 * The log tag.
-	 */
-	private static final String TAG = BusLineInfo.class.getSimpleName();
 	/**
 	 * The extra ID for the bus line number.
 	 */
@@ -85,6 +90,16 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		String lineDirectionId = Utils.getSavedStringValue(this.getIntent(), savedInstanceState,
 		        BusLineInfo.EXTRA_LINE_DIRECTION_ID);
 		showNewLine(lineNumber, lineDirectionId);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onResume() {
+		MyLog.v(TAG, "onResume()");
+		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
+	    super.onResume();
 	}
 
 	/**

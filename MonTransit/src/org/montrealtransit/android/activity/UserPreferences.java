@@ -1,5 +1,6 @@
 package org.montrealtransit.android.activity;
 
+import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
@@ -21,6 +22,10 @@ public class UserPreferences extends PreferenceActivity {
 	 * The log tag.
 	 */
 	private static final String TAG = UserPreferences.class.getSimpleName();
+	/**
+	 * The tracker tag.
+	 */
+	private static final String TRACKER_TAG = "/Preferences";
 
 	/**
 	 * The preference key for the bus lines list display.
@@ -158,6 +163,16 @@ public class UserPreferences extends PreferenceActivity {
 	            return false;
 	        }
 	    });
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onResume() {
+		MyLog.v(TAG, "onResume()");
+		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
+		super.onResume();
 	}
 
 	/**

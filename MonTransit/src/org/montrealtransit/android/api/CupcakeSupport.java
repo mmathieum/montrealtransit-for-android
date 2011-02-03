@@ -16,4 +16,8 @@ public class CupcakeSupport implements SupportUtil {
 	    editor.commit();
     }
 
+	@Override
+    public String getBuildManufacturer() {
+	    return "unknown";
+    }
 }

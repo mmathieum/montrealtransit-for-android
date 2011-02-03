@@ -48,7 +48,7 @@ public class MyLog {
 			Log.v(Constant.MAIN_TAG, String.format("%s>%s", tag, String.format(msg, args)));
 		}
 	}
-	
+
 	/**
 	 * @see Log#d(String, String)
 	 * @param tag the class tag
@@ -71,7 +71,7 @@ public class MyLog {
 			Log.d(Constant.MAIN_TAG, String.format("%s>%s", tag, String.format(msg, args)));
 		}
 	}
-	
+
 	/**
 	 * @see Log#i(String, String)
 	 * @param tag the class log
@@ -121,12 +121,12 @@ public class MyLog {
 	/**
 	 * @see Log#w(String, String, Throwable)
 	 * @param tag the class tag
+	 * @param t the error
 	 * @param msg the message
-	 * @param e the error
 	 */
-	public static void w(String tag, String msg, Exception e) {
+	public static void w(String tag, Throwable t, String msg) {
 		if (DEBUG || Log.isLoggable(Constant.MAIN_TAG, Log.WARN)) {
-			Log.w(Constant.MAIN_TAG, String.format("%s>%s", tag, msg), e);
+			Log.w(Constant.MAIN_TAG, String.format("%s>%s", tag, msg), t);
 		}
 	}
 

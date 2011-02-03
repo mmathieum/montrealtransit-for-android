@@ -1,5 +1,6 @@
 package org.montrealtransit.android.activity;
 
+import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
@@ -27,6 +28,10 @@ public class DonateActivity extends Activity {
 	 * The log tag.
 	 */
 	private static final String TAG = DonateActivity.class.getSimpleName();
+	/**
+	 * The tracker tag.
+	 */
+	private static final String TRACKER_TAG = "/Donate";
 
 	/**
 	 * The payment method spinner.
@@ -84,6 +89,16 @@ public class DonateActivity extends Activity {
 				next(v);
 			}
 		});
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onResume() {
+		MyLog.v(TAG, "onResume()");
+		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
+	    super.onResume();
 	}
 
 	/**

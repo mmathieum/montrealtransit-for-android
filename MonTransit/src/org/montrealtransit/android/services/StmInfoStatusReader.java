@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.TwitterUtils;
@@ -82,6 +83,7 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 				twitter = new TwitterFactory().getInstance(); // Anonymous
 			}
 			ResponseList<twitter4j.Status> userTimeline = twitter.getUserTimeline("stminfo");
+			AnalyticsUtils.dispatch(context); // while we are connected, sent the analytics data
 
 			List<ServiceStatus> allServiceStatus = new ArrayList<ServiceStatus>();
 			// FOR each status DO

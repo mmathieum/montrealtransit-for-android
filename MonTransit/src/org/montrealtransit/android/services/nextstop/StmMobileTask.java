@@ -8,6 +8,7 @@ import java.net.UnknownHostException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
@@ -67,6 +68,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 			switch (httpUrlConnection.getResponseCode()) {
 			case HttpURLConnection.HTTP_OK:
 				String html = Utils.getInputStreamToString(urlc.getInputStream(), "utf-8");
+				AnalyticsUtils.dispatch(context); // while we are connected, sent the analytics data
 				publishProgress(this.context.getResources().getString(R.string.processing_data));
 				BusStopHours hours = getBusStopHoursFromString(html, lineNumber);
 				publishProgress(this.context.getResources().getString(R.string.done));

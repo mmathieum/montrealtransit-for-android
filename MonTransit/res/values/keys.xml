@@ -5,4 +5,5 @@
 	<string name="paypal_app_id">ENTER_THE_PAYPAL_APP_ID_HERE</string><!-- TEST "APP-80W284485P519543T" -->
 	<string name="paypal_recipient_name_mathieu_mea">ENTER_DEV_NAME_HERE</string>
 	<string name="paypal_recipient_email_mathieu_mea">ENTER_DEV_EMAIL_HERE</string>
+	<string name="google_analytics_id">ENTER_WEB_PROPERTY_ID_HERE</string>
 </resources>
