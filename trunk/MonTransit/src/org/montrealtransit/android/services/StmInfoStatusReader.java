@@ -158,9 +158,9 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 	 * @return the message language
 	 */
 	private String extractMessageLanguage(String statusText) {
-		if (statusText.contains("VE") || statusText.contains("JE") || statusText.contains("RE")) {
+		if (statusText.contains(" VE ") || statusText.contains(" JE ") || statusText.contains(" RE ")) {
 	    	return ServiceStatus.STATUS_LANG_ENGLISH;
-	    } else if ( statusText.contains("VF") || statusText.contains("JF") || statusText.contains("RF")) {
+	    } else if ( statusText.contains(" VF ") || statusText.contains(" JF ") || statusText.contains(" RF ")) {
 	    	return ServiceStatus.STATUS_LANG_FRENCH;
 	    } else {
 	    	return ServiceStatus.STATUS_LANG_UNKNOWN;
@@ -173,11 +173,11 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 	 * @return the service status
 	 */
 	private int extractServiceStatus(String statusText) {
-		if (statusText.contains("VE") || statusText.contains("VF")) {
+		if (statusText.contains(" VE ") || statusText.contains(" VF ")) {
 	    	return ServiceStatus.STATUS_TYPE_GREEN;
-	    } else if (statusText.contains("JE") || statusText.contains("JF")) {
+	    } else if (statusText.contains(" JE ") || statusText.contains(" JF ")) {
 	    	return ServiceStatus.STATUS_TYPE_YELLOW;
-	    } else if (statusText.contains("RE") || statusText.contains("RF")) {
+	    } else if (statusText.contains(" RE ") || statusText.contains(" RF ")) {
 	    	return ServiceStatus.STATUS_TYPE_RED;
 	    } else {
 	    	return ServiceStatus.STATUS_TYPE_DEFAULT;
