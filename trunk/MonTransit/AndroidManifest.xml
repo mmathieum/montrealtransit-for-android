@@ -10,7 +10,7 @@
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /><!--  use by Analytics -->
 	<!-- TraceView uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /-->
 	<!-- mock location dev uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" /-->
-	<uses-sdk android:minSdkVersion="3" android:targetSdkVersion="9" />
+	<uses-sdk android:minSdkVersion="3" android:targetSdkVersion="10" />
 	<supports-screens
 		android:smallScreens="true" android:normalScreens="true" android:largeScreens="true"
 		android:anyDensity="true" />

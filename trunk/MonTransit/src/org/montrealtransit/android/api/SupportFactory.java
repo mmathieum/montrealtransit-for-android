@@ -21,21 +21,21 @@ public class SupportFactory {
 			className += ".DonutSupport"; // 4
 		} else if (sdkVersion == Build.VERSION_CODES.ECLAIR
 				|| sdkVersion == Build.VERSION_CODES.ECLAIR_0_1
-				|| sdkVersion == Build.VERSION_CODES.ECLAIR_MR1) {
+		        || sdkVersion == Build.VERSION_CODES.ECLAIR_MR1) {
 			className += ".EclairSupport"; // 5 6 7
 		} else if (sdkVersion == Build.VERSION_CODES.FROYO) {
 			className += ".FroyoSupport"; // 8
-		} else if (sdkVersion == Build.VERSION_CODES.GINGERBREAD) {
-			className += ".GingerbreadSupport"; // 9
+		} else if (sdkVersion == Build.VERSION_CODES.GINGERBREAD
+				|| sdkVersion == Build.VERSION_CODES.GINGERBREAD_MR1) {
+			className += ".GingerbreadSupport"; // 9 10
 		} else if (sdkVersion > Build.VERSION_CODES.GINGERBREAD) {
-			MyLog.w(TAG, "Unknow API Level: %s",  Build.VERSION.SDK);
+			MyLog.w(TAG, "Unknow API Level: %s", Build.VERSION.SDK);
 			className += ".GingerbreadSupport"; // default for newer SDK
 		}
 
 		try {
 			Class<?> detectorClass = Class.forName(className);
-			return (SupportUtil) detectorClass.getConstructor(Context.class)
-					.newInstance(context);
+			return (SupportUtil) detectorClass.getConstructor(Context.class).newInstance(context);
 		} catch (Exception e) {
 			MyLog.e(TAG, "INTERNAL ERROR!", e);
 			throw new RuntimeException(e);
