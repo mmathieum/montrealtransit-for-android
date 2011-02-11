@@ -359,7 +359,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 				// station lines color
 				List<Integer> otherLines = station.getOtherLinesId();
 				// 1 - find the station line image
-				int subwayLineImgId = SubwayUtils.getSubwayLineImgId(SubwayUtils.getSubwayLineImgId(station.getLineId()));
+				int subwayLineImgId = SubwayUtils.getSubwayLineImgId(station.getLineId());
 				if (!SubwayLineInfo.this.getSortOrderFromOrderPref(station.getLineId()).equals(
 				        StmStore.SubwayStation.DEFAULT_SORT_ORDER)) {
 					if (position == 0) {
