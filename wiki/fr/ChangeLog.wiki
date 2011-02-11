@@ -3,6 +3,24 @@
 
 = !ChangeLog =
 
+ * 1.5.1 (r387)
+  * corrige un problème avec l'état de service du métro
+  * améliore Google Analytics
+  * compatibilité avec Android 2.3.3 (API Level 10)
+  * autres améliorations
+
+ * 1.5 (r380)
+  * améliore les informations sur les prochains arrêts de bus venant de m.stm.info
+  * ajout des donations PayPal/Android Market
+  * ajout de Google Analytics pour connaitre de façon anonyme l'utilisation de l'application
+  * autres améliorations
+
+ * 1.4.5 (r370)
+  * corrige un problème avec l'état de service du métro
+
+ * 1.4.4 (r367)
+  * corrige un problème avec l'état de service du métro
+
  * 1.4.3 (r364)
   * corrige un problème avec les appareils avec Android 2.3+
 

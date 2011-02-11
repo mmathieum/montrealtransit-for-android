@@ -3,6 +3,24 @@
 
 = !ChangeLog =
 
+ * 1.5.1 (r387)
+  * fix issue with STM service status
+  * improve Google Analytics
+  * compatibility with Android 2.3.3 (API Level 10)
+  * other improvements
+
+ * 1.5 (r380)
+  * improve next bus stop informations from m.stm.info
+  * add PayPal/Android Market donations
+  * add Google Analytics anonymous usage reporting
+  * other improvements
+
+ * 1.4.5 (r370)
+  * fix issue with STM service status
+
+ * 1.4.4 (r367)
+  * fix issue with STM service status
+
  * 1.4.3 (r364)
   * fix issue with Android 2.3+ devices
 
