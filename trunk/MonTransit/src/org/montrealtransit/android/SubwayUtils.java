@@ -65,7 +65,7 @@ public class SubwayUtils {
 	 * @return the subway line image ID
 	 */
 	public static int getSubwayLineImgId(int number) {
-		// MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
+		// MyLog.v(TAG, "getSubwayLineImgId(%s)", number);
 		switch (number) {
 		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
 			return R.drawable.green;
@@ -76,7 +76,7 @@ public class SubwayUtils {
 		case StmStore.SubwayLine.BLUE_LINE_NUMBER:
 			return R.drawable.blue;
 		default:
-			MyLog.w(TAG, "Unknown image for subway line number ''.", number);
+			MyLog.w(TAG, "Unknown image for subway line number '%s'.", number);
 			return R.drawable.yellow;
 		}
 	}
@@ -86,7 +86,7 @@ public class SubwayUtils {
 	 * @return the subway line list image
 	 */
 	public static int getSubwayLineImgListId(int number) {
-		// MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
+		// MyLog.v(TAG, "getSubwayLineImgListId(%s)", number);
 		switch (number) {
 		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
 			return R.drawable.green_list;
@@ -107,7 +107,7 @@ public class SubwayUtils {
 	 * @return the subway line list top image
 	 */
 	public static int getSubwayLineImgListTopId(int number) {
-		// MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
+		// MyLog.v(TAG, "getSubwayLineImgListTopId(%s)", number);
 		switch (number) {
 		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
 			return R.drawable.green_list_top;
@@ -118,7 +118,7 @@ public class SubwayUtils {
 		case StmStore.SubwayLine.BLUE_LINE_NUMBER:
 			return R.drawable.blue_list_top;
 		default:
-			MyLog.w(TAG, "Unknown image for subway line number ''.", number);
+			MyLog.w(TAG, "Unknown image for subway line number '%s'.", number);
 			return R.drawable.yellow;
 		}
 	}
@@ -128,7 +128,7 @@ public class SubwayUtils {
 	 * @return the subway line list middle image
 	 */
 	public static int getSubwayLineImgListMiddleId(int number) {
-		// MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
+		// MyLog.v(TAG, "getSubwayLineImgListMiddleId(%s)", number);
 		switch (number) {
 		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
 			return R.drawable.green_list_middle;
@@ -149,7 +149,7 @@ public class SubwayUtils {
 	 * @return the subway line list bottom image
 	 */
 	public static int getSubwayLineImgListBottomId(int number) {
-		// MyLog.v(TAG, "getSubwayLineImg(" + number + ")");
+		// MyLog.v(TAG, "getSubwayLineImgListBottomId(%s)", number);
 		switch (number) {
 		case StmStore.SubwayLine.GREEN_LINE_NUMBER:
 			return R.drawable.green_list_bottom;
