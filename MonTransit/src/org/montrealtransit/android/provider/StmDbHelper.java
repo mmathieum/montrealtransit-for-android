@@ -205,11 +205,11 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	 */
 	private void initDataBase(Context context, InitializationTask task) throws IOException {
 		MyLog.v(TAG, "initDataBase()");
-		// count the number of line of the SQL dump file
+		// count the number of line of the SQL dump files
 		int nbLine = 0;
 		try {
-			// nbLine = count(context.getAssets().open(DB_DUMP));
-			nbLine = Utils.countNumberOfLine(context.getResources().openRawResource(R.raw.stm_db_sql_dump));
+			nbLine = Utils.countNumberOfLine(context.getResources().openRawResource(R.raw.stm_db_sql_dump_p1));
+			nbLine += Utils.countNumberOfLine(context.getResources().openRawResource(R.raw.stm_db_sql_dump_p2));
 			if (task != null) {
 				task.initProgressBar(nbLine);
 			}
@@ -219,15 +219,24 @@ public class StmDbHelper extends SQLiteOpenHelper {
 		BufferedReader br = null;
 		SQLiteDatabase dataBase = null;
 		try {
-			// Open the SQL dump as the input stream
-			br = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(R.raw.stm_db_sql_dump),
-			        "UTF8"));
 			// open the database RW
 			dataBase = this.getWritableDatabase();
 			// starting the transaction
 			dataBase.beginTransaction();
 			int lineNumber = 0;
 			String line;
+			// file 1
+			br = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(R.raw.stm_db_sql_dump_p1),
+			        "UTF8"));
+			while ((line = br.readLine()) != null) {
+				dataBase.execSQL(line);
+				if (nbLine > 0 && task != null) {
+					task.incrementProgressBar(++lineNumber);
+				}
+			}
+			// file 2
+			br = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(R.raw.stm_db_sql_dump_p2),
+			        "UTF8"));
 			while ((line = br.readLine()) != null) {
 				dataBase.execSQL(line);
 				if (nbLine > 0 && task != null) {
