@@ -153,7 +153,7 @@ public class TwitterUtils {
 			// launching the browser
 			context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(authUrl)));
 		} catch (Exception e) {
-			MyLog.e(TAG, "Error while trying to launch Twitter Authentication!", e);
+			MyLog.e(TAG, e, "Error while trying to launch Twitter Authentication!");
 		}
 	}
 
@@ -198,9 +198,9 @@ public class TwitterUtils {
 			DataManager.addTwitterApi(context.getContentResolver(), newTwitterApi);
 			// notify the user of the success
 			Utils.notifyTheUser(context, context.getString(R.string.twitter_auth_success));
-		} catch (OAuthException e) {
+		} catch (OAuthException oae) {
 			Utils.notifyTheUser(context, context.getString(R.string.twitter_auth_failed));
-			MyLog.w(TAG, "Twitter OAuth error!", e);
+			MyLog.w(TAG, oae, "Twitter OAuth error!");
 		}
 	}
 
@@ -214,7 +214,7 @@ public class TwitterUtils {
 			DataManager.deleteAllTwitterAPI(context.getContentResolver());
 			Utils.notifyTheUser(context, context.getString(R.string.twitter_logout_success));
 		} catch (Exception e) {
-			MyLog.w(TAG, "ERROR while disconnecting!", e);
+			MyLog.w(TAG, e, "ERROR while disconnecting!");
 		}
 	}
 

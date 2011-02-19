@@ -99,17 +99,6 @@ public class MyLog {
 	 * @see Log#w(String, String)
 	 * @param tag the class tag
 	 * @param msg the message
-	 */
-	public static void w(String tag, String msg) {
-		if (DEBUG || Log.isLoggable(Constant.MAIN_TAG, Log.WARN)) {
-			Log.w(Constant.MAIN_TAG, String.format("%s>%s", tag, msg));
-		}
-	}
-
-	/**
-	 * @see Log#w(String, String)
-	 * @param tag the class tag
-	 * @param msg the message
 	 * @param args the message arguments
 	 */
 	public static void w(String tag, String msg, Object... args) {
@@ -123,22 +112,23 @@ public class MyLog {
 	 * @param tag the class tag
 	 * @param t the error
 	 * @param msg the message
+	 * @param args the message arguments
 	 */
-	public static void w(String tag, Throwable t, String msg) {
+	public static void w(String tag, Throwable t, String msg, Object... args) {
 		if (DEBUG || Log.isLoggable(Constant.MAIN_TAG, Log.WARN)) {
-			Log.w(Constant.MAIN_TAG, String.format("%s>%s", tag, msg), t);
+			Log.w(Constant.MAIN_TAG, String.format("%s>%s", tag, String.format(msg, args)), t);
 		}
 	}
 
 	/**
 	 * @see Log#e(String, String, Throwable)
 	 * @param tag the class tag
+	 * @param t the error
 	 * @param msg the message
-	 * @param e the error
 	 */
-	public static void e(String tag, String msg, Exception e) {
+	public static void e(String tag, Throwable t, String msg) {
 		if (DEBUG || Log.isLoggable(Constant.MAIN_TAG, Log.ERROR)) {
-			Log.e(Constant.MAIN_TAG, String.format("%s>%s", tag, msg), e);
+			Log.e(Constant.MAIN_TAG, String.format("%s>%s", tag, msg), t);
 		}
 	}
 }

@@ -1,19 +1,17 @@
 package org.montrealtransit.android.provider;
 
-import java.io.FileOutputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.InputStreamReader;
+import java.util.Arrays;
 
-import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
+import org.montrealtransit.android.activity.MainScreen.InitializationTask;
 
 import android.content.Context;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 
@@ -29,11 +27,6 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	private static final String TAG = StmDbHelper.class.getSimpleName();
 
 	/**
-	 * The path of the database file.
-	 */
-	private static String DB_PATH = "/data/data/" + Constant.PKG + "/databases/";
-
-	/**
 	 * The database file name.
 	 */
 	private static String DB_NAME = "stm.db";
@@ -42,11 +35,6 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	 * The database version use to manage database changes.
 	 */
 	private static final int DB_VERSION = 3;
-
-	/**
-	 * The database object.
-	 */
-	private SQLiteDatabase myDataBase;
 
 	// BUS LINE
 	public static final String T_BUS_LINES = "lignes_autobus";
@@ -125,12 +113,14 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	public static final String T_SUBWAY_STATIONS_K_STATION_LNG = "lng";
 
 	/**
-	 * Constructor takes and keeps a reference of the passed context in order to access to the application assets and resources.
+	 * The default constructor.
+	 * @param context the context
+	 * @param task the initialization task or <b>NULL</b>
 	 */
-	public StmDbHelper(Context context) {
+	public StmDbHelper(Context context, InitializationTask task) {
 		super(context, DB_NAME, null, DB_VERSION);
 		MyLog.v(TAG, "StmDbHelper(%s, %s)", DB_NAME, DB_VERSION);
-		createDbIfNecessary(context);
+		createDbIfNecessary(context, task);
 	}
 
 	/**
@@ -154,41 +144,35 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	/**
 	 * Create the database if necessary.
 	 * @param context the context used to create the database
+	 * @param task the initialization task or <b>NULL</b>
 	 */
-	private void createDbIfNecessary(Context context) {
+	private void createDbIfNecessary(Context context, InitializationTask task) {
 		MyLog.v(TAG, "createDbIfNecessary()");
 		// IF DB doesn't exist DO
-		if (!isDbExist()) {
+		if (!isDbExist(context)) {
 			MyLog.d(TAG, "DB NOT EXIST");
-			// By calling this method, an empty database will be created into the default system path of your application
-			// so we are going to be able to overwrite that database with our database.
-			try {
-				this.getReadableDatabase();
-			} catch (SQLiteException e) {
-				MyLog.d(TAG, "SQLite exception while getReadableDatabase().");
-			}
 			try {
 				MyLog.i(TAG, "Initialization of the STM database...");
-				copyDataBase(context);
-				MyLog.i(TAG, "Initialization of the STM database... OK");
-			} catch (IOException e) {
-				MyLog.e(TAG, "Error while copying database", e);
+				initDataBase(context, task);
+				MyLog.i(TAG, "Initialization of the STM database... DONE");
+			} catch (IOException ioe) {
+				MyLog.e(TAG, ioe, "Error while initializating of the STM database!");
 			}
 		} else {
 			MyLog.d(TAG, "DB EXIST");
 			// check version
-			int currentVersion = getExistingDbVersion();
+			int currentVersion = this.getReadableDatabase().getVersion();
 			if (currentVersion != DB_VERSION) {
 				MyLog.d(TAG, "VERSION DIFF");
 				// upgrade
 				if (currentVersion < DB_VERSION) {
 					MyLog.d(TAG, "UPGRADING FROM '%s' to '%s' ...", currentVersion, DB_VERSION);
-					// close the db
+					// close the database
 					close();
-					// remove the existing db
+					// remove the existing database
 					if (context.deleteDatabase(DB_NAME)) {
 						// copy the new one
-						createDbIfNecessary(context);
+						createDbIfNecessary(context, task);
 						Utils.notifyTheUser(context, context.getString(R.string.update_stm_db_ok));
 					} else {
 						MyLog.w(TAG, "Can't delete the current database.");
@@ -205,77 +189,72 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	}
 
 	/**
-	 * @return the existing database version
-	 */
-	private int getExistingDbVersion() {
-		int result = 0;
-		if (myDataBase != null) {
-			result = myDataBase.getVersion();
-		} else {
-			SQLiteDatabase checkDB = null;
-			try {
-				// open/close the database to check the version.
-				checkDB = SQLiteDatabase.openDatabase(DB_PATH + DB_NAME, null, SQLiteDatabase.OPEN_READONLY);
-				result = checkDB.getVersion();
-				checkDB.close();
-			} catch (SQLiteException e) {
-				MyLog.w(TAG, "Can't find the current DB version.");
-			}
-		}
-		return result;
-	}
-
-	/**
 	 * Check if the database already exist to avoid re-copying the file each time you open the application.
+	 * @param context the context
 	 * @return true if it exists, false if it doesn't
 	 */
-	private boolean isDbExist() {
-		SQLiteDatabase checkDB = null;
-		try {
-			// open/close the database, if an SQLite exception is raised, the DB doesn't exist.
-			checkDB = SQLiteDatabase.openDatabase(DB_PATH + DB_NAME, null, SQLiteDatabase.OPEN_READONLY);
-			checkDB.close();
-			return true;
-		} catch (SQLiteException e) {
-			MyLog.d(TAG, "The STM database doesn't exist yet.");
-			return false;
-		}
+	public static boolean isDbExist(Context context) {
+		MyLog.v(TAG, "isDbExist()");
+		return Arrays.asList(context.databaseList()).contains(DB_NAME);
 	}
 
 	/**
-	 * Copies the database from the local assets-folder to the just created empty database in the system folder, from where it can be accessed and handled. This
-	 * is done by transferring byte stream.
+	 * Initialize the database from the SQL dump.
 	 * @param context the context use to open the input stream
-	 * */
-	private void copyDataBase(Context context) throws IOException {
-		MyLog.v(TAG, "copyDataBase()");
-		// Open your local DB as the input stream
-		InputStream myInput = context.getAssets().open(DB_NAME);
-		// Path to the just created empty DB
-		String outFileName = DB_PATH + DB_NAME;
-		// Open the empty DB as the output stream
-		OutputStream myOutput = new FileOutputStream(outFileName);
-		// transfer bytes from the input file to the output file
-		byte[] buffer = new byte[1024];
-		int length;
-		while ((length = myInput.read(buffer)) > 0) {
-			myOutput.write(buffer, 0, length);
-		}
-		// Close the streams
-		myOutput.flush();
-		myOutput.close();
-		myInput.close();
-	}
-
-	/**
-	 * Open the database.
+	 * @param task the initialize task or <b>NULL</b>
 	 */
-	public void open() {
-		MyLog.v(TAG, "open()");
+	private void initDataBase(Context context, InitializationTask task) throws IOException {
+		MyLog.v(TAG, "initDataBase()");
+		// count the number of line of the SQL dump file
+		int nbLine = 0;
 		try {
-			myDataBase = SQLiteDatabase.openDatabase(DB_PATH + DB_NAME, null, SQLiteDatabase.OPEN_READONLY);
-		} catch (SQLException sqle) {
-			MyLog.w(TAG, "Error while opening the database.", sqle);
+			// nbLine = count(context.getAssets().open(DB_DUMP));
+			nbLine = Utils.countNumberOfLine(context.getResources().openRawResource(R.raw.stm_db_sql_dump));
+			if (task != null) {
+				task.initProgressBar(nbLine);
+			}
+		} catch (Exception e) {
+			MyLog.w(TAG, e, "ERROR while counting nb line!");
+		}
+		BufferedReader br = null;
+		SQLiteDatabase dataBase = null;
+		try {
+			// Open the SQL dump as the input stream
+			br = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(R.raw.stm_db_sql_dump),
+			        "UTF8"));
+			// open the database RW
+			dataBase = this.getWritableDatabase();
+			// starting the transaction
+			dataBase.beginTransaction();
+			int lineNumber = 0;
+			String line;
+			while ((line = br.readLine()) != null) {
+				dataBase.execSQL(line);
+				if (nbLine > 0 && task != null) {
+					task.incrementProgressBar(++lineNumber);
+				}
+			}
+			// mark the transaction as successful
+			dataBase.setTransactionSuccessful();
+		} catch (Exception e) {
+			MyLog.w(TAG, e, "ERROR while copying the database file!");
+		} finally {
+			try {
+				if (dataBase != null) {
+					// end the transaction
+					dataBase.endTransaction();
+					dataBase.close();
+				}
+			} catch (Exception e) {
+				MyLog.w(TAG, e, "ERROR while closing the new database!");
+			}
+			try {
+				if (br != null) {
+					br.close();
+				}
+			} catch (Exception e) {
+				MyLog.w(TAG, e, "ERROR while closing the input stream!");
+			}
 		}
 	}
 
@@ -284,8 +263,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	 */
 	@Override
 	public synchronized void close() {
-		if (myDataBase != null)
-			myDataBase.close();
+		this.close();
 		super.close();
 	}
 }

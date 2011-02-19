@@ -132,7 +132,7 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 			}
 		} catch (Exception e) {
 			// Unknown error
-			MyLog.e(TAG, "INTERNAL ERROR: Unknown Exception", e);
+			MyLog.e(TAG, e, "INTERNAL ERROR: Unknown Exception");
 			publishProgress(this.context.getString(R.string.error));
 			return this.context.getString(R.string.error);
 		}

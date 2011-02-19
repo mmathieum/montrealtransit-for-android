@@ -119,7 +119,7 @@ public class DonatePayPalActivity extends Activity {
 	 * @param button
 	 */
 	private void showPayPalButtonDialog(CheckoutButton button) {
-		this.progressDialog.hide();
+		this.progressDialog.dismiss();
 		// finish loading the UI component
 		onCreateAfterLoading();
 		// add the text message

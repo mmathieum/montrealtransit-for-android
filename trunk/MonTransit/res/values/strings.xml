@@ -293,4 +293,7 @@
 
     <string name="next">Next</string>
     <string name="back">Back</string>
+
+    <string name="init_dialog_title">Initialization</string>
+    <string name="init_dialog_message">Please wait a couple of minutes while initializing MonTransit...</string>
 </resources>

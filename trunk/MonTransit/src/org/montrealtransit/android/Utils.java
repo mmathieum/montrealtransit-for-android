@@ -1,5 +1,6 @@
 package org.montrealtransit.android;
 
+import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +28,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
-import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -77,14 +77,14 @@ public class Utils {
 				writer.write(string);
 			}
 		} catch (IOException ioe) {
-			MyLog.e(TAG, "Error while reading the input stream and writing into the file.", ioe);
+			MyLog.e(TAG, ioe, "Error while reading the input stream and writing into the file.");
 		} finally {
 			try {
 				writer.flush();
 				writer.close();
 				is.close();
 			} catch (IOException ioe) {
-				MyLog.w(TAG, "Error while finishing and closing the file.", ioe);
+				MyLog.w(TAG, ioe, "Error while finishing and closing the file.");
 			}
 		}
 	}
@@ -105,12 +105,12 @@ public class Utils {
 				result += string;
 			}
 		} catch (IOException ioe) {
-			MyLog.e(TAG, "Error while reading the input stream and writing into a string.", ioe);
+			MyLog.e(TAG, ioe, "Error while reading the input stream and writing into a string.");
 		} finally {
 			try {
 				is.close();
 			} catch (IOException ioe) {
-				MyLog.w(TAG, "Error while finishing and closing the file.", ioe);
+				MyLog.w(TAG, ioe, "Error while finishing and closing the file.");
 			}
 		}
 		return result;
@@ -123,12 +123,12 @@ public class Utils {
 	 * @return the formatted hour string
 	 */
 	public static String formatHours(Context context, String noFormatHour) {
-		// MyLog.v(TAG, "formatHours(" + noFormatHour + ")");
+		// MyLog.v(TAG, "formatHours(%s)", noFormatHour);
 		String result = "";
 		try {
 			result = getTimeFormatter(context).format(simpleDateFormatter.parse(noFormatHour.replace("h", ":")));
 		} catch (Exception e) {
-			MyLog.w(TAG, String.format("Error while formatting '%s'.", noFormatHour), e);
+			MyLog.w(TAG, e, "Error while formatting '%s'.", noFormatHour);
 			result = noFormatHour;
 		}
 		return result;
@@ -186,35 +186,16 @@ public class Utils {
 	 * @return the formatted 2 hours string
 	 */
 	public static String getFormatted2Hours(Context context, String noFormatHours, String splitBy) {
-		// MyLog.v(TAG, "getFormatted2Hours(" + noFormatHour + ", " + splitBy + ")");
+		// MyLog.v(TAG, "getFormatted2Hours(%s, %s)", noFormatHour, splitBy);
 		try {
 			int indexOfH = noFormatHours.indexOf(splitBy);
 			String noFormatHour1 = noFormatHours.substring(0, indexOfH);
 			String noFormatHour2 = noFormatHours.substring(indexOfH + splitBy.length());
 			return Utils.formatHours(context, noFormatHour1) + " - " + Utils.formatHours(context, noFormatHour2);
 		} catch (Exception e) {
-			MyLog.w(TAG, String.format("Error while formatting '%s'.", noFormatHours), e);
+			MyLog.w(TAG, e, "Error while formatting '%s'.", noFormatHours);
 			return noFormatHours;
 		}
-	}
-
-	/**
-	 * Return the size of the cursor. Return 0 is the cursor is null.
-	 * @param cursor the cursor
-	 * @return the cursor size
-	 */
-	public static int getCursorSize(Cursor cursor) {
-		MyLog.v(TAG, "getCursorSize()");
-		int result = 0;
-		if (cursor != null) {
-			if (cursor.moveToFirst()) {
-				result++;
-			}
-			while (cursor.moveToNext()) {
-				result++;
-			}
-		}
-		return result;
 	}
 
 	/**
@@ -397,7 +378,7 @@ public class Utils {
 			minuteS = "0" + minuteS;
 		}
 		result = hourS + " h " + minuteS;
-		MyLog.v(TAG, "result>" + result);
+		// MyLog.d(TAG, "result>" + result);
 		return result;
 	}
 
@@ -653,5 +634,26 @@ public class Utils {
 		if (imm != null) {
 			imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 		}
+	}
+
+	/**
+	 * Return the number of line of a text file.
+	 * @param textFileIS the text file input stream
+	 * @return the number of lines
+	 * @throws IOException an I/O exception occurs
+	 */
+	public static int countNumberOfLine(InputStream textFileIS) throws IOException {
+		InputStream is = new BufferedInputStream(textFileIS);
+		byte[] c = new byte[1024];
+		int count = 0;
+		int readChars = 0;
+		while ((readChars = is.read(c)) != -1) {
+			for (int i = 0; i < readChars; ++i) {
+				if (c[i] == '\n')
+					++count;
+			}
+		}
+		is.close();
+		return count;
 	}
 }
