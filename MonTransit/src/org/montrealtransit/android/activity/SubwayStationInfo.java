@@ -495,7 +495,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 				startActivity(new Intent(android.content.Intent.ACTION_VIEW, uri));
 				return true;
 			} catch (Exception e) {
-				MyLog.e(TAG, "Error while launching map", e);
+				MyLog.e(TAG, e, "Error while launching map");
 				return false;
 			}
 		case MENU_USE_RADAR_TO_THE_SUBWAY_STATION:

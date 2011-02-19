@@ -82,15 +82,15 @@ public class StmMobileTask extends AbstractNextStopProvider {
 				return new BusStopHours(SOURCE_NAME, errorMessage);
 			}
 		} catch (UnknownHostException uhe) {
-			MyLog.w(TAG, "No Internet Connection!", uhe);
+			MyLog.w(TAG, uhe, "No Internet Connection!");
 			publishProgress(this.context.getString(R.string.no_internet));
 			return new BusStopHours(SOURCE_NAME, this.context.getString(R.string.no_internet));
 		} catch (SocketException se) {
-			MyLog.w(TAG, "No Internet Connection!", se);
+			MyLog.w(TAG, se, "No Internet Connection!");
 			publishProgress(this.context.getString(R.string.no_internet));
 			return new BusStopHours(SOURCE_NAME, this.context.getString(R.string.no_internet));
 		} catch (Exception e) {
-			MyLog.e(TAG, "INTERNAL ERROR: Unknown Exception", e);
+			MyLog.e(TAG, e, "INTERNAL ERROR: Unknown Exception");
 			publishProgress(this.context.getString(R.string.error));
 			return new BusStopHours(SOURCE_NAME, this.context.getString(R.string.error));
 		}

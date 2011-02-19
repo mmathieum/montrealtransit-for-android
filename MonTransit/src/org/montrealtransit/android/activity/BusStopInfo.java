@@ -978,7 +978,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 				}).execute(this.busStop.getPlace());
 				return true;
 			} catch (Exception e) {
-				MyLog.e(TAG, "Error while launching map", e);
+				MyLog.e(TAG, e, "Error while launching map");
 				return false;
 			}
 		case MENU_USE_RADAR:

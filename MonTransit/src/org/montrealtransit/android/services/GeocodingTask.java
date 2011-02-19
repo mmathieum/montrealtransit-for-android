@@ -64,10 +64,10 @@ public class GeocodingTask extends AsyncTask<String, String, List<Address>> {
 			Geocoder geocoder = new Geocoder(this.context);
 			return geocoder.getFromLocationName(locationName, this.maxResults, Constant.STM_LOWER_LEFT_LAT,
 			        Constant.STM_LOWER_LEFT_LNG, Constant.STM_UPPER_RIGHT_LAT, Constant.STM_UPPER_RIGHT_LNG);
-		} catch (IOException e) {
-			MyLog.e(TAG, "INTERNAL ERROR: the network is unavailable or any other I/O problem occurs", e);
+		} catch (IOException ioe) {
+			MyLog.e(TAG, ioe, "INTERNAL ERROR: the network is unavailable or any other I/O problem occurs");
 		} catch (Exception e) {
-			MyLog.e(TAG, "INTERNAL ERROR: unknown problem", e);
+			MyLog.e(TAG, e, "INTERNAL ERROR: unknown problem");
 		}
 		return null;
 	}

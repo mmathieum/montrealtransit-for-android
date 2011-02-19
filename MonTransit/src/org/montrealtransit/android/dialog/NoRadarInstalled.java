@@ -6,8 +6,8 @@ import org.montrealtransit.android.R;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.net.Uri;
 
 /**
@@ -62,7 +62,7 @@ public class NoRadarInstalled implements OnClickListener {
 	 */
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
-		MyLog.v(TAG, "onClick(" + which + ")");
+		MyLog.v(TAG, "onClick(%s)", which);
 		switch (which) {
 		case -2:
 			dialog.dismiss(); // CANCEL

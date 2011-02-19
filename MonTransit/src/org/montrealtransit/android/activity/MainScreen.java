@@ -6,9 +6,12 @@ import org.montrealtransit.android.R;
 import org.montrealtransit.android.TwitterUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.provider.DataManager;
+import org.montrealtransit.android.provider.StmDbHelper;
 
+import android.app.ProgressDialog;
 import android.app.TabActivity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.TabHost.TabSpec;
 
@@ -43,6 +46,10 @@ public class MainScreen extends TabActivity {
 	 * The subway lines list tab ID.
 	 */
 	private static final String TAB_SUBWAY = "tab_subway";
+	/**
+	 * The progress dialog to show while initializing the app.
+	 */
+	private ProgressDialog progressDialog;
 
 	/**
 	 * {@inheritDoc}
@@ -55,6 +62,29 @@ public class MainScreen extends TabActivity {
 		// set the UI.
 		setContentView(R.layout.main_screen);
 
+		// IF the local database need to be initialized DO
+		if (!StmDbHelper.isDbExist(this)) {
+			// show a progress dialog
+			this.progressDialog = new ProgressDialog(this);
+			this.progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+			this.progressDialog.setCancelable(false);
+			this.progressDialog.setIndeterminate(true);
+			//this.progressDialog.setTitle(getString(R.string.init_dialog_title));
+			this.progressDialog.setMessage(getString(R.string.init_dialog_message));
+			this.progressDialog.show();
+			// initialize the database
+			new InitializationTask().execute();
+		} else {
+			// just finish the onCreate
+			onCreateFinish();
+		}
+	}
+
+	/**
+	 * Finish the create of the activity (after initialization).
+	 */
+	private void onCreateFinish() {
+		MyLog.v(TAG, "onCreateFinish()");
 		// the favorites list
 		TabSpec favListTab = getTabHost().newTabSpec(TAB_FAV);
 		favListTab.setIndicator(getString(R.string.favorite), getResources().getDrawable(R.drawable.ic_tab_starred));
@@ -62,8 +92,8 @@ public class MainScreen extends TabActivity {
 		getTabHost().addTab(favListTab);
 		// the bus stop code
 		TabSpec busStopCodeTab = getTabHost().newTabSpec(TAB_STOP_CODE);
-		busStopCodeTab.setIndicator(getString(R.string.stop_code), getResources().getDrawable(
-		        R.drawable.ic_tab_stop_code));
+		busStopCodeTab.setIndicator(getString(R.string.stop_code),
+		        getResources().getDrawable(R.drawable.ic_tab_stop_code));
 		busStopCodeTab.setContent(new Intent(this, BusStopCodeTab.class));
 		getTabHost().addTab(busStopCodeTab);
 		// the bus lines list
@@ -96,7 +126,7 @@ public class MainScreen extends TabActivity {
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
-	    super.onResume();
+		super.onResume();
 	}
 
 	/**
@@ -108,6 +138,58 @@ public class MainScreen extends TabActivity {
 		if (TwitterUtils.isTwitterCallback(intent)) {
 			TwitterUtils.getInstance().login(this, intent.getData());
 		}
-	    super.onNewIntent(intent);
+		super.onNewIntent(intent);
+	}
+
+	/**
+	 * This task initialize the application.
+	 * @author Mathieu Méa
+	 */
+	public class InitializationTask extends AsyncTask<String, String, String> {
+
+		/**
+		 * The log tag.
+		 */
+		private final String TAG = InitializationTask.class.getSimpleName();
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		protected String doInBackground(String... arg0) {
+			MyLog.v(TAG, "doInBackground()");
+			new StmDbHelper(MainScreen.this, this);
+			return null;
+		}
+
+		/**
+		 * Initialized the progress bar with max value.
+		 * @param maxValue the max value
+		 */
+		public void initProgressBar(int maxValue) {
+			MyLog.v(TAG, "initProgressBar(%s)", maxValue);
+			MainScreen.this.progressDialog.setIndeterminate(false);
+			MainScreen.this.progressDialog.setMax(maxValue);
+		}
+
+		/**
+		 * Set the progress bar progress to the new progress.
+		 * @param value the new progress
+		 */
+		public void incrementProgressBar(int value) {
+			// MyLog.v(TAG, "incrementProgressBar(%s)", value);
+			MainScreen.this.progressDialog.setProgress(value);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		protected void onPostExecute(String result) {
+			MyLog.v(TAG, "onPostExecute()", result);
+			super.onPostExecute(result);
+			MainScreen.this.progressDialog.dismiss();
+			onCreateFinish();
+		}
 	}
 }

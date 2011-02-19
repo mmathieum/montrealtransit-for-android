@@ -14,6 +14,7 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.provider.BaseColumns;
@@ -387,11 +388,6 @@ public class StmProvider extends ContentProvider {
 	@Override
 	public boolean onCreate() {
 		MyLog.v(TAG, "onCreate()");
-		mOpenHelper = new StmDbHelper(getContext());
-		// close the DbHelper to be sure that the stm.db is accessible.
-		mOpenHelper.close();
-		// reopen the database
-		mOpenHelper.open();
 		return true;
 	}
 
@@ -406,10 +402,10 @@ public class StmProvider extends ContentProvider {
 	 */
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-		MyLog.v(TAG, "query(" + uri.getPath() + ", " + Arrays.toString(projection) + ", " + selection + ", "
-		        + Arrays.toString(selectionArgs) + ", " + sortOrder + ")");
+		MyLog.v(TAG, "query(%s, %s, %s, %s, %s)", uri.getPath(), Arrays.toString(projection), selection,
+		        Arrays.toString(selectionArgs), sortOrder);
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-		MyLog.i(TAG, "[" + uri + "]");
+		MyLog.i(TAG, "[%s]", uri);
 		String limit = null;
 		switch (URI_MATCHER.match(uri)) {
 		case BUS_LINES:
@@ -774,12 +770,10 @@ public class StmProvider extends ContentProvider {
 			map.put(StmStore.FREQUENCY, StmDbHelper.T_SUBWAY_FREQUENCES + "."
 			        + StmDbHelper.T_SUBWAY_FREQUENCES_K_FREQUENCE + " AS " + StmStore.FREQUENCY);
 			qb.setProjectionMap(map);
-			qb
-			        .appendWhere(StmDbHelper.T_SUBWAY_FREQUENCES + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_DIRECTION
-			                + "=" + uri.getPathSegments().get(1) + " AND " + StmDbHelper.T_SUBWAY_FREQUENCES + "."
-			                + StmDbHelper.T_SUBWAY_FREQUENCES_K_DAY + "='' AND time(" + StmDbHelper.T_SUBWAY_FREQUENCES
-			                + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_HOUR + ", '-2 hour') <= '"
-			                + uri.getPathSegments().get(3) + "'");
+			qb.appendWhere(StmDbHelper.T_SUBWAY_FREQUENCES + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_DIRECTION + "="
+			        + uri.getPathSegments().get(1) + " AND " + StmDbHelper.T_SUBWAY_FREQUENCES + "."
+			        + StmDbHelper.T_SUBWAY_FREQUENCES_K_DAY + "='' AND time(" + StmDbHelper.T_SUBWAY_FREQUENCES + "."
+			        + StmDbHelper.T_SUBWAY_FREQUENCES_K_HOUR + ", '-2 hour') <= '" + uri.getPathSegments().get(3) + "'");
 			limit = "1";
 			sortOrder = StmDbHelper.T_SUBWAY_FREQUENCES + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_HOUR + " DESC";
 
@@ -885,10 +879,10 @@ public class StmProvider extends ContentProvider {
 			if (search.length() == 0) {
 				limit = String.valueOf(Constant.NB_SEARCH_RESULT);
 			}
-			MyLog.d(TAG, "search query ready!");
+			//MyLog.d(TAG, "search query ready!");
 			break;
 		default:
-			throw new IllegalArgumentException("Unknown URI (query) " + uri);
+			throw new IllegalArgumentException(String.format("Unknown URI (query): %s", uri));
 		}
 		// If no sort order is specified use the default
 		String orderBy;
@@ -940,16 +934,26 @@ public class StmProvider extends ContentProvider {
 				orderBy = null;
 				break;
 			default:
-				throw new IllegalArgumentException("Unknown URI (order) " + uri);
+				throw new IllegalArgumentException(String.format("Unknown URI (order): %s", uri));
 			}
 		} else {
 			orderBy = sortOrder;
 		}
 
-		SQLiteDatabase db = mOpenHelper.getReadableDatabase();
+		SQLiteDatabase db = getDBHelper().getReadableDatabase();
 		Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy, limit);
 		c.setNotificationUri(getContext().getContentResolver(), uri);
 		return c;
+	}
+
+	/**
+	 * @return the database helper
+	 */
+	private SQLiteOpenHelper getDBHelper() {
+		if (this.mOpenHelper == null) {
+			this.mOpenHelper = new StmDbHelper(getContext(), null);
+		}
+		return this.mOpenHelper;
 	}
 
 	/**
@@ -957,7 +961,7 @@ public class StmProvider extends ContentProvider {
 	 */
 	@Override
 	public String getType(Uri uri) {
-		MyLog.v(TAG, "getType(" + uri.getPath() + ")");
+		MyLog.v(TAG, "getType(%s)", uri.getPath());
 		switch (URI_MATCHER.match(uri)) {
 		case BUS_STOP_ID_BUS_LINES:
 		case BUS_LINES_IDS:
@@ -1006,7 +1010,7 @@ public class StmProvider extends ContentProvider {
 		case SUBWAY_STATIONS_AND_LINES:
 			return null;
 		default:
-			throw new IllegalArgumentException("Unknown URI (type) " + uri);
+			throw new IllegalArgumentException(String.format("Unknown URI (type): %s", uri));
 		}
 	}
 

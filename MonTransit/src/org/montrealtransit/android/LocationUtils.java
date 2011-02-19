@@ -27,15 +27,15 @@ public class LocationUtils {
 	/**
 	 * The minimum time between 2 locations updates (in milliseconds)
 	 */
-	public static final long MIN_TIME = 1000; // 1 second
+	public static final long MIN_TIME = 2000; // 2 second
 	/**
 	 * The minimum distance between 2 updates
 	 */
-	public static final float MIN_DISTANCE = 2; // 2 meters
+	public static final float MIN_DISTANCE = 5; // 5 meters
 	/**
 	 * How long do we prefer accuracy over time?
 	 */
-	public static final long PREFER_MORE_PRECISE_LAST_KNOWN_LOC_TIME = 5000; // 5 seconds
+	public static final long PREFER_MORE_PRECISE_LAST_KNOWN_LOC_TIME = 10000; // 10 seconds
 	/**
 	 * The validity of a last know location (in milliseconds)
 	 */
@@ -185,8 +185,8 @@ public class LocationUtils {
 				result = addresses.get(0);
 				// MyLog.d(TAG, "Found address: %s", result.getAddressLine(0));
 			}
-		} catch (IOException e) {
-			MyLog.w(TAG, "Can't find the adress of the current location!", e);
+		} catch (IOException ioe) {
+			MyLog.w(TAG, ioe, "Can't find the adress of the current location!");
 		}
 		return result;
 	}

@@ -37,7 +37,7 @@ public class SupportFactory {
 			Class<?> detectorClass = Class.forName(className);
 			return (SupportUtil) detectorClass.getConstructor(Context.class).newInstance(context);
 		} catch (Exception e) {
-			MyLog.e(TAG, "INTERNAL ERROR!", e);
+			MyLog.e(TAG, e, "INTERNAL ERROR!");
 			throw new RuntimeException(e);
 		}
 	}
