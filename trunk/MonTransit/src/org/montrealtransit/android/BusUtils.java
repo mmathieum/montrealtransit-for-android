@@ -14,12 +14,33 @@ import android.graphics.Color;
  * @author Mathieu Méa
  */
 public class BusUtils {
-	
+
 	/**
 	 * The log tag.
 	 */
 	private static final String TAG = BusUtils.class.getSimpleName();
-	
+
+	/**
+	 * Return 1 R.string.<ID> for the bus line simple/main direction string.
+	 * @param directionId the direction string
+	 * @return the 1 R.string.<ID>
+	 */
+	private static int getBusLineSimpleDirection(String directionId) {
+		MyLog.v(TAG, "getBusLineSimpleDirection(%s)", directionId);
+		if (directionId.endsWith("N")) {
+			return R.string.north;
+		} else if (directionId.endsWith("S")) {
+			return R.string.south;
+		} else if (directionId.endsWith("E")) {
+			return R.string.east;
+		} else if (directionId.endsWith("O")) {
+			return R.string.west;
+		} else {
+			MyLog.w(TAG, "INTERNAL ERROR: unknow simple direction for '%s'!", directionId);
+			return 0;
+		}
+	}
+
 	/**
 	 * Return a list of 2 R.string.<ID> for the bus line direction string.
 	 * @param directionId the direction string
@@ -28,20 +49,9 @@ public class BusUtils {
 	public static List<Integer> getBusLineDirectionStringIdFromId(String directionId) {
 		MyLog.v(TAG, "getBusLineDirectionStringIdFromId(%s)", directionId);
 		int directionIdLength = directionId.length();
-		String mainDirection = directionId.substring(directionIdLength - 1);
 
 		List<Integer> results = new ArrayList<Integer>();
-		if (mainDirection.equalsIgnoreCase("N")) {
-			results.add(R.string.north);
-		} else if (mainDirection.equalsIgnoreCase("S")) {
-			results.add(R.string.south);
-		} else if (mainDirection.equalsIgnoreCase("E")) {
-			results.add(R.string.east);
-		} else if (mainDirection.equalsIgnoreCase("O")) {
-			results.add(R.string.west);
-		} else {
-			results.add(0);
-		}
+		results.add(getBusLineSimpleDirection(directionId));
 		if (directionIdLength > 1) {
 			String extraDirectionInfo = directionId.substring(directionIdLength - 3, directionIdLength - 1);
 			int lineNumber = Integer.valueOf(directionId.substring(0, directionIdLength - 3));
@@ -316,7 +326,7 @@ public class BusUtils {
 			return R.string.error;
 		}
 	}
-	
+
 	/**
 	 * Clean the bus stop place.
 	 * @param uncleanStopPlace the original bus stop place
@@ -351,7 +361,7 @@ public class BusUtils {
 		// TODO MORE ?
 		return result;
 	}
-	
+
 	/**
 	 * Check if a bus stop code is in the database.
 	 * @param context the activity

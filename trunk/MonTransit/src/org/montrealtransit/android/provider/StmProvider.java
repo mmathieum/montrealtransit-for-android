@@ -879,7 +879,7 @@ public class StmProvider extends ContentProvider {
 			if (search.length() == 0) {
 				limit = String.valueOf(Constant.NB_SEARCH_RESULT);
 			}
-			//MyLog.d(TAG, "search query ready!");
+			// MyLog.d(TAG, "search query ready!");
 			break;
 		default:
 			throw new IllegalArgumentException(String.format("Unknown URI (query): %s", uri));
