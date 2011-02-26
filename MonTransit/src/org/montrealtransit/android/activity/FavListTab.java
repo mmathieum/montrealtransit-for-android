@@ -78,6 +78,7 @@ public class FavListTab extends Activity {
 	 * Refresh the favorite bus stops UI.
 	 */
 	private void refreshBusStops() {
+		MyLog.v(TAG, "refreshBusStops()");
 		List<DataStore.Fav> favList = DataManager.findFavsByTypeList(getContentResolver(),
 		        DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
 		if (this.lastBusStopFavList == null || this.lastBusStopFavList.size() != favList.size()) {
@@ -112,7 +113,7 @@ public class FavListTab extends Activity {
 					view.setOnClickListener(new View.OnClickListener() {
 						@Override
 						public void onClick(View v) {
-							MyLog.v(TAG, "onClick(" + v.getId() + ")");
+							MyLog.v(TAG, "onClick(%s)", v.getId());
 							Intent intent = new Intent(FavListTab.this, BusStopInfo.class);
 							intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, busStop.getLineNumber());
 							intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, busStop.getCode());

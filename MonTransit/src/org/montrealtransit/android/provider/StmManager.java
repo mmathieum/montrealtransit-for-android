@@ -90,7 +90,7 @@ public class StmManager {
 	 * @return the subway station or <b>NULL</b>
 	 */
 	public static StmStore.SubwayStation findSubwayStation(ContentResolver contentResolver, Uri uri) {
-		MyLog.v(TAG, "findSubwayStation(" + uri.getPath() + ")");
+		MyLog.v(TAG, "findSubwayStation(%s)", uri.getPath());
 		StmStore.SubwayStation subwayStation = null;
 		Cursor cursor = null;
 		try {
@@ -115,8 +115,8 @@ public class StmManager {
 	 * @return the subway station
 	 */
 	public static StmStore.SubwayStation findSubwayStation(ContentResolver contentResolver, String subwayStationId) {
-		return findSubwayStation(contentResolver, Uri.withAppendedPath(StmStore.SubwayStation.CONTENT_URI,
-		        subwayStationId));
+		return findSubwayStation(contentResolver,
+		        Uri.withAppendedPath(StmStore.SubwayStation.CONTENT_URI, subwayStationId));
 	}
 
 	/**
@@ -126,7 +126,7 @@ public class StmManager {
 	 * @return the bus stop
 	 */
 	public static StmStore.BusStop findBusStop(ContentResolver contentResolver, Uri uri) {
-		MyLog.v(TAG, "findBusStop(" + uri.getPath() + ")");
+		MyLog.v(TAG, "findBusStop(%s)", uri.getPath());
 		StmStore.BusStop busStop = null;
 		Cursor cursor = null;
 		try {
@@ -178,7 +178,7 @@ public class StmManager {
 	 * @return a subway line
 	 */
 	public static StmStore.SubwayLine findSubwayLine(ContentResolver contentResolver, Uri uri) {
-		MyLog.v(TAG, "findSubwayLine(" + uri.getPath() + ")");
+		MyLog.v(TAG, "findSubwayLine(%s)", uri.getPath());
 		StmStore.SubwayLine subwayLine = null;
 		Cursor cursor = null;
 		try {
@@ -202,7 +202,7 @@ public class StmManager {
 	 * @return a bus line
 	 */
 	public static StmStore.BusLine findBusLine(ContentResolver contentResolver, Uri uri) {
-		MyLog.v(TAG, "findBusLine(" + uri.getPath() + ")");
+		MyLog.v(TAG, "findBusLine(%s)", uri.getPath());
 		StmStore.BusLine busLine = null;
 		Cursor cursor = null;
 		try {
@@ -226,7 +226,7 @@ public class StmManager {
 	 * @return the bus line direction
 	 */
 	public static StmStore.BusLineDirection findBusLineDirection(ContentResolver contentResolver, Uri uri) {
-		MyLog.v(TAG, "findBusLineDirection(" + uri.getPath() + ")");
+		MyLog.v(TAG, "findBusLineDirection(%s)", uri.getPath());
 		StmStore.BusLineDirection busLine = null;
 		Cursor cursor = null;
 		try {
@@ -253,8 +253,8 @@ public class StmManager {
 	public static StmStore.BusLineDirection findBusLineDirection(ContentResolver contentResolver,
 	        String busLineDirectionId) {
 		// MyTrace.v(TAG, "findBusLineDirection("+busLineDirectionId+")");
-		return findBusLineDirection(contentResolver, Uri.withAppendedPath(StmStore.BusLineDirection.CONTENT_URI,
-		        busLineDirectionId));
+		return findBusLineDirection(contentResolver,
+		        Uri.withAppendedPath(StmStore.BusLineDirection.CONTENT_URI, busLineDirectionId));
 	}
 
 	/**
@@ -266,8 +266,8 @@ public class StmManager {
 	 */
 	public static StmStore.SubwayLine findSubwayLine(ContentResolver contentResolver, int subwayLineId) {
 		// MyTrace.v(TAG, "findSubwayLine("+subwayLineId+")");
-		return findSubwayLine(contentResolver, ContentUris
-		        .withAppendedId(StmStore.SubwayLine.CONTENT_URI, subwayLineId));
+		return findSubwayLine(contentResolver,
+		        ContentUris.withAppendedId(StmStore.SubwayLine.CONTENT_URI, subwayLineId));
 	}
 
 	/**
@@ -277,7 +277,7 @@ public class StmManager {
 	 * @return the bus lines list
 	 */
 	public static Cursor findBusLines(ContentResolver contentResolver, List<String> busLineIds) {
-		MyLog.v(TAG, "findBusLine(" + busLineIds.size() + ")");
+		MyLog.v(TAG, "findBusLine(%s)", busLineIds.size());
 		String busLineIdsS = "";
 		for (String busLineId : busLineIds) {
 			if (busLineIdsS.length() > 0) {
@@ -296,7 +296,7 @@ public class StmManager {
 	 * @return the extended bus stops
 	 */
 	public static Cursor findBusStops(ContentResolver contentResolver, String busStopIdsString) {
-		MyLog.v(TAG, "findBusStops(" + busStopIdsString + ")");
+		MyLog.v(TAG, "findBusStops(%s)", busStopIdsString);
 		return contentResolver.query(Uri.withAppendedPath(StmStore.BusStop.CONTENT_URI, busStopIdsString),
 		        PROJECTION_BUS_STOP, null, null, StmStore.BusStop.ORDER_BY_LINE_CODE);
 	}
@@ -308,7 +308,7 @@ public class StmManager {
 	 * @return the extended bus stops list
 	 */
 	public static List<StmStore.BusStop> findBusStopsList(ContentResolver contentResolver, String busStopIdsString) {
-		MyLog.v(TAG, "findBusStopsList(" + busStopIdsString + ")");
+		MyLog.v(TAG, "findBusStopsList(%s)", busStopIdsString);
 		List<StmStore.BusStop> result = null;
 		Cursor c = null;
 		try {
@@ -320,10 +320,10 @@ public class StmManager {
 						result.add(StmStore.BusStop.fromCursor(c));
 					} while (c.moveToNext());
 				} else {
-					MyLog.w(TAG, "No result found for bus stops \"" + busStopIdsString + "\"");
+					MyLog.w(TAG, "No result found for bus stops '%s'", busStopIdsString);
 				}
 			} else {
-				MyLog.w(TAG, "No result found for bus stops \"" + busStopIdsString + "\"");
+				MyLog.w(TAG, "No result found for bus stops '%s'", busStopIdsString);
 			}
 		} finally {
 			if (c != null)
@@ -339,7 +339,7 @@ public class StmManager {
 	 * @return the extended bus stops
 	 */
 	public static Cursor findBusStopsExtended(ContentResolver contentResolver, String busStopIdsString) {
-		MyLog.v(TAG, "findBusStopsExtended(" + busStopIdsString + ")");
+		MyLog.v(TAG, "findBusStopsExtended(%s)", busStopIdsString);
 		return contentResolver.query(Uri.withAppendedPath(StmStore.BusStop.CONTENT_URI, busStopIdsString),
 		        PROJECTION_BUS_STOP_EXTENDED, null, null, StmStore.BusStop.ORDER_BY_LINE_CODE);
 	}
@@ -352,7 +352,7 @@ public class StmManager {
 	 */
 	public static List<StmStore.BusStop> findBusStopsExtendedList(ContentResolver contentResolver,
 	        String busStopIdsString) {
-		MyLog.v(TAG, "findBusStopsExtendedList(" + busStopIdsString + ")");
+		MyLog.v(TAG, "findBusStopsExtendedList(%s)", busStopIdsString);
 		List<StmStore.BusStop> result = null;
 		Cursor c = null;
 		try {
@@ -364,10 +364,10 @@ public class StmManager {
 						result.add(StmStore.BusStop.fromCursor(c));
 					} while (c.moveToNext());
 				} else {
-					MyLog.w(TAG, "No result found for bus stops \"" + busStopIdsString + "\"");
+					MyLog.w(TAG, "No result found for bus stops '%s'", busStopIdsString);
 				}
 			} else {
-				MyLog.w(TAG, "No result found for bus stops \"" + busStopIdsString + "\"");
+				MyLog.w(TAG, "No result found for bus stops '%s'", busStopIdsString);
 			}
 		} finally {
 			if (c != null)
@@ -382,7 +382,7 @@ public class StmManager {
 	 * @return the bus stops URI
 	 */
 	public static Uri getBusStopsFavUri(List<DataStore.Fav> favList) {
-		MyLog.v(TAG, "getBusStopsFavUri(" + favList.size() + ")");
+		MyLog.v(TAG, "getBusStopsFavUri(%s)", favList.size());
 		String favIdsS = "";
 		for (DataStore.Fav favId : favList) {
 			if (favIdsS.length() > 0) {
@@ -401,7 +401,7 @@ public class StmManager {
 	 * @return the bus line
 	 */
 	public static StmStore.BusLine findBusLine(ContentResolver contentResolver, String busLineId) {
-		MyLog.v(TAG, "findBusLine(" + busLineId + ")");
+		MyLog.v(TAG, "findBusLine(%s)", busLineId);
 		return findBusLine(contentResolver, Uri.withAppendedPath(StmStore.BusLine.CONTENT_URI, busLineId));
 	}
 
@@ -413,7 +413,7 @@ public class StmManager {
 	 */
 	public static List<StmStore.BusLineDirection> findBusLineDirections(ContentResolver contentResolver,
 	        String busLineNumber) {
-		MyLog.v(TAG, "findBusLineDirections(" + busLineNumber + ")");
+		MyLog.v(TAG, "findBusLineDirections(%s)", busLineNumber);
 		List<StmStore.BusLineDirection> result = null;
 		Cursor c = null;
 		try {
@@ -421,7 +421,7 @@ public class StmManager {
 			Uri theBusLineUri = Uri.withAppendedPath(busLinesUri, busLineNumber);
 			Uri busLinesDurectionsUri = Uri.withAppendedPath(theBusLineUri,
 			        StmStore.BusLine.BusLineDirections.CONTENT_DIRECTORY);
-			//MyLog.v(TAG, "busLinesDurectionsUri>" + busLinesDurectionsUri.getPath());
+			// MyLog.v(TAG, "busLinesDurectionsUri>" + busLinesDurectionsUri.getPath());
 			c = contentResolver.query(busLinesDurectionsUri, PROJECTION_BUS_LINE_DIRECTION, null, null,
 			        StmStore.BusLine.DEFAULT_SORT_ORDER);
 			if (c.getCount() > 0) {
@@ -452,7 +452,7 @@ public class StmManager {
 	 */
 	public static StmStore.SubwayStation findSubwayLineFirstSubwayStation(ContentResolver contentResolver,
 	        String subwayLineId, String sortOrder) {
-		MyLog.v(TAG, "findSubwayLineFirstSubwayStation(" + subwayLineId + ")");
+		MyLog.v(TAG, "findSubwayLineFirstSubwayStation(%s)", subwayLineId);
 		StmStore.SubwayStation subwayStation = null;
 		Cursor c = null;
 		try {
@@ -460,7 +460,7 @@ public class StmManager {
 			Uri subwayLineUri = Uri.withAppendedPath(subwayLinesUri, subwayLineId);
 			Uri subwayLineStationsUri = Uri.withAppendedPath(subwayLineUri,
 			        StmStore.SubwayLine.SubwayStations.CONTENT_DIRECTORY);
-			//MyLog.v(TAG, "subwayLineStationUri>" + subwayLineStationsUri.getPath());
+			// MyLog.v(TAG, "subwayLineStationUri>" + subwayLineStationsUri.getPath());
 			c = contentResolver.query(subwayLineStationsUri, PROJECTION_SUBWAY_STATION, null, null, sortOrder);
 			if (c.getCount() > 0) {
 				if (c.moveToFirst()) {
@@ -483,7 +483,7 @@ public class StmManager {
 	 */
 	public static StmStore.SubwayStation findSubwayLineLastSubwayStation(ContentResolver contentResolver,
 	        int subwayLineId, String sortOrder) {
-		MyLog.v(TAG, "findSubwayLineLastSubwayStation(" + subwayLineId + ")");
+		MyLog.v(TAG, "findSubwayLineLastSubwayStation(%s)", subwayLineId);
 		StmStore.SubwayStation subwayStation = null;
 		Cursor c = null;
 		try {
@@ -491,7 +491,7 @@ public class StmManager {
 			Uri subwayLineUri = ContentUris.withAppendedId(subwayLinesUri, subwayLineId);
 			Uri subwayLineStationsUri = Uri.withAppendedPath(subwayLineUri,
 			        StmStore.SubwayLine.SubwayStations.CONTENT_DIRECTORY);
-			//MyLog.v(TAG, "subwayLineStationUri>" + subwayLineStationsUri.getPath());
+			// MyLog.v(TAG, "subwayLineStationUri>" + subwayLineStationsUri.getPath());
 			c = contentResolver.query(subwayLineStationsUri, PROJECTION_SUBWAY_STATION, null, null, sortOrder);
 			if (c.getCount() > 0) {
 				if (c.moveToLast()) {
@@ -513,7 +513,7 @@ public class StmManager {
 	public static Cursor findAllSubwayLines(ContentResolver contentResolver) {
 		return contentResolver.query(StmStore.SubwayLine.CONTENT_URI, PROJECTION_SUBWAY_LINE, null, null, null);
 	}
-	
+
 	/**
 	 * Find all subway lines.
 	 * @param contentResolver the content resolver
@@ -539,7 +539,7 @@ public class StmManager {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Return a cursor containing all subway lines.
 	 * @param contentResolver the content resolver
@@ -548,7 +548,7 @@ public class StmManager {
 	public static Cursor findAllSubwayStations(ContentResolver contentResolver) {
 		return contentResolver.query(StmStore.SubwayStation.CONTENT_URI, PROJECTION_SUBWAY_STATION, null, null, null);
 	}
-	
+
 	/**
 	 * Find all subway stations.
 	 * @param contentResolver the content resolver
@@ -582,10 +582,10 @@ public class StmManager {
 	 * @return the cursor
 	 */
 	public static Cursor searchAllSubwayLines(ContentResolver contentResolver, String search) {
-		MyLog.v(TAG, "searchAllSubwayLines(" + search + ")");
+		MyLog.v(TAG, "searchAllSubwayLines(%s)", search);
 		if (!TextUtils.isEmpty(search)) {
-			Uri searchUri = Uri.withAppendedPath(Uri.withAppendedPath(StmStore.SubwayLine.CONTENT_URI,
-			        StmStore.SEARCH_URI), search);
+			Uri searchUri = Uri.withAppendedPath(
+			        Uri.withAppendedPath(StmStore.SubwayLine.CONTENT_URI, StmStore.SEARCH_URI), search);
 			return contentResolver.query(searchUri, PROJECTION_SUBWAY_LINE, null, null, null);
 		} else {
 			return findAllSubwayLines(contentResolver);
@@ -599,7 +599,7 @@ public class StmManager {
 	 * @return the bus line
 	 */
 	public static StmStore.BusLine findBusStopLine(ContentResolver contentResolver, String stopCode) {
-		MyLog.v(TAG, "findBusStopLine(" + stopCode + ")");
+		MyLog.v(TAG, "findBusStopLine(%s)", stopCode);
 		Uri busStopsUri = Uri.withAppendedPath(StmStore.BusStop.CONTENT_URI, stopCode);
 		Uri busLinesUri = Uri.withAppendedPath(busStopsUri, StmStore.BusStop.BusLines.CONTENT_DIRECTORY);
 		return findBusLine(contentResolver, busLinesUri);
@@ -612,7 +612,7 @@ public class StmManager {
 	 * @return the bus lines cursor
 	 */
 	public static Cursor findBusStopLines(ContentResolver contentResolver, String stopCode) {
-		MyLog.v(TAG, "findBusStopLines(" + stopCode + ")");
+		MyLog.v(TAG, "findBusStopLines(%s)", stopCode);
 		Uri busStopsUri = Uri.withAppendedPath(StmStore.BusStop.CONTENT_URI, stopCode);
 		Uri busLinesUri = Uri.withAppendedPath(busStopsUri, StmStore.BusStop.BusLines.CONTENT_DIRECTORY);
 		return contentResolver.query(busLinesUri, PROJECTION_BUS_LINE, null, null, null);
@@ -625,7 +625,7 @@ public class StmManager {
 	 * @return the bus lines list
 	 */
 	public static List<StmStore.BusLine> findBusStopLinesList(ContentResolver contentResolver, String stopCode) {
-		MyLog.v(TAG, "findBusStopLinesList(" + stopCode + ")");
+		MyLog.v(TAG, "findBusStopLinesList(%s)", stopCode);
 		List<StmStore.BusLine> result = null;
 		Cursor c = null;
 		try {
@@ -637,10 +637,10 @@ public class StmManager {
 						result.add(StmStore.BusLine.fromCursor(c));
 					} while (c.moveToNext());
 				} else {
-					MyLog.w(TAG, "No bus lines found for bus stop \"" + stopCode + "\"");
+					MyLog.w(TAG, "No bus lines found for bus stop '%s'", stopCode);
 				}
 			} else {
-				MyLog.w(TAG, "No bus lines found for bus stop \"" + stopCode + "\"");
+				MyLog.w(TAG, "No bus lines found for bus stop '%s'", stopCode);
 			}
 		} finally {
 			if (c != null)
@@ -656,7 +656,7 @@ public class StmManager {
 	 * @return the subway lines
 	 */
 	public static List<StmStore.SubwayLine> findSubwayStationLinesList(ContentResolver contentResolver, String stationId) {
-		MyLog.v(TAG, "findSubwayStationLinesList(" + stationId + ")");
+		MyLog.v(TAG, "findSubwayStationLinesList(%s)", stationId);
 		List<StmStore.SubwayLine> result = null;
 		Cursor c = null;
 		try {
@@ -691,7 +691,7 @@ public class StmManager {
 		Uri subwayStationUri = Uri.withAppendedPath(subwayStationsUri, subwayStationId);
 		Uri subwayLinesUri = Uri.withAppendedPath(subwayStationUri,
 		        StmStore.SubwayStation.SubwayLines.CONTENT_DIRECTORY);
-		//MyLog.v(TAG, "subwayLinesUri>" + subwayLinesUri.getPath());
+		// MyLog.v(TAG, "subwayLinesUri>" + subwayLinesUri.getPath());
 		return contentResolver.query(subwayLinesUri, PROJECTION_SUBWAY_LINE, null, null, null);
 	}
 
@@ -700,8 +700,7 @@ public class StmManager {
 	 * @param contentResolver the content resolver
 	 * @return the subway stations and subway lines pair list
 	 */
-	public static List<Pair<SubwayLine, SubwayStation>> findSubwayStationsAndLinesList(
-	        ContentResolver contentResolver) {
+	public static List<Pair<SubwayLine, SubwayStation>> findSubwayStationsAndLinesList(ContentResolver contentResolver) {
 		MyLog.v(TAG, "findSubwayStationsAndLinesList()");
 		List<Pair<SubwayLine, SubwayStation>> result = null;
 		Cursor c = null;
@@ -748,7 +747,7 @@ public class StmManager {
 	 */
 	public static List<Pair<SubwayLine, SubwayStation>> findSubwayLineStationsWithOtherLinesList(
 	        ContentResolver contentResolver, int subwayLineId) {
-		MyLog.v(TAG, "findSubwayStationLinesList(" + subwayLineId + ")");
+		MyLog.v(TAG, "findSubwayStationLinesList(%s)", subwayLineId);
 		List<Pair<SubwayLine, SubwayStation>> result = null;
 		Cursor c = null;
 		try {
@@ -786,7 +785,7 @@ public class StmManager {
 		Uri subwayLinesUri = Uri.withAppendedPath(subwayStationUri,
 		        StmStore.SubwayStation.SubwayLines.CONTENT_DIRECTORY);
 		Uri otherUri = Uri.withAppendedPath(subwayLinesUri, "other");
-		//MyLog.v(TAG, "otherUri>" + otherUri.getPath());
+		// MyLog.v(TAG, "otherUri>" + otherUri.getPath());
 		return contentResolver.query(otherUri, PROJECTION_SUBWAY_LINES_STATIONS, null, null, null);
 	}
 
@@ -802,7 +801,7 @@ public class StmManager {
 		Uri subwayLineUri = ContentUris.withAppendedId(subwayLinesUri, subwayLineNumber);
 		Uri subwayLineStationsUri = Uri.withAppendedPath(subwayLineUri,
 		        StmStore.SubwayLine.SubwayStations.CONTENT_DIRECTORY);
-		//MyLog.v(TAG, "subwayLineStationsUri>" + subwayLineStationsUri.getPath());
+		// MyLog.v(TAG, "subwayLineStationsUri>" + subwayLineStationsUri.getPath());
 		return contentResolver.query(subwayLineStationsUri, PROJECTION_SUBWAY_STATION, null, null, order);
 	}
 
@@ -820,9 +819,9 @@ public class StmManager {
 			Uri subwayLineUri = ContentUris.withAppendedId(StmStore.SubwayLine.CONTENT_URI, subwayLineNumber);
 			Uri subwayLineStationsUri = Uri.withAppendedPath(subwayLineUri,
 			        StmStore.SubwayLine.SubwayStations.CONTENT_DIRECTORY);
-			Uri searchSubwayLineStationsUri = Uri.withAppendedPath(Uri.withAppendedPath(subwayLineStationsUri,
-			        StmStore.SEARCH_URI), search);
-			//MyLog.v(TAG, "searchSubwayLineStationsUri>" + searchSubwayLineStationsUri.getPath());
+			Uri searchSubwayLineStationsUri = Uri.withAppendedPath(
+			        Uri.withAppendedPath(subwayLineStationsUri, StmStore.SEARCH_URI), search);
+			// MyLog.v(TAG, "searchSubwayLineStationsUri>" + searchSubwayLineStationsUri.getPath());
 			return contentResolver.query(searchSubwayLineStationsUri, PROJECTION_SUBWAY_STATION, null, null, order);
 		} else {
 			return findSubwayLineStations(contentResolver, subwayLineNumber, order);
@@ -864,7 +863,7 @@ public class StmManager {
 	 * @return the subway stations
 	 */
 	public static Cursor findSubwayStations(ContentResolver contentResolver, List<String> subwayStationIds) {
-		MyLog.v(TAG, "findSubwayStations(" + subwayStationIds.size() + ")");
+		MyLog.v(TAG, "findSubwayStations(%s)", subwayStationIds.size());
 		String subwayStationIdsS = "";
 		for (String subwayStationId : subwayStationIds) {
 			if (subwayStationIdsS.length() > 0) {
@@ -890,7 +889,7 @@ public class StmManager {
 		Uri busLineDirectionUri = Uri.withAppendedPath(busLineDirectionsUri, directionId);
 		Uri busStopsUri = Uri.withAppendedPath(busLineDirectionUri,
 		        StmStore.BusLine.BusLineDirections.BusStops.CONTENT_DIRECTORY);
-		//MyLog.v(TAG, "URI: " + busStopsUri.getPath());
+		// MyLog.v(TAG, "URI: " + busStopsUri.getPath());
 		return contentResolver.query(busStopsUri, PROJECTION_BUS_STOP_AND_SUBWAY_STATION, null, null, null);
 	}
 
@@ -912,7 +911,7 @@ public class StmManager {
 			Uri busStopsUri = Uri.withAppendedPath(busLineDirectionUri,
 			        StmStore.BusLine.BusLineDirections.BusStops.CONTENT_DIRECTORY);
 			Uri searchUri = Uri.withAppendedPath(Uri.withAppendedPath(busStopsUri, StmStore.SEARCH_URI), search);
-			//MyLog.v(TAG, "URI: " + searchUri.getPath());
+			// MyLog.v(TAG, "URI: " + searchUri.getPath());
 			return contentResolver.query(searchUri, PROJECTION_BUS_STOP_AND_SUBWAY_STATION, null, null, null);
 		} else {
 			return findBusLineStops(contentResolver, busLineNumber, directionId);
@@ -928,7 +927,7 @@ public class StmManager {
 	public static Cursor findSubwayStationBusLines(ContentResolver contentResolver, String subwayStationId) {
 		Uri subwayStationUri = Uri.withAppendedPath(StmStore.SubwayStation.CONTENT_URI, subwayStationId);
 		Uri busLinesUri = Uri.withAppendedPath(subwayStationUri, StmStore.SubwayStation.BusLines.CONTENT_DIRECTORY);
-		//MyLog.v(TAG, "busLinesUri>" + busLinesUri.getPath());
+		// MyLog.v(TAG, "busLinesUri>" + busLinesUri.getPath());
 		return contentResolver.query(busLinesUri, PROJECTION_BUS_LINE, null, null, null);
 	}
 
@@ -973,7 +972,7 @@ public class StmManager {
 		Uri busLinesUri = Uri.withAppendedPath(subwayStationUri, StmStore.SubwayStation.BusLines.CONTENT_DIRECTORY);
 		Uri busLineUri = Uri.withAppendedPath(busLinesUri, busLineNumber);
 		Uri busStopsUri = Uri.withAppendedPath(busLineUri, StmStore.SubwayStation.BusStops.CONTENT_DIRECTORY);
-		//MyLog.v(TAG, "URI>" + busStopsUri.getPath());
+		// MyLog.v(TAG, "URI>" + busStopsUri.getPath());
 		return contentResolver.query(busStopsUri, PROJECTION_BUS_STOP, null, null, null);
 	}
 
@@ -1012,7 +1011,7 @@ public class StmManager {
 	 * @return the extended bus stops
 	 */
 	public static Cursor findSubwayStationBusStopsExtended(ContentResolver contentResolver, String subwayStationId) {
-		MyLog.v(TAG, "findSubwayStationBusStopsExtended(" + subwayStationId + ")");
+		MyLog.v(TAG, "findSubwayStationBusStopsExtended(%s)", subwayStationId);
 		Uri subwayStationsUri = StmStore.SubwayStation.CONTENT_URI;
 		Uri subwayStationUri = Uri.withAppendedPath(subwayStationsUri, subwayStationId);
 		Uri busStopsUri = Uri.withAppendedPath(subwayStationUri, StmStore.SubwayStation.BusStops.CONTENT_DIRECTORY);
@@ -1066,7 +1065,7 @@ public class StmManager {
 		if (!TextUtils.isEmpty(search)) {
 			Uri busLineSearchUri = Uri.withAppendedPath(StmStore.BusLine.CONTENT_URI, StmStore.SEARCH_URI);
 			Uri searchUri = Uri.withAppendedPath(busLineSearchUri, search);
-			//MyLog.v(TAG, "searchUri>" + searchUri.getPath());
+			// MyLog.v(TAG, "searchUri>" + searchUri.getPath());
 			return contentResolver.query(searchUri, PROJECTION_BUS_LINE, null, null, null);
 		} else {
 			return findAllBusLines(contentResolver);
@@ -1105,7 +1104,7 @@ public class StmManager {
 	 * @return the cursor with the search results
 	 */
 	public static Cursor search(ContentResolver contentResolver, String searchTerm) {
-		MyLog.v(TAG, "search(" + searchTerm + ")");
+		MyLog.v(TAG, "search(%s)", searchTerm);
 		Uri searchQuery = Uri.withAppendedPath(StmStore.GLOBAL_SEARCH_URI, searchTerm);
 		return contentResolver.query(searchQuery, null, null, null, null);
 	}
@@ -1117,7 +1116,7 @@ public class StmManager {
 	 * @return the extended bus stops matching the search term
 	 */
 	public static Cursor searchResult(ContentResolver contentResolver, String searchTerm) {
-		MyLog.v(TAG, "searchResult(" + searchTerm + ")");
+		MyLog.v(TAG, "searchResult(%s)", searchTerm);
 		Uri searchQuery = Uri.withAppendedPath(StmStore.BusStop.CONTENT_URI_SEARCH, searchTerm);
 		return contentResolver.query(searchQuery, PROJECTION_BUS_STOP_EXTENDED, null, null,
 		        StmStore.BusStop.ORDER_BY_LINE_CODE);
@@ -1133,7 +1132,7 @@ public class StmManager {
 	 */
 	public static Pair<String, String> findSubwayStationDepartures(ContentResolver contentResolver,
 	        String subwayStationId, String directionId, String dayOfTheWeek) {
-		MyLog.v(TAG, "findSubwayStationDepartures(" + subwayStationId + ", " + directionId + ", " + dayOfTheWeek + ")");
+		MyLog.v(TAG, "findSubwayStationDepartures(%s, %s, %s)", subwayStationId, directionId, dayOfTheWeek);
 		Pair<String, String> result = null;
 		Cursor c = null;
 		try {
@@ -1174,12 +1173,12 @@ public class StmManager {
 	 */
 	public static String findSubwayDirectionFrequency(ContentResolver contentResolver, String directionId,
 	        String dayOfTheWeek, String hourOfTheDay) {
-		MyLog.v(TAG, "findSubwayDirectionFrequency(" + directionId + ", " + dayOfTheWeek + ", " + hourOfTheDay + ")");
+		MyLog.v(TAG, "findSubwayDirectionFrequency(%s, %s, %s)", directionId, dayOfTheWeek, hourOfTheDay);
 		String result = null;
 		Cursor c = null;
 		try {
-			Uri subwayDirection = ContentUris.withAppendedId(StmStore.SUBWAY_DIRECTION_URI, Integer
-			        .valueOf(directionId));
+			Uri subwayDirection = ContentUris.withAppendedId(StmStore.SUBWAY_DIRECTION_URI,
+			        Integer.valueOf(directionId));
 			if (dayOfTheWeek.length() > 0) {
 				Uri subwayDirDays = Uri.withAppendedPath(subwayDirection, StmStore.DAY_URI);
 				subwayDirection = Uri.withAppendedPath(subwayDirDays, dayOfTheWeek);

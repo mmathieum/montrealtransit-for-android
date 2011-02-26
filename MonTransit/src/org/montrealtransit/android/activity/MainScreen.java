@@ -8,11 +8,13 @@ import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.StmDbHelper;
 
+import android.app.ActivityGroup;
 import android.app.ProgressDialog;
-import android.app.TabActivity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
 
 /**
@@ -20,7 +22,7 @@ import android.widget.TabHost.TabSpec;
  * @author Mathieu Méa
  */
 // TODO offer the options to just show a list of the "tabs" == Dashboard UI
-public class MainScreen extends TabActivity {
+public class MainScreen extends ActivityGroup {
 
 	/**
 	 * The log tag.
@@ -69,7 +71,7 @@ public class MainScreen extends TabActivity {
 			this.progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 			this.progressDialog.setCancelable(false);
 			this.progressDialog.setIndeterminate(true);
-			//this.progressDialog.setTitle(getString(R.string.init_dialog_title));
+			// this.progressDialog.setTitle(getString(R.string.init_dialog_title));
 			this.progressDialog.setMessage(getString(R.string.init_dialog_message));
 			this.progressDialog.show();
 			// initialize the database
@@ -85,38 +87,42 @@ public class MainScreen extends TabActivity {
 	 */
 	private void onCreateFinish() {
 		MyLog.v(TAG, "onCreateFinish()");
+		// add the tab host
+		TabHost tabHost = (TabHost) getLayoutInflater().inflate(R.layout.main_screen_tab_host, null);
+		tabHost.setup(this.getLocalActivityManager());
 		// the favorites list
-		TabSpec favListTab = getTabHost().newTabSpec(TAB_FAV);
+		TabSpec favListTab = tabHost.newTabSpec(TAB_FAV);
 		favListTab.setIndicator(getString(R.string.favorite), getResources().getDrawable(R.drawable.ic_tab_starred));
 		favListTab.setContent(new Intent(this, FavListTab.class));
-		getTabHost().addTab(favListTab);
+		tabHost.addTab(favListTab);
 		// the bus stop code
-		TabSpec busStopCodeTab = getTabHost().newTabSpec(TAB_STOP_CODE);
+		TabSpec busStopCodeTab = tabHost.newTabSpec(TAB_STOP_CODE);
 		busStopCodeTab.setIndicator(getString(R.string.stop_code),
 		        getResources().getDrawable(R.drawable.ic_tab_stop_code));
 		busStopCodeTab.setContent(new Intent(this, BusStopCodeTab.class));
-		getTabHost().addTab(busStopCodeTab);
+		tabHost.addTab(busStopCodeTab);
 		// the bus lines list
-		TabSpec busLinesListTab = getTabHost().newTabSpec(TAB_BUS);
+		TabSpec busLinesListTab = tabHost.newTabSpec(TAB_BUS);
 		busLinesListTab.setIndicator(getString(R.string.bus), getResources().getDrawable(R.drawable.ic_tab_bus));
 		busLinesListTab.setContent(new Intent(this, BusLineListTab.class));
-		getTabHost().addTab(busLinesListTab);
+		tabHost.addTab(busLinesListTab);
 		// the subway lines list
-		TabSpec subwayLinesListTab = getTabHost().newTabSpec(TAB_SUBWAY);
+		TabSpec subwayLinesListTab = tabHost.newTabSpec(TAB_SUBWAY);
 		subwayLinesListTab.setIndicator(getString(R.string.subway), getResources()
 		        .getDrawable(R.drawable.ic_tab_subway));
 		subwayLinesListTab.setContent(new Intent(this, SubwayTab.class));
-		getTabHost().addTab(subwayLinesListTab);
+		tabHost.addTab(subwayLinesListTab);
 		try {
 			// IF there is one or more favorites DO
 			if (Utils.getListSize(DataManager.findAllFavsList(this.getContentResolver())) > 0) {
-				getTabHost().setCurrentTab(0); // show favorite tab
+				tabHost.setCurrentTab(0); // show favorite tab
 			} else {
-				getTabHost().setCurrentTab(1); // show bus stop code search tab
+				tabHost.setCurrentTab(1); // show bus stop code search tab
 			}
 		} catch (Exception e) {
-			MyLog.w(TAG, "Error while determing the select tab", e);
+			MyLog.w(TAG, "Error while determining the select tab", e);
 		}
+		this.addContentView(tabHost, new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 	}
 
 	/**
