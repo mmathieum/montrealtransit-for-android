@@ -3,6 +3,12 @@
 
 = !ChangeLog =
 
+ * 1.5.3 (r395)
+  * fix issue with Android 2.1 device initialization
+
+ * 1.5.2 (r393)
+  * fix major issue for Android 2.3+ users only (require to manually Clear data or Uninstall the application)
+
  * 1.5.1 (r387)
   * fix issue with STM service status
   * improve Google Analytics

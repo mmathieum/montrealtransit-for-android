@@ -3,6 +3,12 @@
 
 = !ChangeLog =
 
+ * 1.5.3 (r395)
+  * corrige un problème avec l'initialisation sur Android 2.1
+
+ * 1.5.2 (r393)
+  * corrige un problème majeur pour les utilisateurs d'Android 2.3+ (nécessite de Effacer les données de l'application ou de la Desinstaller manuellement
+
  * 1.5.1 (r387)
   * corrige un problème avec l'état de service du métro
   * améliore Google Analytics
