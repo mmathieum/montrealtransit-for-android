@@ -414,16 +414,42 @@ public class Utils {
 	}
 
 	/**
-	 * Return a new preference value.
-	 * @param context the context calling the method.
+	 * Save a new preference value.
+	 * @param context the context calling the method
 	 * @param prefKey the preference key
-	 * @param defaultValue the default value if no value.
+	 * @param newValue the new preference value
+	 */
+	public static void saveSharedPreferences(Context context, String prefKey, Boolean newValue) {
+		MyLog.v(TAG, "saveSharedPreferences(%s, %s)", prefKey, newValue);
+		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+		editor.putBoolean(prefKey, newValue);
+		SupportFactory.getInstance(context).applySharedPreferencesEditor(editor);
+	}
+
+	/**
+	 * Return a new preference value.
+	 * @param context the context calling the method
+	 * @param prefKey the preference key
+	 * @param defaultValue the default value if no value
 	 * @return the preference value
 	 */
 	public static String getSharedPreferences(Context context, String prefKey, String defaultValue) {
 		// MyLog.v(TAG, "getSharedPreferences(%s, %s)", prefKey, defaultValue);
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 		return settings.getString(prefKey, defaultValue);
+	}
+
+	/**
+	 * Return a new preference value.
+	 * @param context the context calling the method
+	 * @param prefKey the preference key
+	 * @param defaultValue the default value if no value
+	 * @return the preference value
+	 */
+	public static boolean getSharedPreferences(Context context, String prefKey, boolean defaultValue) {
+		// MyLog.v(TAG, "getSharedPreferencesBoolean(%s, %s)", prefKey, defaultValue);
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+		return settings.getBoolean(prefKey, defaultValue);
 	}
 
 	/**
@@ -656,4 +682,9 @@ public class Utils {
 		is.close();
 		return count;
 	}
+
+	public static boolean isGenerousUser(UserPreferences userPreferences) {
+	    // TODO Auto-generated method stub
+	    return false;
+    }
 }

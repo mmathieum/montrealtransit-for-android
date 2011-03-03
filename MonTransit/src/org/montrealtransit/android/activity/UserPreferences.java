@@ -1,12 +1,15 @@
 package org.montrealtransit.android.activity;
 
+import org.montrealtransit.android.AdsUtils;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
@@ -117,8 +120,8 @@ public class UserPreferences extends PreferenceActivity {
 	public static final String PREFS_DISTANCE_UNIT_DEFAULT = PREFS_DISTANCE_UNIT_METER;
 
 	/**
-	 * The preference key for the subway line stations display order. <b>WARNING:</b> To be used with the subway line number at the end.
-	 * Use {@link UserPreferences#getPrefsSubwayStationsOrder(int)} to get the key.
+	 * The preference key for the subway line stations display order. <b>WARNING:</b> To be used with the subway line number at the end. Use
+	 * {@link UserPreferences#getPrefsSubwayStationsOrder(int)} to get the key.
 	 */
 	private static final String PREFS_SUBWAY_STATIONS_ORDER = "pSubwayStationOrder";
 	/**
@@ -139,6 +142,20 @@ public class UserPreferences extends PreferenceActivity {
 	public static final String PREFS_SUBWAY_STATIONS_ORDER_DEFAULT = PREFS_SUBWAY_STATIONS_ORDER_AZ;
 
 	/**
+	 * The preference key for ads.
+	 */
+	public static final String PREFS_ADS = "pAds";
+	/**
+	 * The default value for the ads.
+	 */
+	public static final boolean PREFS_ADS_DEFAULT = true;
+
+	/**
+	 * The ads check box.
+	 */
+	private CheckBoxPreference adsCheckBox;
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -146,23 +163,53 @@ public class UserPreferences extends PreferenceActivity {
 		MyLog.v(TAG, "onCreate()");
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.userpreferences);
-		
+
+		// ads dialog
+		this.adsCheckBox = (CheckBoxPreference) findPreference("pAds");
+		this.adsCheckBox.setChecked(AdsUtils.isShowingAds(this));
+		this.adsCheckBox.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				boolean isNowChecked = Utils.getSharedPreferences(UserPreferences.this, PREFS_ADS, PREFS_ADS_DEFAULT);
+				// IF the user tries to disable ads AND the user didn't donate DO
+				if (!isNowChecked && !AdsUtils.isGenerousUser(UserPreferences.this)) {
+					// TODO show a dialog explaining that, to remove ads, the user need to:
+					// block ads system wide on rooted device
+					// download the code of the app an block ads in the source code
+					// or donate to support the development of the application
+					Utils.notifyTheUserLong(UserPreferences.this, UserPreferences.this.getString(R.string.donate_to_remove_ads));
+					UserPreferences.this.adsCheckBox.setChecked(true);
+
+					Uri appMarketURI = Uri.parse("market://search?q=pub:\"Mathieu Méa\"");
+					Intent appMarketIntent = new Intent(Intent.ACTION_VIEW).setData(appMarketURI);
+					UserPreferences.this.startActivity(appMarketIntent);
+
+					AdsUtils.setGenerousUser(null);// reset generous user
+
+					return true;
+				} else {
+					AdsUtils.setShowingAds(isNowChecked);
+					return false;
+				}
+			}
+		});
+
 		// donate dialog
 		((PreferenceScreen) findPreference("pDonate")).setOnPreferenceClickListener(new OnPreferenceClickListener() {
-	        @Override
-	        public boolean onPreferenceClick(Preference preference) {
-	        	UserPreferences.this.startActivity(new Intent(UserPreferences.this, DonateActivity.class));
-	            return false;
-	        }
-	    });
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				UserPreferences.this.startActivity(new Intent(UserPreferences.this, DonateActivity.class));
+				return false;
+			}
+		});
 		// about dialog
 		((PreferenceScreen) findPreference("pAbout")).setOnPreferenceClickListener(new OnPreferenceClickListener() {
-	        @Override
-	        public boolean onPreferenceClick(Preference preference) {
-	        	Utils.showAboutDialog(UserPreferences.this);
-	            return false;
-	        }
-	    });
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				Utils.showAboutDialog(UserPreferences.this);
+				return false;
+			}
+		});
 	}
 
 	/**

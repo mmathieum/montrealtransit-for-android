@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 
+import org.montrealtransit.android.AdsUtils;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.Constant;
@@ -193,6 +194,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
+		AdsUtils.setupAd(this);
 		super.onResume();
 	}
 

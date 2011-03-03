@@ -3,6 +3,7 @@ package org.montrealtransit.android.activity;
 import java.util.Calendar;
 import java.util.List;
 
+import org.montrealtransit.android.AdsUtils;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.LocationUtils;
@@ -144,6 +145,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
+		AdsUtils.setupAd(this);
 		super.onResume();
 	}
 
@@ -406,11 +408,6 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 		MyLog.v(TAG, "setTheStar()");
 		Fav fav = DataManager.findFav(this.getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION,
 		        this.subwayStation.getId(), null);
-		if (fav == null) {
-			MyLog.d(TAG, "fav:NULL");
-		} else {
-			MyLog.d(TAG, "fav:NOT NULL %s.", fav.getFkId());
-		}
 		((CheckBox) findViewById(R.id.star)).setChecked(fav != null);
 	}
 

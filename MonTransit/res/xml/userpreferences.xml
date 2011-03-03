@@ -33,6 +33,9 @@
 		android:defaultValue="simple" />
 	<!-- CREDITs -->
 	<PreferenceCategory android:title="@string/credits_pref_cat_title" />
+	<CheckBoxPreference android:key="pAds"
+		android:title="@string/ads_pref_title" android:summary="@string/ads_pref_summary"
+		android:defaultValue="true" />
 	<PreferenceScreen android:key="pDonate"
 		android:title="@string/donate_pref_title" android:summary="@string/donate_pref_summary" />
 	<PreferenceScreen android:key="pAbout"

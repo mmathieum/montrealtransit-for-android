@@ -24,6 +24,9 @@
 		android:description="@string/app_desc" android:theme="@android:style/Theme.NoTitleBar"
 		android:debuggable="false">
 		<meta-data android:name="android.app.default_searchable" android:value=".activity.SearchResult" />
+		<!-- The application's publisher ID assigned by AdMob -->
+		<meta-data android:name="ADMOB_PUBLISHER_ID" android:value="@string/admob_publisher_id" />
+		<meta-data android:name="ADMOB_ALLOW_LOCATION_FOR_ADS" android:value="true" /><!-- Allow AdMob to use location for targeting ads -->
 		<!-- PROVIDERs -->
 		<provider android:name=".provider.DataProvider" android:authorities="org.montrealtransit.android.data" />
 		<provider android:name=".provider.StmProvider" android:authorities="org.montrealtransit.android" />
@@ -99,12 +102,22 @@
 		<activity android:name="com.paypal.android.MEP.PayPalActivity"
 			android:theme="@android:style/Theme.Translucent.NoTitleBar"
 			android:configChanges="keyboardHidden|orientation" />
+		<!-- ADMOB ACTIVITY -->
+		<activity android:name="com.admob.android.ads.AdMobActivity"
+			android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+			android:configChanges="orientation|keyboard|keyboardHidden" />
 	</application>
 	<!-- Used for install referrer tracking -->
 	<receiver android:name="com.google.android.apps.analytics.AnalyticsReceiver"
 		android:exported="true">
 		<intent-filter>
 			<action android:name="com.android.vending.INSTALL_REFERRER" />
+		</intent-filter>
+	</receiver>
+	<!-- Track Market installs -->          
+	<receiver android:name="com.admob.android.ads.analytics.InstallReceiver" android:exported="true">
+		<intent-filter>
+   			<action android:name="com.android.vending.INSTALL_REFERRER" />
 		</intent-filter>
 	</receiver>
 </manifest> 
