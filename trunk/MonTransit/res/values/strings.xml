@@ -94,6 +94,8 @@
 	<string name="group_by_pref_type">by type</string>
 	<string name="group_by_pref_number">by line number</string>
 
+	<string name="ads_pref_title">Show Ads</string>
+	<string name="ads_pref_summary">Help support the development of MonTransit.</string>
 	<string name="donate_pref_title">Donate</string>
 	<string name="donate_pref_summary">Support MonTransit development.</string>
 	<string name="about_pref_title">About</string>
@@ -296,4 +298,6 @@
 
     <string name="init_dialog_title">Initialization</string>
     <string name="init_dialog_message">Please wait a couple of minutes while initializing MonTransit...</string>
+
+    <string name="donate_to_remove_ads">Please donate to disable ads.</string>
 </resources>

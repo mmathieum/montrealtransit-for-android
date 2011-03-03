@@ -1,97 +1,104 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" android:layout_height="fill_parent"
-	android:orientation="vertical">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_height="fill_parent" android:layout_width="fill_parent">
+	<!-- ADs -->
+	<include layout="@layout/ad_layout" />
 
-	<!-- SUBWAY STATION INFORMATIONS -->
-	<RelativeLayout android:id="@+id/banner"
-		android:layout_width="fill_parent" android:layout_height="70dip"
-		android:paddingLeft="5dip" android:paddingRight="5dip"
-		android:orientation="horizontal" android:gravity="center_vertical"
-		android:background="@android:drawable/title_bar">
-		<!-- SUBWAY LOGO -->
-		<ImageView android:id="@+id/img"
-			android:layout_width="40dip" android:layout_height="40dip"
-			android:layout_alignParentBottom="true"	android:layout_alignParentTop="true"
-			android:layout_alignParentLeft="true" android:layout_alignWithParentIfMissing="true"
-			android:layout_marginRight="7dip"
-			android:gravity="center_horizontal"
-        	android:src="@drawable/subway_white" />
-        <!-- FAVORITE ICON -->
-		<CheckBox android:id="@+id/star"
-			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:layout_alignParentBottom="true"	android:layout_alignParentTop="true"
-			android:layout_alignParentRight="true"
-			android:layout_alignWithParentIfMissing="true"
-			style="?android:attr/starStyle" />
-		<!-- SUBWAY LINES COLORS -->
-		<ImageView android:id="@+id/subway_line_1"
-			android:layout_width="wrap_content" android:layout_height="fill_parent"
-			android:layout_alignParentBottom="true"	android:layout_alignParentTop="true"
-			android:layout_toLeftOf="@id/star"
-			android:layout_alignWithParentIfMissing="true" android:visibility="gone"
-			android:background="@android:drawable/list_selector_background"
-			android:paddingLeft="5dip" android:paddingRight="5dip" android:focusable="true"
-			android:scaleType="fitXY" android:gravity="center_vertical" />
-		<ImageView android:id="@+id/subway_line_2"
-			android:layout_width="wrap_content" android:layout_height="fill_parent"
-			android:layout_alignParentBottom="true"	android:layout_alignParentTop="true"
-			android:layout_toLeftOf="@id/subway_line_1"
-			android:layout_alignWithParentIfMissing="true" android:visibility="gone"
-			android:background="@android:drawable/list_selector_background"
-			android:paddingLeft="5dip" android:paddingRight="5dip" android:focusable="true"
-			android:scaleType="fitXY" android:gravity="center_vertical" />
-		<ImageView android:id="@+id/subway_line_3"
-			android:layout_width="wrap_content" android:layout_height="fill_parent"
-			android:layout_alignParentBottom="true"	android:layout_alignParentTop="true"
-			android:layout_toLeftOf="@id/subway_line_2"
-			android:layout_alignWithParentIfMissing="true" android:visibility="gone"
-			android:background="@android:drawable/list_selector_background"
-			android:paddingLeft="5dip" android:paddingRight="5dip" android:focusable="true"
-			android:scaleType="fitXY" android:gravity="center_vertical" />
-		<!-- STATION NAME -->
-		<TextView android:id="@+id/station_name"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:layout_toRightOf="@id/img" android:layout_toLeftOf="@id/subway_line_3"
-			android:layout_marginTop="5dip"
-			android:layout_marginRight="3dip"
-			android:singleLine="true" android:ellipsize="marquee"
-			android:focusable="true" android:gravity="center_vertical|left"
-			android:textAppearance="?android:attr/textAppearanceLarge" android:textStyle="bold"
-			android:text="@string/unknow_stop_place" />
-		<!-- DISTANCE -->
-		<TextView android:id="@+id/distance"
-			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:layout_below="@id/station_name" android:layout_alignLeft="@id/station_name"
-			android:layout_alignWithParentIfMissing="true"
-			android:textAppearance="?android:attr/textAppearanceMedium" />
-	</RelativeLayout>
-
-	<ScrollView
-		android:layout_width="fill_parent" android:layout_height="wrap_content">
-		<LinearLayout
-			android:layout_width="fill_parent" android:layout_height="fill_parent"
-			android:orientation="vertical">
-			<!-- SCHEDULE -->
-			<TextView android:id="@+id/hours"
+	<LinearLayout
+		android:layout_width="fill_parent" android:layout_height="fill_parent"
+		android:layout_above="@id/ad_layout"
+		android:orientation="vertical">
+	
+		<!-- SUBWAY STATION INFORMATIONS -->
+		<RelativeLayout android:id="@+id/banner"
+			android:layout_width="fill_parent" android:layout_height="70dip"
+			android:paddingLeft="5dip" android:paddingRight="5dip"
+			android:orientation="horizontal" android:gravity="center_vertical"
+			android:background="@android:drawable/title_bar">
+			<!-- SUBWAY LOGO -->
+			<ImageView android:id="@+id/img"
+				android:layout_width="40dip" android:layout_height="40dip"
+				android:layout_alignParentBottom="true"	android:layout_alignParentTop="true"
+				android:layout_alignParentLeft="true" android:layout_alignWithParentIfMissing="true"
+				android:layout_marginRight="7dip"
+				android:gravity="center_horizontal"
+	        	android:src="@drawable/subway_white" />
+	        <!-- FAVORITE ICON -->
+			<CheckBox android:id="@+id/star"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:layout_alignParentBottom="true"	android:layout_alignParentTop="true"
+				android:layout_alignParentRight="true"
+				android:layout_alignWithParentIfMissing="true"
+				style="?android:attr/starStyle" />
+			<!-- SUBWAY LINES COLORS -->
+			<ImageView android:id="@+id/subway_line_1"
+				android:layout_width="wrap_content" android:layout_height="fill_parent"
+				android:layout_alignParentBottom="true"	android:layout_alignParentTop="true"
+				android:layout_toLeftOf="@id/star"
+				android:layout_alignWithParentIfMissing="true" android:visibility="gone"
+				android:background="@android:drawable/list_selector_background"
+				android:paddingLeft="5dip" android:paddingRight="5dip" android:focusable="true"
+				android:scaleType="fitXY" android:gravity="center_vertical" />
+			<ImageView android:id="@+id/subway_line_2"
+				android:layout_width="wrap_content" android:layout_height="fill_parent"
+				android:layout_alignParentBottom="true"	android:layout_alignParentTop="true"
+				android:layout_toLeftOf="@id/subway_line_1"
+				android:layout_alignWithParentIfMissing="true" android:visibility="gone"
+				android:background="@android:drawable/list_selector_background"
+				android:paddingLeft="5dip" android:paddingRight="5dip" android:focusable="true"
+				android:scaleType="fitXY" android:gravity="center_vertical" />
+			<ImageView android:id="@+id/subway_line_3"
+				android:layout_width="wrap_content" android:layout_height="fill_parent"
+				android:layout_alignParentBottom="true"	android:layout_alignParentTop="true"
+				android:layout_toLeftOf="@id/subway_line_2"
+				android:layout_alignWithParentIfMissing="true" android:visibility="gone"
+				android:background="@android:drawable/list_selector_background"
+				android:paddingLeft="5dip" android:paddingRight="5dip" android:focusable="true"
+				android:scaleType="fitXY" android:gravity="center_vertical" />
+			<!-- STATION NAME -->
+			<TextView android:id="@+id/station_name"
 				android:layout_width="fill_parent" android:layout_height="wrap_content"
-				style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
-				android:text="@string/hours_string" />
-			<LinearLayout android:id="@+id/hours_list"
-				android:layout_width="fill_parent" android:layout_height="wrap_content"
-				android:orientation="vertical" />
-			<!-- BUS LINES -->
-			<TextView android:id="@+id/bus_line"
-				android:layout_width="fill_parent" android:layout_height="wrap_content"
-				style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
-				android:text="@string/bus_lines_connecting" />
-			<HorizontalScrollView android:id="@+id/bus_lines"
-				android:layout_width="fill_parent" android:layout_height="wrap_content">
-				<LinearLayout android:id="@+id/bus_line_list"
-					android:layout_width="fill_parent" android:layout_height="fill_parent"
-					android:orientation="horizontal" android:gravity="bottom"
-					android:padding="2dip" />
-			</HorizontalScrollView>
-		</LinearLayout>
-	</ScrollView>
-</LinearLayout>
+				android:layout_toRightOf="@id/img" android:layout_toLeftOf="@id/subway_line_3"
+				android:layout_marginTop="5dip"
+				android:layout_marginRight="3dip"
+				android:singleLine="true" android:ellipsize="marquee"
+				android:focusable="true" android:gravity="center_vertical|left"
+				android:textAppearance="?android:attr/textAppearanceLarge" android:textStyle="bold"
+				android:text="@string/unknow_stop_place" />
+			<!-- DISTANCE -->
+			<TextView android:id="@+id/distance"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:layout_below="@id/station_name" android:layout_alignLeft="@id/station_name"
+				android:layout_alignWithParentIfMissing="true"
+				android:textAppearance="?android:attr/textAppearanceMedium" />
+		</RelativeLayout>
+	
+		<ScrollView
+			android:layout_width="fill_parent" android:layout_height="wrap_content">
+			<LinearLayout
+				android:layout_width="fill_parent" android:layout_height="fill_parent"
+				android:orientation="vertical">
+				<!-- SCHEDULE -->
+				<TextView android:id="@+id/hours"
+					android:layout_width="fill_parent" android:layout_height="wrap_content"
+					style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
+					android:text="@string/hours_string" />
+				<LinearLayout android:id="@+id/hours_list"
+					android:layout_width="fill_parent" android:layout_height="wrap_content"
+					android:orientation="vertical" />
+				<!-- BUS LINES -->
+				<TextView android:id="@+id/bus_line"
+					android:layout_width="fill_parent" android:layout_height="wrap_content"
+					style="?android:attr/listSeparatorTextViewStyle" android:focusable="false" android:paddingLeft="5dp"
+					android:text="@string/bus_lines_connecting" />
+				<HorizontalScrollView android:id="@+id/bus_lines"
+					android:layout_width="fill_parent" android:layout_height="wrap_content">
+					<LinearLayout android:id="@+id/bus_line_list"
+						android:layout_width="fill_parent" android:layout_height="fill_parent"
+						android:orientation="horizontal" android:gravity="bottom"
+						android:padding="2dip" />
+				</HorizontalScrollView>
+			</LinearLayout>
+		</ScrollView>
+	</LinearLayout>
+</RelativeLayout>
