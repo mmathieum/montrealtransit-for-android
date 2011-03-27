@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.montrealtransit.android.MyLog;
+import org.montrealtransit.android.provider.DataStore.Cache;
 import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.DataStore.History;
 import org.montrealtransit.android.provider.DataStore.ServiceStatus;
@@ -24,6 +25,23 @@ public class DataManager {
 	 * The log tag.
 	 */
 	private static final String TAG = DataManager.class.getSimpleName();
+
+	/**
+	 * Represents the fields the content provider will return for a favorite entry.
+	 */
+	private static final String[] PROJECTION_FAVS = new String[] { DataStore.Fav._ID, DataStore.Fav.FAV_FK_ID,
+	        DataStore.Fav.FAV_FK_ID2, DataStore.Fav.FAV_TYPE };
+
+	/**
+	 * Represents the fields the content provider will return for a Twitter API entry.
+	 */
+	private static final String[] PROJECTION_TWITTER_APIS = new String[] { DataStore.TwitterApi._ID,
+	        DataStore.TwitterApi.TOKEN, DataStore.TwitterApi.TOKEN_SECRET };
+
+	/**
+	 * Represents the fields the content provider will return for an history entry.
+	 */
+	private static final String[] PROJECTION_HISTORY = new String[] { DataStore.History._ID, DataStore.History.VALUE };
 
 	/**
 	 * Delete a favorite entry
@@ -66,23 +84,6 @@ public class DataManager {
 		int count = contentResolver.delete(DataStore.ServiceStatus.CONTENT_URI, null, null);
 		return count > 0;
 	}
-
-	/**
-	 * Represents the fields the content provider will return for a favorite entry.
-	 */
-	private static final String[] PROJECTION_FAVS = new String[] { DataStore.Fav._ID, DataStore.Fav.FAV_FK_ID,
-	        DataStore.Fav.FAV_FK_ID2, DataStore.Fav.FAV_TYPE };
-
-	/**
-	 * Represents the fields the content provider will return for a Twitter API entry.
-	 */
-	private static final String[] PROJECTION_TWITTER_APIS = new String[] { DataStore.TwitterApi._ID,
-	        DataStore.TwitterApi.TOKEN, DataStore.TwitterApi.TOKEN_SECRET };
-
-	/**
-	 * Represents the fields the content provider will return for an history entry.
-	 */
-	private static final String[] PROJECTION_HISTORY = new String[] { DataStore.History._ID, DataStore.History.VALUE };
 
 	/**
 	 * @param contentResolver the content resolver
@@ -300,7 +301,7 @@ public class DataManager {
 		}
 		return fav;
 	}
-	
+
 	/**
 	 * Find the latest service status.
 	 * @param contentResolver the content resolver
@@ -313,8 +314,9 @@ public class DataManager {
 		Cursor cursor = null;
 		try {
 			Uri uri = DataStore.ServiceStatus.CONTENT_URI;
-			String selection = DataDbHelper.T_SERVICE_STATUS_K_LANGUAGE + "='" + lang+ "'";
-			cursor = contentResolver.query(uri, null, selection, null, DataStore.ServiceStatus.ORDER_BY_LATEST_PUB_DATE);
+			String selection = DataDbHelper.T_SERVICE_STATUS_K_LANGUAGE + "='" + lang + "'";
+			cursor = contentResolver
+			        .query(uri, null, selection, null, DataStore.ServiceStatus.ORDER_BY_LATEST_PUB_DATE);
 			if (cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					serviceStatus = DataStore.ServiceStatus.fromCursor(cursor);
@@ -418,5 +420,111 @@ public class DataManager {
 		} else {
 			return null;
 		}
+	}
+
+	/**
+	 * Add a new cache entry to the content provider.
+	 * @param contentResolver the content resolver
+	 * @param newCache the new cache
+	 * @return the new added cache object or <b>NULL</b> if something wrong happen
+	 */
+	public static Cache addCache(ContentResolver contentResolver, Cache newCache) {
+		final Uri uri = contentResolver.insert(Cache.CONTENT_URI, newCache.getContentValues());
+		if (uri != null) {
+			return findCache(contentResolver, uri);
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Find a cache object.
+	 * @param contentResolver the content resolver
+	 * @param uri the cache object URI
+	 * @return the cache object
+	 */
+	private static Cache findCache(ContentResolver contentResolver, Uri uri) {
+		MyLog.v(TAG, "findCache(%s)", uri.getPath());
+		Cache cache = null;
+		Cursor cursor = null;
+		try {
+			cursor = contentResolver.query(uri, null, null, null, null);
+			if (cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
+					cache = Cache.fromCursor(cursor);
+				}
+			}
+		} finally {
+			if (cursor != null)
+				cursor.close();
+		}
+		return cache;
+	}
+
+	/**
+	 * Find a cache object in the content provider.
+	 * @param contentResolver the content resolver
+	 * @param type the cache object type
+	 * @param fkId the cache object FK ID
+	 * @return the cache object or <b>NULL</b>
+	 */
+	public static Cache findCache(ContentResolver contentResolver, int type, String fkId) {
+		MyLog.v(TAG, "findCache(%s, %s)", type, fkId);
+		Cache cache = null;
+		Cursor cursor = null;
+		try {
+			Uri uri = Uri.withAppendedPath(Cache.CONTENT_URI, fkId + "+" + type);
+			cursor = contentResolver.query(uri, null, null, null, null);
+			if (cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
+					cache = Cache.fromCursor(cursor);
+				}
+			}
+		} finally {
+			if (cursor != null)
+				cursor.close();
+		}
+		return cache;
+	}
+
+	/**
+	 * Delete a cache object from the content provider.
+	 * @param contentResolver the content resolver
+	 * @param id the cache object ID
+	 * @return true if one or more object was removed
+	 */
+	public static boolean deleteCache(ContentResolver contentResolver, int id) {
+		int count = contentResolver.delete(Uri.withAppendedPath(Cache.CONTENT_URI, String.valueOf(id)), null, null);
+		return count > 0;
+	}
+
+	/**
+	 * Try to delete a cache object from the content provider if it exist.
+	 * @param contentResolver the content resolver
+	 * @param type the cache object type
+	 * @param fkId the cache object FJ ID
+	 * @return true if one or more objects were deleted
+	 */
+	public static boolean deleteCacheIfExist(ContentResolver contentResolver, int type, String fkId) {
+		MyLog.v(TAG, "deleteCacheIfExist(%s, %s)", type, fkId);
+		Cache oldCache = findCache(contentResolver, type, fkId);
+		if (oldCache != null) {
+			return deleteCache(contentResolver, oldCache.getId());
+		}
+		return false;
+	}
+
+	/**
+	 * Delete all cache entries older than the specified date from the content provider
+	 * @param contentResolver the content resolver
+	 * @param date the date in seconds
+	 * @return true if one or more cache entries were deleted
+	 */
+	public static boolean deleteCacheOlderThan(ContentResolver contentResolver, int date) {
+		MyLog.v(TAG, "deleteCacheOlderThan(%s)", date);
+		Uri dateUri = Uri.withAppendedPath(Cache.CONTENT_URI, String.valueOf(date));
+		Uri uri = Uri.withAppendedPath(dateUri, Cache.URI_DATE);
+		int count = contentResolver.delete(uri, null, null);
+		return count > 0;
 	}
 }

@@ -15,7 +15,7 @@ public class DataStore {
 	 * The log tag.
 	 */
 	@SuppressWarnings("unused")
-    private static final String TAG = DataStore.class.getSimpleName();
+	private static final String TAG = DataStore.class.getSimpleName();
 
 	/**
 	 * The content URI provider.
@@ -25,7 +25,6 @@ public class DataStore {
 
 	/**
 	 * This class represent a favorite entry.
-	 * @author Mathieu Méa
 	 */
 	public static class Fav implements BaseColumns, FavColumns {
 		/**
@@ -56,11 +55,11 @@ public class DataStore {
 		/**
 		 * The favorite type value for bus stops.
 		 */
-		public static final int KEY_TYPE_VALUE_BUS_STOP = DataDbHelper.KEY_TYPE_VALUE_BUS_STOP;
+		public static final int KEY_TYPE_VALUE_BUS_STOP = DataDbHelper.KEY_FAVS_TYPE_VALUE_BUS_STOP;
 		/**
 		 * The favorite type value for subway stations.
 		 */
-		public static final int KEY_TYPE_VALUE_SUBWAY_STATION = DataDbHelper.KEY_TYPE_VALUE_SUBWAY_STATION;
+		public static final int KEY_TYPE_VALUE_SUBWAY_STATION = DataDbHelper.KEY_FAVS_TYPE_VALUE_SUBWAY_STATION;
 		/**
 		 * The favorite ID.
 		 */
@@ -160,8 +159,7 @@ public class DataStore {
 	}
 
 	/**
-	 * The column associated with a favorite entries.
-	 * @author Mathieu Méa
+	 * The column associated with a favorite entry.
 	 */
 	public interface FavColumns {
 		// TODO release this columns from their link to the real DB column name. Should use projection.
@@ -173,7 +171,6 @@ public class DataStore {
 
 	/**
 	 * This class represent an history entry.
-	 * @author Mathieu Méa
 	 */
 	public static class History implements BaseColumns, HistoryColumns {
 		/**
@@ -245,7 +242,6 @@ public class DataStore {
 
 	/**
 	 * The history columns
-	 * @author Mathieu Méa
 	 */
 	public interface HistoryColumns {
 		// TODO release this columns from their link to the real DB column name. Should use projection.
@@ -254,7 +250,6 @@ public class DataStore {
 
 	/**
 	 * This class represent an Twitter API entry.
-	 * @author Mathieu Méa
 	 */
 	public static class TwitterApi implements BaseColumns, TwitterApiColumns {
 		/**
@@ -347,7 +342,6 @@ public class DataStore {
 
 	/**
 	 * The Twitter API columns
-	 * @author Mathieu Méa
 	 */
 	public interface TwitterApiColumns {
 		// TODO release this columns from their link to the real DB column name. Should use projection.
@@ -357,7 +351,6 @@ public class DataStore {
 
 	/**
 	 * This class represent a service status entry.
-	 * @author Mathieu Méa
 	 */
 	public static class ServiceStatus implements BaseColumns, ServiceStatusColumns {
 		/**
@@ -377,7 +370,7 @@ public class DataStore {
 		 * The default order for service status.
 		 */
 		public static final String DEFAULT_SORT_ORDER = DataDbHelper.T_SERVICE_STATUS_K_ID + " DESC";
-		
+
 		/**
 		 * The order status from the latest to the oldest.
 		 */
@@ -454,90 +447,105 @@ public class DataStore {
 		public int getId() {
 			return id;
 		}
+
 		/**
 		 * @return the message
 		 */
 		public String getMessage() {
 			return message;
 		}
+
 		/**
 		 * @param message the new message
 		 */
 		public void setMessage(String message) {
 			this.message = message;
 		}
+
 		/**
 		 * @return the pub date
 		 */
 		public int getPubDate() {
 			return pubDate;
 		}
+
 		/**
 		 * @param pubDate the new pub date
 		 */
 		public void setPubDate(int pubDate) {
 			this.pubDate = pubDate;
 		}
+
 		/**
 		 * @return read date in seconds
 		 */
 		public int getReadDate() {
 			return readDate;
 		}
+
 		/**
 		 * @return read date in milliseconds
 		 */
 		public long getReadDateInMs() {
 			return ((long) getReadDate()) * 1000;
 		}
+
 		/**
 		 * @param readDate the new read date in seconds.
 		 */
 		public void setReadDate(int readDate) {
 			this.readDate = readDate;
 		}
+
 		/**
 		 * @return the type
 		 */
 		public int getType() {
 			return type;
 		}
+
 		/**
 		 * @param type the new type
 		 */
 		public void setType(int type) {
 			this.type = type;
 		}
+
 		/**
 		 * @return the language
 		 */
 		public String getLanguage() {
 			return language;
 		}
+
 		/**
 		 * @param language the new language
 		 */
 		public void setLanguage(String language) {
 			this.language = language;
 		}
+
 		/**
 		 * @return the source name
 		 */
 		public String getSourceName() {
 			return sourceName;
 		}
+
 		/**
 		 * @param sourceName the new source name
 		 */
 		public void setSourceName(String sourceName) {
 			this.sourceName = sourceName;
 		}
+
 		/**
 		 * @return the source link
 		 */
 		public String getSourceLink() {
 			return sourceLink;
 		}
+
 		/**
 		 * @param sourceLink the new source link
 		 */
@@ -563,7 +571,6 @@ public class DataStore {
 
 	/**
 	 * The Service Status columns
-	 * @author Mathieu Méa
 	 */
 	public interface ServiceStatusColumns {
 		// TODO release this columns from their link to the real DB column name. Should use projection.
@@ -574,6 +581,182 @@ public class DataStore {
 		public static final String LANGUAGE = DataDbHelper.T_SERVICE_STATUS_K_LANGUAGE;
 		public static final String SOURCE_NAME = DataDbHelper.T_SERVICE_STATUS_K_SOURCE;
 		public static final String SOURCE_LINK = DataDbHelper.T_SERVICE_STATUS_K_LINK;
+	}
+
+	/**
+	 * This class represent a cache entry.
+	 */
+	public static class Cache implements BaseColumns, CacheColumns {
+		/**
+		 * The content URI for cache.
+		 */
+		public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/cache");
+		/**
+		 * Content URI for cache date.
+		 */
+		public static final String URI_DATE = "date";
+		/**
+		 * The MIME type of {@link #CONTENT_URI} providing a directory of cache entries.
+		 */
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd." + AUTHORITY + ".provider.cache";
+		/**
+		 * The MIME type of a {@link #CONTENT_URI} sub-directory of a single cache entry.
+		 */
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY + ".provider.cache";
+		/**
+		 * The default sort order for cache.
+		 */
+		public static final String DEFAULT_SORT_ORDER = DataDbHelper.T_CACHE_K_DATE + " DESC";
+		/**
+		 * The cache type value for bus stops.
+		 */
+		public static final int KEY_TYPE_VALUE_BUS_STOP = DataDbHelper.KEY_CACHE_TYPE_VALUE_BUS_STOP;
+		/**
+		 * The cache ID.
+		 */
+		private int id;
+		/**
+		 * The cache date in seconds.
+		 */
+		private int date;
+		/**
+		 * The cache type.
+		 */
+		private int type;
+		/**
+		 * The cache FK ID.
+		 */
+		private String fkId;
+		/**
+		 * The cache object.
+		 */
+		private String object;
+
+		/**
+		 * The Default Constructor.
+		 */
+		public Cache() {
+		}
+
+		/**
+		 * Create a new cache with date = now.
+		 * @param type the cache type
+		 * @param fkId the cache FK ID
+		 * @param object the cache object
+		 */
+		public Cache(int type, String fkId, String object) {
+			this.date = (int) (System.currentTimeMillis() / 1000);
+			this.type = type;
+			this.fkId = fkId;
+			this.object = object;
+		}
+
+		/**
+		 * @param c the cursor
+		 * @return a cache object from the cursor
+		 */
+		public static Cache fromCursor(Cursor c) {
+			final Cache cache = new Cache();
+			cache.id = c.getInt(c.getColumnIndexOrThrow(BaseColumns._ID));
+			cache.date = c.getInt(c.getColumnIndexOrThrow(CacheColumns.CACHE_DATE));
+			cache.type = c.getInt(c.getColumnIndexOrThrow(CacheColumns.CACHE_TYPE));
+			cache.fkId = c.getString(c.getColumnIndexOrThrow(CacheColumns.CACHE_FK_ID));
+			cache.object = c.getString(c.getColumnIndexOrThrow(CacheColumns.CACHE_OBJECT));
+			return cache;
+		}
+
+		/**
+		 * @param id the new ID
+		 */
+		public void setId(int id) {
+			this.id = id;
+		}
+
+		/**
+		 * @return the ID
+		 */
+		public int getId() {
+			return id;
+		}
+
+		/**
+		 * @param fkId the new FK ID
+		 */
+		public void setFkId(String fkId) {
+			this.fkId = fkId;
+		}
+
+		/**
+		 * @return the FK ID
+		 */
+		public String getFkId() {
+			return fkId;
+		}
+
+		/**
+		 * @param type the new type
+		 */
+		public void setType(int type) {
+			this.type = type;
+		}
+
+		/**
+		 * @return the type
+		 */
+		public int getType() {
+			return type;
+		}
+
+		/**
+		 * @return the date
+		 */
+		public int getDate() {
+			return date;
+		}
+
+		/**
+		 * @param date the new date
+		 */
+		public void setDate(int date) {
+			this.date = date;
+		}
+
+		/**
+		 * @return the object
+		 */
+		public String getObject() {
+			return object;
+		}
+
+		/**
+		 * @param object the new object
+		 */
+		public void setObject(String object) {
+			this.object = object;
+		}
+
+		/**
+		 * @return the content values representing this favorite.
+		 */
+		public ContentValues getContentValues() {
+			final ContentValues values = new ContentValues();
+			values.put(CacheColumns.CACHE_DATE, getDate());
+			values.put(CacheColumns.CACHE_TYPE, getType());
+			values.put(CacheColumns.CACHE_FK_ID, getFkId());
+			values.put(CacheColumns.CACHE_OBJECT, getObject());
+			return values;
+		}
+	}
+
+	/**
+	 * The column associated with a cache entry.
+	 */
+	public interface CacheColumns {
+		// TODO release this columns from their link to the real DB column name. Should use projection.
+		public static final String CACHE_DATE = DataDbHelper.T_CACHE_K_DATE;
+		public static final String CACHE_TYPE = DataDbHelper.T_CACHE_K_TYPE;
+		public static final String CACHE_FK_ID = DataDbHelper.T_CACHE_K_FK_ID;
+		public static final String CACHE_OBJECT = DataDbHelper.T_CACHE_K_OBJECT;
 	}
 
 }

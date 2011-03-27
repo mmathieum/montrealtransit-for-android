@@ -17,7 +17,7 @@ import org.montrealtransit.android.data.BusStopHours;
 import org.montrealtransit.android.dialog.BusLineSelectDirection;
 import org.montrealtransit.android.dialog.NoRadarInstalled;
 import org.montrealtransit.android.provider.DataManager;
-import org.montrealtransit.android.provider.DataStore;
+import org.montrealtransit.android.provider.DataStore.Cache;
 import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
@@ -78,6 +78,10 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	 * The extra ID for the bus line number.
 	 */
 	public static final String EXTRA_STOP_LINE_NUMBER = "extra_line_number";
+	/**
+	 * The validity of the cache (in seconds).
+	 */
+	private static final int CACHE_TOO_OLD_IN_SEC = 30 * 60; // 30 minutes
 	/**
 	 * The bus stop.
 	 */
@@ -282,8 +286,8 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	 */
 	private void setTheStar() {
 		MyLog.v(TAG, "setTheStar()");
-		Fav fav = DataManager.findFav(this.getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP,
-		        this.busStop.getCode(), this.busStop.getLineNumber());
+		Fav fav = DataManager.findFav(this.getContentResolver(), Fav.KEY_TYPE_VALUE_BUS_STOP, this.busStop.getCode(),
+		        this.busStop.getLineNumber());
 		this.starCb.setChecked(fav != null);
 	}
 
@@ -467,7 +471,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 					this.task.cancel(true);
 					this.task = null;
 				}
-				refreshAll();
+				setUpUI();
 			}
 		}
 	}
@@ -517,9 +521,9 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	}
 
 	/**
-	 * Refresh all the UI (based on the bus stop).
+	 * Setup all the UI (based on the bus stop).
 	 */
-	private void refreshAll() {
+	private void setUpUI() {
 		showNextBusStops();
 		refreshBusStopInfo();
 		refreshOtherBusLinesInfo();
@@ -532,6 +536,29 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	 */
 	private void showNextBusStops() {
 		if (this.hours == null) {
+			// check cache
+			Cache cache = DataManager.findCache(getContentResolver(), Cache.KEY_TYPE_VALUE_BUS_STOP, getUID());
+			// find the too old date
+			int tooOld = (int) (System.currentTimeMillis() / 1000) - CACHE_TOO_OLD_IN_SEC;
+			// IF the cache is too old DO
+			if (cache != null && tooOld >= cache.getDate()) {
+				// don't use the cache
+				cache = null;
+				// delete all too old cache
+				try {
+					DataManager.deleteCacheOlderThan(getContentResolver(), tooOld);
+				} catch (Exception e) {
+					MyLog.w(TAG, e, "Can't clean the cache!");
+				}
+			}
+			if (cache != null) {
+				// use cache
+				this.hours = BusStopHours.deserialized(cache.getObject());
+			}
+		}
+
+		if (this.hours == null) {
+			// load from the web
 			refreshNextStops();
 		} else {
 			showNewNextStops(this.hours);
@@ -754,7 +781,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 		MyLog.v(TAG, "updateProgress(%s)", progress);
 		if (!TextUtils.isEmpty(progress)) {
 			if (this.hours != null) {
-				// notify the user  ?
+				// notify the user ?
 			} else {
 				// update the BIG message
 				TextView detailMsgTv = (TextView) this.loadingView.findViewById(R.id.detail_msg);
@@ -779,8 +806,20 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 			this.hours = result;
 			// show the result
 			showNewNextStops(this.hours);
+			// remove existing cache for this bus stop
+			DataManager.deleteCacheIfExist(this.getContentResolver(), Cache.KEY_TYPE_VALUE_BUS_STOP, getUID());
+			// save the new value to cache
+			DataManager.addCache(getContentResolver(),
+			        new Cache(Cache.KEY_TYPE_VALUE_BUS_STOP, getUID(), this.hours.serialized()));
 			setNextStopsNotLoading();
 		}
+	}
+
+	/**
+	 * @return the bus stop unique ID.
+	 */
+	private String getUID() {
+		return this.busStop.getCode() + "-" + this.busLine.getNumber();
 	}
 
 	/**
@@ -790,29 +829,28 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 		// TODO doesn't work!!!
 		((TextView) findViewById(R.id.bus_stop_place)).requestFocus();
 	}
-	
+
 	/**
 	 * Switch the favorite status.
 	 * @param v the view (not used)
 	 */
 	public void addOrRemoveFavorite(View v) {
-		// manage favorite star click
-		if (DataManager.findFav(BusStopInfo.this.getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP,
-		        BusStopInfo.this.busStop.getCode(), BusStopInfo.this.busStop.getLineNumber()) != null) {
+		// try to find the existing favorite
+		Fav findFav = DataManager.findFav(this.getContentResolver(), Fav.KEY_TYPE_VALUE_BUS_STOP,
+		        this.busStop.getCode(), this.busStop.getLineNumber());
+		// IF the favorite exist DO
+		if (findFav != null) {
 			// delete the favorite
-			DataManager.deleteFav(
-			        BusStopInfo.this.getContentResolver(),
-			        DataManager.findFav(BusStopInfo.this.getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP,
-			                BusStopInfo.this.busStop.getCode(), BusStopInfo.this.busStop.getLineNumber()).getId());
-			Utils.notifyTheUser(BusStopInfo.this, getString(R.string.favorite_removed));
+			DataManager.deleteFav(this.getContentResolver(), findFav.getId());
+			Utils.notifyTheUser(this, getString(R.string.favorite_removed));
 		} else {
 			// add the favorite
-			DataStore.Fav newFav = new DataStore.Fav();
-			newFav.setType(DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
-			newFav.setFkId(BusStopInfo.this.busStop.getCode());
-			newFav.setFkId2(BusStopInfo.this.busLine.getNumber());
-			DataManager.addFav(BusStopInfo.this.getContentResolver(), newFav);
-			Utils.notifyTheUser(BusStopInfo.this, getString(R.string.favorite_added));
+			Fav newFav = new Fav();
+			newFav.setType(Fav.KEY_TYPE_VALUE_BUS_STOP);
+			newFav.setFkId(this.busStop.getCode());
+			newFav.setFkId2(this.busLine.getNumber());
+			DataManager.addFav(this.getContentResolver(), newFav);
+			Utils.notifyTheUser(this, getString(R.string.favorite_added));
 		}
 		setTheStar(); // TODO is remove useless?
 	}
