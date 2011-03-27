@@ -15,7 +15,6 @@ import java.util.Map;
 
 import org.montrealtransit.android.activity.UserPreferences;
 import org.montrealtransit.android.api.SupportFactory;
-import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.StmStore;
 
@@ -501,19 +500,19 @@ public class Utils {
 	}
 
 	/**
-	 * Extract the bus stop IDs (bus stop code - bus line number) from the favorite list
-	 * @param favList the favorite list
+	 * Extract the bus stop IDs (bus stop code - bus line number) from the favorite bus stop list
+	 * @param busStopFavList the favorite bus stop list
 	 * @return the bus stop IDs string
 	 */
-	public static String extractBusStopIDsFromFavList(List<Fav> favList) {
-		String favIdsS = "";
-		for (DataStore.Fav favId : favList) {
-			if (favIdsS.length() > 0) {
-				favIdsS += "+";
+	public static String extractBusStopIDsFromFavList(List<Fav> busStopFavList) {
+		String result = "";
+		for (Fav busStopFav : busStopFavList) {
+			if (result.length() > 0) {
+				result += "+";
 			}
-			favIdsS += favId.getFkId() + "-" + favId.getFkId2();
+			result += busStopFav.getFkId() + "-" + busStopFav.getFkId2();
 		}
-		return favIdsS;
+		return result;
 	}
 
 	/**
@@ -682,9 +681,4 @@ public class Utils {
 		is.close();
 		return count;
 	}
-
-	public static boolean isGenerousUser(UserPreferences userPreferences) {
-	    // TODO Auto-generated method stub
-	    return false;
-    }
 }
