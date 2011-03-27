@@ -79,15 +79,15 @@ public class FavListTab extends Activity {
 	 */
 	private void refreshBusStops() {
 		MyLog.v(TAG, "refreshBusStops()");
-		List<DataStore.Fav> favList = DataManager.findFavsByTypeList(getContentResolver(),
+		List<DataStore.Fav> busStopFavList = DataManager.findFavsByTypeList(getContentResolver(),
 		        DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
-		if (this.lastBusStopFavList == null || this.lastBusStopFavList.size() != favList.size()) {
+		if (this.lastBusStopFavList == null || this.lastBusStopFavList.size() != busStopFavList.size()) {
 			LinearLayout busStopsLayout = (LinearLayout) findViewById(R.id.bus_stops_list);
 			busStopsLayout.removeAllViews();
-			// IF there is one or more bus stops DO
-			if (favList != null && favList.size() > 0) {
+			// IF there is one or more favorite bus stops DO
+			if (busStopFavList != null && busStopFavList.size() > 0) {
 				List<BusStop> busStops = StmManager.findBusStopsExtendedList(this.getContentResolver(),
-				        Utils.extractBusStopIDsFromFavList(favList));
+				        Utils.extractBusStopIDsFromFavList(busStopFavList));
 				// FOR EACH bus stop DO
 				for (final BusStop busStop : busStops) {
 					// list view divider
@@ -179,16 +179,16 @@ public class FavListTab extends Activity {
 	 * Refresh the favorite subway stations UI.
 	 */
 	private void refreshSubwayStations() {
-		List<DataStore.Fav> favList = DataManager.findFavsByTypeList(getContentResolver(),
+		List<DataStore.Fav> subwayFavList = DataManager.findFavsByTypeList(getContentResolver(),
 		        DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
-		if (this.lastSubwayStationFavList == null || this.lastSubwayStationFavList.size() != favList.size()) {
+		if (this.lastSubwayStationFavList == null || this.lastSubwayStationFavList.size() != subwayFavList.size()) {
 			LinearLayout subwayStationsLayout = (LinearLayout) findViewById(R.id.subway_stations_list);
 			subwayStationsLayout.removeAllViews();
 			// IF there is one or more bus stops DO
-			if (favList != null && favList.size() > 0) {
-				// FOR EACH bus stop DO
-				for (Fav fav : favList) {
-					final SubwayStation station = StmManager.findSubwayStation(getContentResolver(), fav.getFkId());
+			if (subwayFavList != null && subwayFavList.size() > 0) {
+				// FOR EACH favorite subway DO
+				for (Fav subwayFav : subwayFavList) {
+					final SubwayStation station = StmManager.findSubwayStation(getContentResolver(), subwayFav.getFkId());
 					if (station != null) {
 						List<SubwayLine> otherLinesId = StmManager.findSubwayStationLinesList(getContentResolver(),
 						        station.getId());
@@ -275,7 +275,7 @@ public class FavListTab extends Activity {
 						});
 						subwayStationsLayout.addView(view);
 					} else {
-						MyLog.w(TAG, "Can't find the favorite subway station (ID:%s)", fav.getFkId());
+						MyLog.w(TAG, "Can't find the favorite subway station (ID:%s)", subwayFav.getFkId());
 					}
 				}
 			} else {
