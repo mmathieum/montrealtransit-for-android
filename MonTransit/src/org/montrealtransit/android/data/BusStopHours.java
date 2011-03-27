@@ -2,7 +2,10 @@ package org.montrealtransit.android.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.Utils;
 
 import android.content.Context;
@@ -12,7 +15,16 @@ import android.content.Context;
  * @author Mathieu Méa
  */
 public class BusStopHours {
-	
+
+	/**
+	 * The log tag.
+	 */
+	private static final String TAG = BusStopHours.class.getSimpleName();
+
+	/**
+	 * The source name to display.
+	 */
+	private String sourceName;
 	/**
 	 * The bus stop hours.
 	 */
@@ -27,22 +39,23 @@ public class BusStopHours {
 	 */
 	private String message2 = "";
 	/**
-	 * The source name to display.
-	 */
-	private String sourceName;
-	
-	/**
 	 * The error message.
 	 */
 	private String error = null;
 
 	/**
-	 * Default constructor.
+	 * The private constructor.
+	 */
+	private BusStopHours() {
+	}
+
+	/**
+	 * The default constructor.
 	 * @param sourceName the source name.
 	 */
 	public BusStopHours(String sourceName) {
-	    this.sourceName = sourceName;
-    }
+		this.sourceName = sourceName;
+	}
 
 	/**
 	 * An other constructor to specify if there was an error.
@@ -51,8 +64,8 @@ public class BusStopHours {
 	 */
 	public BusStopHours(String sourceName, String error) {
 		this.sourceName = sourceName;
-		this.error  = error;
-    }
+		this.error = error;
+	}
 
 	/**
 	 * @return the bus stop hours
@@ -63,7 +76,7 @@ public class BusStopHours {
 		}
 		return this.sHours;
 	}
-	
+
 	/**
 	 * Clear the bus stop hours list.
 	 */
@@ -100,49 +113,124 @@ public class BusStopHours {
 	 * @param string the string to add
 	 */
 	public void addMessageString(String string) {
-	    this.message += string;
-    }
-	
+		this.message += string;
+	}
+
 	/**
 	 * Add the string to the message 2.
 	 * @param string the string to add.
 	 */
 	public void addMessage2String(String string) {
-	    this.message2 += string;
-    }
-	
+		this.message2 += string;
+	}
+
+	private static final String SOURCE = "source";
+	private static final String HOURS = "hours";
+	private static final String MESSAGE = "message";
+	private static final String MESSAGE2 = "message2";
+	private static final String ERROR = "error";
+
+	/**
+	 * @return the serialized version of this object
+	 */
+	public String serialized() {
+		MyLog.v(TAG, "serialized()");
+		String result = "";
+		result += "${" + SOURCE + ":" + getSourceName() + "},";
+		for (String sHour : this.getSHours()) {
+			result += "${" + HOURS + ":" + sHour + "},";
+		}
+		result += "${" + MESSAGE + ":" + getMessage() + "},";
+		result += "${" + MESSAGE2 + ":" + getMessage2() + "},";
+		result += "${" + ERROR + ":" + getError() + "}";
+		return result;
+	}
+
+	/**
+	 * The regex use to match the serialized object properties.
+	 */
+	private static final Pattern PATTERN_REGEX_FOR_PROPERTIES = Pattern.compile("\\$\\{[^:]*:[^}]*\\}*");
+
+	/**
+	 * @param serializedHours the serialized hour object
+	 * @return the hour the hour object
+	 */
+	public static BusStopHours deserialized(String serializedHours) {
+		MyLog.v(TAG, "deserialized(%s)", serializedHours);
+		BusStopHours result = new BusStopHours();
+		Matcher matcher = PATTERN_REGEX_FOR_PROPERTIES.matcher(serializedHours);
+		while (matcher.find()) {
+			int separator = matcher.group().indexOf(":");
+			String property = matcher.group().substring(2, separator);
+			String value = matcher.group().substring(separator + 1, matcher.group().length() - 1);
+			if (SOURCE.equals(property)) {
+				result.setSourceName(value);
+			} else if (HOURS.equals(property)) {
+				result.addSHour(value);
+			} else if (MESSAGE.equals(property)) {
+				result.setMessage(String.valueOf(value));
+			} else if (MESSAGE2.equals(property)) {
+				result.setMessage2(String.valueOf(value));
+			} else if (ERROR.equals(property)) {
+				result.setError(String.valueOf(value));
+			}
+		}
+		return result;
+	}
+
 	/**
 	 * @return the message 1.
 	 */
 	public String getMessage() {
-	    return message;
-    }
-	
+		return message;
+	}
+
+	/**
+	 * @param message the new message
+	 */
+	private void setMessage(String message) {
+		this.message = message;
+	}
+
 	/**
 	 * @return the message 2.
 	 */
-	public String getMessage2(){
+	public String getMessage2() {
 		return message2;
 	}
-	
+
+	/**
+	 * @param message2 the new message2
+	 */
+	private void setMessage2(String message2) {
+		this.message2 = message2;
+	}
+
 	/**
 	 * @return the source name.
 	 */
 	public String getSourceName() {
-	    return sourceName;
-    }
-	
+		return sourceName;
+	}
+
+	/**
+	 * @param sourceName the new source name
+	 */
+	private void setSourceName(String sourceName) {
+		this.sourceName = sourceName;
+	}
+
 	/**
 	 * @return the error message
 	 */
 	public String getError() {
-	    return error;
-    }
-	
+		return error;
+	}
+
 	/**
 	 * @param error the new error message
 	 */
-	public void setError(String error) {
-	    this.error = error;
-    }
+	private void setError(String error) {
+		this.error = error;
+	}
 }

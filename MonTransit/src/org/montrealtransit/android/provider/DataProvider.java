@@ -47,6 +47,10 @@ public class DataProvider extends ContentProvider {
 	private static final int TWITTER_API_ID = 10;
 	private static final int SERVICE_STATUS = 11;
 	private static final int SERVICE_STATUS_ID = 12;
+	private static final int CACHE = 13;
+	private static final int CACHE_ID = 14;
+	private static final int CACHE_FKID = 15;
+	private static final int CACHE_DATE = 16;
 
 	/**
 	 * The URI matcher filter the content URI calls.
@@ -54,6 +58,10 @@ public class DataProvider extends ContentProvider {
 	private static final UriMatcher URI_MATCHER;
 	static {
 		URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
+		URI_MATCHER.addURI(AUTHORITY, "cache", CACHE);
+		URI_MATCHER.addURI(AUTHORITY, "cache/#", CACHE_ID);
+		URI_MATCHER.addURI(AUTHORITY, "cache/*", CACHE_FKID);
+		URI_MATCHER.addURI(AUTHORITY, "cache/#/date", CACHE_DATE);
 		URI_MATCHER.addURI(AUTHORITY, "favs", FAVS);
 		URI_MATCHER.addURI(AUTHORITY, "favs/#", FAV_ID);
 		URI_MATCHER.addURI(AUTHORITY, "favs/*", FAVS_IDS);
@@ -85,8 +93,8 @@ public class DataProvider extends ContentProvider {
 	 */
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-		MyLog.v(TAG, "query(%s, %s, %s, %s, %s)", uri.getPath(), Arrays.toString(projection), selection, Arrays
-		        .toString(selectionArgs), sortOrder);
+		MyLog.v(TAG, "query(%s, %s, %s, %s, %s)", uri.getPath(), Arrays.toString(projection), selection,
+		        Arrays.toString(selectionArgs), sortOrder);
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 		MyLog.i(TAG, "[%s]", uri);
 		switch (URI_MATCHER.match(uri)) {
@@ -143,7 +151,8 @@ public class DataProvider extends ContentProvider {
 		case TWITTER_API_ID:
 			MyLog.v(TAG, "TWITTER_API_ID");
 			qb.setTables(DataDbHelper.T_TWITTER_API);
-			qb.appendWhere(DataDbHelper.T_TWITTER_API + "." + DataDbHelper.T_TWITTER_API_K_ID + "=" + uri.getPathSegments().get(1));
+			qb.appendWhere(DataDbHelper.T_TWITTER_API + "." + DataDbHelper.T_TWITTER_API_K_ID + "="
+			        + uri.getPathSegments().get(1));
 			break;
 		case SERVICE_STATUS:
 			MyLog.v(TAG, "SERVICE_STATUS");
@@ -152,7 +161,30 @@ public class DataProvider extends ContentProvider {
 		case SERVICE_STATUS_ID:
 			MyLog.v(TAG, "SERVICE_STATUS_ID");
 			qb.setTables(DataDbHelper.T_SERVICE_STATUS);
-			qb.appendWhere(DataDbHelper.T_SERVICE_STATUS + "." + DataDbHelper.T_SERVICE_STATUS_K_ID + "=" + uri.getPathSegments().get(1));
+			qb.appendWhere(DataDbHelper.T_SERVICE_STATUS + "." + DataDbHelper.T_SERVICE_STATUS_K_ID + "="
+			        + uri.getPathSegments().get(1));
+			break;
+		case CACHE:
+			MyLog.v(TAG, "CACHE");
+			qb.setTables(DataDbHelper.T_CACHE);
+			break;
+		case CACHE_ID:
+			MyLog.v(TAG, "CACHE_ID");
+			qb.setTables(DataDbHelper.T_CACHE);
+			qb.appendWhere(DataDbHelper.T_CACHE + "." + DataDbHelper.T_CACHE_K_ID + "=" + uri.getPathSegments().get(1));
+			break;
+		case CACHE_FKID:
+			MyLog.v(TAG, "CACHE_FKID");
+			qb.setTables(DataDbHelper.T_CACHE);
+			ids = uri.getPathSegments().get(1).split("\\+");
+			fkId = ids[0];
+			int type = Integer.valueOf(ids[1]);
+			where = null;
+			if (type == DataStore.Cache.KEY_TYPE_VALUE_BUS_STOP) {
+				where = DataDbHelper.T_CACHE + "." + DataDbHelper.T_CACHE_K_FK_ID + "='" + fkId + "' AND "
+				        + DataDbHelper.T_CACHE + "." + DataDbHelper.T_CACHE_K_TYPE + "=" + type;
+			}
+			qb.appendWhere(where);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI (query) :" + uri);
@@ -181,6 +213,11 @@ public class DataProvider extends ContentProvider {
 			case SERVICE_STATUS:
 			case SERVICE_STATUS_ID:
 				orderBy = DataStore.ServiceStatus.DEFAULT_SORT_ORDER;
+				break;
+			case CACHE:
+			case CACHE_ID:
+			case CACHE_FKID:
+				orderBy = DataStore.Cache.DEFAULT_SORT_ORDER;
 				break;
 			default:
 				throw new IllegalArgumentException("Unknown URI (order) :" + uri);
@@ -222,6 +259,12 @@ public class DataProvider extends ContentProvider {
 			return DataStore.ServiceStatus.CONTENT_TYPE;
 		case SERVICE_STATUS_ID:
 			return DataStore.ServiceStatus.CONTENT_ITEM_TYPE;
+		case CACHE:
+		case CACHE_DATE:
+			return DataStore.Cache.CONTENT_TYPE;
+		case CACHE_ID:
+		case CACHE_FKID:
+			return DataStore.Cache.CONTENT_ITEM_TYPE;
 		default:
 			throw new IllegalArgumentException("Unknown URI (type) :" + uri);
 		}
@@ -254,24 +297,37 @@ public class DataProvider extends ContentProvider {
 			break;
 		case FAV_ID:
 			MyLog.v(TAG, "DELETE>FAV_ID");
-			String favId = uri.getPathSegments().get(1);
-			count = db.delete(DataDbHelper.T_FAVS, DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_ID + "=" + favId,
-			        null);
+			count = db.delete(DataDbHelper.T_FAVS, DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_ID + "="
+			        + uri.getPathSegments().get(1), null);
 			break;
 		case HISTORY:
 			MyLog.v(TAG, "DELETE>HISTORY");
-			count = db.delete(DataDbHelper.T_HISTORY, null, null);
+			count = db.delete(DataDbHelper.T_HISTORY, selection, null);
 			break;
 		case TWITTER_API:
 			MyLog.v(TAG, "DELETE>TWITTER_API");
-			count = db.delete(DataDbHelper.T_TWITTER_API, null, null);
+			count = db.delete(DataDbHelper.T_TWITTER_API, selection, null);
 			break;
 		case SERVICE_STATUS:
 			MyLog.v(TAG, "DELETE>SERVICE_STATUS");
-			count = db.delete(DataDbHelper.T_SERVICE_STATUS, null, null);
+			count = db.delete(DataDbHelper.T_SERVICE_STATUS, selection, null);
+			break;
+		case CACHE:
+			MyLog.v(TAG, "DELETE>CACHE");
+			count = db.delete(DataDbHelper.T_CACHE, selection, null);
+			break;
+		case CACHE_ID:
+			MyLog.v(TAG, "DELETE>CACHE_ID");
+			count = db.delete(DataDbHelper.T_CACHE, DataDbHelper.T_CACHE + "." + DataDbHelper.T_CACHE_K_ID + "="
+			        + uri.getPathSegments().get(1), null);
+			break;
+		case CACHE_DATE:
+			MyLog.v(TAG, "DELETE>CACHE_DATE");
+			count = db.delete(DataDbHelper.T_CACHE, DataDbHelper.T_CACHE + "." + DataDbHelper.T_CACHE_K_DATE+ " < "
+			        + uri.getPathSegments().get(1), null);
 			break;
 		default:
-			throw new IllegalArgumentException("Unknown URI (delete) " + uri);
+			throw new IllegalArgumentException("Unknown URI (delete): " + uri);
 		}
 		getContext().getContentResolver().notifyChange(uri, null);
 		return count;
@@ -283,12 +339,12 @@ public class DataProvider extends ContentProvider {
 	@Override
 	public Uri insert(Uri uri, ContentValues initialValues) {
 		MyLog.v(TAG, "insert(%s, %s)", uri, initialValues.size());
-		ContentValues values;
-		if (initialValues != null) {
-			values = new ContentValues(initialValues);
-		} else {
-			values = new ContentValues();
-		}
+		ContentValues values = new ContentValues(initialValues);
+		// if (initialValues != null) {
+		// values = new ContentValues(initialValues);
+		// } else {
+		// values = new ContentValues();
+		// }
 		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 		Uri insertUri = null;
 		switch (URI_MATCHER.match(uri)) {
@@ -311,9 +367,16 @@ public class DataProvider extends ContentProvider {
 			}
 			break;
 		case SERVICE_STATUS:
-			long serviceStatusId = db.insert(DataDbHelper.T_SERVICE_STATUS, DataDbHelper.T_SERVICE_STATUS_K_MESSAGE, values);
+			long serviceStatusId = db.insert(DataDbHelper.T_SERVICE_STATUS, DataDbHelper.T_SERVICE_STATUS_K_MESSAGE,
+			        values);
 			if (serviceStatusId > 0) {
 				insertUri = ContentUris.withAppendedId(DataStore.ServiceStatus.CONTENT_URI, serviceStatusId);
+			}
+			break;
+		case CACHE:
+			long cacheId = db.insert(DataDbHelper.T_CACHE, DataDbHelper.T_CACHE_K_OBJECT, values);
+			if (cacheId > 0) {
+				insertUri = ContentUris.withAppendedId(DataStore.Cache.CONTENT_URI, cacheId);
 			}
 			break;
 		default:

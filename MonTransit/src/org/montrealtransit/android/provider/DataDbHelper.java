@@ -28,7 +28,7 @@ public class DataDbHelper extends SQLiteOpenHelper {
 	/**
 	 * The database version use to manage database changes.
 	 */
-	private static final int DATABASE_VERSION = 4;
+	private static final int DATABASE_VERSION = 5;
 
 	/**
 	 * The favorites table.
@@ -37,7 +37,7 @@ public class DataDbHelper extends SQLiteOpenHelper {
 	/**
 	 * The favorite ID field.
 	 */
-	public static final String T_FAVS_K_ID = "_id";
+	public static final String T_FAVS_K_ID = BaseColumns._ID;
 	/**
 	 * The favorite FK_ID field.
 	 */
@@ -58,11 +58,11 @@ public class DataDbHelper extends SQLiteOpenHelper {
 	/**
 	 * The favorite type value for bus stops.
 	 */
-	public static final int KEY_TYPE_VALUE_BUS_STOP = 1;
+	public static final int KEY_FAVS_TYPE_VALUE_BUS_STOP = 1;
 	/**
 	 * The favorite type value for bus stops.
 	 */
-	public static final int KEY_TYPE_VALUE_SUBWAY_STATION = 2;
+	public static final int KEY_FAVS_TYPE_VALUE_SUBWAY_STATION = 2;
 
 	/**
 	 * The history table.
@@ -130,15 +130,46 @@ public class DataDbHelper extends SQLiteOpenHelper {
 	 * The service status message type.
 	 */
 	public static final String T_SERVICE_STATUS_K_TYPE = "type";
-	
+
 	public static final int SERVICE_STATUS_TYPE_DEFAULT = 0;
 	public static final int SERVICE_STATUS_TYPE_GREEN = 1;
 	public static final int SERVICE_STATUS_TYPE_YELLOW = 2;
 	public static final int SERVICE_STATUS_TYPE_RED = 3;
-	
+
 	public static final String SERVICE_STATUS_LANG_UNKNOWN = "";
 	public static final String SERVICE_STATUS_LANG_ENGLISH = "en";
 	public static final String SERVICE_STATUS_LANG_FRENCH = "fr";
+
+	/**
+	 * The cache table.
+	 */
+	public static final String T_CACHE = "cache";
+	/**
+	 * The cache ID field.
+	 */
+	public static final String T_CACHE_K_ID = BaseColumns._ID;
+	/**
+	 * The cache date field.
+	 */
+	public static final String T_CACHE_K_DATE = "date";
+	/**
+	 * The cache type field.
+	 */
+	public static final String T_CACHE_K_TYPE = "type";
+
+	/**
+	 * The cache FK_ID field.
+	 */
+	public static final String T_CACHE_K_FK_ID = "fk_id";
+	/**
+	 * The cache serialized object.
+	 */
+	public static final String T_CACHE_K_OBJECT = "object";
+
+	/**
+	 * The cache type value for bus stops hours.
+	 */
+	public static final int KEY_CACHE_TYPE_VALUE_BUS_STOP = 1;
 
 	/**
 	 * Database creation SQL statement for the favorite table.
@@ -168,6 +199,13 @@ public class DataDbHelper extends SQLiteOpenHelper {
 	        + T_SERVICE_STATUS_K_SOURCE + " text, " + T_SERVICE_STATUS_K_LINK + " text);";
 
 	/**
+	 * Database creation SQL statement for the Cache table.
+	 */
+	private static final String DATABASE_CREATE_T_CACHE = "create table " + T_CACHE + " (" + T_CACHE_K_ID
+	        + " integer primary key autoincrement, " + T_CACHE_K_DATE + " integer, " + T_CACHE_K_TYPE + " integer, "
+	        + T_CACHE_K_FK_ID + " text," + T_CACHE_K_OBJECT + " text);";
+
+	/**
 	 * Default constructor.
 	 */
 	public DataDbHelper(Context context) {
@@ -183,6 +221,7 @@ public class DataDbHelper extends SQLiteOpenHelper {
 		db.execSQL(DATABASE_CREATE_T_HISTORY);
 		db.execSQL(DATABASE_CREATE_T_TWITTER_API);
 		db.execSQL(DATABASE_CREATE_T_SERVICE_STATUS);
+		db.execSQL(DATABASE_CREATE_T_CACHE);
 	}
 
 	/**
@@ -195,27 +234,29 @@ public class DataDbHelper extends SQLiteOpenHelper {
 		        newVersion);
 		switch (oldVersion) {
 		case 1:
-			MyLog.v(TAG, "old data not destroyed, just create the history and data table");
-			// just create the history table
+			MyLog.v(TAG, "add the History table");
+			// just create the History table
 			db.execSQL(DATABASE_CREATE_T_HISTORY);
-			// just create the Twitter API table
-			db.execSQL(DATABASE_CREATE_T_TWITTER_API);
-			//break;
 		case 2:
-			MyLog.v(TAG, "old data not destroyed, just create the Twitter API table");
+			MyLog.v(TAG, "add the Twitter API table");
 			// just create the Twitter API table
 			db.execSQL(DATABASE_CREATE_T_TWITTER_API);
 		case 3:
-			MyLog.v(TAG, "old data not destroyed, just create the service status table");
-			// just create the Twitter API table
+			MyLog.v(TAG, "add the Service Status table");
+			// just create the Service Status table
 			db.execSQL(DATABASE_CREATE_T_SERVICE_STATUS);
+		case 4:
+			MyLog.v(TAG, "add the Cache table");
+			// just create the Cache table
+			db.execSQL(DATABASE_CREATE_T_CACHE);
 			break;
 		default:
-			MyLog.w(TAG, "old user data destroyed!");
+			MyLog.w(TAG, "Old user data destroyed!");
 			db.execSQL("DROP TABLE IF EXISTS " + T_FAVS);
 			db.execSQL("DROP TABLE IF EXISTS " + T_HISTORY);
 			db.execSQL("DROP TABLE IF EXISTS " + T_TWITTER_API);
 			db.execSQL("DROP TABLE IF EXISTS " + T_SERVICE_STATUS);
+			db.execSQL("DROP TABLE IF EXISTS " + T_CACHE);
 			onCreate(db);
 			break;
 		}
