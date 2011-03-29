@@ -81,6 +81,23 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 	private List<List<Map<String, String>>> currentChildDataByType;
 
 	/**
+	 * The expandable list view.
+	 */
+	private ExpandableListView elist;
+	/**
+	 * The list view.
+	 */
+	private ListView list;
+	/**
+	 * The empty view for the expandable list.
+	 */
+	private View elistEmpty;
+	/**
+	 * The empty view for the list.
+	 */
+	private View listEmpty;
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -89,52 +106,56 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 		super.onCreate(savedInstanceState);
 		// set the UI
 		setContentView(R.layout.bus_line_list_tab);
+
+		this.elist = (ExpandableListView) findViewById(R.id.elist);
+		this.elistEmpty = findViewById(R.id.elist_empty);
+		this.list = (ListView) findViewById(R.id.list);
+		this.listEmpty = findViewById(R.id.list_empty);
+
 		PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
-		((ExpandableListView) findViewById(R.id.elist))
-		        .setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-			        @Override
-			        public boolean onChildClick(ExpandableListView parent, View v, int groupPosition,
-			                int childPosition, long id) {
-				        MyLog.v(TAG, "onChildClick(%s, %s, %s, %s, %s)", parent.getId(), v.getId(), groupPosition,
-				                childPosition, id);
-				        if (parent.getId() == R.id.elist) {
-					        String lineNumber;
-					        if (getBusListGroupByFromPreferences().equals(
-					                UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
-						        lineNumber = BusLineListTab.this.currentChildDataByType.get(groupPosition)
-						                .get(childPosition).get(StmStore.BusLine.LINE_NUMBER);
-					        } else {
-						        lineNumber = BusLineListTab.this.currentChildDataByNumber.get(groupPosition)
-						                .get(childPosition).get(StmStore.BusLine.LINE_NUMBER);
-					        }
-					        MyLog.v(TAG, "bus line number: %s.", lineNumber);
-					        BusLineSelectDirection busLineSelectDirection = new BusLineSelectDirection(
-					                BusLineListTab.this, lineNumber);
-					        busLineSelectDirection.showDialog();
-					        return true;
-				        } else {
-					        MyLog.w(TAG, "unknown view id: %s", parent.getId());
-					        return false;
-				        }
-			        }
-		        });
-		((ListView) findViewById(R.id.list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+		this.elist.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+			@Override
+			public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+				MyLog.v(TAG, "onChildClick(%s, %s, %s, %s, %s)", parent.getId(), v.getId(), groupPosition,
+				        childPosition, id);
+				if (parent.getId() == R.id.elist) {
+					String lineNumber = null;
+					if (getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
+						if (BusLineListTab.this.currentChildDataByType != null) {
+							lineNumber = BusLineListTab.this.currentChildDataByType.get(groupPosition)
+							        .get(childPosition).get(StmStore.BusLine.LINE_NUMBER);
+						}
+					} else if (BusLineListTab.this.currentChildDataByNumber != null) {
+						lineNumber = BusLineListTab.this.currentChildDataByNumber.get(groupPosition).get(childPosition)
+						        .get(StmStore.BusLine.LINE_NUMBER);
+					}
+					// MyLog.d(TAG, "bus line number: %s.", lineNumber);
+					if (lineNumber == null) {
+						return false;
+					}
+					new BusLineSelectDirection(BusLineListTab.this, lineNumber).showDialog();
+					return true;
+				} else {
+					MyLog.w(TAG, "unknown view id: %s", parent.getId());
+					return false;
+				}
+			}
+		});
+		this.list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> l, View v, int position, long id) {
 				MyLog.v(TAG, "onItemClick(%s, %s,%s,%s)", l.getId(), v.getId(), position, id);
 				if (l.getId() == R.id.list) {
-					String lineNumber = String.valueOf(id);
-					MyLog.v(TAG, "lineNumber: %s", lineNumber);
-					BusLineSelectDirection busLineSelectDirection = new BusLineSelectDirection(BusLineListTab.this,
-					        lineNumber);
-					busLineSelectDirection.showDialog();
+					// MyLog.d(TAG, "lineNumber: %s", lineNumber);
+					new BusLineSelectDirection(BusLineListTab.this, String.valueOf(id)).showDialog();
 				} else {
 					MyLog.w(TAG, "unknown view id: %s", v.getId());
 				}
 			}
 		});
 		// refresh the bus list
-		refreshAll();
+		setUpUI();
 	}
 
 	/**
@@ -165,44 +186,18 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 	/**
 	 * Use preferences to set the bus line list.
 	 */
-	private void refreshAll() {
-		MyLog.v(TAG, "refreshAll()");
+	private void setUpUI() {
+		MyLog.v(TAG, "setUpUI()");
 		if (getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)
 		        || getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
+			// expendable list
 			showEListView();
 			new SetBusEListTask().execute(getBusListGroupByFromPreferences());
 		} else {
+			// list
 			showListView();
-			((ListView) findViewById(R.id.list)).setAdapter(getAdapterFromSettings(getBusListGroupByFromPreferences()));
+			this.list.setAdapter(getAdapterFromSettings(getBusListGroupByFromPreferences()));
 		}
-	}
-
-	/**
-	 * This task create the expandable list adapter in a other thread.
-	 * @author Mathieu Méa
-	 */
-	private class SetBusEListTask extends AsyncTask<String, String, ExpandableListAdapter> {
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		protected ExpandableListAdapter doInBackground(String... arg0) {
-			String busListGroupBy = arg0[0];
-			// load the adapter
-			return getEAdapterFromSettings(busListGroupBy);
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		protected void onPostExecute(ExpandableListAdapter result) {
-			MyLog.v(TAG, "onPostExecute()");
-			((ExpandableListView) findViewById(R.id.elist)).setAdapter(result);
-			super.onPostExecute(result);
-		}
-
 	}
 
 	/**
@@ -210,12 +205,12 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 	 */
 	private void showEListView() {
 		MyLog.v(TAG, "showEListView()");
-		findViewById(R.id.elist).setVisibility(View.VISIBLE);
-		findViewById(R.id.elist_empty).setVisibility(View.VISIBLE);
-		((ExpandableListView) findViewById(R.id.elist)).setEmptyView(findViewById(R.id.elist_empty));
+		this.elist.setVisibility(View.VISIBLE);
+		this.elistEmpty.setVisibility(View.VISIBLE);
+		this.elist.setEmptyView(this.elistEmpty);
 
-		findViewById(R.id.list).setVisibility(View.GONE);
-		findViewById(R.id.list_empty).setVisibility(View.GONE);
+		this.list.setVisibility(View.GONE);
+		this.listEmpty.setVisibility(View.GONE);
 	}
 
 	/**
@@ -223,12 +218,12 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 	 */
 	private void showListView() {
 		MyLog.v(TAG, "showListView()");
-		findViewById(R.id.elist).setVisibility(View.GONE);
-		findViewById(R.id.elist_empty).setVisibility(View.GONE);
+		this.elist.setVisibility(View.GONE);
+		this.elistEmpty.setVisibility(View.GONE);
 
-		findViewById(R.id.list).setVisibility(View.VISIBLE);
-		findViewById(R.id.list_empty).setVisibility(View.VISIBLE);
-		((ListView) findViewById(R.id.list)).setEmptyView(findViewById(R.id.list_empty));
+		this.list.setVisibility(View.VISIBLE);
+		this.listEmpty.setVisibility(View.VISIBLE);
+		this.list.setEmptyView(this.listEmpty);
 	}
 
 	/**
@@ -236,9 +231,9 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 	 */
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		MyLog.d(TAG, "onSharedPreferenceChanged(" + key + ")");
+		// MyLog.v(TAG, "onSharedPreferenceChanged(%s)", key);
 		if (key.equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY)) {
-			refreshAll();
+			setUpUI();
 		}
 	}
 
@@ -257,13 +252,13 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 	 * @return the expandable list adapter.
 	 */
 	private ExpandableListAdapter getEAdapterFromSettings(String busListGroupBy) {
-		MyLog.v(TAG, "getEAdapterFromSettings(" + busListGroupBy + ")");
+		MyLog.v(TAG, "getEAdapterFromSettings(%s)", busListGroupBy);
 		if (busListGroupBy.equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)) {
 			return getAdapterByNumber();
 		} else if (busListGroupBy.equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
 			return getAdapterByType();
 		} else {
-			MyLog.w(TAG, "Unknow exandable list adapter \"" + busListGroupBy + "\"");
+			MyLog.w(TAG, "Unknow exandable list adapter '%s'", busListGroupBy);
 			return getAdapterByNumber(); // default group by (expandable)
 		}
 	}
@@ -275,11 +270,11 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 	 * @return the list adapter.
 	 */
 	private ListAdapter getAdapterFromSettings(String busListGroupBy) {
-		MyLog.v(TAG, "getAdapterFromSettings(" + busListGroupBy + ")");
+		MyLog.v(TAG, "getAdapterFromSettings(%s)", busListGroupBy);
 		if (busListGroupBy.equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP)) {
 			return getAdapterNoGroupBy();
 		} else {
-			MyLog.w(TAG, "Unknow list adapter \"" + busListGroupBy + "\"");
+			MyLog.w(TAG, "Unknow list adapter '%s'", busListGroupBy);
 			return getAdapterNoGroupBy(); // default group by
 		}
 	}
@@ -321,7 +316,7 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 		adapter.setFilterQueryProvider(new FilterQueryProvider() {
 			@Override
 			public Cursor runQuery(CharSequence constraint) {
-				MyLog.v(TAG, "runQuery(" + constraint + ")");
+				MyLog.v(TAG, "runQuery(%s)", constraint);
 				return StmManager.searchAllBusLines(BusLineListTab.this.getContentResolver(), constraint.toString());
 			}
 		});
@@ -392,59 +387,6 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 	}
 
 	/**
-	 * A simple expandable list adapter based on {@link SimpleExpandableListAdapter}. Add the customization of the child view (line type img).
-	 * @author Mathieu Méa
-	 */
-	private class MySimpleExpandableListAdapter extends SimpleExpandableListAdapter {
-
-		/**
-		 * @see {@link SimpleExpandableListAdapter}
-		 */
-		public MySimpleExpandableListAdapter(BusLineListTab expandableBusListTab, List<Map<String, String>> groupData,
-		        int simpleExpandableListItem1, String[] strings, int[] is, List<List<Map<String, String>>> childData,
-		        int busLineListItem, String[] childFrom, int[] childTo) {
-			super(expandableBusListTab, groupData, simpleExpandableListItem1, strings, is, childData, busLineListItem,
-			        childFrom, childTo);
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView,
-		        ViewGroup parent) {
-			View v;
-			if (convertView == null) {
-				v = newChildView(isLastChild, parent);
-			} else {
-				v = convertView;
-			}
-			if (getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
-				bindView(v, currentChildDataByType.get(groupPosition).get(childPosition));
-			} else {
-				bindView(v, currentChildDataByNumber.get(groupPosition).get(childPosition));
-			}
-			return v;
-		}
-
-		/**
-		 * Bind the view with the data values.
-		 * @param view the view
-		 * @param data the data values
-		 */
-		private void bindView(View view, Map<String, String> data) {
-			((TextView) view.findViewById(R.id.line_number)).setText(data.get(StmStore.BusLine.LINE_NUMBER));
-			int color = BusUtils.getBusLineTypeBgColorFromType(data.get(StmStore.BusLine.LINE_TYPE));
-			((TextView) view.findViewById(R.id.line_number)).setBackgroundColor(color);
-			((TextView) view.findViewById(R.id.line_name)).setText(data.get(StmStore.BusLine.LINE_NAME));
-			String hours = Utils.getFormatted2Hours(BusLineListTab.this, data.get(StmStore.BusLine.LINE_HOURS), "-");
-			((TextView) view.findViewById(R.id.hours)).setText(hours);
-			int busImg = BusUtils.getBusLineTypeImgFromType(data.get(StmStore.BusLine.LINE_TYPE));
-			((ImageView) view.findViewById(R.id.line_type)).setImageResource(busImg);
-		}
-	}
-
-	/**
 	 * The bus type constant.
 	 */
 	private static final String BUS_TYPE = "type";
@@ -503,40 +445,6 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 			        R.layout.bus_line_list_item, fromChild, toChild);
 		}
 		return this.adapterByType;
-	}
-
-	/**
-	 * A custom expandable list adapter based on {@link MySimpleExpandableListAdapter}. Add the group view customization.
-	 * @author Mathieu Méa
-	 */
-	private class MySimpleExpandableListAdapterType extends MySimpleExpandableListAdapter {
-
-		/**
-		 * @see MySimpleExpandableListAdapter#MySimpleExpandableListAdapter(BusLineListTab, List, int, String[], int[], List, int, String[], int[])
-		 */
-		public MySimpleExpandableListAdapterType(BusLineListTab expandableBusListTab,
-		        List<Map<String, String>> groupData, int simpleExpandableListItem1, String[] strings, int[] is,
-		        List<List<Map<String, String>>> childData, int busLineListItem, String[] childFrom, int[] childTo) {
-			super(expandableBusListTab, groupData, simpleExpandableListItem1, strings, is, childData, busLineListItem,
-			        childFrom, childTo);
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
-			View v;
-			if (convertView == null) {
-				v = newGroupView(isExpanded, parent);
-			} else {
-				v = convertView;
-			}
-			String type = currentGroupDataByType.get(groupPosition).get(BUS_TYPE);
-			((TextView) v.findViewById(R.id.bus_type_string)).setText(BusUtils.getBusStringFromType(type));
-			((ImageView) v.findViewById(R.id.bus_type_img)).setImageResource(BusUtils.getBusLineTypeImgFromType(type));
-			return v;
-		}
 	}
 
 	/**
@@ -631,21 +539,21 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 			if (!getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP)) {
 				Utils.saveSharedPreferences(this, UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY,
 				        UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP);
-				refreshAll();
+				setUpUI();
 			}
 			return true;
 		case MENU_GROUP_BY_TYPE:
 			if (!getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
 				Utils.saveSharedPreferences(this, UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY,
 				        UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE);
-				refreshAll();
+				setUpUI();
 			}
 			return true;
 		case MENU_GROUP_BY_NUMBER:
 			if (!getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)) {
 				Utils.saveSharedPreferences(this, UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY,
 				        UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER);
-				refreshAll();
+				setUpUI();
 			}
 			return true;
 		case MENU_SEARCH:
@@ -670,5 +578,116 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 		}
 		PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
 		super.onDestroy();
+	}
+
+	/**
+	 * This task create the expandable list adapter in a other thread.
+	 */
+	private class SetBusEListTask extends AsyncTask<String, String, ExpandableListAdapter> {
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		protected ExpandableListAdapter doInBackground(String... arg0) {
+			String busListGroupBy = arg0[0];
+			// load the adapter
+			return getEAdapterFromSettings(busListGroupBy);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		protected void onPostExecute(ExpandableListAdapter result) {
+			MyLog.v(TAG, "onPostExecute()");
+			BusLineListTab.this.elist.setAdapter(result);
+			super.onPostExecute(result);
+		}
+	}
+
+	/**
+	 * A simple expandable list adapter based on {@link SimpleExpandableListAdapter}. Add the customization of the child view (line type img).
+	 */
+	private class MySimpleExpandableListAdapter extends SimpleExpandableListAdapter {
+
+		/**
+		 * @see {@link SimpleExpandableListAdapter}
+		 */
+		public MySimpleExpandableListAdapter(BusLineListTab expandableBusListTab, List<Map<String, String>> groupData,
+		        int simpleExpandableListItem1, String[] strings, int[] is, List<List<Map<String, String>>> childData,
+		        int busLineListItem, String[] childFrom, int[] childTo) {
+			super(expandableBusListTab, groupData, simpleExpandableListItem1, strings, is, childData, busLineListItem,
+			        childFrom, childTo);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView,
+		        ViewGroup parent) {
+			View v;
+			if (convertView == null) {
+				v = newChildView(isLastChild, parent);
+			} else {
+				v = convertView;
+			}
+			if (getBusListGroupByFromPreferences().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
+				bindView(v, currentChildDataByType.get(groupPosition).get(childPosition));
+			} else {
+				bindView(v, currentChildDataByNumber.get(groupPosition).get(childPosition));
+			}
+			return v;
+		}
+
+		/**
+		 * Bind the view with the data values.
+		 * @param view the view
+		 * @param data the data values
+		 */
+		private void bindView(View view, Map<String, String> data) {
+			((TextView) view.findViewById(R.id.line_number)).setText(data.get(StmStore.BusLine.LINE_NUMBER));
+			int color = BusUtils.getBusLineTypeBgColorFromType(data.get(StmStore.BusLine.LINE_TYPE));
+			((TextView) view.findViewById(R.id.line_number)).setBackgroundColor(color);
+			((TextView) view.findViewById(R.id.line_name)).setText(data.get(StmStore.BusLine.LINE_NAME));
+			String hours = Utils.getFormatted2Hours(BusLineListTab.this, data.get(StmStore.BusLine.LINE_HOURS), "-");
+			((TextView) view.findViewById(R.id.hours)).setText(hours);
+			int busImg = BusUtils.getBusLineTypeImgFromType(data.get(StmStore.BusLine.LINE_TYPE));
+			((ImageView) view.findViewById(R.id.line_type)).setImageResource(busImg);
+		}
+	}
+
+	/**
+	 * A custom expandable list adapter based on {@link MySimpleExpandableListAdapter}. Add the group view customization.
+	 */
+	private class MySimpleExpandableListAdapterType extends MySimpleExpandableListAdapter {
+
+		/**
+		 * @see MySimpleExpandableListAdapter#MySimpleExpandableListAdapter(BusLineListTab, List, int, String[], int[], List, int, String[], int[])
+		 */
+		public MySimpleExpandableListAdapterType(BusLineListTab expandableBusListTab,
+		        List<Map<String, String>> groupData, int simpleExpandableListItem1, String[] strings, int[] is,
+		        List<List<Map<String, String>>> childData, int busLineListItem, String[] childFrom, int[] childTo) {
+			super(expandableBusListTab, groupData, simpleExpandableListItem1, strings, is, childData, busLineListItem,
+			        childFrom, childTo);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
+			View v;
+			if (convertView == null) {
+				v = newGroupView(isExpanded, parent);
+			} else {
+				v = convertView;
+			}
+			String type = currentGroupDataByType.get(groupPosition).get(BUS_TYPE);
+			((TextView) v.findViewById(R.id.bus_type_string)).setText(BusUtils.getBusStringFromType(type));
+			((ImageView) v.findViewById(R.id.bus_type_img)).setImageResource(BusUtils.getBusLineTypeImgFromType(type));
+			return v;
+		}
 	}
 }

@@ -199,6 +199,20 @@ public class DataStore {
 		private String value;
 
 		/**
+		 * The Default constructor.
+		 */
+		private History() {
+		}
+
+		/**
+		 * Create an history with a value
+		 * @param value the value
+		 */
+		public History(String value){
+			this.value = value;
+		}
+
+		/**
 		 * @param c the cursor
 		 * @return an history entry from the cursor values.
 		 */

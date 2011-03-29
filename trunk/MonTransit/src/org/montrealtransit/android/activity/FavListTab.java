@@ -47,12 +47,21 @@ public class FavListTab extends Activity {
 	/**
 	 * The favorite subway stations list.
 	 */
-	private List<DataStore.Fav> lastSubwayStationFavList;
+	private List<DataStore.Fav> currentSubwayStationFavList;
 
 	/**
-	 * The favorite favorite bus stops list.
+	 * The favorite bus stops list.
 	 */
-	private List<DataStore.Fav> lastBusStopFavList;
+	private List<DataStore.Fav> currentBusStopFavList;
+
+	/**
+	 * The favorite subway stations layout.
+	 */
+	private LinearLayout subwayStationsLayout;
+	/**
+	 * The favorite bus stops layout.
+	 */
+	private LinearLayout busStopsLayout;
 
 	/**
 	 * {@inheritDoc}
@@ -63,36 +72,59 @@ public class FavListTab extends Activity {
 		super.onCreate(savedInstanceState);
 		// set the UI
 		setContentView(R.layout.fav_list_tab);
-		refreshAll();
+
+		this.subwayStationsLayout = (LinearLayout) findViewById(R.id.subway_stations_list);
+		this.busStopsLayout = (LinearLayout) findViewById(R.id.bus_stops_list);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onResume() {
+		MyLog.v(TAG, "onResume()");
+		setUpUI();
+		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
+		super.onResume();
 	}
 
 	/**
 	 * Refresh all the UI.
 	 */
-	private void refreshAll() {
+	private void setUpUI() {
 		refreshBusStops();
 		refreshSubwayStations();
 	}
+
+	/**
+	 * Context menu to view the favorite.
+	 */
+	private static final int VIEW_CONTEXT_MENU_INDEX = 0;
+	/**
+	 * Context menu to delete the favorite.
+	 */
+	private static final int DELETE_CONTEXT_MENU_INDEX = 1;
 
 	/**
 	 * Refresh the favorite bus stops UI.
 	 */
 	private void refreshBusStops() {
 		MyLog.v(TAG, "refreshBusStops()");
-		List<DataStore.Fav> busStopFavList = DataManager.findFavsByTypeList(getContentResolver(),
+		List<DataStore.Fav> newBusStopFavList = DataManager.findFavsByTypeList(getContentResolver(),
 		        DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
-		if (this.lastBusStopFavList == null || this.lastBusStopFavList.size() != busStopFavList.size()) {
-			LinearLayout busStopsLayout = (LinearLayout) findViewById(R.id.bus_stops_list);
-			busStopsLayout.removeAllViews();
+		if (this.currentBusStopFavList == null || this.currentBusStopFavList.size() != newBusStopFavList.size()) {
+			// remove all favorite bus stop views
+			this.busStopsLayout.removeAllViews();
+			// use new favorite bus stops
+			this.currentBusStopFavList = newBusStopFavList;
 			// IF there is one or more favorite bus stops DO
-			if (busStopFavList != null && busStopFavList.size() > 0) {
-				List<BusStop> busStops = StmManager.findBusStopsExtendedList(this.getContentResolver(),
-				        Utils.extractBusStopIDsFromFavList(busStopFavList));
+			if (this.currentBusStopFavList != null && this.currentBusStopFavList.size() > 0) {
 				// FOR EACH bus stop DO
-				for (final BusStop busStop : busStops) {
+				for (final BusStop busStop : StmManager.findBusStopsExtendedList(this.getContentResolver(),
+				        Utils.extractBusStopIDsFromFavList(this.currentBusStopFavList))) {
 					// list view divider
-					if (busStopsLayout.getChildCount() > 0) {
-						busStopsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+					if (this.busStopsLayout.getChildCount() > 0) {
+						this.busStopsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
 					}
 					// create view
 					View view = getLayoutInflater().inflate(R.layout.fav_list_tab_bus_stop_item, null);
@@ -149,7 +181,7 @@ public class FavListTab extends Activity {
 										DataManager.deleteFav(FavListTab.this.getContentResolver(), findFav.getId());
 										// MyLog.d(TAG, "delete fav: " + status);
 										// refresh the UI
-										FavListTab.this.lastBusStopFavList = null;
+										FavListTab.this.currentBusStopFavList = null;
 										refreshBusStops();
 										break;
 									default:
@@ -157,12 +189,11 @@ public class FavListTab extends Activity {
 									}
 								}
 							});
-							AlertDialog alert = builder.create();
-							alert.show();
+							builder.create().show();
 							return true;
 						}
 					});
-					busStopsLayout.addView(view);
+					this.busStopsLayout.addView(view);
 				}
 			} else {
 				// show the noFav message
@@ -170,7 +201,7 @@ public class FavListTab extends Activity {
 				noFavTv.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 				noFavTv.setTextAppearance(this, android.R.attr.textAppearanceMedium);
 				noFavTv.setText(R.string.no_fav_bus_stop_message);
-				busStopsLayout.addView(noFavTv);
+				this.busStopsLayout.addView(noFavTv);
 			}
 		}
 	}
@@ -179,22 +210,27 @@ public class FavListTab extends Activity {
 	 * Refresh the favorite subway stations UI.
 	 */
 	private void refreshSubwayStations() {
-		List<DataStore.Fav> subwayFavList = DataManager.findFavsByTypeList(getContentResolver(),
+		List<DataStore.Fav> newSubwayFavList = DataManager.findFavsByTypeList(getContentResolver(),
 		        DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
-		if (this.lastSubwayStationFavList == null || this.lastSubwayStationFavList.size() != subwayFavList.size()) {
-			LinearLayout subwayStationsLayout = (LinearLayout) findViewById(R.id.subway_stations_list);
-			subwayStationsLayout.removeAllViews();
+		if (this.currentSubwayStationFavList == null
+		        || this.currentSubwayStationFavList.size() != newSubwayFavList.size()) {
+			// remove all subway station views
+			this.subwayStationsLayout.removeAllViews();
+			// use new favorite subway station
+			this.currentBusStopFavList = newSubwayFavList;
 			// IF there is one or more bus stops DO
-			if (subwayFavList != null && subwayFavList.size() > 0) {
+			if (this.currentBusStopFavList != null && this.currentBusStopFavList.size() > 0) {
 				// FOR EACH favorite subway DO
-				for (Fav subwayFav : subwayFavList) {
-					final SubwayStation station = StmManager.findSubwayStation(getContentResolver(), subwayFav.getFkId());
+				for (Fav subwayFav : this.currentBusStopFavList) {
+					final SubwayStation station = StmManager.findSubwayStation(getContentResolver(),
+					        subwayFav.getFkId());
 					if (station != null) {
 						List<SubwayLine> otherLinesId = StmManager.findSubwayStationLinesList(getContentResolver(),
 						        station.getId());
 						// list view divider
-						if (subwayStationsLayout.getChildCount() > 0) {
-							subwayStationsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+						if (this.subwayStationsLayout.getChildCount() > 0) {
+							this.subwayStationsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider,
+							        null));
 						}
 						// create view
 						View view = getLayoutInflater().inflate(R.layout.fav_list_tab_subway_station_item, null);
@@ -260,7 +296,7 @@ public class FavListTab extends Activity {
 											DataManager.deleteFav(FavListTab.this.getContentResolver(), findFav.getId());
 											// MyLog.d(TAG, "delete fav: " + status);
 											// refresh the UI
-											FavListTab.this.lastSubwayStationFavList = null;
+											FavListTab.this.currentSubwayStationFavList = null;
 											refreshSubwayStations();
 											break;
 										default:
@@ -273,7 +309,7 @@ public class FavListTab extends Activity {
 								return true;
 							}
 						});
-						subwayStationsLayout.addView(view);
+						this.subwayStationsLayout.addView(view);
 					} else {
 						MyLog.w(TAG, "Can't find the favorite subway station (ID:%s)", subwayFav.getFkId());
 					}
@@ -284,29 +320,9 @@ public class FavListTab extends Activity {
 				noFavTv.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
 				noFavTv.setTextAppearance(this, android.R.attr.textAppearanceMedium);
 				noFavTv.setText(R.string.no_fav_subway_station_message);
-				subwayStationsLayout.addView(noFavTv);
+				this.subwayStationsLayout.addView(noFavTv);
 			}
 		}
-	}
-
-	/**
-	 * Context menu to view the favorite.
-	 */
-	private static final int VIEW_CONTEXT_MENU_INDEX = 0;
-	/**
-	 * Context menu to delete the favorite.
-	 */
-	private static final int DELETE_CONTEXT_MENU_INDEX = 1;
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void onResume() {
-		MyLog.v(TAG, "onResume()");
-		refreshAll();
-		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
-		super.onResume();
 	}
 
 	/**

@@ -3,7 +3,6 @@ package org.montrealtransit.android.activity;
 import java.util.Calendar;
 import java.util.List;
 
-import org.montrealtransit.android.AdsUtils;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.LocationUtils;
@@ -145,7 +144,6 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
-		AdsUtils.setupAd(this);
 		super.onResume();
 	}
 
