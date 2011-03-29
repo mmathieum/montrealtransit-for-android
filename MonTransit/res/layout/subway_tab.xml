@@ -1,117 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" android:layout_height="fill_parent">
-	<LinearLayout
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_height="fill_parent" android:layout_width="fill_parent">
+	<!-- ADs -->
+	<include layout="@layout/ad_layout" />
+
+	<ScrollView
 		android:layout_width="fill_parent" android:layout_height="fill_parent"
-		android:orientation="vertical">
-		
-		<!-- SUBWAY LINEs -->
-		<TextView android:id="@+id/subway_line"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			style="?android:attr/listSeparatorTextViewStyle" android:focusable="false"
-			android:paddingLeft="5dp"
-			android:text="@string/subway_lines" />
-
-		<LinearLayout android:id="@+id/subway_line_list" android:orientation="horizontal"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:weightSum="100">
-
-		 	<include layout="@layout/subway_tab_subway_line_item" />
-			<include layout="@layout/subway_tab_subway_line_item" />
-		 	<include layout="@layout/subway_tab_subway_line_item" />
-		 	<include layout="@layout/subway_tab_subway_line_item" />
-
-		</LinearLayout>
-		
-		<!-- SUBWAY STATUS -->
-		<RelativeLayout android:id="@+id/subway_status_title"
-			android:layout_width="match_parent" android:layout_height="25dip"
-			android:background="@drawable/dark_header_dither"
-			android:paddingLeft="5sp">
-			<TextView android:id="@+id/subway_status_section"
-				android:layout_width="wrap_content" android:layout_height="wrap_content"
-				android:layout_alignParentLeft="true"
-				android:textStyle="bold" android:textSize="14sp"
-				android:textColor="?android:attr/textColorSecondary"
-				android:gravity="center_vertical"
-				android:text="@string/subway_status" />
-			<ImageView android:id="@+id/subway_status_section_refresh_or_stop_refresh"
-				android:layout_width="wrap_content" android:layout_height="wrap_content"
-				android:layout_alignParentRight="true"
-				android:src="@drawable/ic_btn_refresh"
-				android:background="@android:drawable/list_selector_background"
-				android:onClick="refreshOrStopRefreshStatus"
-				android:focusable="true" />
-			<ImageView android:id="@+id/subway_status_section_info"
-				android:layout_width="wrap_content" android:layout_height="wrap_content"
-				android:layout_toLeftOf="@id/subway_status_section_refresh_or_stop_refresh"
-				android:src="@drawable/ic_btn_info_details"
-				android:background="@android:drawable/list_selector_background"
-				android:onClick="showSubwayStatusInfoDialog"
-				android:focusable="true" />
-			<ProgressBar android:id="@+id/progress_bar"
-				android:layout_width="wrap_content" android:layout_height="wrap_content"
-				android:layout_toLeftOf="@id/subway_status_section_info"
-				android:indeterminate="true"
-				style="?android:attr/android:progressBarStyleSmall"
-				android:layout_centerVertical="true"
-				android:visibility="gone" />
-		</RelativeLayout>
-		<include android:id="@+id/subway_status_loading" layout="@layout/loading_layout" />
-		<RelativeLayout android:id="@+id/subway_status"
-			android:layout_width="fill_parent"  android:layout_height="wrap_content"
-			android:padding="5dip"
-			android:focusable="false"
-			android:visibility="gone">
-			<ImageView android:id="@+id/subway_status_img"
-				android:layout_width="40dip" android:layout_height="40dip"
-				android:layout_alignParentTop="true" android:layout_alignParentBottom="true"
-				android:layout_alignParentLeft="true" android:layout_alignWithParentIfMissing="true"
-				android:layout_centerVertical="true"
-				android:gravity="center_vertical"
-				android:layout_marginRight="5dip" 
-				android:visibility="gone" />
-			<TextView android:id="@+id/subway_status_message"
+		android:layout_above="@id/ad_layout">
+		<LinearLayout
+			android:layout_width="fill_parent" android:layout_height="fill_parent"
+			android:orientation="vertical">
+			
+			<!-- SUBWAY LINEs -->
+			<TextView android:id="@+id/subway_line"
 				android:layout_width="fill_parent" android:layout_height="wrap_content"
-				android:layout_alignParentTop="true" android:layout_alignParentBottom="true"
-				android:layout_toRightOf="@id/subway_status_img"
-				android:textAppearance="?android:attr/textAppearanceMedium"
-				android:gravity="center_vertical" />
+				style="?android:attr/listSeparatorTextViewStyle" android:focusable="false"
+				android:paddingLeft="5dp"
+				android:text="@string/subway_lines" />
+	
+			<LinearLayout android:id="@+id/subway_line_list" android:orientation="horizontal"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				android:weightSum="100">
+	
+			 	<include layout="@layout/subway_tab_subway_line_item" />
+				<include layout="@layout/subway_tab_subway_line_item" />
+			 	<include layout="@layout/subway_tab_subway_line_item" />
+			 	<include layout="@layout/subway_tab_subway_line_item" />
+	
+			</LinearLayout>
+			
+			<!-- SUBWAY STATUS -->
+			<RelativeLayout android:id="@+id/subway_status_title"
+				android:layout_width="match_parent" android:layout_height="25dip"
+				android:background="@drawable/dark_header_dither"
+				android:paddingLeft="5sp">
+				<TextView android:id="@+id/subway_status_section"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:layout_alignParentLeft="true"
+					android:textStyle="bold" android:textSize="14sp"
+					android:textColor="?android:attr/textColorSecondary"
+					android:gravity="center_vertical"
+					android:text="@string/subway_status" />
+				<ImageView android:id="@+id/subway_status_section_refresh_or_stop_refresh"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:layout_alignParentRight="true"
+					android:src="@drawable/ic_btn_refresh"
+					android:background="@android:drawable/list_selector_background"
+					android:onClick="refreshOrStopRefreshStatus"
+					android:focusable="true" />
+				<ImageView android:id="@+id/subway_status_section_info"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:layout_toLeftOf="@id/subway_status_section_refresh_or_stop_refresh"
+					android:src="@drawable/ic_btn_info_details"
+					android:background="@android:drawable/list_selector_background"
+					android:onClick="showSubwayStatusInfoDialog"
+					android:focusable="true" />
+				<ProgressBar android:id="@+id/progress_bar"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:layout_toLeftOf="@id/subway_status_section_info"
+					android:indeterminate="true"
+					style="?android:attr/android:progressBarStyleSmall"
+					android:layout_centerVertical="true"
+					android:visibility="gone" />
 			</RelativeLayout>
-
-		<!-- CLOSEST SUBWAY STATIONs -->
-		<RelativeLayout android:id="@+id/closest_stations_title"
-			android:layout_width="match_parent" android:layout_height="25dip"
-			android:background="@drawable/dark_header_dither"
-			android:paddingLeft="5sp">
-			<ImageView android:id="@+id/closest_subway_stations_refresh"
-				android:layout_width="wrap_content" android:layout_height="wrap_content"
-				android:layout_alignParentRight="true"
-				android:src="@drawable/ic_btn_refresh"
-				android:focusable="true"
-				android:onClick="refreshOrStopRefreshClosestStations"
-				android:background="@android:drawable/list_selector_background" />
-			<ProgressBar android:id="@+id/progress_bar"
-				android:layout_width="wrap_content" android:layout_height="wrap_content"
-				android:layout_toLeftOf="@id/closest_subway_stations_refresh"
-				android:indeterminate="true"
-				style="?android:attr/android:progressBarStyleSmall"
-				android:visibility="invisible"
-				android:layout_centerVertical="true" />
-			<TextView android:id="@+id/closest_subway_stations"
-				android:layout_width="wrap_content" android:layout_height="wrap_content"
-				android:layout_alignParentLeft="true"
-				android:layout_toLeftOf="@id/progress_bar"
-				android:textStyle="bold" android:textSize="14sp"
-				android:textColor="?android:attr/textColorSecondary"
-				android:gravity="center_vertical"
-				android:singleLine="true" android:ellipsize="middle"
-				android:text="@string/closest_subway_stations" />
-		</RelativeLayout>
-		<include android:id="@+id/closest_stations_loading" layout="@layout/loading_layout" />
-		<LinearLayout android:id="@+id/subway_stations_list"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:orientation="vertical" android:visibility="gone" />
-
-	</LinearLayout>
-</ScrollView>
+			<include android:id="@+id/subway_status_loading" layout="@layout/loading_layout" />
+			<RelativeLayout android:id="@+id/subway_status"
+				android:layout_width="fill_parent"  android:layout_height="wrap_content"
+				android:padding="5dip"
+				android:focusable="false"
+				android:visibility="gone">
+				<ImageView android:id="@+id/subway_status_img"
+					android:layout_width="40dip" android:layout_height="40dip"
+					android:layout_alignParentTop="true" android:layout_alignParentBottom="true"
+					android:layout_alignParentLeft="true" android:layout_alignWithParentIfMissing="true"
+					android:layout_centerVertical="true"
+					android:gravity="center_vertical"
+					android:layout_marginRight="5dip" 
+					android:visibility="gone" />
+				<TextView android:id="@+id/subway_status_message"
+					android:layout_width="fill_parent" android:layout_height="wrap_content"
+					android:layout_alignParentTop="true" android:layout_alignParentBottom="true"
+					android:layout_toRightOf="@id/subway_status_img"
+					android:textAppearance="?android:attr/textAppearanceMedium"
+					android:gravity="center_vertical" />
+				</RelativeLayout>
+	
+			<!-- CLOSEST SUBWAY STATIONs -->
+			<RelativeLayout android:id="@+id/closest_stations_title"
+				android:layout_width="match_parent" android:layout_height="25dip"
+				android:background="@drawable/dark_header_dither"
+				android:paddingLeft="5sp">
+				<ImageView android:id="@+id/closest_subway_stations_refresh"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:layout_alignParentRight="true"
+					android:src="@drawable/ic_btn_refresh"
+					android:focusable="true"
+					android:onClick="refreshOrStopRefreshClosestStations"
+					android:background="@android:drawable/list_selector_background" />
+				<ProgressBar android:id="@+id/progress_bar"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:layout_toLeftOf="@id/closest_subway_stations_refresh"
+					android:indeterminate="true"
+					style="?android:attr/android:progressBarStyleSmall"
+					android:visibility="invisible"
+					android:layout_centerVertical="true" />
+				<TextView android:id="@+id/closest_subway_stations"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
+					android:layout_alignParentLeft="true"
+					android:layout_toLeftOf="@id/progress_bar"
+					android:textStyle="bold" android:textSize="14sp"
+					android:textColor="?android:attr/textColorSecondary"
+					android:gravity="center_vertical"
+					android:singleLine="true" android:ellipsize="middle"
+					android:text="@string/closest_subway_stations" />
+			</RelativeLayout>
+			<include android:id="@+id/closest_stations_loading" layout="@layout/loading_layout" />
+			<LinearLayout android:id="@+id/subway_stations_list"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
+				android:orientation="vertical" android:visibility="gone" />
+	
+		</LinearLayout>
+	</ScrollView>
+</RelativeLayout>

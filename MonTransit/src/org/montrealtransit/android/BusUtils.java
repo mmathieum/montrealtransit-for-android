@@ -25,7 +25,7 @@ public class BusUtils {
 	 * @param directionId the direction string
 	 * @return the 1 R.string.<ID>
 	 */
-	private static int getBusLineSimpleDirection(String directionId) {
+	public static int getBusLineSimpleDirection(String directionId) {
 		MyLog.v(TAG, "getBusLineSimpleDirection(%s)", directionId);
 		if (directionId.endsWith("N")) {
 			return R.string.north;

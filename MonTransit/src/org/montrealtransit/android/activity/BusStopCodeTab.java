@@ -50,6 +50,11 @@ public class BusStopCodeTab extends Activity {
 	private AutoCompleteTextView searchField;
 
 	/**
+	 * The history list.
+	 */
+	private ListView historyList;
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -59,6 +64,8 @@ public class BusStopCodeTab extends Activity {
 		// set the UI
 		setContentView(R.layout.bus_stop_code_tab);
 		this.searchField = (AutoCompleteTextView) findViewById(R.id.field);
+		this.historyList = (ListView) findViewById(R.id.list);
+
 		this.searchField.setOnKeyListener(new View.OnKeyListener() {
 			@Override
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -74,9 +81,9 @@ public class BusStopCodeTab extends Activity {
 			public void onFocusChange(View v, boolean hasFocus) {
 				if (hasFocus) {
 					Utils.showKeyboard(BusStopCodeTab.this, v);
-		        } else {
-		        	Utils.hideKeyboard(BusStopCodeTab.this, v);
-		        }
+				} else {
+					Utils.hideKeyboard(BusStopCodeTab.this, v);
+				}
 			}
 		});
 		((ImageButton) findViewById(R.id.ok)).setOnClickListener(new OnClickListener() {
@@ -86,16 +93,27 @@ public class BusStopCodeTab extends Activity {
 				searchFor(BusStopCodeTab.this.searchField.getText().toString());
 			}
 		});
-		ListView historyList = (ListView) findViewById(R.id.list);
-		historyList.setEmptyView(findViewById(R.id.list_empty));
-		historyList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+		this.historyList.setEmptyView(findViewById(R.id.list_empty));
+		this.historyList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> l, View v, int position, long id) {
 				MyLog.v(TAG, "onItemClick(%s, %s, %s, %s)", l.getId(), v.getId(), position, id);
 				searchFor((((TextView) v).getText()).toString());
 			}
 		});
-		historyList.setAdapter(getHistoryAdapter());
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onResume() {
+		MyLog.v(TAG, "onResume()");
+		super.onResume();
+		// refresh the adapters
+		this.searchField.setAdapter(getAutoCompleteAdapter());
+		this.historyList.setAdapter(getHistoryAdapter());
+		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 	}
 
 	/**
@@ -122,18 +140,6 @@ public class BusStopCodeTab extends Activity {
 	}
 
 	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void onResume() {
-		MyLog.v(TAG, "onResume()");
-		super.onResume();
-		// refresh the auto complete text data
-		this.searchField.setAdapter(getAutoCompleteAdapter());
-		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
-	}
-
-	/**
 	 * Search for a match for the search text. Could redirect the user to a bus stop or a bus line for now.
 	 * @param search the search text.
 	 */
@@ -146,8 +152,7 @@ public class BusStopCodeTab extends Activity {
 				// search for a bus line number
 				if (BusUtils.isBusLineNumberValid(this, search)) {
 					addToHistory(search);
-					BusLineSelectDirection busLineSelectDirection = new BusLineSelectDirection(this, search);
-					busLineSelectDirection.showDialog();
+					new BusLineSelectDirection(this, search).showDialog();
 				} else {
 					Utils.notifyTheUserLong(this, getString(R.string.wrong_line_number_and_number, search));
 				}
@@ -169,9 +174,7 @@ public class BusStopCodeTab extends Activity {
 	 */
 	private void addToHistory(String search) {
 		// save to the history
-		DataStore.History history = new DataStore.History();
-		history.setValue(search);
-		DataManager.addHistory(this.getContentResolver(), history);
+		DataManager.addHistory(this.getContentResolver(), new DataStore.History(search));
 	}
 
 	/**

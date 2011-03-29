@@ -111,7 +111,7 @@ public class DataManager {
 
 	/**
 	 * @param contentResolver the content resolver
-	 * @return all the history entries in a list
+	 * @return all the history entries in a list or <b>NULL</b>
 	 * @see DataManager#findAllHistory(ContentResolver)
 	 */
 	public static List<String> findAllHistoryList(ContentResolver contentResolver) {

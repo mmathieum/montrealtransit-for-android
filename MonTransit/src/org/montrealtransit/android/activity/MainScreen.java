@@ -1,6 +1,5 @@
 package org.montrealtransit.android.activity;
 
-import org.montrealtransit.android.AdsUtils;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
@@ -123,7 +122,8 @@ public class MainScreen extends ActivityGroup {
 		} catch (Exception e) {
 			MyLog.w(TAG, "Error while determining the select tab", e);
 		}
-		RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.FILL_PARENT);
+		RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
+		        RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.FILL_PARENT);
 		layoutParams.addRule(RelativeLayout.ABOVE, R.id.ad_layout);
 		((RelativeLayout) findViewById(R.id.main)).addView(tabHost, layoutParams);
 	}
@@ -135,7 +135,6 @@ public class MainScreen extends ActivityGroup {
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
-		AdsUtils.setupAd(this);
 		super.onResume();
 	}
 
