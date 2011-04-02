@@ -3,6 +3,15 @@
 
 = !ChangeLog =
 
+ * 1.5.7 (r403)
+  * ajout d'un cache de 30 minutes (pour permettre de naviger plus facilement entre différents arrêts sans recharger les données à chaque fois)
+  * amélioration du service de localisation
+  * suppression des pubs dans l'écran des stations de métro & déplacement de la pub sur l'écran principal version l'onglet métro
+  * autres améliorations
+
+ * 1.5.5 (r398)
+ * ajout des pubs AdMob
+
  * 1.5.3 (r395)
   * corrige un problème avec l'initialisation sur Android 2.1
 

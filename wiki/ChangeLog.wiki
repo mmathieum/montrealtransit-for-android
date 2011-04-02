@@ -3,6 +3,15 @@
 
 = !ChangeLog =
 
+ * 1.5.7 (r403)
+  * add 30 minutes cache (to easily browse between bus stops without reloading the data every time)
+  * location service improvements
+  * remove subway station screen ads & move main screen ads to the subway tab
+  * other minor improvements
+
+ * 1.5.5 (r398)
+ * add AdMob ads
+
  * 1.5.3 (r395)
   * fix issue with Android 2.1 device initialization
 
