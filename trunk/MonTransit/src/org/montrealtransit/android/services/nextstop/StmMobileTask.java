@@ -102,7 +102,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	 */
 	public static String getUrlString(String stopCode) {
 		String result = URL_PART_1_BEFORE_STOP_CODE + stopCode;
-		if (Utils.getUserLocale().equals("fr")) {
+		if (Utils.getUserLanguage().equals("fr")) {
 			result += URL_PART_2_BEFORE_LANG + "fr";
 		} else {
 			result += URL_PART_2_BEFORE_LANG + "en";

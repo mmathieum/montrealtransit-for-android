@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.LocationUtils;
+import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.SubwayUtils;
@@ -76,6 +77,23 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	private boolean locationUpdatesEnabled = false;
 
 	/**
+	 * The line stops list.
+	 */
+	private ListView list;
+	/**
+	 * The line name text view.
+	 */
+	private TextView lineNameTv;
+	/**
+	 * The line type image.
+	 */
+	private ImageView lineTypeImg;
+	/**
+	 * The line direction text view.
+	 */
+	private TextView lineDirectionTv;
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -84,11 +102,17 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		super.onCreate(savedInstanceState);
 		// set the UI
 		setContentView(R.layout.subway_line_info);
-		((ListView) findViewById(R.id.list)).setEmptyView(findViewById(R.id.list_empty));
-		((ListView) findViewById(R.id.list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+		this.list = (ListView) findViewById(R.id.list);
+		this.lineNameTv = (TextView) findViewById(R.id.line_name);
+		this.lineTypeImg = (ImageView) findViewById(R.id.subway_img);
+		this.lineDirectionTv = (TextView) findViewById(R.id.subway_line_station_string);
+
+		this.list.setEmptyView(findViewById(R.id.list_empty));
+		this.list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-				MyLog.v(TAG, "onItemClick(" + v.getId() + "," + v.getId() + "," + position + "," + id + ")");
+				MyLog.v(TAG, "onItemClick(%s, %s, %s, %s)", l.getId(), v.getId(), position, id);
 				if (SubwayLineInfo.this.stations != null && position < SubwayLineInfo.this.stations.length
 				        && SubwayLineInfo.this.stations[position] != null) {
 					Intent intent = new Intent(SubwayLineInfo.this, SubwayStationInfo.class);
@@ -99,9 +123,9 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 			}
 		});
 		// get info from the intent.
-		int newLineNumber = Integer.valueOf(Utils.getSavedStringValue(this.getIntent(), savedInstanceState,
+		int newLineNumber = Integer.valueOf(Utils.getSavedStringValue(getIntent(), savedInstanceState,
 		        SubwayLineInfo.EXTRA_LINE_NUMBER));
-		String newOrderPref = Utils.getSavedStringValue(this.getIntent(), savedInstanceState,
+		String newOrderPref = Utils.getSavedStringValue(getIntent(), savedInstanceState,
 		        SubwayLineInfo.EXTRA_ORDER_PREF);
 		showNewSubway(newLineNumber, newOrderPref);
 	}
@@ -114,15 +138,15 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		MyLog.v(TAG, "showNewSubway(%s, %s)", newLineNumber, newOrderPref);
 		if ((this.subwayLine == null || this.subwayLine.getNumber() != newLineNumber)
 		        || (this.orderPref != null && !this.orderPref.equals(newOrderPref))) {
-			MyLog.v(TAG, "new subway line / stations order");
+			MyLog.d(TAG, "new subway line / stations order");
 			this.subwayLine = StmManager.findSubwayLine(getContentResolver(), newLineNumber);
 			if (newOrderPref == null) {
-				newOrderPref = Utils.getSharedPreferences(this, UserPreferences
-				        .getPrefsSubwayStationsOrder(this.subwayLine.getNumber()),
+				newOrderPref = Utils.getSharedPreferences(this,
+				        UserPreferences.getPrefsSubwayStationsOrder(this.subwayLine.getNumber()),
 				        UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_DEFAULT);
 			} else {
-				Utils.saveSharedPreferences(this, UserPreferences.getPrefsSubwayStationsOrder(this.subwayLine
-				        .getNumber()), newOrderPref);
+				Utils.saveSharedPreferences(this,
+				        UserPreferences.getPrefsSubwayStationsOrder(this.subwayLine.getNumber()), newOrderPref);
 			}
 			this.orderPref = newOrderPref;
 			refreshAll();
@@ -193,7 +217,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 * Refresh the subway stations list.
 	 */
 	private void refreshSubwayStationsList() {
-		((ListView) findViewById(R.id.list)).setAdapter(getAdapter());
+		this.list.setAdapter(getAdapter());
 	}
 
 	/**
@@ -201,19 +225,29 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 */
 	private void refreshSubwayLineInfo() {
 		// subway line name
-		((TextView) findViewById(R.id.line_name)).setText(SubwayUtils.getSubwayLineName(subwayLine.getNumber()));
-		((ImageView) findViewById(R.id.subway_img)).setImageResource(SubwayUtils.getSubwayLineImgId(subwayLine.getNumber()));
+		this.lineNameTv.setText(SubwayUtils.getSubwayLineName(subwayLine.getNumber()));
+		this.lineTypeImg.setImageResource(SubwayUtils.getSubwayLineImgId(subwayLine.getNumber()));
 
 		// subway line direction
 		String orderId = getSortOrderFromOrderPref(this.subwayLine.getNumber());
-		SubwayStation lastStation = StmManager.findSubwayLineLastSubwayStation(getContentResolver(), subwayLine
-		        .getNumber(), orderId);
+		SubwayStation lastStation = StmManager.findSubwayLineLastSubwayStation(getContentResolver(),
+		        subwayLine.getNumber(), orderId);
 		String separatorText = getString(R.string.stations_and_order, getDirectionText(lastStation));
-		// getString(R.string.stations) + " (" + getDirectionText(lastStation) + ")";
+		this.lineDirectionTv.setText(separatorText);
+		this.lineDirectionTv.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				showSelectDirectionDialog(v);
+			}
+		});
+	}
 
-		((TextView) findViewById(R.id.subway_line_station_string)).setText(separatorText);
-		SubwayLineSelectDirection select = new SubwayLineSelectDirection(this, this.subwayLine.getNumber(), this);
-		((TextView) findViewById(R.id.subway_line_station_string)).setOnClickListener(select);
+	/**
+	 * Show the subway line select direction dialog.
+	 * @param v the view (not used)
+	 */
+	public void showSelectDirectionDialog(View v) {
+		new SubwayLineSelectDirection(this, this.subwayLine.getNumber(), this).showDialog();
 	}
 
 	/**
@@ -284,8 +318,8 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		        this.subwayLine.getNumber(), orderId);
 		// preparing other stations lines data
 		Map<String, Set<Integer>> stationsWithOtherLines = new HashMap<String, Set<Integer>>();
-		for (Pair<SubwayLine, SubwayStation> lineStation : StmManager.findSubwayLineStationsWithOtherLinesList(this
-		        .getContentResolver(), this.subwayLine.getNumber())) {
+		for (Pair<SubwayLine, SubwayStation> lineStation : StmManager.findSubwayLineStationsWithOtherLinesList(
+		        this.getContentResolver(), this.subwayLine.getNumber())) {
 			int subwayLineNumber = lineStation.first.getNumber();
 			String subwayStationId = lineStation.second.getId();
 			if (stationsWithOtherLines.get(subwayStationId) == null) {
@@ -455,9 +489,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 */
 	public void setLocation(Location newLocation) {
 		if (newLocation != null) {
-			MyLog.v(TAG, "new location: '" + newLocation.getProvider() + "' " + newLocation.getLatitude() + ","
-			        + newLocation.getLongitude() + " (" + newLocation.getAccuracy() + ")", this, MyLog.SHOW_LOCATION);
-			if (this.location == null || LocationUtils.isMorePrecise(this.location, newLocation)) {
+			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
 			}
 		}
@@ -498,24 +530,11 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	}
 
 	/**
-	 * Menu for changing the direction of the bus line.
-	 */
-	private static final int MENU_CHANGE_DIRECTION = Menu.FIRST;
-	/**
-	 * The menu used to show the user preferences.
-	 */
-	private static final int MENU_PREFERENCES = Menu.FIRST + 1;
-
-	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuItem menuDirection = menu.add(0, MENU_CHANGE_DIRECTION, 0, R.string.change_direction);
-		menuDirection.setIcon(android.R.drawable.ic_menu_compass);
-		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
-		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
-		return true;
+		return MenuUtils.inflateMenu(this, menu, R.menu.subway_line_info_menu);
 	}
 
 	/**
@@ -524,16 +543,11 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case MENU_CHANGE_DIRECTION:
-			SubwayLineSelectDirection select = new SubwayLineSelectDirection(this, this.subwayLine.getNumber(), this);
-			select.showDialog();
-			return true;
-		case MENU_PREFERENCES:
-			startActivity(new Intent(this, UserPreferences.class));
+		case R.id.direction:
+			showSelectDirectionDialog(null);
 			return true;
 		default:
-			MyLog.d(TAG, "Unknow menu id: %s.", item.getItemId());
-			return false;
+			return MenuUtils.handleCommonMenuActions(this, item);
 		}
 	}
 }

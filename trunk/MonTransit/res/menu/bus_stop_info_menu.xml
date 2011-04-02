@@ -1,0 +1,31 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<item android:id="@+id/refresh" android:icon="@drawable/ic_menu_refresh"
+		android:title="@string/refresh_next_bus_stop"
+		android:alphabeticShortcut="r" />
+
+	<item android:id="@+id/stm_mobile" android:icon="@drawable/ic_menu_stmmobile"
+		android:title="@string/see_in_stm_mobile_web_site"
+		android:alphabeticShortcut="s" />
+
+	<item android:id="@+id/map" android:icon="@android:drawable/ic_menu_mapmode"
+		android:title="@string/show_in_map_exp" android:alphabeticShortcut="m" />
+
+	<item android:id="@+id/radar" android:icon="@android:drawable/ic_menu_compass"
+		android:title="@string/use_radar" />
+
+	<item android:icon="@android:drawable/ic_menu_preferences"
+		android:title="@string/select_next_stop_data_source">
+		<menu>
+			<group android:id="@+id/provider" android:checkableBehavior="single">
+				<item android:id="@+id/provider_stm_mobile" android:title="m.stm.info" />
+				<item android:id="@+id/provider_stm_info" android:title="www.stm.info" />
+			</group>
+		</menu>
+	</item>
+
+	<item android:id="@+id/search" android:icon="@android:drawable/ic_menu_search"
+		android:title="@string/menu_search" />
+	<item android:id="@+id/preferences" android:icon="@android:drawable/ic_menu_preferences"
+		android:title="@string/menu_preferences" />
+</menu>

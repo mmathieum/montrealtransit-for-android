@@ -69,7 +69,7 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 		ClosestSubwayStations result = null;
 		// read last (not too old) location
 		Location currentLocation = params[0];
-		MyLog.d(TAG, "currentLocation:" + currentLocation);
+		// MyLog.d(TAG, "currentLocation:" + currentLocation);
 		// IF location available DO
 		if (currentLocation != null) {
 			publishProgress(this.context.getString(R.string.processing));
@@ -77,7 +77,7 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 			result.setLocationAndAddress(currentLocation, this.context);
 			// read location accuracy
 			float currentAccuracy = currentLocation.getAccuracy();
-			MyLog.d(TAG, "currentAccuracy: " + currentAccuracy);
+			// MyLog.d(TAG, "currentAccuracy: " + currentAccuracy);
 			// create a list of all stations with lines and location
 			List<ASubwayStation> stationsWithOtherLines = getAllStationsWithLines(currentLocation);
 			// order the stations list by distance (closest first)

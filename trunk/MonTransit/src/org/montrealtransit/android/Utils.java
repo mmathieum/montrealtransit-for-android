@@ -484,7 +484,7 @@ public class Utils {
 	/**
 	 * @return the user language (fr/en/...)
 	 */
-	public static String getUserLocale() {
+	public static String getUserLanguage() {
 		return Locale.getDefault().getLanguage();
 	}
 
@@ -492,10 +492,10 @@ public class Utils {
 	 * @return the supported user language (fr or en)
 	 */
 	public static String getSupportedUserLocale() {
-		if (Locale.getDefault().getLanguage().equals("fr")) {
-			return "fr";
+		if (getUserLanguage().equals(Locale.FRENCH.toString())) {
+			return Locale.FRENCH.toString();
 		} else {
-			return "en"; // default
+			return Locale.ENGLISH.toString(); // default
 		}
 	}
 

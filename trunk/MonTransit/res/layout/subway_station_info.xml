@@ -23,6 +23,7 @@
 			android:layout_alignParentBottom="true"	android:layout_alignParentTop="true"
 			android:layout_alignParentRight="true"
 			android:layout_alignWithParentIfMissing="true"
+			android:onClick="addOrRemoveFavorite"
 			style="?android:attr/starStyle" />
 		<!-- SUBWAY LINES COLORS -->
 		<ImageView android:id="@+id/subway_line_1"

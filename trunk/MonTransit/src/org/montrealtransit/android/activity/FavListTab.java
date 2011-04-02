@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
+import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.SubwayUtils;
@@ -326,24 +327,11 @@ public class FavListTab extends Activity {
 	}
 
 	/**
-	 * The menu used to show the search UI.
-	 */
-	private static final int MENU_SEARCH = Menu.FIRST;
-	/**
-	 * The menu used to show the user preferences.
-	 */
-	private static final int MENU_PREFERENCES = Menu.FIRST + 1;
-
-	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuItem menuSearch = menu.add(0, MENU_SEARCH, Menu.NONE, R.string.menu_search);
-		menuSearch.setIcon(android.R.drawable.ic_menu_search);
-		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
-		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
-		return true;
+		return MenuUtils.createMainMenu(this, menu);
 	}
 
 	/**
@@ -351,15 +339,6 @@ public class FavListTab extends Activity {
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case MENU_SEARCH:
-			return this.onSearchRequested();
-		case MENU_PREFERENCES:
-			startActivity(new Intent(this, UserPreferences.class));
-			break;
-		default:
-			MyLog.d(TAG, "Unknown option menu action: %s.", item.getItemId());
-		}
-		return true;
+		return MenuUtils.handleCommonMenuActions(this, item);
 	}
 }
