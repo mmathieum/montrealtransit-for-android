@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	
+	<item android:id="@+id/history" android:icon="@android:drawable/ic_menu_delete"
+		android:title="@string/clear_history" />
+
+	<item android:id="@+id/search" android:icon="@android:drawable/ic_menu_search"
+		android:title="@string/menu_search" />
+	<item android:id="@+id/preferences" android:icon="@android:drawable/ic_menu_preferences"
+		android:title="@string/menu_preferences" />
+</menu>

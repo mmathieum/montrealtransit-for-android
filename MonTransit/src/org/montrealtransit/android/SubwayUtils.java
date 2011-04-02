@@ -1,8 +1,13 @@
 package org.montrealtransit.android;
 
+import java.util.Locale;
+
 import org.montrealtransit.android.provider.StmStore;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 
 /**
  * Some useful method for subways.
@@ -14,6 +19,31 @@ public class SubwayUtils {
 	 * The log tag.
 	 */
 	private static final String TAG = SubwayUtils.class.getSimpleName();
+	
+	/**
+	 * The STM map (FR).
+	 */
+	private static final String STM_SUBWAY_MAP_URL_FR = "http://stm.info/metro/images/plan-metro.jpg";
+	/**
+	 * The STM map (EN).
+	 */
+	private static final String STM_SUBWAY_MAP_URL_EN = "http://stm.info/English/metro/images/plan-metro.jpg";
+
+	/**
+	 * Show the STM subway map.
+	 * @param v the view (not used)
+	 */
+	public static void showSTMSubwayMap(Context context) {
+		// TODO store the map on the SD card the first time and then re-open it
+		// TODO add a menu to reload the map from the web site in the image viewer?
+		String url;
+		if (Utils.getUserLanguage().equals(Locale.FRENCH.toString())) {
+			url = STM_SUBWAY_MAP_URL_FR;
+		} else {
+			url = STM_SUBWAY_MAP_URL_EN;
+		}
+		context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+	}
 
 	/**
 	 * Return the subway line name string ID from the subway line number.

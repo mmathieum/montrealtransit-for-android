@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
+import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
@@ -41,6 +42,16 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 * The tracker tag.
 	 */
 	private static final String TRACKER_TAG = "/BusLine";
+
+	/**
+	 * The extra ID for the bus line number.
+	 */
+	public static final String EXTRA_LINE_NUMBER = "extra_line_number";
+	/**
+	 * The extra ID for the bus line direction ID.
+	 */
+	public static final String EXTRA_LINE_DIRECTION_ID = "extra_line_direction_id";
+
 	/**
 	 * The current bus line.
 	 */
@@ -53,14 +64,31 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 * The cursor used to display the bus line stops.
 	 */
 	private Cursor cursor;
+
 	/**
-	 * The extra ID for the bus line number.
+	 * The line stops list view.
 	 */
-	public static final String EXTRA_LINE_NUMBER = "extra_line_number";
+	private ListView list;
 	/**
-	 * The extra ID for the bus line direction ID.
+	 * The line number text view.
 	 */
-	public static final String EXTRA_LINE_DIRECTION_ID = "extra_line_direction_id";
+	private TextView lineNumberTv;
+	/**
+	 * The line name text view.
+	 */
+	private TextView lineNameTv;
+	/**
+	 * The line type image.
+	 */
+	private ImageView lineTypeImg;
+	/**
+	 * The line hours text view.
+	 */
+	private TextView lineHoursTv;
+	/**
+	 * The line stops title text view.
+	 */
+	private TextView lineStopsTv;
 
 	/**
 	 * {@inheritDoc}
@@ -71,11 +99,19 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		super.onCreate(savedInstanceState);
 		// set the UI
 		setContentView(R.layout.bus_line_info);
-		((ListView) findViewById(R.id.list)).setEmptyView(findViewById(R.id.list_empty));
-		((ListView) findViewById(R.id.list)).setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+		this.list = (ListView) findViewById(R.id.list);
+		this.lineNumberTv = (TextView) findViewById(R.id.line_number);
+		this.lineNameTv = (TextView) findViewById(R.id.line_name);
+		this.lineTypeImg = (ImageView) findViewById(R.id.bus_type);
+		this.lineHoursTv = (TextView) findViewById(R.id.hours);
+		this.lineStopsTv = (TextView) findViewById(R.id.bus_line_stop_string);
+
+		this.list.setEmptyView(findViewById(R.id.list_empty));
+		this.list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-				MyLog.v(TAG, "onItemClick(" + v.getId() + "," + v.getId() + "," + position + "," + id + ")");
+				// MyLog.v(TAG, "onItemClick(" + v.getId() + "," + v.getId() + "," + position + "," + id + ")");
 				if (id > 0) {
 					Intent intent = new Intent(BusLineInfo.this, BusStopInfo.class);
 					intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, String.valueOf(id));
@@ -85,9 +121,8 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 			}
 		});
 		// get the bus line ID and bus line direction ID from the intent.
-		String lineNumber = Utils.getSavedStringValue(this.getIntent(), savedInstanceState,
-		        BusLineInfo.EXTRA_LINE_NUMBER);
-		String lineDirectionId = Utils.getSavedStringValue(this.getIntent(), savedInstanceState,
+		String lineNumber = Utils.getSavedStringValue(getIntent(), savedInstanceState, BusLineInfo.EXTRA_LINE_NUMBER);
+		String lineDirectionId = Utils.getSavedStringValue(getIntent(), savedInstanceState,
 		        BusLineInfo.EXTRA_LINE_DIRECTION_ID);
 		showNewLine(lineNumber, lineDirectionId);
 	}
@@ -99,7 +134,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
-	    super.onResume();
+		super.onResume();
 	}
 
 	/**
@@ -107,11 +142,11 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 */
 	@Override
 	public void showNewLine(String newLineNumber, String newDirectionId) {
-		MyLog.v(TAG, "showNewLine(" + newLineNumber + ", " + newDirectionId + ")");
+		MyLog.v(TAG, "showNewLine(%s, %s)", newLineNumber, newDirectionId);
 		if ((this.busLine == null || this.busLineDirection == null)
 		        || (!this.busLine.getNumber().equals(newLineNumber) || !this.busLineDirection.getId().equals(
 		                newDirectionId))) {
-			MyLog.v(TAG, "show new bus line.");
+			MyLog.d(TAG, "show new bus line.");
 			this.busLine = StmManager.findBusLine(this.getContentResolver(), newLineNumber);
 			this.busLineDirection = StmManager.findBusLineDirection(this.getContentResolver(), newDirectionId);
 			refreshAll();
@@ -131,35 +166,38 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 */
 	private void refreshBusLineInfo() {
 		// bus line number
-		((TextView) findViewById(R.id.line_number)).setText(this.busLine.getNumber());
-
+		this.lineNumberTv.setText(this.busLine.getNumber());
 		// bus line name
-		((TextView) findViewById(R.id.line_name)).setText(this.busLine.getName());
-
+		this.lineNameTv.setText(this.busLine.getName());
 		// bus line type
-		int busLineTypeImg = BusUtils.getBusLineTypeImgFromType(this.busLine.getType());
-		((ImageView) findViewById(R.id.bus_type)).setImageResource(busLineTypeImg);
-
+		this.lineTypeImg.setImageResource(BusUtils.getBusLineTypeImgFromType(this.busLine.getType()));
 		// bus line hours
-		((TextView) findViewById(R.id.hours)).setText(Utils.getFormatted2Hours(this, this.busLine.getHours(), "-"));
+		this.lineHoursTv.setText(Utils.getFormatted2Hours(this, this.busLine.getHours(), "-"));
 
 		// bus line direction
-		BusLineSelectDirection selectBusLineDirection = new BusLineSelectDirection(this, this.busLine.getNumber(), this);
-		((TextView) findViewById(R.id.bus_line_stop_string)).setOnClickListener(selectBusLineDirection);
+		this.lineStopsTv.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				showSelectDirectionDialog(null);
+			}
+		});
 		List<Integer> busLineDirection = BusUtils.getBusLineDirectionStringIdFromId(this.busLineDirection.getId());
 		String direction = getString(busLineDirection.get(0));
 		if (busLineDirection.size() >= 2) {
 			direction += " " + getString(busLineDirection.get(1));
 		}
-		((TextView) findViewById(R.id.bus_line_stop_string)).setText(getString(R.string.bus_stops_short_and_direction,
-		        direction));
+		this.lineStopsTv.setText(getString(R.string.bus_stops_short_and_direction, direction));
+	}
+
+	public void showSelectDirectionDialog(View v) {
+		new BusLineSelectDirection(this, this.busLine.getNumber(), this).showDialog();
 	}
 
 	/**
 	 * Refresh the bus stops list UI.
 	 */
 	private void refreshBusStopList() {
-		((ListView) findViewById(R.id.list)).setAdapter(getAdapter());
+		this.list.setAdapter(getAdapter());
 	}
 
 	/**
@@ -204,36 +242,20 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	}
 
 	/**
-	 * The menu item to show the map
+	 * Show STM bus line map.
+	 * @param v the view (not used)
 	 */
-	private static final int MENU_SEE_MAP = Menu.FIRST;
-	/**
-	 * The menu item to select the bus line direction.
-	 */
-	private static final int MENU_CHANGE_DIRECTION = Menu.FIRST + 1;
-	/**
-	 * The menu used to show the search UI.
-	 */
-	private static final int MENU_SEARCH = Menu.FIRST + 2;
-	/**
-	 * The menu used to show the user preferences.
-	 */
-	private static final int MENU_PREFERENCES = Menu.FIRST + 3;
+	public void showSTMBusLineMap(View v) {
+		String url = "http://www.stm.info/bus/images/PLAN/lign-" + this.busLine.getNumber() + ".gif";
+		startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuItem menuMap = menu.add(0, MENU_SEE_MAP, 0, R.string.see_bus_line_plan);
-		menuMap.setIcon(R.drawable.ic_menu_bus_line_plan);
-		MenuItem menuDirection = menu.add(0, MENU_CHANGE_DIRECTION, 0, R.string.change_direction);
-		menuDirection.setIcon(android.R.drawable.ic_menu_compass);
-		MenuItem menuSearch = menu.add(0, MENU_SEARCH, Menu.NONE, R.string.menu_search);
-		menuSearch.setIcon(android.R.drawable.ic_menu_search);
-		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
-		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
-		return true;
+		return MenuUtils.inflateMenu(this, menu, R.menu.bus_line_info_menu);
 	}
 
 	/**
@@ -242,21 +264,14 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case MENU_SEE_MAP:
-			String url = "http://www.stm.info/bus/images/PLAN/lign-" + this.busLine.getNumber() + ".gif";
-			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-			break;
-		case MENU_CHANGE_DIRECTION:
-			BusLineSelectDirection select = new BusLineSelectDirection(this, this.busLine.getNumber(), this);
-			select.showDialog();
-			break;
-		case MENU_SEARCH:
-			return this.onSearchRequested();
-		case MENU_PREFERENCES:
-			startActivity(new Intent(this, UserPreferences.class));
-			break;
+		case R.id.map:
+			showSTMBusLineMap(null);
+			return true;
+		case R.id.direction:
+			showSelectDirectionDialog(null);
+			return true;
 		}
-		return false;
+		return MenuUtils.handleCommonMenuActions(this, item);
 	}
 
 	/**

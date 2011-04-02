@@ -90,7 +90,7 @@ public class StmInfoTask extends AbstractNextStopProvider {
 		try {
 			publishProgress(context.getString(R.string.downloading_data_from_and_source, StmInfoTask.SOURCE_NAME));
 			String URLString = URL_PART_1_BEFORE_BUS_STOP + stopCode;
-			if (Utils.getUserLocale().equals("fr")) {
+			if (Utils.getUserLanguage().equals("fr")) {
 				URLString += URL_PART_2_BEFORE_LANG + "Fr";
 			} else {
 				URLString += URL_PART_2_BEFORE_LANG + "En";

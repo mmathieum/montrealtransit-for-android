@@ -2,6 +2,7 @@ package org.montrealtransit.android.activity;
 
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
+import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.provider.StmManager;
@@ -50,6 +51,7 @@ public class SearchResult extends ListActivity {
 		super.onCreate(savedInstanceState);
 		// set the UI
 		setContentView(R.layout.search_result);
+
 		getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> l, View v, int position, long id) {
@@ -93,15 +95,15 @@ public class SearchResult extends ListActivity {
 	private void processIntent() {
 		if (getIntent() != null) {
 			if (Intent.ACTION_VIEW.equals(getIntent().getAction())) {
-				MyLog.d(TAG, "ACTION_VIEW");
+				//MyLog.d(TAG, "ACTION_VIEW");
 				// from click on search results
 				showBusStop(getIntent().getData().getPathSegments().get(0));
 				finish();
 			} else if (Intent.ACTION_SEARCH.equals(getIntent().getAction())) {
-				MyLog.d(TAG, "ACTION_SEARCH");
+				//MyLog.d(TAG, "ACTION_SEARCH");
 				// an actual search
 				String searchTerm = getIntent().getStringExtra(SearchManager.QUERY);
-				MyLog.d(TAG, "search: " + searchTerm);
+				//MyLog.d(TAG, "search: " + searchTerm);
 				setTitle(getString(R.string.search_result_for_and_keyword, searchTerm));
 				// setListAdapter(getAdapter(searchTerm));
 				getListView().setAdapter(null);
@@ -115,19 +117,11 @@ public class SearchResult extends ListActivity {
 	 * @author Mathieu Méa
 	 */
 	private class LoadSearchResultTask extends AsyncTask<String, String, Cursor> {
-
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
 		protected Cursor doInBackground(String... arg0) {
-			String searchTerm = arg0[0];
-			return StmManager.searchResult(SearchResult.this.getContentResolver(), searchTerm);
+			return StmManager.searchResult(SearchResult.this.getContentResolver(), arg0[0]);
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
 		protected void onPostExecute(Cursor result) {
 			setAdapter(result);
@@ -173,7 +167,7 @@ public class SearchResult extends ListActivity {
 	 * @param selectedSearchResultId the selected search result
 	 */
 	private void showBusStop(String selectedSearchResultId) {
-		MyLog.v(TAG, "showBusStop(" + selectedSearchResultId + ")");
+		MyLog.v(TAG, "showBusStop(%s)", selectedSearchResultId);
 		String[] ids = selectedSearchResultId.split("-");
 		if (ids.length >= 2) {
 			Intent intent = new Intent(this, BusStopInfo.class);
@@ -184,24 +178,11 @@ public class SearchResult extends ListActivity {
 	}
 
 	/**
-	 * The menu used to show the search UI.
-	 */
-	private static final int MENU_SEARCH = Menu.FIRST;
-	/**
-	 * The menu used to show the user preferences.
-	 */
-	private static final int MENU_PREFERENCES = Menu.FIRST + 1;
-
-	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuItem menuSearch = menu.add(0, MENU_SEARCH, Menu.NONE, R.string.menu_search);
-		menuSearch.setIcon(android.R.drawable.ic_menu_search);
-		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
-		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
-		return true;
+		return MenuUtils.createMainMenu(this, menu);
 	}
 
 	/**
@@ -209,16 +190,6 @@ public class SearchResult extends ListActivity {
 	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case MENU_SEARCH:
-			return this.onSearchRequested();
-		case MENU_PREFERENCES:
-			startActivity(new Intent(this, UserPreferences.class));
-			break;
-		default:
-			MyLog.d(TAG, "Unknown option menu action: %s.", item.getItemId());
-			break;
-		}
-		return true;
+		return MenuUtils.handleCommonMenuActions(this, item);
 	}
 }

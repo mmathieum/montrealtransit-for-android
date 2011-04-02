@@ -5,6 +5,7 @@ import java.util.List;
 import org.montrealtransit.android.AdsUtils;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.LocationUtils;
+import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.SubwayUtils;
@@ -28,7 +29,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -135,6 +135,11 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	private RelativeLayout closestStationsLoadingLayout;
 
 	/**
+	 * The lines layout.
+	 */
+	private LinearLayout subwayLinesLayout;
+
+	/**
 	 * The current service status.
 	 */
 	private ServiceStatus serviceStatus = null;
@@ -166,6 +171,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		this.closestStationsTitleTv = (TextView) findViewById(R.id.closest_subway_stations);
 		this.closestStationsLayout = (LinearLayout) findViewById(R.id.subway_stations_list);
 		this.closestStationsLoadingLayout = (RelativeLayout) findViewById(R.id.closest_stations_loading);
+		this.subwayLinesLayout = (LinearLayout) findViewById(R.id.subway_line_list);
 
 		if (Utils.isVersionOlderThan(Build.VERSION_CODES.DONUT)) {
 			onCreatePreDonut();
@@ -184,8 +190,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 				refreshOrStopRefreshStatus(v);
 			}
 		});
-		View statusInfoView = findViewById(R.id.subway_status_section_info);
-		statusInfoView.setOnClickListener(new View.OnClickListener() {
+		findViewById(R.id.subway_status_section_info).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				showSubwayStatusInfoDialog(v);
@@ -244,12 +249,11 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 * Refresh the subway lines UI.
 	 */
 	private void refreshSubwayLines() {
-		LinearLayout subwayLinesLayout = (LinearLayout) findViewById(R.id.subway_line_list);
 		List<SubwayLine> subwayLines = StmManager.findAllSubwayLinesList(this.getContentResolver());
 		int i = 0;
 		for (SubwayLine subwayLine : subwayLines) {
 			// create view
-			View view = subwayLinesLayout.getChildAt(i++);
+			View view = this.subwayLinesLayout.getChildAt(i++);
 			// subway line type image
 			final int lineNumber = subwayLine.getNumber();
 			String subwayLineName = getString(SubwayUtils.getSubwayLineNameShort(lineNumber));
@@ -460,7 +464,8 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		} else {
 			// notify the user ?
 			// get the latest service status in the local database or NULL
-			this.serviceStatus = DataManager.findLatestServiceStatus(getContentResolver(), Utils.getSupportedUserLocale());
+			this.serviceStatus = DataManager.findLatestServiceStatus(getContentResolver(),
+			        Utils.getSupportedUserLocale());
 			// show latest service status
 			showNewStatus();
 			setStatusNotLoading();
@@ -484,8 +489,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		builder.setView(messageTv);
 		builder.setPositiveButton(getString(android.R.string.ok), null);
 		builder.setCancelable(true);
-		builder.create();
-		builder.show();
+		builder.create().show();
 	}
 
 	/**
@@ -643,8 +647,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			TextView detailMsgTv = (TextView) this.closestStationsLoadingLayout.findViewById(R.id.detail_msg);
 			detailMsgTv.setText(R.string.waiting_for_location_fix);
 			detailMsgTv.setVisibility(View.VISIBLE);
-		} else {
-			// just notify the user ?
+			// } else { just notify the user ?
 		}
 		// show stop icon instead of refresh
 		this.closestStationsRefreshOrNorImg.setImageResource(R.drawable.ic_btn_stop);
@@ -668,10 +671,9 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 */
 	private void setClosestStationsCancelled() {
 		MyLog.v(TAG, "setClosestStationsCancelled()");
-		if (this.closestStations != null) {
-			// notify the user ?
-			// Utils.notifyTheUser(this, getString(R.string.closest_subway_stations_cancelled));
-		} else {
+		// if (this.closestStations != null) { notify the user ?
+		// Utils.notifyTheUser(this, getString(R.string.closest_subway_stations_cancelled));
+		if (this.closestStations == null) {
 			// update the BIG cancel message
 			TextView cancelMsgTv = new TextView(this);
 			cancelMsgTv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
@@ -712,9 +714,8 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	@Override
 	public void onClosestStationsProgress(String progress) {
 		MyLog.v(TAG, "onClosestStationsProgress()");
-		if (this.closestStations != null) {
-			// notify the user ?
-		} else {
+		// if (this.closestStations != null) {notify the user ?
+		if (this.closestStations == null) {
 			// update the BIG message
 			this.closestStationsLoadingLayout.setVisibility(View.VISIBLE);
 			TextView detailMsgTv = (TextView) this.closestStationsLoadingLayout.findViewById(R.id.detail_msg);
@@ -789,8 +790,8 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 */
 	private void setLocation(Location newLocation) {
 		if (newLocation != null) {
-			MyLog.d(TAG, "new location: %s", newLocation);
-			if (this.location == null || LocationUtils.isMorePrecise(this.location, newLocation)) {
+			MyLog.d(TAG, "new location: %s.", LocationUtils.locationToString(newLocation));
+			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
 			}
 		}
@@ -849,47 +850,34 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	}
 
 	/**
-	 * Menu to login/logout of Twitter API.
+	 * Login or Logout from Twitter.
+	 * @param v the view (not used)
 	 */
-	private static final int MENU_LOGIN_TWITTER_API = Menu.FIRST;
+	public void twitterLoginOrLogout(View v) {
+		MyLog.v(TAG, "twitterLoginOrLogout()");
+		if (TwitterUtils.isConnected(this)) {
+			// disconnect
+			TwitterUtils.logout(this);
+		} else {
+			// try to connect
+			TwitterUtils.getInstance().startLoginProcess(this);
+		}
+	}
+
 	/**
-	 * Menu to reload the subway status.
+	 * Show the STM subway map.
+	 * @param v the view (not used)
 	 */
-	private static final int MENU_RELOAD_STATUS = Menu.FIRST + 1;
-	/**
-	 * Menu to reload the closest subway stations.
-	 */
-	private static final int MENU_RELOAD_CLOSEST_STATIONS = Menu.FIRST + 2;
-	/**
-	 * Menu to show the subway map from the STM.info Web Site.
-	 */
-	private static final int MENU_SHOW_MAP_ON_THE_STM_WEBSITE = Menu.FIRST + 3;
-	/**
-	 * The menu used to show the user preferences.
-	 */
-	private static final int MENU_PREFERENCES = Menu.FIRST + 4;
+	public void showSTMSubwayMap(View v) {
+		SubwayUtils.showSTMSubwayMap(this);
+	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuItem menuTwitterApi = menu.add(0, MENU_LOGIN_TWITTER_API, Menu.NONE, R.string.menu_twitter_login);
-		menuTwitterApi.setIcon(R.drawable.ic_menu_twitter);
-
-		MenuItem menuReloadStatus = menu.add(0, MENU_RELOAD_STATUS, Menu.NONE, R.string.reload_subway_status);
-		menuReloadStatus.setIcon(R.drawable.ic_menu_refresh);
-
-		MenuItem menuClosestStations = menu.add(0, MENU_RELOAD_CLOSEST_STATIONS, Menu.NONE,
-		        R.string.reload_closest_stations);
-		menuClosestStations.setIcon(R.drawable.ic_menu_refresh);
-
-		menu.add(0, MENU_SHOW_MAP_ON_THE_STM_WEBSITE, 0, R.string.show_map_from_stm_website);
-
-		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
-		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
-
-		return true;
+		return MenuUtils.inflateMenu(this, menu, R.menu.subway_tab_menu);
 	}
 
 	/**
@@ -899,38 +887,18 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		if (super.onPrepareOptionsMenu(menu)) {
 			// TWITTER
-			if (TwitterUtils.isConnected(this)) {
-				// CANCEL REFRESH
-				MenuItem menuTwitterApi = menu.findItem(MENU_LOGIN_TWITTER_API);
-				// TODO menuTwitterApi.setIcon(R.drawable.ic_menu_twitter);
-				menuTwitterApi.setTitle(R.string.menu_twitter_logout);
-			} else {
-				// REFRESH
-				MenuItem menuTwitterApi = menu.findItem(MENU_LOGIN_TWITTER_API);
-				// TODO menuTwitterApi.setIcon(R.drawable.ic_menu_twitter);
-				menuTwitterApi.setTitle(R.string.menu_twitter_login);
-			}
-			// SERVICE STATUS REFRESH
-			if (this.statusTask != null && this.statusTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
-				// CANCEL REFRESH
-				MenuItem menuRefresh = menu.findItem(MENU_RELOAD_STATUS);
-				menuRefresh.setIcon(R.drawable.ic_menu_stop); // not in SDK 1.5!
-			} else {
-				// REFRESH
-				MenuItem menuRefresh = menu.findItem(MENU_RELOAD_STATUS);
-				menuRefresh.setIcon(R.drawable.ic_menu_refresh); // not in SDK 1.5!
-			}
-			// CLOSEST STATIONs REFRESH
-			if (this.closestStationsTask != null
-			        && this.closestStationsTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
-				// CANCEL REFRESH
-				MenuItem menuRefresh = menu.findItem(MENU_RELOAD_CLOSEST_STATIONS);
-				menuRefresh.setIcon(R.drawable.ic_menu_stop); // not in SDK 1.5!
-			} else {
-				// REFRESH
-				MenuItem menuRefresh = menu.findItem(MENU_RELOAD_CLOSEST_STATIONS);
-				menuRefresh.setIcon(R.drawable.ic_menu_refresh); // not in SDK 1.5!
-			}
+			menu.findItem(R.id.twitter).setTitle(
+			        TwitterUtils.isConnected(this) ? R.string.menu_twitter_logout : R.string.menu_twitter_login);
+			// SERVICE STATUS
+			boolean statusRunning = this.statusTask != null
+			        && this.statusTask.getStatus().equals(AsyncTask.Status.RUNNING);
+			menu.findItem(R.id.refreshStatus).setIcon(
+			        statusRunning ? R.drawable.ic_menu_stop : R.drawable.ic_menu_refresh);
+			// CLOSEST STATIONs
+			boolean closestStationsRunning = this.closestStationsTask != null
+			        && this.closestStationsTask.getStatus().equals(AsyncTask.Status.RUNNING);
+			menu.findItem(R.id.refreshClosestStations).setIcon(
+			        closestStationsRunning ? R.drawable.ic_menu_stop : R.drawable.ic_menu_refresh);
 			return true;
 		} else {
 			MyLog.w(TAG, "Error in onPrepareOptionsMenu().");
@@ -944,34 +912,21 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case MENU_LOGIN_TWITTER_API:
-			if (TwitterUtils.isConnected(this)) {
-				// disconnect
-				TwitterUtils.logout(this);
-			} else {
-				// try to connect
-				TwitterUtils.getInstance().startLoginProcess(this);
-			}
-			break;
-		case MENU_RELOAD_STATUS:
+		case R.id.twitter:
+			twitterLoginOrLogout(null);
+			return true;
+		case R.id.refreshStatus:
 			refreshOrStopRefreshStatus(null);
-			break;
-		case MENU_RELOAD_CLOSEST_STATIONS:
+			return true;
+		case R.id.refreshClosestStations:
 			refreshOrStopRefreshClosestStations(null);
-			break;
-		case MENU_SHOW_MAP_ON_THE_STM_WEBSITE:
-			String url = "http://www.stm.info/metro/images/plan-metro.jpg";
-			// TODO store the map on the SD card the first time and then re-open it
-			// TODO add a menu to reload the map from the web site in the image viewer?
-			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-			break;
-		case MENU_PREFERENCES:
-			startActivity(new Intent(this, UserPreferences.class));
-			break;
+			return true;
+		case R.id.stm_map:
+			showSTMSubwayMap(null);
+			return true;
 		default:
-			MyLog.d(TAG, "Unknow menu action: %s.", item.getItemId());
+			return MenuUtils.handleCommonMenuActions(this, item);
 		}
-		return false;
 	}
 
 	/**

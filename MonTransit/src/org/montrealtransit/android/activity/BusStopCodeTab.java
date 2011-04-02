@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
+import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
@@ -174,7 +175,7 @@ public class BusStopCodeTab extends Activity {
 	 */
 	private void addToHistory(String search) {
 		// save to the history
-		DataManager.addHistory(this.getContentResolver(), new DataStore.History(search));
+		DataManager.addHistory(getContentResolver(), new DataStore.History(search));
 	}
 
 	/**
@@ -188,30 +189,11 @@ public class BusStopCodeTab extends Activity {
 	}
 
 	/**
-	 * Menu item for clearing the history.
-	 */
-	private static final int MENU_CLEAR_HISTOTY = Menu.FIRST;
-	/**
-	 * The menu used to show the search UI.
-	 */
-	private static final int MENU_SEARCH = Menu.FIRST + 1;
-	/**
-	 * The menu used to show the user preferences.
-	 */
-	private static final int MENU_PREFERENCES = Menu.FIRST + 2;
-
-	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuItem menuClearHistory = menu.add(0, MENU_CLEAR_HISTOTY, Menu.NONE, R.string.clear_history);
-		menuClearHistory.setIcon(android.R.drawable.ic_menu_delete);
-		MenuItem menuSearch = menu.add(0, MENU_SEARCH, Menu.NONE, R.string.menu_search);
-		menuSearch.setIcon(android.R.drawable.ic_menu_search);
-		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
-		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
-		return true;
+		return MenuUtils.inflateMenu(this, menu, R.menu.bus_stop_code_menu);
 	}
 
 	/**
@@ -220,17 +202,10 @@ public class BusStopCodeTab extends Activity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case MENU_CLEAR_HISTOTY:
-			DataManager.deleteAllHistory(this.getContentResolver());
-			break;
-		case MENU_SEARCH:
-			return this.onSearchRequested();
-		case MENU_PREFERENCES:
-			startActivity(new Intent(this, UserPreferences.class));
-			break;
-		default:
-			MyLog.d(TAG, "Unknown option menu action: %s.", item.getItemId());
+		case R.id.history:
+			DataManager.deleteAllHistory(getContentResolver());
+			return true;
 		}
-		return false;
+		return MenuUtils.handleCommonMenuActions(this, item);
 	}
 }

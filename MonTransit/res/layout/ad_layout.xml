@@ -4,10 +4,10 @@
 	android:id="@+id/ad_layout"
 	android:layout_height="wrap_content" android:layout_width="fill_parent"
 	android:layout_alignParentBottom="true"
-	android:visibility="visible">
+	android:visibility="gone">
 	<com.admob.android.ads.AdView android:id="@+id/ad"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		myapp:backgroundColor="#000000"
 		myapp:primaryTextColor="#FFFFFF" myapp:secondaryTextColor="#CCCCCC"
-		android:visibility="visible" />
+		android:visibility="gone" />
 </LinearLayout>

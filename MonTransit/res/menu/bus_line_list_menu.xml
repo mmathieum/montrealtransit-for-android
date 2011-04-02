@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<item android:icon="@android:drawable/ic_menu_view" android:title="@string/select_group_by">
+		<menu>
+			<group android:id="@+id/group_by_group"
+				android:checkableBehavior="single">
+				<item android:id="@+id/group_by_number" android:title="@string/group_by_bus_line_number" />
+				<item android:id="@+id/group_by_type" android:title="@string/group_by_bus_line_type" />
+				<item android:id="@+id/group_by_no" android:title="@string/group_by_bus_line_no_group" />
+			</group>
+		</menu>
+	</item>
+
+	<item android:id="@+id/search" android:icon="@android:drawable/ic_menu_search"
+		android:title="@string/menu_search" />
+	<item android:id="@+id/preferences" android:icon="@android:drawable/ic_menu_preferences"
+		android:title="@string/menu_preferences" />
+</menu>

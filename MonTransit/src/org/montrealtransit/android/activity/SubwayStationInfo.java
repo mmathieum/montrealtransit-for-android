@@ -6,6 +6,7 @@ import java.util.List;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.LocationUtils;
+import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.SubwayUtils;
@@ -15,7 +16,6 @@ import org.montrealtransit.android.dialog.BusLineSelectDirection;
 import org.montrealtransit.android.dialog.NoRadarInstalled;
 import org.montrealtransit.android.dialog.SubwayStationSelectBusLineStop;
 import org.montrealtransit.android.provider.DataManager;
-import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -70,6 +71,43 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	private boolean locationUpdatesEnabled = false;
 
 	/**
+	 * The favorite star check box.
+	 */
+	private CheckBox startCb;
+	/**
+	 * The connecting bus lines layout.
+	 */
+	private LinearLayout busLinesLayout;
+	/**
+	 * The connecting bus lines view.
+	 */
+	private View busLineTitleView;
+	/**
+	 * The hours list layout.
+	 */
+	private LinearLayout hoursListLayout;
+	/**
+	 * The station name text view.
+	 */
+	private TextView stationNameTv;
+	/**
+	 * The first subway line type image.
+	 */
+	private ImageView lineTypeImg1;
+	/**
+	 * The second subway line type image.
+	 */
+	private ImageView lineTypeImg2;
+	/**
+	 * The third subway line type image.
+	 */
+	private ImageView lineTypeImg3;
+	/**
+	 * The distance text view.
+	 */
+	private TextView distanceTv;
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -78,33 +116,35 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 		super.onCreate(savedInstanceState);
 		// set the UI
 		setContentView(R.layout.subway_station_info);
-		((CheckBox) findViewById(R.id.star)).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				// manage favorite star click
-				DataStore.Fav fav = DataManager
-				        .findFav(SubwayStationInfo.this.getContentResolver(),
-				                DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION, SubwayStationInfo.this.subwayStation
-				                        .getId(), null);
-				// IF the station is already a favorite DO
-				if (fav != null) {
-					// delete the favorite
-					DataManager.deleteFav(SubwayStationInfo.this.getContentResolver(), fav.getId());
-					Utils.notifyTheUser(SubwayStationInfo.this, getString(R.string.favorite_removed));
-				} else {
-					// add the favorite
-					DataStore.Fav newFav = new DataStore.Fav();
-					newFav.setType(DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
-					newFav.setFkId(SubwayStationInfo.this.subwayStation.getId());
-					newFav.setFkId2(null);
-					DataManager.addFav(SubwayStationInfo.this.getContentResolver(), newFav);
-					Utils.notifyTheUser(SubwayStationInfo.this, getString(R.string.favorite_added));
-				}
-				setTheStar(); // TODO is remove useless?
-			}
-		});
+
+		this.startCb = (CheckBox) findViewById(R.id.star);
+		this.busLinesLayout = (LinearLayout) findViewById(R.id.bus_line_list);
+		this.busLineTitleView = findViewById(R.id.bus_line);
+		this.hoursListLayout = (LinearLayout) findViewById(R.id.hours_list);
+		this.stationNameTv = (TextView) findViewById(R.id.station_name);
+		this.lineTypeImg1 = (ImageView) findViewById(R.id.subway_line_1);
+		this.lineTypeImg2 = (ImageView) findViewById(R.id.subway_line_2);
+		this.lineTypeImg3 = (ImageView) findViewById(R.id.subway_line_3);
+		this.distanceTv = (TextView) findViewById(R.id.distance);
+
+		if (Utils.isVersionOlderThan(Build.VERSION_CODES.DONUT)) {
+			onCreatePreDonut();
+		}
+
 		// show the subway station
 		showNewSubwayStation(Utils.getSavedStringValue(this.getIntent(), savedInstanceState, EXTRA_STATION_ID));
+	}
+
+	/**
+	 * onCreate() method only for Android versions older than 1.6.
+	 */
+	private void onCreatePreDonut() {
+		this.startCb.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				addOrRemoveFavorite(v);
+			}
+		});
 	}
 
 	/**
@@ -148,6 +188,31 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	}
 
 	/**
+	 * Switch the favorite status.
+	 * @param v the view (not used)
+	 */
+	public void addOrRemoveFavorite(View v) {
+		// try to find the existing favorite
+		Fav findFav = DataManager.findFav(getContentResolver(), Fav.KEY_TYPE_VALUE_SUBWAY_STATION,
+		        this.subwayStation.getId(), null);
+		// IF the station is already a favorite DO
+		if (findFav != null) {
+			// delete the favorite
+			DataManager.deleteFav(SubwayStationInfo.this.getContentResolver(), findFav.getId());
+			Utils.notifyTheUser(SubwayStationInfo.this, getString(R.string.favorite_removed));
+		} else {
+			// add the favorite
+			Fav newFav = new Fav();
+			newFav.setType(Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
+			newFav.setFkId(SubwayStationInfo.this.subwayStation.getId());
+			newFav.setFkId2(null);
+			DataManager.addFav(SubwayStationInfo.this.getContentResolver(), newFav);
+			Utils.notifyTheUser(SubwayStationInfo.this, getString(R.string.favorite_added));
+		}
+		setTheStar(); // TODO is remove useless?
+	}
+
+	/**
 	 * Show a new subway station
 	 * @param newStationId the new subway station ID
 	 */
@@ -186,7 +251,6 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	 * Refresh the subway station schedule.
 	 */
 	private void refreshSchedule() {
-		LinearLayout layout = (LinearLayout) findViewById(R.id.hours_list);
 		List<StmStore.SubwayLine> subwayLines = StmManager.findSubwayStationLinesList(getContentResolver(),
 		        this.subwayStation.getId());
 		// FOR EACH subway line DO
@@ -197,11 +261,11 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 			// IF the direction is not the subway station DO
 			if (!this.subwayStation.getId().equals(firstSubwayStationDirection.getId())) {
 				// list divider
-				if (layout.getChildCount() > 0) {
-					layout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+				if (this.hoursListLayout.getChildCount() > 0) {
+					this.hoursListLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
 				}
 				// list view
-				layout.addView(getDirectionView(subwayLine, firstSubwayStationDirection));
+				this.hoursListLayout.addView(getDirectionView(subwayLine, firstSubwayStationDirection));
 			}
 			// SECOND direction
 			StmStore.SubwayStation lastSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(
@@ -209,11 +273,11 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 			// IF the direction is not the subway station DO
 			if (!this.subwayStation.getId().equals(lastSubwayStationDirection.getId())) {
 				// list divider
-				if (layout.getChildCount() > 0) {
-					layout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+				if (this.hoursListLayout.getChildCount() > 0) {
+					this.hoursListLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
 				}
 				// list view
-				layout.addView(getDirectionView(subwayLine, lastSubwayStationDirection));
+				this.hoursListLayout.addView(getDirectionView(subwayLine, lastSubwayStationDirection));
 			}
 
 		}
@@ -234,23 +298,21 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 		// create view
 		View dView = getLayoutInflater().inflate(R.layout.subway_station_info_line_schedule_direction, null);
 		// SUBWAY LINE color
-		ImageView ivSubwayLineColor1 = (ImageView) dView.findViewById(R.id.subway_img);
-		ivSubwayLineColor1.setImageResource(SubwayUtils.getSubwayLineImgId(subwayLine.getNumber()));
+		int subwayLineImgId = SubwayUtils.getSubwayLineImgId(subwayLine.getNumber());
+		((ImageView) dView.findViewById(R.id.subway_img)).setImageResource(subwayLineImgId);
 		// DIRECTION - SUBWAY STATION name
-		TextView tvSubwayStation1 = (TextView) dView.findViewById(R.id.direction_station);
-		tvSubwayStation1.setText(subwayStationDir.getName());
+		((TextView) dView.findViewById(R.id.direction_station)).setText(subwayStationDir.getName());
 		// FIRST LAST DEPARTURE
-		Pair<String, String> deps = StmManager.findSubwayStationDepartures(getContentResolver(), this.subwayStation
-		        .getId(), subwayStationDir.getId(), dayOfTheWeek);
-		TextView tvHours1 = (TextView) dView.findViewById(R.id.direction_hours);
+		Pair<String, String> deps = StmManager.findSubwayStationDepartures(getContentResolver(),
+		        this.subwayStation.getId(), subwayStationDir.getId(), dayOfTheWeek);
 		String firstCleanDep = Utils.formatHours(this, deps.first);
 		String secondCleanDep = Utils.formatHours(this, deps.second);
-		tvHours1.setText(firstCleanDep + " - " + secondCleanDep);
+		((TextView) dView.findViewById(R.id.direction_hours)).setText(firstCleanDep + " - " + secondCleanDep);
 		// FREQUENCY
 		String frequency = StmManager.findSubwayDirectionFrequency(getContentResolver(), subwayStationDir.getId(),
 		        dayOfTheWeek, time);
-		TextView tvDirFreq1 = (TextView) dView.findViewById(R.id.direction_frequency);
-		tvDirFreq1.setText(getString(R.string.minutes_and_minutes, frequency));
+		String dirFreq = getString(R.string.minutes_and_minutes, frequency);
+		((TextView) dView.findViewById(R.id.direction_frequency)).setText(dirFreq);
 		return dView;
 	}
 
@@ -260,15 +322,15 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	private void refreshSubwayStationInfo() {
 		MyLog.v(TAG, "refreshSubwayStationInfo()");
 		// subway station name
-		((TextView) findViewById(R.id.station_name)).setText(this.subwayStation.getName());
+		this.stationNameTv.setText(this.subwayStation.getName());
 		// set the favorite icon
 		setTheStar();
 		// subway lines colors
 		if (this.subwayLines.size() > 0) {
-			findViewById(R.id.subway_line_1).setVisibility(View.VISIBLE);
+			this.lineTypeImg1.setVisibility(View.VISIBLE);
 			int subwayLineImg = SubwayUtils.getSubwayLineImgListMiddleId(this.subwayLines.get(0).getNumber());
-			((ImageView) findViewById(R.id.subway_line_1)).setImageResource(subwayLineImg);
-			((ImageView) findViewById(R.id.subway_line_1)).setOnClickListener(new OnClickListener() {
+			this.lineTypeImg1.setImageResource(subwayLineImg);
+			this.lineTypeImg1.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					MyLog.v(TAG, "onClick(%s)", v.getId());
@@ -279,10 +341,10 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 				}
 			});
 			if (this.subwayLines.size() > 1) {
-				findViewById(R.id.subway_line_2).setVisibility(View.VISIBLE);
+				this.lineTypeImg2.setVisibility(View.VISIBLE);
 				int subwayLineImg2 = SubwayUtils.getSubwayLineImgListMiddleId(this.subwayLines.get(1).getNumber());
-				((ImageView) findViewById(R.id.subway_line_2)).setImageResource(subwayLineImg2);
-				((ImageView) findViewById(R.id.subway_line_2)).setOnClickListener(new OnClickListener() {
+				this.lineTypeImg2.setImageResource(subwayLineImg2);
+				this.lineTypeImg2.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
 						MyLog.v(TAG, "onClick(%s)", v.getId());
@@ -293,10 +355,10 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 					}
 				});
 				if (this.subwayLines.size() > 2) {
-					findViewById(R.id.subway_line_3).setVisibility(View.VISIBLE);
+					this.lineTypeImg3.setVisibility(View.VISIBLE);
 					int subwayLineImg3 = SubwayUtils.getSubwayLineImgListMiddleId(this.subwayLines.get(2).getNumber());
-					((ImageView) findViewById(R.id.subway_line_3)).setImageResource(subwayLineImg3);
-					((ImageView) findViewById(R.id.subway_line_3)).setOnClickListener(new OnClickListener() {
+					this.lineTypeImg3.setImageResource(subwayLineImg3);
+					this.lineTypeImg3.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View v) {
 							MyLog.v(TAG, "onClick(%s)", v.getId());
@@ -322,9 +384,9 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 			Location stationLocation = LocationUtils.getNewLocation(subwayStation.getLat(), subwayStation.getLng());
 			float distanceInMeters = getLocation().distanceTo(stationLocation);
 			float accuracyInMeters = getLocation().getAccuracy();
-			// MyLog.v(TAG, "distance in meters: " + distanceInMeters + " (accuracy: " + accuracyInMeters + ").");
+			// MyLog.d(TAG, "distance in meters: " + distanceInMeters + " (accuracy: " + accuracyInMeters + ").");
 			String distanceString = Utils.getDistanceString(this, distanceInMeters, accuracyInMeters);
-			((TextView) findViewById(R.id.distance)).setText(distanceString);
+			this.distanceTv.setText(distanceString);
 		}
 	}
 
@@ -357,9 +419,8 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	 */
 	public void setLocation(Location newLocation) {
 		if (newLocation != null) {
-			MyLog.v(TAG, String.format("new location: '%s' %s,%s (%s)", newLocation.getProvider(), newLocation
-			        .getLatitude(), newLocation.getLongitude(), newLocation.getAccuracy()));
-			if (this.location == null || LocationUtils.isMorePrecise(this.location, newLocation)) {
+			MyLog.d(TAG, "new location: '%s'.", LocationUtils.locationToString(newLocation));
+			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
 			}
 		}
@@ -404,9 +465,10 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	 */
 	private void setTheStar() {
 		MyLog.v(TAG, "setTheStar()");
-		Fav fav = DataManager.findFav(this.getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION,
+		// try to find the existing favorite
+		Fav findFav = DataManager.findFav(getContentResolver(), Fav.KEY_TYPE_VALUE_SUBWAY_STATION,
 		        this.subwayStation.getId(), null);
-		((CheckBox) findViewById(R.id.star)).setChecked(fav != null);
+		this.startCb.setChecked(findFav != null);
 	}
 
 	/**
@@ -416,12 +478,11 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 		MyLog.v(TAG, "refreshBusLines()");
 		List<StmStore.BusLine> busLinesList = StmManager.findSubwayStationBusLinesList(getContentResolver(),
 		        this.subwayStation.getId());
-		LinearLayout busLinesLayout = (LinearLayout) findViewById(R.id.bus_line_list);
-		busLinesLayout.removeAllViews();
+		this.busLinesLayout.removeAllViews();
 		// IF there is one or more bus lines DO
 		if (busLinesList != null && busLinesList.size() > 0) {
-			findViewById(R.id.bus_line).setVisibility(View.VISIBLE);
-			busLinesLayout.setVisibility(View.VISIBLE);
+			this.busLineTitleView.setVisibility(View.VISIBLE);
+			this.busLinesLayout.setVisibility(View.VISIBLE);
 			// FOR EACH bus line DO
 			for (StmStore.BusLine busLine : busLinesList) {
 				// create view
@@ -437,45 +498,56 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 					@Override
 					public boolean onLongClick(View v) {
 						MyLog.d(TAG, "bus line number: %s", lineNumber);
-						BusLineSelectDirection busLineSelectDirection = new BusLineSelectDirection(
-						        SubwayStationInfo.this, lineNumber);
-						busLineSelectDirection.showDialog();
+						new BusLineSelectDirection(SubwayStationInfo.this, lineNumber).showDialog();
 						return true;
 					}
 				});
-				busLinesLayout.addView(view);
+				this.busLinesLayout.addView(view);
 			}
 		} else {
-			findViewById(R.id.bus_line).setVisibility(View.GONE);
-			busLinesLayout.setVisibility(View.GONE);
+			this.busLineTitleView.setVisibility(View.GONE);
+			this.busLinesLayout.setVisibility(View.GONE);
 		}
 	}
 
 	/**
-	 * Menu for showing the subway station in Maps.
+	 * Show the station in a radar-enabled app.
+	 * @param v the view (not used)
 	 */
-	private static final int MENU_SHOW_SUBWAY_STATION_IN_MAPS = Menu.FIRST;
+	public void showStationInRadar(View v) {
+		// IF the a radar activity is available DO
+		if (!Utils.isIntentAvailable(this, "com.google.android.radar.SHOW_RADAR")) {
+			// tell the user he needs to install a radar library.
+			new NoRadarInstalled(this).showDialog();
+		} else {
+			// Launch the radar activity
+			Intent intent = new Intent("com.google.android.radar.SHOW_RADAR");
+			intent.putExtra("latitude", (float) this.subwayStation.getLat());
+			intent.putExtra("longitude", (float) this.subwayStation.getLng());
+			try {
+				startActivity(intent);
+			} catch (ActivityNotFoundException ex) {
+				MyLog.w(TAG, "Radar activity not found.");
+				new NoRadarInstalled(this).showDialog();
+			}
+		}
+	}
+
 	/**
-	 * Menu for using a radar to get to the subway station.
+	 * Show the station location in a maps-enabled app.
+	 * @param v the view (not used)
 	 */
-	private static final int MENU_USE_RADAR_TO_THE_SUBWAY_STATION = Menu.FIRST + 1;
-	/**
-	 * The menu used to show the user preferences.
-	 */
-	private static final int MENU_PREFERENCES = Menu.FIRST + 2;
+	public void showStationLocationInMaps(View v) {
+		Uri uri = Uri.parse(String.format("geo:%s,%s", this.subwayStation.getLat(), this.subwayStation.getLng()));
+		startActivity(new Intent(android.content.Intent.ACTION_VIEW, uri));
+	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuItem menuShowMaps = menu.add(0, MENU_SHOW_SUBWAY_STATION_IN_MAPS, Menu.NONE, R.string.show_in_map);
-		menuShowMaps.setIcon(android.R.drawable.ic_menu_mapmode);
-		MenuItem menuUseRadar = menu.add(0, MENU_USE_RADAR_TO_THE_SUBWAY_STATION, Menu.NONE, R.string.use_radar);
-		menuUseRadar.setIcon(android.R.drawable.ic_menu_compass);
-		MenuItem menuPref = menu.add(0, MENU_PREFERENCES, Menu.NONE, R.string.menu_preferences);
-		menuPref.setIcon(android.R.drawable.ic_menu_preferences);
-		return true;
+		return MenuUtils.inflateMenu(this, menu, R.menu.subway_station_info_menu);
 	}
 
 	/**
@@ -484,41 +556,14 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case MENU_SHOW_SUBWAY_STATION_IN_MAPS:
-			try {
-				Uri uri = Uri.parse(String.format("geo:%s,%s", subwayStation.getLat(), subwayStation.getLng()));
-				startActivity(new Intent(android.content.Intent.ACTION_VIEW, uri));
-				return true;
-			} catch (Exception e) {
-				MyLog.e(TAG, e, "Error while launching map");
-				return false;
-			}
-		case MENU_USE_RADAR_TO_THE_SUBWAY_STATION:
-			// IF the a radar activity is available DO
-			if (!Utils.isIntentAvailable(this, "com.google.android.radar.SHOW_RADAR")) {
-				// tell the user he needs to install a radar library.
-				NoRadarInstalled noRadar = new NoRadarInstalled(this);
-				noRadar.showDialog();
-			} else {
-				// Launch the radar activity
-				Intent intent = new Intent("com.google.android.radar.SHOW_RADAR");
-				intent.putExtra("latitude", (float) this.subwayStation.getLat());
-				intent.putExtra("longitude", (float) this.subwayStation.getLng());
-				try {
-					startActivity(intent);
-				} catch (ActivityNotFoundException ex) {
-					MyLog.w(TAG, "Radar activity not found.");
-					NoRadarInstalled noRadar = new NoRadarInstalled(this);
-					noRadar.showDialog();
-				}
-			}
+		case R.id.map:
+			showStationLocationInMaps(null);
 			return true;
-		case MENU_PREFERENCES:
-			startActivity(new Intent(this, UserPreferences.class));
+		case R.id.radar:
+			showStationInRadar(null);
 			return true;
 		default:
-			MyLog.d(TAG, "Unknow menu id: %s.", item.getItemId());
-			return false;
+			return MenuUtils.handleCommonMenuActions(this, item);
 		}
 	}
 }
