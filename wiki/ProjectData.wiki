@@ -31,6 +31,10 @@ I'm now using a [http://spreadsheets.google.com/pub?key=0As5T8slWzHYOdGxuWW9ZQXl
 || 2010-06-02 || 1.0 (r171) || 4.5 (2) || 35 || 18 || 24 (68%) || 10 || 0 ||
 || 2010-06-01 || 1.0 (r171) || 4.5 (2) || 17 || 17 || 14 (82%) || 14 || 0 ||
 </wiki:comment>
+
+= Monthly Analytics Reports =
+ * [https://docs.google.com/present/view?id=dgbcqt35_20hd8npcc4 February 2011]
+
 = Source code data = 
 
 <wiki:gadget url="http://www.ohloh.net/p/468409/widgets/project_languages.xml" border="1" height="200" width="320" />
