@@ -368,7 +368,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 		builder.create();
 		builder.show();
 	}
-	
+
 	/**
 	 * @return the bus list "group by" preference.
 	 */
@@ -960,7 +960,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 			startActivity(intent);
 		}
 	}
-	
+
 	/**
 	 * Switch to www.stm.info provider.
 	 * @param v the view (not used)
@@ -1037,7 +1037,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 				if (addresses != null && addresses.size() > 0 && addresses.get(0) != null) {
 					double lat = addresses.get(0).getLatitude();
 					double lng = addresses.get(0).getLongitude();
-					//MyLog.d(TAG, "Bus stop GPS > lat:%s, lng:%s", lat, lng);
+					// MyLog.d(TAG, "Bus stop GPS > lat:%s, lng:%s", lat, lng);
 					// Launch the map activity
 					Uri uri = Uri.parse(String.format("geo:%s,%s", lat, lng)); // geo:0,0?q="+busStop.getPlace()
 					startActivity(new Intent(android.content.Intent.ACTION_VIEW, uri));
@@ -1071,12 +1071,14 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	 */
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
+		MyLog.v(TAG, "onPrepareOptionsMenu()");
 		if (super.onPrepareOptionsMenu(menu)) {
 			// PROVIDERs
-			menu.findItem(R.id.provider_stm_info).setChecked(
-			        getProviderFromPref().equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_INFO));
-			menu.findItem(R.id.provider_stm_mobile).setChecked(
-			        getProviderFromPref().equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_MOBILE));
+			if (getProviderFromPref().equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_INFO)) {
+				menu.findItem(R.id.provider_stm_info).setChecked(true);
+			} else {
+				menu.findItem(R.id.provider_stm_mobile).setChecked(true);
+			}
 			// REFRESH
 			boolean running = this.task != null && this.task.getStatus().equals(AsyncTask.Status.RUNNING);
 			MenuItem menuRefresh = menu.findItem(R.id.refresh);

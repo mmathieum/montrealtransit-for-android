@@ -494,13 +494,15 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 	 */
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
+		MyLog.v(TAG, "onPrepareOptionsMenu()");
 		if (super.onPrepareOptionsMenu(menu)) {
-			menu.findItem(R.id.group_by_no).setChecked(
-			        getGroupByPref().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP));
-			menu.findItem(R.id.group_by_type).setChecked(
-			        getGroupByPref().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE));
-			menu.findItem(R.id.group_by_number).setChecked(
-			        getGroupByPref().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER));
+			if (getGroupByPref().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)) {
+				menu.findItem(R.id.group_by_number).setChecked(true);
+			} else if (getGroupByPref().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
+				menu.findItem(R.id.group_by_type).setChecked(true);
+			} else {
+				menu.findItem(R.id.group_by_no).setChecked(true);
+			}
 			return true;
 		} else {
 			MyLog.w(TAG, "Error in onPrepareOptionsMenu().");
