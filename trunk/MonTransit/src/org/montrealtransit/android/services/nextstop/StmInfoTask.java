@@ -101,13 +101,13 @@ public class StmInfoTask extends AbstractNextStopProvider {
 			switch (httpUrlConnection.getResponseCode()) {
 			case HttpURLConnection.HTTP_OK:
 				// download the the page.
-				Utils.getInputStreamToFile(urlc.getInputStream(), this.context.openFileOutput(Constant.FILE1,
-				        Context.MODE_WORLD_READABLE), "iso-8859-1");
+				Utils.getInputStreamToFile(urlc.getInputStream(),
+				        this.context.openFileOutput(Constant.FILE1, Context.MODE_WORLD_READABLE), "iso-8859-1");
 				AnalyticsUtils.dispatch(context); // while we are connected, sent the analytics data
 				publishProgress(this.context.getString(R.string.processing_data));
 				// remove useless code from the page
-				cleanHtmlCodes(this.context.openFileInput(Constant.FILE1), this.context.openFileOutput(Constant.FILE2,
-				        Context.MODE_WORLD_READABLE), lineNumber);
+				cleanHtmlCodes(this.context.openFileInput(Constant.FILE1),
+				        this.context.openFileOutput(Constant.FILE2, Context.MODE_WORLD_READABLE), lineNumber);
 				// Get a SAX Parser from the SAX PArser Factory
 				SAXParserFactory spf = SAXParserFactory.newInstance();
 				SAXParser sp = spf.newSAXParser();
@@ -123,10 +123,11 @@ public class StmInfoTask extends AbstractNextStopProvider {
 				publishProgress(this.context.getString(R.string.done));
 				return busStopHandler.getHours();
 			case HttpURLConnection.HTTP_INTERNAL_ERROR:
-				errorMessage = this.context.getString(R.string.error_http_500_and_source, this.context.getString(R.string.select_next_stop_data_source));
+				errorMessage = this.context.getString(R.string.error_http_500_and_source,
+				        this.context.getString(R.string.select_next_stop_data_source));
 			default:
-				MyLog.w(TAG, "Error: HTTP URL-Connection Response Code:" + httpUrlConnection.getResponseCode()
-				        + "(Message: " + httpUrlConnection.getResponseMessage() + ")");
+				MyLog.w(TAG, "ERROR: HTTP URL-Connection Response Code %s (Message: %s)",
+				        httpUrlConnection.getResponseCode(), httpUrlConnection.getResponseMessage());
 				return new BusStopHours(SOURCE_NAME, errorMessage);
 			}
 		} catch (UnknownHostException uhe) {

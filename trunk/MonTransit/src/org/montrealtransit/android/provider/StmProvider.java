@@ -397,6 +397,8 @@ public class StmProvider extends ContentProvider {
 	private static final String EXCLUDED_BUS_LINES = StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER
 	        + " NOT IN(167,169)";
 
+	private static final String SEARCH_SPLIT_ON = "[\\s\\W]";
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -416,8 +418,9 @@ public class StmProvider extends ContentProvider {
 		case BUS_LINES_SEARCH:
 			MyLog.v(TAG, "query>BUS_LINES_SEARCH");
 			qb.setTables(StmDbHelper.T_BUS_LINES);
-			if (!TextUtils.isEmpty(uri.getPathSegments().get(2))) {
-				String[] keywords = uri.getPathSegments().get(2).split(" ");
+			String search = Uri.decode(uri.getPathSegments().get(2));
+			if (!TextUtils.isEmpty(search)) {
+				String[] keywords = search.split(SEARCH_SPLIT_ON);
 				String inWhere = EXCLUDED_BUS_LINES;
 				for (String keyword : keywords) {
 					if (inWhere.length() > 0) {
@@ -506,8 +509,9 @@ public class StmProvider extends ContentProvider {
 			qb.appendWhere(" AND ");
 			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + "=\""
 			        + uri.getPathSegments().get(3) + "\"");
-			if (!TextUtils.isEmpty(uri.getPathSegments().get(6))) {
-				String[] keywords = uri.getPathSegments().get(6).split(" ");
+			search = Uri.decode(uri.getPathSegments().get(6));
+			if (!TextUtils.isEmpty(search)) {
+				String[] keywords = search.split(SEARCH_SPLIT_ON);
 				for (String keyword : keywords) {
 					qb.appendWhere(" AND ");
 					qb.appendWhere("(" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " LIKE '%"
@@ -543,17 +547,19 @@ public class StmProvider extends ContentProvider {
 			}
 			break;
 		case BUS_STOPS_SEARCH:
+			MyLog.v(TAG, "query>BUS_STOPS_SEARCH");
 			qb.setDistinct(true);
 			qb.setTables(BUS_STOP_LINES_JOIN);
 			qb.setProjectionMap(sBusStopsExtendedProjectionMap);
 			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "!=''");
 			if (uri.getPathSegments().size() > 1) {
-				String search = uri.getPathSegments().get(1);
+				search = Uri.decode(uri.getPathSegments().get(1));
 				MyLog.d(TAG, "search: " + search);
 				if (!TextUtils.isEmpty(search)) {
-					String[] keywords = search.split(" ");
+					String[] keywords = search.split(SEARCH_SPLIT_ON);
 					String inWhere = "";
 					for (String keyword : keywords) {
+						MyLog.d(TAG, "keyword: " + keyword);
 						inWhere += " AND ";
 						inWhere += "(";
 						if (TextUtils.isDigitsOnly(keyword)) {
@@ -625,8 +631,9 @@ public class StmProvider extends ContentProvider {
 		case SUBWAY_LINES_SEARCH:
 			MyLog.v(TAG, "query>SUBWAY_LINES_SEARCH");
 			qb.setTables(StmDbHelper.T_SUBWAY_LINES);
-			if (!TextUtils.isEmpty(uri.getPathSegments().get(2))) {
-				String[] keywords = uri.getPathSegments().get(2).split(" ");
+			search = Uri.decode(uri.getPathSegments().get(2));
+			if (!TextUtils.isEmpty(search)) {
+				String[] keywords = search.split(SEARCH_SPLIT_ON);
 				String inWhere = "";
 				for (String keyword : keywords) {
 					if (inWhere.length() > 0) {
@@ -684,8 +691,9 @@ public class StmProvider extends ContentProvider {
 			qb.setProjectionMap(sSubwayStationsProjectionMap);
 			qb.appendWhere(StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + "="
 			        + uri.getPathSegments().get(1));
-			if (!TextUtils.isEmpty(uri.getPathSegments().get(4))) {
-				String[] keywords = uri.getPathSegments().get(4).split(" ");
+			search = Uri.decode(uri.getPathSegments().get(4));
+			if (!TextUtils.isEmpty(search)) {
+				String[] keywords = search.split(SEARCH_SPLIT_ON);
 				for (String keyword : keywords) {
 					qb.appendWhere(" AND ");
 					qb.appendWhere(StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME
@@ -795,7 +803,6 @@ public class StmProvider extends ContentProvider {
 			break;
 		case SEARCH:
 			MyLog.v(TAG, "query>SEARCH");
-			String search = uri.getPathSegments().get(1);
 			// IF simple search DO
 			if (Utils.getSharedPreferences(getContext(), UserPreferences.PREFS_SEARCH,
 			        UserPreferences.PREFS_SEARCH_DEFAULT).equals(UserPreferences.PREFS_SEARCH_SIMPLE)) {
@@ -803,11 +810,13 @@ public class StmProvider extends ContentProvider {
 				qb.setProjectionMap(sSearchSimpleProjectionMap);
 				qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "!=''");
 				if (uri.getPathSegments().size() > 1) {
+					search = Uri.decode(uri.getPathSegments().get(1));
 					MyLog.d(TAG, "search: " + search);
 					if (!TextUtils.isEmpty(search)) {
-						String[] keywords = search.split(" ");
+						String[] keywords = search.split(SEARCH_SPLIT_ON);
 						String inWhere = "";
 						for (String keyword : keywords) {
+							MyLog.d(TAG, "keyword: " + keyword);
 							inWhere += " AND ";
 							inWhere += "(";
 							if (TextUtils.isDigitsOnly(keyword)) {
@@ -840,11 +849,13 @@ public class StmProvider extends ContentProvider {
 				qb.setProjectionMap(sSearchProjectionMap);
 				qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "!=''");
 				if (uri.getPathSegments().size() > 1) {
+					search = Uri.decode(uri.getPathSegments().get(1));
 					MyLog.d(TAG, "search: " + search);
 					if (!TextUtils.isEmpty(search)) {
-						String[] keywords = search.split(" ");
+						String[] keywords = search.split(SEARCH_SPLIT_ON);
 						String inWhere = "";
 						for (String keyword : keywords) {
+							MyLog.d(TAG, "keyword: " + keyword);
 							inWhere += " AND ";
 							inWhere += "(";
 							if (TextUtils.isDigitsOnly(keyword)) {
@@ -876,7 +887,7 @@ public class StmProvider extends ContentProvider {
 					}
 				}
 			}
-			if (search.length() == 0) {
+			if (uri.getPathSegments().size() > 1 && uri.getPathSegments().get(1).length() == 0) {
 				limit = String.valueOf(Constant.NB_SEARCH_RESULT);
 			}
 			// MyLog.d(TAG, "search query ready!");
