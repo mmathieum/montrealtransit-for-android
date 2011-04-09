@@ -333,11 +333,11 @@ public class DataManager {
 	 * Find the favorite for given favorite type.
 	 * @param contentResolver the content resolver
 	 * @param type the favorite type
-	 * @return the favorites
+	 * @return the favorites (never NULL)
 	 */
 	public static List<DataStore.Fav> findFavsByTypeList(ContentResolver contentResolver, int type) {
 		MyLog.v(TAG, "findFavsByTypeList(%s)", type);
-		List<DataStore.Fav> result = null;
+		List<DataStore.Fav> result = new ArrayList<DataStore.Fav>();;
 		Cursor cursor = null;
 		try {
 			Uri favTypeUri = ContentUris.withAppendedId(DataStore.Fav.CONTENT_URI, type);
@@ -346,7 +346,6 @@ public class DataManager {
 			cursor = contentResolver.query(uri, PROJECTION_FAVS, null, null, null);
 			if (cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
-					result = new ArrayList<DataStore.Fav>();
 					do {
 						result.add(DataStore.Fav.fromCursor(cursor));
 					} while (cursor.moveToNext());
