@@ -208,6 +208,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 			newFav.setFkId2(null);
 			DataManager.addFav(SubwayStationInfo.this.getContentResolver(), newFav);
 			Utils.notifyTheUser(SubwayStationInfo.this, getString(R.string.favorite_added));
+			Utils.saveSharedPreferences(this, UserPreferences.PREFS_IS_FAV, true);
 		}
 		setTheStar(); // TODO is remove useless?
 	}

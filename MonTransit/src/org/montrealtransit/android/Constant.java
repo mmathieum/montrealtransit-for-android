@@ -43,30 +43,6 @@ public class Constant {
 	public static final String PLACE_CHAR_PARENTHESE_STATION = PLACE_CHAR_PARENTHESE + "station ";
 	public static final int PLACE_CHAR_PARENTHESE_STATION_LENGTH = PLACE_CHAR_PARENTHESE_STATION.length();
 
-	public static final CharSequence HTML_CODE_SPACE = "&nbsp;";
-	public static final String HTML_CODE_EACUTE = "&eacute;";
-	public static final String HTML_CODE_EACUTE_2 = "&#233;";
-	public static final String HTML_CODE_ECIRC = "&ecirc;";
-	public static final String HTML_CODE_ECIRC_2 = "&#234;";
-	public static final String HTML_CODE_OCIRC = "&#244;";
-	public static final String HTML_TABLE_END = "</table>";
-	public static final String HTML_TAG = "<html>";
-	public static final String HTML_TAG_END = "</html>";
-	public static final String NEW_LINE = "\n";
-	
-	/**
-	 * The temporary file 1 where the service can store data.
-	 */
-	public static final String FILE1 = "temp1.xhtml";
-	/**
-	 * The temporary file 2 where the service can store data.
-	 */
-	public static final String FILE2 = "temp2.xhtml";
-	/**
-	 * The temporary file 3 where the service can store data.
-	 */
-	public static final String FILE3 = "temp3.xhtml";
-	
 	/**
 	 * STM coverage area.
 	 */

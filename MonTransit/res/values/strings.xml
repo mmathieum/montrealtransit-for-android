@@ -176,8 +176,8 @@
 	<string name="bus_type_express">Express Service</string>
 	<string name="bus_type_voieres">Reserved Lane Service</string>
 	
-	<string name="no_more_stops">Service ended.</string>
-	<string name="no_more_stops_for_this_bus_line">Service ended for the bus line %s.</string>
+	<string name="no_more_stops">No service.</string>
+	<string name="no_more_stops_for_this_bus_line">No service for the bus line %s.</string>
 	
 	<string name="view_bus_stop">View bus stop</string>
 	<string name="view_subway_station">View subway station</string>

@@ -94,6 +94,10 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	 */
 	private BusStopHours hours;
 	/**
+	 * The cache for the current bus stop (code+line number).
+	 */
+	private Cache cache;
+	/**
 	 * The task used to load the next bus stops.
 	 */
 	private AsyncTask<StmStore.BusStop, String, BusStopHours> task;
@@ -130,10 +134,6 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	 * The progress bar view.
 	 */
 	private View progressBarView;
-	/**
-	 * The cache for the current bus stop (code+line number).
-	 */
-	private Cache cache;
 	/**
 	 * The bus stop type image.
 	 */
@@ -832,6 +832,8 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 			this.nextStopsGroupView.setVisibility(View.GONE);
 			this.message2Tv.setVisibility(View.GONE);
 			this.loadingView.setVisibility(View.GONE);
+			// set next stop header with source name
+			this.nextStopStringTv.setText(getString(R.string.next_bus_stops_and_source, hours.getSourceName()));
 			// show message 1
 			this.message1Tv.setVisibility(View.VISIBLE);
 			// IF an error occurs during the process DO
@@ -942,6 +944,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 			newFav.setFkId2(this.busLine.getNumber());
 			DataManager.addFav(getContentResolver(), newFav);
 			Utils.notifyTheUser(this, getString(R.string.favorite_added));
+			Utils.saveSharedPreferences(this, UserPreferences.PREFS_IS_FAV, true);
 		}
 		setTheStar(); // TODO is remove useless?
 	}

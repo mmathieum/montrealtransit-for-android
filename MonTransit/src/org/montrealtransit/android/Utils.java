@@ -72,8 +72,7 @@ public class Utils {
 		byte[] b = new byte[4096];
 		try {
 			for (int n; (n = is.read(b)) != -1;) {
-				String string = new String(b, 0, n, encoding);
-				writer.write(string);
+				writer.write(new String(b, 0, n, encoding));
 			}
 		} catch (IOException ioe) {
 			MyLog.e(TAG, ioe, "Error while reading the input stream and writing into the file.");
@@ -100,8 +99,7 @@ public class Utils {
 		byte[] b = new byte[4096];
 		try {
 			for (int n; (n = is.read(b)) != -1;) {
-				String string = new String(b, 0, n, encoding);
-				result += string;
+				result += new String(b, 0, n, encoding);
 			}
 		} catch (IOException ioe) {
 			MyLog.e(TAG, ioe, "Error while reading the input stream and writing into a string.");
@@ -418,7 +416,7 @@ public class Utils {
 	 * @param prefKey the preference key
 	 * @param newValue the new preference value
 	 */
-	public static void saveSharedPreferences(Context context, String prefKey, Boolean newValue) {
+	public static void saveSharedPreferences(Context context, String prefKey, boolean newValue) {
 		MyLog.v(TAG, "saveSharedPreferences(%s, %s)", prefKey, newValue);
 		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
 		editor.putBoolean(prefKey, newValue);
