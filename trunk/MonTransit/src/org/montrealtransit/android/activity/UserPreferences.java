@@ -142,6 +142,16 @@ public class UserPreferences extends PreferenceActivity {
 	public static final String PREFS_SUBWAY_STATIONS_ORDER_DEFAULT = PREFS_SUBWAY_STATIONS_ORDER_AZ;
 
 	/**
+	 * The preference key for the presence of favorite.
+	 */
+	public static final String PREFS_IS_FAV = "pFav";
+
+	/**
+	 * Default value for favorite.
+	 */
+	public static final boolean PREFS_IS_FAV_DEFAULT = false;
+
+	/**
 	 * The preference key for ads.
 	 */
 	public static final String PREFS_ADS = "pAds";

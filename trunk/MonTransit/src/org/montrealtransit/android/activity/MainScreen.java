@@ -5,7 +5,6 @@ import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.TwitterUtils;
 import org.montrealtransit.android.Utils;
-import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.StmDbHelper;
 
 import android.app.ActivityGroup;
@@ -114,7 +113,7 @@ public class MainScreen extends ActivityGroup {
 		tabHost.addTab(subwayLinesListTab);
 		try {
 			// IF there is one or more favorites DO
-			if (Utils.getListSize(DataManager.findAllFavsList(this.getContentResolver())) > 0) {
+			if (Utils.getSharedPreferences(this, UserPreferences.PREFS_IS_FAV, UserPreferences.PREFS_IS_FAV_DEFAULT)) {
 				tabHost.setCurrentTab(0); // show favorite tab
 			} else {
 				tabHost.setCurrentTab(1); // show bus stop code search tab

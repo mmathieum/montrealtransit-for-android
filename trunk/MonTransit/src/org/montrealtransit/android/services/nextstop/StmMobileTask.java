@@ -19,7 +19,7 @@ import android.content.Context;
 import android.text.TextUtils;
 
 /**
- * This task retrieve next bus stop from the m.stm.info web site.
+ * This task retrieve next bus stop from the http://m.stm.info/ web site.
  * @author Mathieu Méa
  */
 public class StmMobileTask extends AbstractNextStopProvider {
@@ -57,13 +57,13 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	protected BusStopHours doInBackground(StmStore.BusStop... stopInfo) {
 		String stopCode = stopInfo[0].getCode();
 		String lineNumber = stopInfo[0].getLineNumber();
-		String URLString = getUrlString(stopCode);
+		String urlString = getUrlString(stopCode);
 		String errorMessage = this.context.getString(R.string.error); // set the default error message
 		try {
 			publishProgress(context.getString(R.string.downloading_data_from_and_source, StmMobileTask.SOURCE_NAME));
-			URL url = new URL(URLString);
+			URL url = new URL(urlString);
 			URLConnection urlc = url.openConnection();
-			MyLog.v(TAG, "URL created: '%s'", url.toString());
+			MyLog.d(TAG, "URL created: '%s'", url.toString());
 			HttpURLConnection httpUrlConnection = (HttpURLConnection) urlc;
 			switch (httpUrlConnection.getResponseCode()) {
 			case HttpURLConnection.HTTP_OK:

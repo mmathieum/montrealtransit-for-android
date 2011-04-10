@@ -84,7 +84,7 @@ public class FavListTab extends Activity {
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
-		setUpUI();
+		setUpUI(); //TODO in background task
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		super.onResume();
 	}
@@ -95,6 +95,11 @@ public class FavListTab extends Activity {
 	private void setUpUI() {
 		refreshBusStops();
 		refreshSubwayStations();
+		Utils.saveSharedPreferences(
+		        this,
+		        UserPreferences.PREFS_IS_FAV,
+		        Utils.getListSize(this.currentBusStopFavList) > 0
+		                || Utils.getListSize(this.currentSubwayStationFavList) > 0);
 	}
 
 	/**

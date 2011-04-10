@@ -230,7 +230,7 @@ public class BusStopHours {
 	/**
 	 * @param error the new error message
 	 */
-	private void setError(String error) {
+	public void setError(String error) {
 		this.error = error;
 	}
 }

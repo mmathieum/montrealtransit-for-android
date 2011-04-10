@@ -1,34 +1,30 @@
 package org.montrealtransit.android.services.nextstop;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
-
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.montrealtransit.android.AnalyticsUtils;
-import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.BusStopHours;
 import org.montrealtransit.android.provider.StmStore;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 /**
- * Next stop provider implementation for the http://www.stm.info web site.
+ * Next stop provider implementation for the http://www.stm.info/ web site.
  * @author Mathieu Méa
  */
 public class StmInfoTask extends AbstractNextStopProvider {
@@ -47,36 +43,12 @@ public class StmInfoTask extends AbstractNextStopProvider {
 	/**
 	 * The URL.
 	 */
-	private static final String URL_PART_1_BEFORE_BUS_STOP = "http://www2.stm.info/horaires/frmResult.aspx?Arret=";
-	private static final String URL_PART_2_BEFORE_LANG = "&Langue=";
+	private static final String URL_PART_1_BEFORE_LANG = "http://www2.stm.info/horaires/frmResult.aspx?Langue=";
+	private static final String URL_PART_2_BEFORE_BUS_STOP = "&Arret=";
 	/**
 	 * The log tag.
 	 */
 	private static final String TAG = StmInfoTask.class.getSimpleName();
-
-	/**
-	 * The HTML codes to remove.
-	 */
-	private static final CharSequence HTML_IMG_NIGHT = "<IMG alt=\"\" src=\"image/Nuit.gif\">";
-	private static final CharSequence HTML_IMG_METROBUS = "<IMG alt=\"\" src=\"image/Métrobus.gif\">";
-	private static final CharSequence HTML_IMG_TRAINBUS = "<IMG alt=\"\" src=\"image/Trainbus.gif\">";
-	private static final CharSequence HTML_IMG_EXPRESS = "<IMG alt=\"\" src=\"image/Express.gif\">";
-	private static final CharSequence HTML_IMG_HOT = "<IMG alt=\"\" src=\"image/hot.gif\">";
-	private static final CharSequence HTML_IMG_RESERVED = "<IMG alt=\"\" src=\"image/voieres.gif\">";
-	private static final CharSequence HTML_A = "<a";
-	private static final String HTML_A_REGEX = "<a.[^>]*>";
-	private static final CharSequence HTML_A_close = "</a>";
-
-	/**
-	 * Some HTML codes marks.
-	 */
-	private static final String TD_B_1 = "<td width=\"30\"><b>";
-	private static final String TD_B_2 = "</b></td>";
-	private static final String TABLE_WEB_GRILLE = "<table cellspacing=\"0\" border=\"0\" id=\"webGrille\" width=\"450\">";
-	private static final String TABLE_WEB_GRILLE_MES = "<table cellspacing=\"0\" border=\"0\" id=\"webGrilleMes\" width=\"450\">";
-	private static final String TABLE_WEB_GRILLE_NUIT = "<table cellspacing=\"0\" border=\"0\" id=\"webGrilleNuit\" width=\"450\">";
-	private static final String TABLE_WEB_GRILLE_NUIT_MES = "<table cellspacing=\"0\" border=\"0\" id=\"webGrilleNuitMes\" width=\"450\">";
-	private static final String DOCTYPE_TAG = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">";
 
 	/**
 	 * {@inheritDoc}
@@ -89,39 +61,25 @@ public class StmInfoTask extends AbstractNextStopProvider {
 		String errorMessage = this.context.getString(R.string.error); // set the default error message
 		try {
 			publishProgress(context.getString(R.string.downloading_data_from_and_source, StmInfoTask.SOURCE_NAME));
-			String URLString = URL_PART_1_BEFORE_BUS_STOP + stopCode;
-			if (Utils.getUserLanguage().equals("fr")) {
-				URLString += URL_PART_2_BEFORE_LANG + "Fr";
+			String urlString = URL_PART_1_BEFORE_LANG;
+			if (Utils.getSupportedUserLocale().equals(Locale.FRENCH.toString())) {
+				urlString += "Fr";
 			} else {
-				URLString += URL_PART_2_BEFORE_LANG + "En";
+				urlString += "En";
 			}
-			URL url = new URL(URLString + stopCode);
+			urlString += URL_PART_2_BEFORE_BUS_STOP + stopCode;
+			URL url = new URL(urlString);
 			URLConnection urlc = url.openConnection();
+			MyLog.d(TAG, "URL created: '%s'", url.toString());
 			HttpURLConnection httpUrlConnection = (HttpURLConnection) urlc;
 			switch (httpUrlConnection.getResponseCode()) {
 			case HttpURLConnection.HTTP_OK:
-				// download the the page.
-				Utils.getInputStreamToFile(urlc.getInputStream(),
-				        this.context.openFileOutput(Constant.FILE1, Context.MODE_WORLD_READABLE), "iso-8859-1");
+				String html = Utils.getInputStreamToString(urlc.getInputStream(), "iso-8859-1");
 				AnalyticsUtils.dispatch(context); // while we are connected, sent the analytics data
-				publishProgress(this.context.getString(R.string.processing_data));
-				// remove useless code from the page
-				cleanHtmlCodes(this.context.openFileInput(Constant.FILE1),
-				        this.context.openFileOutput(Constant.FILE2, Context.MODE_WORLD_READABLE), lineNumber);
-				// Get a SAX Parser from the SAX PArser Factory
-				SAXParserFactory spf = SAXParserFactory.newInstance();
-				SAXParser sp = spf.newSAXParser();
-				// Get the XML Reader of the SAX Parser we created
-				XMLReader xr = sp.getXMLReader();
-				// Create a new ContentHandler and apply it to the XML-Reader
-				StmInfoHandler busStopHandler = new StmInfoHandler(lineNumber);
-				xr.setContentHandler(busStopHandler);
-				MyLog.v(TAG, "Parsing data ...");
-				InputSource inputSource = new InputSource(this.context.openFileInput(Constant.FILE2));
-				xr.parse(inputSource);
-				MyLog.v(TAG, "Parsing data... DONE");
-				publishProgress(this.context.getString(R.string.done));
-				return busStopHandler.getHours();
+				publishProgress(this.context.getResources().getString(R.string.processing_data));
+				BusStopHours hours = getBusStopHoursFromString(html, lineNumber);
+				publishProgress(this.context.getResources().getString(R.string.done));
+				return hours;
 			case HttpURLConnection.HTTP_INTERNAL_ERROR:
 				errorMessage = this.context.getString(R.string.error_http_500_and_source,
 				        this.context.getString(R.string.select_next_stop_data_source));
@@ -146,108 +104,167 @@ public class StmInfoTask extends AbstractNextStopProvider {
 	}
 
 	/**
-	 * Clean the HTML code.
-	 * @param is the source file
-	 * @param os the result file
-	 * @param lineNumber the bus line number used to clean the code.
+	 * The pattern for the hours.
 	 */
-	public static void cleanHtmlCodes(FileInputStream is, FileOutputStream os, String lineNumber) {
-		MyLog.v(TAG, "cleanHtmlCodes(" + lineNumber + ")");
-		boolean isIn = false;
-		boolean isOK = false;
-		String mustInclude = StmInfoTask.TD_B_1 + lineNumber + StmInfoTask.TD_B_2;
-		String startString = StmInfoTask.TABLE_WEB_GRILLE;
-		String startString2 = StmInfoTask.TABLE_WEB_GRILLE_MES;
-		String startString3 = StmInfoTask.TABLE_WEB_GRILLE_NUIT;
-		String startString4 = StmInfoTask.TABLE_WEB_GRILLE_NUIT_MES;
-		String stopString = Constant.HTML_TABLE_END;
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is), 4096);
-		OutputStreamWriter writer = new OutputStreamWriter(os);
-		try {
-			writer.write(StmInfoTask.DOCTYPE_TAG);
-			writer.write(Constant.NEW_LINE);
-			writer.write(Constant.HTML_TAG);
-			String line = reader.readLine();
-			while (line != null) {
-				if (line.contains(startString)) {
-					isIn = true;
-				}
-				if (!isOK && line.contains(startString2)) {
-					isIn = true;
-				}
-				if (!isOK && line.contains(startString3)) {
-					isIn = true;
-				}
-				if (!isOK && line.contains(startString4)) {
-					isIn = true;
-				}
-				if (line.contains(stopString)) {
-					if (isIn) {
-						writer.write(stopString);
-						writer.write(Constant.NEW_LINE);
-					}
-					isIn = false;
-				}
-				if (isIn) {
-					writer.write(removeHref(line.trim()));
-					writer.write(Constant.NEW_LINE);
-				}
-				if (line.contains(mustInclude)) {
-					isOK = true;
-				}
-				line = reader.readLine();
+	private static final Pattern PATTERN_REGEX_FOR_HOURS = Pattern.compile("[0-9]{1,2}[h|:][0-9]{1,2}");
+
+	/**
+	 * Extract bus stops hours + messages from HTML code.
+	 * @param html the HTML code
+	 * @param lineNumber the line number
+	 */
+	private BusStopHours getBusStopHoursFromString(String html, String lineNumber) {
+		MyLog.v(TAG, "getBusStopHoursFromString(%s, %s)", html.length(), lineNumber);
+		BusStopHours result = new BusStopHours(SOURCE_NAME);
+		String interestingPart = getInterestingPart(html, lineNumber);
+		// MyLog.d(TAG, "interestingPart:" + interestingPart);
+		if (interestingPart != null) {
+			// find hours
+			Matcher matcher = PATTERN_REGEX_FOR_HOURS.matcher(interestingPart);
+			while (matcher.find()) {
+				// considering 00h00 the standard (instead of the 00:00 provided by m.stm.info in English)
+				String hour = matcher.group().replaceAll(":", "h");
+				// MyLog.d(TAG, "hour:" + hour);
+				result.addSHour(hour);
 			}
-			writer.write(Constant.HTML_TAG_END);
-		} catch (IOException ioe) {
-			MyLog.e(TAG, ioe, "Error while removing useless code.");
-		} finally {
-			try {
-				writer.flush();
-				writer.close();
-				is.close();
-			} catch (IOException ioe) {
-				MyLog.w(TAG, ioe, "Error while closing the file.");
+			// find main message
+			String message = findMessage(interestingPart);
+			if (!TextUtils.isEmpty(message)) {
+				result.addMessageString(message);
+			}
+			// find onClick message
+			Map<String, List<String>> onClickMessages = findOnClickMessages(interestingPart);
+			if (onClickMessages.size() > 0) {
+				if (onClickMessages.size() == 1
+				        && onClickMessages.values().iterator().next().size() == result.getSHours().size()) {
+					// only one message concerning all bus stops
+					result.addMessage2String(onClickMessages.keySet().iterator().next());
+				} else {
+					String msg = "";
+					for (String onClickMessage : onClickMessages.keySet()) {
+						List<String> hours = onClickMessages.get(onClickMessage);
+						if (hours != null & hours.size() > 0) {
+							String concernedBusStops = "";
+							for (String hour : hours) {
+								if (concernedBusStops.length() > 0) {
+									concernedBusStops += " ";
+								}
+								concernedBusStops += hour;
+							}
+							msg = context.getString(R.string.next_bus_stops_note, concernedBusStops, onClickMessage);
+						} else {
+							msg = onClickMessage;
+						}
+						if (result.getMessage().length() <= 0) {
+							result.addMessageString(msg);
+						} else {
+							result.addMessage2String(msg);
+						}
+					}
+				}
+			}
+		} else {
+			MyLog.w(TAG, "Can't find the next bus stops for line %s!", lineNumber);
+			// try to find error API
+			String errorAPIMsg = getErrorAPIMsg(html);
+			if (!TextUtils.isEmpty(errorAPIMsg)) {
+				result.setError(errorAPIMsg);
 			}
 		}
+		MyLog.d(TAG, "result:" + result.serialized());
+		return result;
 	}
 
 	/**
-	 * Remove HTML useless codes from the string
-	 * @param string the string
-	 * @return the cleaned string
+	 * The pattern used to extract API error message from HTML code.
 	 */
-	public static String removeHref(String string) {
-		// MyLog.v(TAG, "removeHref(" + string + ")");
-		if (string.contains(Constant.HTML_CODE_SPACE)) {
-			string = string.replace(Constant.HTML_CODE_SPACE, " ");
+	private static final Pattern PATTERN_REGEX_ERROR_API = Pattern
+	        .compile("<div id=\"panErreurApi\">[\\s]*<span id=\"lblErreurApi\"[^>]*>(<b[^>]*>)?(<font[^>]*>)?(([^<])*)(</font>)?(</b>)?</span>");
+
+	/**
+	 * Extract API error message from HTML code.
+	 * @param html the HTML code
+	 * @return the API error message or <b>NULL</b>
+	 */
+	private String getErrorAPIMsg(String html) {
+		MyLog.v(TAG, "getErrorAPIMsg(%s)", html.length());
+		String result = null;
+		Matcher matcher = PATTERN_REGEX_ERROR_API.matcher(html);
+		if (matcher.find()) {
+			result = matcher.group(3);
 		}
-		if (string.contains(StmInfoTask.HTML_IMG_NIGHT)) {
-			string = string.replace(StmInfoTask.HTML_IMG_NIGHT, " ");
+		return result;
+	}
+
+	/**
+	 * The pattern used to extract stops message.
+	 */
+	private static final Pattern PATTERN_REGEX_ONCLICK_MESSAGE = Pattern
+	        .compile("<a href\\=javascript\\:void\\(0\\) onclick=\"" + "AfficherMessage\\('(([^'])*)'\\)"
+	                + "\">(([^<])*)</a>"); // "AfficherMessage\\('(([^'])*)'\\)");
+
+	/**
+	 * Extract stops message from interesting part of HTML code.
+	 * @param interestingPart the interesting part of HTML code
+	 * @return a map of message and related stops
+	 */
+	private Map<String, List<String>> findOnClickMessages(String interestingPart) {
+		MyLog.v(TAG, "findOnClickMessage(%s)", interestingPart.length());
+		Map<String, List<String>> res = new HashMap<String, List<String>>();
+		Matcher matcher = PATTERN_REGEX_ONCLICK_MESSAGE.matcher(interestingPart);
+		String message;
+		String hour;
+		while (matcher.find()) {
+			message = matcher.group(1);
+			hour = Utils.formatHours(context, matcher.group(3).replaceAll(":", "h"));
+			if (!res.containsKey(message)) {
+				res.put(message, new ArrayList<String>());
+			}
+			res.get(message).add(hour);
 		}
-		if (string.contains(StmInfoTask.HTML_IMG_METROBUS)) {
-			string = string.replace(StmInfoTask.HTML_IMG_METROBUS, " ");
+		return res;
+	}
+
+	/**
+	 * The pattern used for stop global message.
+	 */
+	private static final Pattern PATTERN_REGEX_NOTE_MESSAGE = Pattern.compile("<tr>[\\s]*"
+	        + "<td[^>]*>(<IMG[^>]*>)?[^<]*</td>" + "<td[^>]*>(<b[^>]*>)?[^<]*" + "(</b>)?</td>"
+	        + "<td[^>]*>(<b[^>]*>)?[^<]*(</b>)?</td>" + "<td[^>]*>(([^<])*)</td>[\\s]*</tr>");
+
+	/**
+	 * Find the global bus stop in the interesting part of HTML code.
+	 * @param interestingPart the interesting part of HTML code
+	 * @return the message or <b>NULL</b>
+	 */
+	private String findMessage(String interestingPart) {
+		MyLog.v(TAG, "findMessage(%s)", interestingPart.length());
+		String result = null;
+		Matcher matcher = PATTERN_REGEX_NOTE_MESSAGE.matcher(interestingPart);
+		if (matcher.find()) {
+			result = matcher.group(6);
 		}
-		if (string.contains(StmInfoTask.HTML_IMG_TRAINBUS)) {
-			string = string.replace(StmInfoTask.HTML_IMG_TRAINBUS, " ");
+		return result;
+	}
+
+	/**
+	 * Find the interesting part of HTML code related to a specific bus line number.
+	 * @param html the HTML code
+	 * @param lineNumber the bus line number
+	 * @return the interesting part of HTML code
+	 */
+	private String getInterestingPart(String html, String lineNumber) {
+		MyLog.v(TAG, "getInterestingPart(%s, %s)", html.length(), lineNumber);
+		String result = null;
+		String regex = "<tr>[\\s]*" + "<td[^>]*>(<IMG[^>]*>)?[^<]*</td>" + "<td[^>]*>(<b[^>]*>)?" + lineNumber
+		        + "(</b>)?</td>" + "<td[^>]*>(<b[^>]*>)?[^<]*(</b>)?</td>" + "("
+		        + "<td[^>]*>[<a[^>]*>]?[^<]*[</a>]?[^<]*</td>" + "){0,6}[\\s]*</tr>";
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(html);
+		if (matcher.find()) {
+			result = matcher.group();
 		}
-		if (string.contains(StmInfoTask.HTML_IMG_EXPRESS)) {
-			string = string.replace(StmInfoTask.HTML_IMG_EXPRESS, " ");
-		}
-		if (string.contains(StmInfoTask.HTML_IMG_RESERVED)) {
-			string = string.replace(StmInfoTask.HTML_IMG_RESERVED, " ");
-		}
-		if (string.contains(StmInfoTask.HTML_IMG_HOT)) {
-			string = string.replace(StmInfoTask.HTML_IMG_HOT, " ");
-		}
-		if (string.contains(StmInfoTask.HTML_A)) {
-			string = string.replaceAll(StmInfoTask.HTML_A_REGEX, "");
-			// TODO use the extra information about the bus line stop ?
-		}
-		if (string.contains(StmInfoTask.HTML_A_close)) {
-			string = string.replace(StmInfoTask.HTML_A_close, "");
-			// TODO use the extra information about the bus line stop ?
-		}
-		return string;
+		return result;
 	}
 
 	/**
