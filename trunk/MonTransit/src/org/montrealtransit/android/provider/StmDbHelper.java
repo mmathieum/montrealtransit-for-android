@@ -36,6 +36,14 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	 */
 	private static final int DB_VERSION = 3;
 
+	/**
+	 * The list of SQL dump files.
+	 */
+	private static final int[] DUMP_FILES = new int[] { R.raw.stm_db_arrets_autobus, R.raw.stm_db_directions_autobus,
+	        R.raw.stm_db_directions_metro, R.raw.stm_db_frequences_metro, R.raw.stm_db_horaire_metro,
+	        R.raw.stm_db_lignes_autobus, R.raw.stm_db_lignes_metro, R.raw.stm_db_stations_lignes,
+	        R.raw.stm_db_stations_metro };
+
 	// BUS LINE
 	public static final String T_BUS_LINES = "lignes_autobus";
 	public static final String T_BUS_LINES_K_NUMBER = BaseColumns._ID;
@@ -208,8 +216,9 @@ public class StmDbHelper extends SQLiteOpenHelper {
 		// count the number of line of the SQL dump files
 		int nbLine = 0;
 		try {
-			nbLine = Utils.countNumberOfLine(context.getResources().openRawResource(R.raw.stm_db_sql_dump_p1));
-			nbLine += Utils.countNumberOfLine(context.getResources().openRawResource(R.raw.stm_db_sql_dump_p2));
+			for (int fileId : DUMP_FILES) {
+				nbLine += Utils.countNumberOfLine(context.getResources().openRawResource(fileId));
+			}
 			if (task != null) {
 				task.initProgressBar(nbLine);
 			}
@@ -221,26 +230,21 @@ public class StmDbHelper extends SQLiteOpenHelper {
 		try {
 			// open the database RW
 			dataBase = this.getWritableDatabase();
+			// global settings
+			dataBase.execSQL("PRAGMA foreign_keys=OFF;");
+			dataBase.execSQL("PRAGMA synchronous=OFF;");
+			dataBase.execSQL("PRAGMA auto_vacuum=NONE;");
 			// starting the transaction
 			dataBase.beginTransaction();
 			int lineNumber = 0;
 			String line;
-			// file 1
-			br = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(R.raw.stm_db_sql_dump_p1),
-			        "UTF8"));
-			while ((line = br.readLine()) != null) {
-				dataBase.execSQL(line);
-				if (nbLine > 0 && task != null) {
-					task.incrementProgressBar(++lineNumber);
-				}
-			}
-			// file 2
-			br = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(R.raw.stm_db_sql_dump_p2),
-			        "UTF8"));
-			while ((line = br.readLine()) != null) {
-				dataBase.execSQL(line);
-				if (nbLine > 0 && task != null) {
-					task.incrementProgressBar(++lineNumber);
+			for (int fileId : DUMP_FILES) {
+				br = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(fileId), "UTF8"));
+				while ((line = br.readLine()) != null) {
+					dataBase.execSQL(line);
+					if (nbLine > 0 && task != null) {
+						task.incrementProgressBar(++lineNumber);
+					}
 				}
 			}
 			// mark the transaction as successful
