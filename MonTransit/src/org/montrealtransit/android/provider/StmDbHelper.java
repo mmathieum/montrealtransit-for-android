@@ -34,15 +34,15 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	/**
 	 * The database version use to manage database changes.
 	 */
-	private static final int DB_VERSION = 3;
+	private static final int DB_VERSION = 4;
 
 	/**
 	 * The list of SQL dump files.
 	 */
-	private static final int[] DUMP_FILES = new int[] { R.raw.stm_db_arrets_autobus, R.raw.stm_db_directions_autobus,
-	        R.raw.stm_db_directions_metro, R.raw.stm_db_frequences_metro, R.raw.stm_db_horaire_metro,
-	        R.raw.stm_db_lignes_autobus, R.raw.stm_db_lignes_metro, R.raw.stm_db_stations_lignes,
-	        R.raw.stm_db_stations_metro };
+	private static final int[] DUMP_FILES = new int[] { R.raw.stm_db_arrets_autobus_p1, R.raw.stm_db_arrets_autobus_p2,
+	        R.raw.stm_db_directions_autobus, R.raw.stm_db_directions_metro, R.raw.stm_db_frequences_metro,
+	        R.raw.stm_db_horaire_metro, R.raw.stm_db_lignes_autobus, R.raw.stm_db_lignes_metro,
+	        R.raw.stm_db_stations_lignes, R.raw.stm_db_stations_metro };
 
 	// BUS LINE
 	public static final String T_BUS_LINES = "lignes_autobus";
@@ -120,6 +120,8 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	public static final String T_SUBWAY_STATIONS_K_STATION_LAT = "lat";
 	public static final String T_SUBWAY_STATIONS_K_STATION_LNG = "lng";
 
+	private boolean upgrade = false;
+
 	/**
 	 * The default constructor.
 	 * @param context the context
@@ -146,7 +148,28 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		MyLog.v(TAG, "onUpgrade(%s, %s)", oldVersion, newVersion);
-		// DO NOTHING
+		this.upgrade = (oldVersion != newVersion);
+		MyLog.d(TAG, "upgrade:" + upgrade);
+		// // upgrade
+		// if (oldVersion < newVersion) {
+		// MyLog.d(TAG, "UPGRADING FROM '%s' to '%s' ...", oldVersion, DB_VERSION);
+		// // close the database
+		// close();
+		// // remove the existing database
+		// if (context.deleteDatabase(DB_NAME)) {
+		// // copy the new one
+		// createDbIfNecessary();
+		// Utils.notifyTheUser(context, context.getString(R.string.update_stm_db_ok));
+		// } else {
+		// MyLog.w(TAG, "Can't delete the current database.");
+		// // notify the user that he need to remove and re-install the application
+		// Utils.notifyTheUserLong(context, context.getString(R.string.update_stm_db_error));
+		// Utils.notifyTheUserLong(context, context.getString(R.string.update_stm_db_error_next));
+		// }
+		// } else {
+		// MyLog.w(TAG, "Trying to upgrade the db from version '%s' to version '%s'.", oldVersion,
+		// newVersion);
+		// }
 	}
 
 	/**
@@ -154,11 +177,11 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	 * @param context the context used to create the database
 	 * @param task the initialization task or <b>NULL</b>
 	 */
-	private void createDbIfNecessary(Context context, InitializationTask task) {
+	public void createDbIfNecessary(Context context, InitializationTask task) {
 		MyLog.v(TAG, "createDbIfNecessary()");
 		// IF DB doesn't exist DO
 		if (!isDbExist(context)) {
-			MyLog.d(TAG, "DB NOT EXIST");
+			MyLog.d(TAG, "DB DOES NOT EXIST");
 			try {
 				MyLog.i(TAG, "Initialization of the STM database...");
 				initDataBase(context, task);
@@ -166,44 +189,71 @@ public class StmDbHelper extends SQLiteOpenHelper {
 			} catch (IOException ioe) {
 				MyLog.e(TAG, ioe, "Error while initializating of the STM database!");
 			}
-		} else {
-			MyLog.d(TAG, "DB EXIST");
-			// check version
-			int currentVersion = this.getReadableDatabase().getVersion();
-			if (currentVersion != DB_VERSION) {
-				MyLog.d(TAG, "VERSION DIFF");
-				// upgrade
-				if (currentVersion < DB_VERSION) {
-					MyLog.d(TAG, "UPGRADING FROM '%s' to '%s' ...", currentVersion, DB_VERSION);
-					// close the database
-					close();
-					// remove the existing database
-					if (context.deleteDatabase(DB_NAME)) {
-						// copy the new one
-						createDbIfNecessary(context, task);
-						Utils.notifyTheUser(context, context.getString(R.string.update_stm_db_ok));
-					} else {
-						MyLog.w(TAG, "Can't delete the current database.");
-						// notify the user that he need to remove and re-install the application
-						Utils.notifyTheUserLong(context, context.getString(R.string.update_stm_db_error));
-						Utils.notifyTheUserLong(context, context.getString(R.string.update_stm_db_error_next));
-					}
-				} else {
-					MyLog.w(TAG, "Trying to upgrade the db from version '%s' to version '%s'.", currentVersion,
-					        DB_VERSION);
-				}
-			}
+			// } else {
+			// MyLog.d(TAG, "DB EXIST");
+			// // check version
+			// // int currentVersion = this.getReadableDatabase().getVersion();
+			// // always true!if (currentVersion != DB_VERSION) {
+			// if (this.upgrade) {
+			// // MyLog.d(TAG, "VERSION DIFF");
+			// // upgrade
+			// // if (currentVersion < DB_VERSION) {
+			// MyLog.d(TAG, "UPGRADING ...");
+			// // close the database
+			// // this.close();
+			// MyLog.d(TAG, "DATABASE CLOSED.");
+			// // remove the existing database
+			// if (context.deleteDatabase(DB_NAME)) {
+			// MyLog.d(TAG, "DATABASE DELETED.");
+			// // copy the new one
+			// createDbIfNecessary(context, task);
+			// Utils.notifyTheUser(context, context.getString(R.string.update_stm_db_ok));
+			// } else {
+			// MyLog.w(TAG, "Can't delete the current database.");
+			// // notify the user that he need to remove and re-install the application
+			// Utils.notifyTheUserLong(context, context.getString(R.string.update_stm_db_error));
+			// Utils.notifyTheUserLong(context, context.getString(R.string.update_stm_db_error_next));
+			// }
+			// // } else {
+			// // MyLog.w(TAG, "Trying to upgrade the db from version '%s' to version '%s'.", currentVersion,
+			// // DB_VERSION);
+			// // }
+			// }
 		}
 	}
 
 	/**
-	 * Check if the database already exist to avoid re-copying the file each time you open the application.
+	 * Force the database reset (delete DB + {@link StmDbHelper#createDbIfNecessary(Context, InitializationTask)}.
 	 * @param context the context
-	 * @return true if it exists, false if it doesn't
+	 * @param task the initialization task (or NULL)
+	 */
+	public void forceReset(Context context, InitializationTask task) {
+		if (context.deleteDatabase(DB_NAME)) {
+			MyLog.d(TAG, "DATABASE DELETED.");
+			// copy the new one
+			createDbIfNecessary(context, task);
+			// Utils.notifyTheUser(context, context.getString(R.string.update_stm_db_ok));
+		} else {
+			MyLog.w(TAG, "Can't delete the current database.");
+			// notify the user that he need to remove and re-install the application
+			// Utils.notifyTheUserLong(context, context.getString(R.string.update_stm_db_error));
+			// Utils.notifyTheUserLong(context, context.getString(R.string.update_stm_db_error_next));
+		}
+	}
+
+	/**
+	 * Check if the database already exist.
+	 * @param context the context
+	 * @return true if the DB exists, false if it doesn't
 	 */
 	public static boolean isDbExist(Context context) {
-		MyLog.v(TAG, "isDbExist()");
 		return Arrays.asList(context.databaseList()).contains(DB_NAME);
+	}
+
+	public Boolean isUpdateAvailable() {
+		MyLog.v(TAG, "isUpdateAvailable()");
+		MyLog.d(TAG, "upgrade:" + upgrade);
+		return upgrade;
 	}
 
 	/**
@@ -276,7 +326,11 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	 */
 	@Override
 	public synchronized void close() {
-		this.close();
-		super.close();
+		try {
+			// this.close();
+			super.close();
+		} catch (Exception e) {
+			MyLog.w(TAG, "Error while closing the databases!", e);
+		}
 	}
 }

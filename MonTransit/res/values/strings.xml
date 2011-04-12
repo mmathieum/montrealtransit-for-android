@@ -167,6 +167,8 @@
 	<string name="am_route_peak_period_and_off_peaks_periods">Route for the morning peak and off-peak periods</string>
 	<string name="to_the_old_montreal">To the Old Montreal</string>
 	<string name="to_the_old_port_of_montreal">To the Old Port of Montreal</string>
+	<string name="place_du_commerce">Place du Commerce</string>
+	<string name="perras_via_gouin_ozias_leduc">Perras via Gouin / Ozias-Leduc</string>
     
     <string name="bus_type_soleil">Regular Service</string>
 	<string name="bus_type_hot">Rush-Hour Service</string>
@@ -298,6 +300,8 @@
 
     <string name="init_dialog_title">Initialization</string>
     <string name="init_dialog_message">Please wait a couple of minutes while initializing MonTransit...</string>
+    <string name="update_dialog_title">Update</string>
+    <string name="update_dialog_message">Please wait a couple of minutes while updating MonTransit...</string>
 
     <string name="donate_to_remove_ads">Please donate to disable ads.</string>
 </resources>
