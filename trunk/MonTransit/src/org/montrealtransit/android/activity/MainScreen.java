@@ -70,14 +70,31 @@ public class MainScreen extends ActivityGroup {
 			this.progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 			this.progressDialog.setCancelable(false);
 			this.progressDialog.setIndeterminate(true);
-			// this.progressDialog.setTitle(getString(R.string.init_dialog_title));
+			this.progressDialog.setTitle(R.string.init_dialog_title);
 			this.progressDialog.setMessage(getString(R.string.init_dialog_message));
 			this.progressDialog.show();
 			// initialize the database
-			new InitializationTask().execute();
+			new InitializationTask().execute(false);
 		} else {
-			// just finish the onCreate
-			onCreateFinish();
+			StmDbHelper tmp = new StmDbHelper(this, null);
+			tmp.getReadableDatabase();
+			boolean updateAvailable = tmp.isUpdateAvailable();
+			tmp.close();
+			if (updateAvailable) {
+				// show a progress dialog
+				this.progressDialog = new ProgressDialog(this);
+				this.progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+				this.progressDialog.setCancelable(false);
+				this.progressDialog.setIndeterminate(true);
+				this.progressDialog.setTitle(R.string.update_dialog_title);
+				this.progressDialog.setMessage(getString(R.string.update_dialog_message));
+				this.progressDialog.show();
+				// initialize the database
+				new InitializationTask().execute(true);
+			} else {
+				// just finish the onCreate
+				onCreateFinish();
+			}
 		}
 	}
 
@@ -153,7 +170,7 @@ public class MainScreen extends ActivityGroup {
 	 * This task initialize the application.
 	 * @author Mathieu Méa
 	 */
-	public class InitializationTask extends AsyncTask<String, String, String> {
+	public class InitializationTask extends AsyncTask<Boolean, String, String> {
 
 		/**
 		 * The log tag.
@@ -164,9 +181,14 @@ public class MainScreen extends ActivityGroup {
 		 * {@inheritDoc}
 		 */
 		@Override
-		protected String doInBackground(String... arg0) {
+		protected String doInBackground(Boolean... arg0) {
 			MyLog.v(TAG, "doInBackground()");
-			new StmDbHelper(MainScreen.this, this);
+			StmDbHelper db = new StmDbHelper(MainScreen.this, this);
+			if (arg0[0]) {
+				db.forceReset(MainScreen.this, this);
+				// clean old favorites
+				Utils.cleanFavorites(getContentResolver());
+			}
 			return null;
 		}
 

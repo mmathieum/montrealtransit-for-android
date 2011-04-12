@@ -66,6 +66,11 @@ public class BusUtils {
 					results.add(R.string.evening_route);
 				}
 				break;
+			case 21:
+				if (directionId.equals("21AMS")) {
+					results.add(R.string.place_du_commerce);
+				}
+				break;
 			case 33:
 				if (extraDirectionInfo.equals("SO")) {
 					results.add(R.string.evening_route);
@@ -76,6 +81,11 @@ public class BusUtils {
 			case 46:
 				if (extraDirectionInfo.equals("AC")) {
 					results.add(R.string.route_by_way_of_fairmount);
+				}
+				break;
+			case 48:
+				if (extraDirectionInfo.equals("GC")) {
+					results.add(R.string.perras_via_gouin_ozias_leduc);
 				}
 				break;
 			case 52:

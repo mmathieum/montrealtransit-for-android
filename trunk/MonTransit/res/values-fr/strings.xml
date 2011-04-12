@@ -167,6 +167,8 @@
 	<string name="am_route_peak_period_and_off_peaks_periods">Trajet à l\'heure de pointe du matin et hors-pointe</string>
 	<string name="to_the_old_montreal">Vers le Vieux-Montréal</string>
 	<string name="to_the_old_port_of_montreal">Vers le Vieux-Port de Montéal</string>
+	<string name="place_du_commerce">Place du Commerce</string>
+	<string name="perras_via_gouin_ozias_leduc">Perras via Gouin / Ozias-Leduc</string>
 	
 	<string name="bus_type_soleil">Service régulier de jour</string>
 	<string name="bus_type_hot">Service en période de pointe</string>
@@ -298,6 +300,8 @@
 
     <string name="init_dialog_title">Initialisation</string>
     <string name="init_dialog_message">Veuillez patienter quelques minutes pendant l\'initialisation de MonTransit ...</string>
+    <string name="update_dialog_title">Mise à jour</string>
+    <string name="update_dialog_message">Veuillez patienter quelques minutes pendant la mise à jour de MonTransit ...</string>
 
     <string name="donate_to_remove_ads">Veuillez faire un don pour désactiver les pubs.</string>
 </resources>
