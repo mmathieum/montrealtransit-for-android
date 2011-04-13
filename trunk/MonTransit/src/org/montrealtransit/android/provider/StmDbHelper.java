@@ -48,7 +48,6 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	public static final String T_BUS_LINES = "lignes_autobus";
 	public static final String T_BUS_LINES_K_NUMBER = BaseColumns._ID;
 	public static final String T_BUS_LINES_K_NAME = "name";
-	public static final String T_BUS_LINES_K_HOURS = "schedule";
 	public static final String T_BUS_LINES_K_TYPE = "type";
 
 	public static final String BUS_LINE_TYPE_REGULAR_SERVICE = "J";

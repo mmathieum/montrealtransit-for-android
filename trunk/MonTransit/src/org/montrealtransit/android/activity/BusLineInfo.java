@@ -82,10 +82,6 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 */
 	private ImageView lineTypeImg;
 	/**
-	 * The line hours text view.
-	 */
-	private TextView lineHoursTv;
-	/**
 	 * The line stops title text view.
 	 */
 	private TextView lineStopsTv;
@@ -104,7 +100,6 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		this.lineNumberTv = (TextView) findViewById(R.id.line_number);
 		this.lineNameTv = (TextView) findViewById(R.id.line_name);
 		this.lineTypeImg = (ImageView) findViewById(R.id.bus_type);
-		this.lineHoursTv = (TextView) findViewById(R.id.hours);
 		this.lineStopsTv = (TextView) findViewById(R.id.bus_line_stop_string);
 
 		this.list.setEmptyView(findViewById(R.id.list_empty));
@@ -171,8 +166,6 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		this.lineNameTv.setText(this.busLine.getName());
 		// bus line type
 		this.lineTypeImg.setImageResource(BusUtils.getBusLineTypeImgFromType(this.busLine.getType()));
-		// bus line hours
-		this.lineHoursTv.setText(Utils.getFormatted2Hours(this, this.busLine.getHours(), "-"));
 
 		// bus line direction
 		this.lineStopsTv.setOnClickListener(new View.OnClickListener() {
@@ -189,6 +182,9 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		this.lineStopsTv.setText(getString(R.string.bus_stops_short_and_direction, direction));
 	}
 
+	/**
+	 * Show the bus line dialog to select direction.
+	 */
 	public void showSelectDirectionDialog(View v) {
 		new BusLineSelectDirection(this, this.busLine.getNumber(), this).showDialog();
 	}
