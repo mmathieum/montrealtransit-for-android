@@ -286,8 +286,8 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 		MyLog.v(TAG, "getAdapterNoGroupBy()");
 		this.cursor = StmManager.findAllBusLines(this.getContentResolver());
 		String[] from = new String[] { StmStore.BusLine.LINE_NUMBER, StmStore.BusLine.LINE_NAME,
-		        StmStore.BusLine.LINE_HOURS, StmStore.BusLine.LINE_TYPE };
-		int[] to = new int[] { R.id.line_number, R.id.line_name, R.id.hours, R.id.line_type };
+		        StmStore.BusLine.LINE_TYPE };
+		int[] to = new int[] { R.id.line_number, R.id.line_name, R.id.line_type };
 		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.bus_line_list_item, this.cursor, from, to);
 		adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
 			@Override
@@ -296,10 +296,6 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 				case R.id.line_type:
 					String type = cursor.getString(cursor.getColumnIndex(StmStore.BusLine.LINE_TYPE));
 					((ImageView) view).setImageResource(BusUtils.getBusLineTypeImgFromType(type));
-					return true;
-				case R.id.hours:
-					String shours = cursor.getString(cursor.getColumnIndex(StmStore.BusLine.LINE_HOURS));
-					((TextView) view).setText(Utils.getFormatted2Hours(BusLineListTab.this, shours, "-"));
 					return true;
 				case R.id.line_number:
 					String number = cursor.getString(cursor.getColumnIndex(StmStore.BusLine.LINE_NUMBER));
@@ -356,15 +352,14 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 				curChildMap.put(StmStore.BusLine.LINE_NUMBER, busLine.getNumber());
 				curChildMap.put(StmStore.BusLine.LINE_NAME, busLine.getName());
 				curChildMap.put(StmStore.BusLine.LINE_TYPE, busLine.getType());
-				curChildMap.put(StmStore.BusLine.LINE_HOURS, busLine.getHours());
 				currrentChildren.add(curChildMap);
 			}
 
 			String[] fromGroup = new String[] { "lines" };
 			int[] toGroup = new int[] { android.R.id.text1 };
 			String[] fromChild = new String[] { StmStore.BusLine.LINE_NUMBER, StmStore.BusLine.LINE_NAME,
-			        StmStore.BusLine.LINE_HOURS, StmStore.BusLine.LINE_TYPE };
-			int[] toChild = new int[] { R.id.line_number, R.id.line_name, R.id.hours, R.id.line_type };
+			        StmStore.BusLine.LINE_TYPE };
+			int[] toChild = new int[] { R.id.line_number, R.id.line_name, R.id.line_type };
 			adapterByNumber = new MySimpleExpandableListAdapter(this, groupData,
 			        android.R.layout.simple_expandable_list_item_1, fromGroup, toGroup, this.currentChildDataByNumber,
 			        R.layout.bus_line_list_item, fromChild, toChild);
@@ -429,15 +424,14 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 				curChildMap.put(StmStore.BusLine.LINE_NUMBER, busLine.getNumber());
 				curChildMap.put(StmStore.BusLine.LINE_NAME, busLine.getName());
 				curChildMap.put(StmStore.BusLine.LINE_TYPE, busLine.getType());
-				curChildMap.put(StmStore.BusLine.LINE_HOURS, busLine.getHours());
 				this.currentChildDataByType.get(childrenId.get(busLine.getType())).add(curChildMap);
 			}
 
 			String[] fromGroup = new String[] { BUS_TYPE, BUS_TYPE };
 			int[] toGroup = new int[] { R.id.bus_type_string, R.id.bus_type_img };
 			String[] fromChild = new String[] { StmStore.BusLine.LINE_NUMBER, StmStore.BusLine.LINE_NAME,
-			        StmStore.BusLine.LINE_HOURS, StmStore.BusLine.LINE_TYPE };
-			int[] toChild = new int[] { R.id.line_number, R.id.line_name, R.id.hours, R.id.line_type };
+			        StmStore.BusLine.LINE_TYPE };
+			int[] toChild = new int[] { R.id.line_number, R.id.line_name, R.id.line_type };
 
 			this.adapterByType = new MySimpleExpandableListAdapterType(this, this.currentGroupDataByType,
 			        R.layout.bus_line_list_group_item_type, fromGroup, toGroup, this.currentChildDataByType,
@@ -614,8 +608,6 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 			int color = BusUtils.getBusLineTypeBgColorFromType(data.get(StmStore.BusLine.LINE_TYPE));
 			((TextView) view.findViewById(R.id.line_number)).setBackgroundColor(color);
 			((TextView) view.findViewById(R.id.line_name)).setText(data.get(StmStore.BusLine.LINE_NAME));
-			String hours = Utils.getFormatted2Hours(BusLineListTab.this, data.get(StmStore.BusLine.LINE_HOURS), "-");
-			((TextView) view.findViewById(R.id.hours)).setText(hours);
 			int busImg = BusUtils.getBusLineTypeImgFromType(data.get(StmStore.BusLine.LINE_TYPE));
 			((ImageView) view.findViewById(R.id.line_type)).setImageResource(busImg);
 		}

@@ -43,7 +43,7 @@ public class StmStore {
 	 */
 	public static final String FREQUENCY = "frequency";
 	/**
-	 * An hour column name. 
+	 * An hour column name.
 	 */
 	public static final String HOUR = "hour";
 	/**
@@ -62,8 +62,7 @@ public class StmStore {
 	/**
 	 * The subway directions URI.
 	 */
-	public static final Uri SUBWAY_DIRECTION_URI = Uri.parse("content://" + AUTHORITY + "/"
-	        + SUBWAY_DIRECTIONS_URI);
+	public static final Uri SUBWAY_DIRECTION_URI = Uri.parse("content://" + AUTHORITY + "/" + SUBWAY_DIRECTIONS_URI);
 
 	/**
 	 * Represent a bus line.
@@ -108,10 +107,6 @@ public class StmStore {
 		 */
 		private String name;
 		/**
-		 * The bus lines hours.
-		 */
-		private String hours;
-		/**
 		 * The bus line type.
 		 */
 		private String type;
@@ -124,7 +119,6 @@ public class StmStore {
 			final BusLine busLine = new BusLine();
 			busLine.number = c.getString(c.getColumnIndexOrThrow(BusLinesColumns.LINE_NUMBER));
 			busLine.name = c.getString(c.getColumnIndexOrThrow(BusLinesColumns.LINE_NAME));
-			busLine.hours = c.getString(c.getColumnIndexOrThrow(BusLinesColumns.LINE_HOURS));
 			busLine.type = c.getString(c.getColumnIndexOrThrow(BusLinesColumns.LINE_TYPE));
 			return busLine;
 		}
@@ -155,20 +149,6 @@ public class StmStore {
 		 */
 		public String getName() {
 			return name;
-		}
-
-		/**
-		 * @param hours the new hours
-		 */
-		public void setHours(String hours) {
-			this.hours = hours;
-		}
-
-		/**
-		 * @return the line hours
-		 */
-		public String getHours() {
-			return hours;
 		}
 
 		/**
@@ -227,7 +207,6 @@ public class StmStore {
 	public interface BusLinesColumns {
 		public static final String LINE_NUMBER = StmDbHelper.T_BUS_LINES_K_NUMBER;
 		public static final String LINE_NAME = StmDbHelper.T_BUS_LINES_K_NAME;
-		public static final String LINE_HOURS = StmDbHelper.T_BUS_LINES_K_HOURS;
 		public static final String LINE_TYPE = StmDbHelper.T_BUS_LINES_K_TYPE;
 	}
 
@@ -385,10 +364,6 @@ public class StmStore {
 		 */
 		private String lineName;
 		/**
-		 * The bus line hours.
-		 */
-		private String lineHours;
-		/**
 		 * The bus line type.
 		 */
 		private String lineType;
@@ -410,9 +385,6 @@ public class StmStore {
 			if (c.getColumnIndex(BusLinesColumns.LINE_NAME) != -1) {
 				busStop.lineName = c.getString(c.getColumnIndexOrThrow(BusLinesColumns.LINE_NAME));
 			}
-			if (c.getColumnIndex(BusLinesColumns.LINE_HOURS) != -1) {
-				busStop.lineHours = c.getString(c.getColumnIndexOrThrow(BusLinesColumns.LINE_HOURS));
-			}
 			if (c.getColumnIndex(BusLinesColumns.LINE_TYPE) != -1) {
 				busStop.lineType = c.getString(c.getColumnIndexOrThrow(BusLinesColumns.LINE_TYPE));
 			}
@@ -424,13 +396,6 @@ public class StmStore {
 		 */
 		public String getLineNameOrNull() {
 			return lineName;
-		}
-
-		/**
-		 * @return the bus stop line hours or <b>NULL</b>
-		 */
-		public String getLineHoursOrNull() {
-			return lineHours;
 		}
 
 		/**
@@ -551,7 +516,8 @@ public class StmStore {
 		/**
 		 * The default sort order.
 		 */
-		public static final String DEFAULT_SORT_ORDER = StmDbHelper.T_SUBWAY_LINES + "." +  StmDbHelper.T_SUBWAY_LINES_K_NUMBER + " ASC";
+		public static final String DEFAULT_SORT_ORDER = StmDbHelper.T_SUBWAY_LINES + "."
+		        + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + " ASC";
 
 		/**
 		 * The subway line number.
@@ -680,48 +646,56 @@ public class StmStore {
 		public String getName() {
 			return name;
 		}
+
 		/**
 		 * @param name the new subway station name
 		 */
 		public void setName(String name) {
-	        this.name = name;
-        }
+			this.name = name;
+		}
+
 		/**
 		 * @return the subway station ID
 		 */
 		public String getId() {
 			return id;
 		}
+
 		/**
 		 * @param id the new subway station ID
 		 */
 		public void setId(String id) {
-	        this.id = id;
-        }
+			this.id = id;
+		}
+
 		/**
 		 * @return the subway station GPS latitude
 		 */
 		public double getLat() {
 			return lat;
 		}
+
 		/**
 		 * @param lat the new subway station GPS latitude
 		 */
 		public void setLat(double lat) {
-	        this.lat = lat;
-        }
+			this.lat = lat;
+		}
+
 		/**
 		 * @return the subway station GPS longitude
 		 */
 		public double getLng() {
 			return lng;
 		}
+
 		/**
 		 * @param lng the new subway station GPS longitude
 		 */
 		public void setLng(double lng) {
-	        this.lng = lng;
-        }
+			this.lng = lng;
+		}
+
 		/**
 		 * A sub directory of a single subway station that contains all of their bus lines.
 		 * @author Mathieu Méa

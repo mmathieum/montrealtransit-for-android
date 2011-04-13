@@ -47,7 +47,7 @@ public class StmManager {
 	private static final String[] PROJECTION_BUS_STOP_EXTENDED = new String[] { StmStore.BusStop._ID,
 	        StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE, StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID,
 	        StmStore.BusStop.STOP_LINE_NUMBER, StmStore.BusStop.LINE_NAME, StmStore.BusStop.LINE_TYPE,
-	        StmStore.BusStop.LINE_HOURS, StmStore.BusStop.STOP_SUBWAY_STATION_ID };
+	        StmStore.BusStop.STOP_SUBWAY_STATION_ID };
 
 	/**
 	 * Represents the fields the content provider will return for an extended bus stop (including subway station name).
@@ -80,8 +80,7 @@ public class StmManager {
 	 * Represents the fields the content provider will return for a bus line.
 	 */
 	private static final String[] PROJECTION_BUS_LINE = new String[] { StmStore.BusLine._ID,
-	        StmStore.BusLine.LINE_NUMBER, StmStore.BusLine.LINE_NAME, StmStore.BusLine.LINE_HOURS,
-	        StmStore.BusLine.LINE_TYPE };
+	        StmStore.BusLine.LINE_NUMBER, StmStore.BusLine.LINE_NAME, StmStore.BusLine.LINE_TYPE };
 
 	/**
 	 * Find a subway station from it URI.
@@ -910,7 +909,8 @@ public class StmManager {
 			Uri busLineDirectionUri = Uri.withAppendedPath(busLineDirectionsUri, directionId);
 			Uri busStopsUri = Uri.withAppendedPath(busLineDirectionUri,
 			        StmStore.BusLine.BusLineDirections.BusStops.CONTENT_DIRECTORY);
-			Uri searchUri = Uri.withAppendedPath(Uri.withAppendedPath(busStopsUri, StmStore.SEARCH_URI), Uri.encode(search));
+			Uri searchUri = Uri.withAppendedPath(Uri.withAppendedPath(busStopsUri, StmStore.SEARCH_URI),
+			        Uri.encode(search));
 			// MyLog.v(TAG, "URI: " + searchUri.getPath());
 			return contentResolver.query(searchUri, PROJECTION_BUS_STOP_AND_SUBWAY_STATION, null, null, null);
 		} else {

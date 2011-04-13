@@ -229,8 +229,6 @@ public class StmProvider extends ContentProvider {
 		        + StmStore.BusLine.LINE_NUMBER);
 		map.put(StmStore.BusLine.LINE_NAME, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NAME + " AS "
 		        + StmStore.BusLine.LINE_NAME);
-		map.put(StmStore.BusLine.LINE_HOURS, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_HOURS + " AS "
-		        + StmStore.BusLine.LINE_HOURS);
 		map.put(StmStore.BusLine.LINE_TYPE, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_TYPE + " AS "
 		        + StmStore.BusLine.LINE_TYPE);
 		sBusLinesProjectionMap = map;
@@ -297,8 +295,6 @@ public class StmProvider extends ContentProvider {
 		        + StmStore.BusStop.LINE_NAME);
 		map.put(StmStore.BusStop.LINE_TYPE, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_TYPE + " AS "
 		        + StmStore.BusStop.LINE_TYPE);
-		map.put(StmStore.BusStop.LINE_HOURS, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_HOURS + " AS "
-		        + StmStore.BusStop.LINE_HOURS);
 		map.put(StmStore.BusStop.STOP_SUBWAY_STATION_ID, StmDbHelper.T_BUS_STOPS + "."
 		        + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + " AS " + StmStore.BusStop.STOP_SUBWAY_STATION_ID);
 		sBusStopsExtendedProjectionMap = map;
@@ -398,7 +394,7 @@ public class StmProvider extends ContentProvider {
 	        + " NOT IN(167,169)";
 
 	private static final String SEARCH_SPLIT_ON = "[\\s\\W]";
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
