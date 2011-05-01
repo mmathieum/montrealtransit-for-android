@@ -946,6 +946,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		if (this.cursor != null && !this.cursor.isClosed()) {
 			this.cursor.close();
 		}
+		AdsUtils.destroyAd(this);
 		super.onDestroy();
 	}
 }

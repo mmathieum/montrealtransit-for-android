@@ -252,9 +252,8 @@ public class StmProvider extends ContentProvider {
 		        + StmStore.BusStop.STOP_CODE);
 		map.put(StmStore.BusStop.STOP_PLACE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " AS "
 		        + StmStore.BusStop.STOP_PLACE);
-		map.put(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID, "substr(" + StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + ",length(" + StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + "))" + " AS " + StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID);
+		map.put(StmStore.BusStop.STOP_DIRECTION_ID, StmDbHelper.T_BUS_STOPS + "."
+		        + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + " AS " + StmStore.BusStop.STOP_DIRECTION_ID);
 		map.put(StmStore.BusStop.STOP_LINE_NUMBER, StmDbHelper.T_BUS_STOPS + "."
 		        + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS " + StmStore.BusStop.STOP_LINE_NUMBER);
 		map.put(StmStore.BusStop.STOP_SUBWAY_STATION_ID, StmDbHelper.T_BUS_STOPS + "."
@@ -268,9 +267,8 @@ public class StmProvider extends ContentProvider {
 		        + StmStore.BusStop.STOP_CODE);
 		map.put(StmStore.BusStop.STOP_PLACE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " AS "
 		        + StmStore.BusStop.STOP_PLACE);
-		map.put(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID, "substr(" + StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + ",length(" + StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + "))" + " AS " + StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID);
+		map.put(StmStore.BusStop.STOP_DIRECTION_ID, StmDbHelper.T_BUS_STOPS + "."
+		        + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + " AS " + StmStore.BusStop.STOP_DIRECTION_ID);
 		map.put(StmStore.BusStop.STOP_LINE_NUMBER, StmDbHelper.T_BUS_STOPS + "."
 		        + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS " + StmStore.BusStop.STOP_LINE_NUMBER);
 		map.put(StmStore.BusStop.STOP_SUBWAY_STATION_ID, StmDbHelper.T_BUS_STOPS + "."
@@ -286,9 +284,8 @@ public class StmProvider extends ContentProvider {
 		        + StmStore.BusStop.STOP_CODE);
 		map.put(StmStore.BusStop.STOP_PLACE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " AS "
 		        + StmStore.BusStop.STOP_PLACE);
-		map.put(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID, "substr(" + StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + ",length(" + StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + "))" + " AS " + StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID);
+		map.put(StmStore.BusStop.STOP_DIRECTION_ID, StmDbHelper.T_BUS_STOPS + "."
+		        + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + " AS " + StmStore.BusStop.STOP_DIRECTION_ID);
 		map.put(StmStore.BusStop.STOP_LINE_NUMBER, StmDbHelper.T_BUS_STOPS + "."
 		        + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS " + StmStore.BusStop.STOP_LINE_NUMBER);
 		map.put(StmStore.BusStop.LINE_NAME, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NAME + " AS "

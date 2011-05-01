@@ -1,5 +1,9 @@
 package org.montrealtransit.android;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.montrealtransit.android.activity.UserPreferences;
 
 import android.app.Activity;
@@ -8,8 +12,11 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.view.View;
 
-import com.admob.android.ads.AdManager;
-import com.admob.android.ads.AdView;
+import com.google.ads.Ad;
+import com.google.ads.AdListener;
+import com.google.ads.AdRequest;
+import com.google.ads.AdRequest.ErrorCode;
+import com.google.ads.AdView;
 
 /**
  * This class contains useful methods to interact with AdMob SDK.
@@ -20,7 +27,7 @@ public class AdsUtils {
 	/**
 	 * The log tag.
 	 */
-	private static final String TAG = UserPreferences.class.getSimpleName();
+	private static final String TAG = AdsUtils.class.getSimpleName();
 
 	/**
 	 * True if currently debugging ads.
@@ -45,30 +52,64 @@ public class AdsUtils {
 	/**
 	 * Ads keywords.
 	 */
-	private static final String KEYWORDS = "montreal transit STM bus subway metro taxi quebec canada";
+	private static final Set<String> KEYWORDS = new HashSet<String>(Arrays.asList(new String[] { "montreal", "transit",
+	        "STM", "bus", "subway", "metro", "taxi", "quebec", "canada" }));
 
 	/**
 	 * The donate apps package name.
 	 */
 	private static final String DONATE_PACKAGES_START_WITH = "org.montrealtransit.android.donate";
 
-	public static void setupAd(Activity context) {
+	/**
+	 * Setup the ad in the activity.
+	 * @param activity the activity
+	 */
+	public static void setupAd(Activity activity) {
 		MyLog.v(TAG, "setupAd()");
 
-		if (DEBUG) {
-			AdManager.setTestDevices(new String[] { AdManager.TEST_EMULATOR, "BF250C0623034125E60A4E9584BA488F",
-			        "8D352C9046AC598F81D532CC8DB1F170" });
-		}
-
-		View adLayout = context.findViewById(R.id.ad_layout);
-		if (AD_ENABLED && isShowingAds(context)) {
+		View adLayout = activity.findViewById(R.id.ad_layout);
+		if (AD_ENABLED && isShowingAds(activity)) {
 			// show ads
 			if (adLayout != null) {
 				adLayout.setVisibility(View.VISIBLE);
 				AdView adView = (AdView) adLayout.findViewById(R.id.ad);
 				if (adView != null) {
 					adView.setVisibility(View.VISIBLE);
-					adView.setKeywords(KEYWORDS);
+					// adView.setKeywords(KEYWORDS);
+					AdRequest adRequest = new AdRequest();
+					adRequest.setLocation(LocationUtils.getBestLastKnownLocation(activity));
+					adRequest.setKeywords(KEYWORDS);
+					if (DEBUG) {
+						adRequest.setTesting(true);
+						adView.setAdListener(new AdListener() {
+							@Override
+							public void onDismissScreen(Ad ad) {
+								MyLog.v(TAG, "onDismissScreen()");
+							}
+
+							@Override
+							public void onFailedToReceiveAd(Ad ad, ErrorCode errorCode) {
+								MyLog.v(TAG, "onFailedToReceiveAd()");
+								MyLog.w(TAG, "Failed to received ad! Error code: '%s'.", errorCode);
+							}
+
+							@Override
+							public void onLeaveApplication(Ad ad) {
+								MyLog.v(TAG, "onLeaveApplication()");
+							}
+
+							@Override
+							public void onPresentScreen(Ad ad) {
+								MyLog.v(TAG, "onPresentScreen()");
+							}
+
+							@Override
+							public void onReceiveAd(Ad ad) {
+								MyLog.v(TAG, "onReceiveAd()");
+							}
+						});
+					}
+					adView.loadAd(adRequest);
 				}
 			}
 		} else {
@@ -83,6 +124,26 @@ public class AdsUtils {
 		}
 	}
 
+	/**
+	 * Destroy the ad in the activity.
+	 * @param activity the activity
+	 */
+	public static void destroyAd(Activity activity) {
+		if (AD_ENABLED && isShowingAds(activity)) {
+			View adLayout = activity.findViewById(R.id.ad_layout);
+			if (adLayout != null) {
+				AdView adView = (AdView) adLayout.findViewById(R.id.ad);
+				if (adView != null) {
+					adView.stopLoading();
+				}
+			}
+		}
+	}
+
+	/**
+	 * @param context the context
+	 * @return true if showing ads
+	 */
 	public static boolean isShowingAds(Context context) {
 		MyLog.v(TAG, "isShowingAds()");
 		if (AdsUtils.showingAds == null) {
@@ -99,10 +160,17 @@ public class AdsUtils {
 		return AD_ENABLED ? AdsUtils.showingAds : AD_ENABLED;
 	}
 
+	/**
+	 * @param showingAds set showing ads
+	 */
 	public static void setShowingAds(Boolean showingAds) {
 		AdsUtils.showingAds = showingAds;
 	}
 
+	/**
+	 * @param context the context
+	 * @return true if the user is generous
+	 */
 	public static boolean isGenerousUser(Context context) {
 		MyLog.v(TAG, "isGenerousUser()");
 		if (AdsUtils.generousUser == null) {
@@ -119,8 +187,10 @@ public class AdsUtils {
 		return AdsUtils.generousUser;
 	}
 
+	/**
+	 * @param generousUser set if the user is generous
+	 */
 	public static void setGenerousUser(Boolean generousUser) {
 		AdsUtils.generousUser = generousUser;
 	}
-
 }

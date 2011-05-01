@@ -1144,6 +1144,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 			this.task = null;
 		}
 		PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
+		AdsUtils.destroyAd(this);
 		super.onDestroy();
 	}
 }

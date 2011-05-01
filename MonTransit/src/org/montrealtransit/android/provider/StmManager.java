@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.data.Pair;
+import org.montrealtransit.android.provider.StmStore.BusStop;
 import org.montrealtransit.android.provider.StmStore.SubwayLine;
 import org.montrealtransit.android.provider.StmStore.SubwayStation;
 
@@ -38,14 +39,14 @@ public class StmManager {
 	 * Represents the fields the content provider will return for a bus stop.
 	 */
 	private static final String[] PROJECTION_BUS_STOP = new String[] { StmStore.BusStop._ID,
-	        StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE, StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID,
+	        StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE, StmStore.BusStop.STOP_DIRECTION_ID,
 	        StmStore.BusStop.STOP_LINE_NUMBER, StmStore.BusStop.STOP_SUBWAY_STATION_ID };
 
 	/**
 	 * Represents the fields the content provider will return for an extended bus stop (including bus line info).
 	 */
 	private static final String[] PROJECTION_BUS_STOP_EXTENDED = new String[] { StmStore.BusStop._ID,
-	        StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE, StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID,
+	        StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE, StmStore.BusStop.STOP_DIRECTION_ID,
 	        StmStore.BusStop.STOP_LINE_NUMBER, StmStore.BusStop.LINE_NAME, StmStore.BusStop.LINE_TYPE,
 	        StmStore.BusStop.STOP_SUBWAY_STATION_ID };
 
@@ -53,7 +54,7 @@ public class StmManager {
 	 * Represents the fields the content provider will return for an extended bus stop (including subway station name).
 	 */
 	private static final String[] PROJECTION_BUS_STOP_AND_SUBWAY_STATION = new String[] { StmStore.BusStop._ID,
-	        StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE, StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID,
+	        StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE, StmStore.BusStop.STOP_DIRECTION_ID,
 	        StmStore.BusStop.STOP_LINE_NUMBER, StmStore.BusStop.STOP_SUBWAY_STATION_ID, StmStore.BusStop.STATION_NAME };
 
 	/**
@@ -337,14 +338,14 @@ public class StmManager {
 	 * @param busStopIdsString the bus stop IDs
 	 * @return the extended bus stops
 	 */
-	public static Cursor findBusStopsExtended(ContentResolver contentResolver, String busStopIdsString) {
+	private static Cursor findBusStopsExtended(ContentResolver contentResolver, String busStopIdsString) {
 		MyLog.v(TAG, "findBusStopsExtended(%s)", busStopIdsString);
 		return contentResolver.query(Uri.withAppendedPath(StmStore.BusStop.CONTENT_URI, busStopIdsString),
 		        PROJECTION_BUS_STOP_EXTENDED, null, null, StmStore.BusStop.ORDER_BY_LINE_CODE);
 	}
 
 	/**
-	 * Find a list of distinct (group by bus line number) extended (with bus lines info) bus stops matching the bus stop IDs.
+	 * Find a list of <b>distinct<b> (group by bus line number) extended (with bus lines info) bus stops matching the bus stop IDs.
 	 * @param contentResolver the content resolver
 	 * @param busStopIdsString the bus stop IDs
 	 * @return the extended bus stops list
@@ -360,7 +361,17 @@ public class StmManager {
 				if (c.moveToFirst()) {
 					result = new ArrayList<StmStore.BusStop>();
 					do {
-						result.add(StmStore.BusStop.fromCursor(c));
+						BusStop newBusStop = StmStore.BusStop.fromCursor(c);
+						boolean alreadyInTheList = false;
+						for (BusStop busStop : result) {
+							if (busStop.getCode().equals(newBusStop.getCode())
+							        && busStop.getLineNumber().equals(newBusStop.getLineNumber())) {
+								alreadyInTheList = true;
+							}
+						}
+						if (!alreadyInTheList) {
+							result.add(newBusStop);
+						}
 					} while (c.moveToNext());
 				} else {
 					MyLog.w(TAG, "No result found for bus stops '%s'", busStopIdsString);
@@ -416,12 +427,9 @@ public class StmManager {
 		List<StmStore.BusLineDirection> result = null;
 		Cursor c = null;
 		try {
-			Uri busLinesUri = StmStore.BusLine.CONTENT_URI;
-			Uri theBusLineUri = Uri.withAppendedPath(busLinesUri, busLineNumber);
-			Uri busLinesDurectionsUri = Uri.withAppendedPath(theBusLineUri,
-			        StmStore.BusLine.BusLineDirections.CONTENT_DIRECTORY);
-			// MyLog.v(TAG, "busLinesDurectionsUri>" + busLinesDurectionsUri.getPath());
-			c = contentResolver.query(busLinesDurectionsUri, PROJECTION_BUS_LINE_DIRECTION, null, null,
+			c = contentResolver.query(Uri.withAppendedPath(
+			        Uri.withAppendedPath(StmStore.BusLine.CONTENT_URI, busLineNumber),
+			        StmStore.BusLine.BusLineDirections.CONTENT_DIRECTORY), PROJECTION_BUS_LINE_DIRECTION, null, null,
 			        StmStore.BusLine.DEFAULT_SORT_ORDER);
 			if (c.getCount() > 0) {
 				if (c.moveToFirst()) {
@@ -965,7 +973,7 @@ public class StmManager {
 	 * @param busLineNumber the bus line number
 	 * @return the bus stops
 	 */
-	public static Cursor findSubwayStationBusLineStops(ContentResolver contentResolver, String subwayStationId,
+	private static Cursor findSubwayStationBusLineStops(ContentResolver contentResolver, String subwayStationId,
 	        String busLineNumber) {
 		Uri subwayStationsUri = StmStore.SubwayStation.CONTENT_URI;
 		Uri subwayStationUri = Uri.withAppendedPath(subwayStationsUri, subwayStationId);
@@ -993,7 +1001,17 @@ public class StmManager {
 				if (c.moveToFirst()) {
 					result = new ArrayList<StmStore.BusStop>();
 					do {
-						result.add(StmStore.BusStop.fromCursor(c));
+						BusStop newBusStop = StmStore.BusStop.fromCursor(c);
+						boolean alreadyInTheList = false;
+						for (BusStop busStop : result) {
+							if (busStop.getCode().equals(newBusStop.getCode())
+							        && busStop.getLineNumber().equals(newBusStop.getLineNumber())) {
+								alreadyInTheList = true;
+							}
+						}
+						if (!alreadyInTheList) {
+							result.add(newBusStop);
+						}
 					} while (c.moveToNext());
 				}
 			}
