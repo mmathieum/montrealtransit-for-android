@@ -687,34 +687,38 @@ public class Utils {
 	}
 
 	/**
-	 * Clean favorites linking to old non-existing bus stops or subway stations.
-	 * Use after STM DB updates.
+	 * Clean favorites linking to old non-existing bus stops or subway stations. Use after STM DB updates.
 	 * @param contentResolver the content resolver
 	 */
 	public static void cleanFavorites(ContentResolver contentResolver) {
 		MyLog.v(TAG, "cleanFavorites()");
-		List<Fav> busStopFavs = DataManager.findFavsByTypeList(contentResolver, DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
-		List<BusStop> busStops = StmManager.findBusStopsExtendedList(contentResolver,
-		        Utils.extractBusStopIDsFromFavList(busStopFavs));
-		for (Fav busStopFav : busStopFavs) {
-			boolean stillInTheDB = false;
-			for (BusStop busStop : busStops) {
-				if (busStopFav.getFkId().equals(busStop.getCode())
-				        && busStopFav.getFkId2().equals(busStop.getLineNumber())) {
-					stillInTheDB = true;
+		try {
+			List<Fav> busStopFavs = DataManager.findFavsByTypeList(contentResolver,
+			        DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
+			List<BusStop> busStops = StmManager.findBusStopsExtendedList(contentResolver,
+			        Utils.extractBusStopIDsFromFavList(busStopFavs));
+			for (Fav busStopFav : busStopFavs) {
+				boolean stillInTheDB = false;
+				for (BusStop busStop : busStops) {
+					if (busStopFav.getFkId().equals(busStop.getCode())
+					        && busStopFav.getFkId2().equals(busStop.getLineNumber())) {
+						stillInTheDB = true;
+					}
+				}
+				if (!stillInTheDB) {
+					DataManager.deleteFav(contentResolver, busStopFav.getId());
 				}
 			}
-			if (!stillInTheDB) {
-				DataManager.deleteFav(contentResolver, busStopFav.getId());
+			List<Fav> subwayFavs = DataManager.findFavsByTypeList(contentResolver,
+			        DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
+			for (Fav subwayFav : subwayFavs) {
+				SubwayStation station = StmManager.findSubwayStation(contentResolver, subwayFav.getFkId());
+				if (station == null) {
+					DataManager.deleteFav(contentResolver, subwayFav.getId());
+				}
 			}
-		}
-		List<Fav> subwayFavs = DataManager.findFavsByTypeList(contentResolver,
-		        DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
-		for (Fav subwayFav : subwayFavs) {
-			SubwayStation station = StmManager.findSubwayStation(contentResolver, subwayFav.getFkId());
-			if (station == null) {
-				DataManager.deleteFav(contentResolver, subwayFav.getId());
-			}
+		} catch (Exception e) {
+			MyLog.w(TAG, e, "Unknow error while cleaning favorite.");
 		}
 	}
 }
