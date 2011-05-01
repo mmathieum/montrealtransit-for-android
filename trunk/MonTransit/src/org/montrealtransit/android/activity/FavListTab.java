@@ -144,8 +144,7 @@ public class FavListTab extends Activity {
 					// bus stop line name
 					((TextView) view.findViewById(R.id.line_name)).setText(busStop.getLineNameOrNull());
 					// bus stop line direction
-					Integer busLineDirection = BusUtils.getBusLineDirectionStringIdFromId(
-					        busStop.getSimpleDirectionId()).get(0);
+					int busLineDirection = BusUtils.getBusLineSimpleDirection(busStop.getDirectionId());
 					((TextView) view.findViewById(R.id.line_direction)).setText(busLineDirection);
 					// add click listener
 					view.setOnClickListener(new View.OnClickListener() {

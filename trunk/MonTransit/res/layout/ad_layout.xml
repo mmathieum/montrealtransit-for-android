@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:myapp="http://schemas.android.com/apk/res/org.montrealtransit.android"
+	xmlns:ads="http://schemas.android.com/apk/res/org.montrealtransit.android"
 	android:id="@+id/ad_layout"
 	android:layout_height="wrap_content" android:layout_width="fill_parent"
 	android:layout_alignParentBottom="true"
 	android:visibility="gone">
-	<com.admob.android.ads.AdView android:id="@+id/ad"
+	<com.google.ads.AdView android:id="@+id/ad"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		myapp:backgroundColor="#000000"
-		myapp:primaryTextColor="#FFFFFF" myapp:secondaryTextColor="#CCCCCC"
-		android:visibility="gone" />
+		android:visibility="gone"
+		ads:adUnitId="ENTER_ADMOB_PUBLISHER_ID_HERE" ads:adSize="BANNER" />
 </LinearLayout>

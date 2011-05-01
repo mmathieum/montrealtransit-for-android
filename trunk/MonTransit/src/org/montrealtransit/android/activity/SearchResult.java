@@ -95,15 +95,15 @@ public class SearchResult extends ListActivity {
 	private void processIntent() {
 		if (getIntent() != null) {
 			if (Intent.ACTION_VIEW.equals(getIntent().getAction())) {
-				//MyLog.d(TAG, "ACTION_VIEW");
+				// MyLog.d(TAG, "ACTION_VIEW");
 				// from click on search results
 				showBusStop(getIntent().getData().getPathSegments().get(0));
 				finish();
 			} else if (Intent.ACTION_SEARCH.equals(getIntent().getAction())) {
-				//MyLog.d(TAG, "ACTION_SEARCH");
+				// MyLog.d(TAG, "ACTION_SEARCH");
 				// an actual search
 				String searchTerm = getIntent().getStringExtra(SearchManager.QUERY);
-				//MyLog.d(TAG, "search: " + searchTerm);
+				// MyLog.d(TAG, "search: " + searchTerm);
 				setTitle(getString(R.string.search_result_for_and_keyword, searchTerm));
 				// setListAdapter(getAdapter(searchTerm));
 				getListView().setAdapter(null);
@@ -136,8 +136,7 @@ public class SearchResult extends ListActivity {
 	 */
 	private void setAdapter(Cursor cursor) {
 		String[] from = new String[] { StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE,
-		        StmStore.BusStop.STOP_LINE_NUMBER, StmStore.BusStop.LINE_NAME,
-		        StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID };
+		        StmStore.BusStop.STOP_LINE_NUMBER, StmStore.BusStop.LINE_NAME, StmStore.BusStop.STOP_DIRECTION_ID };
 		int[] to = new int[] { R.id.stop_code, R.id.label, R.id.line_number, R.id.line_name, R.id.line_direction };
 		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.search_result_bus_stop_item, cursor, from,
 		        to);
@@ -146,9 +145,8 @@ public class SearchResult extends ListActivity {
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
 				switch (view.getId()) {
 				case R.id.line_direction:
-					String simpleDirectionId = cursor.getString(cursor
-					        .getColumnIndex(StmStore.BusStop.STOP_SIMPLE_DIRECTION_ID));
-					((TextView) view).setText(BusUtils.getBusLineDirectionStringIdFromId(simpleDirectionId).get(0));
+					String simpleDirectionId = cursor.getString(columnIndex);
+					((TextView) view).setText(BusUtils.getBusLineSimpleDirection(simpleDirectionId));
 					return true;
 				case R.id.label:
 					String busStopPlace = cursor.getString(cursor.getColumnIndex(StmStore.BusStop.STOP_PLACE));
