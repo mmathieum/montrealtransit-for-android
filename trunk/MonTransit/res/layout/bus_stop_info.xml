@@ -110,7 +110,7 @@
 						android:onClick="showNextStopsInfoDialog"
 						android:focusable="true" />
 					<ProgressBar android:id="@+id/progress_bar"
-						android:layout_width="wrap_content" android:layout_height="fill_parent"
+						android:layout_width="wrap_content" android:layout_height="wrap_content"
 						android:layout_toLeftOf="@id/next_stops_section_info"
 						android:indeterminate="true"
 						style="?android:attr/android:progressBarStyleSmall"

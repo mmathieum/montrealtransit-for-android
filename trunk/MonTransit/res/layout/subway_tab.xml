@@ -61,7 +61,7 @@
 					android:onClick="showSubwayStatusInfoDialog"
 					android:focusable="true" />
 				<ProgressBar android:id="@+id/progress_bar"
-					android:layout_width="wrap_content" android:layout_height="fill_parent"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
 					android:layout_toLeftOf="@id/subway_status_section_info"
 					android:indeterminate="true"
 					style="?android:attr/android:progressBarStyleSmall"
@@ -108,7 +108,7 @@
 					android:onClick="refreshOrStopRefreshClosestStations"
 					android:background="@android:drawable/list_selector_background" />
 				<ProgressBar android:id="@+id/progress_bar"
-					android:layout_width="wrap_content" android:layout_height="fill_parent"
+					android:layout_width="wrap_content" android:layout_height="wrap_content"
 					android:layout_toLeftOf="@id/closest_subway_stations_refresh"
 					android:indeterminate="true"
 					style="?android:attr/android:progressBarStyleSmall"
