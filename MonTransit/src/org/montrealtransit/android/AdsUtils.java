@@ -75,7 +75,6 @@ public class AdsUtils {
 				AdView adView = (AdView) adLayout.findViewById(R.id.ad);
 				if (adView != null) {
 					adView.setVisibility(View.VISIBLE);
-					// adView.setKeywords(KEYWORDS);
 					AdRequest adRequest = new AdRequest();
 					adRequest.setLocation(LocationUtils.getBestLastKnownLocation(activity));
 					adRequest.setKeywords(KEYWORDS);
