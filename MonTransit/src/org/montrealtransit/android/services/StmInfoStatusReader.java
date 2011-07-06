@@ -88,24 +88,7 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 			List<ServiceStatus> allServiceStatus = new ArrayList<ServiceStatus>();
 			// FOR each status DO
 			for (twitter4j.Status twitterStatus : userTimeline) {
-				// extract the info from the Twitter message
-				ServiceStatus serviceStatus = new ServiceStatus();
-				String statusText = twitterStatus.getText();
-				// extract the service status from the code
-				serviceStatus.setType(extractServiceStatus(statusText));
-				// clean message (remove ' #STM XY')
-				serviceStatus.setMessage(extractMessage(statusText));
-				// set language
-				serviceStatus.setLanguage(extractMessageLanguage(statusText));
-				// dates
-				int pubDate = (int) (twitterStatus.getCreatedAt().getTime() / 1000);
-				serviceStatus.setPubDate(pubDate);
-				int readDate = (int) (System.currentTimeMillis() / 1000);
-				serviceStatus.setReadDate(readDate);
-				// source name
-				serviceStatus.setSourceName("stminfo");
-				// source link
-				serviceStatus.setSourceLink(TwitterUtils.getTwitterStatusURL("stminfo", twitterStatus.getId()));
+				ServiceStatus serviceStatus = extractServiceStatus(twitterStatus);
 				// add the status to the list
 				allServiceStatus.add(serviceStatus);
 			}
@@ -139,6 +122,32 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 	}
 
 	/**
+	 * Extract the info from the Twitter message
+	 * @param twitterStatus the Twitter status
+	 * @return the MonTransit {@link ServiceStatus}
+	 */
+	private ServiceStatus extractServiceStatus(twitter4j.Status twitterStatus) {
+		ServiceStatus serviceStatus = new ServiceStatus();
+		String statusText = twitterStatus.getText();
+		// extract the service status from the code
+		serviceStatus.setType(extractServiceStatus(statusText));
+		// clean message (remove ' #STM XY')
+		serviceStatus.setMessage(extractMessage(statusText));
+		// set language
+		serviceStatus.setLanguage(extractMessageLanguage(statusText));
+		// dates
+		int pubDate = (int) (twitterStatus.getCreatedAt().getTime() / 1000);
+		serviceStatus.setPubDate(pubDate);
+		int readDate = (int) (System.currentTimeMillis() / 1000);
+		serviceStatus.setReadDate(readDate);
+		// source name
+		serviceStatus.setSourceName("stminfo");
+		// source link
+		serviceStatus.setSourceLink(TwitterUtils.getTwitterStatusURL("stminfo", twitterStatus.getId()));
+		return serviceStatus;
+	}
+
+	/**
 	 * Extract the message from the Twitter status.
 	 * @param statusText the Twitter status
 	 * @return the message
@@ -149,8 +158,8 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 		if (statusText.contains("#STM")) {
 			to = statusText.indexOf("#STM");
 		}
-	    return statusText.substring(from, to);
-    }
+		return statusText.substring(from, to);
+	}
 
 	/**
 	 * Extract the message language from the Twitter status.
@@ -159,13 +168,24 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 	 */
 	private String extractMessageLanguage(String statusText) {
 		if (statusText.contains(" VE ") || statusText.contains(" JE ") || statusText.contains(" RE ")) {
-	    	return ServiceStatus.STATUS_LANG_ENGLISH;
-	    } else if ( statusText.contains(" VF ") || statusText.contains(" JF ") || statusText.contains(" RF ")) {
-	    	return ServiceStatus.STATUS_LANG_FRENCH;
-	    } else {
-	    	return ServiceStatus.STATUS_LANG_UNKNOWN;
-	    }
-    }
+			return ServiceStatus.STATUS_LANG_ENGLISH;
+		} else if (statusText.contains(" VF ") || statusText.contains(" JF ") || statusText.contains(" RF ")) {
+			return ServiceStatus.STATUS_LANG_FRENCH;
+		} else {
+			// try keyword detection
+			if (statusText.startsWith("No significant métro service disruptions.")
+			        || statusText.startsWith("Service gradually resuming on")
+			        || statusText.startsWith("Service disrupted on the")) {
+				return ServiceStatus.STATUS_LANG_ENGLISH;
+			} else if (statusText.startsWith("Aucune interruption importante du service de métro.")
+			        || statusText.startsWith("Reprise graduelle du service ligne")
+			        || statusText.startsWith("Arrêt de service ligne")) {
+				return ServiceStatus.STATUS_LANG_FRENCH;
+			} else {
+				return ServiceStatus.STATUS_LANG_UNKNOWN;
+			}
+		}
+	}
 
 	/**
 	 * Extract the service status from the Twitter status.
@@ -174,15 +194,27 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 	 */
 	private int extractServiceStatus(String statusText) {
 		if (statusText.contains(" VE ") || statusText.contains(" VF ")) {
-	    	return ServiceStatus.STATUS_TYPE_GREEN;
-	    } else if (statusText.contains(" JE ") || statusText.contains(" JF ")) {
-	    	return ServiceStatus.STATUS_TYPE_YELLOW;
-	    } else if (statusText.contains(" RE ") || statusText.contains(" RF ")) {
-	    	return ServiceStatus.STATUS_TYPE_RED;
-	    } else {
-	    	return ServiceStatus.STATUS_TYPE_DEFAULT;
-	    }
-    }
+			return ServiceStatus.STATUS_TYPE_GREEN;
+		} else if (statusText.contains(" JE ") || statusText.contains(" JF ")) {
+			return ServiceStatus.STATUS_TYPE_YELLOW;
+		} else if (statusText.contains(" RE ") || statusText.contains(" RF ")) {
+			return ServiceStatus.STATUS_TYPE_RED;
+		} else {
+			// try keyword detection
+			if (statusText.startsWith("No significant métro service disruptions.")
+			        || statusText.startsWith("Aucune interruption importante du service de métro.")) {
+				return ServiceStatus.STATUS_TYPE_GREEN;
+			} else if (statusText.startsWith("Service gradually resuming on")
+			        || statusText.startsWith("Reprise graduelle du service ligne")) {
+				return ServiceStatus.STATUS_TYPE_YELLOW;
+			} else if (statusText.startsWith("Service disrupted on the")
+			        || statusText.startsWith("Arrêt de service ligne")) {
+				return ServiceStatus.STATUS_TYPE_RED;
+			} else {
+				return ServiceStatus.STATUS_TYPE_DEFAULT;
+			}
+		}
+	}
 
 	/**
 	 * Handle Twitter error
@@ -191,32 +223,32 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 	 * @return the error message
 	 */
 	private String handleTwitterError(boolean isConnected, TwitterException e) {
-	    String loginString = context.getString(R.string.menu_twitter_login);
-	    if (e.getRateLimitStatus() != null) {
-	    	CharSequence readTime = Utils.formatSameDayDate(e.getRateLimitStatus().getResetTime());
-	    	if (isConnected) {
-	    		String message = context.getString(R.string.twitter_error_http_400_auth_and_time, readTime,
-	    		        loginString);
-	    		publishProgress(message);
-	    		return message;
-	    	} else {
-	    		String message = context.getString(R.string.twitter_error_http_400_anonymous_and_time,
-	    		        readTime, loginString);
-	    		publishProgress(message);
-	    		return message;
-	    	}
-	    } else {
-	    	if (isConnected) {
-	    		String message = context.getString(R.string.twitter_error_http_400_auth, loginString);
-	    		publishProgress(message);
-	    		return message;
-	    	} else {
-	    		String message = context.getString(R.string.twitter_error_http_400_anonymous, loginString);
-	    		publishProgress(message);
-	    		return message;
-	    	}
-	    }
-    }
+		String loginString = context.getString(R.string.menu_twitter_login);
+		if (e.getRateLimitStatus() != null) {
+			CharSequence readTime = Utils.formatSameDayDate(e.getRateLimitStatus().getResetTime());
+			if (isConnected) {
+				String message = context
+				        .getString(R.string.twitter_error_http_400_auth_and_time, readTime, loginString);
+				publishProgress(message);
+				return message;
+			} else {
+				String message = context.getString(R.string.twitter_error_http_400_anonymous_and_time, readTime,
+				        loginString);
+				publishProgress(message);
+				return message;
+			}
+		} else {
+			if (isConnected) {
+				String message = context.getString(R.string.twitter_error_http_400_auth, loginString);
+				publishProgress(message);
+				return message;
+			} else {
+				String message = context.getString(R.string.twitter_error_http_400_anonymous, loginString);
+				publishProgress(message);
+				return message;
+			}
+		}
+	}
 
 	/**
 	 * {@inheritDoc}
