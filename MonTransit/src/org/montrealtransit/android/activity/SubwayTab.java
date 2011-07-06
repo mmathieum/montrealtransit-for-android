@@ -313,34 +313,37 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 * Show the new status.
 	 */
 	private void showNewStatus() {
-		ImageView statusImg = (ImageView) this.statusLayout.findViewById(R.id.subway_status_img);
+		MyLog.v(TAG, "showNewStatus()");
 		// hide loading (progress bar)
 		this.statusLoadingLayout.setVisibility(View.GONE);
-		// set the status title with the date
-		CharSequence readTime = Utils.formatSameDayDateInSec(this.serviceStatus.getReadDate());
-		this.statusTitleTv.setText(getString(R.string.subway_status_hour, readTime));
-		// set the status message text
-		this.statusMsgTv.setText(this.serviceStatus.getMessage());
-		// set the status image (or not)
-		switch (this.serviceStatus.getType()) {
-		case ServiceStatus.STATUS_TYPE_RED:
-			statusImg.setVisibility(View.VISIBLE);
-			statusImg.setImageResource(R.drawable.status_red);
-			break;
-		case ServiceStatus.STATUS_TYPE_YELLOW:
-			statusImg.setVisibility(View.VISIBLE);
-			statusImg.setImageResource(R.drawable.status_yellow);
-			break;
-		case ServiceStatus.STATUS_TYPE_GREEN:
-			statusImg.setVisibility(View.VISIBLE);
-			statusImg.setImageResource(R.drawable.status_green);
-			break;
-		default:
-			statusImg.setVisibility(View.GONE);
-			break;
+		if (this.serviceStatus != null) {
+			ImageView statusImg = (ImageView) this.statusLayout.findViewById(R.id.subway_status_img);
+			// set the status title with the date
+			CharSequence readTime = Utils.formatSameDayDateInSec(this.serviceStatus.getReadDate());
+			this.statusTitleTv.setText(getString(R.string.subway_status_hour, readTime));
+			// set the status message text
+			this.statusMsgTv.setText(this.serviceStatus.getMessage());
+			// set the status image (or not)
+			switch (this.serviceStatus.getType()) {
+			case ServiceStatus.STATUS_TYPE_RED:
+				statusImg.setVisibility(View.VISIBLE);
+				statusImg.setImageResource(R.drawable.status_red);
+				break;
+			case ServiceStatus.STATUS_TYPE_YELLOW:
+				statusImg.setVisibility(View.VISIBLE);
+				statusImg.setImageResource(R.drawable.status_yellow);
+				break;
+			case ServiceStatus.STATUS_TYPE_GREEN:
+				statusImg.setVisibility(View.VISIBLE);
+				statusImg.setImageResource(R.drawable.status_green);
+				break;
+			default:
+				statusImg.setVisibility(View.GONE);
+				break;
+			}
+			// show message
+			this.statusLayout.setVisibility(View.VISIBLE);
 		}
-		// show message
-		this.statusLayout.setVisibility(View.VISIBLE);
 	}
 
 	/**
