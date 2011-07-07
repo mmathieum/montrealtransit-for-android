@@ -3868,7 +3868,7 @@ INSERT INTO "arrets_autobus" VALUES(56968,78,'7801O','Allard / Newman','','',25)
 INSERT INTO "arrets_autobus" VALUES(57041,78,'7801O','Angrignon / Newman','','',26);
 INSERT INTO "arrets_autobus" VALUES(60633,78,'7801O','Angrignon / Face aux Tours Angrignon','','',27);
 INSERT INTO "arrets_autobus" VALUES('',78,'7801O','Station Angrignon',43,'Descente seulement',28);
-INSERT INTO "arrets_autobus" VALUES('',80,'8001N','du Président-Kennedy / Saint-Urbain',30,'Descente seulement',0);
+INSERT INTO "arrets_autobus" VALUES(61108,80,'8001N','du Président-Kennedy / Saint-Urbain',30,'',0);
 INSERT INTO "arrets_autobus" VALUES(61042,80,'8001N','du Président-Kennedy / Jeanne-Mance','','',1);
 INSERT INTO "arrets_autobus" VALUES(52442,80,'8001N','Sherbrooke / de Bleury','','',2);
 INSERT INTO "arrets_autobus" VALUES(50111,80,'8001N','du Parc / Milton','','',3);
