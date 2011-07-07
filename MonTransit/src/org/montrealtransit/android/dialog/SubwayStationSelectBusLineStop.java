@@ -63,6 +63,7 @@ public class SubwayStationSelectBusLineStop implements View.OnClickListener {
 	 * @param busLineNumber the bus line number
 	 */
 	public SubwayStationSelectBusLineStop(Activity context, String subwayStationId, String busLineNumber) {
+		MyLog.v(TAG, "SubwayStationSelectBusLineStop(%s, %s)", subwayStationId, busLineNumber);
 		this.context = context;
 		this.subwayStationId = subwayStationId;
 		this.busLineNumber = busLineNumber;
@@ -76,8 +77,11 @@ public class SubwayStationSelectBusLineStop implements View.OnClickListener {
 		MyLog.v(TAG, "onClick()");
 		this.busStops = StmManager.findSubwayStationBusLineStopsList(this.context.getContentResolver(),
 		        this.subwayStationId, this.busLineNumber);
+		// IF there is not bus stop DO
+		if (this.busStops == null || this.busStops.size() == 0) {
+			// TODO show error message?
 		// IF there is only 1 bus stop DO
-		if (this.busStops.size() == 1) {
+		} else if (this.busStops.size() == 1) {
 			// show the bus stop
 			showBusStop(this.busStops.get(0).getCode(), this.busLineNumber);
 		} else {
