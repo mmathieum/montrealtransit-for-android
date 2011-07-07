@@ -494,7 +494,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 				view.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						MyLog.v(TAG, "onClick(%s)");
+						MyLog.v(TAG, "onClick()");
 						// MyLog.d(TAG, "bus line number: %s", lineNumber);
 						Intent intent = new Intent(BusStopInfo.this, BusStopInfo.class);
 						intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, lineNumber);
@@ -506,8 +506,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 					@Override
 					public boolean onLongClick(View v) {
 						// MyLog.d(TAG, "bus line number: %s", lineNumber);
-						BusLineSelectDirection busLineSelDir = new BusLineSelectDirection(BusStopInfo.this, lineNumber);
-						busLineSelDir.showDialog();
+						new BusLineSelectDirection(BusStopInfo.this, lineNumber).showDialog();
 						return true;
 					}
 				});
