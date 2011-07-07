@@ -90,7 +90,7 @@ public class BusStopCodeTab extends Activity {
 		((ImageButton) findViewById(R.id.ok)).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				MyLog.v(TAG, "onItemClick(%s)", v.getId());
+				MyLog.v(TAG, "onClick(%s)", v.getId());
 				searchFor(BusStopCodeTab.this.searchField.getText().toString());
 			}
 		});
@@ -112,20 +112,20 @@ public class BusStopCodeTab extends Activity {
 		MyLog.v(TAG, "onResume()");
 		super.onResume();
 		// refresh the adapters
-		this.searchField.setAdapter(getAutoCompleteAdapter());
+		setSearchAutoCompleteAdapter();
 		this.historyList.setAdapter(getHistoryAdapter());
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 	}
 
 	/**
-	 * Return the auto complete adapter.
-	 * @return the auto complete adapter
+	 * Set the auto complete adapter.
 	 */
-	private ArrayAdapter<String> getAutoCompleteAdapter() {
+	private void setSearchAutoCompleteAdapter() {
 		List<String> objects = DataManager.findAllHistoryList(this.getContentResolver());
-		ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line,
-		        objects);
-		return arrayAdapter;
+		if (objects != null) {
+			this.searchField.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line,
+			        objects));
+		}
 	}
 
 	/**
