@@ -173,7 +173,8 @@ INSERT INTO "lignes_autobus" VALUES(263,'Navette Or Bordeaux-Cartierville','J','
 INSERT INTO "lignes_autobus" VALUES(265,'Trainbus Ile-Bizard','T',' ');
 INSERT INTO "lignes_autobus" VALUES(268,'Trainbus Pierrefonds','T',' ');
 INSERT INTO "lignes_autobus" VALUES(350,'Verdun/LaSalle','N',' ');
-INSERT INTO "lignes_autobus" VALUES(353,'Lacordaire/Maurice-Duplessis ','N',' ');
+INSERT INTO "lignes_autobus" VALUES(353,'Lacordaire/Maurice-Duplessis','N',' ');
+INSERT INTO "lignes_autobus" VALUES(354,'Sainte-Anne-de-Bellevue/Centre-ville','N',' ');
 INSERT INTO "lignes_autobus" VALUES(355,'Pie-IX','N',' ');
 INSERT INTO "lignes_autobus" VALUES(356,'Sainte-Anne-de-Bellevue','N',' ');
 INSERT INTO "lignes_autobus" VALUES(357,'Saint-Michel','N',' ');
