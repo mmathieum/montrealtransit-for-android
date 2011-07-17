@@ -2504,7 +2504,7 @@ INSERT INTO "arrets_autobus" VALUES(53213,353,'35301E','Sainte-Catherine / David
 INSERT INTO "arrets_autobus" VALUES(53227,353,'35301E','Sainte-Catherine / Joliette','','',7);
 INSERT INTO "arrets_autobus" VALUES(53236,353,'35301E','Sainte-Catherine / Nicolet','','',8);
 INSERT INTO "arrets_autobus" VALUES(53244,353,'35301E','Sainte-Catherine / Bourbonnière','','',9);
-INSERT INTO "arrets_autobus" VALUES(53259,353,'35301E','Sainte-Catherine / Jeanne-d'Arc','','',10);
+INSERT INTO "arrets_autobus" VALUES(53259,353,'35301E','Sainte-Catherine / Jeanne-d''Arc','','',10);
 INSERT INTO "arrets_autobus" VALUES(53271,353,'35301E','Sainte-Catherine / Pie-IX','','',11);
 INSERT INTO "arrets_autobus" VALUES(53286,353,'35301E','Sainte-Catherine / Letourneux','','',12);
 INSERT INTO "arrets_autobus" VALUES(53299,353,'35301E','Sainte-Catherine / William-David','','',13);
