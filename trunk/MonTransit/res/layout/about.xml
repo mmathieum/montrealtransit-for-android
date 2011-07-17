@@ -34,6 +34,16 @@
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
 			android:text="@string/about_text6_donate" android:autoLink="web"
 			android:textAppearance="?android:attr/textAppearanceSmall" android:textColor="#ffff" />
+		
+		<TextView
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:text="@string/about_text7_twitter" android:autoLink="web"
+			android:textAppearance="?android:attr/textAppearanceSmall" android:textColor="#ffff" />
+		
+		<TextView
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:text="@string/about_text8_facebook" android:autoLink="web"
+			android:textAppearance="?android:attr/textAppearanceSmall" android:textColor="#ffff" />
 
 		<TextView android:id="@+id/version"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"

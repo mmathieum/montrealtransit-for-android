@@ -256,6 +256,8 @@
     <string name="about_text4_website">Website: http://tiny.cc/MTLTransit</string>
     <string name="about_text5_source">Source code: http://tiny.cc/MTLSource</string>
     <string name="about_text6_donate">Donate: http://tiny.cc/MTLDonate</string>
+    <string name="about_text7_twitter">Twitter: http://twitter.com/montransit</string>
+    <string name="about_text8_facebook">Facebook: http://tiny.cc/MTLFacebookM</string>
     <string name="about_version">Version %1$s (r%2$s)</string>
     <string name="about_text_analytics">This app anonymously track and report a user\'s activity.</string>
     
