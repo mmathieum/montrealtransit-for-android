@@ -345,26 +345,34 @@ public class BusUtils {
 	public static String cleanBusStopPlace(String uncleanStopPlace) {
 		MyLog.v(TAG, "cleanBusStopPlace(%s)", uncleanStopPlace);
 		String result = uncleanStopPlace;
-		if (result.startsWith(Constant.PLACE_CHAR_DE_LA)) {
-			result = result.substring(Constant.PLACE_CHAR_DE_LA_LENGTH);
-		} else if (result.startsWith(Constant.PLACE_CHAR_DE)) {
+		// if (result.startsWith(Constant.PLACE_CHAR_DE_LA)) {
+		// result = result.substring(Constant.PLACE_CHAR_DE_LA_LENGTH);
+		// } else
+		if (result.startsWith(Constant.PLACE_CHAR_DE)) {
 			result = result.substring(Constant.PLACE_CHAR_DE_LENGTH);
 		} else if (result.startsWith(Constant.PLACE_CHAR_DES)) {
 			result = result.substring(Constant.PLACE_CHAR_DES_LENGTH);
 		} else if (result.startsWith(Constant.PLACE_CHAR_DU)) {
 			result = result.substring(Constant.PLACE_CHAR_DU_LENGTH);
+		}
+		if (result.startsWith(Constant.PLACE_CHAR_LA)) {
+			result = result.substring(Constant.PLACE_CHAR_LA_LENGTH);
 		} else if (result.startsWith(Constant.PLACE_CHAR_L)) {
 			result = result.substring(Constant.PLACE_CHAR_L_LENGTH);
 		}
 
-		if (result.contains(Constant.PLACE_CHAR_IN_DE_LA)) {
-			result = result.replace(Constant.PLACE_CHAR_IN_DE_LA, Constant.PLACE_CHAR_IN);
-		} else if (result.contains(Constant.PLACE_CHAR_IN_DE)) {
+		// if (result.contains(Constant.PLACE_CHAR_IN_DE_LA)) {
+		// result = result.replace(Constant.PLACE_CHAR_IN_DE_LA, Constant.PLACE_CHAR_IN);
+		// } else
+		if (result.contains(Constant.PLACE_CHAR_IN_DE)) {
 			result = result.replace(Constant.PLACE_CHAR_IN_DE, Constant.PLACE_CHAR_IN);
 		} else if (result.contains(Constant.PLACE_CHAR_IN_DES)) {
 			result = result.replace(Constant.PLACE_CHAR_IN_DES, Constant.PLACE_CHAR_IN);
 		} else if (result.contains(Constant.PLACE_CHAR_IN_DU)) {
 			result = result.replace(Constant.PLACE_CHAR_IN_DU, Constant.PLACE_CHAR_IN);
+		}
+		if (result.contains(Constant.PLACE_CHAR_IN_LA)) {
+			result = result.replace(Constant.PLACE_CHAR_IN_LA, Constant.PLACE_CHAR_IN);
 		} else if (result.contains(Constant.PLACE_CHAR_IN_L)) {
 			result = result.replace(Constant.PLACE_CHAR_IN_L, Constant.PLACE_CHAR_IN);
 		}
