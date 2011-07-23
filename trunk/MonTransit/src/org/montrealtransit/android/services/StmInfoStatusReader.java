@@ -17,7 +17,8 @@ import twitter4j.ResponseList;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
-import twitter4j.http.AccessToken;
+import twitter4j.auth.AccessToken;
+import twitter4j.conf.ConfigurationBuilder;
 import android.content.Context;
 import android.os.AsyncTask;
 
@@ -77,7 +78,11 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 				String consumerSecret = TwitterUtils.getConsumerSecret(this.context);
 				AccessToken accessToken = new AccessToken(twitterUserAccount.getToken(),
 				        twitterUserAccount.getTokenSecret());
-				twitter = new TwitterFactory().getOAuthAuthorizedInstance(consumerKey, consumerSecret, accessToken);
+				// ConfigurationBuilder cb = new ConfigurationBuilder();
+				// cb.setOAuthConsumerKey(consumerKey);
+				// cb.setOAuthConsumerSecret(consumerSecret);
+				twitter = new TwitterFactory(new ConfigurationBuilder().setOAuthConsumerKey(consumerKey)
+				        .setOAuthConsumerSecret(consumerSecret).build()).getInstance(accessToken);
 			} else {
 				MyLog.d(TAG, "Connecting to Twitter anonymously...");
 				twitter = new TwitterFactory().getInstance(); // Anonymous
