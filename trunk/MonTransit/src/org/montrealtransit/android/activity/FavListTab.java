@@ -222,11 +222,11 @@ public class FavListTab extends Activity {
 			// remove all subway station views
 			this.subwayStationsLayout.removeAllViews();
 			// use new favorite subway station
-			this.currentBusStopFavList = newSubwayFavList;
+			this.currentSubwayStationFavList = newSubwayFavList;
 			// IF there is one or more bus stops DO
-			if (this.currentBusStopFavList != null && this.currentBusStopFavList.size() > 0) {
+			if (this.currentSubwayStationFavList != null && this.currentSubwayStationFavList.size() > 0) {
 				// FOR EACH favorite subway DO
-				for (Fav subwayFav : this.currentBusStopFavList) {
+				for (Fav subwayFav : this.currentSubwayStationFavList) {
 					final SubwayStation station = StmManager.findSubwayStation(getContentResolver(),
 					        subwayFav.getFkId());
 					if (station != null) {
