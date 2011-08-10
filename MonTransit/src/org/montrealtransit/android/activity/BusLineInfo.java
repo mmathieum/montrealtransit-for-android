@@ -100,7 +100,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		this.lineNumberTv = (TextView) findViewById(R.id.line_number);
 		this.lineNameTv = (TextView) findViewById(R.id.line_name);
 		this.lineTypeImg = (ImageView) findViewById(R.id.bus_type);
-		this.lineStopsTv = (TextView) findViewById(R.id.bus_line_stop_string);
+		this.lineStopsTv = (TextView) findViewById(R.id.bus_line_stop_text);
 
 		this.list.setEmptyView(findViewById(R.id.list_empty));
 		this.list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -162,8 +162,11 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	private void refreshBusLineInfo() {
 		// bus line number
 		this.lineNumberTv.setText(this.busLine.getNumber());
+		int color = BusUtils.getBusLineTypeBgColorFromType(this.busLine.getType());
+		this.lineNumberTv.setBackgroundColor(color);
 		// bus line name
 		this.lineNameTv.setText(this.busLine.getName());
+		this.lineNameTv.requestFocus();
 		// bus line type
 		this.lineTypeImg.setImageResource(BusUtils.getBusLineTypeImgFromType(this.busLine.getType()));
 

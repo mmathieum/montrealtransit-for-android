@@ -5,47 +5,54 @@
 
 	<!-- BUS LINE INFORMATIONS -->
 	<RelativeLayout android:id="@+id/banner"
-		android:layout_width="fill_parent" android:layout_height="70dip"
-		android:padding="5dip"
+		android:layout_width="fill_parent" android:layout_height="55dip"
+		android:paddingRight="5dip" android:paddingLeft="0dip"
+		android:paddingBottom="0dip" android:paddingTop="0dip"
 		android:orientation="horizontal"  android:gravity="center_vertical"
 		android:background="@android:drawable/title_bar">
-		<!-- BUS LOGO -->
-		<ImageView android:id="@+id/bus"
-			android:layout_width="40dip" android:layout_height="40dip"
-			android:layout_alignParentBottom="true"	android:layout_alignParentTop="true"
-			android:layout_alignParentLeft="true" android:layout_alignWithParentIfMissing="true"
-			android:layout_marginRight="7dip"
-			android:scaleType="centerInside"
-			android:gravity="center_horizontal"
-			android:src="@drawable/bus_blue" />
 		<!-- BUS LINE TYPE IMG -->
 		<ImageView android:id="@+id/bus_type"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
-			android:layout_alignParentBottom="true"	android:layout_alignParentTop="true"
 			android:layout_alignParentRight="true" android:layout_alignWithParentIfMissing="true"
-			android:gravity="center_horizontal" />
+			android:gravity="center_horizontal"
+			android:src="@drawable/bus_type_soleil" android:layout_centerVertical="true"/>
 		<!-- BUS LINE NUMBER -->
-		<TextView android:id="@+id/line_number"
-			android:layout_width="wrap_content" android:layout_height="fill_parent"
-			android:layout_toRightOf="@id/bus"
+		<TextView android:id="@+id/line_number" style="@style/BusLineNumber"
+			android:layout_alignParentLeft="true"
 			android:layout_marginRight="5dip"
-			android:gravity="center_vertical"
-			android:textAppearance="?android:attr/textAppearanceLarge" android:textStyle="bold" />
+			android:layout_marginLeft="0dip"
+			android:layout_centerVertical="true"
+			android:text="000"
+			android:background="#000000"/>
 		<!-- BUS LINE NAME -->
 		<TextView android:id="@+id/line_name"
 			android:layout_width="fill_parent" android:layout_height="fill_parent"
 			android:layout_toRightOf="@id/line_number" android:layout_toLeftOf="@id/bus_type"
-			android:layout_alignBaseline="@id/line_number"
 			android:singleLine="true" android:ellipsize="marquee" android:gravity="center_vertical|left"
-			android:focusable="true"
-			android:textAppearance="?android:attr/textAppearanceLarge" />
+			android:textAppearance="?android:attr/textAppearanceLarge"
+			android:focusable="true" android:focusableInTouchMode="true"
+			android:textColor="@color/nofocustext"
+			android:text="@string/unknow_line_name" android:layout_centerVertical="true"/>
 	</RelativeLayout>
 
 	<!-- BUS STOPS  -->
-	<TextView android:id="@+id/bus_line_stop_string"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		style="?android:attr/listSeparatorTextViewStyle" android:focusable="true" android:paddingLeft="5dp"
-		android:singleLine="true" android:ellipsize="end" />
+	<RelativeLayout android:id="@+id/bus_line_stop"
+		android:layout_width="match_parent" android:layout_height="25dip"
+		android:background="@drawable/dark_header_dither">
+		<ImageView android:id="@+id/bus_logo"
+			android:layout_width="wrap_content" android:layout_height="fill_parent"
+			android:layout_alignParentLeft="true"
+			android:src="@drawable/ic_btn_bus"
+			android:gravity="center_vertical"
+			android:focusable="false" />
+		<TextView android:id="@+id/bus_line_stop_text"
+			android:layout_width="wrap_content" android:layout_height="fill_parent"
+			android:layout_toRightOf="@id/bus_logo"
+			android:textStyle="bold" android:textSize="14sp"
+			android:textColor="?android:attr/textColorSecondary"
+			android:gravity="center_vertical"
+			android:text="@string/bus_stops_short" />
+	</RelativeLayout>
 	<FrameLayout android:layout_weight="1"
 		android:layout_width="fill_parent" android:layout_height="0dip">
 

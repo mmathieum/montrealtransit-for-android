@@ -8,13 +8,15 @@
 	<ImageView android:id="@+id/bus_type_img"
 		android:layout_width="wrap_content" android:layout_height="fill_parent"
 		android:layout_alignParentRight="true"
-		android:gravity="center_vertical" />
+		android:gravity="center_vertical"
+		android:src="@drawable/bus_type_soleil"/>
 	<!-- BUS LINE TYPE -->
 	<TextView android:id="@+id/bus_type_string"
 		android:layout_width="fill_parent" android:layout_height="fill_parent"
 		android:layout_alignParentLeft="true" android:layout_toLeftOf="@id/bus_type_img"
 		android:singleLine="true" android:ellipsize="marquee" android:gravity="center_vertical|left"
 		android:paddingRight="3dip"
-		android:textAppearance="?android:attr/textAppearanceLarge" />
+		android:textAppearance="?android:attr/textAppearanceLarge"
+		android:text="@string/bus_type_soleil" />
 
 </RelativeLayout>
