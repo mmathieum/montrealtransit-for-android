@@ -1,0 +1,25 @@
+<resources>
+	<!-- Base application theme is the default theme. -->
+	<!--<style name="Theme" parent="android:style/Theme" />-->
+
+	<style name="BusLineNumber">
+		<item name="android:layout_width">77dip</item>
+		<item name="android:layout_height">fill_parent</item>
+		<!-- 
+		<item name="android:layout_alignParentLeft">true</item>
+		<item name="android:layout_alignParentTop">true</item>
+		<item name="android:layout_alignParentBottom">true</item>
+		<item name="android:layout_marginLeft">-8dip</item>
+		<item name="android:layout_marginRight">5dip</item>
+		 -->
+		<item name="android:paddingLeft">1dip</item>
+		<item name="android:paddingRight">1dip</item>
+		
+		<item name="android:singleLine">true</item>
+		<item name="android:gravity">center_vertical|right</item>
+		<item name="android:textSize">40dip</item>
+		<item name="android:textStyle">bold</item>
+		<item name="android:textColor">#FFFFFF</item>
+	</style>
+
+</resources>

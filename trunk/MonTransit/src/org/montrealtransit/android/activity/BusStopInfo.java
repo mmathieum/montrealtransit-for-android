@@ -399,8 +399,11 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 		setTheStar();
 		// set bus line number
 		this.busLineNumberTv.setText(this.busLine.getNumber());
+		int color = BusUtils.getBusLineTypeBgColorFromType(this.busLine.getType());
+		this.busLineNumberTv.setBackgroundColor(color);
 		// set bus line name
 		this.busLineNameTv.setText(this.busLine.getName());
+		this.busLineNameTv.requestFocus();
 		// set listener
 		BusLineSelectDirection busLineSelectDirection = new BusLineSelectDirection(this, this.busLine.getNumber());
 		this.busLineNumberTv.setOnClickListener(busLineSelectDirection);

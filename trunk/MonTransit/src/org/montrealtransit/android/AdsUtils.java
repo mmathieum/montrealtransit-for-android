@@ -73,7 +73,8 @@ public class AdsUtils {
 			if (adLayout != null) {
 				adLayout.setVisibility(View.VISIBLE);
 				AdView adView = (AdView) adLayout.findViewById(R.id.ad);
-				if (adView != null) {
+				// IF the ad view is present in the layout AND not already loaded DO
+				if (adView != null && !adView.isReady()) {
 					adView.setVisibility(View.VISIBLE);
 					AdRequest adRequest = new AdRequest();
 					adRequest.setLocation(LocationUtils.getBestLastKnownLocation(activity));
