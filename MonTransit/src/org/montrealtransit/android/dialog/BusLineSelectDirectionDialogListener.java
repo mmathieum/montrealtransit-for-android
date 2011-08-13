@@ -5,12 +5,12 @@ package org.montrealtransit.android.dialog;
  * @author Mathieu Méa
  */
 public interface BusLineSelectDirectionDialogListener {
-	
+
 	/**
 	 * Show the selected bus line (direction).
 	 * @param lineNumber the line number
 	 * @param directionId the line direction
 	 */
-	 void showNewLine(String lineNumber, String directionId);
+	void showNewLine(String lineNumber, String directionId);
 
 }

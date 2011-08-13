@@ -133,14 +133,13 @@ public class TwitterUtils {
 	}
 
 	/**
-	 * Start the login process.
-	 * Launch the Twitter authentication page URL.
+	 * Start the login process. Launch the Twitter authentication page URL.
 	 * @param context the context
 	 */
 	public void startLoginProcess(Context context) {
 		MyLog.v(TAG, "startLoginProcess()");
 		try {
-			//TODO show a dialog with more information who/what/why/how
+			// TODO show a dialog with more information who/what/why/how
 			Utils.notifyTheUserLong(context, context.getString(R.string.twitter_pre_auth));
 			getProvider().setOAuth10a(true);
 			String authUrl = getProvider().retrieveRequestToken(getConsumer(context), CALLBACK_URL);
@@ -191,7 +190,7 @@ public class TwitterUtils {
 			}
 			// retrieve the access token from the consumer and the OAuth verifier returner by the Twitter Callback URL
 			getProvider().retrieveAccessToken(getConsumer(context), oauth_verifier);
-			// saving the Twitter user account token and secret 
+			// saving the Twitter user account token and secret
 			TwitterApi newTwitterApi = new TwitterApi();
 			newTwitterApi.setToken(getConsumer(context).getToken());
 			newTwitterApi.setTokenSecret(getConsumer(context).getTokenSecret());
@@ -224,7 +223,7 @@ public class TwitterUtils {
 	 * @return the Twitter status URL
 	 */
 	public static String getTwitterStatusURL(String username, long id) {
-	    // Twitter Status Link: http://twitter.com/<username>/statuses/<id>
-	    return String.format("http://twitter.com/%s/statuses/%s", username, id);
-    }
+		// Twitter Status Link: http://twitter.com/<username>/statuses/<id>
+		return String.format("http://twitter.com/%s/statuses/%s", username, id);
+	}
 }

@@ -290,6 +290,7 @@ public class BusUtils {
 	 */
 	public static int getBusLineTypeBgColorFromType(String type) {
 		// MyLog.v(TAG, "getBusLineTypeImgFromType(" + type + ")");
+		// TODO use R.colors!!
 		if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_REGULAR_SERVICE)) {
 			return Color.rgb(0, 96, 170); // BLUE;
 		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_RUSH_HOUR_SERVICE)) {

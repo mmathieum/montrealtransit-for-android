@@ -80,7 +80,7 @@ public class SubwayStationSelectBusLineStop implements View.OnClickListener {
 		// IF there is not bus stop DO
 		if (this.busStops == null || this.busStops.size() == 0) {
 			// TODO show error message?
-		// IF there is only 1 bus stop DO
+			// IF there is only 1 bus stop DO
 		} else if (this.busStops.size() == 1) {
 			// show the bus stop
 			showBusStop(this.busStops.get(0).getCode(), this.busLineNumber);

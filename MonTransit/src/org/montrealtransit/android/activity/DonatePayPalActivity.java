@@ -90,7 +90,7 @@ public class DonatePayPalActivity extends Activity {
 	 * Finish the create of the activity with the PayPal button.
 	 */
 	private void onCreateAfterLoading() {
-	    // set the UI
+		// set the UI
 		setContentView(R.layout.donate_paypal_activity);
 		// get UI elements
 		this.content = (LinearLayout) findViewById(R.id.content);
@@ -99,7 +99,7 @@ public class DonatePayPalActivity extends Activity {
 		if (Utils.isVersionOlderThan(Build.VERSION_CODES.DONUT)) {
 			onCreateAfterLoadingPreDonut();
 		}
-    }
+	}
 
 	/**
 	 * {@link DonateActivity#onCreateAfterLoadingPreDonut(Bundle)} additional code for devices running Android version < 1.6
@@ -145,7 +145,7 @@ public class DonatePayPalActivity extends Activity {
 		this.amountSpinner.setAdapter(amountAdapter);
 		this.content.addView(this.amountSpinner);
 		// add PayPal button
-		//button.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		// button.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 		this.content.addView(button);
 		// add empty space
 		View view2 = new View(this);
@@ -180,9 +180,9 @@ public class DonatePayPalActivity extends Activity {
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
-	    super.onResume();
+		super.onResume();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -218,7 +218,7 @@ public class DonatePayPalActivity extends Activity {
 			super.onActivityResult(requestCode, resultCode, data);
 		}
 	}
-	
+
 	/**
 	 * Cancel the PayPal donation (close the activity).
 	 * @param v not used

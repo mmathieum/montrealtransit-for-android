@@ -17,9 +17,8 @@ import android.widget.Button;
 import android.widget.Spinner;
 
 /**
- * The first donate activity.
- * Currently giving choice of payment method (Android Market / PayPal).
- * May let the user choose the developer when multiple developers.
+ * The first donate activity. Currently giving choice of payment method (Android Market / PayPal). May let the user choose the developer when multiple
+ * developers.
  * @author Mathieu Méa
  */
 public class DonateActivity extends Activity {
@@ -66,12 +65,12 @@ public class DonateActivity extends Activity {
 		}
 
 		// set up the payment methods spinner
-		ArrayAdapter<CharSequence> methodAdapter = ArrayAdapter.createFromResource(
-		        DonateActivity.this, R.array.donate_methods, android.R.layout.simple_spinner_item);
+		ArrayAdapter<CharSequence> methodAdapter = ArrayAdapter.createFromResource(DonateActivity.this,
+		        R.array.donate_methods, android.R.layout.simple_spinner_item);
 		methodAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 		this.methodSpinner.setAdapter(methodAdapter);
 	}
-	
+
 	/**
 	 * {@link DonateActivity#onCreate(Bundle)} additional code for devices running Android version < 1.6
 	 */
@@ -98,7 +97,7 @@ public class DonateActivity extends Activity {
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
-	    super.onResume();
+		super.onResume();
 	}
 
 	/**
@@ -124,7 +123,7 @@ public class DonateActivity extends Activity {
 			break;
 		}
 	}
-	
+
 	/**
 	 * Cancel the donation (close the activity).
 	 * @param v not used

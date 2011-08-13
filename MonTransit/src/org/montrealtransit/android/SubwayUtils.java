@@ -14,12 +14,12 @@ import android.net.Uri;
  * @author Mathieu Méa
  */
 public class SubwayUtils {
-	
+
 	/**
 	 * The log tag.
 	 */
 	private static final String TAG = SubwayUtils.class.getSimpleName();
-	
+
 	/**
 	 * The STM map (FR).
 	 */
@@ -216,5 +216,5 @@ public class SubwayUtils {
 			return Color.WHITE;
 		}
 	}
-	
+
 }

@@ -514,7 +514,7 @@ public class Utils {
 			if (result.length() > 0) {
 				result += "+";
 			}
-			result += busStopFav.getFkId() + "-" + busStopFav.getFkId2();
+			result += BusStop.getUID(busStopFav.getFkId(), busStopFav.getFkId2());
 		}
 		return result;
 	}

@@ -1,5 +1,7 @@
 package org.montrealtransit.android.services.nextstop;
 
+import java.util.Map;
+
 import org.montrealtransit.android.data.BusStopHours;
 
 /**
@@ -10,14 +12,14 @@ public interface NextStopListener {
 
 	/**
 	 * Update the progress status.
-	 * @param progress the progress message 
+	 * @param progress the progress message
 	 */
 	void onNextStopsProgress(String progress);
-	
+
 	/**
 	 * Methods calls after the execution of the task.
-	 * @param result the result
+	 * @param results the results
 	 */
-	void onNextStopsLoaded(BusStopHours result);
+	void onNextStopsLoaded(Map<String, BusStopHours> results);
 
 }

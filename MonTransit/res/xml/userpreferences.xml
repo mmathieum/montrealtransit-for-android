@@ -31,6 +31,8 @@
 		android:entries="@array/distance_pref_entries" android:entryValues="@array/distance_pref_values"
 		android:dialogTitle="@string/distance_pref_dialog_title"
 		android:defaultValue="simple" />
+	<PreferenceScreen android:key="pClearCache"
+		android:title="@string/clear_cache_pref_title" android:summary="@string/clear_cache_pref_summary" />
 	<!-- CREDITs -->
 	<PreferenceCategory android:title="@string/credits_pref_cat_title" />
 	<CheckBoxPreference android:key="pAds"

@@ -5,6 +5,7 @@ import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
+import org.montrealtransit.android.provider.DataManager;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -187,7 +188,8 @@ public class UserPreferences extends PreferenceActivity {
 					// block ads system wide on rooted device
 					// download the code of the app an block ads in the source code
 					// or donate to support the development of the application
-					Utils.notifyTheUserLong(UserPreferences.this, UserPreferences.this.getString(R.string.donate_to_remove_ads));
+					Utils.notifyTheUserLong(UserPreferences.this,
+					        UserPreferences.this.getString(R.string.donate_to_remove_ads));
 					UserPreferences.this.adsCheckBox.setChecked(true);
 
 					Uri appMarketURI = Uri.parse("market://search?q=pub:\"Mathieu Méa\"");
@@ -203,6 +205,19 @@ public class UserPreferences extends PreferenceActivity {
 				}
 			}
 		});
+
+		// clear cache //TODO confirmation dialog
+		((PreferenceScreen) findPreference("pClearCache"))
+		        .setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			        @Override
+			        public boolean onPreferenceClick(Preference preference) {
+				        DataManager.deleteAllCache(getContentResolver());
+				        Utils.notifyTheUser(getApplicationContext(),
+				                UserPreferences.this.getString(R.string.clear_cache_complete));
+				        setClearCachePref();
+				        return false;
+			        }
+		        });
 
 		// donate dialog
 		((PreferenceScreen) findPreference("pDonate")).setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -229,7 +244,20 @@ public class UserPreferences extends PreferenceActivity {
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
+
+		setClearCachePref();
+
 		super.onResume();
+	}
+
+	/**
+	 * Setup the clear cache preference.
+	 */
+	private void setClearCachePref() {
+		PreferenceScreen clearCachePref = (PreferenceScreen) findPreference("pClearCache");
+		clearCachePref.setEnabled(DataManager.findAllCacheList(getContentResolver()) != null);
+		clearCachePref.setSummary(clearCachePref.isEnabled() ? R.string.clear_cache_pref_summary
+		        : R.string.clear_cache_pref_summary_disabled);
 	}
 
 	/**

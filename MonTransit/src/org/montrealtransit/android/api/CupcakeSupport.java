@@ -12,12 +12,12 @@ public class CupcakeSupport implements SupportUtil {
 	}
 
 	@Override
-    public void applySharedPreferencesEditor(Editor editor) {
-	    editor.commit();
-    }
+	public void applySharedPreferencesEditor(Editor editor) {
+		editor.commit();
+	}
 
 	@Override
-    public String getBuildManufacturer() {
-	    return "unknown";
-    }
+	public String getBuildManufacturer() {
+		return "unknown";
+	}
 }

@@ -40,12 +40,12 @@ public class ASubwayStation extends SubwayStation {
 	 * @param subwayStation the subway station object.
 	 */
 	public ASubwayStation(SubwayStation subwayStation) {
-	    setId(subwayStation.getId());
-	    this.setId(subwayStation.getId());
-	    this.setName(subwayStation.getName());
-	    this.setLat(subwayStation.getLat());
-	    this.setLng(subwayStation.getLng());
-    }
+		setId(subwayStation.getId());
+		this.setId(subwayStation.getId());
+		this.setName(subwayStation.getName());
+		this.setLat(subwayStation.getLat());
+		this.setLng(subwayStation.getLng());
+	}
 
 	/**
 	 * @param lineId the new current subway line ID
@@ -107,13 +107,13 @@ public class ASubwayStation extends SubwayStation {
 	 * @param distance the new distance
 	 */
 	public void setDistance(float distance) {
-	    this.distance = distance;
-    }
-	
+		this.distance = distance;
+	}
+
 	/**
 	 * @return the distance
 	 */
 	public float getDistance() {
-	    return distance;
-    }
+		return distance;
+	}
 }

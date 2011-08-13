@@ -208,7 +208,7 @@ public class DataStore {
 		 * Create an history with a value
 		 * @param value the value
 		 */
-		public History(String value){
+		public History(String value) {
 			this.value = value;
 		}
 

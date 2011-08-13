@@ -72,6 +72,7 @@
 	<string name="bus_stop">Arrêt de bus</string>
 	<string name="bus_stop_short">Arrêt</string>
 	<string name="bus_stop_and_line_short">Arrêt %1$s (Ligne %2$s)</string>
+	<string name="bus_stop_removed">La ligne de bus %s ne passe plus à cette arrêt !</string>
 	<string name="waiting_for_location_fix">En attente d\'informations de localisation ...</string>
 	<string name="no_location_provider_available">Aucune information de localisation n\'est disponible.\nVous devez activer la localisation par réseaux sans fil et/ou satellites GPS dans les paramètres du téléphone.</string>
     <string name="subway_status">État du service</string>
@@ -235,6 +236,11 @@
     <string name="distance_pref_dialog_title">Affichage des distances</string>
     <string name="distance_pref_simple">Simple</string>
     <string name="distance_pref_detailed">Détaillé</string>
+
+    <string name="clear_cache_pref_title">Effacer cache.</string>
+    <string name="clear_cache_pref_summary">Effacer le cache de l\'application.</string>
+    <string name="clear_cache_pref_summary_disabled">Cache vide.</string>
+    <string name="clear_cache_complete">Cache effacé.</string>
 
     <string name="viewBusStopInfo">Voir l\'arrêt de bus</string>
     

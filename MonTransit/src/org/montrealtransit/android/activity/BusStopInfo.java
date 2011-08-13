@@ -3,6 +3,7 @@ package org.montrealtransit.android.activity;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.montrealtransit.android.AdsUtils;
@@ -23,6 +24,7 @@ import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
 import org.montrealtransit.android.provider.StmStore.BusLine;
 import org.montrealtransit.android.provider.StmStore.BusLineDirection;
+import org.montrealtransit.android.provider.StmStore.BusStop;
 import org.montrealtransit.android.provider.StmStore.SubwayLine;
 import org.montrealtransit.android.services.GeocodingTask;
 import org.montrealtransit.android.services.GeocodingTaskListener;
@@ -100,7 +102,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	/**
 	 * The task used to load the next bus stops.
 	 */
-	private AsyncTask<StmStore.BusStop, String, BusStopHours> task;
+	private AsyncTask<StmStore.BusStop, String, Map<String, BusStopHours>> task;
 
 	/**
 	 * The refresh/stop refresh image.
@@ -620,7 +622,6 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 		refreshBusStopInfo();
 		refreshOtherBusLinesInfo();
 		refreshSubwayStationInfo();
-		setFocusToTheBusStopPlace();
 	}
 
 	/**
@@ -632,7 +633,8 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 			// IF no local cache DO
 			if (this.cache == null) {
 				// load cache from database
-				this.cache = DataManager.findCache(getContentResolver(), Cache.KEY_TYPE_VALUE_BUS_STOP, getUID());
+				this.cache = DataManager.findCache(getContentResolver(), Cache.KEY_TYPE_VALUE_BUS_STOP,
+				        busStop.getUID());
 			}
 			// compute the too old date
 			int tooOld = (int) (System.currentTimeMillis() / 1000) - CACHE_TOO_OLD_IN_SEC;
@@ -667,7 +669,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	 * @param hours the new next bus stops
 	 */
 	private void showNewNextStops(BusStopHours hours) {
-		MyLog.v(TAG, "showNewNextStops(%s)");
+		MyLog.v(TAG, "showNewNextStops(%s)", hours.serialized());
 		if (hours != null) {
 			// set next stop header with source name
 			this.nextStopStringTv.setText(getString(R.string.next_bus_stops_and_source, hours.getSourceName()));
@@ -721,7 +723,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 		// IF the task is NOT already running DO
 		if (this.task == null || !this.task.getStatus().equals(AsyncTask.Status.RUNNING)) {
 			setNextStopsLoading();
-			// find the closest stations
+			// find the next bus stop
 			if (getProviderFromPref().equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_INFO)) {
 				this.task = new StmInfoTask(this, this);
 				this.task.execute(this.busStop);
@@ -889,9 +891,29 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void onNextStopsLoaded(BusStopHours result) {
-		MyLog.v(TAG, "onNextStopsLoaded()");
+	public void onNextStopsLoaded(Map<String, BusStopHours> results) {
+		MyLog.v(TAG, "onNextStopsLoaded(%s)", results.size());
+		// Save loaded next stops to cache
+		for (String lineNumber : results.keySet()) {
+			if (results.get(lineNumber) != null && results.get(lineNumber).getSHours().size() > 0) {
+				Cache newCache = new Cache(Cache.KEY_TYPE_VALUE_BUS_STOP, BusStop.getUID(this.busStop.getCode(),
+				        lineNumber), results.get(lineNumber).serialized());
+				// remove existing cache for this bus stop
+				if (lineNumber.equals(this.busStop.getLineNumber())) {
+					if (this.cache != null) {
+						DataManager.deleteCache(getContentResolver(), this.cache.getId());
+					}
+					this.cache = newCache;
+				} else {
+					DataManager.deleteCacheIfExist(getContentResolver(), Cache.KEY_TYPE_VALUE_BUS_STOP,
+					        BusStop.getUID(this.busStop.getCode(), lineNumber));
+				}
+				// save the new value to cache
+				DataManager.addCache(getContentResolver(), newCache);
+			}
+		}
 		// IF error DO
+		BusStopHours result = results.get(this.busStop.getLineNumber());
 		if (result == null || result.getSHours().size() <= 0) {
 			// process the error
 			setNextStopsError(result);
@@ -900,29 +922,8 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 			this.hours = result;
 			// show the result
 			showNewNextStops(this.hours);
-			// remove existing cache for this bus stop
-			if (this.cache != null) {
-				DataManager.deleteCache(getContentResolver(), this.cache.getId());
-			}
-			// save the new value to cache
-			this.cache = DataManager.addCache(getContentResolver(), new Cache(Cache.KEY_TYPE_VALUE_BUS_STOP, getUID(),
-			        this.hours.serialized()));
 			setNextStopsNotLoading();
 		}
-	}
-
-	/**
-	 * @return the bus stop unique ID.
-	 */
-	private String getUID() {
-		return this.busStop.getCode() + "-" + this.busLine.getNumber();
-	}
-
-	/**
-	 * Set the focus to the bus stop place.
-	 */
-	private void setFocusToTheBusStopPlace() {
-		// TODO doesn't work!!! ((TextView) findViewById(R.id.bus_stop_place)).requestFocus();
 	}
 
 	/**

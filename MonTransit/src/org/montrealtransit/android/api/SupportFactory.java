@@ -19,17 +19,14 @@ public class SupportFactory {
 			className += ".CupcakeSupport"; // 3
 		} else if (sdkVersion == Build.VERSION_CODES.DONUT) {
 			className += ".DonutSupport"; // 4
-		} else if (sdkVersion == Build.VERSION_CODES.ECLAIR
-				|| sdkVersion == Build.VERSION_CODES.ECLAIR_0_1
+		} else if (sdkVersion == Build.VERSION_CODES.ECLAIR || sdkVersion == Build.VERSION_CODES.ECLAIR_0_1
 		        || sdkVersion == Build.VERSION_CODES.ECLAIR_MR1) {
 			className += ".EclairSupport"; // 5 6 7
 		} else if (sdkVersion == Build.VERSION_CODES.FROYO) {
 			className += ".FroyoSupport"; // 8
-		} else if (sdkVersion == Build.VERSION_CODES.GINGERBREAD
-				|| sdkVersion == Build.VERSION_CODES.GINGERBREAD_MR1) {
+		} else if (sdkVersion == Build.VERSION_CODES.GINGERBREAD || sdkVersion == Build.VERSION_CODES.GINGERBREAD_MR1) {
 			className += ".GingerbreadSupport"; // 9 10
-		} else if (sdkVersion == Build.VERSION_CODES.HONEYCOMB
-				|| sdkVersion == Build.VERSION_CODES.HONEYCOMB_MR1) {
+		} else if (sdkVersion == Build.VERSION_CODES.HONEYCOMB || sdkVersion == Build.VERSION_CODES.HONEYCOMB_MR1) {
 			className += ".HoneycombSupport"; // 11 12
 		} else if (sdkVersion > Build.VERSION_CODES.GINGERBREAD) {
 			MyLog.w(TAG, "Unknow API Level: %s", Build.VERSION.SDK);
