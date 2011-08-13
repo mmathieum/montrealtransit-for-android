@@ -1,7 +1,10 @@
 package org.montrealtransit.android.provider;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.provider.DataStore.Cache;
@@ -337,7 +340,7 @@ public class DataManager {
 	 */
 	public static List<DataStore.Fav> findFavsByTypeList(ContentResolver contentResolver, int type) {
 		MyLog.v(TAG, "findFavsByTypeList(%s)", type);
-		List<DataStore.Fav> result = new ArrayList<DataStore.Fav>();;
+		List<DataStore.Fav> result = new ArrayList<DataStore.Fav>();
 		Cursor cursor = null;
 		try {
 			Uri favTypeUri = ContentUris.withAppendedId(DataStore.Fav.CONTENT_URI, type);
@@ -428,12 +431,46 @@ public class DataManager {
 	 * @return the new added cache object or <b>NULL</b> if something wrong happen
 	 */
 	public static Cache addCache(ContentResolver contentResolver, Cache newCache) {
+		MyLog.v(TAG, "addCache(%s)", newCache.getObject());
 		final Uri uri = contentResolver.insert(Cache.CONTENT_URI, newCache.getContentValues());
 		if (uri != null) {
 			return findCache(contentResolver, uri);
 		} else {
 			return null;
 		}
+	}
+
+	/**
+	 * @param contentResolver the content resolver
+	 * @return all cache entries
+	 */
+	public static Cursor findAllCache(ContentResolver contentResolver) {
+		return contentResolver.query(Cache.CONTENT_URI, null, null, null, null);
+	}
+
+	/**
+	 * @param contentResolver the content resolver
+	 * @return all the cache entries in a list or <b>NULL</b>
+	 * @see {@link DataManager#findAllCache(ContentResolver)}
+	 */
+	public static List<Cache> findAllCacheList(ContentResolver contentResolver) {
+		List<Cache> result = null;
+		Cursor cursor = null;
+		try {
+			cursor = findAllCache(contentResolver);
+			if (cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
+					result = new ArrayList<Cache>();
+					do {
+						result.add(DataStore.Cache.fromCursor(cursor));
+					} while (cursor.moveToNext());
+				}
+			}
+		} finally {
+			if (cursor != null)
+				cursor.close();
+		}
+		return result;
 	}
 
 	/**
@@ -487,6 +524,38 @@ public class DataManager {
 	}
 
 	/**
+	 * Find all cache entries of this type matching the regex.
+	 * @param contentResolver the content resolver
+	 * @param type the cache type
+	 * @param fkIdRegex the cache FK ID regex
+	 * @return the cache entries
+	 */
+	public static Set<Cache> findCacheRegex(ContentResolver contentResolver, int type, String fkIdRegex) {
+		MyLog.v(TAG, "findCacheRegex(%s, %s)", type, fkIdRegex);
+		Set<Cache> caches = new HashSet<DataStore.Cache>();
+		Cache cache = null;
+		Cursor cursor = null;
+		try {
+			// find all values
+			cursor = contentResolver.query(Cache.CONTENT_URI, null, null, null, null);
+			if (cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
+					do {
+						cache = Cache.fromCursor(cursor);
+						if (Pattern.matches(fkIdRegex, cache.getFkId())) {
+							caches.add(cache);
+						}
+					} while (cursor.moveToNext());
+				}
+			}
+		} finally {
+			if (cursor != null)
+				cursor.close();
+		}
+		return caches;
+	}
+
+	/**
 	 * Delete a cache object from the content provider.
 	 * @param contentResolver the content resolver
 	 * @param id the cache object ID
@@ -524,6 +593,17 @@ public class DataManager {
 		Uri dateUri = Uri.withAppendedPath(Cache.CONTENT_URI, String.valueOf(date));
 		Uri uri = Uri.withAppendedPath(dateUri, Cache.URI_DATE);
 		int count = contentResolver.delete(uri, null, null);
+		return count > 0;
+	}
+
+	/**
+	 * Delete all cache entries from the content provider.
+	 * @param contentResolver the content resolver
+	 * @return true if one or more cache entries were deleted
+	 */
+	public static boolean deleteAllCache(ContentResolver contentResolver) {
+		MyLog.v(TAG, "deleteAllCache()");
+		int count = contentResolver.delete(Cache.CONTENT_URI, null, null);
 		return count > 0;
 	}
 }

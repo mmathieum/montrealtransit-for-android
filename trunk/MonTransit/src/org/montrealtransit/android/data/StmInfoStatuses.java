@@ -23,6 +23,7 @@ public class StmInfoStatuses {
 	 */
 	public StmInfoStatuses() {
 	}
+
 	/**
 	 * Constructor
 	 * @param error the error message

@@ -197,7 +197,6 @@ public class StmStore {
 			public static final String CONTENT_DIRECTORY = "busstops";
 			public static final String DEFAULT_SORT_ORDER = BusStopsColumns.STOPS_ORDER + " ASC";
 		}
-
 	}
 
 	/**
@@ -336,6 +335,10 @@ public class StmStore {
 		public static final String ORDER_BY_LINE_CODE = StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + ", "
 		        + StmDbHelper.T_BUS_STOPS_K_CODE + " ASC";
 		/**
+		 * Separator use for the UID.
+		 */
+		public static final String UID_SEPARATOR = "-";
+		/**
 		 * The bus stop code
 		 */
 		private String code;
@@ -381,6 +384,46 @@ public class StmStore {
 				busStop.lineType = c.getString(c.getColumnIndexOrThrow(BusLinesColumns.LINE_TYPE));
 			}
 			return busStop;
+		}
+
+		/**
+		 * @param a bus stop code
+		 * @param a bus line number
+		 * @return a bus stop UID
+		 */
+		public static String getUID(String code, String lineNumber) {
+			return code + UID_SEPARATOR + lineNumber;
+		}
+
+		/**
+		 * @return the bus stop UID
+		 */
+		public String getUID() {
+			return getUID(this.code, this.lineNumber);
+		}
+
+		/**
+		 * @return the bus stop code from the bus stop UID
+		 */
+		public static String getCodeFromUID(String uid) {
+			String[] split = uid.split(UID_SEPARATOR);
+			if (split.length >= 0) {
+				return split[0];
+			} else {
+				return null;
+			}
+		}
+
+		/**
+		 * @return the bus line number from the bus stop IUD
+		 */
+		public static String getLineNumberFromUID(String uid) {
+			String[] split = uid.split(UID_SEPARATOR);
+			if (split.length >= 1) {
+				return split[1];
+			} else {
+				return null;
+			}
 		}
 
 		/**

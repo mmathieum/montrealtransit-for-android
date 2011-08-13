@@ -398,7 +398,7 @@ public class StmManager {
 			if (favIdsS.length() > 0) {
 				favIdsS += "+";
 			}
-			favIdsS += favId.getFkId() + "-" + favId.getFkId2();
+			favIdsS += BusStop.getUID(favId.getFkId(), favId.getFkId2());
 		}
 		return Uri.withAppendedPath(StmStore.BusStop.CONTENT_URI_FAV, favIdsS);
 	}

@@ -84,7 +84,7 @@ public class FavListTab extends Activity {
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
-		setUpUI(); //TODO in background task
+		setUpUI(); // TODO in background task
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		super.onResume();
 	}

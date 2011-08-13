@@ -72,6 +72,7 @@
 	<string name="bus_stop">Bus stop</string>
 	<string name="bus_stop_short">Stop</string>
 	<string name="bus_stop_and_line_short">Stop %1$s (Line %2$s)</string>
+	<string name="bus_stop_removed">The bus line %s no longer passes at this bus stop!</string>
 	<string name="waiting_for_location_fix">Waiting for location...</string>
 	<string name="no_location_provider_available">No location provider available.\nYou need to enable location by wireless network or GPS satellites in your phone settings.</string>
 	<string name="subway_status">Service status</string>
@@ -235,6 +236,11 @@
     <string name="distance_pref_dialog_title">Distance display</string>
     <string name="distance_pref_simple">Simple</string>
     <string name="distance_pref_detailed">Detailed</string>
+
+    <string name="clear_cache_pref_title">Clear cache.</string>
+    <string name="clear_cache_pref_summary">Clear application cache.</string>
+    <string name="clear_cache_pref_summary_disabled">Cache empty.</string>
+    <string name="clear_cache_complete">Cache cleared.</string>
 
     <string name="viewBusStopInfo">View Bus Stop</string>
     

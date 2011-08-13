@@ -53,13 +53,14 @@ public class ClosestSubwayStations {
 		}
 		return this.stations;
 	}
-	
+
 	/**
 	 * @return the location
 	 */
 	public Location getLocation() {
 		return this.location;
 	}
+
 	/**
 	 * @return the location address
 	 */

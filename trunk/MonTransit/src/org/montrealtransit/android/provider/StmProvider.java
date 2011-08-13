@@ -7,6 +7,7 @@ import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.activity.UserPreferences;
+import org.montrealtransit.android.provider.StmStore.BusStop;
 
 import android.app.SearchManager;
 import android.content.ContentProvider;
@@ -306,11 +307,12 @@ public class StmProvider extends ContentProvider {
 		sSubwayStationHourProjectionMap = map;
 
 		map = new HashMap<String, String>();
-		map.put(BaseColumns._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "||'-'||"
-		        + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS " + BaseColumns._ID);
+		map.put(BaseColumns._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "||'"
+		        + BusStop.UID_SEPARATOR + "'||" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER
+		        + " AS " + BaseColumns._ID);
 		map.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA, StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_CODE + "||'-'||" + StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS " + SearchManager.SUGGEST_COLUMN_INTENT_DATA);
+		        + StmDbHelper.T_BUS_STOPS_K_CODE + "||'" + BusStop.UID_SEPARATOR + "'||" + StmDbHelper.T_BUS_STOPS
+		        + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS " + SearchManager.SUGGEST_COLUMN_INTENT_DATA);
 		map.put(SearchManager.SUGGEST_COLUMN_TEXT_1, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE
 		        + " AS " + SearchManager.SUGGEST_COLUMN_TEXT_1);
 		map.put(SearchManager.SUGGEST_COLUMN_TEXT_2, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE
@@ -321,11 +323,12 @@ public class StmProvider extends ContentProvider {
 		sSearchSimpleProjectionMap = map;
 
 		map = new HashMap<String, String>();
-		map.put(BaseColumns._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "||'-'||"
-		        + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS " + BaseColumns._ID);
+		map.put(BaseColumns._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "||'"
+		        + BusStop.UID_SEPARATOR + "'||" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER
+		        + " AS " + BaseColumns._ID);
 		map.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA, StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_CODE + "||'-'||" + StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS " + SearchManager.SUGGEST_COLUMN_INTENT_DATA);
+		        + StmDbHelper.T_BUS_STOPS_K_CODE + "||'" + BusStop.UID_SEPARATOR + "'||" + StmDbHelper.T_BUS_STOPS
+		        + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS " + SearchManager.SUGGEST_COLUMN_INTENT_DATA);
 		map.put(SearchManager.SUGGEST_COLUMN_TEXT_1, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE
 		        + "||' '||" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " AS "
 		        + SearchManager.SUGGEST_COLUMN_TEXT_1);
@@ -527,16 +530,15 @@ public class StmProvider extends ContentProvider {
 			qb.setDistinct(true);
 			qb.setTables(BUS_STOP_LINES_JOIN);
 			qb.setProjectionMap(sBusStopsExtendedProjectionMap);
-			String[] tmp = new String[2];
 			String[] favIds = uri.getPathSegments().get(1).split("\\+");
 			for (int i = 0; i < favIds.length; i++) {
-				tmp = favIds[i].split("-");
 				if (i > 0) {
 					qb.appendWhere("OR ");
 				}
-				qb.appendWhere("(" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " = " + tmp[0]
-				        + " AND " + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " = "
-				        + tmp[1] + ") ");
+				qb.appendWhere("(" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " = "
+				        + BusStop.getCodeFromUID(favIds[i]) + " AND " + StmDbHelper.T_BUS_STOPS + "."
+				        + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " = " + BusStop.getLineNumberFromUID(favIds[i])
+				        + ") ");
 			}
 			break;
 		case BUS_STOPS_SEARCH:
@@ -588,16 +590,15 @@ public class StmProvider extends ContentProvider {
 			MyLog.v(TAG, "query>BUS_STOPS_LIVE_FOLDER");
 			qb.setTables(StmDbHelper.T_BUS_STOPS);
 			qb.setProjectionMap(sBusStopsLiveFolderProjectionMap);
-			tmp = new String[2];
 			favIds = uri.getPathSegments().get(1).split("\\+");
 			for (int i = 0; i < favIds.length; i++) {
-				tmp = favIds[i].split("-");
 				if (i > 0) {
 					qb.appendWhere("OR ");
 				}
-				qb.appendWhere("(" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " = " + tmp[0]
-				        + " AND " + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " = "
-				        + tmp[1] + ") ");
+				qb.appendWhere("(" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " = "
+				        + BusStop.getCodeFromUID(favIds[i]) + " AND " + StmDbHelper.T_BUS_STOPS + "."
+				        + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " = " + BusStop.getLineNumberFromUID(favIds[i])
+				        + ") ");
 			}
 			break;
 		case BUS_STOP_ID:

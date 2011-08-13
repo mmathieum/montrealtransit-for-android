@@ -52,6 +52,16 @@ public class AnalyticsUtils {
 	private static final int CUSTOM_VAR_INDEX_OPERATOR = 5;
 
 	/**
+	 * Category for errors.
+	 */
+	public static final String CATEGORY_ERROR = "error";
+
+	/**
+	 * Action for removed bus stops.
+	 */
+	public static final String ACTION_BUS_STOP_REMOVED = "bus_stop_removed";
+
+	/**
 	 * The instance.
 	 */
 	private static AnalyticsUtils instance;

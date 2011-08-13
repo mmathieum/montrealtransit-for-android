@@ -7,13 +7,16 @@ import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.montrealtransit.android.AnalyticsUtils;
+import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
@@ -54,11 +57,12 @@ public class StmInfoTask extends AbstractNextStopProvider {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected BusStopHours doInBackground(StmStore.BusStop... busStops) {
+	protected Map<String, BusStopHours> doInBackground(StmStore.BusStop... busStops) {
 		String stopCode = busStops[0].getCode();
 		String lineNumber = busStops[0].getLineNumber();
 		Utils.logAppVersion(this.context);
 		String errorMessage = this.context.getString(R.string.error); // set the default error message
+		Map<String, BusStopHours> hours = new HashMap<String, BusStopHours>();
 		try {
 			publishProgress(context.getString(R.string.downloading_data_from_and_source, StmInfoTask.SOURCE_NAME));
 			String urlString = URL_PART_1_BEFORE_LANG;
@@ -77,7 +81,22 @@ public class StmInfoTask extends AbstractNextStopProvider {
 				String html = Utils.getInputStreamToString(urlc.getInputStream(), "iso-8859-1");
 				AnalyticsUtils.dispatch(context); // while we are connected, sent the analytics data
 				publishProgress(this.context.getResources().getString(R.string.processing_data));
-				BusStopHours hours = getBusStopHoursFromString(html, lineNumber);
+				// FOR each bus line DO
+				for (String line : findAllBusLines(html)) {
+					hours.put(line, getBusStopHoursFromString(html, line));
+				}
+				// IF the targeted bus line was there DO
+				if (hours.keySet().contains(lineNumber)) {
+					publishProgress(this.context.getResources().getString(R.string.done));
+				} else {
+					// bus stop removed
+					errorMessage = this.context.getString(R.string.bus_stop_removed, lineNumber);
+					publishProgress(errorMessage);
+					hours.put(lineNumber, new BusStopHours(SOURCE_NAME, errorMessage));
+					AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR,
+					        AnalyticsUtils.ACTION_BUS_STOP_REMOVED, busStops[0].getUID(), context.getPackageManager()
+					                .getPackageInfo(Constant.PKG, 0).versionCode);
+				}
 				publishProgress(this.context.getResources().getString(R.string.done));
 				return hours;
 			case HttpURLConnection.HTTP_INTERNAL_ERROR:
@@ -86,21 +105,45 @@ public class StmInfoTask extends AbstractNextStopProvider {
 			default:
 				MyLog.w(TAG, "ERROR: HTTP URL-Connection Response Code %s (Message: %s)",
 				        httpUrlConnection.getResponseCode(), httpUrlConnection.getResponseMessage());
-				return new BusStopHours(SOURCE_NAME, errorMessage);
+				hours.put(lineNumber, new BusStopHours(SOURCE_NAME, errorMessage));
+				return hours;
 			}
 		} catch (UnknownHostException uhe) {
 			MyLog.w(TAG, uhe, "No Internet Connection!");
 			publishProgress(this.context.getString(R.string.no_internet));
-			return new BusStopHours(SOURCE_NAME, this.context.getString(R.string.no_internet));
+			hours.put(lineNumber, new BusStopHours(SOURCE_NAME, this.context.getString(R.string.no_internet)));
+			return hours;
 		} catch (SocketException se) {
 			MyLog.w(TAG, se, "No Internet Connection!");
 			publishProgress(this.context.getString(R.string.no_internet));
-			return new BusStopHours(SOURCE_NAME, this.context.getString(R.string.no_internet));
+			hours.put(lineNumber, new BusStopHours(SOURCE_NAME, this.context.getString(R.string.no_internet)));
+			return hours;
 		} catch (Exception e) {
 			MyLog.e(TAG, e, "INTERNAL ERROR: Unknown Exception");
 			publishProgress(errorMessage);
-			return new BusStopHours(SOURCE_NAME, errorMessage);
+			hours.put(lineNumber, new BusStopHours(SOURCE_NAME, this.context.getString(R.string.error)));
+			return hours;
 		}
+	}
+
+	/**
+	 * The pattern to extract the bus line number from the HTML source.
+	 */
+	private static final Pattern PATTERN_REGEX_LINE_NUMBER = Pattern
+	        .compile("<td[^>]*>(<b[^>]*>)?([0-9]{1,3})(</b>)?</td>");
+
+	/**
+	 * @param html the HTML source
+	 * @return the bus line number included in the HTML source
+	 */
+	private Set<String> findAllBusLines(String html) {
+		MyLog.v(TAG, "findAllBusLines(%s)", html.length());
+		Set<String> result = new HashSet<String>();
+		Matcher matcher = PATTERN_REGEX_LINE_NUMBER.matcher(html);
+		while (matcher.find()) {
+			result.add(matcher.group(2));
+		}
+		return result;
 	}
 
 	/**

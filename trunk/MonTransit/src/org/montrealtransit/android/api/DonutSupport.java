@@ -10,7 +10,7 @@ public class DonutSupport extends CupcakeSupport {
 	}
 
 	@Override
-    public String getBuildManufacturer() {
-	    return Build.MANUFACTURER;
-    }
+	public String getBuildManufacturer() {
+		return Build.MANUFACTURER;
+	}
 }

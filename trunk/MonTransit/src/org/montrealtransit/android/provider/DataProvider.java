@@ -323,7 +323,7 @@ public class DataProvider extends ContentProvider {
 			break;
 		case CACHE_DATE:
 			MyLog.v(TAG, "DELETE>CACHE_DATE");
-			count = db.delete(DataDbHelper.T_CACHE, DataDbHelper.T_CACHE + "." + DataDbHelper.T_CACHE_K_DATE+ " < "
+			count = db.delete(DataDbHelper.T_CACHE, DataDbHelper.T_CACHE + "." + DataDbHelper.T_CACHE_K_DATE + " < "
 			        + uri.getPathSegments().get(1), null);
 			break;
 		default:

@@ -7,6 +7,7 @@ import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
+import org.montrealtransit.android.provider.StmStore.BusStop;
 
 import android.app.ListActivity;
 import android.app.SearchManager;
@@ -166,11 +167,12 @@ public class SearchResult extends ListActivity {
 	 */
 	private void showBusStop(String selectedSearchResultId) {
 		MyLog.v(TAG, "showBusStop(%s)", selectedSearchResultId);
-		String[] ids = selectedSearchResultId.split("-");
-		if (ids.length >= 2) {
+		String busStopCode = BusStop.getCodeFromUID(selectedSearchResultId);
+		String busLineNumber = BusStop.getLineNumberFromUID(selectedSearchResultId);
+		if (busStopCode != null && busLineNumber != null) {
 			Intent intent = new Intent(this, BusStopInfo.class);
-			intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, ids[1]);
-			intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, ids[0]);
+			intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, busLineNumber);
+			intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, busStopCode);
 			startActivity(intent);
 		}
 	}
