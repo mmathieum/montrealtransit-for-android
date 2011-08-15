@@ -101,7 +101,7 @@ public class AnalyticsUtils {
 		}
 		if (!trackerStarted) {
 			MyLog.v(TAG, "Starting the Google Analytics tracker...");
-			tracker.start(context.getString(R.string.google_analytics_id), context);
+			tracker.startNewSession(context.getString(R.string.google_analytics_id), context);
 			trackerStarted = true;
 			MyLog.v(TAG, "Starting the Google Analytics tracker... DONE");
 		}
@@ -215,7 +215,7 @@ public class AnalyticsUtils {
 	public static void stop(Context context) {
 		MyLog.v(TAG, "stop()");
 		if (TRACKING) {
-			getGoogleAnalyticsTracker(context).stop();
+			getGoogleAnalyticsTracker(context).stopSession();
 			trackerStarted = false;
 		}
 	}
