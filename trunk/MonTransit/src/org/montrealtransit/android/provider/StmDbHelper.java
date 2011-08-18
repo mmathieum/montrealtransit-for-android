@@ -42,7 +42,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	private static final int[] DUMP_FILES = new int[] { R.raw.stm_db_arrets_autobus_p1, R.raw.stm_db_arrets_autobus_p2,
 	        R.raw.stm_db_directions_autobus, R.raw.stm_db_directions_metro, R.raw.stm_db_frequences_metro,
 	        R.raw.stm_db_horaire_metro, R.raw.stm_db_lignes_autobus, R.raw.stm_db_lignes_metro,
-	        R.raw.stm_db_stations_lignes, R.raw.stm_db_stations_metro };
+	        R.raw.stm_db_stations_metro };
 
 	// BUS LINE
 	public static final String T_BUS_LINES = "lignes_autobus";
