@@ -29,14 +29,16 @@
     		android:layout_toRightOf="@id/subway" android:layout_toLeftOf="@id/subway_img"
     		android:singleLine="true" android:ellipsize="marquee"
     		android:focusable="true" android:gravity="center_vertical|left"
-    		android:textAppearance="?android:attr/textAppearanceLarge" android:textStyle="bold" />
+    		android:textAppearance="?android:attr/textAppearanceLarge" android:textStyle="bold"
+    		android:text="@string/unknow_subway" />
     </RelativeLayout>
 
 	<!-- SUBWAY STATIONS  -->
 	<TextView android:id="@+id/subway_line_station_string"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		style="?android:attr/listSeparatorTextViewStyle" android:focusable="true" android:paddingLeft="5dp"
-		android:singleLine="true" android:ellipsize="end" />
+		android:singleLine="true" android:ellipsize="end"
+		android:text="@string/subway_stations_short" />
     <FrameLayout
     	android:layout_width="fill_parent"
     	android:layout_height="0dip"
