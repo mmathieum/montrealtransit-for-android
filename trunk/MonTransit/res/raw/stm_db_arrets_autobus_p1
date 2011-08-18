@@ -1022,7 +1022,7 @@ INSERT INTO "arrets_autobus" VALUES('',30,'3001S','Amherst / Viger','','Descente
 INSERT INTO "arrets_autobus" VALUES(60614,30,'3001N','Amherst / Viger','','',0);
 INSERT INTO "arrets_autobus" VALUES(60615,30,'3001N','Viger / Saint-Hubert','','',1);
 INSERT INTO "arrets_autobus" VALUES(52904,30,'3001N','Berri / René-Lévesque','','',2);
-INSERT INTO "arrets_autobus" VALUES(52846,30,'3001N','Berri / Sainte-Catherine',11,'',3);
+INSERT INTO "arrets_autobus" VALUES(61153,30,'3001N','Berri / Sainte-Catherine',11,'',3);
 INSERT INTO "arrets_autobus" VALUES(52791,30,'3001N','Station Berri-UQAM (Berri / de Maisonneuve)','','',4);
 INSERT INTO "arrets_autobus" VALUES(52662,30,'3001N','Berri / Ontario','','',5);
 INSERT INTO "arrets_autobus" VALUES(52585,30,'3001N','Berri / Sherbrooke','','',6);
