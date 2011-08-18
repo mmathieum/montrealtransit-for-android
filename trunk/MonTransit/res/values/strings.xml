@@ -130,6 +130,7 @@
 	
 	<string name="unknow_line_name">Unknown line</string>
 	<string name="unknow_stop_place">Unknown bus stop</string>
+	<string name="unknow_subway">Unknown subway</string>
 	<string name="unknow_direction">Unknown direction</string>
     
     <string name="in">in</string>

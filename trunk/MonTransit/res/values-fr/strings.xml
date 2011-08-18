@@ -130,6 +130,7 @@
     
     <string name="unknow_line_name">Ligne de bus inconnue</string>
     <string name="unknow_stop_place">Arrêt de bus inconnu</string>
+    <string name="unknow_subway">Métro inconnu</string>
     <string name="unknow_direction">Direction inconnue</string>
     
     <string name="in">dans</string>
