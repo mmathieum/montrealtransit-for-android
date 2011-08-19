@@ -3,6 +3,36 @@
 
 = !ChangeLog =
 
+ * 1.5.9.5 (r467)
+  * Fix apps starting on wrong tab.
+  * More efficient next bus stops loading.
+  * UI update on bus stop and bus lines.
+  * Loading less ads on Bus Stop view.
+  * Update bus line 30 & 747.
+  * Remove bus line 56.
+  * Remove useless table in STM database.
+  * Update Google Analytics + AdMob + Twitter4J libraries.
+
+ * 1.5.9.3 (r454)
+  * add new bus lines (353, 354, 376)
+  * update bus lines (350, 355, 356, 358, 360, 362, 364, 378, 382)
+  * add Twitter & Facebook links in about dialog
+  * improve bus stop place name cleaning
+  * add xhdpi launcher icon
+
+ * 1.5.9.1 (r433)
+  * Fix subway tab force close (fix subway status).
+  * Fix stop code tab force close on tablets.
+  * Update AdMob lib.
+  * Other minor improvements.
+
+ * 1.5.9 (r420)
+  * Should fix force close issues.
+  * Add icon in list separators.
+  * Update AdMob.
+
+ * 1.5.8 (r415)
+
  * 1.5.7 (r403)
   * add 30 minutes cache (to easily browse between bus stops without reloading the data every time)
   * location service improvements

@@ -3,6 +3,36 @@
 
 = !ChangeLog =
 
+ * 1.5.9.5 (r467)
+  * Corrige le problème concernant l'onglet au démarrage de l'app.
+  * Chargement des prochains passages de bus plus efficace.
+  * Mise à jour de l'interface des arrêts de bus and et lignes de bus.
+  * Chargement de moins de publicité lors de la consultation des horaires.
+  * Mise à jour des lignes de bus 30 & 747.
+  * Suppression de la ligne de bus 56.
+  * Suppression d'une table inutile dans la base de données.
+  * Mise à jour des librairies de Google Analytics, AdMob & Twitter4J libraries.
+
+ * 1.5.9.3 (r454)
+  * ajout des nouvelles lignes de bus (353, 354, 376)
+  * mises à jour de lignes de bus (350, 355, 356, 358, 360, 362, 364, 378, 382)
+  * ajout des liens Twitter & Facebook dans la fenetre 'À propos'
+  * amélioration du netoyage de nom d'arrêt de bus
+  * ajout de l'icône de l'app pour les écran en xhdpi
+
+ * 1.5.9.1 (r433)
+  * Corrige le problème dans l'onglet Métro (corrige l'état de service).
+  * Corrige le problème dans l'onglet Code d'arrêt sur tablettes.
+  * Mise à jour de AdMob.
+  * Autres améliorations mineures.
+
+ * 1.5.9 (r420)
+  * Devrait corriger les problèmes de fermeture de l'application.
+  * Ajout d'icônes dans les séparateurs de liste.
+  * Mise à jour de AdMob.
+
+ * 1.5.8 (r415)
+
  * 1.5.7 (r403)
   * ajout d'un cache de 30 minutes (pour permettre de naviger plus facilement entre différents arrêts sans recharger les données à chaque fois)
   * amélioration du service de localisation
