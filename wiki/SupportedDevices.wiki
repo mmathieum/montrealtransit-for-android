@@ -1,6 +1,8 @@
-#labels Phase-Support,Phase-Requirements
 #summary The list of supported devices.
+#labels Phase-Support,Phase-Requirements
 We support all Android devices with screen from 2" to 10.1", with or without hardware keyboard, running any Android 1.5 or higher.
+
+*Obviously, this device list is out of date. We do support all Android devices released in Canada.*
 
 Because Android is _open and free_, we also support Android version from the _community_ (like the popular [http://www.cyanogenmod.com/ CyanogenMod]).
 
