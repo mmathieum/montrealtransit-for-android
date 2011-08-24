@@ -38,6 +38,7 @@ INSERT INTO "lignes_autobus" VALUES(52,'Liège','P',' ');
 INSERT INTO "lignes_autobus" VALUES(53,'Boulevard Saint-Laurent','J',' ');
 INSERT INTO "lignes_autobus" VALUES(54,'Charland / Chabanel','J',' ');
 INSERT INTO "lignes_autobus" VALUES(55,'Boulevard Saint-Laurent','J',' ');
+INSERT INTO "lignes_autobus" VALUES(56,'Saint-Hubert','J',' ');
 INSERT INTO "lignes_autobus" VALUES(57,'Pointe-Saint-Charles','J',' ');
 INSERT INTO "lignes_autobus" VALUES(58,'Wellington','J',' ');
 INSERT INTO "lignes_autobus" VALUES(61,'Wellington','J',' ');

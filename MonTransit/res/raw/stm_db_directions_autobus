@@ -87,6 +87,8 @@ INSERT INTO "directions_autobus" VALUES(54,'5401O','');
 INSERT INTO "directions_autobus" VALUES(54,'5401E','');
 INSERT INTO "directions_autobus" VALUES(55,'55JON','');
 INSERT INTO "directions_autobus" VALUES(55,'55JOS','');
+INSERT INTO "directions_autobus" VALUES(56,'5601S','');
+INSERT INTO "directions_autobus" VALUES(56,'5601N','');
 INSERT INTO "directions_autobus" VALUES(57,'5701E','');
 INSERT INTO "directions_autobus" VALUES(57,'5701O','');
 INSERT INTO "directions_autobus" VALUES(58,'5801E','');
