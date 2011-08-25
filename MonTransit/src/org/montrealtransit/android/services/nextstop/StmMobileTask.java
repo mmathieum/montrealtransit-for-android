@@ -81,12 +81,13 @@ public class StmMobileTask extends AbstractNextStopProvider {
 				if (hours.keySet().contains(lineNumber)) {
 					publishProgress(this.context.getResources().getString(R.string.done));
 				} else {
-					// bus stop removed
-					errorMessage = this.context.getString(R.string.bus_stop_removed, lineNumber);
+					// no info on m.stm.info about this bus stop
+					errorMessage = this.context
+					        .getString(R.string.bus_stop_no_info_and_source, lineNumber, SOURCE_NAME);
 					publishProgress(errorMessage);
 					hours.put(lineNumber, new BusStopHours(SOURCE_NAME, errorMessage));
 					AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR,
-					        AnalyticsUtils.ACTION_BUS_STOP_REMOVED, busStops[0].getUID(), context.getPackageManager()
+					        AnalyticsUtils.ACTION_BUS_STOP_NO_INFO, busStops[0].getUID(), context.getPackageManager()
 					                .getPackageInfo(Constant.PKG, 0).versionCode);
 				}
 				return hours;
@@ -167,7 +168,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 		String interestingPart = getInterestingPart(html, lineNumber);
 		if (interestingPart != null) {
 			// find hours
-			Matcher matcher = PATTERN_REGEX_FOR_HOURS.matcher(interestingPart);
+			Matcher matcher = PATTERN_REGEX_FOR_HOURS.matcher(getRouteSchedule(interestingPart));
 			while (matcher.find()) {
 				// considering 00h00 the standard (instead of the 00:00 provided by m.stm.info in English)
 				result.addSHour(matcher.group().replaceAll(":", "h"));
@@ -196,6 +197,25 @@ public class StmMobileTask extends AbstractNextStopProvider {
 			}
 		} else {
 			MyLog.w(TAG, "Can't find the next bus stops for line %s!", lineNumber);
+		}
+		return result;
+	}
+
+	/**
+	 * The pattern for the route schedule.
+	 */
+	private static final Pattern PATTERN_REGEX_FOR_ROUTE_SCHEDULE = Pattern
+	        .compile("<p class=\"route-schedules\">[^<]*</p>[\\s]*");
+
+	/**
+	 * @param interestingPart the bus line part
+	 * @return the bus line route schedule part
+	 */
+	private String getRouteSchedule(String interestingPart) {
+		String result = null;
+		Matcher matcher = PATTERN_REGEX_FOR_ROUTE_SCHEDULE.matcher(interestingPart);
+		if (matcher.find()) {
+			result = matcher.group();
 		}
 		return result;
 	}
