@@ -60,6 +60,10 @@ public class AnalyticsUtils {
 	 * Action for removed bus stops.
 	 */
 	public static final String ACTION_BUS_STOP_REMOVED = "bus_stop_removed";
+	/**
+	 * Action for no info for bus stops.
+	 */
+	public static final String ACTION_BUS_STOP_NO_INFO = "bus_stop_no_info";
 
 	/**
 	 * The instance.
