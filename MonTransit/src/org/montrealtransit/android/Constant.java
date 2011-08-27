@@ -53,6 +53,12 @@ public class Constant {
 	public static final int PLACE_CHAR_PARENTHESE_STATION_LENGTH = PLACE_CHAR_PARENTHESE_STATION.length();
 
 	/**
+	 * Montreal location (source:wikipedia.org)
+	 */
+	public static final double MONTREAL_LAT = 45.5;
+	public static final double MONTREAL_LNG = -73.666667;
+
+	/**
 	 * STM coverage area.
 	 */
 	public static final double STM_UPPER_RIGHT_LAT = 45.7278;
