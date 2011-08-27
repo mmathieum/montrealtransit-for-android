@@ -8,4 +8,6 @@ public interface SupportUtil {
 
 	String getBuildManufacturer();
 
+	int getASyncTaskCapacity();
+
 }

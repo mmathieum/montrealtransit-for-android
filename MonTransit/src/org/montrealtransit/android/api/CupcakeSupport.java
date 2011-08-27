@@ -20,4 +20,9 @@ public class CupcakeSupport implements SupportUtil {
 	public String getBuildManufacturer() {
 		return "unknown";
 	}
+
+	@Override
+	public int getASyncTaskCapacity() {
+	    return 10;
+	}
 }

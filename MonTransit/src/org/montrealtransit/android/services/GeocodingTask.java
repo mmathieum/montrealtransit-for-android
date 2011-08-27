@@ -40,15 +40,22 @@ public class GeocodingTask extends AsyncTask<String, String, List<Address>> {
 	private GeocodingTaskListener listener;
 
 	/**
+	 * True if notifying the user.
+	 */
+	private boolean notify = false;
+
+	/**
 	 * Default constructor.
 	 * @param context the activity
 	 * @param maxResults the max number of results necessary
+	 * @param notify true if notifying the user
 	 * @param listener the class that will process the result
 	 */
-	public GeocodingTask(Context context, int maxResults, GeocodingTaskListener listener) {
+	public GeocodingTask(Context context, int maxResults, boolean notify, GeocodingTaskListener listener) {
 		this.context = context;
 		this.maxResults = maxResults;
 		this.listener = listener;
+		this.notify = notify;
 	}
 
 	/**
@@ -77,7 +84,7 @@ public class GeocodingTask extends AsyncTask<String, String, List<Address>> {
 	 */
 	@Override
 	protected void onProgressUpdate(String... values) {
-		if (values != null && values.length > 0 && values[0] != null) {
+		if (this.notify && values != null && values.length > 0 && values[0] != null) {
 			Utils.notifyTheUser(this.context, values[0]);
 		}
 	}

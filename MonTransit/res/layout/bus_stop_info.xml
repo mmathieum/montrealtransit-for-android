@@ -70,6 +70,15 @@
 				android:layout_toRightOf="@id/line_number" android:layout_below="@id/line_name"
 				android:textAppearance="?android:attr/textAppearanceMedium"
 				android:text="@string/unknow_direction" />
+			<!-- DISTANCE -->
+			<TextView android:id="@+id/distance"
+				android:layout_width="wrap_content" android:layout_height="wrap_content"
+				android:layout_alignBottom="@+id/line_number"
+				android:layout_alignParentRight="true"
+				android:layout_alignWithParentIfMissing="true"
+				android:layout_alignBaseline="@+id/line_number" 
+				android:textAppearance="?android:attr/textAppearanceMedium"
+				android:visibility="gone" />
 		</RelativeLayout>
 		
 		<ScrollView

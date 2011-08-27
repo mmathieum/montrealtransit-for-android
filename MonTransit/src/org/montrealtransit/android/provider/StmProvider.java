@@ -276,6 +276,10 @@ public class StmProvider extends ContentProvider {
 		        + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + " AS " + StmStore.BusStop.STOP_SUBWAY_STATION_ID);
 		map.put(StmStore.SubwayStation.STATION_NAME, StmDbHelper.T_SUBWAY_STATIONS + "."
 		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME + " AS " + StmStore.SubwayStation.STATION_NAME);
+		map.put(StmStore.SubwayStation.STATION_LAT, StmDbHelper.T_SUBWAY_STATIONS + "."
+		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LAT + " AS " + StmStore.SubwayStation.STATION_LAT);
+		map.put(StmStore.SubwayStation.STATION_LNG, StmDbHelper.T_SUBWAY_STATIONS + "."
+		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LNG + " AS " + StmStore.SubwayStation.STATION_LNG);
 		sBusStopsWithSubwayStationProjectionMap = map;
 
 		map = new HashMap<String, String>();
@@ -488,13 +492,9 @@ public class StmProvider extends ContentProvider {
 			MyLog.v(TAG, "query>BUS_LINE_DIRECTION_STOPS");
 			qb.setTables(BUS_STOP_SUBWAY_STATION_JOIN);
 			qb.setProjectionMap(sBusStopsWithSubwayStationProjectionMap);
-			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + "=");
-			String lineId = uri.getPathSegments().get(1);
-			qb.appendWhere(lineId);
-			qb.appendWhere(" AND ");
-			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + "=");
-			String directionId = uri.getPathSegments().get(3);
-			qb.appendWhere("\"" + directionId + "\"");
+			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + "="
+			        + uri.getPathSegments().get(1) + " AND " + StmDbHelper.T_BUS_STOPS + "."
+			        + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + "=\"" + uri.getPathSegments().get(3) + "\"");
 			break;
 		case BUS_LINE_ID_DIRECTION_ID_STOPS_SEARCH:
 			MyLog.v(TAG, "query>BUS_LINE_ID_DIRECTION_ID_STOPS_SEARCH");
@@ -549,12 +549,10 @@ public class StmProvider extends ContentProvider {
 			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "!=''");
 			if (uri.getPathSegments().size() > 1) {
 				search = Uri.decode(uri.getPathSegments().get(1));
-				MyLog.d(TAG, "search: " + search);
 				if (!TextUtils.isEmpty(search)) {
 					String[] keywords = search.split(SEARCH_SPLIT_ON);
 					String inWhere = "";
 					for (String keyword : keywords) {
-						MyLog.d(TAG, "keyword: " + keyword);
 						inWhere += " AND ";
 						inWhere += "(";
 						if (TextUtils.isDigitsOnly(keyword)) {
@@ -805,12 +803,10 @@ public class StmProvider extends ContentProvider {
 				qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "!=''");
 				if (uri.getPathSegments().size() > 1) {
 					search = Uri.decode(uri.getPathSegments().get(1));
-					MyLog.d(TAG, "search: " + search);
 					if (!TextUtils.isEmpty(search)) {
 						String[] keywords = search.split(SEARCH_SPLIT_ON);
 						String inWhere = "";
 						for (String keyword : keywords) {
-							MyLog.d(TAG, "keyword: " + keyword);
 							inWhere += " AND ";
 							inWhere += "(";
 							if (TextUtils.isDigitsOnly(keyword)) {
@@ -844,12 +840,10 @@ public class StmProvider extends ContentProvider {
 				qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "!=''");
 				if (uri.getPathSegments().size() > 1) {
 					search = Uri.decode(uri.getPathSegments().get(1));
-					MyLog.d(TAG, "search: " + search);
 					if (!TextUtils.isEmpty(search)) {
 						String[] keywords = search.split(SEARCH_SPLIT_ON);
 						String inWhere = "";
 						for (String keyword : keywords) {
-							MyLog.d(TAG, "keyword: " + keyword);
 							inWhere += " AND ";
 							inWhere += "(";
 							if (TextUtils.isDigitsOnly(keyword)) {
@@ -884,7 +878,6 @@ public class StmProvider extends ContentProvider {
 			if (uri.getPathSegments().size() > 1 && uri.getPathSegments().get(1).length() == 0) {
 				limit = String.valueOf(Constant.NB_SEARCH_RESULT);
 			}
-			// MyLog.d(TAG, "search query ready!");
 			break;
 		default:
 			throw new IllegalArgumentException(String.format("Unknown URI (query): %s", uri));

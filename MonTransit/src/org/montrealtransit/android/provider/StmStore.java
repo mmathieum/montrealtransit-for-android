@@ -355,6 +355,18 @@ public class StmStore {
 		 */
 		private String subwayStationId;
 		/**
+		 * The subway station name;
+		 */
+		private String subwayStationName;
+		/**
+		 * The subway station latitude.
+		 */
+		private Double subwayStationLat;
+		/**
+		 * The subway station longitude.
+		 */
+		private Double subwayStationLng;
+		/**
 		 * The bus line number.
 		 */
 		private String lineNumber;
@@ -366,6 +378,14 @@ public class StmStore {
 		 * The bus line type.
 		 */
 		private String lineType;
+		/**
+		 * The bus stop latitude or <b>NULL</b>
+		 */
+		private Double lat;
+		/**
+		 * The bus stop longitude or <b>NULL</b>
+		 */
+		private Double lng;
 
 		public static BusStop fromCursor(Cursor c) {
 			final BusStop busStop = new BusStop();
@@ -376,6 +396,15 @@ public class StmStore {
 			busStop.lineNumber = c.getString(c.getColumnIndexOrThrow(BusStopsColumns.STOP_LINE_NUMBER));
 			busStop.place = c.getString(c.getColumnIndexOrThrow(BusStopsColumns.STOP_PLACE));
 			busStop.subwayStationId = c.getString(c.getColumnIndexOrThrow(BusStopsColumns.STOP_SUBWAY_STATION_ID));
+			if (c.getColumnIndex(SubwayStationsColumns.STATION_NAME) != -1) {
+				busStop.subwayStationName = c.getString(c.getColumnIndexOrThrow(SubwayStationsColumns.STATION_NAME));
+			}
+			if (c.getColumnIndex(SubwayStationsColumns.STATION_LAT) != -1) {
+				busStop.subwayStationLat = c.getDouble(c.getColumnIndexOrThrow(SubwayStationsColumns.STATION_LAT));
+			}
+			if (c.getColumnIndex(SubwayStationsColumns.STATION_LNG) != -1) {
+				busStop.subwayStationLng = c.getDouble(c.getColumnIndexOrThrow(SubwayStationsColumns.STATION_LNG));
+			}
 			// set the line name if the data is available
 			if (c.getColumnIndex(BusLinesColumns.LINE_NAME) != -1) {
 				busStop.lineName = c.getString(c.getColumnIndexOrThrow(BusLinesColumns.LINE_NAME));
@@ -427,6 +456,34 @@ public class StmStore {
 		}
 
 		/**
+		 * @return the bus stop GPS latitude
+		 */
+		public Double getLat() {
+			return lat;
+		}
+
+		/**
+		 * @param lat the new bus stop GPS latitude
+		 */
+		public void setLat(Double lat) {
+			this.lat = lat;
+		}
+
+		/**
+		 * @return the bus stop GPS longitude
+		 */
+		public Double getLng() {
+			return lng;
+		}
+
+		/**
+		 * @param lng the new bus stop GPS longitude
+		 */
+		public void setLng(Double lng) {
+			this.lng = lng;
+		}
+
+		/**
 		 * @return the bus stop line name or <b>NULL</b>
 		 */
 		public String getLineNameOrNull() {
@@ -441,6 +498,55 @@ public class StmStore {
 		}
 
 		/**
+		 * @return the bus stop subway station or <b>NULL</b>
+		 */
+		public String getSubwayStationNameOrNull() {
+			return subwayStationName;
+		}
+
+		/**
+		 * @param subwayStationName the new subway station name
+		 */
+		public void setSubwayStationName(String subwayStationName) {
+			this.subwayStationName = subwayStationName;
+		}
+
+		/**
+		 * @return the subway station GPS latitude or <b>NULL</b>
+		 */
+		public Double getSubwayStationLatOrNull() {
+			return subwayStationLat;
+		}
+
+		/**
+		 * @param subwayStationLat the new subway station GPS latitude
+		 */
+		public void setSubwayStationLat(Double subwayStationLat) {
+			this.subwayStationLat = subwayStationLat;
+		}
+
+		/**
+		 * @return the subway station GPS longitude or <b>NULL</b>
+		 */
+		public Double getSubwayStationLngOrNull() {
+			return subwayStationLng;
+		}
+
+		/**
+		 * @param subwayStationLng the subway station GPS longitude
+		 */
+		public void setSubwayStationLng(Double subwayStationLng) {
+			this.subwayStationLng = subwayStationLng;
+		}
+
+		/**
+		 * @param the new bus line type
+		 */
+		public void setLineType(String lineType) {
+			this.lineType = lineType;
+		}
+
+		/**
 		 * @return the bus stop code
 		 */
 		public String getCode() {
@@ -448,10 +554,24 @@ public class StmStore {
 		}
 
 		/**
+		 * @param code the new bus stop code
+		 */
+		public void setCode(String code) {
+			this.code = code;
+		}
+
+		/**
 		 * @return the direction ID
 		 */
 		public String getDirectionId() {
 			return directionId;
+		}
+
+		/**
+		 * @param directionId the new direction ID
+		 */
+		public void setDirectionId(String directionId) {
+			this.directionId = directionId;
 		}
 
 		/**
@@ -463,6 +583,13 @@ public class StmStore {
 		}
 
 		/**
+		 * @param place the new bus stop place
+		 */
+		public void setPlace(String place) {
+			this.place = place;
+		}
+
+		/**
 		 * @return the bus line number
 		 */
 		public String getLineNumber() {
@@ -470,10 +597,24 @@ public class StmStore {
 		}
 
 		/**
+		 * @param lineNumber the new bus line number
+		 */
+		public void setLineNumber(String lineNumber) {
+			this.lineNumber = lineNumber;
+		}
+
+		/**
 		 * @return the subway station ID
 		 */
 		public String getSubwayStationId() {
 			return subwayStationId;
+		}
+
+		/**
+		 * @param subwayStationId the new subway station ID
+		 */
+		public void setSubwayStationId(String subwayStationId) {
+			this.subwayStationId = subwayStationId;
 		}
 
 		/**

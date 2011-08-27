@@ -84,6 +84,10 @@
 	<string name="subway_status_done">Service status updated.</string>
 	<string name="subway_status_loading_cancelled">Update of the service status cancelled.</string>
 	
+	<string name="beta_pref_cat_title">BETA</string>
+	<string name="bus_stop_loc_pref_title">Bus Stops Location</string>
+	<string name="bus_stop_loc_pref_summary">Try to show bus stop location (BETA).</string>
+
 	<string name="display_pref_cat_title">Display preferences</string>
 	<string name="data_pref_cat_title">Data source</string>
 	<string name="advanced_pref_cat_title">Advanced settings</string>
