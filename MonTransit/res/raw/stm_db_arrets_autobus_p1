@@ -4560,7 +4560,7 @@ INSERT INTO "arrets_autobus" VALUES(52769,97,'97JOE','Rachel / Dézéry','','',2
 INSERT INTO "arrets_autobus" VALUES(52823,97,'97JOE','Rachel / Saint-Michel','','',27);
 INSERT INTO "arrets_autobus" VALUES(53825,97,'97JOE','Saint-Michel / William-Tremblay','','',28);
 INSERT INTO "arrets_autobus" VALUES(54052,97,'97JOE','Saint-Michel / du Mont-Royal','','',29);
-INSERT INTO "arrets_autobus" VALUES(52699,97,'97JOE','du Mont-Royal / Mo&iuml;se-Picard','','',30);
+INSERT INTO "arrets_autobus" VALUES(52699,97,'97JOE','du Mont-Royal / Moïse-Picard','','',30);
 INSERT INTO "arrets_autobus" VALUES(52738,97,'97JOE','du Mont-Royal / de Chambly','','',31);
 INSERT INTO "arrets_autobus" VALUES(52773,97,'97JOE','du Mont-Royal / Bourbonnière','','',32);
 INSERT INTO "arrets_autobus" VALUES(52833,97,'97JOE','du Mont-Royal / Pie-IX','','',33);
@@ -4573,7 +4573,7 @@ INSERT INTO "arrets_autobus" VALUES(52956,97,'97JOO','Bourbonnière / Sherbrooke
 INSERT INTO "arrets_autobus" VALUES(54009,97,'97JOO','Bourbonnière / Rachel','','',4);
 INSERT INTO "arrets_autobus" VALUES(52774,97,'97JOO','du Mont-Royal / Bourbonnière','','',5);
 INSERT INTO "arrets_autobus" VALUES(52734,97,'97JOO','du Mont-Royal / de Chambly','','',6);
-INSERT INTO "arrets_autobus" VALUES(52684,97,'97JOO','du Mont-Royal / Mo&iuml;se-Picard','','',7);
+INSERT INTO "arrets_autobus" VALUES(52684,97,'97JOO','du Mont-Royal / Moïse-Picard','','',7);
 INSERT INTO "arrets_autobus" VALUES(52638,97,'97JOO','du Mont-Royal / Saint-Michel','','',8);
 INSERT INTO "arrets_autobus" VALUES(53826,97,'97JOO','Saint-Michel / William-Tremblay','','',9);
 INSERT INTO "arrets_autobus" VALUES(52810,97,'97JOO','Rachel / Saint-Michel','','',10);
