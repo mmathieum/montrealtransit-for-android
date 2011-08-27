@@ -6419,7 +6419,7 @@ INSERT INTO "arrets_autobus" VALUES(60804,254,'25401S','de l''Assomption / des S
 INSERT INTO "arrets_autobus" VALUES(60782,254,'25401N','Station de métro Viau',23,'',0);
 INSERT INTO "arrets_autobus" VALUES(60783,254,'25401N','Rachel / De Chambly','','',2);
 INSERT INTO "arrets_autobus" VALUES(60784,254,'25401N','Saint-Michel / Rachel','','',3);
-INSERT INTO "arrets_autobus" VALUES(60785,254,'25401N','du Mont-Royal / Mo&iuml;se-Picard','','',4);
+INSERT INTO "arrets_autobus" VALUES(60785,254,'25401N','du Mont-Royal / Moïse-Picard','','',4);
 INSERT INTO "arrets_autobus" VALUES(60786,254,'25401N','Saint-Michel / Saint-Joseph','','',5);
 INSERT INTO "arrets_autobus" VALUES(60787,254,'25401N','Lafond / Laurier','','',6);
 INSERT INTO "arrets_autobus" VALUES(52098,254,'25401N','d''Iberville / Dandurand','','',10);
