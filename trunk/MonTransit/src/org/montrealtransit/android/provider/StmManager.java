@@ -55,7 +55,8 @@ public class StmManager {
 	 */
 	private static final String[] PROJECTION_BUS_STOP_AND_SUBWAY_STATION = new String[] { StmStore.BusStop._ID,
 	        StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE, StmStore.BusStop.STOP_DIRECTION_ID,
-	        StmStore.BusStop.STOP_LINE_NUMBER, StmStore.BusStop.STOP_SUBWAY_STATION_ID, StmStore.BusStop.STATION_NAME };
+	        StmStore.BusStop.STOP_LINE_NUMBER, StmStore.BusStop.STOP_SUBWAY_STATION_ID, StmStore.BusStop.STATION_NAME,
+	        StmStore.BusStop.STATION_LAT, StmStore.BusStop.STATION_LNG };
 
 	/**
 	 * Represents the fields the content provider will return for a bus line direction.
@@ -898,6 +899,34 @@ public class StmManager {
 		        StmStore.BusLine.BusLineDirections.BusStops.CONTENT_DIRECTORY);
 		// MyLog.v(TAG, "URI: " + busStopsUri.getPath());
 		return contentResolver.query(busStopsUri, PROJECTION_BUS_STOP_AND_SUBWAY_STATION, null, null, null);
+	}
+
+	/**
+	 * Find bus line stops matching the bus line number and the direction ID.
+	 * @param contentResolver the content resolver
+	 * @param busLineNumber the bus line number
+	 * @param directionId the direction ID
+	 * @return the bus stops
+	 */
+	public static List<StmStore.BusStop> findBusLineStopsList(ContentResolver contentResolver, String busLineNumber,
+	        String directionId) {
+		List<StmStore.BusStop> result = null;
+		Cursor c = null;
+		try {
+			c = findBusLineStops(contentResolver, busLineNumber, directionId);
+			if (c.getCount() > 0) {
+				if (c.moveToFirst()) {
+					result = new ArrayList<StmStore.BusStop>();
+					do {
+						result.add(StmStore.BusStop.fromCursor(c));
+					} while (c.moveToNext());
+				}
+			}
+		} finally {
+			if (c != null)
+				c.close();
+		}
+		return result;
 	}
 
 	/**

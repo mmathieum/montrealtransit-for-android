@@ -32,6 +32,15 @@ public class UserPreferences extends PreferenceActivity {
 	private static final String TRACKER_TAG = "/Preferences";
 
 	/**
+	 * The preference key for the bus stop location display.
+	 */
+	public static final String PREFS_BUS_STOP_LOCATION = "pBusStopLocation";
+	/**
+	 * The default value for the the bus stop location display.
+	 */
+	public static final boolean PREFS_BUS_STOP_LOCATION_DEFAULT = false;
+
+	/**
 	 * The preference key for the bus lines list display.
 	 */
 	public static final String PREFS_BUS_LINE_LIST_GROUP_BY = "pBusLineListGroupBy";

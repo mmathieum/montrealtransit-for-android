@@ -9,6 +9,7 @@ import java.util.Set;
 import org.montrealtransit.android.AdsUtils;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
+import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
@@ -40,6 +41,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.location.Address;
+import android.location.Location;
+import android.location.LocationListener;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -60,8 +63,8 @@ import android.widget.TextView;
  * This activity show information about a bus stop.
  * @author Mathieu Méa
  */
-public class BusStopInfo extends Activity implements NextStopListener, DialogInterface.OnClickListener,
-        OnSharedPreferenceChangeListener {
+public class BusStopInfo extends Activity implements LocationListener, NextStopListener,
+        DialogInterface.OnClickListener, OnSharedPreferenceChangeListener {
 
 	/**
 	 * The log tag.
@@ -204,6 +207,10 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	 * The other next bus stops.
 	 */
 	private TextView otherNextStopsTv;
+	/**
+	 * The distance text view.
+	 */
+	private TextView distanceTv;
 
 	/**
 	 * {@inheritDoc}
@@ -217,6 +224,7 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 		// find the views
 		this.nextStopsRefreshOrStopRefreshImg = (ImageView) findViewById(R.id.next_stops_refresh);
 		this.starCb = (CheckBox) findViewById(R.id.star);
+		this.distanceTv = (TextView) findViewById(R.id.distance);
 		this.theSubwayStationLayout = (RelativeLayout) findViewById(R.id.the_subway_station);
 		this.loadingView = findViewById(R.id.next_stops_loading);
 		this.message1Tv = (TextView) findViewById(R.id.next_stops_msg);
@@ -279,6 +287,38 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 				showSubwayStation(v);
 			}
 		});
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onStop() {
+		MyLog.v(TAG, "onStop()");
+		if (isShowingBusStopLocation()) {
+			LocationUtils.disableLocationUpdates(this, this);
+		}
+		super.onStop();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onRestart() {
+		MyLog.v(TAG, "onRestart()");
+		// IF location updates should be enabled DO
+		if (isShowingBusStopLocation() && this.locationUpdatesEnabled) {
+			// IF there is a valid last know location DO
+			if (LocationUtils.getBestLastKnownLocation(this) != null) {
+				// set the new distance
+				setLocation(LocationUtils.getBestLastKnownLocation(this));
+				updateDistanceWithNewLocation();
+			}
+			// re-enable
+			LocationUtils.enableLocationUpdates(this, this);
+		}
+		super.onRestart();
 	}
 
 	/**
@@ -426,7 +466,6 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	private void refreshSubwayStationInfo() {
 		MyLog.v(TAG, "refreshSubwayStationInfo()");
 		if (!TextUtils.isEmpty(this.busStop.getSubwayStationId())) {
-			// MyLog.d(TAG, "SubwayStationId: %s.", this.busStop.getSubwayStationId());
 			this.subwayStationView.setVisibility(View.VISIBLE);
 			this.theSubwayStationLayout.setVisibility(View.VISIBLE);
 			StmStore.SubwayStation subwayStation = StmManager.findSubwayStation(getContentResolver(),
@@ -500,7 +539,6 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 					@Override
 					public void onClick(View v) {
 						MyLog.v(TAG, "onClick()");
-						// MyLog.d(TAG, "bus line number: %s", lineNumber);
 						Intent intent = new Intent(BusStopInfo.this, BusStopInfo.class);
 						intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, lineNumber);
 						intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, BusStopInfo.this.busStop.getCode());
@@ -510,7 +548,6 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 				view.setOnLongClickListener(new View.OnLongClickListener() {
 					@Override
 					public boolean onLongClick(View v) {
-						// MyLog.d(TAG, "bus line number: %s", lineNumber);
 						new BusLineSelectDirection(BusStopInfo.this, lineNumber).showDialog();
 						return true;
 					}
@@ -557,7 +594,11 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 				}
 			}
 			if (newStopCode != null && newLineNumber != null) {
+				boolean sameBusStop = this.busStop != null && this.busStop.getCode().equals(newStopCode);
 				this.busStop = StmManager.findBusLineStop(this.getContentResolver(), newStopCode, newLineNumber);
+				if (!sameBusStop) { // IF new bus stop DO
+					findBusStopLocation(); // start the asynchronous task ASAP
+				}
 				this.busLine = StmManager.findBusLine(this.getContentResolver(), this.busStop.getLineNumber());
 				this.hours = null;
 				if (this.task != null) {
@@ -615,6 +656,14 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	}
 
 	/**
+	 * @return the bus stop location preference.
+	 */
+	private boolean isShowingBusStopLocation() {
+		return Utils.getSharedPreferences(this, UserPreferences.PREFS_BUS_STOP_LOCATION,
+		        UserPreferences.PREFS_BUS_STOP_LOCATION_DEFAULT);
+	}
+
+	/**
 	 * Setup all the UI (based on the bus stop).
 	 */
 	private void setUpUI() {
@@ -622,6 +671,50 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 		refreshBusStopInfo();
 		refreshOtherBusLinesInfo();
 		refreshSubwayStationInfo();
+		if (isShowingBusStopLocation()) {
+			// IF there is a valid last know location DO
+			if (LocationUtils.getBestLastKnownLocation(this) != null) {
+				// set the distance before showing the station
+				setLocation(LocationUtils.getBestLastKnownLocation(this));
+				updateDistanceWithNewLocation();
+			}
+			// IF location updates are not already enabled DO
+			if (!this.locationUpdatesEnabled) {
+				// enable
+				LocationUtils.enableLocationUpdates(this, this);
+				this.locationUpdatesEnabled = true;
+			}
+		}
+	}
+
+	/**
+	 * Find the bus stop location.
+	 */
+	private void findBusStopLocation() {
+		if (isShowingBusStopLocation()) {
+			new GeocodingTask(this, 1, false, new GeocodingTaskListener() {
+				@Override
+				public void processLocation(List<Address> addresses) {
+					MyLog.v(TAG, "processLocation()");
+					if (addresses != null && addresses.size() > 0 && addresses.get(0) != null) {
+						BusStopInfo.this.busStop.setLat(addresses.get(0).getLatitude());
+						BusStopInfo.this.busStop.setLng(addresses.get(0).getLongitude());
+						updateDistanceWithNewLocation(); // force update
+					} else if (!TextUtils.isEmpty(BusStopInfo.this.busStop.getSubwayStationId())
+					        && BusStopInfo.this.busStop.getSubwayStationLatOrNull() != null
+					        && BusStopInfo.this.busStop.getSubwayStationLngOrNull() != null) {
+						BusStopInfo.this.busStop.setLat(BusStopInfo.this.busStop.getSubwayStationLatOrNull());
+						BusStopInfo.this.busStop.setLng(BusStopInfo.this.busStop.getSubwayStationLngOrNull());
+						updateDistanceWithNewLocation(); // force update
+					}
+				}
+			}).execute(this.busStop.getPlace());
+		} else {
+			// clearing bus stop location
+			this.busStop.setLat(null);
+			this.busStop.setLng(null);
+			updateDistanceWithNewLocation(); // force update
+		}
 	}
 
 	/**
@@ -927,6 +1020,102 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	}
 
 	/**
+	 * Update the distance with the latest device location.
+	 */
+	private void updateDistanceWithNewLocation() {
+		MyLog.v(TAG, "updateDistanceWithNewLocation(%s)", getLocation());
+		if (!isShowingBusStopLocation()) {
+			// clearing
+			this.distanceTv.setVisibility(View.GONE);
+			this.distanceTv.setText(null);
+			return;
+		}
+		if (getLocation() != null && this.busStop != null && this.busStop.getLat() != null
+		        && this.busStop.getLng() != null) {
+			// distance & accuracy
+			Location busStopLocation = LocationUtils.getNewLocation(this.busStop.getLat(), this.busStop.getLng());
+			float distanceInMeters = getLocation().distanceTo(busStopLocation);
+			float accuracyInMeters = getLocation().getAccuracy();
+			String distanceString = Utils.getDistanceString(this, distanceInMeters, accuracyInMeters);
+			this.distanceTv.setVisibility(View.VISIBLE);
+			this.distanceTv.setText(distanceString);
+		}
+	}
+
+	/**
+	 * Store the device location.
+	 */
+	private Location location;
+	/**
+	 * Is the location updates enabled?
+	 */
+	private boolean locationUpdatesEnabled = false;
+
+	/**
+	 * Initialize the location updates if necessary.
+	 * @return the location or <B>NULL</b>
+	 */
+	private Location getLocation() {
+		if (isShowingBusStopLocation() && this.location == null) {
+			Location bestLastKnownLocationOrNull = LocationUtils.getBestLastKnownLocation(this);
+			if (bestLastKnownLocationOrNull != null) {
+				this.setLocation(bestLastKnownLocationOrNull);
+			}
+			// enable location updates if necessary
+			if (!this.locationUpdatesEnabled) {
+				LocationUtils.enableLocationUpdates(this, this);
+				this.locationUpdatesEnabled = true;
+			}
+		}
+		return this.location;
+	}
+
+	/**
+	 * @param newLocation the new location
+	 */
+	public void setLocation(Location newLocation) {
+		if (isShowingBusStopLocation() && newLocation != null) {
+			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
+				this.location = newLocation;
+			}
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onLocationChanged(Location location) {
+		MyLog.v(TAG, "onLocationChanged()");
+		this.setLocation(location);
+		updateDistanceWithNewLocation();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onProviderEnabled(String provider) {
+		MyLog.v(TAG, "onProviderEnabled(%s)", provider);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onProviderDisabled(String provider) {
+		MyLog.v(TAG, "onProviderDisabled(%s)", provider);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		MyLog.v(TAG, "onStatusChanged(%s, %s)", provider, status);
+	}
+
+	/**
 	 * Switch the favorite status.
 	 * @param v the view (not used)
 	 */
@@ -1005,13 +1194,12 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 			new NoRadarInstalled(this).showDialog();
 		} else {
 			// Finding the location of the bus stop
-			new GeocodingTask(this, 1, new GeocodingTaskListener() {
+			new GeocodingTask(this, 1, true, new GeocodingTaskListener() {
 				@Override
 				public void processLocation(List<Address> addresses) {
 					if (addresses != null && addresses.size() > 0 && addresses.get(0) != null) {
 						float lat = (float) addresses.get(0).getLatitude();
 						float lng = (float) addresses.get(0).getLongitude();
-						MyLog.d(TAG, "Bus stop GPS > lat:%s,lng:%s", lat, lng);
 						// Launch the radar activity
 						Intent intent = new Intent("com.google.android.radar.SHOW_RADAR");
 						intent.putExtra("latitude", (float) lat);
@@ -1033,17 +1221,16 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 
 	/**
 	 * Show the stop in maps-enabled app.
-	 * @param v
+	 * @param v not used
 	 */
 	public void showStopLocationInMaps(View v) {
 		// Finding the location of the bus stop
-		new GeocodingTask(this, 1, new GeocodingTaskListener() {
+		new GeocodingTask(this, 1, true, new GeocodingTaskListener() {
 			@Override
 			public void processLocation(List<Address> addresses) {
 				if (addresses != null && addresses.size() > 0 && addresses.get(0) != null) {
 					double lat = addresses.get(0).getLatitude();
 					double lng = addresses.get(0).getLongitude();
-					// MyLog.d(TAG, "Bus stop GPS > lat:%s, lng:%s", lat, lng);
 					// Launch the map activity
 					Uri uri = Uri.parse(String.format("geo:%s,%s", lat, lng)); // geo:0,0?q="+busStop.getPlace()
 					startActivity(new Intent(android.content.Intent.ACTION_VIEW, uri));
@@ -1133,6 +1320,8 @@ public class BusStopInfo extends Activity implements NextStopListener, DialogInt
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		if (key.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER)) {
 			// TODO reload if error?
+		} else if (key.equals(UserPreferences.PREFS_BUS_STOP_LOCATION)) {
+			findBusStopLocation();
 		}
 	}
 
