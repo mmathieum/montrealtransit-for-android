@@ -2,6 +2,6 @@
 
 AdMob is advertising platform by Google.
 
-MonTransit use this service to generate revenus from ads.
+MonTransit use this service to generate [Revenu revenus] from ads.
 
 [http://www.admob.com/ More info...]
