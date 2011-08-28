@@ -1,0 +1,15 @@
+#summary Les revenus générés par l'application.
+
+Ce tableau montre les revenus générés par l'application.
+
+|| *Mois* || *Android Market* || *AdMob* || *PayPal* || *TOTAL* ||
+|| Jan-2011 || 2.10 || 0 || 0 || *2.10* ||
+|| Fev-2011 || 12.60 || 0.03 || 0 || *12.63* ||
+|| Mars-2011 || 29.40 || 3.65 || 3.00 || *36.05* ||
+|| Avril-2011 || 12.60 || 4.13 || 0 || *16.73* ||
+|| Mai-2011 || 12.60 || 8.14 || 0 || *20.74* ||
+|| Juin-2011 || 2.10 || 13.62 || 0 || *15.72* ||
+|| Juillet-2011 || 8.40 || 24.18 || 0 || *32.58* ||
+|| *TOTAL* || *79.80* || *53.75* || *3.00* || *136.55* ||
+
+_Les revenus de l'Android Market n'incluent pas les 30% de Google._
