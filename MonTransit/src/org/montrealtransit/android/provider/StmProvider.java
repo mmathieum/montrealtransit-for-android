@@ -77,6 +77,8 @@ public class StmProvider extends ContentProvider {
 	private static final int SUBWAY_DIRECTION_ID_DAY_ID_HOUR_ID = 36;
 	private static final int SUBWAY_DIRECTION_ID_WEEK_DAY_HOUR_ID = 37;
 	private static final int SUBWAY_STATIONS_AND_LINES = 38;
+	private static final int BUS_LINES_NUMBER = 39;
+	private static final int BUS_STOPS_CODE = 40;
 
 	/**
 	 * Projection for subway station.
@@ -99,6 +101,10 @@ public class StmProvider extends ContentProvider {
 	 */
 	private static final HashMap<String, String> sBusLinesProjectionMap;
 	/**
+	 * Projection for bus lines numbers.
+	 */
+	private static final HashMap<String, String> sBusLinesNumbersProjectionMap;
+	/**
 	 * Projection for the live folder.
 	 */
 	private static final HashMap<String, String> sBusStopsLiveFolderProjectionMap;
@@ -110,6 +116,10 @@ public class StmProvider extends ContentProvider {
 	 * Projection for bus stops.
 	 */
 	private static final HashMap<String, String> sBusStopsProjectionMap;
+	/**
+	 * Projection for bus stops codes.
+	 */
+	private static final HashMap<String, String> sBusStopsCodeProjectionMap;
 	/**
 	 * Projection for bus stops with subway line name.
 	 */
@@ -134,6 +144,7 @@ public class StmProvider extends ContentProvider {
 	static {
 		URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 		URI_MATCHER.addURI(AUTHORITY, "buslines", BUS_LINES);
+		URI_MATCHER.addURI(AUTHORITY, "buslines/" + StmStore.BusLine.LINE_NUMBER, BUS_LINES_NUMBER);
 		URI_MATCHER.addURI(AUTHORITY, "buslines/search/*", BUS_LINES_SEARCH);
 		URI_MATCHER.addURI(AUTHORITY, "buslines/#", BUS_LINE_ID);
 		URI_MATCHER.addURI(AUTHORITY, "buslines/#/busstops", BUS_LINE_ID_STOPS);
@@ -144,6 +155,7 @@ public class StmProvider extends ContentProvider {
 		        BUS_LINE_ID_DIRECTION_ID_STOPS_SEARCH);
 		URI_MATCHER.addURI(AUTHORITY, "buslines/*", BUS_LINES_IDS);
 		URI_MATCHER.addURI(AUTHORITY, "busstops", BUS_STOPS);
+		URI_MATCHER.addURI(AUTHORITY, "busstops/" + StmStore.BusStop.STOP_CODE, BUS_STOPS_CODE);
 		URI_MATCHER.addURI(AUTHORITY, "busstopslivefolder/*", BUS_STOPS_LIVE_FOLDER);
 		URI_MATCHER.addURI(AUTHORITY, "busstopssearch/*", BUS_STOPS_SEARCH);
 		URI_MATCHER.addURI(AUTHORITY, "busstops/#", BUS_STOP_ID);
@@ -235,6 +247,13 @@ public class StmProvider extends ContentProvider {
 		sBusLinesProjectionMap = map;
 
 		map = new HashMap<String, String>();
+		map.put(StmStore.BusLine._ID, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER + " AS "
+		        + StmStore.BusLine._ID);
+		map.put(StmStore.BusLine.LINE_NUMBER, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER + " AS "
+		        + StmStore.BusLine.LINE_NUMBER);
+		sBusLinesNumbersProjectionMap = map;
+
+		map = new HashMap<String, String>();
 		// TODO bus stop code + bus line number is NOT an UID for a bus stop.
 		// Need to add bus line direction ?
 		map.put(LiveFolders._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "||"
@@ -260,6 +279,13 @@ public class StmProvider extends ContentProvider {
 		map.put(StmStore.BusStop.STOP_SUBWAY_STATION_ID, StmDbHelper.T_BUS_STOPS + "."
 		        + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + " AS " + StmStore.BusStop.STOP_SUBWAY_STATION_ID);
 		sBusStopsProjectionMap = map;
+
+		map = new HashMap<String, String>();
+		map.put(StmStore.BusStop._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS "
+		        + StmStore.BusStop._ID);
+		map.put(StmStore.BusStop.STOP_CODE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS "
+		        + StmStore.BusStop.STOP_CODE);
+		sBusStopsCodeProjectionMap = map;
 
 		map = new HashMap<String, String>();
 		map.put(StmStore.BusStop._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS "
@@ -415,6 +441,13 @@ public class StmProvider extends ContentProvider {
 			qb.setTables(StmDbHelper.T_BUS_LINES);
 			qb.appendWhere(EXCLUDED_BUS_LINES);
 			break;
+		case BUS_LINES_NUMBER:
+			MyLog.v(TAG, "query>BUS_LINES_NUMBER");
+			qb.setDistinct(true);
+			qb.setTables(StmDbHelper.T_BUS_LINES);
+			qb.setProjectionMap(sBusLinesNumbersProjectionMap);
+			qb.appendWhere(EXCLUDED_BUS_LINES);
+			break;
 		case BUS_LINES_SEARCH:
 			MyLog.v(TAG, "query>BUS_LINES_SEARCH");
 			qb.setTables(StmDbHelper.T_BUS_LINES);
@@ -524,6 +557,12 @@ public class StmProvider extends ContentProvider {
 		case BUS_STOPS:
 			MyLog.v(TAG, "query>BUS_STOPS");
 			qb.setTables(StmDbHelper.T_BUS_STOPS);
+			break;
+		case BUS_STOPS_CODE:
+			MyLog.v(TAG, "query>BUS_STOPS_CODE");
+			qb.setDistinct(true);
+			qb.setTables(StmDbHelper.T_BUS_STOPS);
+			qb.setProjectionMap(sBusStopsCodeProjectionMap);
 			break;
 		case BUS_STOPS_IDS:
 			MyLog.v(TAG, "query>BUS_STOPS_IDS");
@@ -892,6 +931,7 @@ public class StmProvider extends ContentProvider {
 			case BUS_LINES_IDS:
 			case BUS_STOP_ID_BUS_LINES:
 			case BUS_LINE_ID:
+			case BUS_LINES_NUMBER:
 				orderBy = StmStore.BusLine.DEFAULT_SORT_ORDER;
 				break;
 			case BUS_LINE_ID_DIRECTION_ID_STOPS:
@@ -904,6 +944,9 @@ public class StmProvider extends ContentProvider {
 			case SUBWAY_STATION_ID_BUS_LINE_ID_BUS_STOPS:
 			case BUS_STOP_ID:
 				orderBy = StmStore.BusStop.DEFAULT_SORT_ORDER;
+				break;
+			case BUS_STOPS_CODE:
+				orderBy = StmStore.BusStop.ORDER_BY_CODE;
 				break;
 			case BUS_LINE_ID_DIRECTIONS:
 			case BUS_LINE_DIRECTIONS:
@@ -1006,6 +1049,8 @@ public class StmProvider extends ContentProvider {
 		case SUBWAY_DIRECTION_ID_WEEK_DAY_HOUR_ID:
 		case SUBWAY_STATION_ID_LINES_OTHER:
 		case SUBWAY_STATIONS_AND_LINES:
+		case BUS_LINES_NUMBER:
+		case BUS_STOPS_CODE:
 			return null;
 		default:
 			throw new IllegalArgumentException(String.format("Unknown URI (type): %s", uri));
