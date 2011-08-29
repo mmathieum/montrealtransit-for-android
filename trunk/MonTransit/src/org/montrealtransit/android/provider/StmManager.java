@@ -36,6 +36,12 @@ public class StmManager {
 	        StmStore.SubwayStation.STATION_LAT };
 
 	/**
+	 * Represents the fields of the content provider will return for a bus stop code.
+	 */
+	private static final String[] PROJECTION_BUS_STOP_CODE = new String[] { StmStore.BusStop._ID,
+	        StmStore.BusStop.STOP_CODE };
+
+	/**
 	 * Represents the fields the content provider will return for a bus stop.
 	 */
 	private static final String[] PROJECTION_BUS_STOP = new String[] { StmStore.BusStop._ID,
@@ -64,6 +70,12 @@ public class StmManager {
 	private static final String[] PROJECTION_BUS_LINE_DIRECTION = new String[] { StmStore.BusLineDirection._ID,
 	        StmStore.BusLineDirection.DIRECTION_ID, StmStore.BusLineDirection.DIRECTION_LINE_ID,
 	        StmStore.BusLineDirection.DIRECTION_NAME };
+
+	/**
+	 * Represents the fields the content
+	 */
+	private static final String[] PROJECTION_BUS_LINE_NUMBER = new String[] { StmStore.BusLine._ID,
+	        StmStore.BusLine.LINE_NUMBER };
 
 	/**
 	 * Represents the fields the content provider will return for a subway line.
@@ -919,6 +931,78 @@ public class StmManager {
 					result = new ArrayList<StmStore.BusStop>();
 					do {
 						result.add(StmStore.BusStop.fromCursor(c));
+					} while (c.moveToNext());
+				}
+			}
+		} finally {
+			if (c != null)
+				c.close();
+		}
+		return result;
+	}
+
+	/**
+	 * Find all bus stop codes.
+	 * @param contentResolver the content resolver
+	 * @return the bus stop codes
+	 */
+	public static Cursor findAllBusStopCode(ContentResolver contentResolver) {
+		Uri busStopCodeUri = Uri.withAppendedPath(StmStore.BusStop.CONTENT_URI, StmStore.BusLine.STOP_CODE);
+		return contentResolver.query(busStopCodeUri, PROJECTION_BUS_STOP_CODE, null, null,
+		        StmStore.BusStop.ORDER_BY_CODE);
+	}
+
+	/**
+	 * Find all bus stop codes.
+	 * @param contentResolver the content resolver
+	 * @return the bus stop codes
+	 */
+	public static List<String> findAllBusStopCodeList(ContentResolver contentResolver) {
+		List<String> result = null;
+		Cursor c = null;
+		try {
+			c = findAllBusStopCode(contentResolver);
+			if (c.getCount() > 0) {
+				if (c.moveToFirst()) {
+					result = new ArrayList<String>();
+					do {
+						result.add(c.getString(c.getColumnIndexOrThrow(StmStore.BusStop.STOP_CODE)));
+					} while (c.moveToNext());
+				}
+			}
+		} finally {
+			if (c != null)
+				c.close();
+		}
+		return result;
+	}
+
+	/**
+	 * Find all bus line numbers.
+	 * @param contentResolver the content resolver
+	 * @return the bus line numbers
+	 */
+	public static Cursor findAllBusLinesNumbers(ContentResolver contentResolver) {
+		Uri busStopCodeUri = Uri.withAppendedPath(StmStore.BusLine.CONTENT_URI, StmStore.BusLine.LINE_NUMBER);
+		return contentResolver.query(busStopCodeUri, PROJECTION_BUS_LINE_NUMBER, null, null,
+		        StmStore.BusLine.DEFAULT_SORT_ORDER);
+	}
+
+	/**
+	 * Find all bus line numbers.
+	 * @param contentResolver the content resolver
+	 * @return the bus line numbers
+	 */
+	public static List<String> findAllBusLinesNumbersList(ContentResolver contentResolver) {
+		List<String> result = null;
+		Cursor c = null;
+		try {
+			c = findAllBusLinesNumbers(contentResolver);
+			if (c.getCount() > 0) {
+				if (c.moveToFirst()) {
+					result = new ArrayList<String>();
+					do {
+						result.add(c.getString(c.getColumnIndexOrThrow(StmStore.BusLine.LINE_NUMBER)));
 					} while (c.moveToNext());
 				}
 			}

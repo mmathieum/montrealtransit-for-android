@@ -335,6 +335,10 @@ public class StmStore {
 		public static final String ORDER_BY_LINE_CODE = StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + ", "
 		        + StmDbHelper.T_BUS_STOPS_K_CODE + " ASC";
 		/**
+		 * The order by bus stop code.
+		 */
+		public static final String ORDER_BY_CODE = StmDbHelper.T_BUS_STOPS_K_CODE + " ASC";
+		/**
 		 * Separator use for the UID.
 		 */
 		public static final String UID_SEPARATOR = "-";

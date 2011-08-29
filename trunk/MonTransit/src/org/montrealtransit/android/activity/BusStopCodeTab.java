@@ -11,9 +11,11 @@ import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.dialog.BusLineSelectDirection;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore;
+import org.montrealtransit.android.provider.StmManager;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -24,7 +26,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageButton;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -70,8 +71,9 @@ public class BusStopCodeTab extends Activity {
 		this.searchField.setOnKeyListener(new View.OnKeyListener() {
 			@Override
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				MyLog.v(TAG, "onKey(%s, %s)", v.getId(), keyCode);
 				if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-					searchFor(BusStopCodeTab.this.searchField.getText().toString());
+					searchFor(BusStopCodeTab.this.searchField.getText().toString(), true);
 					return true;
 				}
 				return false;
@@ -87,11 +89,18 @@ public class BusStopCodeTab extends Activity {
 				}
 			}
 		});
+		this.searchField.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> l, View v, int position, long id) {
+				MyLog.v(TAG, "onItemClick(%s, %s, %s, %s)", l.getId(), v.getId(), position, id);
+				searchFor((((TextView) v).getText()).toString(), true);
+			}
+		});
 		((ImageButton) findViewById(R.id.ok)).setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				MyLog.v(TAG, "onClick(%s)", v.getId());
-				searchFor(BusStopCodeTab.this.searchField.getText().toString());
+				searchFor(BusStopCodeTab.this.searchField.getText().toString(), true);
 			}
 		});
 		this.historyList.setEmptyView(findViewById(R.id.list_empty));
@@ -99,7 +108,7 @@ public class BusStopCodeTab extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> l, View v, int position, long id) {
 				MyLog.v(TAG, "onItemClick(%s, %s, %s, %s)", l.getId(), v.getId(), position, id);
-				searchFor((((TextView) v).getText()).toString());
+				searchFor((((TextView) v).getText()).toString(), position != 0);
 			}
 		});
 	}
@@ -113,7 +122,7 @@ public class BusStopCodeTab extends Activity {
 		super.onResume();
 		// refresh the adapters
 		setSearchAutoCompleteAdapter();
-		this.historyList.setAdapter(getHistoryAdapter());
+		setHistoryAdapter();
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 	}
 
@@ -121,30 +130,48 @@ public class BusStopCodeTab extends Activity {
 	 * Set the auto complete adapter.
 	 */
 	private void setSearchAutoCompleteAdapter() {
-		List<String> objects = DataManager.findAllHistoryList(this.getContentResolver());
-		if (objects != null) {
-			this.searchField.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line,
-			        objects));
+		if (this.searchField.getAdapter() == null) {
+			new GetAllNumbersTask().execute();
 		}
 	}
 
 	/**
-	 * Return the history adapter. Since it's created from the cursor, it will be updated automatically.
-	 * @return the history adapter.
+	 * This task get all bus stop codes and all bus lines numbers.
 	 */
-	private ListAdapter getHistoryAdapter() {
-		SimpleCursorAdapter historyItems = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1,
-		        DataManager.findAllHistory(this.getContentResolver()), new String[] { DataStore.History.VALUE },
-		        new int[] { android.R.id.text1 });
-		// historyItems.setViewBinder(this);
-		return historyItems;
+	private class GetAllNumbersTask extends AsyncTask<Void, String, List<String>> {
+
+		@Override
+		protected List<String> doInBackground(Void... params) {
+			List<String> numbers = StmManager.findAllBusStopCodeList(BusStopCodeTab.this.getContentResolver());
+			numbers.addAll(StmManager.findAllBusLinesNumbersList(BusStopCodeTab.this.getContentResolver()));
+			return numbers;
+		}
+
+		@Override
+		protected void onPostExecute(List<String> result) {
+			BusStopCodeTab.this.searchField.setAdapter(new ArrayAdapter<String>(BusStopCodeTab.this,
+			        android.R.layout.simple_dropdown_item_1line, result));
+		}
+	}
+
+	/**
+	 * Set the history adapter. Since it's created from the cursor, it will be updated automatically.
+	 */
+	private void setHistoryAdapter() {
+		if (this.historyList.getAdapter() == null) {
+			this.historyList.setAdapter(new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, DataManager
+			        .findAllHistory(this.getContentResolver()), new String[] { DataStore.History.VALUE },
+			        new int[] { android.R.id.text1 }));
+		}
 	}
 
 	/**
 	 * Search for a match for the search text. Could redirect the user to a bus stop or a bus line for now.
 	 * @param search the search text.
+	 * @param saveToHistory true if adding the new search text to the history
 	 */
-	private void searchFor(String search) {
+	private void searchFor(String search, boolean saveToHistory) {
+		MyLog.v(TAG, "searchFor(%s, %s)", search, saveToHistory);
 		if (search == null || search.length() == 0) {
 			// please enter a number
 			Utils.notifyTheUser(this, getString(R.string.please_enter_a_stop_code));
@@ -152,7 +179,9 @@ public class BusStopCodeTab extends Activity {
 			if (search.length() <= 3) {
 				// search for a bus line number
 				if (BusUtils.isBusLineNumberValid(this, search)) {
-					addToHistory(search);
+					if (saveToHistory) {
+						addToHistory(search);
+					}
 					new BusLineSelectDirection(this, search).showDialog();
 				} else {
 					Utils.notifyTheUserLong(this, getString(R.string.wrong_line_number_and_number, search));
@@ -160,7 +189,9 @@ public class BusStopCodeTab extends Activity {
 			} else if (search.length() == 5) {
 				// search for a bus stop code
 				if (BusUtils.isStopCodeValid(this, search)) {
-					addToHistory(search);
+					if (saveToHistory) {
+						addToHistory(search);
+					}
 					showBusStopInfo(search);
 				} else {
 					Utils.notifyTheUserLong(this, getString(R.string.wrong_stop_code_and_code, search));
