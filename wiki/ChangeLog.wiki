@@ -3,6 +3,12 @@
 
 = !ChangeLog =
 
+ * 1.5.9.7 (r483)
+  * Update message when bus stop info not available on STM website.
+  * Fix next bus stop showing wrong next stop from http://m.stm.info/.
+  * (BETA) Add bus stop location (enable in settings).
+  * Improvements to the bus stop code tab.
+
  * 1.5.9.5 (r467)
   * Fix apps starting on wrong tab.
   * More efficient next bus stops loading.

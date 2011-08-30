@@ -3,6 +3,12 @@
 
 = !ChangeLog =
 
+ * 1.5.9.7 (r483)
+  * Mise à jour du message quand les informations d'un arrêt de bus ne sont pas disponible sur le site de la STM.
+  * Corrige prochain passages qui affiche un mauvais horaire depuis http://m.stm.info/.
+  * (BETA) Ajout de l'emplacement des arrêt de bus (activation dans les paramètres).
+  * Améliore l'onglet du Code d'arrêt.
+
  * 1.5.9.5 (r467)
   * Corrige le problème concernant l'onglet au démarrage de l'app.
   * Chargement des prochains passages de bus plus efficace.
