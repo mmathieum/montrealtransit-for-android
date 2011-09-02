@@ -14,4 +14,5 @@ Ce tableau montre *tous* les revenus générés par l'application.
 || *TOTAL* || *92.40* || *62.80* || *2.61* || *157.81* ||
 
 _Les revenus de l'Android Market n'incluent pas les 30% de Google._
-_Les revenus de PayPal n'inclu pas les frais de transaction._
+
+_Les revenus de PayPal n'incluent pas les frais de transaction._
