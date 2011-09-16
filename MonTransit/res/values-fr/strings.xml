@@ -52,7 +52,7 @@
 	<string name="last_trains">Derniers départs</string>
 	<string name="next_bus_stops">Prochains passages</string>
 	<string name="next_bus_stops_and_source">Prochains passages (%s)</string>
-	<string name="next_bus_stops_message_and_source">MonTransit récupére les horaires des prochains passages depuis %s.</string>
+	<string name="next_bus_stops_message_and_source">MonTransit récupére les horaires des prochains passages en temps réel depuis %s.</string>
 	<string name="next_bus_stops_note">%1$s : %2$s</string>
 	<string name="other_bus_line">Autre(s) Ligne(s) de Bus</string>
 	<string name="subway_station">Station de Métro</string>
