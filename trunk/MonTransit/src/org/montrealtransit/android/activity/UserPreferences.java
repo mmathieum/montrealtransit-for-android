@@ -57,6 +57,10 @@ public class UserPreferences extends PreferenceActivity {
 	 */
 	public static final String PREFS_BUS_LINE_LIST_GROUP_BY_TYPE = "type";
 	/**
+	 * The preference value for the bus lines list display group by line day/night.
+	 */
+	public static final String PREFS_BUS_LINE_LIST_GROUP_BY_DAY_NIGHT = "daynight";
+	/**
 	 * The default value for the bus lines display.
 	 */
 	public static final String PREFS_BUS_LINE_LIST_GROUP_BY_DEFAULT = PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP;

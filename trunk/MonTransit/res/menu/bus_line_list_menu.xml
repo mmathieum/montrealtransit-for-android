@@ -6,6 +6,7 @@
 				android:checkableBehavior="single">
 				<item android:id="@+id/group_by_number" android:title="@string/group_by_bus_line_number" />
 				<item android:id="@+id/group_by_type" android:title="@string/group_by_bus_line_type" />
+				<item android:id="@+id/group_by_daynight" android:title="@string/group_by_bus_line_day_night" />
 				<item android:id="@+id/group_by_no" android:title="@string/group_by_bus_line_no_group" />
 			</group>
 		</menu>
