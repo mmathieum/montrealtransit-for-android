@@ -96,9 +96,10 @@
 	<string name="group_by_pref_title">Bus Lines Display</string>
 	<string name="group_by_pref_summary">How the bus lines are displayed in the bus line list.</string>
 	<string name="group_by_pref_dialog_title">Group bus lines</string>
-	<string name="group_by_pref_no_group">don\'t group</string>
-	<string name="group_by_pref_type">by type</string>
-	<string name="group_by_pref_number">by line number</string>
+	<string name="group_by_pref_no_group">Don\'t group</string>
+	<string name="group_by_pref_type">Group by Type</string>
+	<string name="group_by_pref_day_night">Group by Day/Night</string>
+	<string name="group_by_pref_number">Group by Number</string>
 
 	<string name="ads_pref_title">Show Ads</string>
 	<string name="ads_pref_summary">Help support the development of MonTransit.</string>
@@ -110,6 +111,7 @@
 	<string name="select_group_by">Display</string>
 	<string name="group_by_bus_line_no_group">Don\'t group</string>
 	<string name="group_by_bus_line_type">Group by Type</string>
+	<string name="group_by_bus_line_day_night">Group by Day/Night</string>
 	<string name="group_by_bus_line_number">Group by Number</string>
 	
 	<string name="bus_line_string">Lines</string>
@@ -184,6 +186,8 @@
 	<string name="bus_type_snuit">Night Service</string>
 	<string name="bus_type_express">Express Service</string>
 	<string name="bus_type_voieres">Reserved Lane Service</string>
+	<string name="bus_line_service_day">Day service</string>
+	<string name="bus_line_service_night">Night service</string>
 	
 	<string name="no_more_stops">No service.</string>
 	<string name="no_more_stops_for_this_bus_line">No service for the bus line %s.</string>

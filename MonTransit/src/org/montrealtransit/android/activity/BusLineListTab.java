@@ -80,6 +80,19 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 	private List<List<Map<String, String>>> currentChildDataByType;
 
 	/**
+	 * the adapter used for the expandable list (in group by day/night)
+	 */
+	private ExpandableListAdapter adapterByDayNight;
+	/**
+	 * The current group data for the expandable list (in group by day/night).
+	 */
+	private List<Map<String, String>> currentGroupDataByDayNight;
+	/**
+	 * The current bus line data (in grouped mode).
+	 */
+	private List<List<Map<String, String>>> currentChildDataByDayNight;
+
+	/**
 	 * The expandable list view.
 	 */
 	private ExpandableListView elist;
@@ -123,6 +136,11 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 					if (getGroupByPref().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
 						if (BusLineListTab.this.currentChildDataByType != null) {
 							lineNumber = BusLineListTab.this.currentChildDataByType.get(groupPosition)
+							        .get(childPosition).get(StmStore.BusLine.LINE_NUMBER);
+						}
+					} else if (getGroupByPref().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_DAY_NIGHT)) {
+						if (BusLineListTab.this.currentChildDataByDayNight != null) {
+							lineNumber = BusLineListTab.this.currentChildDataByDayNight.get(groupPosition)
 							        .get(childPosition).get(StmStore.BusLine.LINE_NUMBER);
 						}
 					} else if (BusLineListTab.this.currentChildDataByNumber != null) {
@@ -174,7 +192,8 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 	protected void onRestart() {
 		MyLog.v(TAG, "onRestart()");
 		if (getGroupByPref().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)
-		        || getGroupByPref().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
+		        || getGroupByPref().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)
+		        || getGroupByPref().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_DAY_NIGHT)) {
 			showEListView();
 		} else {
 			showListView();
@@ -188,7 +207,8 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 	public void setUpUI() {
 		MyLog.v(TAG, "setUpUI()");
 		if (getGroupByPref().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NUMBER)
-		        || getGroupByPref().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
+		        || getGroupByPref().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)
+		        || getGroupByPref().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_DAY_NIGHT)) {
 			// expendable list
 			showEListView();
 			new SetBusEListTask().execute(getGroupByPref());
@@ -256,6 +276,8 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 			return getAdapterByNumber();
 		} else if (busListGroupBy.equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
 			return getAdapterByType();
+		} else if (busListGroupBy.equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_DAY_NIGHT)) {
+			return getAdapterByDayNight();
 		} else {
 			MyLog.w(TAG, "Unknow exandable list adapter '%s'", busListGroupBy);
 			return getAdapterByNumber(); // default group by (expandable)
@@ -441,6 +463,58 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 	}
 
 	/**
+	 * Return the expandable list adapter for the bus list group by day/night.
+	 * @return the expandable list adapter
+	 */
+	private ExpandableListAdapter getAdapterByDayNight() {
+		MyLog.v(TAG, "getAdapterByDayNight()");
+		if (this.adapterByDayNight == null) {
+			List<StmStore.BusLine> busLines = StmManager.findAllBusLinesList(this.getContentResolver());
+
+			List<String> busLineTypes = new ArrayList<String>();
+			busLineTypes.add(StmStore.BusLine.LINE_TYPE_REGULAR_SERVICE);
+			busLineTypes.add(StmStore.BusLine.LINE_TYPE_NIGHT_SERVICE);
+
+			this.currentGroupDataByDayNight = new ArrayList<Map<String, String>>();
+			this.currentChildDataByDayNight = new ArrayList<List<Map<String, String>>>();
+			Map<String, Integer> childrenId = new HashMap<String, Integer>();
+
+			// create group data (bus line type)
+			int id = 0;
+			for (String type : busLineTypes) {
+				// create a new group
+				Map<String, String> curGroupMap = new HashMap<String, String>();
+				curGroupMap.put(BUS_TYPE, type);
+				this.currentGroupDataByDayNight.add(curGroupMap);
+				List<Map<String, String>> children = new ArrayList<Map<String, String>>();
+				childrenId.put(type, id++);
+				this.currentChildDataByDayNight.add(children);
+			}
+
+			for (StmStore.BusLine busLine : busLines) {
+				Map<String, String> curChildMap = new HashMap<String, String>();
+				curChildMap.put(StmStore.BusLine.LINE_NUMBER, busLine.getNumber());
+				curChildMap.put(StmStore.BusLine.LINE_NAME, busLine.getName());
+				curChildMap.put(StmStore.BusLine.LINE_TYPE, busLine.getType());
+				String type = busLine.getType().equals(StmStore.BusLine.LINE_TYPE_NIGHT_SERVICE) ? StmStore.BusLine.LINE_TYPE_NIGHT_SERVICE
+				        : StmStore.BusLine.LINE_TYPE_REGULAR_SERVICE;
+				this.currentChildDataByDayNight.get(childrenId.get(type)).add(curChildMap);
+			}
+
+			String[] fromGroup = new String[] { BUS_TYPE, BUS_TYPE };
+			int[] toGroup = new int[] { R.id.bus_type_string, R.id.bus_type_img };
+			String[] fromChild = new String[] { StmStore.BusLine.LINE_NUMBER, StmStore.BusLine.LINE_NAME,
+			        StmStore.BusLine.LINE_TYPE };
+			int[] toChild = new int[] { R.id.line_number, R.id.line_name, R.id.line_type };
+
+			this.adapterByDayNight = new MySimpleExpandableListAdapterDayNight(this, this.currentGroupDataByDayNight,
+			        R.layout.bus_line_list_group_item_type, fromGroup, toGroup, this.currentChildDataByDayNight,
+			        R.layout.bus_line_list_item, fromChild, toChild);
+		}
+		return this.adapterByDayNight;
+	}
+
+	/**
 	 * Switch to line list (no group).
 	 * @param v the view (not used)
 	 */
@@ -454,6 +528,14 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 	 */
 	public void switchToListGroupByType(View v) {
 		switchToListType(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE);
+	}
+
+	/**
+	 * Switch to line list group by day/night.
+	 * @param v the view (not used)
+	 */
+	public void switchToListGroupByDayNight(View v) {
+		switchToListType(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_DAY_NIGHT);
 	}
 
 	/**
@@ -475,17 +557,11 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		return MenuUtils.inflateMenu(this, menu, R.menu.bus_line_list_menu);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		MyLog.v(TAG, "onPrepareOptionsMenu()");
@@ -494,6 +570,8 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 				menu.findItem(R.id.group_by_number).setChecked(true);
 			} else if (getGroupByPref().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
 				menu.findItem(R.id.group_by_type).setChecked(true);
+			} else if (getGroupByPref().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_DAY_NIGHT)) {
+				menu.findItem(R.id.group_by_daynight).setChecked(true);
 			} else {
 				menu.findItem(R.id.group_by_no).setChecked(true);
 			}
@@ -504,9 +582,6 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -516,6 +591,9 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 		case R.id.group_by_type:
 			switchToListGroupByType(null);
 			return true;
+		case R.id.group_by_daynight:
+			switchToListGroupByDayNight(null);
+			return true;
 		case R.id.group_by_number:
 			switchToListGroupByNumber(null);
 			return true;
@@ -524,9 +602,6 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onDestroy() {
 		MyLog.v(TAG, "onDestroy()");
@@ -542,9 +617,6 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 	 */
 	private class SetBusEListTask extends AsyncTask<String, String, ExpandableListAdapter> {
 
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
 		protected ExpandableListAdapter doInBackground(String... arg0) {
 			String busListGroupBy = arg0[0];
@@ -552,9 +624,6 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 			return getEAdapterFromSettings(busListGroupBy);
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
 		protected void onPostExecute(ExpandableListAdapter result) {
 			MyLog.v(TAG, "onPostExecute()");
@@ -578,9 +647,6 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 			        childFrom, childTo);
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
 		public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView,
 		        ViewGroup parent) {
@@ -592,6 +658,8 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 			}
 			if (getGroupByPref().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_TYPE)) {
 				bindView(v, currentChildDataByType.get(groupPosition).get(childPosition));
+			} else if (getGroupByPref().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_DAY_NIGHT)) {
+				bindView(v, currentChildDataByDayNight.get(groupPosition).get(childPosition));
 			} else {
 				bindView(v, currentChildDataByNumber.get(groupPosition).get(childPosition));
 			}
@@ -628,9 +696,6 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 			        childFrom, childTo);
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
 		public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
 			View v;
@@ -641,6 +706,38 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 			}
 			String type = currentGroupDataByType.get(groupPosition).get(BUS_TYPE);
 			((TextView) v.findViewById(R.id.bus_type_string)).setText(BusUtils.getBusStringFromType(type));
+			((ImageView) v.findViewById(R.id.bus_type_img)).setImageResource(BusUtils.getBusLineTypeImgFromType(type));
+			return v;
+		}
+	}
+
+	/**
+	 * A custom expandable list adapter based on {@link MySimpleExpandableListAdapter}. Add the group view customization.
+	 */
+	private class MySimpleExpandableListAdapterDayNight extends MySimpleExpandableListAdapter {
+
+		/**
+		 * @see MySimpleExpandableListAdapter#MySimpleExpandableListAdapter(BusLineListTab, List, int, String[], int[], List, int, String[], int[])
+		 */
+		public MySimpleExpandableListAdapterDayNight(BusLineListTab expandableBusListTab,
+		        List<Map<String, String>> groupData, int simpleExpandableListItem1, String[] strings, int[] is,
+		        List<List<Map<String, String>>> childData, int busLineListItem, String[] childFrom, int[] childTo) {
+			super(expandableBusListTab, groupData, simpleExpandableListItem1, strings, is, childData, busLineListItem,
+			        childFrom, childTo);
+		}
+
+		@Override
+		public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
+			View v;
+			if (convertView == null) {
+				v = newGroupView(isExpanded, parent);
+			} else {
+				v = convertView;
+			}
+			String type = currentGroupDataByDayNight.get(groupPosition).get(BUS_TYPE);
+			int serviceString = type.equals(StmStore.BusLine.LINE_TYPE_REGULAR_SERVICE) ? R.string.bus_line_service_day
+			        : R.string.bus_line_service_night;
+			((TextView) v.findViewById(R.id.bus_type_string)).setText(serviceString);
 			((ImageView) v.findViewById(R.id.bus_type_img)).setImageResource(BusUtils.getBusLineTypeImgFromType(type));
 			return v;
 		}
