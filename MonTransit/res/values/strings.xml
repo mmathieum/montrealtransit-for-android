@@ -47,7 +47,7 @@
 	<string name="blue_line">Blue line</string>
 	<string name="blue_line_short">Blue</string>
 	<string name="select_subway_direction">Direction</string>
-	<string name="select_subway_direction_and_name">Ligne %s - Direction</string>
+	<string name="select_subway_direction_and_name">%s line - Direction</string>
 	<string name="first_trains">First trains</string>
 	<string name="last_trains">Last trains</string>
 	<string name="next_bus_stops">Next passages</string>

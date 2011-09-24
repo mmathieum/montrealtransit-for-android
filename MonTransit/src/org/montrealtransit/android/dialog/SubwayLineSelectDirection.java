@@ -90,7 +90,7 @@ public class SubwayLineSelectDirection implements View.OnClickListener, SubwayLi
 	private AlertDialog getAlertDialog() {
 		MyLog.v(TAG, "getAlertDialog()");
 		AlertDialog.Builder builder = new AlertDialog.Builder(this.context);
-		String lineName = context.getString(SubwayUtils.getSubwayLineName(this.subwayLine.getNumber()));
+		String lineName = context.getString(SubwayUtils.getSubwayLineNameShort(this.subwayLine.getNumber()));
 		builder.setTitle(context.getString(R.string.select_subway_direction_and_name, lineName));
 		builder.setSingleChoiceItems(getItems(), getCheckedItemFromPref(), new DialogInterface.OnClickListener() {
 			@Override
