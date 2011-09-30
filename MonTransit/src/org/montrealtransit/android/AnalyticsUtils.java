@@ -64,6 +64,10 @@ public class AnalyticsUtils {
 	 * Action for no info for bus stops.
 	 */
 	public static final String ACTION_BUS_STOP_NO_INFO = "bus_stop_no_info";
+	/**
+	 * Action for DB initialization fail.
+	 */
+	public static final String ACTION_DB_INIT_FAIL = "db_init_failt";
 
 	/**
 	 * The instance.

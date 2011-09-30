@@ -5,19 +5,16 @@ import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.TwitterUtils;
 import org.montrealtransit.android.Utils;
-import org.montrealtransit.android.provider.StmDbHelper;
 
 import android.app.ActivityGroup;
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
 
 /**
- * This class is the first screen displayed by the application. It contains, 4 tabs.
+ * This class is the main screen displayed by the application. It contains, 4 tabs.
  * @author Mathieu Méa
  */
 // TODO offer the options to just show a list of the "tabs" == Dashboard UI
@@ -47,62 +44,14 @@ public class MainScreen extends ActivityGroup {
 	 * The subway lines list tab ID.
 	 */
 	private static final String TAB_SUBWAY = "tab_subway";
-	/**
-	 * The progress dialog to show while initializing the app.
-	 */
-	private ProgressDialog progressDialog;
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		Utils.logAppVersion(this);
 		MyLog.v(TAG, "onCreate()");
 		super.onCreate(savedInstanceState);
 		// set the UI.
 		setContentView(R.layout.main_screen);
 
-		// IF the local database need to be initialized DO
-		if (!StmDbHelper.isDbExist(this)) {
-			// show a progress dialog
-			this.progressDialog = new ProgressDialog(this);
-			this.progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-			this.progressDialog.setCancelable(false);
-			this.progressDialog.setIndeterminate(true);
-			this.progressDialog.setTitle(R.string.init_dialog_title);
-			this.progressDialog.setMessage(getString(R.string.init_dialog_message));
-			this.progressDialog.show();
-			// initialize the database
-			new InitializationTask().execute(false);
-		} else {
-			StmDbHelper tmp = new StmDbHelper(this, null);
-			tmp.getReadableDatabase();
-			boolean updateAvailable = tmp.isUpdateAvailable();
-			tmp.close();
-			if (updateAvailable) {
-				// show a progress dialog
-				this.progressDialog = new ProgressDialog(this);
-				this.progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-				this.progressDialog.setCancelable(false);
-				this.progressDialog.setIndeterminate(true);
-				this.progressDialog.setTitle(R.string.update_dialog_title);
-				this.progressDialog.setMessage(getString(R.string.update_dialog_message));
-				this.progressDialog.show();
-				// initialize the database
-				new InitializationTask().execute(true);
-			} else {
-				// just finish the onCreate
-				onCreateFinish();
-			}
-		}
-	}
-
-	/**
-	 * Finish the create of the activity (after initialization).
-	 */
-	private void onCreateFinish() {
-		MyLog.v(TAG, "onCreateFinish()");
 		// add the tab host
 		TabHost tabHost = (TabHost) getLayoutInflater().inflate(R.layout.main_screen_tab_host, null);
 		tabHost.setup(this.getLocalActivityManager());
@@ -144,9 +93,6 @@ public class MainScreen extends ActivityGroup {
 		((RelativeLayout) findViewById(R.id.main)).addView(tabHost, layoutParams);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
@@ -154,9 +100,6 @@ public class MainScreen extends ActivityGroup {
 		super.onResume();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onNewIntent(Intent intent) {
 		MyLog.v(TAG, "onNewIntent()");
@@ -164,62 +107,5 @@ public class MainScreen extends ActivityGroup {
 			TwitterUtils.getInstance().login(this, intent.getData());
 		}
 		super.onNewIntent(intent);
-	}
-
-	/**
-	 * This task initialize the application.
-	 * @author Mathieu Méa
-	 */
-	public class InitializationTask extends AsyncTask<Boolean, String, String> {
-
-		/**
-		 * The log tag.
-		 */
-		private final String TAG = InitializationTask.class.getSimpleName();
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		protected String doInBackground(Boolean... arg0) {
-			MyLog.v(TAG, "doInBackground()");
-			StmDbHelper db = new StmDbHelper(MainScreen.this, this);
-			if (arg0[0]) {
-				db.forceReset(MainScreen.this, this);
-				// clean old favorites
-				Utils.cleanFavorites(getContentResolver());
-			}
-			return null;
-		}
-
-		/**
-		 * Initialized the progress bar with max value.
-		 * @param maxValue the max value
-		 */
-		public void initProgressBar(int maxValue) {
-			MyLog.v(TAG, "initProgressBar(%s)", maxValue);
-			MainScreen.this.progressDialog.setIndeterminate(false);
-			MainScreen.this.progressDialog.setMax(maxValue);
-		}
-
-		/**
-		 * Set the progress bar progress to the new progress.
-		 * @param value the new progress
-		 */
-		public void incrementProgressBar(int value) {
-			// MyLog.v(TAG, "incrementProgressBar(%s)", value);
-			MainScreen.this.progressDialog.setProgress(value);
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
-		protected void onPostExecute(String result) {
-			MyLog.v(TAG, "onPostExecute()", result);
-			super.onPostExecute(result);
-			MainScreen.this.progressDialog.dismiss();
-			onCreateFinish();
-		}
 	}
 }

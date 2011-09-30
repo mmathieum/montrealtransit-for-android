@@ -175,13 +175,15 @@ public class UserPreferences extends PreferenceActivity {
 	public static final boolean PREFS_ADS_DEFAULT = true;
 
 	/**
+	 * The latest version of the STM DB successfully deployed.
+	 */
+	public static final String PREFS_STM_DB_VERSION = "pStmDbVersion";
+
+	/**
 	 * The ads check box.
 	 */
 	private CheckBoxPreference adsCheckBox;
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
@@ -250,9 +252,6 @@ public class UserPreferences extends PreferenceActivity {
 		});
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
