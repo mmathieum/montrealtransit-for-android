@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 
+import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
-import org.montrealtransit.android.activity.MainScreen.InitializationTask;
+import org.montrealtransit.android.activity.SplashScreen.InitializationTask;
+import org.montrealtransit.android.activity.UserPreferences;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -34,15 +36,16 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	/**
 	 * The database version use to manage database changes.
 	 */
-	private static final int DB_VERSION = 6;
+	public static final int DB_VERSION = 7;
 
 	/**
 	 * The list of SQL dump files.
 	 */
-	private static final int[] DUMP_FILES = new int[] { R.raw.stm_db_arrets_autobus_p1, R.raw.stm_db_arrets_autobus_p2,
-	        R.raw.stm_db_directions_autobus, R.raw.stm_db_directions_metro, R.raw.stm_db_frequences_metro,
-	        R.raw.stm_db_horaire_metro, R.raw.stm_db_lignes_autobus, R.raw.stm_db_lignes_metro,
-	        R.raw.stm_db_stations_metro };
+	private static final int[] DUMP_FILES = new int[] { R.raw.stm_db_directions_autobus, R.raw.stm_db_directions_metro,
+	        R.raw.stm_db_frequences_metro, R.raw.stm_db_horaire_metro, R.raw.stm_db_lignes_autobus,
+	        R.raw.stm_db_lignes_metro, R.raw.stm_db_stations_metro, R.raw.stm_db_arrets_autobus_0,
+	        R.raw.stm_db_arrets_autobus_1, R.raw.stm_db_arrets_autobus_2, R.raw.stm_db_arrets_autobus_3,
+	        R.raw.stm_db_arrets_autobus_4, R.raw.stm_db_arrets_autobus_5, R.raw.stm_db_arrets_autobus_7 };
 
 	// BUS LINE
 	public static final String T_BUS_LINES = "lignes_autobus";
@@ -132,43 +135,17 @@ public class StmDbHelper extends SQLiteOpenHelper {
 		createDbIfNecessary(context, task);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		MyLog.v(TAG, "onCreate()");
 		// DO NOTHING
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		MyLog.v(TAG, "onUpgrade(%s, %s)", oldVersion, newVersion);
 		this.upgrade = (oldVersion != newVersion);
 		MyLog.d(TAG, "upgrade:" + upgrade);
-		// // upgrade
-		// if (oldVersion < newVersion) {
-		// MyLog.d(TAG, "UPGRADING FROM '%s' to '%s' ...", oldVersion, DB_VERSION);
-		// // close the database
-		// close();
-		// // remove the existing database
-		// if (context.deleteDatabase(DB_NAME)) {
-		// // copy the new one
-		// createDbIfNecessary();
-		// Utils.notifyTheUser(context, context.getString(R.string.update_stm_db_ok));
-		// } else {
-		// MyLog.w(TAG, "Can't delete the current database.");
-		// // notify the user that he need to remove and re-install the application
-		// Utils.notifyTheUserLong(context, context.getString(R.string.update_stm_db_error));
-		// Utils.notifyTheUserLong(context, context.getString(R.string.update_stm_db_error_next));
-		// }
-		// } else {
-		// MyLog.w(TAG, "Trying to upgrade the db from version '%s' to version '%s'.", oldVersion,
-		// newVersion);
-		// }
 	}
 
 	/**
@@ -188,36 +165,6 @@ public class StmDbHelper extends SQLiteOpenHelper {
 			} catch (IOException ioe) {
 				MyLog.e(TAG, ioe, "Error while initializating of the STM database!");
 			}
-			// } else {
-			// MyLog.d(TAG, "DB EXIST");
-			// // check version
-			// // int currentVersion = this.getReadableDatabase().getVersion();
-			// // always true!if (currentVersion != DB_VERSION) {
-			// if (this.upgrade) {
-			// // MyLog.d(TAG, "VERSION DIFF");
-			// // upgrade
-			// // if (currentVersion < DB_VERSION) {
-			// MyLog.d(TAG, "UPGRADING ...");
-			// // close the database
-			// // this.close();
-			// MyLog.d(TAG, "DATABASE CLOSED.");
-			// // remove the existing database
-			// if (context.deleteDatabase(DB_NAME)) {
-			// MyLog.d(TAG, "DATABASE DELETED.");
-			// // copy the new one
-			// createDbIfNecessary(context, task);
-			// Utils.notifyTheUser(context, context.getString(R.string.update_stm_db_ok));
-			// } else {
-			// MyLog.w(TAG, "Can't delete the current database.");
-			// // notify the user that he need to remove and re-install the application
-			// Utils.notifyTheUserLong(context, context.getString(R.string.update_stm_db_error));
-			// Utils.notifyTheUserLong(context, context.getString(R.string.update_stm_db_error_next));
-			// }
-			// // } else {
-			// // MyLog.w(TAG, "Trying to upgrade the db from version '%s' to version '%s'.", currentVersion,
-			// // DB_VERSION);
-			// // }
-			// }
 		}
 	}
 
@@ -249,6 +196,9 @@ public class StmDbHelper extends SQLiteOpenHelper {
 		return Arrays.asList(context.databaseList()).contains(DB_NAME);
 	}
 
+	/**
+	 * @return true if an update is available
+	 */
 	public Boolean isUpdateAvailable() {
 		MyLog.v(TAG, "isUpdateAvailable()");
 		MyLog.d(TAG, "upgrade:" + upgrade);
@@ -292,14 +242,19 @@ public class StmDbHelper extends SQLiteOpenHelper {
 				while ((line = br.readLine()) != null) {
 					dataBase.execSQL(line);
 					if (nbLine > 0 && task != null) {
-						task.incrementProgressBar(++lineNumber);
+						++lineNumber;
 					}
 				}
+				task.incrementProgressBar(lineNumber);
 			}
 			// mark the transaction as successful
 			dataBase.setTransactionSuccessful();
+			Utils.saveSharedPreferences(context, UserPreferences.PREFS_STM_DB_VERSION, DB_VERSION);
 		} catch (Exception e) {
 			MyLog.w(TAG, e, "ERROR while copying the database file!");
+			AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_DB_INIT_FAIL, e
+			        .getClass().getSimpleName(), DB_VERSION);
+			// TODO handles no space left on the device
 		} finally {
 			try {
 				if (dataBase != null) {
@@ -320,9 +275,6 @@ public class StmDbHelper extends SQLiteOpenHelper {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public synchronized void close() {
 		try {

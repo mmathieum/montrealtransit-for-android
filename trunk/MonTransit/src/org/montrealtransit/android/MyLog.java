@@ -11,7 +11,7 @@ public class MyLog {
 	/**
 	 * Use this boolean to enable full LOG (VERBOSE)
 	 */
-	private static boolean DEBUG = false;
+	public static boolean DEBUG = false;
 
 	/**
 	 * Use this to enable location display.

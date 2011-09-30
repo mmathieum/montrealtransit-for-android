@@ -430,6 +430,19 @@ public class Utils {
 	}
 
 	/**
+	 * Save a new preference value.
+	 * @param context the context calling the method
+	 * @param prefKey the preference key
+	 * @param newValue the new preference value
+	 */
+	public static void saveSharedPreferences(Context context, String prefKey, int newValue) {
+		MyLog.v(TAG, "saveSharedPreferences(%s, %s)", prefKey, newValue);
+		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+		editor.putInt(prefKey, newValue);
+		SupportFactory.getInstance(context).applySharedPreferencesEditor(editor);
+	}
+
+	/**
 	 * Return a new preference value.
 	 * @param context the context calling the method
 	 * @param prefKey the preference key
@@ -453,6 +466,19 @@ public class Utils {
 		// MyLog.v(TAG, "getSharedPreferencesBoolean(%s, %s)", prefKey, defaultValue);
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 		return settings.getBoolean(prefKey, defaultValue);
+	}
+
+	/**
+	 * Return a new preference value.
+	 * @param context the context calling the method
+	 * @param prefKey the preference key
+	 * @param defaultValue the default value if no value
+	 * @return the preference value
+	 */
+	public static int getSharedPreferences(Context context, String prefKey, int defaultValue) {
+		// MyLog.v(TAG, "getSharedPreferencesBoolean(%s, %s)", prefKey, defaultValue);
+		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+		return settings.getInt(prefKey, defaultValue);
 	}
 
 	/**
