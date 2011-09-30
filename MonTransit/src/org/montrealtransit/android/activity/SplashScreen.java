@@ -121,6 +121,7 @@ public class SplashScreen extends Activity {
 			tmp.close();
 			if (updateAvailable) {
 				showSplashScreen();
+				addProgressBar();
 				// show a progress dialog
 				this.progressBar.setIndeterminate(true);
 				this.progressBarMessageTitle.setVisibility(View.VISIBLE);
