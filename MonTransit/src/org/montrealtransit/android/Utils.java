@@ -476,7 +476,7 @@ public class Utils {
 	 * @return the preference value
 	 */
 	public static int getSharedPreferences(Context context, String prefKey, int defaultValue) {
-		// MyLog.v(TAG, "getSharedPreferencesBoolean(%s, %s)", prefKey, defaultValue);
+		MyLog.v(TAG, "getSharedPreferencesBoolean(%s, %s)", prefKey, defaultValue);
 		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
 		return settings.getInt(prefKey, defaultValue);
 	}
