@@ -3,6 +3,9 @@
 	android:layout_width="fill_parent" android:layout_height="wrap_content"
 	android:orientation="vertical" android:layout_weight="1"
 	android:padding="10dip">
+	<!-- EMPTY SPACE -->
+	<View android:layout_width="fill_parent" android:layout_height="0dip"
+		android:layout_weight="1" />
 	<!-- APP NAME + VERSION -->
 	<RelativeLayout android:layout_width="fill_parent"
 		android:layout_height="wrap_content">
@@ -23,6 +26,9 @@
 				android:textAppearance="?android:attr/textAppearanceSmall" />
 		</LinearLayout>
 	</RelativeLayout>
+	<!-- EMPTY SPACE -->
+	<View android:layout_width="fill_parent" android:layout_height="0dip"
+		android:layout_weight="1" />
 	<!-- PROGRESS BAR -->
 	<RelativeLayout android:id="@+id/progress_layout"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
@@ -42,4 +48,7 @@
 				android:layout_gravity="center_vertical|center_horizontal" />
 		</LinearLayout>
 	</RelativeLayout>
+	<!-- EMPTY SPACE -->
+	<View android:layout_width="fill_parent" android:layout_height="0dip"
+		android:layout_weight="1" />
 </LinearLayout>
