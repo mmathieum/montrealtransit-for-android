@@ -197,7 +197,7 @@
 	<string name="view_fav">View favorite</string>
     <string name="remove_fav">Remove from favorites</string>
     <string name="no_fav">No favorite.</string>
-    <string name="no_fav_message">No favorite.\nTo add a favorite bus stop, browse the bus lines or search the bus stop from its stop code. Then, click on the star to add the favorite.</string>
+    <string name="no_fav_message">No favorite.\nTo add a favorite, browse the bus stops or the subway stations and then, click on the star to add the favorite.</string>
     <string name="no_fav_bus_stop_message">No favorite bus stop.\nTo add a favorite bus stop, browse the bus lines or search the bus stop from its stop code. Then, click on the star to add the favorite.</string>
     <string name="no_fav_subway_station_message">No favorite subway station.\nTo add a favorite subway station, browse the subway lines. Then, click on the star to add the favorite.</string>
     <string name="favorite_removed">Favorite removed.</string>

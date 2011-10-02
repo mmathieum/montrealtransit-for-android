@@ -197,7 +197,7 @@
     <string name="view_fav">Afficher le favori</string>
     <string name="remove_fav">Supprimer des favoris</string>
     <string name="no_fav">Pas de favoris.</string>
-    <string name="no_fav_message">Aucun favori.\nPour ajouter un arrêt de bus favori, parcourez les différentes lignes de bus ou chercher l\'arrêt à partir de son code d\'arrêt. Ensuite, cliquez l\'étoile pour ajouter le favori.</string>
+    <string name="no_fav_message">Aucun favori.\nPour ajouter un favori, parcourez les arrêts de bus et les stations de métro et ensuite, cliquez l\'étoile pour ajouter le favori.</string>
     <string name="no_fav_bus_stop_message">Aucun arrêt de bus favori.\nPour ajouter un arrêt de bus favori, parcourez les différentes lignes de bus ou chercher l\'arrêt de bus à partir de son code. Ensuite, cliquez l\'étoile pour ajouter le favori.</string>
     <string name="no_fav_subway_station_message">Aucune station de métro favorite.\nPour ajouter une station de métro favorite, parcourez les différentes lignes métro. Ensuite, cliquez l\'étoile pour ajouter le favori.</string>
     <string name="favorite_removed">Favori supprimé.</string>
