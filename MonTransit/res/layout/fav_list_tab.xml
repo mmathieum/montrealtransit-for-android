@@ -1,50 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="fill_parent">
-	<LinearLayout
-		android:layout_width="fill_parent" android:layout_height="fill_parent"
-		android:orientation="vertical">
-		<!-- FAVORITEs BUS STOPs -->
-		<RelativeLayout android:id="@+id/fav_bus_stops"
-			android:layout_width="fill_parent" android:layout_height="25dip"
-			android:background="@drawable/dark_header_dither">
-			<ImageView android:id="@+id/bus_logo"
-				android:layout_width="wrap_content" android:layout_height="fill_parent"
-				android:layout_alignParentLeft="true"
-				android:src="@drawable/ic_btn_bus"
-				android:gravity="center_vertical"
-				android:focusable="false" />
-			<TextView android:id="@+id/fav_bus_stops_text"
-				android:layout_width="wrap_content" android:layout_height="fill_parent"
-				android:layout_toRightOf="@id/bus_logo"
-				android:textStyle="bold" android:textSize="14sp"
-				android:textColor="?android:attr/textColorSecondary"
-				android:gravity="center_vertical"
-				android:text="@string/bus_stops" />
-		</RelativeLayout>
-		<LinearLayout android:id="@+id/bus_stops_list"
-			android:layout_width="fill_parent" android:layout_height="fill_parent"
-			android:orientation="vertical" />
-		<!-- FAVORITEs SUBWAY STATIONs -->
-		<RelativeLayout android:id="@+id/fav_subway_stations"
-			android:layout_width="fill_parent" android:layout_height="25dip"
-			android:background="@drawable/dark_header_dither">
-			<ImageView android:id="@+id/subway_station_logo"
-				android:layout_width="wrap_content" android:layout_height="fill_parent"
-				android:layout_alignParentLeft="true"
-				android:src="@drawable/ic_btn_subway"
-				android:gravity="center_vertical"
-				android:focusable="false" />
-			<TextView android:id="@+id/fav_subway_stations_text"
-				android:layout_width="wrap_content" android:layout_height="fill_parent"
-				android:layout_toRightOf="@id/subway_station_logo"
-				android:textStyle="bold" android:textSize="14sp"
-				android:textColor="?android:attr/textColorSecondary"
-				android:gravity="center_vertical"
-				android:text="@string/subway_stations" />
-		</RelativeLayout>
-		<LinearLayout android:id="@+id/subway_stations_list"
-			android:layout_width="fill_parent" android:layout_height="fill_parent"
-			android:orientation="vertical" />
-	</LinearLayout>
-</ScrollView>
+	<TextView android:id="@+id/empty" android:layout_height="fill_parent"
+		android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall"
+		android:gravity="center" android:text="@string/no_fav_message"
+		android:visibility="gone" />
+	<ScrollView android:id="@+id/lists" android:layout_width="fill_parent"
+		android:layout_height="fill_parent" android:visibility="gone">
+		<LinearLayout android:layout_width="fill_parent"
+			android:layout_height="fill_parent" android:orientation="vertical">
+			<!-- FAVORITEs BUS STOPs -->
+			<RelativeLayout android:id="@+id/fav_bus_stops"
+				android:layout_width="fill_parent" android:layout_height="25dip"
+				android:background="@drawable/dark_header_dither"
+				android:visibility="gone">
+				<ImageView android:id="@+id/bus_logo"
+					android:layout_width="wrap_content" android:layout_height="fill_parent"
+					android:layout_alignParentLeft="true" android:src="@drawable/ic_btn_bus"
+					android:gravity="center_vertical" android:focusable="false" />
+				<TextView android:id="@+id/fav_bus_stops_text"
+					android:layout_width="wrap_content" android:layout_height="fill_parent"
+					android:layout_toRightOf="@id/bus_logo" android:textStyle="bold"
+					android:textSize="14sp" android:textColor="?android:attr/textColorSecondary"
+					android:gravity="center_vertical" android:text="@string/bus_stops" />
+			</RelativeLayout>
+			<LinearLayout android:id="@+id/bus_stops_list"
+				android:layout_width="fill_parent" android:layout_height="fill_parent"
+				android:orientation="vertical" android:visibility="gone" />
+			<!-- FAVORITEs SUBWAY STATIONs -->
+			<RelativeLayout android:id="@+id/fav_subway_stations"
+				android:layout_width="fill_parent" android:layout_height="25dip"
+				android:background="@drawable/dark_header_dither"
+				android:visibility="gone">
+				<ImageView android:id="@+id/subway_station_logo"
+					android:layout_width="wrap_content" android:layout_height="fill_parent"
+					android:layout_alignParentLeft="true" android:src="@drawable/ic_btn_subway"
+					android:gravity="center_vertical" android:focusable="false" />
+				<TextView android:id="@+id/fav_subway_stations_text"
+					android:layout_width="wrap_content" android:layout_height="fill_parent"
+					android:layout_toRightOf="@id/subway_station_logo"
+					android:textStyle="bold" android:textSize="14sp"
+					android:textColor="?android:attr/textColorSecondary"
+					android:gravity="center_vertical" android:text="@string/subway_stations" />
+			</RelativeLayout>
+			<LinearLayout android:id="@+id/subway_stations_list"
+				android:layout_width="fill_parent" android:layout_height="fill_parent"
+				android:orientation="vertical" android:visibility="gone" />
+		</LinearLayout>
+	</ScrollView>
+</FrameLayout>
