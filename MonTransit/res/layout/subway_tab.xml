@@ -31,7 +31,7 @@
 			
 			<!-- SUBWAY STATUS -->
 			<RelativeLayout android:id="@+id/subway_status_title"
-				android:layout_width="match_parent" android:layout_height="25dip"
+				android:layout_width="fill_parent" android:layout_height="25dip"
 				android:background="@drawable/dark_header_dither">
 				<ImageView android:id="@+id/twitter_logo"
 					android:layout_width="wrap_content" android:layout_height="fill_parent"
@@ -92,7 +92,7 @@
 	
 			<!-- CLOSEST SUBWAY STATIONs -->
 			<RelativeLayout android:id="@+id/closest_stations_title"
-				android:layout_width="match_parent" android:layout_height="25dip"
+				android:layout_width="fill_parent" android:layout_height="25dip"
 				android:background="@drawable/dark_header_dither">
 				<ImageView android:id="@+id/location_logo"
 					android:layout_width="wrap_content" android:layout_height="fill_parent"

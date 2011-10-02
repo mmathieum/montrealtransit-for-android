@@ -721,7 +721,7 @@ public class Utils {
 		try {
 			List<Fav> busStopFavs = DataManager.findFavsByTypeList(contentResolver,
 			        DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
-			List<BusStop> busStops = StmManager.findBusStopsExtendedList(contentResolver,
+			List<BusStop> busStops = StmManager.findBusStopsList(contentResolver,
 			        Utils.extractBusStopIDsFromFavList(busStopFavs));
 			for (Fav busStopFav : busStopFavs) {
 				boolean stillInTheDB = false;

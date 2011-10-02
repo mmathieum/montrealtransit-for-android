@@ -88,7 +88,7 @@
 				android:orientation="vertical">
 				<!-- NEXT BUS STOPS  -->
 				<RelativeLayout android:id="@+id/next_stops_title"
-					android:layout_width="match_parent" android:layout_height="25dip"
+					android:layout_width="fill_parent" android:layout_height="25dip"
 					android:background="@drawable/dark_header_dither">
 					<ImageView android:id="@+id/clock_logo"
 						android:layout_width="wrap_content" android:layout_height="fill_parent"
@@ -162,7 +162,7 @@
 		
 				<!-- OTHER BUS LINE -->
 				<RelativeLayout android:id="@+id/other_bus_line"
-					android:layout_width="match_parent" android:layout_height="25dip"
+					android:layout_width="fill_parent" android:layout_height="25dip"
 					android:background="@drawable/dark_header_dither"
 					android:visibility="gone">
 					<ImageView android:id="@+id/bus_logo"
@@ -189,7 +189,7 @@
 			
 				<!-- SUBWAY STATION -->
 				<RelativeLayout android:id="@+id/subway_station"
-					android:layout_width="match_parent" android:layout_height="25dip"
+					android:layout_width="fill_parent" android:layout_height="25dip"
 					android:background="@drawable/dark_header_dither"
 					android:visibility="gone">
 					<ImageView android:id="@+id/subway_station_logo"
