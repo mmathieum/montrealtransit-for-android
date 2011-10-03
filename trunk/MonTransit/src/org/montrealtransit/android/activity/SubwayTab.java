@@ -149,9 +149,6 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 */
 	private static final int STATUS_TOO_OLD_IN_SEC = 20 * 60; // 20 minutes
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
@@ -204,9 +201,6 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		});
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
@@ -226,9 +220,6 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		super.onResume();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onPause() {
 		MyLog.v(TAG, "onPause()");
@@ -399,7 +390,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			// just notify the user ?
 		}
 		// show stop icon instead of refresh
-		this.statusRefreshOrNotImg.setImageResource(R.drawable.ic_btn_stop);
+		this.statusRefreshOrNotImg.setVisibility(View.INVISIBLE);
 		// show progress bar
 		this.statusProgressBarView.setVisibility(View.VISIBLE);
 	}
@@ -410,9 +401,9 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	private void setStatusNotLoading() {
 		MyLog.v(TAG, "setStatusNotLoading()");
 		// show refresh icon instead of loading
-		this.statusRefreshOrNotImg.setImageResource(R.drawable.ic_btn_refresh);
+		this.statusRefreshOrNotImg.setVisibility(View.VISIBLE);
 		// hide progress bar
-		this.statusProgressBarView.setVisibility(View.GONE);
+		this.statusProgressBarView.setVisibility(View.INVISIBLE);
 	}
 
 	/**
@@ -454,9 +445,6 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		setStatusNotLoading();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onStmInfoStatusesLoaded(String errorMessage) {
 		MyLog.v(TAG, "onStmInfoStatusesLoaded(%s)", errorMessage);
@@ -653,7 +641,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			// } else { just notify the user ?
 		}
 		// show stop icon instead of refresh
-		this.closestStationsRefreshOrNorImg.setImageResource(R.drawable.ic_btn_stop);
+		this.closestStationsRefreshOrNorImg.setVisibility(View.INVISIBLE);
 		// show progress bar
 		this.closestStationsProgressBarView.setVisibility(View.VISIBLE);
 	}
@@ -664,7 +652,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	private void setClosestStationsNotLoading() {
 		MyLog.v(TAG, "setClosestStationsNotLoading()");
 		// show refresh icon instead of loading
-		this.closestStationsRefreshOrNorImg.setImageResource(R.drawable.ic_btn_refresh);
+		this.closestStationsRefreshOrNorImg.setVisibility(View.VISIBLE);
 		// hide progress bar
 		this.closestStationsProgressBarView.setVisibility(View.INVISIBLE);
 	}
@@ -711,9 +699,6 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		setClosestStationsNotLoading();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onClosestStationsProgress(String progress) {
 		MyLog.v(TAG, "onClosestStationsProgress()");
@@ -727,9 +712,6 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onClosestStationsDone(ClosestSubwayStations result) {
 		MyLog.v(TAG, "onClosestStationsDone()");
@@ -818,9 +800,6 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		return this.location;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onLocationChanged(Location location) {
 		MyLog.v(TAG, "onLocationChanged()");
@@ -828,25 +807,16 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		updateDistancesWithNewLocation();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onProviderEnabled(String provider) {
 		MyLog.v(TAG, "onProviderEnabled(%s)", provider);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onProviderDisabled(String provider) {
 		MyLog.v(TAG, "onProviderDisabled(%s)", provider);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		MyLog.v(TAG, "onStatusChanged(%s, %s)", provider, status);
@@ -875,33 +845,17 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		SubwayUtils.showSTMSubwayMap(this);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		return MenuUtils.inflateMenu(this, menu, R.menu.subway_tab_menu);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		if (super.onPrepareOptionsMenu(menu)) {
 			// TWITTER
 			menu.findItem(R.id.twitter).setTitle(
 			        TwitterUtils.isConnected(this) ? R.string.menu_twitter_logout : R.string.menu_twitter_login);
-			// SERVICE STATUS
-			boolean statusRunning = this.statusTask != null
-			        && this.statusTask.getStatus().equals(AsyncTask.Status.RUNNING);
-			menu.findItem(R.id.refreshStatus).setIcon(
-			        statusRunning ? R.drawable.ic_menu_stop : R.drawable.ic_menu_refresh);
-			// CLOSEST STATIONs
-			boolean closestStationsRunning = this.closestStationsTask != null
-			        && this.closestStationsTask.getStatus().equals(AsyncTask.Status.RUNNING);
-			menu.findItem(R.id.refreshClosestStations).setIcon(
-			        closestStationsRunning ? R.drawable.ic_menu_stop : R.drawable.ic_menu_refresh);
 			return true;
 		} else {
 			MyLog.w(TAG, "Error in onPrepareOptionsMenu().");
@@ -909,20 +863,11 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.twitter:
 			twitterLoginOrLogout(null);
-			return true;
-		case R.id.refreshStatus:
-			refreshOrStopRefreshStatus(null);
-			return true;
-		case R.id.refreshClosestStations:
-			refreshOrStopRefreshClosestStations(null);
 			return true;
 		case R.id.stm_map:
 			showSTMSubwayMap(null);
@@ -932,9 +877,6 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onDestroy() {
 		MyLog.v(TAG, "onDestroy()");

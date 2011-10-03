@@ -96,21 +96,14 @@
 						android:src="@drawable/ic_btn_clock"
 						android:gravity="center_vertical"
 						android:focusable="false" />
-					<TextView android:id="@+id/next_stops_string"
-						android:layout_width="wrap_content" android:layout_height="fill_parent"
-						android:layout_toRightOf="@id/clock_logo"
-						android:textStyle="bold" android:textSize="14sp"
-						android:textColor="?android:attr/textColorSecondary"
-						android:gravity="center_vertical"
-						android:singleLine="true"
-						android:text="@string/next_bus_stops" />
 					<ImageView android:id="@+id/next_stops_refresh"
 						android:layout_width="wrap_content" android:layout_height="fill_parent"
 						android:layout_alignParentRight="true"
 						android:src="@drawable/ic_btn_refresh"
 						android:background="@android:drawable/list_selector_background"
 						android:onClick="refreshOrStopRefreshNextStops"
-						android:focusable="true" />
+						android:focusable="true"
+						android:visibility="visible" />
 					<ImageView android:id="@+id/next_stops_section_info"
 						android:layout_width="wrap_content" android:layout_height="fill_parent"
 						android:layout_toLeftOf="@id/next_stops_refresh"
@@ -118,13 +111,24 @@
 						android:background="@android:drawable/list_selector_background"
 						android:onClick="showNextStopsInfoDialog"
 						android:focusable="true" />
+					<TextView android:id="@+id/next_stops_string"
+						android:layout_width="wrap_content" android:layout_height="fill_parent"
+						android:layout_toRightOf="@id/clock_logo"
+						android:layout_toLeftOf="@id/next_stops_section_info"
+						android:textStyle="bold" android:textSize="14sp"
+						android:textColor="?android:attr/textColorSecondary"
+						android:gravity="center_vertical"
+						android:singleLine="true"
+						android:text="@string/next_bus_stops" />
 					<ProgressBar android:id="@+id/progress_bar"
 						android:layout_width="wrap_content" android:layout_height="wrap_content"
-						android:layout_toLeftOf="@id/next_stops_section_info"
+						android:layout_alignParentRight="true"
+						android:layout_marginRight="8dip"
+						android:layout_marginLeft="8dip"
 						android:indeterminate="true"
 						style="?android:attr/android:progressBarStyleSmall"
 						android:layout_centerVertical="true"
-						android:visibility="gone" />
+						android:visibility="invisible" />
 				</RelativeLayout>
 				<include android:id="@+id/next_stops_loading" layout="@layout/loading_layout" />
 				<HorizontalScrollView android:id="@+id/next_stops_group"
