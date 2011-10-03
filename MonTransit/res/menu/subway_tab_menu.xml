@@ -1,10 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 	<item android:id="@+id/twitter" android:icon="@drawable/ic_menu_twitter"
 		android:title="@string/menu_twitter_login" />
-	<item android:id="@+id/refreshStatus" android:icon="@drawable/ic_menu_refresh"
-		android:title="@string/reload_subway_status" />
-	<item android:id="@+id/refreshClosestStations" android:icon="@drawable/ic_menu_refresh"
-		android:title="@string/reload_closest_stations" />
 	<item android:id="@+id/stm_map" android:title="@string/show_map_from_stm_website" />
 	<item android:id="@+id/preferences" android:icon="@android:drawable/ic_menu_preferences"
 		android:title="@string/menu_preferences" />

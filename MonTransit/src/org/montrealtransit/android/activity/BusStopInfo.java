@@ -212,9 +212,6 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	 */
 	private TextView distanceTv;
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
@@ -289,9 +286,6 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		});
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onStop() {
 		MyLog.v(TAG, "onStop()");
@@ -301,9 +295,6 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		super.onStop();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onRestart() {
 		MyLog.v(TAG, "onRestart()");
@@ -321,9 +312,6 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		super.onRestart();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
@@ -332,9 +320,6 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		super.onResume();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onNewIntent(Intent intent) {
 		MyLog.v(TAG, "onNewIntent()");
@@ -373,9 +358,6 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		this.busStopCodeTv.setText(stopCode);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Object onRetainNonConfigurationInstance() {
 		// save the current hours
@@ -640,9 +622,6 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		builder.create().show();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
 		MyLog.v(TAG, "onClick(%s)", which);
@@ -863,7 +842,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 			// notify the user ?
 		}
 		// show stop icon instead of refresh
-		this.nextStopsRefreshOrStopRefreshImg.setImageResource(R.drawable.ic_btn_stop);
+		this.nextStopsRefreshOrStopRefreshImg.setVisibility(View.INVISIBLE);
 		// show progress bar
 		this.progressBarView.setVisibility(View.VISIBLE);
 
@@ -875,7 +854,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	private void setNextStopsNotLoading() {
 		MyLog.v(TAG, "setNextStopsNotLoading()");
 		// show refresh icon instead of loading
-		this.nextStopsRefreshOrStopRefreshImg.setImageResource(R.drawable.ic_btn_refresh);
+		this.nextStopsRefreshOrStopRefreshImg.setVisibility(View.VISIBLE);
 		// hide progress bar
 		this.progressBarView.setVisibility(View.INVISIBLE);
 	}
@@ -962,9 +941,6 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		setNextStopsNotLoading();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onNextStopsProgress(String progress) {
 		MyLog.v(TAG, "updateProgress(%s)", progress);
@@ -980,9 +956,6 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onNextStopsLoaded(Map<String, BusStopHours> results) {
 		MyLog.v(TAG, "onNextStopsLoaded(%s)", results.size());
@@ -1081,9 +1054,6 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onLocationChanged(Location location) {
 		MyLog.v(TAG, "onLocationChanged()");
@@ -1091,25 +1061,16 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		updateDistanceWithNewLocation();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onProviderEnabled(String provider) {
 		MyLog.v(TAG, "onProviderEnabled(%s)", provider);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onProviderDisabled(String provider) {
 		MyLog.v(TAG, "onProviderDisabled(%s)", provider);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		MyLog.v(TAG, "onStatusChanged(%s, %s)", provider, status);
@@ -1251,17 +1212,11 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		return MenuUtils.inflateMenu(this, menu, R.menu.bus_stop_info_menu);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		MyLog.v(TAG, "onPrepareOptionsMenu()");
@@ -1272,11 +1227,6 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 			} else {
 				menu.findItem(R.id.provider_stm_mobile).setChecked(true);
 			}
-			// REFRESH
-			boolean running = this.task != null && this.task.getStatus().equals(AsyncTask.Status.RUNNING);
-			MenuItem menuRefresh = menu.findItem(R.id.refresh);
-			menuRefresh.setIcon(running ? R.drawable.ic_menu_stop : R.drawable.ic_menu_refresh);
-			menuRefresh.setTitle(running ? R.string.stop_refresh_next_bus_stop : R.string.refresh_next_bus_stop);
 			return true;
 		} else {
 			MyLog.w(TAG, "Error in onPrepareOptionsMenu().");
@@ -1284,17 +1234,11 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.stm_mobile:
 			showSTMInfoPage(null);
-			return true;
-		case R.id.refresh:
-			refreshOrStopRefreshNextStops(null);
 			return true;
 		case R.id.map:
 			showStopLocationInMaps(null);
@@ -1313,9 +1257,6 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		if (key.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER)) {
@@ -1325,9 +1266,6 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onDestroy() {
 		MyLog.v(TAG, "onDestroy()");
