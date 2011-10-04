@@ -91,6 +91,7 @@
 					android:layout_alignParentTop="true" android:layout_alignParentBottom="true"
 					android:layout_toRightOf="@id/subway_status_img"
 					android:textAppearance="?android:attr/textAppearanceMedium"
+					android:layout_centerVertical="true"
 					android:gravity="center_vertical" />
 				</RelativeLayout>
 	
