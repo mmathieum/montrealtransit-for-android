@@ -3,6 +3,13 @@
 
 = !ChangeLog =
 
+ * 1.5.9.8 (r504)
+  * ajout d'un écran d'accueil pour l'initialization et les mises à jour
+  * amélioration de la durée de déploiment de la base de données
+  * ajout du groupement jour/nuit pour l'onglet des lignes de bus
+  * nettoyage de la mise en page (suppression de bouton et menus d'interruption)
+  * diverse corrections de la mise en page.
+
  * 1.5.9.7 (r483)
   * Mise à jour du message quand les informations d'un arrêt de bus ne sont pas disponible sur le site de la STM.
   * Corrige prochain passages qui affiche un mauvais horaire depuis http://m.stm.info/.

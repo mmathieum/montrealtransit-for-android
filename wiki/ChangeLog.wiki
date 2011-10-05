@@ -3,6 +3,13 @@
 
 = !ChangeLog =
 
+ * 1.5.9.8 (r504)
+  * add splash screen for initialization/update
+  * improve DB update duration
+  * add group by day/night to bus lines list tab
+  * clean-up layout (removing stop button and menus)
+  * various UI layout fixes
+
  * 1.5.9.7 (r483)
   * Update message when bus stop info not available on STM website.
   * Fix next bus stop showing wrong next stop from http://m.stm.info/.
