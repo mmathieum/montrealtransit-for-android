@@ -10,7 +10,9 @@ import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.provider.StmDbHelper;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -98,13 +100,28 @@ public class SplashScreen extends Activity {
 		super.onResume();
 	}
 
+	@Override
+	public void onBackPressed() { // API Level 5 - 2.0+
+		MyLog.v(TAG, "onBackPressed()");
+		new AlertDialog.Builder(this).setMessage(R.string.confirm_exit).setCancelable(false)
+		        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+			        public void onClick(DialogInterface dialog, int id) {
+				        SplashScreen.this.finish();
+			        }
+		        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+			        public void onClick(DialogInterface dialog, int id) {
+				        dialog.cancel();
+			        }
+		        }).create().show();
+	}
+
 	/**
 	 * Deploy or update the STM DB.
 	 */
 	private void deploy() {
 		MyLog.v(TAG, "deploy()");
-		if (!StmDbHelper.isDbExist(this)) {
-			showSplashScreen();
+		showSplashScreen();
+		if (!StmDbHelper.isDbExist(this)) { // initialize
 			addProgressBar();
 			// show a progress dialog
 			this.progressBar.setIndeterminate(true);
@@ -119,8 +136,7 @@ public class SplashScreen extends Activity {
 			tmp.getReadableDatabase();
 			boolean updateAvailable = tmp.isUpdateAvailable();
 			tmp.close();
-			if (updateAvailable) {
-				showSplashScreen();
+			if (updateAvailable) { // update
 				addProgressBar();
 				// show a progress dialog
 				this.progressBar.setIndeterminate(true);
@@ -130,9 +146,16 @@ public class SplashScreen extends Activity {
 				this.progressBarMessageDesc.setText(R.string.update_dialog_message);
 				// initialize the database
 				new InitializationTask().execute(true);
-			} else {
-				// Show main Screen
-				showMainScreen();
+			} else { // force re-initialize
+				addProgressBar();
+				// show a progress dialog
+				this.progressBar.setIndeterminate(true);
+				this.progressBarMessageTitle.setVisibility(View.VISIBLE);
+				this.progressBarMessageTitle.setText(R.string.reset_dialog_title);
+				this.progressBarMessageDesc.setVisibility(View.VISIBLE);
+				this.progressBarMessageDesc.setText(R.string.reset_dialog_message);
+				// initialize the database
+				new InitializationTask().execute(true);
 			}
 		}
 	}
@@ -153,7 +176,7 @@ public class SplashScreen extends Activity {
 		this.progressBarNumber = (TextView) findViewById(R.id.progress_number);
 		this.progressNumberFormat = "%d/%d";
 
-		progressBarUpdateHandler = new Handler() {
+		this.progressBarUpdateHandler = new Handler() {
 			@Override
 			public void handleMessage(Message msg) {
 				super.handleMessage(msg);
@@ -247,8 +270,10 @@ public class SplashScreen extends Activity {
 		protected void onPostExecute(String result) {
 			MyLog.v(TAG, "onPostExecute()", result);
 			super.onPostExecute(result);
-			SplashScreen.this.findViewById(R.id.progress_layout).setVisibility(View.GONE);
-			showMainScreen();
+			if (!SplashScreen.this.isFinishing()) { // not showing the main screen if the user left the app
+				SplashScreen.this.findViewById(R.id.progress_layout).setVisibility(View.GONE);
+				showMainScreen();
+			}
 		}
 	}
 }

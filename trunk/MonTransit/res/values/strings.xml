@@ -320,6 +320,10 @@
     <string name="init_dialog_message">Please wait a couple of minutes while initializing MonTransit...</string>
     <string name="update_dialog_title">Update</string>
     <string name="update_dialog_message">Please wait a couple of minutes while updating MonTransit...</string>
+    <string name="reset_dialog_title">Re-Initialization</string>
+    <string name="reset_dialog_message">Please wait a couple of minutes while re-initializing MonTransit...</string>
+    
+    <string name="confirm_exit">Are you sure you want to exit?</string>
 
     <string name="donate_to_remove_ads">Please donate to disable ads.</string>
 </resources>
