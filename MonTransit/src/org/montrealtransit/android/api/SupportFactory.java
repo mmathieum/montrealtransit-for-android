@@ -28,9 +28,11 @@ public class SupportFactory {
 			className += ".GingerbreadSupport"; // 9 10
 		} else if (sdkVersion == Build.VERSION_CODES.HONEYCOMB || sdkVersion == Build.VERSION_CODES.HONEYCOMB_MR1) {
 			className += ".HoneycombSupport"; // 11 12
-		} else if (sdkVersion > Build.VERSION_CODES.GINGERBREAD) {
+		} else if (sdkVersion == Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+			className += ".IceCreamSandwichSupport"; // 13
+		} else if (sdkVersion > Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 			MyLog.w(TAG, "Unknow API Level: %s", Build.VERSION.SDK);
-			className += ".HoneycombSupport"; // default for newer SDK
+			className += ".IceCreamSandwichSupport"; // default for newer SDK
 		}
 
 		try {
