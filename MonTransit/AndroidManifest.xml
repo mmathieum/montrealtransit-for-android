@@ -108,7 +108,7 @@
 		<!-- GOOGLE ADMOB ACTIVITY -->
 		<activity android:name="com.google.ads.AdActivity"
 			android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-			android:configChanges="keyboard|keyboardHidden|orientation" />
+			android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
 	</application>
 	<!-- Used for install referrer tracking -->
 	<receiver android:name="com.google.android.apps.analytics.AnalyticsReceiver"
