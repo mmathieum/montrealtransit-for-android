@@ -7,4 +7,5 @@
         <string name="paypal_recipient_email_mathieu_mea">ENTER_DEV_EMAIL_HERE</string>
         <string name="google_analytics_id">ENTER_WEB_PROPERTY_ID_HERE</string>
         <string name="admob_publisher_id">ENTER_ADMOB_PUBLISHER_ID_HERE</string>
+        <string name="admob_test_device_id">ENTER_ADMOB_DEVICE_ID_HERE</string>
 </resources>
