@@ -26,6 +26,7 @@ import android.text.TextUtils;
  * This data provider contains static informations about bus stops, bus lines, subway lines, subway stations.
  * @author Mathieu Méa
  */
+@SuppressWarnings("deprecation") //TODO use App Widgets (Android 3.0+)
 public class StmProvider extends ContentProvider {
 
 	/**

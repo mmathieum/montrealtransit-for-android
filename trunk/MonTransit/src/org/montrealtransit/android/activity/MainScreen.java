@@ -18,6 +18,7 @@ import android.widget.TabHost.TabSpec;
  * @author Mathieu Méa
  */
 // TODO offer the options to just show a list of the "tabs" == Dashboard UI
+@SuppressWarnings("deprecation") // TODO use Fragment
 public class MainScreen extends ActivityGroup {
 
 	/**
