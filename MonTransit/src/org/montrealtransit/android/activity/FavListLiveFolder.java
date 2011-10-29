@@ -20,6 +20,7 @@ import android.provider.LiveFolders;
  * This class manage the favorite live folder.
  * @author Mathieu Méa
  */
+@SuppressWarnings("deprecation") //TODO use App Widgets (Android 3.0+)
 public class FavListLiveFolder extends Activity {
 
 	/**

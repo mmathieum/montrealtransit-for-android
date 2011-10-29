@@ -23,6 +23,7 @@ import android.text.TextUtils;
  * This provider give information about the user.
  * @author Mathieu Méa
  */
+@SuppressWarnings("deprecation") //TODO use App Widgets (Android 3.0+)
 public class DataProvider extends ContentProvider {
 
 	/**

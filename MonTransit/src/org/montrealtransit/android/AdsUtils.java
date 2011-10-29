@@ -80,7 +80,7 @@ public class AdsUtils {
 					adRequest.setLocation(LocationUtils.getBestLastKnownLocation(activity));
 					adRequest.setKeywords(KEYWORDS);
 					if (DEBUG) {
-						adRequest.setTesting(true);
+						adRequest.addTestDevice(activity.getString(R.string.admob_test_device_id));
 						adView.setAdListener(new AdListener() {
 							@Override
 							public void onDismissScreen(Ad ad) {
@@ -135,6 +135,7 @@ public class AdsUtils {
 				AdView adView = (AdView) adLayout.findViewById(R.id.ad);
 				if (adView != null) {
 					adView.stopLoading();
+					adView.destroy();
 				}
 			}
 		}
