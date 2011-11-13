@@ -26,10 +26,10 @@ public class SupportFactory {
 			className += ".FroyoSupport"; // 8
 		} else if (sdkVersion == Build.VERSION_CODES.GINGERBREAD || sdkVersion == Build.VERSION_CODES.GINGERBREAD_MR1) {
 			className += ".GingerbreadSupport"; // 9 10
-		} else if (sdkVersion == Build.VERSION_CODES.HONEYCOMB || sdkVersion == Build.VERSION_CODES.HONEYCOMB_MR1) {
-			className += ".HoneycombSupport"; // 11 12
+		} else if (sdkVersion == Build.VERSION_CODES.HONEYCOMB || sdkVersion == Build.VERSION_CODES.HONEYCOMB_MR1 || sdkVersion == Build.VERSION_CODES.HONEYCOMB_MR2) {
+			className += ".HoneycombSupport"; // 11 12 13
 		} else if (sdkVersion == Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			className += ".IceCreamSandwichSupport"; // 13
+			className += ".IceCreamSandwichSupport"; // 14
 		} else if (sdkVersion > Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
 			MyLog.w(TAG, "Unknow API Level: %s", Build.VERSION.SDK);
 			className += ".IceCreamSandwichSupport"; // default for newer SDK
