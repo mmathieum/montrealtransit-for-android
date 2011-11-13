@@ -9,5 +9,5 @@
 	<classpathentry kind="lib" path="lib/PayPal_MPL.jar"/>
 	<classpathentry kind="lib" path="lib/libGoogleAnalytics.jar"/>
 	<classpathentry kind="lib" path="lib/admob-sdk-android.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
