@@ -3,6 +3,12 @@
 
 = !ChangeLog =
 
+ * 1.5.9.9.1 (r521)
+  * fix ClassNotFoundException on Android 3.2 devices
+
+ * 1.5.9.9 (r515)
+  * update Google AdMob SDK
+
  * 1.5.9.8 (r504)
   * add splash screen for initialization/update
   * improve DB update duration
