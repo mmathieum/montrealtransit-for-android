@@ -13,6 +13,7 @@ INSERT INTO "lignes_autobus" VALUES(21,'Place du Commerce','J',' ');
 INSERT INTO "lignes_autobus" VALUES(22,'Notre-Dame','J',' ');
 INSERT INTO "lignes_autobus" VALUES(24,'Sherbrooke','J',' ');
 INSERT INTO "lignes_autobus" VALUES(25,'Angus','P',' ');
+INSERT INTO "lignes_autobus" VALUES(26,'Mercier-Est','J',' ');
 INSERT INTO "lignes_autobus" VALUES(27,'Boulevard Saint-Joseph','J',' ');
 INSERT INTO "lignes_autobus" VALUES(28,'Honoré-Beaugrand','J',' ');
 INSERT INTO "lignes_autobus" VALUES(29,'Rachel','J',' ');

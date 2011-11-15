@@ -30,6 +30,8 @@ INSERT INTO "directions_autobus" VALUES(24,'2401E','');
 INSERT INTO "directions_autobus" VALUES(24,'2401O','');
 INSERT INTO "directions_autobus" VALUES(25,'2501N','');
 INSERT INTO "directions_autobus" VALUES(25,'2501S','');
+INSERT INTO "directions_autobus" VALUES(26,'2601E','');
+INSERT INTO "directions_autobus" VALUES(26,'2601O','');
 INSERT INTO "directions_autobus" VALUES(27,'27JOO','');
 INSERT INTO "directions_autobus" VALUES(27,'27JOE','');
 INSERT INTO "directions_autobus" VALUES(28,'2801N','');
