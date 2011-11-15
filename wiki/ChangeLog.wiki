@@ -3,6 +3,9 @@
 
 = !ChangeLog =
 
+ * 1.5.9.9.2 (r524)
+  * add the new bus line 26
+
  * 1.5.9.9.1 (r521)
   * fix ClassNotFoundException on Android 3.2 devices
 
