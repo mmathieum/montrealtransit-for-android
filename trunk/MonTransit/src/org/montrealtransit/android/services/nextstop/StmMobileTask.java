@@ -195,6 +195,11 @@ public class StmMobileTask extends AbstractNextStopProvider {
 					result.addMessage2String(mipsMessage);
 				}
 			}
+			// find 'div'
+			String divMessage = findDivMessage(interestingPart, lineNumber);
+			if (!TextUtils.isEmpty(divMessage)) {
+				result.addMessage2String(divMessage);
+			}
 		} else {
 			MyLog.w(TAG, "Can't find the next bus stops for line %s!", lineNumber);
 		}
@@ -260,9 +265,27 @@ public class StmMobileTask extends AbstractNextStopProvider {
 			result = matcher.group(0);
 		}
 		return result;
-
 	}
 
+	/**
+	 * Find the 'div' message of the HTML code.
+	 * @param interestingPart the HTML code
+	 * @param lineNumber the line number
+	 * @return the 'div' message or <b>NULL</b>
+	 */
+	private String findDivMessage(String interestingPart, String lineNumber) {
+		MyLog.v(TAG, "findDivMessage(%s)", interestingPart.length(), lineNumber);
+		String result = null;
+		String regex = "<a href=\"/bus/arrets/" + lineNumber + "\" [^>]*" + "[^<]*</a>[^<]*"
+					+"<div>([^<]*)</div>[\\s]*";
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(interestingPart);
+		while (matcher.find()) {
+			result = matcher.group(1);
+		}
+		return result;
+	}
+	
 	/**
 	 * The pattern used for stops note.
 	 */
