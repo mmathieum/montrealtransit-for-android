@@ -336,7 +336,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 		MyLog.v(TAG, "getInterestingPart(%s, %s)", html.length(), lineNumber);
 		String result = null;
 		String regex = "<div class=\"route\">[\\s]*" + "<p class=\"route-desc\">[\\s]*" + "<a href=\"/bus/arrets/"
-		        + lineNumber + "\" class=\"stm-link\">[^</]*</a>[^<]*" + "</p>[^<]*"
+		        + lineNumber + "\" [^>]*[^<]*</a>[^<]*" + "(<div>[^<]*</div>[^<]*)?" + "</p>[^<]*"
 		        + "<p class=\"route-schedules\">[^<]*</p>[\\s]*" + "(" + "<div class=\"notes\">[\\s]*"
 		        + "<div class=\"wrapper\">[\\s]*" + "<div class=\"heure\">[^d]*div>[\\s]*"
 		        + "<div class=\"message\">[^<]*</div>[\\s]*" + "<div class=\"clearfloat\">[^<]*</div>[\\s]*"
