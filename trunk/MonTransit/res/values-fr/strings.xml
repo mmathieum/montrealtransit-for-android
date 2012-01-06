@@ -189,7 +189,7 @@
 	<string name="bus_line_service_day">Service de jour</string>
 	<string name="bus_line_service_night">Service de nuit</string>
 	
-	<string name="no_more_stops">Pas de service.</string>
+	<string name="no_service">Pas de service.</string>
 	<string name="no_more_stops_for_this_bus_line">Pas de service pour la ligne de bus %s.</string>
     
     <string name="view_bus_stop">Afficher l\'arrêt</string>

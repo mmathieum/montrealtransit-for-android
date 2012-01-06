@@ -312,8 +312,12 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 		// FREQUENCY
 		String frequency = StmManager.findSubwayDirectionFrequency(getContentResolver(), subwayStationDir.getId(),
 		        dayOfTheWeek, time);
-		String dirFreq = getString(R.string.minutes_and_minutes, frequency);
-		((TextView) dView.findViewById(R.id.direction_frequency)).setText(dirFreq);
+		if (frequency != null) {
+			String dirFreq = getString(R.string.minutes_and_minutes, frequency);
+			((TextView) dView.findViewById(R.id.direction_frequency)).setText(dirFreq);
+		} else {
+			((TextView) dView.findViewById(R.id.direction_frequency)).setText(R.string.no_service);
+		}
 		return dView;
 	}
 
