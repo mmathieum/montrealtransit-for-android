@@ -9,6 +9,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -719,6 +720,7 @@ public class Utils {
 	public static void cleanFavorites(ContentResolver contentResolver) {
 		MyLog.v(TAG, "cleanFavorites()");
 		try {
+			// bus stops
 			List<Fav> busStopFavs = DataManager.findFavsByTypeList(contentResolver,
 			        DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
 			List<BusStop> busStops = StmManager.findBusStopsList(contentResolver,
@@ -735,12 +737,69 @@ public class Utils {
 					DataManager.deleteFav(contentResolver, busStopFav.getId());
 				}
 			}
+			// subway stations
 			List<Fav> subwayFavs = DataManager.findFavsByTypeList(contentResolver,
 			        DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
 			for (Fav subwayFav : subwayFavs) {
 				SubwayStation station = StmManager.findSubwayStation(contentResolver, subwayFav.getFkId());
 				if (station == null) {
 					DataManager.deleteFav(contentResolver, subwayFav.getId());
+				}
+			}
+		} catch (Exception e) {
+			MyLog.w(TAG, e, "Unknow error while cleaning favorite.");
+		}
+	}
+
+	/**
+	 * Update favorites bus lines to match January 2012 bus lines number changes.
+	 * @param contentResolver the content resolver
+	 */
+	public static void updateFavoritesJan2012(ContentResolver contentResolver) {
+		MyLog.v(TAG, "updateFavoritesJan2012()");
+		try {
+
+			Map<String, String> update = new HashMap<String, String>();
+			update.put("77", "444");
+			update.put("120", "495");
+			update.put("132", "136");
+			update.put("143", "440");
+			update.put("148", "448");
+			update.put("159", "469");
+			// update.put("167", "777"); no bus stops
+			// update.put("167", "767"); no bus stops
+			// update.put("169", "769"); no bus stops
+			update.put("173", "496");
+			update.put("182", "486");
+			update.put("184", "487");
+			update.put("190", "491");
+			update.put("194", "449");
+			update.put("199", "432");
+			update.put("210", "419");
+			update.put("214", "409");
+			update.put("221", "411");
+			update.put("251", "212");
+			update.put("261", "401");
+			update.put("265", "407");
+			update.put("268", "468");
+			update.put("480", "178");
+			update.put("505", "439");
+			update.put("506", "406");
+			update.put("515", "715");
+			update.put("535", "435");
+
+			List<Fav> busStopFavs = DataManager.findFavsByTypeList(contentResolver,
+			        DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
+			for (Fav busStopFav : busStopFavs) {
+				String busStopLineNumber = busStopFav.getFkId2();
+				// IF the bus stop line number need to be updated DO
+				if (update.keySet().contains(busStopLineNumber)) {
+					// delete the old favorite
+					DataManager.deleteFav(contentResolver, busStopFav.getId());
+					// update the bus line number
+					busStopFav.setFkId2(update.get(busStopLineNumber));
+					// add the new favorite
+					DataManager.addFav(contentResolver, busStopFav);
 				}
 			}
 		} catch (Exception e) {

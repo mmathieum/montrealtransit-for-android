@@ -420,10 +420,7 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 			busLineType.add(StmStore.BusLine.LINE_TYPE_REGULAR_SERVICE);
 			busLineType.add(StmStore.BusLine.LINE_TYPE_RUSH_HOUR_SERVICE);
 			busLineType.add(StmStore.BusLine.LINE_TYPE_NIGHT_SERVICE);
-			busLineType.add(StmStore.BusLine.LINE_TYPE_METROBUS_SERVICE);
-			busLineType.add(StmStore.BusLine.LINE_TYPE_TRAINBUS);
 			busLineType.add(StmStore.BusLine.LINE_TYPE_EXPRESS_SERVICE);
-			busLineType.add(StmStore.BusLine.LINE_TYPE_RESERVED_LANE_SERVICE);
 
 			this.currentGroupDataByType = new ArrayList<Map<String, String>>();
 			this.currentChildDataByType = new ArrayList<List<Map<String, String>>>();

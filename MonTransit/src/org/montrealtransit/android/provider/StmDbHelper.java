@@ -36,7 +36,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	/**
 	 * The database version use to manage database changes.
 	 */
-	public static final int DB_VERSION = 9;
+	public static final int DB_VERSION = 10;
 
 	/**
 	 * The list of SQL dump files.
@@ -45,7 +45,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	        R.raw.stm_db_frequences_metro, R.raw.stm_db_horaire_metro, R.raw.stm_db_lignes_autobus,
 	        R.raw.stm_db_lignes_metro, R.raw.stm_db_stations_metro, R.raw.stm_db_arrets_autobus_0,
 	        R.raw.stm_db_arrets_autobus_1, R.raw.stm_db_arrets_autobus_2, R.raw.stm_db_arrets_autobus_3,
-	        R.raw.stm_db_arrets_autobus_4, R.raw.stm_db_arrets_autobus_5, R.raw.stm_db_arrets_autobus_7 };
+	        R.raw.stm_db_arrets_autobus_4, R.raw.stm_db_arrets_autobus_7 };
 
 	// BUS LINE
 	public static final String T_BUS_LINES = "lignes_autobus";
@@ -55,11 +55,8 @@ public class StmDbHelper extends SQLiteOpenHelper {
 
 	public static final String BUS_LINE_TYPE_REGULAR_SERVICE = "J";
 	public static final String BUS_LINE_TYPE_RUSH_HOUR_SERVICE = "P";
-	public static final String BUS_LINE_TYPE_METROBUS_SERVICE = "M";
-	public static final String BUS_LINE_TYPE_TRAINBUS = "T";
 	public static final String BUS_LINE_TYPE_NIGHT_SERVICE = "N";
 	public static final String BUS_LINE_TYPE_EXPRESS_SERVICE = "E";
-	public static final String BUS_LINE_TYPE_RESERVED_LANE_SERVICE = "R";
 
 	// BUS LINE DIRECTIONS
 	public static final String T_BUS_LINE_DIRECTIONS = "directions_autobus";
