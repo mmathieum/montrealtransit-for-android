@@ -4193,11 +4193,6 @@ INSERT INTO "arrets_autobus" VALUES(55826,76,'76SOO','Décarie / No 290','','',1
 INSERT INTO "arrets_autobus" VALUES(55543,76,'76SOO','Griffith / Migneron','','',2);
 INSERT INTO "arrets_autobus" VALUES(55494,76,'76SOO','Griffith / McArthur','','',3);
 INSERT INTO "arrets_autobus" VALUES('',76,'76SOO','McArthur / No 555','','Descente seulement',4);
-INSERT INTO "arrets_autobus" VALUES(54080,77,'7701N','Sherbrooke / station Radisson',19,'',0);
-INSERT INTO "arrets_autobus" VALUES('',77,'7701N','Cégep Marie-Victorin','','Descente seulement',1);
-INSERT INTO "arrets_autobus" VALUES(54381,77,'7701S','Cégep Marie-Victorin','','',0);
-INSERT INTO "arrets_autobus" VALUES('',77,'7701S','Sherbrooke / des Groseilliers','','Descente seulement',1);
-INSERT INTO "arrets_autobus" VALUES('',77,'7701S','Sherbrooke / station Radisson',19,'Descente seulement',2);
 INSERT INTO "arrets_autobus" VALUES(54108,78,'7801E','Station Angrignon',43,'',0);
 INSERT INTO "arrets_autobus" VALUES(56727,78,'7801E','Angrignon / Newman','','',1);
 INSERT INTO "arrets_autobus" VALUES(57078,78,'7801E','Allard / Newman','','',2);

@@ -93,10 +93,7 @@ public class StmStore {
 		public static final String LINE_TYPE_REGULAR_SERVICE = StmDbHelper.BUS_LINE_TYPE_REGULAR_SERVICE;
 		public static final String LINE_TYPE_RUSH_HOUR_SERVICE = StmDbHelper.BUS_LINE_TYPE_RUSH_HOUR_SERVICE;
 		public static final String LINE_TYPE_NIGHT_SERVICE = StmDbHelper.BUS_LINE_TYPE_NIGHT_SERVICE;
-		public static final String LINE_TYPE_METROBUS_SERVICE = StmDbHelper.BUS_LINE_TYPE_METROBUS_SERVICE;
-		public static final String LINE_TYPE_TRAINBUS = StmDbHelper.BUS_LINE_TYPE_TRAINBUS;
 		public static final String LINE_TYPE_EXPRESS_SERVICE = StmDbHelper.BUS_LINE_TYPE_EXPRESS_SERVICE;
-		public static final String LINE_TYPE_RESERVED_LANE_SERVICE = StmDbHelper.BUS_LINE_TYPE_RESERVED_LANE_SERVICE;
 
 		/**
 		 * The bus line number.

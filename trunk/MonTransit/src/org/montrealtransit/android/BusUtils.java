@@ -131,42 +131,14 @@ public class BusUtils {
 					results.add(R.string.pm_route);
 				}
 				break;
-			case 143:
-				if (extraDirectionInfo.equals("AM")) {
-					results.add(R.string.am_route);
-				} else if (extraDirectionInfo.equals("PM")) {
-					results.add(R.string.pm_route);
-				}
-				break;
 			case 146:
 				if (extraDirectionInfo.equals("SW")) {
 					results.add(R.string.route_leading_to_henri_bourassa_station);
 				}
 				break;
-			case 148:
-				if (extraDirectionInfo.equals("AM")) {
-					results.add(R.string.am_route);
-				} else if (extraDirectionInfo.equals("PM")) {
-					results.add(R.string.pm_route);
-				}
-				break;
 			case 166:
 				if (extraDirectionInfo.equals("L2")) {
 					results.add(R.string.route_after_8pm_by_way_of_ridgewood);
-				}
-				break;
-			case 182:
-				if (extraDirectionInfo.equals("AM")) {
-					results.add(R.string.am_route);
-				} else if (extraDirectionInfo.equals("PM")) {
-					results.add(R.string.pm_route);
-				}
-				break;
-			case 184:
-				if (extraDirectionInfo.equals("AM")) {
-					results.add(R.string.am_route);
-				} else if (extraDirectionInfo.equals("PM")) {
-					results.add(R.string.pm_route);
 				}
 				break;
 			case 188:
@@ -176,29 +148,9 @@ public class BusUtils {
 					results.add(R.string.pm_route);
 				}
 				break;
-			case 194:
-				if (extraDirectionInfo.equals("AM")) {
-					results.add(R.string.am_route_peak_period);
-				} else if (extraDirectionInfo.equals("PM")) {
-					results.add(R.string.pm_route_peak_period);
-				} else if (extraDirectionInfo.equals("HC")) {
-					results.add(R.string.route_off_peak_periods);
-				}
-				break;
 			case 197:
 				if (directionId.equals("197HPE")) {
 					results.add(R.string.route_by_way_of_pepiniere);
-				}
-				break;
-			case 199:
-				if (extraDirectionInfo.equals("PM")) {
-					results.add(R.string.pm_route_peak_period);
-				} else if (directionId.equals("199AMN")) {
-					results.add(R.string.am_route_peak_period);
-				} else if (directionId.equals("199AMS")) {
-					results.add(R.string.am_route_peak_period_and_off_peaks_periods);
-				} else if (directionId.equals("199HCN")) {
-					results.add(R.string.route_off_peak_periods);
 				}
 				break;
 			case 204:
@@ -208,14 +160,14 @@ public class BusUtils {
 					results.add(R.string.route_during_off_peak_periods);
 				}
 				break;
-			case 214:
+			case 401:
 				if (extraDirectionInfo.equals("AM")) {
 					results.add(R.string.am_route);
 				} else if (extraDirectionInfo.equals("PM")) {
 					results.add(R.string.pm_route);
 				}
 				break;
-			case 261:
+			case 409:
 				if (extraDirectionInfo.equals("AM")) {
 					results.add(R.string.am_route);
 				} else if (extraDirectionInfo.equals("PM")) {
@@ -229,6 +181,47 @@ public class BusUtils {
 					results.add(R.string.pm_route);
 				}
 				break;
+			case 432:
+				if (extraDirectionInfo.equals("PM")) {
+					results.add(R.string.pm_route_peak_period);
+				} else if (directionId.equals("199AMN")) {
+					results.add(R.string.am_route_peak_period);
+				} else if (directionId.equals("199AMS")) {
+					results.add(R.string.am_route_peak_period_and_off_peaks_periods);
+				} else if (directionId.equals("199HCN")) {
+					results.add(R.string.route_off_peak_periods);
+				}
+				break;
+			case 439:
+				if (extraDirectionInfo.equals("AM")) {
+					results.add(R.string.am_route);
+				} else if (extraDirectionInfo.equals("TP")) {
+					results.add(R.string.pm_route);
+				}
+				break;
+			case 440:
+				if (extraDirectionInfo.equals("AM")) {
+					results.add(R.string.am_route);
+				} else if (extraDirectionInfo.equals("PM")) {
+					results.add(R.string.pm_route);
+				}
+				break;
+			case 448:
+				if (extraDirectionInfo.equals("AM")) {
+					results.add(R.string.am_route);
+				} else if (extraDirectionInfo.equals("PM")) {
+					results.add(R.string.pm_route);
+				}
+				break;
+			case 449:
+				if (extraDirectionInfo.equals("AM")) {
+					results.add(R.string.am_route_peak_period);
+				} else if (extraDirectionInfo.equals("PM")) {
+					results.add(R.string.pm_route_peak_period);
+				} else if (extraDirectionInfo.equals("HC")) {
+					results.add(R.string.route_off_peak_periods);
+				}
+				break;
 			case 460:
 				if (extraDirectionInfo.equals("AM")) {
 					results.add(R.string.am_route);
@@ -236,14 +229,21 @@ public class BusUtils {
 					results.add(R.string.pm_route);
 				}
 				break;
-			case 505:
+			case 486:
 				if (extraDirectionInfo.equals("AM")) {
 					results.add(R.string.am_route);
-				} else if (extraDirectionInfo.equals("TP")) {
+				} else if (extraDirectionInfo.equals("PM")) {
 					results.add(R.string.pm_route);
 				}
 				break;
-			case 515:
+			case 487:
+				if (extraDirectionInfo.equals("AM")) {
+					results.add(R.string.am_route);
+				} else if (extraDirectionInfo.equals("PM")) {
+					results.add(R.string.pm_route);
+				}
+				break;
+			case 715:
 				if (directionId.equals("51501E")) {
 					results.add(R.string.to_the_old_montreal);
 				} else if (directionId.equals("51501O")) {
@@ -268,16 +268,10 @@ public class BusUtils {
 			return R.drawable.bus_type_soleil;
 		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_RUSH_HOUR_SERVICE)) {
 			return R.drawable.bus_type_hot;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_METROBUS_SERVICE)) {
-			return R.drawable.bus_type_mbus;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_TRAINBUS)) {
-			return R.drawable.bus_type_tbus;
 		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_NIGHT_SERVICE)) {
 			return R.drawable.bus_type_snuit;
 		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_EXPRESS_SERVICE)) {
 			return R.drawable.bus_type_express;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_RESERVED_LANE_SERVICE)) {
-			return R.drawable.bus_type_voieres;
 		} else {
 			MyLog.w(TAG, "Unknown bus line type '%s'.", type);
 			return android.R.drawable.ic_dialog_alert;
@@ -295,15 +289,9 @@ public class BusUtils {
 			return Color.rgb(0, 96, 170); // BLUE;
 		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_RUSH_HOUR_SERVICE)) {
 			return Color.RED;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_METROBUS_SERVICE)) {
-			return Color.rgb(0, 115, 57); // GREEN
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_TRAINBUS)) {
-			return Color.rgb(0, 156, 33); // GREEN light
 		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_NIGHT_SERVICE)) {
 			return Color.BLACK;
 		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_EXPRESS_SERVICE)) {
-			return Color.rgb(0, 115, 57); // GREEN
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_RESERVED_LANE_SERVICE)) {
 			return Color.rgb(0, 115, 57); // GREEN
 		} else {
 			MyLog.w(TAG, "Unknown bus line type '%s'.", type);
@@ -322,16 +310,10 @@ public class BusUtils {
 			return R.string.bus_type_soleil;
 		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_RUSH_HOUR_SERVICE)) {
 			return R.string.bus_type_hot;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_METROBUS_SERVICE)) {
-			return R.string.bus_type_mbus;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_TRAINBUS)) {
-			return R.string.bus_type_tbus;
 		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_NIGHT_SERVICE)) {
 			return R.string.bus_type_snuit;
 		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_EXPRESS_SERVICE)) {
 			return R.string.bus_type_express;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_RESERVED_LANE_SERVICE)) {
-			return R.string.bus_type_voieres;
 		} else {
 			MyLog.w(TAG, "Unknown bus line type '%s'.", type);
 			return R.string.error;

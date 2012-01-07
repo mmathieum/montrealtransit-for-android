@@ -31,7 +31,7 @@ import android.widget.TextView;
  * This class is the first screen displayed by the application.
  * @author Mathieu Méa
  */
-// TODO add version checking here (start asynchronously and the send a notification to the user).
+// TODO add version checking here (start asynchronously and show a notification to the user).
 public class SplashScreen extends Activity {
 
 	/**
@@ -132,6 +132,7 @@ public class SplashScreen extends Activity {
 			// initialize the database
 			new InitializationTask().execute(false);
 		} else {
+			checkForBusLineUpdates();
 			StmDbHelper tmp = new StmDbHelper(this, null);
 			tmp.getReadableDatabase();
 			boolean updateAvailable = tmp.isUpdateAvailable();
@@ -157,6 +158,17 @@ public class SplashScreen extends Activity {
 				// initialize the database
 				new InitializationTask().execute(true);
 			}
+		}
+	}
+
+	/**
+	 * Check if a favorite update is needed due to bus line number changes for example.
+	 */
+	private void checkForBusLineUpdates() {
+		int currentDeployedStmDbVersion = Utils.getSharedPreferences(this, UserPreferences.PREFS_STM_DB_VERSION, 0);
+		if (currentDeployedStmDbVersion == 9 && StmDbHelper.DB_VERSION >= 10) {
+			// update favorites (January 2012)
+			Utils.updateFavoritesJan2012(getContentResolver());
 		}
 	}
 
