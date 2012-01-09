@@ -806,4 +806,31 @@ public class Utils {
 			MyLog.w(TAG, e, "Unknow error while cleaning favorite.");
 		}
 	}
+
+	/**
+	 * Set the DEMO mode with favorites and other settings...
+	 * @param context the context
+	 */
+	public static void setDemoMode(Context context) {
+		// set favorites
+		Fav newFav = new Fav();
+		newFav.setType(Fav.KEY_TYPE_VALUE_BUS_STOP);
+		newFav.setFkId("54321");
+		newFav.setFkId2("10");
+		DataManager.addFav(context.getContentResolver(), newFav);
+		newFav.setFkId("52509");
+		newFav.setFkId2("24");
+		DataManager.addFav(context.getContentResolver(), newFav);
+		newFav.setFkId("55140");
+		newFav.setFkId2("48");
+		DataManager.addFav(context.getContentResolver(), newFav);
+		newFav.setType(Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
+		newFav.setFkId("11"); // Berri-UQAM
+		newFav.setFkId2(null);
+		DataManager.addFav(context.getContentResolver(), newFav);
+		newFav.setFkId("9"); // Mont-Royal
+		newFav.setFkId2(null);
+		DataManager.addFav(context.getContentResolver(), newFav);
+
+	}
 }

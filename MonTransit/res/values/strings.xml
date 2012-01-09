@@ -107,6 +107,8 @@
 	<string name="donate_pref_summary">Support MonTransit development.</string>
 	<string name="about_pref_title">About</string>
 	<string name="about_pref_summary">More informations about MonTransit.</string>
+	<string name="version_pref_title">Version</string>
+	<string name="version_pref_summary">%1$s (r%2$s)</string>
 
 	<string name="select_group_by">Display</string>
 	<string name="group_by_bus_line_no_group">Don\'t group</string>
@@ -326,4 +328,7 @@
     <string name="confirm_exit">Are you sure you want to exit?</string>
 
     <string name="donate_to_remove_ads">Please donate to disable ads.</string>
+
+    <string name="demo_title">DEMO</string>
+    <string name="demo_message">Do you want to set-up demo mode? This will erase all your current settings!</string>
 </resources>
