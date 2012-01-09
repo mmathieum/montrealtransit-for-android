@@ -47,4 +47,6 @@
 		android:title="@string/donate_pref_title" android:summary="@string/donate_pref_summary" />
 	<PreferenceScreen android:key="pAbout"
 		android:title="@string/about_pref_title" android:summary="@string/about_pref_summary" />
+	<PreferenceScreen android:key="pVersion"
+		android:title="@string/version_pref_title" />
 </PreferenceScreen>

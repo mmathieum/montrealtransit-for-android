@@ -2,12 +2,17 @@ package org.montrealtransit.android.activity;
 
 import org.montrealtransit.android.AdsUtils;
 import org.montrealtransit.android.AnalyticsUtils;
+import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.provider.DataManager;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -134,6 +139,11 @@ public class UserPreferences extends PreferenceActivity {
 	public static final String PREFS_DISTANCE_UNIT_DEFAULT = PREFS_DISTANCE_UNIT_METER;
 
 	/**
+	 * The preference key for clearing the cache.
+	 */
+	public static final String PREFS_CLEAR_CACHE = "pClearCache";
+
+	/**
 	 * The preference key for the subway line stations display order. <b>WARNING:</b> To be used with the subway line number at the end. Use
 	 * {@link UserPreferences#getPrefsSubwayStationsOrder(int)} to get the key.
 	 */
@@ -184,6 +194,11 @@ public class UserPreferences extends PreferenceActivity {
 	 */
 	private CheckBoxPreference adsCheckBox;
 
+	/**
+	 * The number of click on the version.
+	 */
+	private int versionCount;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
@@ -222,7 +237,7 @@ public class UserPreferences extends PreferenceActivity {
 		});
 
 		// clear cache //TODO confirmation dialog
-		((PreferenceScreen) findPreference("pClearCache"))
+		((PreferenceScreen) findPreference(PREFS_CLEAR_CACHE))
 		        .setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			        @Override
 			        public boolean onPreferenceClick(Preference preference) {
@@ -250,6 +265,46 @@ public class UserPreferences extends PreferenceActivity {
 				return false;
 			}
 		});
+		// version
+		String versionName = "";
+		String versionCode = "";
+		try {
+			PackageInfo packageInfo = getPackageManager().getPackageInfo(Constant.PKG, 0);
+			versionName = packageInfo.versionName;
+			versionCode = String.valueOf(packageInfo.versionCode);
+		} catch (NameNotFoundException e) {
+		}
+		PreferenceScreen versionPS = (PreferenceScreen) findPreference("pVersion");
+		versionPS.setSummary(getString(R.string.version_pref_summary, versionName, versionCode));
+		versionPS.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				UserPreferences.this.versionCount++;
+				if (UserPreferences.this.versionCount >= 5) {
+					// show dialog
+					AlertDialog.Builder builder = new AlertDialog.Builder(UserPreferences.this);
+					builder.setTitle(R.string.demo_title);
+					builder.setMessage(R.string.demo_message);
+					builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							Utils.setDemoMode(UserPreferences.this);
+						}
+					});
+					builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							dialog.cancel();
+						}
+					});
+					builder.setCancelable(true);
+					builder.create().show();
+
+					UserPreferences.this.versionCount = 0; // reset counter
+				}
+				return false;
+			}
+		});
 	}
 
 	@Override
@@ -266,7 +321,7 @@ public class UserPreferences extends PreferenceActivity {
 	 * Setup the clear cache preference.
 	 */
 	private void setClearCachePref() {
-		PreferenceScreen clearCachePref = (PreferenceScreen) findPreference("pClearCache");
+		PreferenceScreen clearCachePref = (PreferenceScreen) findPreference(PREFS_CLEAR_CACHE);
 		clearCachePref.setEnabled(DataManager.findAllCacheList(getContentResolver()) != null);
 		clearCachePref.setSummary(clearCachePref.isEnabled() ? R.string.clear_cache_pref_summary
 		        : R.string.clear_cache_pref_summary_disabled);

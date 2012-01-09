@@ -16,6 +16,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.AsyncTask;
+import android.text.TextUtils;
 
 /**
  * This class contains useful methods to interact with the Twitter API including the login/logout process.
@@ -138,22 +140,50 @@ public class TwitterUtils {
 	 */
 	public void startLoginProcess(Context context) {
 		MyLog.v(TAG, "startLoginProcess()");
-		try {
-			// TODO show a dialog with more information who/what/why/how
-			Utils.notifyTheUserLong(context, context.getString(R.string.twitter_pre_auth));
-			getProvider().setOAuth10a(true);
-			String authUrl = getProvider().retrieveRequestToken(getConsumer(context), CALLBACK_URL);
-			// saving the token
-			SharedPreferences.Editor editor = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit();
-			editor.putString(REQUEST_TOKEN, getConsumer(context).getToken());
-			editor.putString(REQUEST_SECRET, getConsumer(context).getTokenSecret());
-			SupportFactory.getInstance(context).applySharedPreferencesEditor(editor);
-			AnalyticsUtils.dispatch(context); // while we are connected, sent the analytics data
-			// launching the browser
-			context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(authUrl)));
-		} catch (Exception e) {
-			MyLog.e(TAG, e, "Error while trying to launch Twitter Authentication!");
+		// TODO show a dialog with more information who/what/why/how
+		Utils.notifyTheUserLong(context, context.getString(R.string.twitter_pre_auth));
+		getProvider().setOAuth10a(true);
+		// retrieve the request token
+		new RetrieveRequestToken().execute(context);
+	}
+
+	/**
+	 * Retrieve Request Token task.
+	 */
+	private class RetrieveRequestToken extends AsyncTask<Context, String, String> {
+
+		/**
+		 * The context.
+		 */
+		private Context context;
+
+		@Override
+		protected String doInBackground(Context... params) {
+			this.context = params[0];
+			try {
+				return getProvider().retrieveRequestToken(getConsumer(params[0]), CALLBACK_URL);
+			} catch (Exception e) {
+				MyLog.e(TAG, e, "Error while trying to launch Twitter Authentication!");
+				return null;
+			}
 		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			if (!TextUtils.isEmpty(result)) {
+				MyLog.d(TAG, "Twitter OAuth URL: " + result);
+				// saving the token
+				SharedPreferences.Editor editor = this.context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+				        .edit();
+				editor.putString(REQUEST_TOKEN, getConsumer(this.context).getToken());
+				editor.putString(REQUEST_SECRET, getConsumer(this.context).getTokenSecret());
+				SupportFactory.getInstance(this.context).applySharedPreferencesEditor(editor);
+				AnalyticsUtils.dispatch(this.context); // while we are connected, sent the analytics data
+				// launching the browser
+				this.context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(result)));
+			}
+		}
+
 	}
 
 	/**
@@ -173,34 +203,70 @@ public class TwitterUtils {
 	 */
 	public void login(Context context, Uri uri) {
 		MyLog.v(TAG, "login()");
-		try {
-			MyLog.d(TAG, "Fetching access token from Twitter...");
-			// read the request token and secret from the app settings
-			SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-			String token = settings.getString(REQUEST_TOKEN, null);
-			String secret = settings.getString(REQUEST_SECRET, null);
-			// apply the request token and secret to the consumer
-			getConsumer(context).setTokenWithSecret(token, secret);
-			// read the OAuth verifier and token from the Twitter Callback URL
-			String oauth_verifier = uri.getQueryParameter(OAuth.OAUTH_VERIFIER);
-			String otoken = uri.getQueryParameter(OAuth.OAUTH_TOKEN);
-			// check if the token returned by the Twitter Callback URL matches the sent token
-			if (!token.equals(otoken)) {
-				MyLog.w(TAG, "Twitter error: returned token differs from sent token!");
+		MyLog.d(TAG, "Fetching access token from Twitter...");
+		// read the request token and secret from the app settings
+		SharedPreferences settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+		String token = settings.getString(REQUEST_TOKEN, null);
+		String secret = settings.getString(REQUEST_SECRET, null);
+		// apply the request token and secret to the consumer
+		getConsumer(context).setTokenWithSecret(token, secret);
+		// read the OAuth verifier and token from the Twitter Callback URL
+		String oauth_verifier = uri.getQueryParameter(OAuth.OAUTH_VERIFIER);
+		String otoken = uri.getQueryParameter(OAuth.OAUTH_TOKEN);
+		// check if the token returned by the Twitter Callback URL matches the sent token
+		if (!token.equals(otoken)) {
+			MyLog.w(TAG, "Twitter error: returned token differs from sent token!");
+		}
+		// retrieve the access token from the consumer and the OAuth verifier returner by the Twitter Callback URL
+		new RetrieveAccessToken(oauth_verifier).execute(context);
+	}
+
+	/**
+	 * Retrieve Access Token task.
+	 */
+	private class RetrieveAccessToken extends AsyncTask<Context, String, String> {
+
+		/**
+		 * The context.
+		 */
+		private Context context;
+		/**
+		 * The Twitter OAuth verifier.
+		 */
+		private String oauth_verifier;
+
+		/**
+		 * Default constructor.
+		 * @param oauth_verifier Twitter OAuth verifier
+		 */
+		public RetrieveAccessToken(String oauth_verifier) {
+			this.oauth_verifier = oauth_verifier;
+		}
+
+		@Override
+		protected String doInBackground(Context... params) {
+			this.context = params[0];
+			try {
+				// retrieve the access token from the consumer and the OAuth verifier returner by the Twitter Callback URL
+				getProvider().retrieveAccessToken(getConsumer(this.context), this.oauth_verifier);
+			} catch (OAuthException oae) {
+				Utils.notifyTheUser(context, context.getString(R.string.twitter_auth_failed));
+				MyLog.w(TAG, oae, "Twitter OAuth error!");
 			}
-			// retrieve the access token from the consumer and the OAuth verifier returner by the Twitter Callback URL
-			getProvider().retrieveAccessToken(getConsumer(context), oauth_verifier);
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
 			// saving the Twitter user account token and secret
 			TwitterApi newTwitterApi = new TwitterApi();
-			newTwitterApi.setToken(getConsumer(context).getToken());
-			newTwitterApi.setTokenSecret(getConsumer(context).getTokenSecret());
-			DataManager.addTwitterApi(context.getContentResolver(), newTwitterApi);
+			newTwitterApi.setToken(getConsumer(this.context).getToken());
+			newTwitterApi.setTokenSecret(getConsumer(this.context).getTokenSecret());
+			DataManager.addTwitterApi(this.context.getContentResolver(), newTwitterApi);
 			// notify the user of the success
-			Utils.notifyTheUser(context, context.getString(R.string.twitter_auth_success));
-		} catch (OAuthException oae) {
-			Utils.notifyTheUser(context, context.getString(R.string.twitter_auth_failed));
-			MyLog.w(TAG, oae, "Twitter OAuth error!");
+			Utils.notifyTheUser(this.context, this.context.getString(R.string.twitter_auth_success));
 		}
+
 	}
 
 	/**
