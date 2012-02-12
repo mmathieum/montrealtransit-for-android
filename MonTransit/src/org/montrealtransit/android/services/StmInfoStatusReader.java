@@ -59,9 +59,6 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 		this.context = context;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected String doInBackground(String... params) {
 		MyLog.v(TAG, "doInBackground(%s)", Arrays.asList(params));
@@ -254,9 +251,6 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onPostExecute(String errorMessage) {
 		from.onStmInfoStatusesLoaded(errorMessage);

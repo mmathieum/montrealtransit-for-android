@@ -74,13 +74,13 @@
 	<string name="bus_stop_and_line_short">Stop %1$s (Line %2$s)</string>
 	<string name="bus_stop_removed">The bus line %s no longer passes at this bus stop!</string>
 	<string name="bus_stop_no_info_and_source">No information on %2$s about the line %1$s at this bus stop.</string>
-	<string name="waiting_for_location_fix">Waiting for location...</string>
+	<string name="waiting_for_location_fix">Waiting for location&#8230;</string>
 	<string name="no_location_provider_available">No location provider available.\nYou need to enable location by wireless network or GPS satellites in your phone settings.</string>
 	<string name="subway_status">Service status</string>
 	<string name="subway_status_hour">Service status (%s)</string>
 	<string name="subway_status_message">The STM post métro service disruptions lasting 20 minutes and more.\n\nhttp://twitter.com/stminfo</string>
 	<string name="reload_subway_status">Service status</string>
-	<string name="subway_status_updating">Updating service status...</string>
+	<string name="subway_status_updating">Updating service status&#8230;</string>
 	<string name="subway_status_done">Service status updated.</string>
 	<string name="subway_status_loading_cancelled">Update of the service status cancelled.</string>
 	
@@ -127,7 +127,7 @@
 	<string name="show_in_map">View Maps</string>
 	<string name="show_in_map_exp">Maps(BETA)</string>
 
-	<string name="geocoding_and_location">Looking for the GPS coordinates of %s...</string>
+	<string name="geocoding_and_location">Looking for the GPS coordinates of %s&#8230;</string>
 	<string name="bus_stop_location_not_found">Bus stop location not found.</string>
 
 	<string name="use_radar">Radar</string>
@@ -207,15 +207,15 @@
     
     <string name="cancel">Cancel</string>
     <string name="done">Done</string>
-    <string name="downloading_data_from_and_source">Loading from %s...</string>
-    <string name="processing">Processing...</string>
+    <string name="downloading_data_from_and_source">Loading from %s&#8230;</string>
+    <string name="processing">Processing&#8230;</string>
     <string name="processing_data">Processing the data</string>
-    <string name="please_wait">Please wait...</string>
-    <string name="ellipsis">&#160;...</string>
+    <string name="please_wait">Please wait&#8230;</string>
+    <string name="ellipsis">&#160;&#8230;</string>
     <string name="colon">:&#160;</string>
     <string name="error">Error</string>
     <string name="error_http_500_and_source">Internal Server Error. Try again later or use another source (Menu > %s).</string>
-    <string name="loading">Loading...</string>
+    <string name="loading">Loading&#8230;</string>
     <string name="select_next_stop_data_source">Source</string>
     <string name="data_source">Source</string>
     
@@ -308,22 +308,22 @@
     <string name="donate_dev">Developer: </string>
     <string name="donate_select_dev">Select the developer</string>
     <string name="donate_montransit_dev">MonTransit (%s)</string>
-    <string name="donate_loading_paypal">Connecting to PayPal servers...</string>
+    <string name="donate_loading_paypal">Connecting to PayPal servers&#8230;</string>
     <string name="donate_paypal_button_message">Select the amount and click on the PayPal button to complete the donation.</string>
     <string name="donate_payment_completed">Donation completed. Thank you!</string>
     <string name="donate_payment_cancelled">Donation cancelled.</string>
     <string name="donate_payment_failure">Donation failed! Please, try again later.</string>
-    <string name="donate_opening_market">Opening the Android Market...</string>
+    <string name="donate_opening_market">Opening the Android Market&#8230;</string>
 
     <string name="next">Next</string>
     <string name="back">Back</string>
 
     <string name="init_dialog_title">Initialization</string>
-    <string name="init_dialog_message">Please wait a couple of minutes while initializing MonTransit...</string>
+    <string name="init_dialog_message">Please wait a couple of minutes while initializing MonTransit&#8230;</string>
     <string name="update_dialog_title">Update</string>
-    <string name="update_dialog_message">Please wait a couple of minutes while updating MonTransit...</string>
+    <string name="update_dialog_message">Please wait a couple of minutes while updating MonTransit&#8230;</string>
     <string name="reset_dialog_title">Re-Initialization</string>
-    <string name="reset_dialog_message">Please wait a couple of minutes while re-initializing MonTransit...</string>
+    <string name="reset_dialog_message">Please wait a couple of minutes while re-initializing MonTransit&#8230;</string>
     
     <string name="confirm_exit">Are you sure you want to exit?</string>
 
@@ -331,4 +331,7 @@
 
     <string name="demo_title">DEMO</string>
     <string name="demo_message">Do you want to set-up demo mode? This will erase all your current settings!</string>
+    
+    <string name="default_line_number">000</string>
+    <string name="default_bus_stop_code">00000</string>
 </resources>

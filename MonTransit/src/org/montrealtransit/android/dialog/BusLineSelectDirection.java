@@ -81,9 +81,6 @@ public class BusLineSelectDirection implements View.OnClickListener, BusLineSele
 		this.listener = listener;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onClick(View v) {
 		MyLog.v(TAG, "onClick()");
@@ -260,9 +257,6 @@ public class BusLineSelectDirection implements View.OnClickListener, BusLineSele
 		return nb > 1;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void showNewLine(String lineNumber, String directionId) {
 		Intent mIntent = new Intent(this.context, BusLineInfo.class);

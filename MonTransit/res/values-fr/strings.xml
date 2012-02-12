@@ -74,13 +74,13 @@
 	<string name="bus_stop_and_line_short">Arrêt %1$s (Ligne %2$s)</string>
 	<string name="bus_stop_removed">La ligne de bus %s ne passe plus à cette arrêt !</string>
 	<string name="bus_stop_no_info_and_source">Aucune information sur %2$s à propos de la ligne %1$s à cet arrêt.</string>
-	<string name="waiting_for_location_fix">En attente d\'informations de localisation ...</string>
+	<string name="waiting_for_location_fix">En attente d\'informations de localisation &#8230;</string>
 	<string name="no_location_provider_available">Aucune information de localisation n\'est disponible.\nVous devez activer la localisation par réseaux sans fil et/ou satellites GPS dans les paramètres du téléphone.</string>
     <string name="subway_status">État du service</string>
     <string name="subway_status_hour">État du service (%s)</string>
     <string name="subway_status_message">La STM diffuse les interruptions de service du métro de plus de 20 minutes.\n\nhttp://twitter.com/stminfo</string>
     <string name="reload_subway_status">Service</string>
-    <string name="subway_status_updating">Mise à jour de l\'état du service...</string>
+    <string name="subway_status_updating">Mise à jour de l\'état du service &#8230;</string>
     <string name="subway_status_done">État du service mis à jour.</string>
     <string name="subway_status_loading_cancelled">Mise à jour de l\'état du service annulée.</string>
 
@@ -127,7 +127,7 @@
     <string name="show_in_map">Voir Maps</string>
     <string name="show_in_map_exp">Maps (BETA)</string>
 
-    <string name="geocoding_and_location">Recherche des coordonnées GPS de %s ...</string>
+    <string name="geocoding_and_location">Recherche des coordonnées GPS de %s &#8230;</string>
 	<string name="bus_stop_location_not_found">Coordonnées GPS non trouvées.</string>
 
     <string name="use_radar">Radar</string>
@@ -207,15 +207,15 @@
     
     <string name="cancel">Annuler</string>
     <string name="done">Terminé</string>
-    <string name="downloading_data_from_and_source">Chargement depuis %s ...</string>
+    <string name="downloading_data_from_and_source">Chargement depuis %s &#8230;</string>
     <string name="processing_data">Traitement des données</string>
-    <string name="processing">Traitement...</string>
-    <string name="please_wait">Veuillez patienter ...</string>
-    <string name="ellipsis">&#160;...</string>
+    <string name="processing">Traitement &#8230;</string>
+    <string name="please_wait">Veuillez patienter &#8230;</string>
+    <string name="ellipsis">&#160;</string>
     <string name="colon">&#160;:&#160;</string>
     <string name="error">Erreur</string>
     <string name="error_http_500_and_source">Erreur interne du serveur. Réessayer plus tard ou utiliser une autre source (Menu > %s).</string>
-    <string name="loading">Chargement ...</string>
+    <string name="loading">Chargement &#8230;</string>
     <string name="select_next_stop_data_source">Source</string>
     <string name="data_source">Source</string>
     
@@ -308,22 +308,22 @@
     <string name="donate_dev">Développeur: </string>
     <string name="donate_select_dev">Choisir le développeur</string>
     <string name="donate_montransit_dev">MonTransit (%s)</string>
-    <string name="donate_loading_paypal">Connexion aux serveurs de PayPal ...</string>
+    <string name="donate_loading_paypal">Connexion aux serveurs de PayPal &#8230;</string>
     <string name="donate_paypal_button_message">Sélectionner le montant Cliquer sur le bouton PayPal pour compléter la donation.</string>
     <string name="donate_payment_completed">Donation complétée. Merci !</string>
     <string name="donate_payment_cancelled">Donation annullée.</string>
     <string name="donate_payment_failure">Échec de la donation ! Merci de réessayer plus tard.</string>
-    <string name="donate_opening_market">Ouverture de l\'Android Market ...</string>
+    <string name="donate_opening_market">Ouverture de l\'Android Market &#8230;</string>
 
     <string name="next">Suivant</string>
     <string name="back">Retour</string>
 
     <string name="init_dialog_title">Initialisation</string>
-    <string name="init_dialog_message">Veuillez patienter quelques minutes pendant l\'initialisation de MonTransit ...</string>
+    <string name="init_dialog_message">Veuillez patienter quelques minutes pendant l\'initialisation de MonTransit &#8230;</string>
     <string name="update_dialog_title">Mise à jour</string>
-    <string name="update_dialog_message">Veuillez patienter quelques minutes pendant la mise à jour de MonTransit ...</string>
+    <string name="update_dialog_message">Veuillez patienter quelques minutes pendant la mise à jour de MonTransit &#8230;</string>
     <string name="reset_dialog_title">Re-Initialisation</string>
-    <string name="reset_dialog_message">Veuillez patienter quelques minutes pendant la re-initialisation de MonTransit ...</string>
+    <string name="reset_dialog_message">Veuillez patienter quelques minutes pendant la re-initialisation de MonTransit &#8230;</string>
     
     <string name="confirm_exit">Etes-vous sûr de vouloir quitter?</string>
 
@@ -331,4 +331,7 @@
 
     <string name="demo_title">DEMO</string>
     <string name="demo_message">Voulez-vous configurer le mode de démonstration ? Cela va supprimer tous les paramètres actuels !</string>
+    
+    <string name="default_line_number">000</string>
+    <string name="default_bus_stop_code">00000</string>
 </resources>

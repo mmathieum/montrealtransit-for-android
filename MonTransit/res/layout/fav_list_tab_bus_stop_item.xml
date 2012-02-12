@@ -33,9 +33,9 @@
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
 		android:layout_alignBaseline="@id/line_number" android:layout_alignParentRight="true"
 		android:textStyle="bold" android:textAppearance="?android:attr/textAppearanceSmall"
-		android:text="00000" />
+		android:text="@string/default_bus_stop_code" />
 		
-		<!-- BUS LINE DIRECTION -->
+	<!-- BUS LINE DIRECTION -->
 	<TextView android:id="@+id/line_direction"
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
 		android:layout_toRightOf="@id/line_name" android:layout_toLeftOf="@id/stop_code"

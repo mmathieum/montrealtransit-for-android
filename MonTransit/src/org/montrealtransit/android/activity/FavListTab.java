@@ -9,6 +9,7 @@ import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.Utils;
+import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.DataStore.Fav;
@@ -112,9 +113,8 @@ public class FavListTab extends Activity {
 		refreshBusStops();
 		refreshSubwayStations();
 		showEmptyFav();
-		Utils.saveSharedPreferences(
-		        this,
-		        UserPreferences.PREFS_IS_FAV,
+		UserPreferences.savePrefLcl(this,
+		        UserPreferences.PREFS_LCL_IS_FAV,
 		        Utils.getListSize(this.currentBusStopFavList) > 0
 		                || Utils.getListSize(this.currentSubwayStationFavList) > 0);
 	}
@@ -229,6 +229,7 @@ public class FavListTab extends Activity {
 													// delete the favorite
 													DataManager.deleteFav(FavListTab.this.getContentResolver(),
 													        findFav.getId());
+													SupportFactory.getInstance(FavListTab.this).backupManagerDataChanged();
 													// refresh the UI
 													FavListTab.this.currentBusStopFavList = null;
 													refreshBusStops();

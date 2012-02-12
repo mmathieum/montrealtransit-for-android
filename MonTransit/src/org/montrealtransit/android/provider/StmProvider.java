@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
-import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.activity.UserPreferences;
 import org.montrealtransit.android.provider.StmStore.BusStop;
 
@@ -409,9 +408,6 @@ public class StmProvider extends ContentProvider {
 	        + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + "=" + StmDbHelper.T_SUBWAY_STATIONS + "."
 	        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID;
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean onCreate() {
 		MyLog.v(TAG, "onCreate()");
@@ -426,9 +422,6 @@ public class StmProvider extends ContentProvider {
 
 	private static final String SEARCH_SPLIT_ON = "[\\s\\W]";
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		MyLog.v(TAG, "query(%s, %s, %s, %s, %s)", uri.getPath(), Arrays.toString(projection), selection,
@@ -836,7 +829,7 @@ public class StmProvider extends ContentProvider {
 		case SEARCH:
 			MyLog.v(TAG, "query>SEARCH");
 			// IF simple search DO
-			if (Utils.getSharedPreferences(getContext(), UserPreferences.PREFS_SEARCH,
+			if (UserPreferences.getPrefDefault(getContext(), UserPreferences.PREFS_SEARCH,
 			        UserPreferences.PREFS_SEARCH_DEFAULT).equals(UserPreferences.PREFS_SEARCH_SIMPLE)) {
 				qb.setTables(StmDbHelper.T_BUS_STOPS);
 				qb.setProjectionMap(sSearchSimpleProjectionMap);
@@ -998,9 +991,6 @@ public class StmProvider extends ContentProvider {
 		return this.mOpenHelper;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getType(Uri uri) {
 		MyLog.v(TAG, "getType(%s)", uri.getPath());
@@ -1058,9 +1048,6 @@ public class StmProvider extends ContentProvider {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
 		MyLog.v(TAG, "delete()");
@@ -1068,9 +1055,6 @@ public class StmProvider extends ContentProvider {
 		return 0;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		MyLog.v(TAG, "update()");
@@ -1078,9 +1062,6 @@ public class StmProvider extends ContentProvider {
 		return 0;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
 		MyLog.v(TAG, "insert()");

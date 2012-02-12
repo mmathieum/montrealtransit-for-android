@@ -128,8 +128,7 @@ public class AnalyticsUtils {
 			PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
 			String appVersion = packageInfo.versionName;
 			MyLog.v(TAG, "app_version: '%s'.", appVersion);
-			getGoogleAnalyticsTracker(context).setCustomVar(CUSTOM_VAR_INDEX_APP_VERSION, "version", appVersion,
-			        SCOPE_VISITOR_LEVEL);
+			getGoogleAnalyticsTracker(context).setCustomVar(CUSTOM_VAR_INDEX_APP_VERSION, "version", appVersion, SCOPE_VISITOR_LEVEL);
 			// getTracker(context).setProductVersion("MonTransit", appVersion);
 		} catch (Exception e) {
 		}
@@ -137,8 +136,7 @@ public class AnalyticsUtils {
 		// 2 - Android version
 		String androidVersion = Build.VERSION.RELEASE;
 		MyLog.v(TAG, "os_rel: '%s'.", androidVersion);
-		getGoogleAnalyticsTracker(context).setCustomVar(CUSTOM_VAR_INDEX_ANDROID_VERSION, "android", androidVersion,
-		        SCOPE_VISITOR_LEVEL);
+		getGoogleAnalyticsTracker(context).setCustomVar(CUSTOM_VAR_INDEX_ANDROID_VERSION, "android", androidVersion, SCOPE_VISITOR_LEVEL);
 
 		// 3 - Android SDK
 		String sdk = Build.VERSION.SDK;
@@ -159,8 +157,7 @@ public class AnalyticsUtils {
 			TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 			String operator = telephonyManager.getNetworkOperatorName();
 			MyLog.v(TAG, "operator: '%s'.", operator);
-			getGoogleAnalyticsTracker(context).setCustomVar(CUSTOM_VAR_INDEX_OPERATOR, "operator", operator,
-			        SCOPE_VISITOR_LEVEL);
+			getGoogleAnalyticsTracker(context).setCustomVar(CUSTOM_VAR_INDEX_OPERATOR, "operator", operator, SCOPE_VISITOR_LEVEL);
 		} catch (Exception e) {
 		}
 		// already provided by Analytics:

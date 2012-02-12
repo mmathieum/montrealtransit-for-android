@@ -23,7 +23,7 @@
 				android:singleLine="true" android:padding="1dip"
 				android:textAppearance="?android:attr/textAppearanceLarge" android:textStyle="bold"
 				android:gravity="center_horizontal"
-				android:text="00000" />
+				android:text="@string/default_bus_stop_code" />
 			<!-- FAVORITE ICON -->
 			<CheckBox android:id="@+id/star"
 				android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -46,7 +46,7 @@
 				android:layout_alignParentLeft="true" android:layout_alignParentBottom="true"
 				android:layout_below="@id/stop_code"
 				android:layout_marginRight="5dip" android:layout_marginLeft="0dip"
-				android:text="000"
+				android:text="@string/default_line_number"
 				android:background="#000000"/>
 			<!-- BUS LINE TYPE -->
 			<ImageView android:id="@+id/line_type"
@@ -84,7 +84,7 @@
 		<ScrollView
 			android:layout_width="fill_parent" android:layout_height="wrap_content">
 			<LinearLayout
-				android:layout_width="fill_parent" android:layout_height="fill_parent"
+				android:layout_width="fill_parent" android:layout_height="wrap_content"
 				android:orientation="vertical">
 				<!-- NEXT BUS STOPS  -->
 				<RelativeLayout android:id="@+id/next_stops_title"
@@ -120,7 +120,7 @@
 						android:gravity="center_vertical"
 						android:singleLine="true"
 						android:text="@string/next_bus_stops" />
-					<ProgressBar android:id="@+id/progress_bar"
+					<ProgressBar android:id="@+id/progress_bar_next_stop"
 						android:layout_width="wrap_content" android:layout_height="wrap_content"
 						android:layout_alignParentRight="true"
 						android:layout_marginRight="8dip"
@@ -133,8 +133,8 @@
 				<include android:id="@+id/next_stops_loading" layout="@layout/loading_layout" />
 				<HorizontalScrollView android:id="@+id/next_stops_group"
 					android:layout_width="fill_parent" android:layout_height="?android:attr/listPreferredItemHeight">
-					<LinearLayout android:id="@+id/next_stops_group"
-						android:layout_width="fill_parent" android:layout_height="fill_parent"
+					<LinearLayout
+						android:layout_width="wrap_content" android:layout_height="fill_parent"
 						android:orientation="horizontal" android:gravity="bottom"
 						android:padding="5dip">
 						<TextView android:id="@+id/the_next_stop"
@@ -186,7 +186,7 @@
 				<HorizontalScrollView android:id="@+id/other_bus_lines"
 					android:layout_width="fill_parent" android:layout_height="wrap_content">
 					<LinearLayout android:id="@+id/other_bus_line_list"
-						android:layout_width="fill_parent" android:layout_height="fill_parent"
+						android:layout_width="wrap_content" android:layout_height="fill_parent"
 						android:orientation="horizontal" android:gravity="bottom"
 						android:padding="2dip" />
 				</HorizontalScrollView>

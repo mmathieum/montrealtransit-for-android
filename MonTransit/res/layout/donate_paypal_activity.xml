@@ -4,11 +4,11 @@
 	android:fillViewport="true">
 	<LinearLayout
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:orientation="vertical">
+		android:orientation="vertical" android:baselineAligned="false">
 
 		<!-- CONTENT -->
 		<LinearLayout android:id="@+id/content"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:layout_width="fill_parent" android:layout_height="0dip"
 			android:orientation="vertical"
 			android:layout_weight="1"
 			android:weightSum="2">

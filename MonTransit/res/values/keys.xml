@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-        <string name="twitter_api_consumer_key">ENTER_THE_TWITTER_API_CONSUMER_KEY_HERE</string>
-        <string name="twitter_api_consumer_secret">ENTER_THE_TWITTER_API_CONSUMER_SECRET_HERE</string>
-        <string name="paypal_app_id">ENTER_THE_PAYPAL_APP_ID_HERE</string><!-- TEST "APP-80W284485P519543T" -->
-        <string name="paypal_recipient_name_mathieu_mea">ENTER_DEV_NAME_HERE</string>
-        <string name="paypal_recipient_email_mathieu_mea">ENTER_DEV_EMAIL_HERE</string>
-        <string name="google_analytics_id">ENTER_WEB_PROPERTY_ID_HERE</string>
-        <string name="admob_publisher_id">ENTER_ADMOB_PUBLISHER_ID_HERE</string>
-        <string name="admob_test_device_id">ENTER_ADMOB_DEVICE_ID_HERE</string>
+	<string name="twitter_api_consumer_key">ENTER_THE_TWITTER_API_CONSUMER_KEY_HERE</string>
+	<string name="twitter_api_consumer_secret">ENTER_THE_TWITTER_API_CONSUMER_SECRET_HERE</string>
+	<string name="paypal_app_id">ENTER_THE_PAYPAL_APP_ID_HERE</string>
+	<string name="paypal_recipient_name_mathieu_mea">ENTER_DEV_NAME_HERE</string>
+	<string name="paypal_recipient_email_mathieu_mea">ENTER_DEV_EMAIL_HERE</string>
+	<string name="google_analytics_id">ENTER_WEB_PROPERTY_ID_HERE</string>
+	<string name="admob_publisher_id">ENTER_ADMOB_PUBLISHER_ID_HERE</string>
+	<string name="admob_test_device_id">ENTER_ADMOB_DEVICE_ID_HERE</string>
+	<string name="com_google_android_backup_api_key">ENTER_GOOGLE_ANDROID_BACKUP_API_KEY_HERE</string>
 </resources>

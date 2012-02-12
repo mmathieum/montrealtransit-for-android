@@ -8,9 +8,6 @@ import java.util.Comparator;
  */
 public class SubwayStationDistancesComparator implements Comparator<ASubwayStation> {
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public int compare(ASubwayStation station1, ASubwayStation station2) {
 

@@ -49,17 +49,13 @@ public class NoRadarInstalled implements OnClickListener {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this.context);
 		builder.setTitle(R.string.no_radar_title);
 		builder.setIcon(android.R.drawable.ic_dialog_info);
-		String[] items = { this.context.getString(R.string.download_radar_app),
-		        this.context.getString(R.string.search_for_other_radar_app) };
+		String[] items = { this.context.getString(R.string.download_radar_app), this.context.getString(R.string.search_for_other_radar_app) };
 		builder.setItems(items, this);
 		builder.setNegativeButton(R.string.cancel, this);
 		AlertDialog alert = builder.create();
 		return alert;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onClick(DialogInterface dialog, int which) {
 		MyLog.v(TAG, "onClick(%s)", which);

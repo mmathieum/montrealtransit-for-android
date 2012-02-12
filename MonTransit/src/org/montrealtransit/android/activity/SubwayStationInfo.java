@@ -11,6 +11,7 @@ import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.Utils;
+import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.dialog.BusLineSelectDirection;
 import org.montrealtransit.android.dialog.NoRadarInstalled;
@@ -107,9 +108,6 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	 */
 	private TextView distanceTv;
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
@@ -147,9 +145,6 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 		});
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onStop() {
 		MyLog.v(TAG, "onStop()");
@@ -157,9 +152,6 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 		super.onStop();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onRestart() {
 		MyLog.v(TAG, "onRestart()");
@@ -177,9 +169,6 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 		super.onRestart();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
@@ -208,8 +197,9 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 			newFav.setFkId2(null);
 			DataManager.addFav(SubwayStationInfo.this.getContentResolver(), newFav);
 			Utils.notifyTheUser(SubwayStationInfo.this, getString(R.string.favorite_added));
-			Utils.saveSharedPreferences(this, UserPreferences.PREFS_IS_FAV, true);
+			UserPreferences.savePrefLcl(this, UserPreferences.PREFS_LCL_IS_FAV, true);
 		}
+		SupportFactory.getInstance(this).backupManagerDataChanged();
 		setTheStar(); // TODO is remove useless?
 	}
 
@@ -431,9 +421,6 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onLocationChanged(Location location) {
 		MyLog.v(TAG, "onLocationChanged()");
@@ -441,25 +428,16 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 		updateDistanceWithNewLocation();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onProviderEnabled(String provider) {
 		MyLog.v(TAG, "onProviderEnabled(%s)", provider);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onProviderDisabled(String provider) {
 		MyLog.v(TAG, "onProviderDisabled(%s)", provider);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		MyLog.v(TAG, "onStatusChanged(%s, %s)", provider, status);
@@ -547,17 +525,11 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 		startActivity(new Intent(android.content.Intent.ACTION_VIEW, uri));
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		return MenuUtils.inflateMenu(this, menu, R.menu.subway_station_info_menu);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {

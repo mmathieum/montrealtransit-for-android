@@ -212,9 +212,6 @@ public class DataDbHelper extends SQLiteOpenHelper {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		db.execSQL(DATABASE_CREATE_T_FAVS);
@@ -224,9 +221,6 @@ public class DataDbHelper extends SQLiteOpenHelper {
 		db.execSQL(DATABASE_CREATE_T_CACHE);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		MyLog.v(TAG, "onUpgrade(%s, %s)", oldVersion, newVersion);
@@ -262,9 +256,6 @@ public class DataDbHelper extends SQLiteOpenHelper {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void close() {
 		MyLog.v(TAG, "close()");

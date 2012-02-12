@@ -378,9 +378,6 @@ public class StmMobileTask extends AbstractNextStopProvider {
 		return result;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getTag() {
 		return TAG;

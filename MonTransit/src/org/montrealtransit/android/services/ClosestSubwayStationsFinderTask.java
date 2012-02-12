@@ -60,9 +60,6 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 		this.context = context;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected ClosestSubwayStations doInBackground(Location... params) {
 		MyLog.v(TAG, "doInBackground()");
@@ -135,9 +132,6 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 		return new ArrayList<ASubwayStation>(aresult.values());
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onProgressUpdate(String... values) {
 		if (values.length > 0) {
@@ -146,9 +140,6 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onPostExecute(ClosestSubwayStations result) {
 		MyLog.v(TAG, "onPostExecute()");

@@ -3,7 +3,6 @@ package org.montrealtransit.android.dialog;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.SubwayUtils;
-import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.activity.SubwayLineInfo;
 import org.montrealtransit.android.activity.UserPreferences;
 import org.montrealtransit.android.provider.StmManager;
@@ -67,9 +66,6 @@ public class SubwayLineSelectDirection implements View.OnClickListener, SubwayLi
 		this.listener = listener;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onClick(View v) {
 		MyLog.v(TAG, "onClick()");
@@ -118,7 +114,7 @@ public class SubwayLineSelectDirection implements View.OnClickListener, SubwayLi
 	 * @return the id of the checked choice
 	 */
 	private int getCheckedItemFromPref() {
-		String sharedPreferences = Utils.getSharedPreferences(context,
+		String sharedPreferences = UserPreferences.getPrefDefault(context,
 		        UserPreferences.getPrefsSubwayStationsOrder(this.subwayLine.getNumber()),
 		        UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_DEFAULT);
 		if (sharedPreferences.equals(UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL)) {
@@ -156,9 +152,6 @@ public class SubwayLineSelectDirection implements View.OnClickListener, SubwayLi
 		return items;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void showNewSubway(int subwayLineId, String orderPref) {
 		MyLog.v(TAG, "showNewSubway(%s, %s)", subwayLineId, orderPref);

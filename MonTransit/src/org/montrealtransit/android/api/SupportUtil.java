@@ -10,4 +10,6 @@ public interface SupportUtil {
 
 	int getASyncTaskCapacity();
 
+	void backupManagerDataChanged();
+
 }

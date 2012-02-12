@@ -11,7 +11,7 @@
 	<!-- BUS LINE NUMBER -->
 	<TextView android:id="@+id/line_number" style="@style/BusLineNumber"
 	 	android:layout_centerVertical="true" android:layout_marginRight="5dip"
-		android:text="000"
+		android:text="@string/default_line_number"
 		android:textColor="#FFFFFF"/>
 	<!-- BUS LINE NAME -->
 	<TextView android:id="@+id/line_name"

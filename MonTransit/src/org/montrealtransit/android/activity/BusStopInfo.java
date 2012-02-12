@@ -15,6 +15,7 @@ import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.Utils;
+import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.BusStopHours;
 import org.montrealtransit.android.dialog.BusLineSelectDirection;
 import org.montrealtransit.android.dialog.NoRadarInstalled;
@@ -227,7 +228,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		this.message1Tv = (TextView) findViewById(R.id.next_stops_msg);
 		this.message2Tv = (TextView) findViewById(R.id.next_stops_msg2);
 		this.nextStopsGroupView = findViewById(R.id.next_stops_group);
-		this.progressBarView = findViewById(R.id.next_stops_title).findViewById(R.id.progress_bar);
+		this.progressBarView = findViewById(R.id.next_stops_title).findViewById(R.id.progress_bar_next_stop);
 		this.busTypeImg = (ImageView) findViewById(R.id.line_type);
 		this.busStopPlaceTv = (TextView) findViewById(R.id.bus_stop_place);
 		this.busLineNumberTv = (TextView) findViewById(R.id.line_number);
@@ -397,7 +398,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	 * @return the bus list "group by" preference.
 	 */
 	private String getProviderFromPref() {
-		return Utils.getSharedPreferences(this, UserPreferences.PREFS_NEXT_STOP_PROVIDER,
+		return UserPreferences.getPrefDefault(this, UserPreferences.PREFS_NEXT_STOP_PROVIDER,
 		        UserPreferences.PREFS_NEXT_STOP_PROVIDER_DEFAULT);
 	}
 
@@ -638,7 +639,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	 * @return the bus stop location preference.
 	 */
 	private boolean isShowingBusStopLocation() {
-		return Utils.getSharedPreferences(this, UserPreferences.PREFS_BUS_STOP_LOCATION,
+		return UserPreferences.getPrefDefault(this, UserPreferences.PREFS_BUS_STOP_LOCATION,
 		        UserPreferences.PREFS_BUS_STOP_LOCATION_DEFAULT);
 	}
 
@@ -1097,8 +1098,9 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 			newFav.setFkId2(this.busLine.getNumber());
 			DataManager.addFav(getContentResolver(), newFav);
 			Utils.notifyTheUser(this, getString(R.string.favorite_added));
-			Utils.saveSharedPreferences(this, UserPreferences.PREFS_IS_FAV, true);
+			UserPreferences.savePrefLcl(this, UserPreferences.PREFS_LCL_IS_FAV, true);
 		}
+		SupportFactory.getInstance(this).backupManagerDataChanged();
 		setTheStar(); // TODO is remove useless?
 	}
 
@@ -1139,7 +1141,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	 */
 	private void switchProvider(String providerPref) {
 		if (!getProviderFromPref().equals(providerPref)) {
-			Utils.saveSharedPreferences(this, UserPreferences.PREFS_NEXT_STOP_PROVIDER, providerPref);
+			UserPreferences.savePrefDefault(this, UserPreferences.PREFS_NEXT_STOP_PROVIDER, providerPref);
 			// reloadNextBusStops();
 		}
 	}
