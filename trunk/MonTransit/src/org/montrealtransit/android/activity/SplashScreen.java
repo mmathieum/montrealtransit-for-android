@@ -7,6 +7,7 @@ import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
+import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.provider.StmDbHelper;
 
 import android.app.Activity;
@@ -82,7 +83,7 @@ public class SplashScreen extends Activity {
 		MyLog.v(TAG, "onCreate()");
 		super.onCreate(savedInstanceState);
 		// CHECK DB for initialize/update
-		int currentDeployedStmDbVersion = Utils.getSharedPreferences(this, UserPreferences.PREFS_STM_DB_VERSION, 0);
+		int currentDeployedStmDbVersion = UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_STM_DB_VERSION, 0);
 		switch (currentDeployedStmDbVersion) {
 		case StmDbHelper.DB_VERSION:
 			showMainScreen();
@@ -165,10 +166,11 @@ public class SplashScreen extends Activity {
 	 * Check if a favorite update is needed due to bus line number changes for example.
 	 */
 	private void checkForBusLineUpdates() {
-		int currentDeployedStmDbVersion = Utils.getSharedPreferences(this, UserPreferences.PREFS_STM_DB_VERSION, 0);
+		int currentDeployedStmDbVersion = UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_STM_DB_VERSION, 0);
 		if (currentDeployedStmDbVersion == 9 && StmDbHelper.DB_VERSION >= 10) {
 			// update favorites (January 2012)
 			Utils.updateFavoritesJan2012(getContentResolver());
+			SupportFactory.getInstance(this).backupManagerDataChanged();
 		}
 	}
 
@@ -206,6 +208,11 @@ public class SplashScreen extends Activity {
 		};
 
 		findViewById(R.id.progress_layout).setVisibility(View.VISIBLE);
+//		findViewById(R.id.message_title).setVisibility(View.VISIBLE);
+//		findViewById(R.id.message_desc).setVisibility(View.VISIBLE);
+//		findViewById(R.id.progress).setVisibility(View.VISIBLE);
+//		findViewById(R.id.progress_percent).setVisibility(View.VISIBLE);
+//		findViewById(R.id.progress_number).setVisibility(View.VISIBLE);
 	}
 
 	/**
@@ -253,6 +260,7 @@ public class SplashScreen extends Activity {
 				db.forceReset(SplashScreen.this, this);
 				// clean old favorites
 				Utils.cleanFavorites(getContentResolver());
+				SupportFactory.getInstance(SplashScreen.this).backupManagerDataChanged();
 			}
 			return null;
 		}
@@ -284,6 +292,11 @@ public class SplashScreen extends Activity {
 			super.onPostExecute(result);
 			if (!SplashScreen.this.isFinishing()) { // not showing the main screen if the user left the app
 				SplashScreen.this.findViewById(R.id.progress_layout).setVisibility(View.GONE);
+//				SplashScreen.this.findViewById(R.id.message_title).setVisibility(View.VISIBLE);
+//				SplashScreen.this.findViewById(R.id.message_desc).setVisibility(View.VISIBLE);
+//				SplashScreen.this.findViewById(R.id.progress).setVisibility(View.VISIBLE);
+//				SplashScreen.this.findViewById(R.id.progress_percent).setVisibility(View.VISIBLE);
+//				SplashScreen.this.findViewById(R.id.progress_number).setVisibility(View.VISIBLE);
 				showMainScreen();
 			}
 		}

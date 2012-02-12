@@ -56,9 +56,6 @@ public class BusStopCodeTab extends Activity {
 	 */
 	private ListView historyList;
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
@@ -113,9 +110,6 @@ public class BusStopCodeTab extends Activity {
 		});
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
@@ -219,17 +213,11 @@ public class BusStopCodeTab extends Activity {
 		startActivity(intent);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		return MenuUtils.inflateMenu(this, menu, R.menu.bus_stop_code_menu);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {

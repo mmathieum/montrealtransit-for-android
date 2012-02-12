@@ -117,9 +117,8 @@ public class LocationUtils {
 	 * @return a nice readable location string
 	 */
 	public static String locationToString(Location location) {
-		return String.format("%s > %s,%s (%s) %s seconds ago", location.getProvider(), location.getLatitude(),
-		        location.getLongitude(), location.getAccuracy(),
-		        ((System.currentTimeMillis() - location.getTime()) / 1000));
+		return String.format("%s > %s,%s (%s) %s seconds ago", location.getProvider(), location.getLatitude(), location.getLongitude(), location.getAccuracy(),
+				((System.currentTimeMillis() - location.getTime()) / 1000));
 	}
 
 	/**
@@ -249,8 +248,7 @@ public class LocationUtils {
 		Geocoder geocoder = new Geocoder(context);
 		try {
 			int maxResults = 1;
-			List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(),
-			        maxResults);
+			List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), maxResults);
 			if (addresses != null && addresses.size() >= 1) {
 				result = addresses.get(0);
 				// MyLog.d(TAG, "Found address: %s", result.getAddressLine(0));

@@ -16,27 +16,25 @@ import java.util.Map;
 
 import org.montrealtransit.android.activity.UserPreferences;
 import org.montrealtransit.android.api.SupportFactory;
-import org.montrealtransit.android.provider.DataStore.Fav;
-import org.montrealtransit.android.provider.StmStore.BusStop;
-import org.montrealtransit.android.provider.StmStore.SubwayStation;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore;
+import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
+import org.montrealtransit.android.provider.StmStore.BusStop;
+import org.montrealtransit.android.provider.StmStore.SubwayStation;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -172,8 +170,7 @@ public class Utils {
 	 */
 	public static DateFormat getTimeFormatter(Context context) {
 		// IF no current local OR no current data formatter OR the country/language has changed DO
-		if (currentLocale == null || dateFormatter == null
-		        || currentLocale != context.getResources().getConfiguration().locale) {
+		if (currentLocale == null || dateFormatter == null || currentLocale != context.getResources().getConfiguration().locale) {
 			// get the current language/country
 			currentLocale = context.getResources().getConfiguration().locale;
 			// get the current date formatter
@@ -373,9 +370,7 @@ public class Utils {
 		int utm = (int) Math.floor(1440.0 * (day - Math.floor(day) - uth / 24.0));
 		double uts = 86400.0 * (day - Math.floor(day) - uth / 24.0 - utm / 1440.0);
 		// TODO remove unnecessary code.
-		MyLog.v(TAG,
-		        "[" + yearS + "]-[" + monthS + "]-[" + dayS + "] " + "[" + uth + "]:[" + utm + "]:["
-		                + String.valueOf(uts) + "].");
+		MyLog.v(TAG, "[" + yearS + "]-[" + monthS + "]-[" + dayS + "] " + "[" + uth + "]:[" + utm + "]:[" + String.valueOf(uts) + "].");
 		String hourS = String.valueOf(uth);
 		String minuteS = String.valueOf(utm);
 		while (minuteS.length() < 2) {
@@ -402,84 +397,6 @@ public class Utils {
 	 */
 	public static void notifyTheUserLong(Context context, String message) {
 		Toast.makeText(context, message, Toast.LENGTH_LONG).show();
-	}
-
-	/**
-	 * Save a new preference value.
-	 * @param context the context calling the method
-	 * @param prefKey the preference key
-	 * @param newValue the new preference value
-	 */
-	public static void saveSharedPreferences(Context context, String prefKey, String newValue) {
-		MyLog.v(TAG, "saveSharedPreferences(%s, %s)", prefKey, newValue);
-		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
-		editor.putString(prefKey, newValue);
-		SupportFactory.getInstance(context).applySharedPreferencesEditor(editor);
-	}
-
-	/**
-	 * Save a new preference value.
-	 * @param context the context calling the method
-	 * @param prefKey the preference key
-	 * @param newValue the new preference value
-	 */
-	public static void saveSharedPreferences(Context context, String prefKey, boolean newValue) {
-		MyLog.v(TAG, "saveSharedPreferences(%s, %s)", prefKey, newValue);
-		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
-		editor.putBoolean(prefKey, newValue);
-		SupportFactory.getInstance(context).applySharedPreferencesEditor(editor);
-	}
-
-	/**
-	 * Save a new preference value.
-	 * @param context the context calling the method
-	 * @param prefKey the preference key
-	 * @param newValue the new preference value
-	 */
-	public static void saveSharedPreferences(Context context, String prefKey, int newValue) {
-		MyLog.v(TAG, "saveSharedPreferences(%s, %s)", prefKey, newValue);
-		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
-		editor.putInt(prefKey, newValue);
-		SupportFactory.getInstance(context).applySharedPreferencesEditor(editor);
-	}
-
-	/**
-	 * Return a new preference value.
-	 * @param context the context calling the method
-	 * @param prefKey the preference key
-	 * @param defaultValue the default value if no value
-	 * @return the preference value
-	 */
-	public static String getSharedPreferences(Context context, String prefKey, String defaultValue) {
-		// MyLog.v(TAG, "getSharedPreferences(%s, %s)", prefKey, defaultValue);
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-		return settings.getString(prefKey, defaultValue);
-	}
-
-	/**
-	 * Return a new preference value.
-	 * @param context the context calling the method
-	 * @param prefKey the preference key
-	 * @param defaultValue the default value if no value
-	 * @return the preference value
-	 */
-	public static boolean getSharedPreferences(Context context, String prefKey, boolean defaultValue) {
-		// MyLog.v(TAG, "getSharedPreferencesBoolean(%s, %s)", prefKey, defaultValue);
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-		return settings.getBoolean(prefKey, defaultValue);
-	}
-
-	/**
-	 * Return a new preference value.
-	 * @param context the context calling the method
-	 * @param prefKey the preference key
-	 * @param defaultValue the default value if no value
-	 * @return the preference value
-	 */
-	public static int getSharedPreferences(Context context, String prefKey, int defaultValue) {
-		MyLog.v(TAG, "getSharedPreferencesBoolean(%s, %s)", prefKey, defaultValue);
-		SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
-		return settings.getInt(prefKey, defaultValue);
 	}
 
 	/**
@@ -584,10 +501,9 @@ public class Utils {
 	 */
 	public static String getDistanceString(Context context, float distanceInMeters, float accuracyInMeters) {
 		// MyLog.v(TAG, "getDistanceString(" + distanceInMeters + ", " + accuracyInMeters + ")");
-		boolean isDetailed = getSharedPreferences(context, UserPreferences.PREFS_DISTANCE,
-		        UserPreferences.PREFS_DISTANCE_DEFAULT).equals(UserPreferences.PREFS_DISTANCE_DETAILED);
-		String distanceUnit = getSharedPreferences(context, UserPreferences.PREFS_DISTANCE_UNIT,
-		        UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
+		boolean isDetailed = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
+				UserPreferences.PREFS_DISTANCE_DETAILED);
+		String distanceUnit = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
 		// IF distance unit is Imperial DO
 		if (distanceUnit.equals(UserPreferences.PREFS_DISTANCE_UNIT_IMPERIAL)) {
 			float distanceInFeet = distanceInMeters * Constant.FEET_PER_M;
@@ -608,8 +524,7 @@ public class Utils {
 	 * @param bigUnit the big unit
 	 * @return the distance string
 	 */
-	private static String getDistance(float distance, float accuracy, boolean isDetailed, float smallPerBig,
-	        int threshold, String smallUnit, String bigUnit) {
+	private static String getDistance(float distance, float accuracy, boolean isDetailed, float smallPerBig, int threshold, String smallUnit, String bigUnit) {
 		String result = "";
 		// IF the location is enough precise AND the accuracy is 10% or more of the distance DO
 		if (isDetailed && accuracy < distance && accuracy / distance > 0.1) {
@@ -699,7 +614,7 @@ public class Utils {
 	 * @throws IOException an I/O exception occurs
 	 */
 	public static int countNumberOfLine(InputStream textFileIS) throws IOException {
-		InputStream is = new BufferedInputStream(textFileIS);
+		InputStream is = new BufferedInputStream(textFileIS, 8192);
 		byte[] c = new byte[1024];
 		int count = 0;
 		int readChars = 0;
@@ -721,15 +636,12 @@ public class Utils {
 		MyLog.v(TAG, "cleanFavorites()");
 		try {
 			// bus stops
-			List<Fav> busStopFavs = DataManager.findFavsByTypeList(contentResolver,
-			        DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
-			List<BusStop> busStops = StmManager.findBusStopsList(contentResolver,
-			        Utils.extractBusStopIDsFromFavList(busStopFavs));
+			List<Fav> busStopFavs = DataManager.findFavsByTypeList(contentResolver, DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
+			List<BusStop> busStops = StmManager.findBusStopsList(contentResolver, Utils.extractBusStopIDsFromFavList(busStopFavs));
 			for (Fav busStopFav : busStopFavs) {
 				boolean stillInTheDB = false;
 				for (BusStop busStop : busStops) {
-					if (busStopFav.getFkId().equals(busStop.getCode())
-					        && busStopFav.getFkId2().equals(busStop.getLineNumber())) {
+					if (busStopFav.getFkId().equals(busStop.getCode()) && busStopFav.getFkId2().equals(busStop.getLineNumber())) {
 						stillInTheDB = true;
 					}
 				}
@@ -738,8 +650,7 @@ public class Utils {
 				}
 			}
 			// subway stations
-			List<Fav> subwayFavs = DataManager.findFavsByTypeList(contentResolver,
-			        DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
+			List<Fav> subwayFavs = DataManager.findFavsByTypeList(contentResolver, DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
 			for (Fav subwayFav : subwayFavs) {
 				SubwayStation station = StmManager.findSubwayStation(contentResolver, subwayFav.getFkId());
 				if (station == null) {
@@ -788,8 +699,7 @@ public class Utils {
 			update.put("515", "715");
 			update.put("535", "435");
 
-			List<Fav> busStopFavs = DataManager.findFavsByTypeList(contentResolver,
-			        DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
+			List<Fav> busStopFavs = DataManager.findFavsByTypeList(contentResolver, DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
 			for (Fav busStopFav : busStopFavs) {
 				String busStopLineNumber = busStopFav.getFkId2();
 				// IF the bus stop line number need to be updated DO
@@ -831,6 +741,6 @@ public class Utils {
 		newFav.setFkId("9"); // Mont-Royal
 		newFav.setFkId2(null);
 		DataManager.addFav(context.getContentResolver(), newFav);
-
+		SupportFactory.getInstance(context).backupManagerDataChanged();
 	}
 }

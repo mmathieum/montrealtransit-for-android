@@ -1,9 +1,15 @@
 package org.montrealtransit.android.provider;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.montrealtransit.android.MyLog;
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.BaseColumns;
+import android.text.TextUtils;
 
 /**
  * The data store contains information about the objects from the {@link DataProvider}.
@@ -14,7 +20,6 @@ public class DataStore {
 	/**
 	 * The log tag.
 	 */
-	@SuppressWarnings("unused")
 	private static final String TAG = DataStore.class.getSimpleName();
 
 	/**
@@ -155,6 +160,110 @@ public class DataStore {
 			values.put(FavColumns.FAV_FK_ID2, getFkId2());
 			values.put(FavColumns.FAV_TYPE, getType());
 			return values;
+		}
+
+		/**
+		 * @param fav the favorite object
+		 * @return the serialized favorite
+		 */
+		public static String serializeFav(Fav fav) {
+			// MyLog.v(TAG, "serializeFav()");
+			String result = ""; // TODO use StringBuilder!
+			result += fav.getType();
+			result += "-";
+			result += fav.getFkId();
+			if (!TextUtils.isEmpty(fav.getFkId2())) {
+				result += "-";
+				result += fav.getFkId2();
+			}
+			return result;
+		}
+
+		/**
+		 * @param line the serialized favorite
+		 * @return the favorite object OR <b>NULL</b> if invalid
+		 */
+		public static Fav extractFav(String line) {
+			// MyLog.v(TAG, "extractFav(%s)", line);
+			try {
+				Fav fav = new Fav();
+				String[] keys = line.split("-");
+				int type = Integer.valueOf(keys[0]);
+				fav.setType(type);
+				switch (fav.getType()) {
+				case Fav.KEY_TYPE_VALUE_BUS_STOP:
+					if (keys.length < 3) {
+						return null; // we need the fkID2 for bus stops!
+					}
+					fav.setFkId2(keys[2]);
+				case Fav.KEY_TYPE_VALUE_SUBWAY_STATION:
+					fav.setFkId(keys[1]);
+				}
+				return fav;
+			} catch (Exception e) {
+				MyLog.w(TAG, "Error while reading favorite!", e);
+				return null;
+			}
+		}
+
+		/**
+		 * @param favoritesS the serialized favorites
+		 * @return the list of favorites
+		 */
+		public static List<Fav> extractFavs(String favoritesS) {
+			// MyLog.v(TAG, "extractFavs(%s)", favoritesS);
+			List<Fav> favs = new ArrayList<Fav>();
+			String[] allFavS = favoritesS.split("\\+");
+			for (String favS : allFavS) {
+				Fav extractFav = Fav.extractFav(favS);
+				if (extractFav != null) {
+					favs.add(extractFav);
+				}
+			}
+			return favs;
+		}
+
+		/**
+		 * @param favs the favorites list
+		 * @param fav the favorite to find
+		 * @return true if the favorite is present in the list
+		 */
+		public static boolean contains(List<Fav> favs, Fav fav) {
+			// MyLog.v(TAG, "contains()");
+			if (favs == null || favs.size() == 0) {
+				return false; // not in the list
+			}
+			for (Fav currentFav : favs) {
+				if (fav.getType() == currentFav.getType() && fav.getFkId().equals(currentFav.getFkId())) {
+					if (fav.getType() == Fav.KEY_TYPE_VALUE_BUS_STOP) {
+						if (fav.getFkId2() != null && fav.getFkId2().equals(currentFav.getFkId2())) {
+							return true;
+						}
+					} else {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		/**
+		 * Serialize the favorites list.
+		 * @param favs the favorites list
+		 * @return the serialized favorites
+		 */
+		public static String serializeFavs(List<Fav> favs) {
+			// MyLog.v(TAG, "serializeFavs()");
+			String favS = "";
+			if (favs != null) {
+				for (Fav currentFav : favs) {
+					if (favS.length() > 0) {
+						favS += "+";
+					}
+					favS += Fav.serializeFav(currentFav);
+				}
+			}
+			return favS;
 		}
 	}
 

@@ -23,9 +23,6 @@ import android.provider.LiveFolders;
 @SuppressWarnings("deprecation") //TODO use App Widgets (Android 3.0+)
 public class FavListLiveFolder extends Activity {
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

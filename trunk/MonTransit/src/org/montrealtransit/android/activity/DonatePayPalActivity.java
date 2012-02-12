@@ -73,9 +73,6 @@ public class DonatePayPalActivity extends Activity {
 	 */
 	private static final int[] devsEmails = new int[] { R.string.paypal_recipient_email_mathieu_mea };
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
@@ -173,9 +170,6 @@ public class DonatePayPalActivity extends Activity {
 		});
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
@@ -183,9 +177,6 @@ public class DonatePayPalActivity extends Activity {
 		super.onResume();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		MyLog.v(TAG, "onActivityResult(%s, %s)", requestCode, resultCode);
@@ -246,18 +237,12 @@ public class DonatePayPalActivity extends Activity {
 			this.context = context;
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
 		protected CheckoutButton doInBackground(String... params) {
 			MyLog.d(TAG, "Getting checkout button...");
 			return PayPalUtils.getCheckoutButton(this.context);
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
 		protected void onPostExecute(CheckoutButton result) {
 			super.onPostExecute(result);

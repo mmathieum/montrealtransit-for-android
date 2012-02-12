@@ -235,18 +235,20 @@ public class StmDbHelper extends SQLiteOpenHelper {
 			int lineNumber = 0;
 			String line;
 			for (int fileId : DUMP_FILES) {
-				br = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(fileId), "UTF8"));
+				br = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(fileId), "UTF8"), 8192);
 				while ((line = br.readLine()) != null) {
 					dataBase.execSQL(line);
 					if (nbLine > 0 && task != null) {
 						++lineNumber;
 					}
 				}
-				task.incrementProgressBar(lineNumber);
+				if (task != null) {
+					task.incrementProgressBar(lineNumber);
+				}
 			}
 			// mark the transaction as successful
 			dataBase.setTransactionSuccessful();
-			Utils.saveSharedPreferences(context, UserPreferences.PREFS_STM_DB_VERSION, DB_VERSION);
+			UserPreferences.savePrefLcl(context, UserPreferences.PREFS_LCL_STM_DB_VERSION, DB_VERSION);
 		} catch (Exception e) {
 			MyLog.w(TAG, e, "ERROR while copying the database file!");
 			AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_DB_INIT_FAIL, e

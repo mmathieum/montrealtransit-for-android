@@ -23,6 +23,11 @@ public class CupcakeSupport implements SupportUtil {
 
 	@Override
 	public int getASyncTaskCapacity() {
-	    return 10;
+		return 10;
+	}
+
+	@Override
+	public void backupManagerDataChanged() {
+		// not supported until Froyo?
 	}
 }

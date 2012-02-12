@@ -58,9 +58,6 @@ public class GeocodingTask extends AsyncTask<String, String, List<Address>> {
 		this.notify = notify;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected List<Address> doInBackground(String... params) {
 		MyLog.v(TAG, "doInBackground()");
@@ -79,9 +76,6 @@ public class GeocodingTask extends AsyncTask<String, String, List<Address>> {
 		return null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onProgressUpdate(String... values) {
 		if (this.notify && values != null && values.length > 0 && values[0] != null) {
@@ -89,9 +83,6 @@ public class GeocodingTask extends AsyncTask<String, String, List<Address>> {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onPostExecute(List<Address> result) {
 		MyLog.v(TAG, "onPostExecute()");

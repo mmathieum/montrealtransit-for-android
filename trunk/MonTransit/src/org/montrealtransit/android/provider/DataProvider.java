@@ -89,9 +89,6 @@ public class DataProvider extends ContentProvider {
 		        + LiveFolders.DESCRIPTION);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		MyLog.v(TAG, "query(%s, %s, %s, %s, %s)", uri.getPath(), Arrays.toString(projection), selection,
@@ -234,9 +231,6 @@ public class DataProvider extends ContentProvider {
 		return c;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getType(Uri uri) {
 		MyLog.v(TAG, "getType(%s)", uri.getPath());
@@ -271,9 +265,6 @@ public class DataProvider extends ContentProvider {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
 		MyLog.v(TAG, "delete(%s, %s, %s)", uri.getPath(), selection, Arrays.toString(selectionArgs));
@@ -334,9 +325,6 @@ public class DataProvider extends ContentProvider {
 		return count;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Uri insert(Uri uri, ContentValues initialValues) {
 		MyLog.v(TAG, "insert(%s, %s)", uri, initialValues.size());
@@ -397,9 +385,6 @@ public class DataProvider extends ContentProvider {
 	 */
 	private SQLiteOpenHelper mOpenHelper;
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean onCreate() {
 		MyLog.v(TAG, "onCreate()");
@@ -407,9 +392,6 @@ public class DataProvider extends ContentProvider {
 		return true;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public int update(Uri arg0, ContentValues arg1, String arg2, String[] arg3) {
 		MyLog.v(TAG, "update()");

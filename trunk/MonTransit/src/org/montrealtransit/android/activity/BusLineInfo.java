@@ -47,8 +47,7 @@ import android.widget.TextView;
  * This activity display information about a bus line.
  * @author Mathieu Méa
  */
-public class BusLineInfo extends Activity implements BusLineSelectDirectionDialogListener, LocationListener,
-        OnSharedPreferenceChangeListener {
+public class BusLineInfo extends Activity implements BusLineSelectDirectionDialogListener, LocationListener, OnSharedPreferenceChangeListener {
 
 	/**
 	 * The log tag.
@@ -118,9 +117,6 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 */
 	private ArrayAdapter<ABusStop> adapter;
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
@@ -139,9 +135,8 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 			@Override
 			public void onItemClick(AdapterView<?> l, View v, int position, long id) {
 				// MyLog.v(TAG, "onItemClick(%s, %s, %s ,%s)", l.getId(), v.getId(), position, id);
-				if (BusLineInfo.this.busStops != null && position < BusLineInfo.this.busStops.length
-				        && BusLineInfo.this.busStops[position] != null
-				        && !TextUtils.isEmpty(BusLineInfo.this.busStops[position].getCode())) {
+				if (BusLineInfo.this.busStops != null && position < BusLineInfo.this.busStops.length && BusLineInfo.this.busStops[position] != null
+						&& !TextUtils.isEmpty(BusLineInfo.this.busStops[position].getCode())) {
 					Intent intent = new Intent(BusLineInfo.this, BusStopInfo.class);
 					String busStopCode = BusLineInfo.this.busStops[position].getCode();
 					intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, busStopCode);
@@ -155,14 +150,10 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 
 		// get the bus line ID and bus line direction ID from the intent.
 		String lineNumber = Utils.getSavedStringValue(getIntent(), savedInstanceState, BusLineInfo.EXTRA_LINE_NUMBER);
-		String lineDirectionId = Utils.getSavedStringValue(getIntent(), savedInstanceState,
-		        BusLineInfo.EXTRA_LINE_DIRECTION_ID);
+		String lineDirectionId = Utils.getSavedStringValue(getIntent(), savedInstanceState, BusLineInfo.EXTRA_LINE_DIRECTION_ID);
 		showNewLine(lineNumber, lineDirectionId);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onStop() {
 		MyLog.v(TAG, "onStop()");
@@ -172,9 +163,6 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		super.onStop();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onRestart() {
 		MyLog.v(TAG, "onRestart()");
@@ -192,9 +180,6 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		super.onRestart();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
@@ -202,15 +187,11 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		super.onResume();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void showNewLine(String newLineNumber, String newDirectionId) {
 		MyLog.v(TAG, "showNewLine(%s, %s)", newLineNumber, newDirectionId);
 		if ((this.busLine == null || this.busLineDirection == null)
-		        || (!this.busLine.getNumber().equals(newLineNumber) || !this.busLineDirection.getId().equals(
-		                newDirectionId))) {
+				|| (!this.busLine.getNumber().equals(newLineNumber) || !this.busLineDirection.getId().equals(newDirectionId))) {
 			this.busLine = StmManager.findBusLine(this.getContentResolver(), newLineNumber);
 			this.busLineDirection = StmManager.findBusLineDirection(this.getContentResolver(), newDirectionId);
 			refreshAll();
@@ -316,8 +297,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 * @return the bus stop location preference.
 	 */
 	private boolean isShowingBusStopLocation() {
-		return Utils.getSharedPreferences(this, UserPreferences.PREFS_BUS_STOP_LOCATION,
-		        UserPreferences.PREFS_BUS_STOP_LOCATION_DEFAULT);
+		return UserPreferences.getPrefDefault(this, UserPreferences.PREFS_BUS_STOP_LOCATION, UserPreferences.PREFS_BUS_STOP_LOCATION_DEFAULT);
 	}
 
 	/**
@@ -343,14 +323,13 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 							if (BusLineInfo.this.busStops != null && BusLineInfo.this.busStops.length > persitedIndex) {
 								// IF still the same bus stop
 								if (BusLineInfo.this.busStops[persitedIndex] != null
-								        && BusLineInfo.this.busStops[persitedIndex].getCode().equals(persistedCode)) {
+										&& BusLineInfo.this.busStops[persitedIndex].getCode().equals(persistedCode)) {
 									BusLineInfo.this.busStops[persitedIndex].setLat(addresses.get(0).getLatitude());
 									BusLineInfo.this.busStops[persitedIndex].setLng(addresses.get(0).getLongitude());
 									updateDistancesWithNewLocation(persitedIndex); // force update
 								}
 							}
-						} else if (!TextUtils.isEmpty(persistedSubwayStationId) && persistedSubwayStationLat != null
-						        && persistedSubwayStationLng != null) {
+						} else if (!TextUtils.isEmpty(persistedSubwayStationId) && persistedSubwayStationLat != null && persistedSubwayStationLng != null) {
 							// use the subway station location as a second choice
 							BusLineInfo.this.busStops[persitedIndex].setLat(persistedSubwayStationLat);
 							BusLineInfo.this.busStops[persitedIndex].setLng(persistedSubwayStationLng);
@@ -368,8 +347,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 * @return the bus stops list adapter
 	 */
 	private ArrayAdapter<ABusStop> getAdapter() {
-		List<BusStop> busStopList = StmManager.findBusLineStopsList(this.getContentResolver(),
-		        this.busLine.getNumber(), this.busLineDirection.getId());
+		List<BusStop> busStopList = StmManager.findBusLineStopsList(this.getContentResolver(), this.busLine.getNumber(), this.busLineDirection.getId());
 
 		// creating the list of the subways stations object
 		this.busStops = new ABusStop[busStopList.size()];
@@ -441,8 +419,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 				} else {
 					((TextView) view.findViewById(R.id.station_name)).setText("");
 				}
-				view.findViewById(R.id.subway_img).setVisibility(
-				        TextUtils.isEmpty(busStop.getSubwayStationId()) ? View.GONE : View.VISIBLE);
+				view.findViewById(R.id.subway_img).setVisibility(TextUtils.isEmpty(busStop.getSubwayStationId()) ? View.GONE : View.VISIBLE);
 				// bus stop distance
 				if (isShowingBusStopLocation() && !TextUtils.isEmpty(busStop.getDistanceString())) {
 					((TextView) view.findViewById(R.id.distance)).setText(busStop.getDistanceString());
@@ -520,9 +497,6 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onLocationChanged(Location location) {
 		MyLog.v(TAG, "onLocationChanged()");
@@ -532,41 +506,26 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onProviderEnabled(String provider) {
 		MyLog.v(TAG, "onProviderEnabled(%s)", provider);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onProviderDisabled(String provider) {
 		MyLog.v(TAG, "onProviderDisabled(%s)", provider);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		MyLog.v(TAG, "onStatusChanged(%s, %s)", provider, status);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		return MenuUtils.inflateMenu(this, menu, R.menu.bus_line_info_menu);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -580,9 +539,6 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		return MenuUtils.handleCommonMenuActions(this, item);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		MyLog.v(TAG, "onSharedPreferenceChanged(%s)", key);
@@ -591,9 +547,6 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onDestroy() {
 		MyLog.v(TAG, "onDestroy()");

@@ -139,7 +139,7 @@ public class DataManager {
 
 	/**
 	 * @param contentResolver the content resolver
-	 * @return all the favorite entries in a list
+	 * @return all the favorite entries in a list OR <b>NULL</b>
 	 * @see DataManager#findAllFavs(ContentResolver)
 	 */
 	public static List<DataStore.Fav> findAllFavsList(ContentResolver contentResolver) {

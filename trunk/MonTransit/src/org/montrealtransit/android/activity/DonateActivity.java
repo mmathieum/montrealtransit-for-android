@@ -46,9 +46,6 @@ public class DonateActivity extends Activity {
 	 */
 	private Button cancelBt;
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
@@ -90,9 +87,6 @@ public class DonateActivity extends Activity {
 		});
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");

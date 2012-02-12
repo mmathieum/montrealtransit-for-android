@@ -93,9 +93,6 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 */
 	private TextView lineDirectionTv;
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
@@ -130,9 +127,6 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		showNewSubway(newLineNumber, newOrderPref);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void showNewSubway(int newLineNumber, String newOrderPref) {
 		MyLog.v(TAG, "showNewSubway(%s, %s)", newLineNumber, newOrderPref);
@@ -141,11 +135,11 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 			MyLog.d(TAG, "new subway line / stations order");
 			this.subwayLine = StmManager.findSubwayLine(getContentResolver(), newLineNumber);
 			if (newOrderPref == null) {
-				newOrderPref = Utils.getSharedPreferences(this,
+				newOrderPref = UserPreferences.getPrefDefault(this,
 				        UserPreferences.getPrefsSubwayStationsOrder(this.subwayLine.getNumber()),
 				        UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_DEFAULT);
 			} else {
-				Utils.saveSharedPreferences(this,
+				UserPreferences.savePrefDefault(this,
 				        UserPreferences.getPrefsSubwayStationsOrder(this.subwayLine.getNumber()), newOrderPref);
 			}
 			this.orderPref = newOrderPref;
@@ -153,9 +147,6 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onStop() {
 		MyLog.v(TAG, "onStop()");
@@ -163,9 +154,6 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		super.onStop();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onRestart() {
 		MyLog.v(TAG, "onRestart()");
@@ -183,9 +171,6 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		super.onRestart();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
@@ -255,7 +240,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 */
 	private String getSortOrderFromOrderPref(int subwayLineNumber) {
 		String prefsSubwayStationsOrder = UserPreferences.getPrefsSubwayStationsOrder(subwayLineNumber);
-		String sharedPreferences = Utils.getSharedPreferences(this, prefsSubwayStationsOrder,
+		String sharedPreferences = UserPreferences.getPrefDefault(this, prefsSubwayStationsOrder,
 		        UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_DEFAULT);
 		if (sharedPreferences.equals(UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL)) {
 			return StmStore.SubwayStation.NATURAL_SORT_ORDER;
@@ -374,9 +359,6 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 			this.layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			// MyLog.v(TAG, "getView(" + position + ")");
@@ -449,9 +431,6 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	}
 
 	// TODO enable list filtering
-	// /**
-	// * {@inheritDoc}
-	// */
 	// @Override
 	// public Cursor runQuery(CharSequence constraint) {
 	// MyLog.v(TAG, "runQuery(" + constraint + ")");
@@ -495,9 +474,6 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onLocationChanged(Location location) {
 		MyLog.v(TAG, "onLocationChanged()");
@@ -505,41 +481,26 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		updateDistancesWithNewLocation();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onProviderEnabled(String provider) {
 		MyLog.v(TAG, "onProviderEnabled(%s)", provider);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onProviderDisabled(String provider) {
 		MyLog.v(TAG, "onProviderDisabled(%s)", provider);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		MyLog.v(TAG, "onStatusChanged(%s, %s)", provider, status);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		return MenuUtils.inflateMenu(this, menu, R.menu.subway_line_info_menu);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {

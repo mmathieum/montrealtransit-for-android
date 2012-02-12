@@ -69,9 +69,6 @@ public class SubwayStationSelectBusLineStop implements View.OnClickListener {
 		this.busLineNumber = busLineNumber;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onClick(View v) {
 		MyLog.v(TAG, "onClick()");

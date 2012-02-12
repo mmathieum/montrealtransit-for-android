@@ -84,8 +84,7 @@ public class TwitterUtils {
 	 */
 	public static CommonsHttpOAuthProvider getProvider() {
 		if (provider == null) {
-			provider = new CommonsHttpOAuthProvider(TWITTER_REQUEST_TOKEN_URL, TWITTER_ACCESS_TOKEN_URL,
-			        TWITTER_AUTHORIZE_URL);
+			provider = new CommonsHttpOAuthProvider(TWITTER_REQUEST_TOKEN_URL, TWITTER_ACCESS_TOKEN_URL, TWITTER_AUTHORIZE_URL);
 		}
 		return provider;
 	}
@@ -119,7 +118,7 @@ public class TwitterUtils {
 	}
 
 	/**
-	 * @param context the context
+	 * @param twitterApis the twitter APIs
 	 * @return true if the first of Twitter API settings is an authenticated user.
 	 */
 	public static boolean isConnected(List<TwitterApi> twitterApis) {
@@ -173,8 +172,7 @@ public class TwitterUtils {
 			if (!TextUtils.isEmpty(result)) {
 				MyLog.d(TAG, "Twitter OAuth URL: " + result);
 				// saving the token
-				SharedPreferences.Editor editor = this.context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-				        .edit();
+				SharedPreferences.Editor editor = this.context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit();
 				editor.putString(REQUEST_TOKEN, getConsumer(this.context).getToken());
 				editor.putString(REQUEST_SECRET, getConsumer(this.context).getTokenSecret());
 				SupportFactory.getInstance(this.context).applySharedPreferencesEditor(editor);

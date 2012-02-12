@@ -43,9 +43,6 @@ public class SearchResult extends ListActivity {
 	 */
 	private static final int LINE_NUMBER_VIEW_INDEX = 1;
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
@@ -69,9 +66,6 @@ public class SearchResult extends ListActivity {
 		processIntent();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onNewIntent(Intent intent) {
 		MyLog.v(TAG, "onNewIntent()");
@@ -80,9 +74,6 @@ public class SearchResult extends ListActivity {
 		super.onNewIntent(intent);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
@@ -177,17 +168,11 @@ public class SearchResult extends ListActivity {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		return MenuUtils.createMainMenu(this, menu);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		return MenuUtils.handleCommonMenuActions(this, item);

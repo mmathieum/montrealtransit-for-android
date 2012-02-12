@@ -10,7 +10,6 @@ import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
-import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.dialog.BusLineSelectDirection;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
@@ -109,9 +108,6 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 	 */
 	private View listEmpty;
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
@@ -175,9 +171,6 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 		setUpUI();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
@@ -185,9 +178,6 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 		super.onResume();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected void onRestart() {
 		MyLog.v(TAG, "onRestart()");
@@ -245,9 +235,6 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 		this.list.setEmptyView(this.listEmpty);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		// MyLog.v(TAG, "onSharedPreferenceChanged(%s)", key);
@@ -260,7 +247,7 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 	 * @return the bus list "group by" preference.
 	 */
 	private String getGroupByPref() {
-		return Utils.getSharedPreferences(this, UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY,
+		return UserPreferences.getPrefDefault(this, UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY,
 		        UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_DEFAULT);
 	}
 
@@ -549,7 +536,7 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 	 */
 	private void switchToListType(String typePref) {
 		if (!getGroupByPref().equals(typePref)) {
-			Utils.saveSharedPreferences(this, UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY, typePref);
+			UserPreferences.savePrefDefault(this, UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY, typePref);
 			setUpUI();
 		}
 	}

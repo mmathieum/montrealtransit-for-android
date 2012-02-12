@@ -6,11 +6,14 @@ import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
+import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.provider.DataManager;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
@@ -19,6 +22,7 @@ import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 
 /**
@@ -35,6 +39,17 @@ public class UserPreferences extends PreferenceActivity {
 	 * The tracker tag.
 	 */
 	private static final String TRACKER_TAG = "/Preferences";
+
+	/**
+	 * The name of the <b>default</b> {@link SharedPreferences} according to {@link PreferenceManager#getDefaultSharedPreferences(android.content.Context)}
+	 * source code.
+	 */
+	public static final String DEFAULT_PREF_NAME = Constant.PKG + "_preferences";
+
+	/**
+	 * The name of the local preferences (no backup).
+	 */
+	public static final String LCL_PREF_NAME = "lcl";
 
 	/**
 	 * The preference key for the bus stop location display.
@@ -166,16 +181,6 @@ public class UserPreferences extends PreferenceActivity {
 	public static final String PREFS_SUBWAY_STATIONS_ORDER_DEFAULT = PREFS_SUBWAY_STATIONS_ORDER_AZ;
 
 	/**
-	 * The preference key for the presence of favorite.
-	 */
-	public static final String PREFS_IS_FAV = "pFav";
-
-	/**
-	 * Default value for favorite.
-	 */
-	public static final boolean PREFS_IS_FAV_DEFAULT = false;
-
-	/**
 	 * The preference key for ads.
 	 */
 	public static final String PREFS_ADS = "pAds";
@@ -185,9 +190,19 @@ public class UserPreferences extends PreferenceActivity {
 	public static final boolean PREFS_ADS_DEFAULT = true;
 
 	/**
+	 * The preference key for the presence of favorite.
+	 */
+	public static final String PREFS_LCL_IS_FAV = "pFav";
+
+	/**
+	 * Default value for favorite.
+	 */
+	public static final boolean PREFS_LCL_IS_FAV_DEFAULT = false;
+
+	/**
 	 * The latest version of the STM DB successfully deployed.
 	 */
-	public static final String PREFS_STM_DB_VERSION = "pStmDbVersion";
+	public static final String PREFS_LCL_STM_DB_VERSION = "pStmDbVersion";
 
 	/**
 	 * The ads check box.
@@ -211,15 +226,17 @@ public class UserPreferences extends PreferenceActivity {
 		this.adsCheckBox.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
-				boolean isNowChecked = Utils.getSharedPreferences(UserPreferences.this, PREFS_ADS, PREFS_ADS_DEFAULT);
-				// IF the user tries to disable ads AND the user didn't donate DO
+				boolean isNowChecked = UserPreferences.getPrefDefault(UserPreferences.this, PREFS_ADS, PREFS_ADS_DEFAULT);
+				// IF the user tries to disable ads AND the user didn't donate
+				// DO
 				if (!isNowChecked && !AdsUtils.isGenerousUser(UserPreferences.this)) {
-					// TODO show a dialog explaining that, to remove ads, the user need to:
+					// TODO show a dialog explaining that, to remove ads, the
+					// user need to:
 					// block ads system wide on rooted device
-					// download the code of the app an block ads in the source code
+					// download the code of the app an block ads in the source
+					// code
 					// or donate to support the development of the application
-					Utils.notifyTheUserLong(UserPreferences.this,
-					        UserPreferences.this.getString(R.string.donate_to_remove_ads));
+					Utils.notifyTheUserLong(UserPreferences.this, UserPreferences.this.getString(R.string.donate_to_remove_ads));
 					UserPreferences.this.adsCheckBox.setChecked(true);
 
 					Uri appMarketURI = Uri.parse("market://search?q=pub:\"Mathieu Méa\"");
@@ -237,17 +254,15 @@ public class UserPreferences extends PreferenceActivity {
 		});
 
 		// clear cache //TODO confirmation dialog
-		((PreferenceScreen) findPreference(PREFS_CLEAR_CACHE))
-		        .setOnPreferenceClickListener(new OnPreferenceClickListener() {
-			        @Override
-			        public boolean onPreferenceClick(Preference preference) {
-				        DataManager.deleteAllCache(getContentResolver());
-				        Utils.notifyTheUser(getApplicationContext(),
-				                UserPreferences.this.getString(R.string.clear_cache_complete));
-				        setClearCachePref();
-				        return false;
-			        }
-		        });
+		((PreferenceScreen) findPreference(PREFS_CLEAR_CACHE)).setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				DataManager.deleteAllCache(getContentResolver());
+				Utils.notifyTheUser(getApplicationContext(), UserPreferences.this.getString(R.string.clear_cache_complete));
+				setClearCachePref();
+				return false;
+			}
+		});
 
 		// donate dialog
 		((PreferenceScreen) findPreference("pDonate")).setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -323,8 +338,7 @@ public class UserPreferences extends PreferenceActivity {
 	private void setClearCachePref() {
 		PreferenceScreen clearCachePref = (PreferenceScreen) findPreference(PREFS_CLEAR_CACHE);
 		clearCachePref.setEnabled(DataManager.findAllCacheList(getContentResolver()) != null);
-		clearCachePref.setSummary(clearCachePref.isEnabled() ? R.string.clear_cache_pref_summary
-		        : R.string.clear_cache_pref_summary_disabled);
+		clearCachePref.setSummary(clearCachePref.isEnabled() ? R.string.clear_cache_pref_summary : R.string.clear_cache_pref_summary_disabled);
 	}
 
 	/**
@@ -333,6 +347,199 @@ public class UserPreferences extends PreferenceActivity {
 	 */
 	public static String getPrefsSubwayStationsOrder(int number) {
 		return PREFS_SUBWAY_STATIONS_ORDER + number;
+	}
+
+	/**
+	 * Save {@link String} {@link SharedPreferences} in {@link UserPreferences#DEFAULT_PREF_NAME}.
+	 * @param context the context
+	 * @param prefKey the preference key
+	 * @param newValue the new value
+	 */
+	public static void savePrefDefault(Context context, String prefKey, String newValue) {
+		savePref(context, PreferenceManager.getDefaultSharedPreferences(context), prefKey, newValue);
+	}
+
+	/**
+	 * Save {@link String} {@link SharedPreferences} in {@link UserPreferences#LCL_PREF_NAME}.
+	 * @param context the context
+	 * @param prefKey the preference key
+	 * @param newValue the new value
+	 */
+	public static void savePrefLcl(Context context, String prefKey, String newValue) {
+		savePref(context, context.getSharedPreferences(LCL_PREF_NAME, Context.MODE_PRIVATE), prefKey, newValue);
+	}
+
+	/**
+	 * Save a new preference value.
+	 * @param context the context calling the method
+	 * @param prefKey the preference key
+	 * @param newValue the new preference value
+	 */
+	private static void savePref(Context context, SharedPreferences sharedPreferences, String prefKey, String newValue) {
+		// MyLog.v(TAG, "savePref(%s, %s)", prefKey, newValue);
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putString(prefKey, newValue);
+		SupportFactory.getInstance(context).applySharedPreferencesEditor(editor);
+	}
+
+	/**
+	 * Save {@link Boolean} {@link SharedPreferences} in {@link UserPreferences#DEFAULT_PREF_NAME}.
+	 * @param context the context
+	 * @param prefKey the preference key
+	 * @param newValue the new value
+	 */
+	public static void savePrefDefault(Context context, String prefKey, boolean newValue) {
+		savePref(context, PreferenceManager.getDefaultSharedPreferences(context), prefKey, newValue);
+	}
+
+	/**
+	 * Save {@link Boolean} {@link SharedPreferences} in {@link UserPreferences#LCL_PREF_NAME}.
+	 * @param context the context
+	 * @param prefKey the preference key
+	 * @param newValue the new value
+	 */
+	public static void savePrefLcl(Context context, String prefKey, boolean newValue) {
+		savePref(context, context.getSharedPreferences(LCL_PREF_NAME, Context.MODE_PRIVATE), prefKey, newValue);
+	}
+
+	/**
+	 * Save a new preference value.
+	 * @param context the context calling the method
+	 * @param prefKey the preference key
+	 * @param newValue the new preference value
+	 */
+	private static void savePref(Context context, SharedPreferences sharedPreferences, String prefKey, boolean newValue) {
+		// MyLog.v(TAG, "savePref(%s, %s)", prefKey, newValue);
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putBoolean(prefKey, newValue);
+		SupportFactory.getInstance(context).applySharedPreferencesEditor(editor);
+	}
+
+	/**
+	 * Save {@link Integer} {@link SharedPreferences} in {@link UserPreferences#DEFAULT_PREF_NAME}.
+	 * 
+	 * @param context the context
+	 * @param prefKey the preference key
+	 * @param newValue the new value.
+	 */
+	public static void savePrefDefault(Context context, String prefKey, int newValue) {
+		savePref(context, PreferenceManager.getDefaultSharedPreferences(context), prefKey, newValue);
+	}
+
+	/**
+	 * Save {@link Integer} {@link SharedPreferences} in {@link UserPreferences#LCL_PREF_NAME}.
+	 * @param context the context
+	 * @param prefKey the preference key
+	 * @param newValue the new value
+	 */
+	public static void savePrefLcl(Context context, String prefKey, int newValue) {
+		savePref(context, context.getSharedPreferences(LCL_PREF_NAME, Context.MODE_PRIVATE), prefKey, newValue);
+	}
+
+	/**
+	 * Save a new preference value.
+	 * @param context the context calling the method
+	 * @param prefKey the preference key
+	 * @param newValue the new preference value
+	 */
+	private static void savePref(Context context, SharedPreferences sharedPreferences, String prefKey, int newValue) {
+		// MyLog.v(TAG, "savePref(%s, %s)", prefKey, newValue);
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putInt(prefKey, newValue);
+		SupportFactory.getInstance(context).applySharedPreferencesEditor(editor);
+	}
+
+	/**
+	 * @param context the context
+	 * @param prefKey the preference key
+	 * @param defaultValue the default value
+	 * @return the {@link String} {@link SharedPreferences} from {@link UserPreferences#DEFAULT_PREF_NAME}
+	 */
+	public static String getPrefDefault(Context context, String prefKey, String defaultValue) {
+		return getPref(PreferenceManager.getDefaultSharedPreferences(context), prefKey, defaultValue);
+	}
+
+	/**
+	 * @param context the context
+	 * @param prefKey the preference key
+	 * @param defaultValue the default value
+	 * @return the {@link String} {@link SharedPreferences} from {@link UserPreferences#LCL_PREF_NAME}
+	 */
+	public static String getPrefLcl(Context context, String prefKey, String defaultValue) {
+		return getPref(context.getSharedPreferences(LCL_PREF_NAME, Context.MODE_PRIVATE), prefKey, defaultValue);
+	}
+
+	/**
+	 * @param context the context calling the method
+	 * @param prefKey the preference key
+	 * @param defaultValue the default value if no value
+	 * @return the preference value
+	 */
+	private static String getPref(SharedPreferences sharedPreferences, String prefKey, String defaultValue) {
+		// MyLog.v(TAG, "getPref(%s, %s)", prefKey, defaultValue);
+		return sharedPreferences.getString(prefKey, defaultValue);
+	}
+
+	/**
+	 * @param context the context
+	 * @param prefKey the preference key
+	 * @param defaultValue the default value
+	 * @return the {@link Boolean} {@link SharedPreferences} from {@link UserPreferences#DEFAULT_PREF_NAME}
+	 */
+	public static boolean getPrefDefault(Context context, String prefKey, boolean defaultValue) {
+		return getPref(PreferenceManager.getDefaultSharedPreferences(context), prefKey, defaultValue);
+	}
+
+	/**
+	 * @param context the context
+	 * @param prefKey the preference key
+	 * @param defaultValue the default value
+	 * @return the {@link Boolean} {@link SharedPreferences} from {@link UserPreferences#LCL_PREF_NAME}
+	 */
+	public static boolean getPrefLcl(Context context, String prefKey, boolean defaultValue) {
+		return getPref(context.getSharedPreferences(LCL_PREF_NAME, Context.MODE_PRIVATE), prefKey, defaultValue);
+	}
+
+	/**
+	 * @param context the context calling the method
+	 * @param prefKey the preference key
+	 * @param defaultValue the default value if no value
+	 * @return the preference value
+	 */
+	private static boolean getPref(SharedPreferences sharedPreferences, String prefKey, boolean defaultValue) {
+		// MyLog.v(TAG, "getPref(%s, %s)", prefKey, defaultValue);
+		return sharedPreferences.getBoolean(prefKey, defaultValue);
+	}
+
+	/**
+	 * @param context the context
+	 * @param prefKey the preference key
+	 * @param defaultValue the default value
+	 * @return the {@link Integer} {@link SharedPreferences} from {@link UserPreferences#DEFAULT_PREF_NAME}
+	 */
+	public static int getPrefDefault(Context context, String prefKey, int defaultValue) {
+		return getPref(PreferenceManager.getDefaultSharedPreferences(context), prefKey, defaultValue);
+	}
+
+	/**
+	 * @param context the context
+	 * @param prefKey the preference key
+	 * @param defaultValue the default value
+	 * @return the {@link Integer} {@link SharedPreferences} from {@link UserPreferences#LCL_PREF_NAME}
+	 */
+	public static int getPrefLcl(Context context, String prefKey, int defaultValue) {
+		return getPref(context.getSharedPreferences(LCL_PREF_NAME, Context.MODE_PRIVATE), prefKey, defaultValue);
+	}
+
+	/**
+	 * @param context the context calling the method
+	 * @param prefKey the preference key
+	 * @param defaultValue the default value if no value
+	 * @return the preference value
+	 */
+	private static int getPref(SharedPreferences sharedPreferences, String prefKey, int defaultValue) {
+		// MyLog.v(TAG, "getPref(%s, %s)", prefKey, defaultValue);
+		return sharedPreferences.getInt(prefKey, defaultValue);
 	}
 
 }

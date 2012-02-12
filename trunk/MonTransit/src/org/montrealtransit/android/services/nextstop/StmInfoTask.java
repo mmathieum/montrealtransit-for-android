@@ -53,9 +53,6 @@ public class StmInfoTask extends AbstractNextStopProvider {
 	 */
 	private static final String TAG = StmInfoTask.class.getSimpleName();
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	protected Map<String, BusStopHours> doInBackground(StmStore.BusStop... busStops) {
 		String stopCode = busStops[0].getCode();
@@ -310,9 +307,6 @@ public class StmInfoTask extends AbstractNextStopProvider {
 		return result;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getTag() {
 		return TAG;

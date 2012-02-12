@@ -159,8 +159,8 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		this.statusRefreshOrNotImg = (ImageView) findViewById(R.id.subway_status_section_refresh_or_stop_refresh);
 		this.closestStationsRefreshOrNorImg = (ImageView) findViewById(R.id.closest_subway_stations_refresh);
 		View statusTitleSectionView = findViewById(R.id.subway_status_title);
-		this.statusProgressBarView = statusTitleSectionView.findViewById(R.id.progress_bar);
-		this.closestStationsProgressBarView = findViewById(R.id.closest_stations_title).findViewById(R.id.progress_bar);
+		this.statusProgressBarView = statusTitleSectionView.findViewById(R.id.progress_bar_status);
+		this.closestStationsProgressBarView = findViewById(R.id.closest_stations_title).findViewById(R.id.progress_bar_closest);
 		this.statusLayout = (RelativeLayout) findViewById(R.id.subway_status);
 		this.statusTitleTv = (TextView) statusTitleSectionView.findViewById(R.id.subway_status_section);
 		this.statusLoadingLayout = (RelativeLayout) findViewById(R.id.subway_status_loading);
