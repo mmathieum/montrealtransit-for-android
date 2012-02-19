@@ -5,10 +5,21 @@ import org.montrealtransit.android.MyLog;
 import android.content.Context;
 import android.os.Build;
 
+/**
+ * This class binds SDK versions with available features.
+ * @author Mathieu Méa
+ */
 public class SupportFactory {
 
+	/**
+	 * The log tag.
+	 */
 	private static final String TAG = SupportFactory.class.getSimpleName();
 
+	/**
+	 * @param context the context
+	 * @return the support instance
+	 */
 	public static SupportUtil getInstance(Context context) {
 		String className = SupportFactory.class.getPackage().getName();
 		int sdkVersion = Integer.parseInt(Build.VERSION.SDK);
@@ -26,11 +37,13 @@ public class SupportFactory {
 			className += ".FroyoSupport"; // 8
 		} else if (sdkVersion == Build.VERSION_CODES.GINGERBREAD || sdkVersion == Build.VERSION_CODES.GINGERBREAD_MR1) {
 			className += ".GingerbreadSupport"; // 9 10
-		} else if (sdkVersion == Build.VERSION_CODES.HONEYCOMB || sdkVersion == Build.VERSION_CODES.HONEYCOMB_MR1 || sdkVersion == Build.VERSION_CODES.HONEYCOMB_MR2) {
+		} else if (sdkVersion == Build.VERSION_CODES.HONEYCOMB || sdkVersion == Build.VERSION_CODES.HONEYCOMB_MR1
+		        || sdkVersion == Build.VERSION_CODES.HONEYCOMB_MR2) {
 			className += ".HoneycombSupport"; // 11 12 13
-		} else if (sdkVersion == Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-			className += ".IceCreamSandwichSupport"; // 14
-		} else if (sdkVersion > Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+		} else if (sdkVersion == Build.VERSION_CODES.ICE_CREAM_SANDWICH
+		        || sdkVersion == Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+			className += ".IceCreamSandwichSupport"; // 14 15
+		} else if (sdkVersion > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
 			MyLog.w(TAG, "Unknow API Level: %s", Build.VERSION.SDK);
 			className += ".IceCreamSandwichSupport"; // default for newer SDK
 		}

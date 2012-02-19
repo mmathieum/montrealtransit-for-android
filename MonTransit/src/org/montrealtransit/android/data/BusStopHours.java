@@ -216,7 +216,7 @@ public class BusStopHours {
 	/**
 	 * @param sourceName the new source name
 	 */
-	private void setSourceName(String sourceName) {
+	public void setSourceName(String sourceName) {
 		this.sourceName = sourceName;
 	}
 
