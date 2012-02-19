@@ -92,7 +92,9 @@
     <string name="data_pref_cat_title">Source de données</string>
     <string name="advanced_pref_cat_title">Paramètres avancés</string>
     <string name="credits_pref_cat_title">Crédits</string>
-    
+
+    <string name="nfc">NFC</string>
+
 	<string name="group_by_pref_title">Affichage des lignes de bus</string>
 	<string name="group_by_pref_summary">Comment les lignes de bus sont affichées dans la liste des lignes de bus.</string>
 	<string name="group_by_pref_dialog_title">Grouper les lignes de bus</string>

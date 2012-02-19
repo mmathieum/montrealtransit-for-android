@@ -1,15 +1,63 @@
 package org.montrealtransit.android.api;
 
-import android.content.SharedPreferences.Editor;
+import org.montrealtransit.android.services.NfcListener;
 
+import android.app.Activity;
+import android.app.backup.BackupManager;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
+
+/**
+ * The methods that all platforms version need to implement.
+ * @author Mathieu Méa
+ */
 public interface SupportUtil {
 
-	void applySharedPreferencesEditor(Editor editor);
+	/**
+	 * Apply shared preferences editor.
+	 * @param editor shared preferences editor
+	 */
+	void applySharedPreferencesEditor(SharedPreferences.Editor editor);
 
+	/**
+	 * @return the build manufacturer
+	 */
 	String getBuildManufacturer();
 
+	/**
+	 * @return the {@link AsyncTask} capacity.
+	 */
 	int getASyncTaskCapacity();
 
+	/**
+	 * Notify the {@link BackupManager} that the data has changed.
+	 */
 	void backupManagerDataChanged();
+
+	/**
+	 * @param activity the activity
+	 * @param listener the listener
+	 * @param mimeType the MIME type
+	 */
+	void registerNfcCallback(Activity activity, NfcListener listener, String mimeType);
+
+	/**
+	 * @param intent the intent
+	 * @return true if the intent is an NFC intent
+	 */
+	boolean isNfcIntent(Intent intent);
+
+	/**
+	 * @param intent the intent
+	 * @param listener the NFC listener
+	 */
+	void processNfcIntent(Intent intent, NfcListener listener);
+
+	/**
+	 * @param activity the activity
+	 * @param listener the listener
+	 */
+	void setOnNdefPushCompleteCallback(Activity activity, NfcListener listener);
 
 }

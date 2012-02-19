@@ -6,10 +6,21 @@ import android.app.backup.BackupManager;
 import android.content.Context;
 import android.content.SharedPreferences.Editor;
 
+/**
+ * Features available for Android 2.2 Froyo (API Level 8) and higher.
+ * @author Mathieu Méa
+ */
 public class FroyoSupport extends EclairSupport {
 
+	/**
+	 * The log tag.
+	 */
 	private static final String TAG = FroyoSupport.class.getSimpleName();
 
+	/**
+	 * The default constructor.
+	 * @param context the context
+	 */
 	public FroyoSupport(Context context) {
 		super(context);
 	}

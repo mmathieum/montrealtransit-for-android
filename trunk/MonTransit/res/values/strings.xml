@@ -93,6 +93,8 @@
 	<string name="advanced_pref_cat_title">Advanced settings</string>
 	<string name="credits_pref_cat_title">Credits</string>
 
+	<string name="nfc">NFC</string>
+
 	<string name="group_by_pref_title">Bus Lines Display</string>
 	<string name="group_by_pref_summary">How the bus lines are displayed in the bus line list.</string>
 	<string name="group_by_pref_dialog_title">Group bus lines</string>
