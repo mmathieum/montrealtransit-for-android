@@ -394,7 +394,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		if (stringRecords.length > 2) {
 			try {
 				BusStopHours tmp = BusStopHours.deserialized(stringRecords[2]);
-				if (tmp != null && tmp.getSHours().size() == 0) {
+				if (tmp != null && tmp.getSHours().size() != 0) {
 					saveToCache(stopCode, lineNumber, tmp);
 					this.hours = tmp;
 					// } else {
