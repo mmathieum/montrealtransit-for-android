@@ -53,6 +53,7 @@
 	<string name="next_bus_stops">Next passages</string>
 	<string name="next_bus_stops_and_source">Next passages (%s)</string>
 	<string name="next_bus_stops_message_and_source">MonTransit gets the next bus stops passages in real time from %s.</string>
+	<string name="next_bus_stops_message_auto">MonTransit gets the next bus stops passages in real time from the best source available.</string>
 	<string name="next_bus_stops_note">%1$s: %2$s</string>
 	<string name="other_bus_line">Other bus line(s)</string>
 	<string name="subway_station">Subway station</string>
@@ -226,6 +227,7 @@
     <string name="next_stop_pref_dialog_title">Data source</string>
     <string name="next_stop_pref_stmmobile">m.stm.info</string>
     <string name="next_stop_pref_stminfo">stm.info</string>
+    <string name="next_stop_pref_auto">Auto</string>
     
     <string name="search_label">MonTransit</string>
     <string name="search_hint">Search bus stops.</string>

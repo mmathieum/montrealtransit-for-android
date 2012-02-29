@@ -53,6 +53,7 @@
 	<string name="next_bus_stops">Prochains passages</string>
 	<string name="next_bus_stops_and_source">Prochains passages (%s)</string>
 	<string name="next_bus_stops_message_and_source">MonTransit récupére les horaires des prochains passages en temps réel depuis %s.</string>
+	<string name="next_bus_stops_message_auto">MonTransit récupére les horaires des prochains passages en temps réel depuis la meilleure source disponible.</string>
 	<string name="next_bus_stops_note">%1$s : %2$s</string>
 	<string name="other_bus_line">Autre(s) Ligne(s) de Bus</string>
 	<string name="subway_station">Station de Métro</string>
@@ -226,6 +227,7 @@
     <string name="next_stop_pref_dialog_title">Source de données</string>
     <string name="next_stop_pref_stmmobile">m.stm.info</string>
     <string name="next_stop_pref_stminfo">stm.info</string>
+    <string name="next_stop_pref_auto">Auto</string>
     
     <string name="search_label">MonTransit</string>
     <string name="search_hint">Recherche arrêts de bus.</string>
