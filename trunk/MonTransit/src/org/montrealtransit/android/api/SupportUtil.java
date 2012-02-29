@@ -60,4 +60,16 @@ public interface SupportUtil {
 	 */
 	void setOnNdefPushCompleteCallback(Activity activity, NfcListener listener);
 
+	/**
+	 * Enable NFC foreground dispatch.
+	 * @param activity the activity
+	 */
+	void enableNfcForegroundDispatch(Activity activity);
+
+	/**
+	 * Disable NFC foreground dispatch.
+	 * @param activity the activity
+	 */
+	void disableNfcForegroundDispatch(Activity activity);
+
 }

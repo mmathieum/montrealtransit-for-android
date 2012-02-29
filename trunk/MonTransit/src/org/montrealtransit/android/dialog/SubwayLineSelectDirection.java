@@ -73,50 +73,36 @@ public class SubwayLineSelectDirection implements View.OnClickListener, SubwayLi
 	}
 
 	/**
-	 * Show the dialog.
-	 */
-	public void showDialog() {
-		MyLog.v(TAG, "showDialog()");
-		getAlertDialog().show();
-	}
-
-	/**
 	 * @return the dialog.
 	 */
-	private AlertDialog getAlertDialog() {
-		MyLog.v(TAG, "getAlertDialog()");
-		AlertDialog.Builder builder = new AlertDialog.Builder(this.context);
+	public void showDialog() {
+		MyLog.v(TAG, "showAlertDialog()");
 		String lineName = context.getString(SubwayUtils.getSubwayLineNameShort(this.subwayLine.getNumber()));
-		builder.setTitle(context.getString(R.string.select_subway_direction_and_name, lineName));
-		builder.setSingleChoiceItems(getItems(), getCheckedItemFromPref(), new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				MyLog.v(TAG, "onClick(%s)", which);
-				dialog.dismiss(); // close the dialog
-				int lineNumber = SubwayLineSelectDirection.this.subwayLine.getNumber();
-				String orderPref = SubwayLineSelectDirection.this.orderPref[which];
-				SubwayLineSelectDirection.this.listener.showNewSubway(lineNumber, orderPref);
-			}
-		});
-		// CANCEL
-		builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				MyLog.v(TAG, "onClick(%s)", which);
-				dialog.dismiss(); // close the dialog (do nothing)
-			}
-		});
-		AlertDialog alert = builder.create();
-		return alert;
+		new AlertDialog.Builder(this.context).setTitle(context.getString(R.string.select_subway_direction_and_name, lineName))
+				.setSingleChoiceItems(getItems(), getCheckedItemFromPref(), new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						MyLog.v(TAG, "onClick(%s)", which);
+						dialog.dismiss(); // close the dialog
+						int lineNumber = SubwayLineSelectDirection.this.subwayLine.getNumber();
+						String orderPref = SubwayLineSelectDirection.this.orderPref[which];
+						SubwayLineSelectDirection.this.listener.showNewSubway(lineNumber, orderPref);
+					}
+				}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						// MyLog.v(TAG, "onClick(%s)", which); // CANCEL
+						dialog.dismiss(); // close the dialog (do nothing)
+					}
+				}).create().show();
 	}
 
 	/**
 	 * @return the id of the checked choice
 	 */
 	private int getCheckedItemFromPref() {
-		String sharedPreferences = UserPreferences.getPrefDefault(context,
-		        UserPreferences.getPrefsSubwayStationsOrder(this.subwayLine.getNumber()),
-		        UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_DEFAULT);
+		String sharedPreferences = UserPreferences.getPrefDefault(context, UserPreferences.getPrefsSubwayStationsOrder(this.subwayLine.getNumber()),
+				UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_DEFAULT);
 		if (sharedPreferences.equals(UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL)) {
 			return 1;
 		} else if (sharedPreferences.equals(UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL_DESC)) {
@@ -131,13 +117,11 @@ public class SubwayLineSelectDirection implements View.OnClickListener, SubwayLi
 	 */
 	private String[] getItems() {
 		MyLog.v(TAG, "getItems()");
-		StmStore.SubwayStation firstSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(
-		        this.context.getContentResolver(), this.subwayLine.getNumber(),
-		        StmStore.SubwayStation.NATURAL_SORT_ORDER);
+		StmStore.SubwayStation firstSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(this.context.getContentResolver(),
+				this.subwayLine.getNumber(), StmStore.SubwayStation.NATURAL_SORT_ORDER);
 		// MyTrace.d(TAG, "First station: " + firstSubwayStationDirection.getName());
-		StmStore.SubwayStation lastSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(
-		        this.context.getContentResolver(), this.subwayLine.getNumber(),
-		        StmStore.SubwayStation.NATURAL_SORT_ORDER_DESC);
+		StmStore.SubwayStation lastSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(this.context.getContentResolver(),
+				this.subwayLine.getNumber(), StmStore.SubwayStation.NATURAL_SORT_ORDER_DESC);
 		// MyTrace.d(TAG, "Last station: " + lastSubwayStationDirection.getName());
 
 		String[] items = new String[3];

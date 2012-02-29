@@ -29,6 +29,7 @@ import android.location.Address;
 import android.location.Location;
 import android.location.LocationListener;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
@@ -62,6 +63,10 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 * The extra ID for the bus line number.
 	 */
 	public static final String EXTRA_LINE_NUMBER = "extra_line_number";
+	/**
+	 * Only used to display initial bus line name.
+	 */
+	public static final String EXTRA_LINE_NAME = "extra_line_name";
 	/**
 	 * The extra ID for the bus line direction ID.
 	 */
@@ -111,7 +116,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	/**
 	 * The list of bus stops.
 	 */
-	private ABusStop[] busStops;
+	private ABusStop[] busStops = new ABusStop[0];
 	/**
 	 * The bus stops list adapter.
 	 */
@@ -139,8 +144,12 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 						&& !TextUtils.isEmpty(BusLineInfo.this.busStops[position].getCode())) {
 					Intent intent = new Intent(BusLineInfo.this, BusStopInfo.class);
 					String busStopCode = BusLineInfo.this.busStops[position].getCode();
+					String busStopPlace = BusLineInfo.this.busStops[position].getPlace();
 					intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, busStopCode);
+					intent.putExtra(BusStopInfo.EXTRA_STOP_PLACE, busStopPlace);
 					intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, BusLineInfo.this.busLine.getNumber());
+					intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NAME, BusLineInfo.this.busLine.getName());
+					intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_TYPE, BusLineInfo.this.busLine.getType());
 					startActivity(intent);
 				}
 			}
@@ -150,8 +159,11 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 
 		// get the bus line ID and bus line direction ID from the intent.
 		String lineNumber = Utils.getSavedStringValue(getIntent(), savedInstanceState, BusLineInfo.EXTRA_LINE_NUMBER);
+		this.lineNumberTv.setText(lineNumber); // temporary show the line number
+		String lineName = Utils.getSavedStringValue(getIntent(), savedInstanceState, BusLineInfo.EXTRA_LINE_NAME);
+		this.lineNameTv.setText(lineName); // temporary show the line name
 		String lineDirectionId = Utils.getSavedStringValue(getIntent(), savedInstanceState, BusLineInfo.EXTRA_LINE_DIRECTION_ID);
-		showNewLine(lineNumber, lineDirectionId);
+		showNewLine(lineNumber, lineName, lineDirectionId);
 	}
 
 	@Override
@@ -188,13 +200,22 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	}
 
 	@Override
-	public void showNewLine(String newLineNumber, String newDirectionId) {
-		MyLog.v(TAG, "showNewLine(%s, %s)", newLineNumber, newDirectionId);
+	public void showNewLine(final String newLineNumber, final String newLineName, final String newDirectionId) {
+		MyLog.v(TAG, "showNewLine(%s, %s, %s)", newLineNumber, newLineName, newDirectionId);
 		if ((this.busLine == null || this.busLineDirection == null)
 				|| (!this.busLine.getNumber().equals(newLineNumber) || !this.busLineDirection.getId().equals(newDirectionId))) {
-			this.busLine = StmManager.findBusLine(this.getContentResolver(), newLineNumber);
-			this.busLineDirection = StmManager.findBusLineDirection(this.getContentResolver(), newDirectionId);
-			refreshAll();
+			new AsyncTask<Void, Void, Void>() {
+				@Override
+				protected Void doInBackground(Void... params) {
+					BusLineInfo.this.busLine = StmManager.findBusLine(BusLineInfo.this.getContentResolver(), newLineNumber);
+					BusLineInfo.this.busLineDirection = StmManager.findBusLineDirection(BusLineInfo.this.getContentResolver(), newDirectionId);
+					return null;
+				}
+
+				protected void onPostExecute(Void result) {
+					refreshAll();
+				};
+			}.execute();
 		}
 	}
 
@@ -253,15 +274,30 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 * Show the bus line dialog to select direction.
 	 */
 	public void showSelectDirectionDialog(View v) {
-		new BusLineSelectDirection(this, this.busLine.getNumber(), this).showDialog();
+		// TODO use single choice items to show the current direction
+		new BusLineSelectDirection(this, this.busLine.getNumber(), this.busLine.getName(), this).showDialog();
 	}
 
 	/**
 	 * Refresh the bus stops list UI.
 	 */
 	private void refreshBusStopList() {
-		this.list.setAdapter(getAdapter());
-		startfindBusStopLocation();
+		new AsyncTask<Void, Void, ABusStop[]>() {
+			@Override
+			protected ABusStop[] doInBackground(Void... params) {
+				return getBusStops();
+			}
+
+			@Override
+			protected void onPostExecute(ABusStop[] result) {
+				BusLineInfo.this.busStops = result;
+				BusLineInfo.this.adapter = new ArrayAdapterWithCustomView(BusLineInfo.this, R.layout.subway_line_info_stations_list_item,
+						BusLineInfo.this.busStops);
+				BusLineInfo.this.list.setAdapter(BusLineInfo.this.adapter);
+				startFindBusStopLocation();
+			};
+
+		}.execute();
 	}
 
 	/**
@@ -272,8 +308,8 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	/**
 	 * This method asynchronously find all bus stops location.
 	 */
-	private void startfindBusStopLocation() {
-		MyLog.v(TAG, "findBusStopLocation()");
+	private void startFindBusStopLocation() {
+		MyLog.v(TAG, "startFindBusStopLocation()");
 		if (isShowingBusStopLocation()) {
 			this.lastStartedBusStopLocationTaskIndex = -1;
 			if (this.busStops != null && this.busStops.length > 0) {
@@ -343,15 +379,10 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		}
 	}
 
-	/**
-	 * @return the bus stops list adapter
-	 */
-	private ArrayAdapter<ABusStop> getAdapter() {
+	private ABusStop[] getBusStops() {
 		List<BusStop> busStopList = StmManager.findBusLineStopsList(this.getContentResolver(), this.busLine.getNumber(), this.busLineDirection.getId());
-
 		// creating the list of the subways stations object
-		this.busStops = new ABusStop[busStopList.size()];
-
+		ABusStop[] busStops = new ABusStop[busStopList.size()];
 		int i = 0;
 		for (BusStop busStop : busStopList) {
 			ABusStop aBusStop = new ABusStop();
@@ -364,11 +395,10 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 			aBusStop.setLineNumber(busStop.getLineNumber());
 			aBusStop.setLineNumber(busStop.getLineNameOrNull());
 			aBusStop.setLineType(busStop.getLineTypeOrNull());
-			this.busStops[i] = aBusStop;
+			busStops[i] = aBusStop;
 			i++;
 		}
-		this.adapter = new ArrayAdapterWithCustomView(this, R.layout.subway_line_info_stations_list_item, busStops);
-		return this.adapter;
+		return busStops;
 	}
 
 	/**
@@ -493,7 +523,9 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 					}
 				}
 			}
-			this.adapter.notifyDataSetChanged();
+			if (this.adapter != null) {
+				this.adapter.notifyDataSetChanged();
+			}
 		}
 	}
 
@@ -543,7 +575,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		MyLog.v(TAG, "onSharedPreferenceChanged(%s)", key);
 		if (key.equals(UserPreferences.PREFS_BUS_STOP_LOCATION)) {
-			startfindBusStopLocation();
+			startFindBusStopLocation();
 		}
 	}
 

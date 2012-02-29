@@ -17,7 +17,8 @@ import android.widget.TabHost.TabSpec;
  * @author Mathieu Méa
  */
 // TODO offer the options to just show a list of the "tabs" == Dashboard UI
-@SuppressWarnings("deprecation") // TODO use Fragment
+@SuppressWarnings("deprecation")
+// TODO use Fragment
 public class MainScreen extends ActivityGroup {
 
 	/**
@@ -62,8 +63,7 @@ public class MainScreen extends ActivityGroup {
 		tabHost.addTab(favListTab);
 		// the bus stop code
 		TabSpec busStopCodeTab = tabHost.newTabSpec(TAB_STOP_CODE);
-		busStopCodeTab.setIndicator(getString(R.string.stop_code),
-		        getResources().getDrawable(R.drawable.ic_tab_stop_code));
+		busStopCodeTab.setIndicator(getString(R.string.stop_code), getResources().getDrawable(R.drawable.ic_tab_stop_code));
 		busStopCodeTab.setContent(new Intent(this, BusStopCodeTab.class));
 		tabHost.addTab(busStopCodeTab);
 		// the bus lines list
@@ -73,8 +73,7 @@ public class MainScreen extends ActivityGroup {
 		tabHost.addTab(busLinesListTab);
 		// the subway lines list
 		TabSpec subwayLinesListTab = tabHost.newTabSpec(TAB_SUBWAY);
-		subwayLinesListTab.setIndicator(getString(R.string.subway), getResources()
-		        .getDrawable(R.drawable.ic_tab_subway));
+		subwayLinesListTab.setIndicator(getString(R.string.subway), getResources().getDrawable(R.drawable.ic_tab_subway));
 		subwayLinesListTab.setContent(new Intent(this, SubwayTab.class));
 		tabHost.addTab(subwayLinesListTab);
 		try {
@@ -87,8 +86,8 @@ public class MainScreen extends ActivityGroup {
 		} catch (Exception e) {
 			MyLog.w(TAG, "Error while determining the select tab", e);
 		}
-		RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(
-		        RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.FILL_PARENT);
+		RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT,
+				RelativeLayout.LayoutParams.FILL_PARENT);
 		layoutParams.addRule(RelativeLayout.ABOVE, R.id.ad_layout);
 		((RelativeLayout) findViewById(R.id.main)).addView(tabHost, layoutParams);
 	}

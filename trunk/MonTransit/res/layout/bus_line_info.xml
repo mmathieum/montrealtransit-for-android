@@ -20,7 +20,7 @@
 		<TextView android:id="@+id/line_number" style="@style/BusLineNumber"
 			android:layout_alignParentLeft="true" android:layout_marginRight="5dip"
 			android:layout_marginLeft="0dip" android:layout_centerVertical="true"
-			android:text="@string/default_line_number" android:background="#000000" />
+			android:text="@string/ellipsis" android:background="#000000" />
 		<!-- BUS LINE NAME -->
 		<TextView android:id="@+id/line_name" android:layout_width="fill_parent"
 			android:layout_height="fill_parent" android:layout_toRightOf="@id/line_number"
@@ -28,11 +28,11 @@
 			android:ellipsize="marquee" android:gravity="center_vertical|left"
 			android:textAppearance="?android:attr/textAppearanceLarge"
 			android:focusable="true" android:focusableInTouchMode="true"
-			android:textColor="@color/nofocustext" android:text="@string/unknow_line_name"
+			android:textColor="@color/nofocustext" android:text="@string/ellipsis"
 			android:layout_centerVertical="true" />
 	</RelativeLayout>
 
-	<!-- BUS STOPS -->
+	<!-- BUS STOPS TITLE -->
 	<RelativeLayout android:id="@+id/bus_line_stop"
 		android:layout_width="fill_parent" android:layout_height="25dip"
 		android:background="@drawable/dark_header_dither">
@@ -48,6 +48,7 @@
 			android:ellipsize="end"
 			android:text="@string/bus_stops_short" />
 	</RelativeLayout>
+	<!-- BUS STOPS LIST -->
 	<FrameLayout android:layout_weight="1"
 		android:layout_width="fill_parent" android:layout_height="0dip">
 

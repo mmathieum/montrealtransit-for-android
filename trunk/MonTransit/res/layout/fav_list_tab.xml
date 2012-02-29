@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="fill_parent">
 	<TextView android:id="@+id/empty" android:layout_height="fill_parent"
 		android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall"
 		android:gravity="center" android:text="@string/no_fav_message"
 		android:visibility="gone" />
+	<include android:id="@+id/loading" layout="@layout/loading_small_layout" />
 	<ScrollView android:id="@+id/lists" android:layout_width="fill_parent"
 		android:layout_height="fill_parent" android:visibility="gone">
 		<LinearLayout android:layout_width="fill_parent"
@@ -48,4 +49,4 @@
 				android:orientation="vertical" android:visibility="gone" />
 		</LinearLayout>
 	</ScrollView>
-</FrameLayout>
+</LinearLayout>

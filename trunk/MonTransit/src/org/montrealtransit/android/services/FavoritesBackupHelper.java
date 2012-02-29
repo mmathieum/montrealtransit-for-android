@@ -227,11 +227,11 @@ public class FavoritesBackupHelper implements BackupHelper {
 		// MyLog.d(TAG, "oldFavs: " + Utils.getListSize(oldFavs));
 		// MyLog.d(TAG, "currentFavs: " + Utils.getListSize(this.currentFavs));
 		// IF old favorites number != current favorites number DO
-		if (Utils.getListSize(oldFavs) != Utils.getListSize(this.currentFavs)) {
+		if (Utils.getCollectionSize(oldFavs) != Utils.getCollectionSize(this.currentFavs)) {
 			return true; // different size
 		}
 		// same size
-		if (Utils.getListSize(this.currentFavs) == 0) {
+		if (Utils.getCollectionSize(this.currentFavs) == 0) {
 			return false; // no favorite
 		}
 		for (Fav oldFav : oldFavs) {

@@ -15,6 +15,7 @@ import org.montrealtransit.android.provider.StmManager;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -115,47 +116,53 @@ public class BusStopCodeTab extends Activity {
 		MyLog.v(TAG, "onResume()");
 		super.onResume();
 		// refresh the adapters
-		setSearchAutoCompleteAdapter();
-		setHistoryAdapter();
+		setSearchAutoCompleteAdapterFromDB();
+		setHistoryAdapterFromDB();
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 	}
 
 	/**
 	 * Set the auto complete adapter.
 	 */
-	private void setSearchAutoCompleteAdapter() {
+	private void setSearchAutoCompleteAdapterFromDB() {
 		if (this.searchField.getAdapter() == null) {
-			new GetAllNumbersTask().execute();
-		}
-	}
+			new AsyncTask<Void, String, List<String>>() {
+				@Override
+				protected List<String> doInBackground(Void... params) {
+					List<String> numbers = StmManager.findAllBusStopCodeList(BusStopCodeTab.this.getContentResolver());
+					numbers.addAll(StmManager.findAllBusLinesNumbersList(BusStopCodeTab.this.getContentResolver()));
+					return numbers;
+				}
 
-	/**
-	 * This task get all bus stop codes and all bus lines numbers.
-	 */
-	private class GetAllNumbersTask extends AsyncTask<Void, String, List<String>> {
+				@Override
+				protected void onPostExecute(List<String> result) {
+					BusStopCodeTab.this.searchField.setAdapter(new ArrayAdapter<String>(BusStopCodeTab.this,
+					        android.R.layout.simple_dropdown_item_1line, result));
+				}
 
-		@Override
-		protected List<String> doInBackground(Void... params) {
-			List<String> numbers = StmManager.findAllBusStopCodeList(BusStopCodeTab.this.getContentResolver());
-			numbers.addAll(StmManager.findAllBusLinesNumbersList(BusStopCodeTab.this.getContentResolver()));
-			return numbers;
-		}
-
-		@Override
-		protected void onPostExecute(List<String> result) {
-			BusStopCodeTab.this.searchField.setAdapter(new ArrayAdapter<String>(BusStopCodeTab.this,
-			        android.R.layout.simple_dropdown_item_1line, result));
+			}.execute();
 		}
 	}
 
 	/**
 	 * Set the history adapter. Since it's created from the cursor, it will be updated automatically.
 	 */
-	private void setHistoryAdapter() {
+	private void setHistoryAdapterFromDB() {
 		if (this.historyList.getAdapter() == null) {
-			this.historyList.setAdapter(new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, DataManager
-			        .findAllHistory(this.getContentResolver()), new String[] { DataStore.History.VALUE },
-			        new int[] { android.R.id.text1 }));
+			new AsyncTask<Void, String, Cursor>() {
+				@Override
+				protected Cursor doInBackground(Void... params) {
+					return DataManager.findAllHistory(BusStopCodeTab.this.getContentResolver());
+				}
+
+				@Override
+				protected void onPostExecute(Cursor result) {
+					BusStopCodeTab.this.historyList.setAdapter(new SimpleCursorAdapter(BusStopCodeTab.this,
+					        android.R.layout.simple_list_item_1, result, new String[] { DataStore.History.VALUE },
+					        new int[] { android.R.id.text1 }));
+
+				}
+			}.execute();
 		}
 	}
 
@@ -174,9 +181,16 @@ public class BusStopCodeTab extends Activity {
 				// search for a bus line number
 				if (BusUtils.isBusLineNumberValid(this, search)) {
 					if (saveToHistory) {
-						addToHistory(search);
+						// save to the history
+						new AsyncTask<String, Void, Void>() {
+							@Override
+							protected Void doInBackground(String... params) {
+								DataManager.addHistory(getContentResolver(), new DataStore.History(params[0]));
+								return null;
+							}
+						}.execute(search);
 					}
-					new BusLineSelectDirection(this, search).showDialog();
+					new BusLineSelectDirection(this, search, null).showDialog();
 				} else {
 					Utils.notifyTheUserLong(this, getString(R.string.wrong_line_number_and_number, search));
 				}
@@ -184,7 +198,14 @@ public class BusStopCodeTab extends Activity {
 				// search for a bus stop code
 				if (BusUtils.isStopCodeValid(this, search)) {
 					if (saveToHistory) {
-						addToHistory(search);
+						// save to the history
+						new AsyncTask<String, Void, Void>() {
+							@Override
+							protected Void doInBackground(String... params) {
+								DataManager.addHistory(getContentResolver(), new DataStore.History(params[0]));
+								return null;
+							}
+						}.execute(search);
 					}
 					showBusStopInfo(search);
 				} else {
@@ -192,15 +213,6 @@ public class BusStopCodeTab extends Activity {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Add a value to the history.
-	 * @param search the search string.
-	 */
-	private void addToHistory(String search) {
-		// save to the history
-		DataManager.addHistory(getContentResolver(), new DataStore.History(search));
 	}
 
 	/**
@@ -222,7 +234,14 @@ public class BusStopCodeTab extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.history:
-			DataManager.deleteAllHistory(getContentResolver());
+		    // clear history
+			new AsyncTask<String, Void, Void>() {
+				@Override
+				protected Void doInBackground(String... params) {
+					DataManager.deleteAllHistory(getContentResolver());
+					return null;
+				}
+			}.execute();
 			return true;
 		}
 		return MenuUtils.handleCommonMenuActions(this, item);

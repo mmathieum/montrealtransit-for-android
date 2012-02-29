@@ -11,7 +11,7 @@
 	<!-- BUS LINE NUMBER -->
 	<TextView android:id="@+id/line_number" style="@style/BusLineNumber"
 	 	android:layout_centerVertical="true" android:layout_marginRight="5dip"
-		android:text="@string/default_line_number"
+		android:text="@string/ellipsis"
 		android:textColor="#FFFFFF"/>
 	<!-- BUS LINE NAME -->
 	<TextView android:id="@+id/line_name"
@@ -20,6 +20,6 @@
 		android:layout_centerVertical="true" android:layout_marginRight="3dip"
 		android:singleLine="true" android:ellipsize="marquee" android:gravity="center_vertical|left"
 		android:textAppearance="?android:attr/textAppearanceLarge"
-		android:text="@string/unknow_line_name"/>
+		android:text="@string/ellipsis"/>
 
 </RelativeLayout>

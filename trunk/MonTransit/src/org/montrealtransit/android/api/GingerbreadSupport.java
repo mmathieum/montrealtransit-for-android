@@ -3,14 +3,20 @@ package org.montrealtransit.android.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.services.NfcListener;
 
+import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.IntentFilter.MalformedMimeTypeException;
 import android.content.SharedPreferences.Editor;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
+import android.nfc.tech.NfcF;
 import android.os.Parcelable;
 
 /**
@@ -18,6 +24,11 @@ import android.os.Parcelable;
  * @author Mathieu Méa
  */
 public class GingerbreadSupport extends FroyoSupport {
+
+	/**
+	 * The log tag.
+	 */
+	private static final String TAG = GingerbreadSupport.class.getSimpleName();
 
 	/**
 	 * The default constructor.
@@ -47,5 +58,31 @@ public class GingerbreadSupport extends FroyoSupport {
 			stringRecords.add(new String(ndefRecord.getPayload()));
 		}
 		listener.processNfcRecords(stringRecords.toArray(new String[] {}));
+	}
+
+	@Override
+	public void enableNfcForegroundDispatch(Activity activity) {
+		NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(activity);
+		if (nfcAdapter != null) {
+			PendingIntent pendingIntent = PendingIntent.getActivity(activity, 0, new Intent(activity, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+			IntentFilter ndef = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
+			try {
+				// handles all MIME based dispatches (TODO should specify only the ones that you need)
+				ndef.addDataType("*/*");
+			} catch (MalformedMimeTypeException e) {
+				MyLog.w(TAG, "Error while constructing the NDEF filter!", e);
+			}
+			IntentFilter[] filters = new IntentFilter[] { ndef, };
+			String[][] techListsArray = new String[][] { new String[] { NfcF.class.getName() } };
+			nfcAdapter.enableForegroundDispatch(activity, pendingIntent, filters, techListsArray);
+		}
+	}
+
+	@Override
+	public void disableNfcForegroundDispatch(Activity activity) {
+		NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(activity);
+		if (nfcAdapter != null) {
+			nfcAdapter.disableForegroundDispatch(activity);
+		}
 	}
 }

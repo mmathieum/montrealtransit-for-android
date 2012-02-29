@@ -297,23 +297,18 @@ public class UserPreferences extends PreferenceActivity {
 				UserPreferences.this.versionCount++;
 				if (UserPreferences.this.versionCount >= 5) {
 					// show dialog
-					AlertDialog.Builder builder = new AlertDialog.Builder(UserPreferences.this);
-					builder.setTitle(R.string.demo_title);
-					builder.setMessage(R.string.demo_message);
-					builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							Utils.setDemoMode(UserPreferences.this);
-						}
-					});
-					builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.cancel();
-						}
-					});
-					builder.setCancelable(true);
-					builder.create().show();
+					new AlertDialog.Builder(UserPreferences.this).setTitle(R.string.demo_title).setMessage(R.string.demo_message)
+							.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									Utils.setDemoMode(UserPreferences.this);
+								}
+							}).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+								@Override
+								public void onClick(DialogInterface dialog, int which) {
+									dialog.cancel();
+								}
+							}).setCancelable(true).create().show();
 
 					UserPreferences.this.versionCount = 0; // reset counter
 				}

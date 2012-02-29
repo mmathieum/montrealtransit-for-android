@@ -222,7 +222,7 @@ public class TwitterUtils {
 	/**
 	 * Retrieve Access Token task.
 	 */
-	private class RetrieveAccessToken extends AsyncTask<Context, String, String> {
+	private class RetrieveAccessToken extends AsyncTask<Context, String, Boolean> {
 
 		/**
 		 * The context.
@@ -242,27 +242,31 @@ public class TwitterUtils {
 		}
 
 		@Override
-		protected String doInBackground(Context... params) {
+		protected Boolean doInBackground(Context... params) {
 			this.context = params[0];
 			try {
 				// retrieve the access token from the consumer and the OAuth verifier returner by the Twitter Callback URL
 				getProvider().retrieveAccessToken(getConsumer(this.context), this.oauth_verifier);
+				return true;
 			} catch (OAuthException oae) {
-				Utils.notifyTheUser(context, context.getString(R.string.twitter_auth_failed));
 				MyLog.w(TAG, oae, "Twitter OAuth error!");
+				return false;
 			}
-			return null;
 		}
 
 		@Override
-		protected void onPostExecute(String result) {
-			// saving the Twitter user account token and secret
-			TwitterApi newTwitterApi = new TwitterApi();
-			newTwitterApi.setToken(getConsumer(this.context).getToken());
-			newTwitterApi.setTokenSecret(getConsumer(this.context).getTokenSecret());
-			DataManager.addTwitterApi(this.context.getContentResolver(), newTwitterApi);
-			// notify the user of the success
-			Utils.notifyTheUser(this.context, this.context.getString(R.string.twitter_auth_success));
+		protected void onPostExecute(Boolean result) {
+			if (result) {
+				// saving the Twitter user account token and secret
+				TwitterApi newTwitterApi = new TwitterApi();
+				newTwitterApi.setToken(getConsumer(this.context).getToken());
+				newTwitterApi.setTokenSecret(getConsumer(this.context).getTokenSecret());
+				DataManager.addTwitterApi(this.context.getContentResolver(), newTwitterApi);
+				// notify the user of the success
+				Utils.notifyTheUser(this.context, this.context.getString(R.string.twitter_auth_success));
+			} else {
+				Utils.notifyTheUser(this.context, this.context.getString(R.string.twitter_auth_failed));
+			}
 		}
 
 	}

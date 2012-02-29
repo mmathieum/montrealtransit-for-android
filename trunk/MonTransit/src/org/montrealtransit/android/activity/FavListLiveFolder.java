@@ -32,7 +32,7 @@ public class FavListLiveFolder extends Activity {
 		if (LiveFolders.ACTION_CREATE_LIVE_FOLDER.equals(action)) {
 			List<DataStore.Fav> favList = DataManager.findFavsByTypeList(getContentResolver(),
 			        DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
-			if (Utils.getListSize(favList) > 0) {
+			if (Utils.getCollectionSize(favList) > 0) {
 				setResult(
 				        RESULT_OK,
 				        createLiveFolder(this, StmManager.getBusStopsFavUri(favList),

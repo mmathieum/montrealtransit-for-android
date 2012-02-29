@@ -30,7 +30,6 @@ import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.util.Linkify;
@@ -47,8 +46,7 @@ import android.widget.TextView;
  * Display a list of subway lines.
  * @author Mathieu Méa
  */
-public class SubwayTab extends Activity implements LocationListener, StmInfoStatusReaderListener,
-        ClosestSubwayStationsFinderListener {
+public class SubwayTab extends Activity implements LocationListener, StmInfoStatusReaderListener, ClosestSubwayStationsFinderListener {
 
 	/**
 	 * The log tag.
@@ -90,56 +88,6 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	private ClosestSubwayStationsFinderTask closestStationsTask;
 
 	/**
-	 * Refresh or not refresh status image.
-	 */
-	private ImageView statusRefreshOrNotImg;
-	/**
-	 * Refresh of not refresh closest stations image.
-	 */
-	private ImageView closestStationsRefreshOrNorImg;
-	/**
-	 * Closest stations progress bar.
-	 */
-	private View closestStationsProgressBarView;
-	/**
-	 * Status progress bar.
-	 */
-	private View statusProgressBarView;
-	/**
-	 * Status layout.
-	 */
-	private RelativeLayout statusLayout;
-	/**
-	 * Status title text view.
-	 */
-	private TextView statusTitleTv;
-	/**
-	 * Status loading layout.
-	 */
-	private RelativeLayout statusLoadingLayout;
-	/**
-	 * Status message text view.
-	 */
-	private TextView statusMsgTv;
-	/**
-	 * Closest stations title text view.
-	 */
-	private TextView closestStationsTitleTv;
-	/**
-	 * Closest stations layout.
-	 */
-	private LinearLayout closestStationsLayout;
-	/**
-	 * Closest stations loading layout.
-	 */
-	private RelativeLayout closestStationsLoadingLayout;
-
-	/**
-	 * The lines layout.
-	 */
-	private LinearLayout subwayLinesLayout;
-
-	/**
 	 * The current service status.
 	 */
 	private ServiceStatus serviceStatus = null;
@@ -155,50 +103,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		super.onCreate(savedInstanceState);
 		// set the UI
 		setContentView(R.layout.subway_tab);
-		// find the views.
-		this.statusRefreshOrNotImg = (ImageView) findViewById(R.id.subway_status_section_refresh_or_stop_refresh);
-		this.closestStationsRefreshOrNorImg = (ImageView) findViewById(R.id.closest_subway_stations_refresh);
-		View statusTitleSectionView = findViewById(R.id.subway_status_title);
-		this.statusProgressBarView = statusTitleSectionView.findViewById(R.id.progress_bar_status);
-		this.closestStationsProgressBarView = findViewById(R.id.closest_stations_title).findViewById(R.id.progress_bar_closest);
-		this.statusLayout = (RelativeLayout) findViewById(R.id.subway_status);
-		this.statusTitleTv = (TextView) statusTitleSectionView.findViewById(R.id.subway_status_section);
-		this.statusLoadingLayout = (RelativeLayout) findViewById(R.id.subway_status_loading);
-		this.statusMsgTv = (TextView) this.statusLayout.findViewById(R.id.subway_status_message);
-		this.closestStationsTitleTv = (TextView) findViewById(R.id.closest_subway_stations);
-		this.closestStationsLayout = (LinearLayout) findViewById(R.id.subway_stations_list);
-		this.closestStationsLoadingLayout = (RelativeLayout) findViewById(R.id.closest_stations_loading);
-		this.subwayLinesLayout = (LinearLayout) findViewById(R.id.subway_line_list);
-
-		if (Utils.isVersionOlderThan(Build.VERSION_CODES.DONUT)) {
-			onCreatePreDonut();
-		}
 		showAll();
-	}
-
-	/**
-	 * onCreate() method only for Android version older than Android 1.6.
-	 */
-	private void onCreatePreDonut() {
-		// since 'android:onClick' requires API Level 4
-		this.statusRefreshOrNotImg.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				refreshOrStopRefreshStatus(v);
-			}
-		});
-		findViewById(R.id.subway_status_section_info).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				showSubwayStatusInfoDialog(v);
-			}
-		});
-		this.closestStationsRefreshOrNorImg.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				refreshOrStopRefreshClosestStations(v);
-			}
-		});
 	}
 
 	@Override
@@ -206,14 +111,25 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		MyLog.v(TAG, "onResume()");
 		// IF location updates should be enabled DO
 		if (this.locationUpdatesEnabled) {
-			// IF there is a valid last know location DO
-			if (LocationUtils.getBestLastKnownLocation(this) != null) {
-				// set the new distance
-				setLocation(LocationUtils.getBestLastKnownLocation(this));
-				updateDistancesWithNewLocation();
-			}
-			// re-enable
-			LocationUtils.enableLocationUpdates(this, this);
+			new AsyncTask<Void, Void, Location>() {
+				@Override
+				protected Location doInBackground(Void... params) {
+					return LocationUtils.getBestLastKnownLocation(SubwayTab.this);
+				}
+
+				@Override
+				protected void onPostExecute(Location result) {
+					// IF there is a valid last know location DO
+					if (result != null) {
+						// set the new distance
+						setLocation(result);
+						updateDistancesWithNewLocation();
+					}
+					// re-enable
+					LocationUtils.enableLocationUpdates(SubwayTab.this, SubwayTab.this);
+				};
+
+			}.execute();
 		}
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		AdsUtils.setupAd(this);
@@ -231,20 +147,21 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 * Refresh all the UI.
 	 */
 	private void showAll() {
-		refreshSubwayLines();
-		showStatus();
+		refreshSubwayLinesFromDB();
+		showStatusFromDB();
 		showClosestStations();
 	}
 
 	/**
-	 * Refresh the subway lines UI.
+	 * Refresh the subway lines.
 	 */
-	private void refreshSubwayLines() {
-		List<SubwayLine> subwayLines = StmManager.findAllSubwayLinesList(this.getContentResolver());
+	private void refreshSubwayLinesFromDB() { // not asynchronous > more consistent
+		List<SubwayLine> result = StmManager.findAllSubwayLinesList(SubwayTab.this.getContentResolver());
+		LinearLayout subwayLinesLayout = (LinearLayout) findViewById(R.id.subway_line_list);
 		int i = 0;
-		for (SubwayLine subwayLine : subwayLines) {
+		for (SubwayLine subwayLine : result) {
 			// create view
-			View view = this.subwayLinesLayout.getChildAt(i++);
+			View view = subwayLinesLayout.getChildAt(i++);
 			// subway line type image
 			final int lineNumber = subwayLine.getNumber();
 			String subwayLineName = getString(SubwayUtils.getSubwayLineNameShort(lineNumber));
@@ -279,25 +196,36 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	/**
 	 * Show the subway status. Try to load the subway status if not exist
 	 */
-	public void showStatus() {
-		MyLog.v(TAG, "showStatus()");
-		// get the latest service status in the local database or NULL
-		this.serviceStatus = DataManager.findLatestServiceStatus(getContentResolver(), Utils.getSupportedUserLocale());
-		// IF there is no service status DO
-		if (this.serviceStatus == null) {
-			// look for new service status
-			refreshStatus();
-		} else {
-			// show latest service status
-			showNewStatus();
-			// check service age
-			int nowInSec = (int) (System.currentTimeMillis() / 1000);
-			// IF the latest service is too old DO
-			if (nowInSec >= this.serviceStatus.getReadDate() + STATUS_TOO_OLD_IN_SEC) {
-				// look for new service status
-				refreshStatus();
+	public void showStatusFromDB() {
+		MyLog.v(TAG, "showStatusFromDB()");
+		new AsyncTask<Void, Void, ServiceStatus>() {
+			@Override
+			protected ServiceStatus doInBackground(Void... params) {
+				// get the latest service status in the local database or NULL
+				return DataManager.findLatestServiceStatus(getContentResolver(), Utils.getSupportedUserLocale());
 			}
-		}
+
+			@Override
+			protected void onPostExecute(ServiceStatus result) {
+				SubwayTab.this.serviceStatus = result;
+				// IF there is no service status DO
+				if (SubwayTab.this.serviceStatus == null) {
+					// look for new service status
+					refreshStatus();
+				} else {
+					// show latest service status
+					showNewStatus();
+					// check service age
+					int nowInSec = (int) (System.currentTimeMillis() / 1000);
+					// IF the latest service is too old DO
+					if (nowInSec >= SubwayTab.this.serviceStatus.getReadDate() + STATUS_TOO_OLD_IN_SEC) {
+						// look for new service status
+						refreshStatus();
+					}
+				}
+			}
+
+		}.execute();
 	}
 
 	/**
@@ -306,34 +234,50 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	private void showNewStatus() {
 		MyLog.v(TAG, "showNewStatus()");
 		// hide loading (progress bar)
-		this.statusLoadingLayout.setVisibility(View.GONE);
+		findViewById(R.id.subway_status_loading).setVisibility(View.GONE);
 		if (this.serviceStatus != null) {
-			ImageView statusImg = (ImageView) this.statusLayout.findViewById(R.id.subway_status_img);
+			View statusLayout = findViewById(R.id.subway_status);
+			ImageView statusImg = (ImageView) statusLayout.findViewById(R.id.subway_status_img);
 			// set the status title with the date
 			CharSequence readTime = Utils.formatSameDayDateInSec(this.serviceStatus.getReadDate());
-			this.statusTitleTv.setText(getString(R.string.subway_status_hour, readTime));
+			final String sectionTitle = getString(R.string.subway_status_hour, readTime);
+			((TextView) findViewById(R.id.subway_status_title).findViewById(R.id.subway_status_section)).setText(sectionTitle);
+			// show message
+			statusLayout.setVisibility(View.VISIBLE);
 			// set the status message text
-			this.statusMsgTv.setText(this.serviceStatus.getMessage());
+			((TextView) statusLayout.findViewById(R.id.subway_status_message)).setText(this.serviceStatus.getMessage());
 			// set the status image (or not)
+			int statusImgDrawable = android.R.drawable.ic_dialog_info;
 			switch (this.serviceStatus.getType()) {
 			case ServiceStatus.STATUS_TYPE_RED:
 				statusImg.setVisibility(View.VISIBLE);
 				statusImg.setImageResource(R.drawable.status_red);
+				statusImgDrawable = R.drawable.status_red;
 				break;
 			case ServiceStatus.STATUS_TYPE_YELLOW:
 				statusImg.setVisibility(View.VISIBLE);
 				statusImg.setImageResource(R.drawable.status_yellow);
+				statusImgDrawable = R.drawable.status_yellow;
 				break;
 			case ServiceStatus.STATUS_TYPE_GREEN:
 				statusImg.setVisibility(View.VISIBLE);
 				statusImg.setImageResource(R.drawable.status_green);
+				statusImgDrawable = R.drawable.status_green;
 				break;
 			default:
 				statusImg.setVisibility(View.GONE);
 				break;
 			}
-			// show message
-			this.statusLayout.setVisibility(View.VISIBLE);
+			final int statusImgDrawable2 = statusImgDrawable;
+			statusLayout.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					MyLog.v(TAG, "onClick()");
+					new AlertDialog.Builder(SubwayTab.this).setIcon(statusImgDrawable2).setTitle(sectionTitle)
+							.setMessage(SubwayTab.this.serviceStatus.getMessage()).setCancelable(true).setPositiveButton(getString(android.R.string.ok), null)
+							.create().show();
+				}
+			});
 		}
 	}
 
@@ -345,7 +289,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		// IF the task is NOT already running DO
 		if (this.statusTask == null || !this.statusTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
 			setStatusLoading();
-			// read the subway status from twitter.com/stminfo
+			// read the subway status from http://twitter.com/stminfo
 			this.statusTask = new StmInfoStatusReader(this, this);
 			this.statusTask.execute();
 		}
@@ -376,23 +320,22 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		if (this.serviceStatus == null) {
 			// set the BIG loading message
 			// hide the status layout
-			this.statusLayout.setVisibility(View.GONE);
+			findViewById(R.id.subway_status).setVisibility(View.VISIBLE);
 			// clean the status
-			this.statusTitleTv.setText(R.string.subway_status);
+			((TextView) findViewById(R.id.subway_status).findViewById(R.id.subway_status_section)).setText(R.string.subway_status);
 			// show the loading layout
-			this.statusLoadingLayout.setVisibility(View.VISIBLE);
+			findViewById(R.id.subway_status_loading).setVisibility(View.VISIBLE);
 			// set the progress bar
-			TextView progressBarLoading = (TextView) this.statusLoadingLayout.findViewById(R.id.detail_msg);
+			TextView progressBarLoading = (TextView) findViewById(R.id.subway_status_loading).findViewById(R.id.detail_msg);
 			String loadingMsg = getString(R.string.downloading_data_from_and_source, StmInfoStatusReader.SOURCE);
 			progressBarLoading.setText(loadingMsg);
 			progressBarLoading.setVisibility(View.VISIBLE);
-		} else {
-			// just notify the user ?
+			// } else { // just notify the user ?
 		}
 		// show stop icon instead of refresh
-		this.statusRefreshOrNotImg.setVisibility(View.INVISIBLE);
+		findViewById(R.id.subway_status_title).findViewById(R.id.subway_status_section_refresh_or_stop_refresh).setVisibility(View.INVISIBLE);
 		// show progress bar
-		this.statusProgressBarView.setVisibility(View.VISIBLE);
+		findViewById(R.id.subway_status_title).findViewById(R.id.progress_bar_status).setVisibility(View.VISIBLE);
 	}
 
 	/**
@@ -401,9 +344,9 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	private void setStatusNotLoading() {
 		MyLog.v(TAG, "setStatusNotLoading()");
 		// show refresh icon instead of loading
-		this.statusRefreshOrNotImg.setVisibility(View.VISIBLE);
+		findViewById(R.id.subway_status_title).findViewById(R.id.subway_status_section_refresh_or_stop_refresh).setVisibility(View.VISIBLE);
 		// hide progress bar
-		this.statusProgressBarView.setVisibility(View.INVISIBLE);
+		findViewById(R.id.subway_status_title).findViewById(R.id.progress_bar_status).setVisibility(View.INVISIBLE);
 	}
 
 	/**
@@ -411,15 +354,16 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 */
 	private void setStatusCancelled() {
 		MyLog.v(TAG, "setStatusCancelled()");
+		// IF there is already a status DO
 		if (this.serviceStatus != null) {
 			// notify the user but keep showing the old status ?
 			Utils.notifyTheUser(this, getString(R.string.subway_status_loading_cancelled));
 		} else {
 			// show the BIG cancel message
-			this.statusMsgTv.setText(getString(R.string.subway_status_loading_cancelled));
-			this.statusLayout.setVisibility(View.VISIBLE);
+			findViewById(R.id.subway_status).setVisibility(View.VISIBLE);
+			((TextView) findViewById(R.id.subway_status).findViewById(R.id.subway_status_message)).setText(getString(R.string.subway_status_loading_cancelled));
 			// hide loading (progress bar)
-			this.statusLoadingLayout.setVisibility(View.GONE);
+			findViewById(R.id.subway_status_loading).setVisibility(View.GONE);
 		}
 		setStatusNotLoading();
 	}
@@ -437,10 +381,10 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		} else {
 			// show the BIG error message
 			// hide loading (progress bar)
-			this.statusLoadingLayout.setVisibility(View.GONE);
+			findViewById(R.id.subway_status_loading).setVisibility(View.GONE);
 			// show message
-			this.statusLayout.setVisibility(View.VISIBLE);
-			this.statusMsgTv.setText(errorMessage);
+			findViewById(R.id.subway_status).setVisibility(View.VISIBLE); // inflate ViewStub
+			((TextView) findViewById(R.id.subway_status).findViewById(R.id.subway_status_message)).setText(errorMessage);
 		}
 		setStatusNotLoading();
 	}
@@ -454,12 +398,23 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			setStatusError(errorMessage);
 		} else {
 			// notify the user ?
-			// get the latest service status in the local database or NULL
-			this.serviceStatus = DataManager.findLatestServiceStatus(getContentResolver(),
-			        Utils.getSupportedUserLocale());
-			// show latest service status
-			showNewStatus();
-			setStatusNotLoading();
+			new AsyncTask<Void, Void, ServiceStatus>() {
+				@Override
+				protected ServiceStatus doInBackground(Void... params) {
+					// get the latest service status in the local database or NULL
+					return DataManager.findLatestServiceStatus(getContentResolver(), Utils.getSupportedUserLocale());
+				}
+
+				@Override
+				protected void onPostExecute(ServiceStatus result) {
+					MyLog.v(TAG, "onPostExecute()");
+					// get the latest service status in the local database or NULL
+					SubwayTab.this.serviceStatus = result;
+					// show latest service status
+					showNewStatus();
+					setStatusNotLoading();
+				}
+			}.execute();
 		}
 	}
 
@@ -469,18 +424,13 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 */
 	public void showSubwayStatusInfoDialog(View v) {
 		MyLog.v(TAG, "showSubwayStatusInfoDialog()");
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(getString(R.string.subway_status));
-		builder.setIcon(R.drawable.ic_btn_info_details);
 		TextView messageTv = new TextView(this);
 		messageTv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 		messageTv.setPadding(15, 15, 15, 15); // TODO custom dialog
 		messageTv.setText(getString(R.string.subway_status_message));
 		Linkify.addLinks(messageTv, Linkify.WEB_URLS);
-		builder.setView(messageTv);
-		builder.setPositiveButton(getString(android.R.string.ok), null);
-		builder.setCancelable(true);
-		builder.create().show();
+		new AlertDialog.Builder(this).setTitle(getString(R.string.subway_status)).setIcon(R.drawable.ic_btn_info_details).setView(messageTv)
+				.setPositiveButton(getString(android.R.string.ok), null).setCancelable(true).create().show();
 	}
 
 	/**
@@ -517,24 +467,23 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		MyLog.v(TAG, "showNewClosestStations()");
 		if (this.closestStations != null) {
 			// set the closest station title
-			String text = LocationUtils.getLocationString(this, this.closestStations.getLocationAddress(),
-			        this.closestStations.getLocation().getAccuracy());
-			// MyLog.d(TAG, "text:" + text);
-			this.closestStationsTitleTv.setText(text);
+			String text = LocationUtils.getLocationString(this, this.closestStations.getLocationAddress(), this.closestStations.getLocation().getAccuracy());
+			((TextView) findViewById(R.id.closest_stations_title).findViewById(R.id.closest_subway_stations)).setText(text);
 			// hide loading
-			this.closestStationsLoadingLayout.setVisibility(View.GONE);
+			findViewById(R.id.closest_stations_loading).setVisibility(View.GONE);
 			// clear the previous list
-			this.closestStationsLayout.removeAllViews();
+			LinearLayout closestStationsLayout = (LinearLayout) findViewById(R.id.closest_stations);
+			closestStationsLayout.removeAllViews();
 			// show stations list
-			this.closestStationsLayout.setVisibility(View.VISIBLE);
+			closestStationsLayout.setVisibility(View.VISIBLE);
 			int i = 1;
 			for (ASubwayStation station : this.closestStations.getStations()) {
 				// list view divider
-				if (this.closestStationsLayout.getChildCount() > 0) {
-					this.closestStationsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+				if (closestStationsLayout.getChildCount() > 0) {
+					closestStationsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
 				}
 				// create view
-				View view = getLayoutInflater().inflate(R.layout.subway_tab_subway_stations_list_item, null);
+				View view = getLayoutInflater().inflate(R.layout.subway_tab_subway_closest_stations_list_item, null);
 				view.setTag("station" + i++);
 				// subway station name
 				((TextView) view.findViewById(R.id.station_name)).setText(station.getName());
@@ -569,16 +518,18 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 				}
 				// add click listener
 				final String subwayStationId = station.getId();
+				final String subwayStationName = station.getName();
 				view.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
 						MyLog.v(TAG, "onClick(%s)", v.getId());
 						Intent intent = new Intent(SubwayTab.this, SubwayStationInfo.class);
 						intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, subwayStationId);
+						intent.putExtra(SubwayStationInfo.EXTRA_STATION_NAME, subwayStationName);
 						startActivity(intent);
 					}
 				});
-				this.closestStationsLayout.addView(view);
+				closestStationsLayout.addView(view);
 			}
 		}
 	}
@@ -624,26 +575,27 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 */
 	private void setClosestStationsLoading() {
 		MyLog.v(TAG, "setClosestStationsLoading()");
+		View closestStationsTitle = findViewById(R.id.closest_stations_title);
 		if (this.closestStations == null) {
 			// set the BIG loading message
 			// remove last location from the list divider
-			this.closestStationsTitleTv.setText(R.string.closest_subway_stations);
+			((TextView) closestStationsTitle.findViewById(R.id.closest_subway_stations)).setText(R.string.closest_subway_stations);
 			// hide the list
-			this.closestStationsLayout.setVisibility(View.GONE);
+			findViewById(R.id.closest_stations).setVisibility(View.GONE);
 			// clean the list
-			this.closestStationsLayout.removeAllViews(); // useful ?
+			((LinearLayout) findViewById(R.id.closest_stations)).removeAllViews(); // useful ?
 			// show loading
-			this.closestStationsLoadingLayout.setVisibility(View.VISIBLE);
+			findViewById(R.id.closest_stations_loading).setVisibility(View.VISIBLE);
 			// show waiting for location
-			TextView detailMsgTv = (TextView) this.closestStationsLoadingLayout.findViewById(R.id.detail_msg);
+			TextView detailMsgTv = (TextView) findViewById(R.id.closest_stations_loading).findViewById(R.id.detail_msg);
 			detailMsgTv.setText(R.string.waiting_for_location_fix);
 			detailMsgTv.setVisibility(View.VISIBLE);
 			// } else { just notify the user ?
 		}
 		// show stop icon instead of refresh
-		this.closestStationsRefreshOrNorImg.setVisibility(View.INVISIBLE);
+		closestStationsTitle.findViewById(R.id.closest_subway_stations_refresh).setVisibility(View.INVISIBLE);
 		// show progress bar
-		this.closestStationsProgressBarView.setVisibility(View.VISIBLE);
+		closestStationsTitle.findViewById(R.id.progress_bar_closest).setVisibility(View.VISIBLE);
 	}
 
 	/**
@@ -651,10 +603,11 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 */
 	private void setClosestStationsNotLoading() {
 		MyLog.v(TAG, "setClosestStationsNotLoading()");
+		View closestStationsTitle = findViewById(R.id.closest_stations_title);
 		// show refresh icon instead of loading
-		this.closestStationsRefreshOrNorImg.setVisibility(View.VISIBLE);
+		closestStationsTitle.findViewById(R.id.closest_subway_stations_refresh).setVisibility(View.VISIBLE);
 		// hide progress bar
-		this.closestStationsProgressBarView.setVisibility(View.INVISIBLE);
+		closestStationsTitle.findViewById(R.id.progress_bar_closest).setVisibility(View.INVISIBLE);
 	}
 
 	/**
@@ -662,17 +615,15 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 */
 	private void setClosestStationsCancelled() {
 		MyLog.v(TAG, "setClosestStationsCancelled()");
-		// if (this.closestStations != null) { notify the user ?
-		// Utils.notifyTheUser(this, getString(R.string.closest_subway_stations_cancelled));
 		if (this.closestStations == null) {
 			// update the BIG cancel message
 			TextView cancelMsgTv = new TextView(this);
 			cancelMsgTv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 			cancelMsgTv.setText(getString(R.string.closest_subway_stations_cancelled));
-			this.closestStationsLayout.addView(cancelMsgTv);
+			((LinearLayout) findViewById(R.id.closest_stations)).addView(cancelMsgTv);
 			// hide loading
-			this.closestStationsLoadingLayout.setVisibility(View.GONE);
-			this.closestStationsLayout.setVisibility(View.VISIBLE);
+			findViewById(R.id.closest_stations_loading).setVisibility(View.GONE);
+			findViewById(R.id.closest_stations).setVisibility(View.VISIBLE);
 		}
 		setClosestStationsNotLoading();
 	}
@@ -691,10 +642,10 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			TextView cancelMsgTv = new TextView(this);
 			cancelMsgTv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 			cancelMsgTv.setText(getString(R.string.closest_subway_stations_error));
-			this.closestStationsLayout.addView(cancelMsgTv);
+			((LinearLayout) findViewById(R.id.closest_stations)).addView(cancelMsgTv);
 			// hide loading
-			this.closestStationsLoadingLayout.setVisibility(View.GONE);
-			this.closestStationsLayout.setVisibility(View.VISIBLE);
+			findViewById(R.id.closest_stations_loading).setVisibility(View.GONE);
+			findViewById(R.id.closest_stations).setVisibility(View.VISIBLE);
 		}
 		setClosestStationsNotLoading();
 	}
@@ -705,8 +656,8 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		// if (this.closestStations != null) {notify the user ?
 		if (this.closestStations == null) {
 			// update the BIG message
-			this.closestStationsLoadingLayout.setVisibility(View.VISIBLE);
-			TextView detailMsgTv = (TextView) this.closestStationsLoadingLayout.findViewById(R.id.detail_msg);
+			findViewById(R.id.closest_stations_loading).setVisibility(View.VISIBLE);
+			TextView detailMsgTv = (TextView) findViewById(R.id.closest_stations_loading).findViewById(R.id.detail_msg);
 			detailMsgTv.setText(progress);
 			detailMsgTv.setVisibility(View.VISIBLE);
 		}
@@ -760,10 +711,10 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 */
 	private void refreshClosestSubwayStationsDistancesList() {
 		MyLog.v(TAG, "refreshClosestSubwayStationsDistancesList()");
-		this.closestStationsLayout.setVisibility(View.VISIBLE);
+		findViewById(R.id.closest_stations).setVisibility(View.VISIBLE);
 		int i = 1;
 		for (ASubwayStation station : this.closestStations.getStations()) {
-			View stationView = this.closestStationsLayout.findViewWithTag("station" + i++);
+			View stationView = findViewById(R.id.closest_stations).findViewWithTag("station" + i++);
 			if (stationView != null && !TextUtils.isEmpty(station.getDistanceString())) {
 				((TextView) stationView.findViewById(R.id.distance)).setText(station.getDistanceString());
 			}
@@ -787,15 +738,27 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 */
 	public Location getLocation() {
 		if (this.location == null) {
-			Location bestLastKnownLocationOrNull = LocationUtils.getBestLastKnownLocation(this);
-			if (bestLastKnownLocationOrNull != null) {
-				this.setLocation(bestLastKnownLocationOrNull);
-			}
-			// enable location updates if necessary
-			if (!this.locationUpdatesEnabled) {
-				LocationUtils.enableLocationUpdates(this, this);
-				this.locationUpdatesEnabled = true;
-			}
+			new AsyncTask<Void, Void, Location>() {
+				@Override
+				protected Location doInBackground(Void... params) {
+					// MyLog.v(TAG, "doInBackground()");
+					return LocationUtils.getBestLastKnownLocation(SubwayTab.this);
+				}
+
+				@Override
+				protected void onPostExecute(Location result) {
+					// MyLog.v(TAG, "onPostExecute()");
+					if (result != null) {
+						SubwayTab.this.setLocation(result);
+					}
+					// enable location updates if necessary
+					if (!SubwayTab.this.locationUpdatesEnabled) {
+						LocationUtils.enableLocationUpdates(SubwayTab.this, SubwayTab.this);
+						SubwayTab.this.locationUpdatesEnabled = true;
+					}
+				}
+
+			}.execute();
 		}
 		return this.location;
 	}
@@ -854,8 +817,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		if (super.onPrepareOptionsMenu(menu)) {
 			// TWITTER
-			menu.findItem(R.id.twitter).setTitle(
-			        TwitterUtils.isConnected(this) ? R.string.menu_twitter_logout : R.string.menu_twitter_login);
+			menu.findItem(R.id.twitter).setTitle(TwitterUtils.isConnected(this) ? R.string.menu_twitter_logout : R.string.menu_twitter_login);
 			return true;
 		} else {
 			MyLog.w(TAG, "Error in onPrepareOptionsMenu().");
