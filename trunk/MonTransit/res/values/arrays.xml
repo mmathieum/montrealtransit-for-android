@@ -26,10 +26,12 @@
 
 	<!-- NEXT BUS STOP PROVIDER PREFERENCES -->
 	<string-array name="next_stop_pref_entries">
+	    <item>@string/next_stop_pref_auto</item>
 		<item>@string/next_stop_pref_stmmobile</item>
 		<item>@string/next_stop_pref_stminfo</item>
 	</string-array>
 	<string-array name="next_stop_pref_values">
+	    <item>auto</item>
 		<item>stmmobile</item>
 		<item>stminfo</item>
 	</string-array>

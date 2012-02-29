@@ -34,6 +34,7 @@ import org.montrealtransit.android.provider.StmStore.SubwayStation;
 import org.montrealtransit.android.services.GeocodingTask;
 import org.montrealtransit.android.services.GeocodingTaskListener;
 import org.montrealtransit.android.services.NfcListener;
+import org.montrealtransit.android.services.nextstop.AutomaticTask;
 import org.montrealtransit.android.services.nextstop.NextStopListener;
 import org.montrealtransit.android.services.nextstop.StmInfoTask;
 import org.montrealtransit.android.services.nextstop.StmMobileTask;
@@ -448,22 +449,24 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	 */
 	public void showNextStopsInfoDialog(View v) {
 		MyLog.v(TAG, "showNextStopsInfoDialog()");
-		String source;
+		String message;
 		if (this.hours != null) {
-			source = this.hours.getSourceName();
+			message = getString(R.string.next_bus_stops_message_and_source, this.hours.getSourceName());
 		} else {
-			if (getProviderFromPref().equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_INFO)) {
-				source = StmInfoTask.SOURCE_NAME;
-			} else if (getProviderFromPref().equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_MOBILE)) {
-				source = StmMobileTask.SOURCE_NAME;
+			String provider = getProviderFromPref();
+			if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_INFO)) {
+				message = getString(R.string.next_bus_stops_message_and_source, StmInfoTask.SOURCE_NAME);
+			} else if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_MOBILE)) {
+				message = getString(R.string.next_bus_stops_message_and_source, StmMobileTask.SOURCE_NAME);
+			} else if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_AUTO)) {
+				message = getString(R.string.next_bus_stops_message_auto);
 			} else {
-				MyLog.w(TAG, "Unknow next stop provider '%s'", getProviderFromPref());
-				source = StmMobileTask.SOURCE_NAME; // default STM mobile
+				MyLog.w(TAG, "Unknow next stop provider '%s'", provider);
+				message = getString(R.string.next_bus_stops_message_auto); // default Auto
 			}
 		}
-		new AlertDialog.Builder(this).setTitle(getString(R.string.next_bus_stops)).setIcon(R.drawable.ic_btn_info_details)
-				.setMessage(getString(R.string.next_bus_stops_message_and_source, source)).setPositiveButton(getString(android.R.string.ok), null)
-				.setCancelable(true).create().show();
+		new AlertDialog.Builder(this).setTitle(getString(R.string.next_bus_stops)).setIcon(R.drawable.ic_btn_info_details).setMessage(message)
+				.setPositiveButton(getString(android.R.string.ok), null).setCancelable(true).create().show();
 	}
 
 	/**
@@ -933,15 +936,19 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		if (this.task == null || !this.task.getStatus().equals(AsyncTask.Status.RUNNING)) {
 			setNextStopsLoading();
 			// find the next bus stop
-			if (getProviderFromPref().equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_INFO)) {
+			String provider = getProviderFromPref();
+			if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_INFO)) {
 				this.task = new StmInfoTask(this, this);
 				this.task.execute(this.busStop);
-			} else if (getProviderFromPref().equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_MOBILE)) {
+			} else if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_MOBILE)) {
 				this.task = new StmMobileTask(this, this);
 				this.task.execute(this.busStop);
+			} else if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_AUTO)) {
+				this.task = new AutomaticTask(this, this);
+				this.task.execute(this.busStop);
 			} else {
-				MyLog.w(TAG, "Unknow next stop provider '%s'", getProviderFromPref());
-				this.task = new StmMobileTask(this, this); // default STM mobile
+				MyLog.w(TAG, "Unknow next stop provider '%s'", provider);
+				this.task = new AutomaticTask(this, this); // default Auto
 				this.task.execute(this.busStop);
 			}
 		}
@@ -1059,6 +1066,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 					// IF there is also an error message from the STM DO
 					if (!TextUtils.isEmpty(hours.getMessage())) {
 						this.message2Tv.setVisibility(View.VISIBLE);
+						this.message2Tv.setText(hours.getMessage());
 						Linkify.addLinks(this.message2Tv, Linkify.ALL);
 					}
 					// ELSE IF there is only an error message from the STM DO
@@ -1284,6 +1292,14 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	}
 
 	/**
+	 * Switch to 'Auto' provider.
+	 * @param v the view (not used)
+	 */
+	public void switchToAutoProvider(View v) {
+		switchProvider(UserPreferences.PREFS_NEXT_STOP_PROVIDER_AUTO);
+	}
+
+	/**
 	 * Switch to a new provider.
 	 * @param providerPref the new provider (preferences key)
 	 */
@@ -1372,10 +1388,13 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		MyLog.v(TAG, "onPrepareOptionsMenu()");
 		if (super.onPrepareOptionsMenu(menu)) {
 			// PROVIDERs
-			if (getProviderFromPref().equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_INFO)) {
+			String provider = getProviderFromPref();
+			if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_MOBILE)) {
+				menu.findItem(R.id.provider_stm_mobile).setChecked(true);
+			} else if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_INFO)) {
 				menu.findItem(R.id.provider_stm_info).setChecked(true);
 			} else {
-				menu.findItem(R.id.provider_stm_mobile).setChecked(true);
+				menu.findItem(R.id.provider_auto).setChecked(true); // default = Auto
 			}
 			return true;
 		} else {
@@ -1402,6 +1421,9 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		case R.id.provider_stm_mobile:
 			switchToStmMobileProvider(null);
 			return true;
+		case R.id.provider_auto:
+			switchToAutoProvider(null);
+			return true;
 		}
 		return MenuUtils.handleCommonMenuActions(this, item);
 
@@ -1409,9 +1431,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (key.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER)) {
-			// TODO reload if error?
-		} else if (key.equals(UserPreferences.PREFS_BUS_STOP_LOCATION)) {
+		if (key.equals(UserPreferences.PREFS_BUS_STOP_LOCATION)) {
 			findBusStopLocation();
 		}
 	}

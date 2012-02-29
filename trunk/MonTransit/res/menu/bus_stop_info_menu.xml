@@ -14,8 +14,9 @@
 		android:title="@string/select_next_stop_data_source">
 		<menu>
 			<group android:id="@+id/provider" android:checkableBehavior="single">
-				<item android:id="@+id/provider_stm_mobile" android:title="m.stm.info" />
-				<item android:id="@+id/provider_stm_info" android:title="www.stm.info" />
+			    <item android:id="@+id/provider_auto" android:title="@string/next_stop_pref_auto" />
+				<item android:id="@+id/provider_stm_mobile" android:title="@string/next_stop_pref_stmmobile" />
+				<item android:id="@+id/provider_stm_info" android:title="@string/next_stop_pref_stminfo" />
 			</group>
 		</menu>
 	</item>

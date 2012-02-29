@@ -18,6 +18,7 @@ import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.BusStopHours;
+import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.provider.StmStore;
 
 import android.content.Context;
@@ -66,7 +67,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 			publishProgress(context.getString(R.string.downloading_data_from_and_source, StmMobileTask.SOURCE_NAME));
 			URL url = new URL(urlString);
 			URLConnection urlc = url.openConnection();
-			MyLog.d(TAG, "URL created: '%s'", url.toString());
+			// MyLog.d(TAG, "URL created: '%s'", url.toString());
 			HttpURLConnection httpUrlConnection = (HttpURLConnection) urlc;
 			switch (httpUrlConnection.getResponseCode()) {
 			case HttpURLConnection.HTTP_OK:
@@ -81,22 +82,33 @@ public class StmMobileTask extends AbstractNextStopProvider {
 				if (hours.keySet().contains(lineNumber)) {
 					publishProgress(this.context.getResources().getString(R.string.done));
 				} else {
-					// no info on m.stm.info about this bus stop
-					errorMessage = this.context
-					        .getString(R.string.bus_stop_no_info_and_source, lineNumber, SOURCE_NAME);
-					publishProgress(errorMessage);
-					hours.put(lineNumber, new BusStopHours(SOURCE_NAME, errorMessage));
-					AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR,
-					        AnalyticsUtils.ACTION_BUS_STOP_NO_INFO, busStops[0].getUID(), context.getPackageManager()
-					                .getPackageInfo(Constant.PKG, 0).versionCode);
+					// try to find a generic error message
+					Pair<String, String> errors = findServiceNotAvailable(html);
+					if (errors != null && !TextUtils.isEmpty(errors.first)) {
+						publishProgress(errors.first);
+						BusStopHours hour = new BusStopHours(SOURCE_NAME);
+						if (!TextUtils.isEmpty(errors.second)) {
+							hour.addMessage2String(errors.first);
+							hour.addMessageString(errors.second);
+						} else {
+							hour.addMessageString(errors.first);
+						}
+						hours.put(lineNumber, hour);
+					} else {
+						// no info on m.stm.info about this bus stop
+						errorMessage = this.context.getString(R.string.bus_stop_no_info_and_source, lineNumber, SOURCE_NAME);
+						publishProgress(errorMessage);
+						hours.put(lineNumber, new BusStopHours(SOURCE_NAME, errorMessage));
+					}
+					AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BUS_STOP_NO_INFO, busStops[0].getUID(), context
+							.getPackageManager().getPackageInfo(Constant.PKG, 0).versionCode);
 				}
 				return hours;
 			case HttpURLConnection.HTTP_INTERNAL_ERROR:
-				errorMessage = this.context.getString(R.string.error_http_500_and_source,
-				        this.context.getString(R.string.select_next_stop_data_source));
+				errorMessage = this.context.getString(R.string.error_http_500_and_source, this.context.getString(R.string.select_next_stop_data_source));
 			default:
-				MyLog.w(TAG, "Error: HTTP URL-Connection Response Code:%s (Message: %s)",
-				        httpUrlConnection.getResponseCode(), httpUrlConnection.getResponseMessage());
+				MyLog.w(TAG, "Error: HTTP URL-Connection Response Code:%s (Message: %s)", httpUrlConnection.getResponseCode(),
+						httpUrlConnection.getResponseMessage());
 				hours.put(lineNumber, new BusStopHours(SOURCE_NAME, errorMessage));
 				return hours;
 			}
@@ -119,10 +131,10 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	}
 
 	/**
-	 * The pattern to extract the bus line number from the HTML source.
+	 * The pattern to extract the bus line number(s) from the HTML source.
 	 */
 	private static final Pattern PATTERN_REGEX_LINE_NUMBER = Pattern.compile("<p class=\"route-desc\">[\\s]*"
-	        + "<a href=\"/bus/arrets/(([0-9]{1,3}))\" class=\"stm-link\">");
+			+ "<a href=\"/bus/arrets/(([0-9]{1,3}))\" class=\"stm-link\">");
 
 	/**
 	 * @param html the HTML source
@@ -134,6 +146,26 @@ public class StmMobileTask extends AbstractNextStopProvider {
 		Matcher matcher = PATTERN_REGEX_LINE_NUMBER.matcher(html);
 		while (matcher.find()) {
 			result.add(matcher.group(1));
+		}
+		return result;
+	}
+
+	/**
+	 * The pattern to extract the bus line number from the HTML source.
+	 */
+	private static final Pattern PATTERN_REGEX_SERVICE_NOT_AVAILABLE = Pattern.compile("<div id=\"main\">[\\s]*" + "<h2 id=\"main-title\">([^<]*)</h2>[\\s]*"
+			+ "<p>([^<]*)</p>[\\s]*" + "</div>");
+
+	/**
+	 * @param html the HTML source
+	 * @return the bus line number included in the HTML source
+	 */
+	private Pair<String, String> findServiceNotAvailable(String html) {
+		MyLog.v(TAG, "findServiceNotAvailable(%s)", html.length());
+		Pair<String, String> result = null;
+		Matcher matcher = PATTERN_REGEX_SERVICE_NOT_AVAILABLE.matcher(html);
+		while (matcher.find()) {
+			result = new Pair<String, String>(matcher.group(1), matcher.group(2));
 		}
 		return result;
 	}
@@ -180,8 +212,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 				if (!TextUtils.isEmpty(noteMessage)) {
 					String concernedBusStops = findNoteStops(notesPart);
 					if (!TextUtils.isEmpty(concernedBusStops)) {
-						result.addMessageString(this.context.getString(R.string.next_bus_stops_note, concernedBusStops,
-						        noteMessage));
+						result.addMessageString(this.context.getString(R.string.next_bus_stops_note, concernedBusStops, noteMessage));
 					} else {
 						result.addMessageString(noteMessage);
 					}
@@ -209,8 +240,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	/**
 	 * The pattern for the route schedule.
 	 */
-	private static final Pattern PATTERN_REGEX_FOR_ROUTE_SCHEDULE = Pattern
-	        .compile("<p class=\"route-schedules\">[^<]*</p>[\\s]*");
+	private static final Pattern PATTERN_REGEX_FOR_ROUTE_SCHEDULE = Pattern.compile("<p class=\"route-schedules\">[^<]*</p>[\\s]*");
 
 	/**
 	 * @param interestingPart the bus line part
@@ -234,10 +264,9 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	private String findNotesPart(String interestingPart, String lineNumber) {
 		MyLog.v(TAG, "findNotesPart(%s)", interestingPart.length(), lineNumber);
 		String result = null;
-		String regex = "<div class=\"notes\">[\\s]*" + "<div class=\"wrapper\">[\\s]*" + "("
-		        + "<div class=\"heure\">[^d]*div>[\\s]*" + "|" + "<div class=\"ligne\">" + lineNumber + "</div>[\\s]*"
-		        + ")" + "<div class=\"message\">[^<]*</div>[\\s]*" + "<div class=\"clearfloat\">[^<]*</div>[\\s]*"
-		        + "</div>[\\s]*" + "</div>[\\s]*";
+		String regex = "<div class=\"notes\">[\\s]*" + "<div class=\"wrapper\">[\\s]*" + "(" + "<div class=\"heure\">[^d]*div>[\\s]*" + "|"
+				+ "<div class=\"ligne\">" + lineNumber + "</div>[\\s]*" + ")" + "<div class=\"message\">[^<]*</div>[\\s]*"
+				+ "<div class=\"clearfloat\">[^<]*</div>[\\s]*" + "</div>[\\s]*" + "</div>[\\s]*";
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(interestingPart);
 		while (matcher.find()) {
@@ -256,9 +285,8 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	private String findMipsPart(String interestingPart, String lineNumber) {
 		MyLog.v(TAG, "findMipsPart(%s)", interestingPart.length(), lineNumber);
 		String result = null;
-		String regex = "<div class=\"mips\">[\\s]*" + "<div class=\"wrapper\">[\\s]*" + "<div class=\"ligne\">"
-		        + lineNumber + "</div>[\\s]*" + "<div class=\"message\">[^</]*</div>[\\s]*"
-		        + "<div class=\"clearfloat\">[^<]*</div>[\\s]*" + "</div>[\\s]*" + "</div>[\\s]*";
+		String regex = "<div class=\"mips\">[\\s]*" + "<div class=\"wrapper\">[\\s]*" + "<div class=\"ligne\">" + lineNumber + "</div>[\\s]*"
+				+ "<div class=\"message\">[^</]*</div>[\\s]*" + "<div class=\"clearfloat\">[^<]*</div>[\\s]*" + "</div>[\\s]*" + "</div>[\\s]*";
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(interestingPart);
 		while (matcher.find()) {
@@ -276,8 +304,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	private String findDivMessage(String interestingPart, String lineNumber) {
 		MyLog.v(TAG, "findDivMessage(%s)", interestingPart.length(), lineNumber);
 		String result = null;
-		String regex = "<a href=\"/bus/arrets/" + lineNumber + "\" [^>]*" + "[^<]*</a>[^<]*"
-					+"<div>([^<]*)</div>[\\s]*";
+		String regex = "<a href=\"/bus/arrets/" + lineNumber + "\" [^>]*" + "[^<]*</a>[^<]*" + "<div>([^<]*)</div>[\\s]*";
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(interestingPart);
 		while (matcher.find()) {
@@ -285,7 +312,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * The pattern used for stops note.
 	 */
@@ -358,18 +385,14 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	private String getInterestingPart(String html, String lineNumber) {
 		MyLog.v(TAG, "getInterestingPart(%s, %s)", html.length(), lineNumber);
 		String result = null;
-		String regex = "<div class=\"route\">[\\s]*" + "<p class=\"route-desc\">[\\s]*" + "<a href=\"/bus/arrets/"
-		        + lineNumber + "\" [^>]*[^<]*</a>[^<]*" + "(<div>[^<]*</div>[^<]*)?" + "</p>[^<]*"
-		        + "<p class=\"route-schedules\">[^<]*</p>[\\s]*" + "(" + "<div class=\"notes\">[\\s]*"
-		        + "<div class=\"wrapper\">[\\s]*" + "<div class=\"heure\">[^d]*div>[\\s]*"
-		        + "<div class=\"message\">[^<]*</div>[\\s]*" + "<div class=\"clearfloat\">[^<]*</div>[\\s]*"
-		        + "</div>[\\s]*" + "</div>[\\s]*" + ")?" + "(" + "<div class=\"notes\">[\\s]*"
-		        + "<div class=\"wrapper\">[\\s]*" + "<div class=\"ligne\">" + lineNumber + "</div>[\\s]*"
-		        + "<div class=\"message\">[^<]*</div>[\\s]*" + "<div class=\"clearfloat\">[^<]*</div>[\\s]*"
-		        + "</div>[\\s]*" + "</div>[\\s]*" + ")?" + "(" + "<div class=\"mips\">[\\s]*"
-		        + "<div class=\"wrapper\">[\\s]*" + "<div class=\"ligne\">" + lineNumber + "</div>[\\s]*"
-		        + "<div class=\"message\">[^</]*</div>[\\s]*" + "<div class=\"clearfloat\">[^<]*</div>[\\s]*"
-		        + "</div>[\\s]*" + "</div>[\\s]*" + ")?" + "</div>";
+		String regex = "<div class=\"route\">[\\s]*" + "<p class=\"route-desc\">[\\s]*" + "<a href=\"/bus/arrets/" + lineNumber + "\" [^>]*[^<]*</a>[^<]*"
+				+ "(<div>[^<]*</div>[^<]*)?" + "</p>[^<]*" + "<p class=\"route-schedules\">[^<]*</p>[\\s]*" + "(" + "<div class=\"notes\">[\\s]*"
+				+ "<div class=\"wrapper\">[\\s]*" + "<div class=\"heure\">[^d]*div>[\\s]*" + "<div class=\"message\">[^<]*</div>[\\s]*"
+				+ "<div class=\"clearfloat\">[^<]*</div>[\\s]*" + "</div>[\\s]*" + "</div>[\\s]*" + ")?" + "(" + "<div class=\"notes\">[\\s]*"
+				+ "<div class=\"wrapper\">[\\s]*" + "<div class=\"ligne\">" + lineNumber + "</div>[\\s]*" + "<div class=\"message\">[^<]*</div>[\\s]*"
+				+ "<div class=\"clearfloat\">[^<]*</div>[\\s]*" + "</div>[\\s]*" + "</div>[\\s]*" + ")?" + "(" + "<div class=\"mips\">[\\s]*"
+				+ "<div class=\"wrapper\">[\\s]*" + "<div class=\"ligne\">" + lineNumber + "</div>[\\s]*" + "<div class=\"message\">[^</]*</div>[\\s]*"
+				+ "<div class=\"clearfloat\">[^<]*</div>[\\s]*" + "</div>[\\s]*" + "</div>[\\s]*" + ")?" + "</div>";
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(html);
 		while (matcher.find()) {

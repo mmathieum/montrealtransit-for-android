@@ -90,6 +90,10 @@ public class UserPreferences extends PreferenceActivity {
 	 */
 	public static final String PREFS_NEXT_STOP_PROVIDER = "pNextStopProvider";
 	/**
+	 * The preference value for automatic next stop provider.
+	 */
+	public static final String PREFS_NEXT_STOP_PROVIDER_AUTO = "auto";
+	/**
 	 * The preference value for the next stop provider stm.info.
 	 */
 	public static final String PREFS_NEXT_STOP_PROVIDER_STM_INFO = "stminfo";
@@ -100,7 +104,7 @@ public class UserPreferences extends PreferenceActivity {
 	/**
 	 * The default value for the bus lines display.
 	 */
-	public static final String PREFS_NEXT_STOP_PROVIDER_DEFAULT = PREFS_NEXT_STOP_PROVIDER_STM_MOBILE;
+	public static final String PREFS_NEXT_STOP_PROVIDER_DEFAULT = PREFS_NEXT_STOP_PROVIDER_AUTO;
 
 	/**
 	 * The preference key for the search.
