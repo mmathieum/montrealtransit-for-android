@@ -30,7 +30,7 @@
     		android:singleLine="true" android:ellipsize="marquee"
     		android:focusable="true" android:gravity="center_vertical|left"
     		android:textAppearance="?android:attr/textAppearanceLarge" android:textStyle="bold"
-    		android:text="@string/unknow_subway" />
+    		android:text="@string/ellipsis" />
     </RelativeLayout>
 
 	<!-- SUBWAY STATIONS  -->

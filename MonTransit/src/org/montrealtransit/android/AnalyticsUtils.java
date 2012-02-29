@@ -4,6 +4,7 @@ import org.montrealtransit.android.api.SupportFactory;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.telephony.TelephonyManager;
 
@@ -99,7 +100,7 @@ public class AnalyticsUtils {
 	 * @param context the context
 	 * @return the Google Analytics tracker
 	 */
-	private static GoogleAnalyticsTracker getGoogleAnalyticsTracker(Context context) {
+	private synchronized static GoogleAnalyticsTracker getGoogleAnalyticsTracker(final Context context) {
 		MyLog.v(TAG, "getGoogleAnalyticsTracker()");
 		if (tracker == null) {
 			MyLog.v(TAG, "Initializing the Google Analytics tracker...");
@@ -120,28 +121,28 @@ public class AnalyticsUtils {
 	 * Initialize the Google Analytics tracker with user device properties.
 	 * @param context the context
 	 */
-	private static void initTrackerWithUserData(Context context) {
+	private static void initTrackerWithUserData(Context context, GoogleAnalyticsTracker tracker) {
 		// only 5 Custom Variables allowed!
 
 		// 1 - Application version
 		try {
 			PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
 			String appVersion = packageInfo.versionName;
-			MyLog.v(TAG, "app_version: '%s'.", appVersion);
-			getGoogleAnalyticsTracker(context).setCustomVar(CUSTOM_VAR_INDEX_APP_VERSION, "version", appVersion, SCOPE_VISITOR_LEVEL);
+			// MyLog.d(TAG, "app_version: '%s'.", appVersion);
+			tracker.setCustomVar(CUSTOM_VAR_INDEX_APP_VERSION, "version", appVersion, SCOPE_VISITOR_LEVEL);
 			// getTracker(context).setProductVersion("MonTransit", appVersion);
 		} catch (Exception e) {
 		}
 
 		// 2 - Android version
 		String androidVersion = Build.VERSION.RELEASE;
-		MyLog.v(TAG, "os_rel: '%s'.", androidVersion);
-		getGoogleAnalyticsTracker(context).setCustomVar(CUSTOM_VAR_INDEX_ANDROID_VERSION, "android", androidVersion, SCOPE_VISITOR_LEVEL);
+		// MyLog.d(TAG, "os_rel: '%s'.", androidVersion);
+		tracker.setCustomVar(CUSTOM_VAR_INDEX_ANDROID_VERSION, "android", androidVersion, SCOPE_VISITOR_LEVEL);
 
 		// 3 - Android SDK
 		String sdk = Build.VERSION.SDK;
-		MyLog.v(TAG, "sdk_version: '%s'.", sdk);
-		getGoogleAnalyticsTracker(context).setCustomVar(CUSTOM_VAR_INDEX_SDK_VERSION, "sdk", sdk, SCOPE_VISITOR_LEVEL);
+		// MyLog.d(TAG, "sdk_version: '%s'.", sdk);
+		tracker.setCustomVar(CUSTOM_VAR_INDEX_SDK_VERSION, "sdk", sdk, SCOPE_VISITOR_LEVEL);
 
 		// 4 - Device
 		String device = "";
@@ -149,15 +150,15 @@ public class AnalyticsUtils {
 			device += SupportFactory.getInstance(context).getBuildManufacturer() + " ";
 		}
 		device += Build.MODEL;
-		MyLog.v(TAG, "device: '%s'.", device);
-		getGoogleAnalyticsTracker(context).setCustomVar(CUSTOM_VAR_INDEX_DEVICE, "device", device, SCOPE_VISITOR_LEVEL);
+		// MyLog.d(TAG, "device: '%s'.", device);
+		tracker.setCustomVar(CUSTOM_VAR_INDEX_DEVICE, "device", device, SCOPE_VISITOR_LEVEL);
 
 		// 5 - Network Operator
 		try {
 			TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 			String operator = telephonyManager.getNetworkOperatorName();
-			MyLog.v(TAG, "operator: '%s'.", operator);
-			getGoogleAnalyticsTracker(context).setCustomVar(CUSTOM_VAR_INDEX_OPERATOR, "operator", operator, SCOPE_VISITOR_LEVEL);
+			// MyLog.d(TAG, "operator: '%s'.", operator);
+			tracker.setCustomVar(CUSTOM_VAR_INDEX_OPERATOR, "operator", operator, SCOPE_VISITOR_LEVEL);
 		} catch (Exception e) {
 		}
 		// already provided by Analytics:
@@ -173,11 +174,23 @@ public class AnalyticsUtils {
 	 * @param label the event label
 	 * @param value the event value
 	 */
-	public static void trackEvent(Context context, String category, String action, String label, int value) {
+	public static void trackEvent(Context context, final String category, final String action, final String label,
+	        final int value) {
 		MyLog.v(TAG, "trackEvent()");
 		if (TRACKING) {
-			initTrackerWithUserData(context);
-			getGoogleAnalyticsTracker(context).trackEvent(category, action, label, value);
+			GoogleAnalyticsTracker gaTracker = getGoogleAnalyticsTracker(context);
+			initTrackerWithUserData(context, gaTracker);
+			new AsyncTask<GoogleAnalyticsTracker, Void, Void>() {
+				@Override
+				protected Void doInBackground(GoogleAnalyticsTracker... params) {
+					try {
+						params[0].trackEvent(category, action, label, value);
+					} catch (Throwable t) {
+						MyLog.w(TAG, t, "Error while tracing view!");
+					}
+					return null;
+				}
+			}.execute(gaTracker);
 		}
 	}
 
@@ -186,15 +199,22 @@ public class AnalyticsUtils {
 	 * @param context the context
 	 * @param page the viewed page.
 	 */
-	public static void trackPageView(Context context, String page) {
+	public static void trackPageView(Context context, final String page) {
 		MyLog.v(TAG, "trackPageView(%s)", page);
 		if (TRACKING) {
-			try {
-				initTrackerWithUserData(context);
-				getGoogleAnalyticsTracker(context).trackPageView(page);
-			} catch (Throwable t) {
-				MyLog.w(TAG, t, "Error while tracing view.");
-			}
+			GoogleAnalyticsTracker gaTracker = getGoogleAnalyticsTracker(context);
+			initTrackerWithUserData(context, gaTracker);
+			new AsyncTask<GoogleAnalyticsTracker, Void, Void>() {
+				@Override
+				protected Void doInBackground(GoogleAnalyticsTracker... params) {
+					try {
+						params[0].trackPageView(page);
+					} catch (Throwable t) {
+						MyLog.w(TAG, t, "Error while tracing view!");
+					}
+					return null;
+				}
+			}.execute(gaTracker);
 		}
 	}
 

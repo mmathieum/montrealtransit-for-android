@@ -59,7 +59,7 @@
 			android:singleLine="true" android:ellipsize="marquee"
 			android:focusable="true" android:gravity="center_vertical|left"
 			android:textAppearance="?android:attr/textAppearanceLarge" android:textStyle="bold"
-			android:text="@string/unknow_subway" />
+			android:text="@string/ellipsis" />
 		<!-- DISTANCE -->
 		<TextView android:id="@+id/distance"
 			android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -91,13 +91,16 @@
 					android:gravity="center_vertical"
 					android:text="@string/hours_string" />
 			</RelativeLayout>
+			<include layout="@layout/loading_small_layout" android:id="@+id/hours_loading"
+			    android:layout_width="fill_parent" android:layout_height="?android:attr/listPreferredItemHeight" />
 			<LinearLayout android:id="@+id/hours_list"
 				android:layout_width="fill_parent" android:layout_height="wrap_content"
 				android:orientation="vertical" />
 			<!-- BUS LINES -->
 			<RelativeLayout android:id="@+id/bus_line"
 				android:layout_width="fill_parent" android:layout_height="25dip"
-				android:background="@drawable/dark_header_dither">
+				android:background="@drawable/dark_header_dither"
+				android:visibility="gone">
 				<ImageView android:id="@+id/bus_logo"
 					android:layout_width="wrap_content" android:layout_height="fill_parent"
 					android:layout_alignParentLeft="true"

@@ -9,7 +9,8 @@
 		android:layout_centerVertical="true"
 		android:layout_marginRight="3dip"
 		style="?android:attr/android:progressBarStyle"
-		android:indeterminate="true" />
+		android:indeterminate="true"
+		android:visibility="gone" />
 	<!-- Loading message (GONE by default) -->
 	<TextView android:id="@+id/detail_msg"
 		android:layout_width="fill_parent" android:layout_height="wrap_content"

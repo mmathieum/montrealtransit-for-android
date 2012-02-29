@@ -30,7 +30,6 @@ import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.FilterQueryProvider;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.SimpleExpandableListAdapter;
@@ -147,7 +146,7 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 					if (lineNumber == null) {
 						return false;
 					}
-					new BusLineSelectDirection(BusLineListTab.this, lineNumber).showDialog();
+					new BusLineSelectDirection(BusLineListTab.this, lineNumber, null).showDialog();
 					return true;
 				} else {
 					MyLog.w(TAG, "unknown view id: %s", parent.getId());
@@ -161,7 +160,7 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 				MyLog.v(TAG, "onItemClick(%s, %s,%s,%s)", l.getId(), v.getId(), position, id);
 				if (l.getId() == R.id.list) {
 					// MyLog.d(TAG, "lineNumber: %s", lineNumber);
-					new BusLineSelectDirection(BusLineListTab.this, String.valueOf(id)).showDialog();
+					new BusLineSelectDirection(BusLineListTab.this, String.valueOf(id), null).showDialog();
 				} else {
 					MyLog.w(TAG, "unknown view id: %s", v.getId());
 				}
@@ -201,11 +200,70 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 		        || getGroupByPref().equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_DAY_NIGHT)) {
 			// expendable list
 			showEListView();
-			new SetBusEListTask().execute(getGroupByPref());
+			new AsyncTask<String, Void, ExpandableListAdapter>() {
+
+				@Override
+				protected ExpandableListAdapter doInBackground(String... arg0) {
+					// load the adapter
+					return getEAdapterFromSettings(arg0[0]);
+				}
+
+				@Override
+				protected void onPostExecute(ExpandableListAdapter result) {
+					// MyLog.v(TAG, "onPostExecute()");
+					BusLineListTab.this.elist.setAdapter(result);
+					super.onPostExecute(result);
+				}
+			}.execute(getGroupByPref());
+
 		} else {
 			// list
 			showListView();
-			this.list.setAdapter(getAdapterFromSettings(getGroupByPref()));
+			new AsyncTask<Void, Void, Cursor>() {
+				@Override
+				protected Cursor doInBackground(Void... params) {
+					// MyLog.v(TAG, "doInBackground()");
+					return StmManager.findAllBusLines(BusLineListTab.this.getContentResolver());
+				}
+
+				protected void onPostExecute(Cursor result) {
+					BusLineListTab.this.cursor = result;
+					String[] from = new String[] { StmStore.BusLine.LINE_NUMBER, StmStore.BusLine.LINE_NAME,
+					        StmStore.BusLine.LINE_TYPE };
+					int[] to = new int[] { R.id.line_number, R.id.line_name, R.id.line_type };
+					SimpleCursorAdapter adapter = new SimpleCursorAdapter(BusLineListTab.this,
+					        R.layout.bus_line_list_item, BusLineListTab.this.cursor, from, to);
+					adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+						@Override
+						public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+							switch (view.getId()) {
+							case R.id.line_type:
+								String type = cursor.getString(cursor.getColumnIndex(StmStore.BusLine.LINE_TYPE));
+								((ImageView) view).setImageResource(BusUtils.getBusLineTypeImgFromType(type));
+								return true;
+							case R.id.line_number:
+								String number = cursor.getString(cursor.getColumnIndex(StmStore.BusLine.LINE_NUMBER));
+								((TextView) view).setText(number);
+								String type2 = cursor.getString(cursor.getColumnIndex(StmStore.BusLine.LINE_TYPE));
+								((TextView) view).setBackgroundColor(BusUtils.getBusLineTypeBgColorFromType(type2));
+								return true;
+							default:
+								return false;
+							}
+						}
+					});
+					adapter.setFilterQueryProvider(new FilterQueryProvider() {
+						@Override
+						public Cursor runQuery(CharSequence constraint) {
+							MyLog.v(TAG, "runQuery(%s)", constraint);
+							return StmManager.searchAllBusLines(BusLineListTab.this.getContentResolver(),
+							        constraint.toString());
+						}
+					});
+					startManagingCursor(BusLineListTab.this.cursor);
+					BusLineListTab.this.list.setAdapter(adapter);
+				};
+			}.execute();
 		}
 	}
 
@@ -269,63 +327,6 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 			MyLog.w(TAG, "Unknow exandable list adapter '%s'", busListGroupBy);
 			return getAdapterByNumber(); // default group by (expandable)
 		}
-	}
-
-	/**
-	 * Return the list adapter from the bus list "group by" preference.</br> <b>WARING:</b> use {@link BusLineListTab#getEAdapterFromSettings(String)} for the
-	 * expandable list view.
-	 * @param busListGroupBy the bus list "group by" preference.
-	 * @return the list adapter.
-	 */
-	private ListAdapter getAdapterFromSettings(String busListGroupBy) {
-		MyLog.v(TAG, "getAdapterFromSettings(%s)", busListGroupBy);
-		if (busListGroupBy.equals(UserPreferences.PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP)) {
-			return getAdapterNoGroupBy();
-		} else {
-			MyLog.w(TAG, "Unknow list adapter '%s'", busListGroupBy);
-			return getAdapterNoGroupBy(); // default group by
-		}
-	}
-
-	/**
-	 * Return the list adapter for the bus lines list (no group by).
-	 * @return the list adapter
-	 */
-	private ListAdapter getAdapterNoGroupBy() {
-		MyLog.v(TAG, "getAdapterNoGroupBy()");
-		this.cursor = StmManager.findAllBusLines(this.getContentResolver());
-		String[] from = new String[] { StmStore.BusLine.LINE_NUMBER, StmStore.BusLine.LINE_NAME,
-		        StmStore.BusLine.LINE_TYPE };
-		int[] to = new int[] { R.id.line_number, R.id.line_name, R.id.line_type };
-		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.bus_line_list_item, this.cursor, from, to);
-		adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
-			@Override
-			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-				switch (view.getId()) {
-				case R.id.line_type:
-					String type = cursor.getString(cursor.getColumnIndex(StmStore.BusLine.LINE_TYPE));
-					((ImageView) view).setImageResource(BusUtils.getBusLineTypeImgFromType(type));
-					return true;
-				case R.id.line_number:
-					String number = cursor.getString(cursor.getColumnIndex(StmStore.BusLine.LINE_NUMBER));
-					((TextView) view).setText(number);
-					String type2 = cursor.getString(cursor.getColumnIndex(StmStore.BusLine.LINE_TYPE));
-					((TextView) view).setBackgroundColor(BusUtils.getBusLineTypeBgColorFromType(type2));
-					return true;
-				default:
-					return false;
-				}
-			}
-		});
-		adapter.setFilterQueryProvider(new FilterQueryProvider() {
-			@Override
-			public Cursor runQuery(CharSequence constraint) {
-				MyLog.v(TAG, "runQuery(%s)", constraint);
-				return StmManager.searchAllBusLines(BusLineListTab.this.getContentResolver(), constraint.toString());
-			}
-		});
-		startManagingCursor(cursor);
-		return adapter;
 	}
 
 	/**
@@ -594,26 +595,6 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 		}
 		PreferenceManager.getDefaultSharedPreferences(this).unregisterOnSharedPreferenceChangeListener(this);
 		super.onDestroy();
-	}
-
-	/**
-	 * This task create the expandable list adapter in a other thread.
-	 */
-	private class SetBusEListTask extends AsyncTask<String, String, ExpandableListAdapter> {
-
-		@Override
-		protected ExpandableListAdapter doInBackground(String... arg0) {
-			String busListGroupBy = arg0[0];
-			// load the adapter
-			return getEAdapterFromSettings(busListGroupBy);
-		}
-
-		@Override
-		protected void onPostExecute(ExpandableListAdapter result) {
-			MyLog.v(TAG, "onPostExecute()");
-			BusLineListTab.this.elist.setAdapter(result);
-			super.onPostExecute(result);
-		}
 	}
 
 	/**

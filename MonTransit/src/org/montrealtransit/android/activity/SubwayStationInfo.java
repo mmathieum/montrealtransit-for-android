@@ -1,7 +1,9 @@
 package org.montrealtransit.android.activity;
 
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
@@ -20,6 +22,7 @@ import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
+import org.montrealtransit.android.provider.StmStore.BusLine;
 import org.montrealtransit.android.provider.StmStore.SubwayLine;
 import org.montrealtransit.android.provider.StmStore.SubwayStation;
 
@@ -29,6 +32,7 @@ import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
@@ -59,6 +63,10 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	 */
 	public static final String EXTRA_STATION_ID = "station_id";
 	/**
+	 * Extra for the subway station name (not required).
+	 */
+	public static final String EXTRA_STATION_NAME = "station_name";
+	/**
 	 * The subway station.
 	 */
 	private StmStore.SubwayStation subwayStation;
@@ -71,43 +79,6 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	 */
 	private boolean locationUpdatesEnabled = false;
 
-	/**
-	 * The favorite star check box.
-	 */
-	private CheckBox startCb;
-	/**
-	 * The connecting bus lines layout.
-	 */
-	private LinearLayout busLinesLayout;
-	/**
-	 * The connecting bus lines view.
-	 */
-	private View busLineTitleView;
-	/**
-	 * The hours list layout.
-	 */
-	private LinearLayout hoursListLayout;
-	/**
-	 * The station name text view.
-	 */
-	private TextView stationNameTv;
-	/**
-	 * The first subway line type image.
-	 */
-	private ImageView lineTypeImg1;
-	/**
-	 * The second subway line type image.
-	 */
-	private ImageView lineTypeImg2;
-	/**
-	 * The third subway line type image.
-	 */
-	private ImageView lineTypeImg3;
-	/**
-	 * The distance text view.
-	 */
-	private TextView distanceTv;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
@@ -115,29 +86,21 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 		// set the UI
 		setContentView(R.layout.subway_station_info);
 
-		this.startCb = (CheckBox) findViewById(R.id.star);
-		this.busLinesLayout = (LinearLayout) findViewById(R.id.bus_line_list);
-		this.busLineTitleView = findViewById(R.id.bus_line);
-		this.hoursListLayout = (LinearLayout) findViewById(R.id.hours_list);
-		this.stationNameTv = (TextView) findViewById(R.id.station_name);
-		this.lineTypeImg1 = (ImageView) findViewById(R.id.subway_line_1);
-		this.lineTypeImg2 = (ImageView) findViewById(R.id.subway_line_2);
-		this.lineTypeImg3 = (ImageView) findViewById(R.id.subway_line_3);
-		this.distanceTv = (TextView) findViewById(R.id.distance);
-
 		if (Utils.isVersionOlderThan(Build.VERSION_CODES.DONUT)) {
 			onCreatePreDonut();
 		}
 
 		// show the subway station
-		showNewSubwayStation(Utils.getSavedStringValue(this.getIntent(), savedInstanceState, EXTRA_STATION_ID));
+		String stationId = Utils.getSavedStringValue(getIntent(), savedInstanceState, EXTRA_STATION_ID);
+		String stationName = Utils.getSavedStringValue(getIntent(), savedInstanceState, EXTRA_STATION_NAME);
+		showNewSubwayStation(stationId, stationName);
 	}
 
 	/**
 	 * onCreate() method only for Android versions older than 1.6.
 	 */
 	private void onCreatePreDonut() {
-		this.startCb.setOnClickListener(new View.OnClickListener() {
+		((CheckBox) findViewById(R.id.star)).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				addOrRemoveFavorite(v);
@@ -181,39 +144,68 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	 * @param v the view (not used)
 	 */
 	public void addOrRemoveFavorite(View v) {
-		// try to find the existing favorite
-		Fav findFav = DataManager.findFav(getContentResolver(), Fav.KEY_TYPE_VALUE_SUBWAY_STATION,
-		        this.subwayStation.getId(), null);
-		// IF the station is already a favorite DO
-		if (findFav != null) {
-			// delete the favorite
-			DataManager.deleteFav(SubwayStationInfo.this.getContentResolver(), findFav.getId());
-			Utils.notifyTheUser(SubwayStationInfo.this, getString(R.string.favorite_removed));
-		} else {
-			// add the favorite
-			Fav newFav = new Fav();
-			newFav.setType(Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
-			newFav.setFkId(SubwayStationInfo.this.subwayStation.getId());
-			newFav.setFkId2(null);
-			DataManager.addFav(SubwayStationInfo.this.getContentResolver(), newFav);
-			Utils.notifyTheUser(SubwayStationInfo.this, getString(R.string.favorite_added));
-			UserPreferences.savePrefLcl(this, UserPreferences.PREFS_LCL_IS_FAV, true);
-		}
-		SupportFactory.getInstance(this).backupManagerDataChanged();
-		setTheStar(); // TODO is remove useless?
+		new AsyncTask<String, Void, Boolean>() {
+			@Override
+			protected Boolean doInBackground(String... params) {
+				// try to find the existing favorite
+				Fav findFav = DataManager.findFav(getContentResolver(), Fav.KEY_TYPE_VALUE_SUBWAY_STATION, params[0], null);
+				// IF the station is already a favorite DO
+				if (findFav != null) {
+					// delete the favorite
+					DataManager.deleteFav(SubwayStationInfo.this.getContentResolver(), findFav.getId());
+					SupportFactory.getInstance(SubwayStationInfo.this).backupManagerDataChanged();
+					return false;
+				} else {
+					// add the favorite
+					Fav newFav = new Fav();
+					newFav.setType(Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
+					newFav.setFkId(SubwayStationInfo.this.subwayStation.getId());
+					newFav.setFkId2(null);
+					DataManager.addFav(SubwayStationInfo.this.getContentResolver(), newFav);
+					UserPreferences.savePrefLcl(SubwayStationInfo.this, UserPreferences.PREFS_LCL_IS_FAV, true);
+					SupportFactory.getInstance(SubwayStationInfo.this).backupManagerDataChanged();
+					return true;
+				}
+			}
+
+			@Override
+			protected void onPostExecute(Boolean result) {
+				if (result) {
+					Utils.notifyTheUser(SubwayStationInfo.this, getString(R.string.favorite_added));
+				} else {
+					Utils.notifyTheUser(SubwayStationInfo.this, getString(R.string.favorite_removed));
+				}
+				setTheStar(); // TODO is remove useless?
+			};
+
+		}.execute(this.subwayStation.getId());
 	}
 
 	/**
 	 * Show a new subway station
 	 * @param newStationId the new subway station ID
 	 */
-	private void showNewSubwayStation(String newStationId) {
-		MyLog.v(TAG, "showNewSubwayStation(%s)", newStationId);
+	private void showNewSubwayStation(String newStationId, String newStationName) {
+		MyLog.v(TAG, "showNewSubwayStation(%s, %s)", newStationId, newStationName);
+		// temporary set station name
+		((TextView) findViewById(R.id.station_name)).setText(newStationName);
 		if (this.subwayStation == null || !this.subwayStation.getId().equals(newStationId)) {
-			MyLog.v(TAG, "display a new subway station");
-			this.subwayStation = StmManager.findSubwayStation(getContentResolver(), newStationId);
-			this.subwayLines = StmManager.findSubwayStationLinesList(getContentResolver(), this.subwayStation.getId());
-			refreshAll();
+			new AsyncTask<String, Void, Pair<SubwayStation, List<SubwayLine>>>() {
+				@Override
+				protected Pair<SubwayStation, List<SubwayLine>> doInBackground(String... params) {
+					// MyLog.d(TAG, "display a new subway station");
+					SubwayStation findSubwayStation = StmManager.findSubwayStation(getContentResolver(), params[0]);
+					List<SubwayLine> findSubwayStationLinesList = StmManager.findSubwayStationLinesList(getContentResolver(), findSubwayStation.getId());
+					return new Pair<SubwayStation, List<SubwayLine>>(findSubwayStation, findSubwayStationLinesList);
+				}
+
+				@Override
+				protected void onPostExecute(Pair<SubwayStation, List<SubwayLine>> result) {
+					SubwayStationInfo.this.subwayStation = result.first;
+					SubwayStationInfo.this.subwayLines = result.second;
+					refreshAll();
+				};
+			}.execute(newStationId);
 		}
 	}
 
@@ -242,73 +234,99 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	 * Refresh the subway station schedule.
 	 */
 	private void refreshSchedule() {
-		List<StmStore.SubwayLine> subwayLines = StmManager.findSubwayStationLinesList(getContentResolver(),
-		        this.subwayStation.getId());
-		// FOR EACH subway line DO
-		for (StmStore.SubwayLine subwayLine : subwayLines) {
-			// FIRST direction
-			StmStore.SubwayStation firstSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(
-			        getContentResolver(), subwayLine.getNumber(), StmStore.SubwayStation.NATURAL_SORT_ORDER);
-			// IF the direction is not the subway station DO
-			if (!this.subwayStation.getId().equals(firstSubwayStationDirection.getId())) {
-				// list divider
-				if (this.hoursListLayout.getChildCount() > 0) {
-					this.hoursListLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+		findViewById(R.id.hours_loading).setVisibility(View.VISIBLE);
+		findViewById(R.id.hours_list).setVisibility(View.GONE);
+		new AsyncTask<String, Void, Void>() {
+			private List<StmStore.SubwayLine> subwayLines;
+			private Map<Integer, SubwayStation> firstSubwayStationDirections;
+			private Map<Integer, SubwayStation> lastSubwayStationDirections;
+
+			@Override
+			protected Void doInBackground(String... params) {
+				subwayLines = StmManager.findSubwayStationLinesList(SubwayStationInfo.this.getContentResolver(), params[0]);
+				firstSubwayStationDirections = new HashMap<Integer, SubwayStation>();
+				lastSubwayStationDirections = new HashMap<Integer, SubwayStation>();
+				// FOR EACH subway line DO
+				for (StmStore.SubwayLine subwayLine : subwayLines) {
+					// FIRST direction
+					StmStore.SubwayStation firstSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(getContentResolver(),
+							subwayLine.getNumber(), StmStore.SubwayStation.NATURAL_SORT_ORDER);
+					firstSubwayStationDirections.put(subwayLine.getNumber(), firstSubwayStationDirection);
+					// SECOND direction
+					StmStore.SubwayStation lastSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(getContentResolver(),
+							subwayLine.getNumber(), StmStore.SubwayStation.NATURAL_SORT_ORDER_DESC);
+					lastSubwayStationDirections.put(subwayLine.getNumber(), lastSubwayStationDirection);
 				}
-				// list view
-				this.hoursListLayout.addView(getDirectionView(subwayLine, firstSubwayStationDirection));
-			}
-			// SECOND direction
-			StmStore.SubwayStation lastSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(
-			        getContentResolver(), subwayLine.getNumber(), StmStore.SubwayStation.NATURAL_SORT_ORDER_DESC);
-			// IF the direction is not the subway station DO
-			if (!this.subwayStation.getId().equals(lastSubwayStationDirection.getId())) {
-				// list divider
-				if (this.hoursListLayout.getChildCount() > 0) {
-					this.hoursListLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
-				}
-				// list view
-				this.hoursListLayout.addView(getDirectionView(subwayLine, lastSubwayStationDirection));
+				return null;
 			}
 
-		}
-	}
+			@Override
+			protected void onPostExecute(Void result) {
+				// FOR EACH subway line DO
+				for (StmStore.SubwayLine subwayLine : subwayLines) {
+					LinearLayout hoursListLayout = (LinearLayout) findViewById(R.id.hours_list);
+					// FIRST direction
+					// IF the direction is not the subway station DO
+					if (!SubwayStationInfo.this.subwayStation.getId().equals(firstSubwayStationDirections.get(subwayLine.getNumber()).getId())) {
+						// list divider
+						if (hoursListLayout.getChildCount() > 0) {
+							hoursListLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+						}
+						// list view
+						hoursListLayout.addView(getDirectionView(subwayLine, firstSubwayStationDirections.get(subwayLine.getNumber())));
+					}
+					// SECOND direction
+					// IF the direction is not the subway station DO
+					if (!SubwayStationInfo.this.subwayStation.getId().equals(lastSubwayStationDirections.get(subwayLine.getNumber()).getId())) {
+						// list divider
+						if (hoursListLayout.getChildCount() > 0) {
+							hoursListLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+						}
+						// list view
+						hoursListLayout.addView(getDirectionView(subwayLine, lastSubwayStationDirections.get(subwayLine.getNumber())));
+					}
+				}
+				findViewById(R.id.hours_loading).setVisibility(View.GONE);
+				findViewById(R.id.hours_list).setVisibility(View.VISIBLE);
+			};
 
-	/**
-	 * @param subwayLine the subway line
-	 * @param subwayStationDir the direction
-	 * @return the direction view for the subway line and the direction
-	 */
-	private View getDirectionView(SubwayLine subwayLine, SubwayStation subwayStationDir) {
-		// MyLog.v(TAG, "getDirectionView(" + subwayLine.getNumber() + ", " + subwayStationDir.getId() + ")");
-		// find day and hour (minus 2 hours)
-		Calendar now = Calendar.getInstance();
-		now.add(Calendar.HOUR, -2);
-		String dayOfTheWeek = Utils.getDayOfTheWeek(now);
-		String time = Utils.getTimeOfTheDay(now);
-		// create view
-		View dView = getLayoutInflater().inflate(R.layout.subway_station_info_line_schedule_direction, null);
-		// SUBWAY LINE color
-		int subwayLineImgId = SubwayUtils.getSubwayLineImgId(subwayLine.getNumber());
-		((ImageView) dView.findViewById(R.id.subway_img)).setImageResource(subwayLineImgId);
-		// DIRECTION - SUBWAY STATION name
-		((TextView) dView.findViewById(R.id.direction_station)).setText(subwayStationDir.getName());
-		// FIRST LAST DEPARTURE
-		Pair<String, String> deps = StmManager.findSubwayStationDepartures(getContentResolver(),
-		        this.subwayStation.getId(), subwayStationDir.getId(), dayOfTheWeek);
-		String firstCleanDep = Utils.formatHours(this, deps.first);
-		String secondCleanDep = Utils.formatHours(this, deps.second);
-		((TextView) dView.findViewById(R.id.direction_hours)).setText(firstCleanDep + " - " + secondCleanDep);
-		// FREQUENCY
-		String frequency = StmManager.findSubwayDirectionFrequency(getContentResolver(), subwayStationDir.getId(),
-		        dayOfTheWeek, time);
-		if (frequency != null) {
-			String dirFreq = getString(R.string.minutes_and_minutes, frequency);
-			((TextView) dView.findViewById(R.id.direction_frequency)).setText(dirFreq);
-		} else {
-			((TextView) dView.findViewById(R.id.direction_frequency)).setText(R.string.no_service);
-		}
-		return dView;
+			/**
+			 * @param subwayLine the subway line
+			 * @param subwayStationDir the direction
+			 * @return the direction view for the subway line and the direction
+			 */
+			private View getDirectionView(SubwayLine subwayLine, SubwayStation subwayStationDir) {
+				// MyLog.v(TAG, "getDirectionView(" + subwayLine.getNumber() + ", " + subwayStationDir.getId() + ")");
+				// find day and hour (minus 2 hours)
+				Calendar now = Calendar.getInstance();
+				now.add(Calendar.HOUR, -2);
+				String dayOfTheWeek = Utils.getDayOfTheWeek(now);
+				String time = Utils.getTimeOfTheDay(now);
+				// create view
+				View dView = getLayoutInflater().inflate(R.layout.subway_station_info_line_schedule_direction, null);
+				// SUBWAY LINE color
+				int subwayLineImgId = SubwayUtils.getSubwayLineImgId(subwayLine.getNumber());
+				((ImageView) dView.findViewById(R.id.subway_img)).setImageResource(subwayLineImgId);
+				// DIRECTION - SUBWAY STATION name
+				((TextView) dView.findViewById(R.id.direction_station)).setText(subwayStationDir.getName());
+				// FIRST LAST DEPARTURE
+				Pair<String, String> deps = StmManager.findSubwayStationDepartures(getContentResolver(), SubwayStationInfo.this.subwayStation.getId(),
+						subwayStationDir.getId(), dayOfTheWeek);
+				String firstCleanDep = Utils.formatHours(SubwayStationInfo.this, deps.first);
+				String secondCleanDep = Utils.formatHours(SubwayStationInfo.this, deps.second);
+				((TextView) dView.findViewById(R.id.direction_hours)).setText(firstCleanDep + " - " + secondCleanDep);
+				// FREQUENCY
+				String frequency = StmManager.findSubwayDirectionFrequency(getContentResolver(), subwayStationDir.getId(), dayOfTheWeek, time);
+				if (frequency != null) {
+					String dirFreq = getString(R.string.minutes_and_minutes, frequency);
+					((TextView) dView.findViewById(R.id.direction_frequency)).setText(dirFreq);
+				} else {
+					((TextView) dView.findViewById(R.id.direction_frequency)).setText(R.string.no_service);
+				}
+				return dView;
+			}
+
+		}.execute(this.subwayStation.getId());
 	}
 
 	/**
@@ -317,15 +335,16 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	private void refreshSubwayStationInfo() {
 		MyLog.v(TAG, "refreshSubwayStationInfo()");
 		// subway station name
-		this.stationNameTv.setText(this.subwayStation.getName());
+		((TextView) findViewById(R.id.station_name)).setText(this.subwayStation.getName());
 		// set the favorite icon
 		setTheStar();
 		// subway lines colors
 		if (this.subwayLines.size() > 0) {
-			this.lineTypeImg1.setVisibility(View.VISIBLE);
+			ImageView lineTypeImg1 = (ImageView) findViewById(R.id.subway_line_1);
+			lineTypeImg1.setVisibility(View.VISIBLE);
 			int subwayLineImg = SubwayUtils.getSubwayLineImgListMiddleId(this.subwayLines.get(0).getNumber());
-			this.lineTypeImg1.setImageResource(subwayLineImg);
-			this.lineTypeImg1.setOnClickListener(new OnClickListener() {
+			lineTypeImg1.setImageResource(subwayLineImg);
+			lineTypeImg1.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					MyLog.v(TAG, "onClick(%s)", v.getId());
@@ -336,10 +355,11 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 				}
 			});
 			if (this.subwayLines.size() > 1) {
-				this.lineTypeImg2.setVisibility(View.VISIBLE);
+				ImageView lineTypeImg2 = (ImageView) findViewById(R.id.subway_line_2);
+				lineTypeImg2.setVisibility(View.VISIBLE);
 				int subwayLineImg2 = SubwayUtils.getSubwayLineImgListMiddleId(this.subwayLines.get(1).getNumber());
-				this.lineTypeImg2.setImageResource(subwayLineImg2);
-				this.lineTypeImg2.setOnClickListener(new OnClickListener() {
+				lineTypeImg2.setImageResource(subwayLineImg2);
+				lineTypeImg2.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
 						MyLog.v(TAG, "onClick(%s)", v.getId());
@@ -350,10 +370,11 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 					}
 				});
 				if (this.subwayLines.size() > 2) {
-					this.lineTypeImg3.setVisibility(View.VISIBLE);
+					ImageView lineTypeImg3 = (ImageView) findViewById(R.id.subway_line_3);
+					lineTypeImg3.setVisibility(View.VISIBLE);
 					int subwayLineImg3 = SubwayUtils.getSubwayLineImgListMiddleId(this.subwayLines.get(2).getNumber());
-					this.lineTypeImg3.setImageResource(subwayLineImg3);
-					this.lineTypeImg3.setOnClickListener(new OnClickListener() {
+					lineTypeImg3.setImageResource(subwayLineImg3);
+					lineTypeImg3.setOnClickListener(new OnClickListener() {
 						@Override
 						public void onClick(View v) {
 							MyLog.v(TAG, "onClick(%s)", v.getId());
@@ -381,7 +402,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 			float accuracyInMeters = getLocation().getAccuracy();
 			// MyLog.d(TAG, "distance in meters: " + distanceInMeters + " (accuracy: " + accuracyInMeters + ").");
 			String distanceString = Utils.getDistanceString(this, distanceInMeters, accuracyInMeters);
-			this.distanceTv.setText(distanceString);
+			((TextView) findViewById(R.id.distance)).setText(distanceString);
 		}
 	}
 
@@ -449,9 +470,8 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	private void setTheStar() {
 		MyLog.v(TAG, "setTheStar()");
 		// try to find the existing favorite
-		Fav findFav = DataManager.findFav(getContentResolver(), Fav.KEY_TYPE_VALUE_SUBWAY_STATION,
-		        this.subwayStation.getId(), null);
-		this.startCb.setChecked(findFav != null);
+		Fav findFav = DataManager.findFav(getContentResolver(), Fav.KEY_TYPE_VALUE_SUBWAY_STATION, this.subwayStation.getId(), null);
+		((CheckBox) findViewById(R.id.star)).setChecked(findFav != null);
 	}
 
 	/**
@@ -459,38 +479,49 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	 */
 	private void refreshBusLines() {
 		MyLog.v(TAG, "refreshBusLines()");
-		List<StmStore.BusLine> busLinesList = StmManager.findSubwayStationBusLinesList(getContentResolver(),
-		        this.subwayStation.getId());
-		this.busLinesLayout.removeAllViews();
-		// IF there is one or more bus lines DO
-		if (busLinesList != null && busLinesList.size() > 0) {
-			this.busLineTitleView.setVisibility(View.VISIBLE);
-			this.busLinesLayout.setVisibility(View.VISIBLE);
-			// FOR EACH bus line DO
-			for (StmStore.BusLine busLine : busLinesList) {
-				// create view
-				View view = getLayoutInflater().inflate(R.layout.subway_station_info_bus_line_list_item, null);
-				// bus line number
-				final String lineNumber = busLine.getNumber();
-				((TextView) view.findViewById(R.id.line_number)).setText(lineNumber);
-				int color = BusUtils.getBusLineTypeBgColorFromType(busLine.getType());
-				((TextView) view.findViewById(R.id.line_number)).setBackgroundColor(color);
-				// add click listener
-				view.setOnClickListener(new SubwayStationSelectBusLineStop(this, subwayStation.getId(), lineNumber));
-				view.setOnLongClickListener(new View.OnLongClickListener() {
-					@Override
-					public boolean onLongClick(View v) {
-						MyLog.d(TAG, "bus line number: %s", lineNumber);
-						new BusLineSelectDirection(SubwayStationInfo.this, lineNumber).showDialog();
-						return true;
-					}
-				});
-				this.busLinesLayout.addView(view);
+		new AsyncTask<String, Void, List<BusLine>>() {
+			@Override
+			protected List<BusLine> doInBackground(String... params) {
+				return StmManager.findSubwayStationBusLinesList(SubwayStationInfo.this.getContentResolver(), params[0]);
 			}
-		} else {
-			this.busLineTitleView.setVisibility(View.GONE);
-			this.busLinesLayout.setVisibility(View.GONE);
-		}
+
+			@Override
+			protected void onPostExecute(java.util.List<BusLine> result) {
+				LinearLayout busLinesLayout = (LinearLayout) findViewById(R.id.bus_line_list);
+				busLinesLayout.removeAllViews();
+				// IF there is one or more bus lines DO
+				if (Utils.getCollectionSize(result) > 0) {
+					findViewById(R.id.bus_line).setVisibility(View.VISIBLE);
+					busLinesLayout.setVisibility(View.VISIBLE);
+					// FOR EACH bus line DO
+					for (StmStore.BusLine busLine : result) {
+						// create view
+						View view = getLayoutInflater().inflate(R.layout.subway_station_info_bus_line_list_item, null);
+						// bus line number
+						final String lineNumber = busLine.getNumber();
+						final String lineName = busLine.getName();
+						((TextView) view.findViewById(R.id.line_number)).setText(lineNumber);
+						int color = BusUtils.getBusLineTypeBgColorFromType(busLine.getType());
+						((TextView) view.findViewById(R.id.line_number)).setBackgroundColor(color);
+						// add click listener
+						view.setOnClickListener(new SubwayStationSelectBusLineStop(SubwayStationInfo.this, SubwayStationInfo.this.subwayStation.getId(),
+								lineNumber));
+						view.setOnLongClickListener(new View.OnLongClickListener() {
+							@Override
+							public boolean onLongClick(View v) {
+								MyLog.d(TAG, "bus line number: %s", lineNumber);
+								new BusLineSelectDirection(SubwayStationInfo.this, lineNumber, lineName).showDialog();
+								return true;
+							}
+						});
+						busLinesLayout.addView(view);
+					}
+				} else {
+					findViewById(R.id.bus_line).setVisibility(View.GONE);
+					busLinesLayout.setVisibility(View.GONE);
+				}
+			};
+		}.execute(this.subwayStation.getId());
 	}
 
 	/**

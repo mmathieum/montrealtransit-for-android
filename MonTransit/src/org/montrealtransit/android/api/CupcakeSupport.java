@@ -66,4 +66,14 @@ public class CupcakeSupport implements SupportUtil {
 	public void setOnNdefPushCompleteCallback(Activity activity, NfcListener listener) {
 		// not supported until Gingerbread (API Level 9)
 	}
+
+	@Override
+	public void enableNfcForegroundDispatch(Activity activity) {
+		// not supported until Gingerbread (API Level 9)
+	}
+
+	@Override
+	public void disableNfcForegroundDispatch(Activity activity) {
+		// not supported until Gingerbread (API Level 9)
+	}
 }

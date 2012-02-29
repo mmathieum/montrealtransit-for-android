@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/subway_status_title"
+    android:layout_width="fill_parent"
+    android:layout_height="25dip"
+    android:background="@drawable/dark_header_dither" >
+    <ImageView
+        android:id="@+id/twitter_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true"
+        android:focusable="false"
+        android:gravity="center_vertical"
+        android:src="@drawable/ic_btn_twitter" />
+    <ImageView
+        android:id="@+id/subway_status_section_refresh_or_stop_refresh"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentRight="true"
+        android:background="@android:drawable/list_selector_background"
+        android:focusable="true"
+        android:onClick="refreshOrStopRefreshStatus"
+        android:src="@drawable/ic_btn_refresh"
+        android:visibility="visible" />
+    <ImageView
+        android:id="@+id/subway_status_section_info"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_toLeftOf="@id/subway_status_section_refresh_or_stop_refresh"
+        android:background="@android:drawable/list_selector_background"
+        android:focusable="true"
+        android:onClick="showSubwayStatusInfoDialog"
+        android:src="@drawable/ic_btn_info_details" />
+    <TextView
+        android:id="@+id/subway_status_section"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_toLeftOf="@id/subway_status_section_info"
+        android:layout_toRightOf="@id/twitter_logo"
+        android:gravity="center_vertical"
+        android:text="@string/subway_status"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+    <ProgressBar
+        android:id="@+id/progress_bar_status"
+        style="?android:attr/android:progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="8dip"
+        android:layout_marginRight="8dip"
+        android:indeterminate="true"
+        android:visibility="invisible" />
+</RelativeLayout>

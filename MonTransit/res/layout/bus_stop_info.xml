@@ -23,7 +23,7 @@
 				android:singleLine="true" android:padding="1dip"
 				android:textAppearance="?android:attr/textAppearanceLarge" android:textStyle="bold"
 				android:gravity="center_horizontal"
-				android:text="@string/default_bus_stop_code" />
+				android:text="@string/ellipsis" />
 			<!-- FAVORITE ICON -->
 			<CheckBox android:id="@+id/star"
 				android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -40,13 +40,13 @@
 				android:singleLine="true" android:ellipsize="marquee" android:gravity="center_vertical|left"
 				android:focusable="true" android:focusableInTouchMode="true"
 				android:textColor="@color/nofocustext"
-				android:text="@string/unknow_stop_place" />
+				android:text="@string/ellipsis" />
 			<!-- BUS LINE NUMBER -->
 			<TextView android:id="@+id/line_number" style="@style/BusLineNumber"
 				android:layout_alignParentLeft="true" android:layout_alignParentBottom="true"
 				android:layout_below="@id/stop_code"
 				android:layout_marginRight="5dip" android:layout_marginLeft="0dip"
-				android:text="@string/default_line_number"
+				android:text="@string/ellipsis"
 				android:background="#000000"/>
 			<!-- BUS LINE TYPE -->
 			<ImageView android:id="@+id/line_type"
@@ -63,13 +63,13 @@
 				android:singleLine="true" android:ellipsize="marquee"
 				android:gravity="center_vertical|left" android:focusable="true"
 				android:textAppearance="?android:attr/textAppearanceMedium"
-				android:text="@string/unknow_line_name" />
+				android:text="@string/ellipsis" />
 			<!-- DIRECTION LINE -->
 			<TextView android:id="@+id/direction_main"
 				android:layout_width="wrap_content" android:layout_height="wrap_content"
 				android:layout_toRightOf="@id/line_number" android:layout_below="@id/line_name"
 				android:textAppearance="?android:attr/textAppearanceMedium"
-				android:text="@string/unknow_direction" />
+				android:text="@string/ellipsis" />
 			<!-- DISTANCE -->
 			<TextView android:id="@+id/distance"
 				android:layout_width="wrap_content" android:layout_height="wrap_content"

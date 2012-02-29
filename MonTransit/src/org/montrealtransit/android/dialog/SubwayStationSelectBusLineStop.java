@@ -72,30 +72,27 @@ public class SubwayStationSelectBusLineStop implements View.OnClickListener {
 	@Override
 	public void onClick(View v) {
 		MyLog.v(TAG, "onClick()");
-		this.busStops = StmManager.findSubwayStationBusLineStopsList(this.context.getContentResolver(),
-		        this.subwayStationId, this.busLineNumber);
+		this.busStops = StmManager.findSubwayStationBusLineStopsList(this.context.getContentResolver(), this.subwayStationId, this.busLineNumber);
 		// IF there is not bus stop DO
 		if (this.busStops == null || this.busStops.size() == 0) {
 			// TODO show error message?
 			// IF there is only 1 bus stop DO
 		} else if (this.busStops.size() == 1) {
 			// show the bus stop
-			showBusStop(this.busStops.get(0).getCode(), this.busLineNumber);
+			showBusStop(this.busStops.get(0).getCode(), this.busStops.get(0).getPlace(), this.busLineNumber, null, null);
 		} else {
 			// show the select dialog
-			getAlertDialog().show();
+			showAlertDialog();
 		}
 	}
 
 	/**
 	 * @return the dialog
 	 */
-	private AlertDialog getAlertDialog() {
+	private void showAlertDialog() {
 		MyLog.v(TAG, "getAlertDialog()");
-		AlertDialog.Builder builder = new AlertDialog.Builder(this.context);
 		// title
 		String title = this.context.getString(R.string.select_bus_line_stop_and_number, this.busLineNumber);
-		builder.setTitle(title);
 		// bus stops list view
 		ListView listView = new ListView(this.context);
 		listView.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
@@ -107,23 +104,21 @@ public class SubwayStationSelectBusLineStop implements View.OnClickListener {
 				if (SubwayStationSelectBusLineStop.this.busStops != null) {
 					BusStop busStop = SubwayStationSelectBusLineStop.this.busStops.get(position);
 					if (busStop != null) {
-						showBusStop(busStop.getCode(), SubwayStationSelectBusLineStop.this.busLineNumber);
+						showBusStop(busStop.getCode(), busStop.getPlace(), SubwayStationSelectBusLineStop.this.busLineNumber, null, null);
 					}
 				}
 			}
 		});
-		builder.setView(listView);
-		// cancel button
-		builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				MyLog.v(TAG, "onClick(%s)", which);
-				// CANCEL
-				dialog.dismiss();
-			}
-		});
-		this.dialog = builder.create();
-		return dialog;
+		this.dialog = new AlertDialog.Builder(this.context).setTitle(title).setView(listView)
+				.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						MyLog.v(TAG, "onClick(%s)", which);
+						// CANCEL
+						dialog.dismiss();
+					}
+				}).create();
+		this.dialog.show();
 	}
 
 	/**
@@ -139,8 +134,7 @@ public class SubwayStationSelectBusLineStop implements View.OnClickListener {
 			busStopMap.put(StmStore.BusStop.STOP_DIRECTION_ID, direction);
 			data.add(busStopMap);
 		}
-		String[] from = new String[] { StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE,
-		        StmStore.BusStop.STOP_DIRECTION_ID };
+		String[] from = new String[] { StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE, StmStore.BusStop.STOP_DIRECTION_ID };
 		int[] to = new int[] { R.id.stop_code, R.id.label, R.id.direction_main };
 		return new SimpleAdapter(this.context, data, R.layout.dialog_bus_stop_select_list_item, from, to);
 	}
@@ -150,13 +144,16 @@ public class SubwayStationSelectBusLineStop implements View.OnClickListener {
 	 * @param stopCode the bus stop code
 	 * @param busLineNumber the bus stop line number
 	 */
-	private void showBusStop(String stopCode, String busLineNumber) {
+	private void showBusStop(String stopCode, String stopPlace, String busLineNumber, String busLineName, String busLineType) {
 		if (this.dialog != null) {
 			this.dialog.dismiss();
 		}
 		Intent intent = new Intent(this.context, BusStopInfo.class);
 		intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, stopCode);
+		intent.putExtra(BusStopInfo.EXTRA_STOP_PLACE, stopPlace);
 		intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, busLineNumber);
+		intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NAME, busLineName);
+		intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_TYPE, busLineType);
 		this.context.startActivity(intent);
 	}
 }

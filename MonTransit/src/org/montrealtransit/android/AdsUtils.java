@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.view.View;
 
 import com.google.ads.Ad;
@@ -52,8 +53,8 @@ public class AdsUtils {
 	/**
 	 * Ads keywords.
 	 */
-	private static final Set<String> KEYWORDS = new HashSet<String>(Arrays.asList(new String[] { "montreal", "transit", "STM", "bus", "subway", "metro",
-			"taxi", "quebec", "canada" }));
+	private static final Set<String> KEYWORDS = new HashSet<String>(Arrays.asList(new String[] { "montreal", "transit",
+	        "STM", "bus", "subway", "metro", "taxi", "quebec", "canada" }));
 
 	/**
 	 * The donate apps package name.
@@ -64,65 +65,75 @@ public class AdsUtils {
 	 * Setup the ad in the activity.
 	 * @param activity the activity
 	 */
-	public static void setupAd(Activity activity) {
+	public static void setupAd(final Activity activity) {
 		MyLog.v(TAG, "setupAd()");
 
-		View adLayout = activity.findViewById(R.id.ad_layout);
-		if (AD_ENABLED && isShowingAds(activity)) {
-			// show ads
-			if (adLayout != null) {
-				adLayout.setVisibility(View.VISIBLE);
-				AdView adView = (AdView) adLayout.findViewById(R.id.ad);
-				// IF the ad view is present in the layout AND not already loaded DO
-				if (adView != null && !adView.isReady()) {
-					adView.setVisibility(View.VISIBLE);
-					AdRequest adRequest = new AdRequest();
-					adRequest.setLocation(LocationUtils.getBestLastKnownLocation(activity));
-					adRequest.setKeywords(KEYWORDS);
-					if (DEBUG) {
-						adRequest.addTestDevice(AdRequest.TEST_EMULATOR);
-						adRequest.addTestDevice(activity.getString(R.string.admob_test_device_id));
-						adView.setAdListener(new AdListener() {
-							@Override
-							public void onDismissScreen(Ad ad) {
-								MyLog.v(TAG, "onDismissScreen()");
-							}
+		new AsyncTask<Void, Void, Boolean>() {
+			@Override
+			protected Boolean doInBackground(Void... params) {
+				return AD_ENABLED && isShowingAds(activity);
+			}
 
-							@Override
-							public void onFailedToReceiveAd(Ad ad, ErrorCode errorCode) {
-								MyLog.v(TAG, "onFailedToReceiveAd()");
-								MyLog.w(TAG, "Failed to received ad! Error code: '%s'.", errorCode);
-							}
+			@Override
+			protected void onPostExecute(Boolean result) {
+				View adLayout = activity.findViewById(R.id.ad_layout);
+				if (result) {
+					// show ads
+					if (adLayout != null) {
+						adLayout.setVisibility(View.VISIBLE);
+						AdView adView = (AdView) adLayout.findViewById(R.id.ad);
+						// IF the ad view is present in the layout AND not already loaded DO
+						if (adView != null && !adView.isReady()) {
+							adView.setVisibility(View.VISIBLE);
+							AdRequest adRequest = new AdRequest();
+							adRequest.setLocation(LocationUtils.getBestLastKnownLocation(activity));
+							adRequest.setKeywords(KEYWORDS);
+							if (DEBUG) {
+								adRequest.addTestDevice(AdRequest.TEST_EMULATOR);
+								adRequest.addTestDevice(activity.getString(R.string.admob_test_device_id));
+								adView.setAdListener(new AdListener() {
+									@Override
+									public void onDismissScreen(Ad ad) {
+										MyLog.v(TAG, "onDismissScreen()");
+									}
 
-							@Override
-							public void onLeaveApplication(Ad ad) {
-								MyLog.v(TAG, "onLeaveApplication()");
-							}
+									@Override
+									public void onFailedToReceiveAd(Ad ad, ErrorCode errorCode) {
+										MyLog.v(TAG, "onFailedToReceiveAd()");
+										MyLog.w(TAG, "Failed to received ad! Error code: '%s'.", errorCode);
+									}
 
-							@Override
-							public void onPresentScreen(Ad ad) {
-								MyLog.v(TAG, "onPresentScreen()");
-							}
+									@Override
+									public void onLeaveApplication(Ad ad) {
+										MyLog.v(TAG, "onLeaveApplication()");
+									}
 
-							@Override
-							public void onReceiveAd(Ad ad) {
-								MyLog.v(TAG, "onReceiveAd()");
+									@Override
+									public void onPresentScreen(Ad ad) {
+										MyLog.v(TAG, "onPresentScreen()");
+									}
+
+									@Override
+									public void onReceiveAd(Ad ad) {
+										MyLog.v(TAG, "onReceiveAd()");
+									}
+								});
 							}
-						});
+							adView.loadAd(adRequest);
+						}
 					}
-					adView.loadAd(adRequest);
+				} else {
+					// hide ads
+					if (adLayout != null) {
+						adLayout.setVisibility(View.GONE);
+						AdView adView = (AdView) adLayout.findViewById(R.id.ad);
+						if (adView != null) {
+							adView.setVisibility(View.GONE);
+						}
+					}
 				}
-			}
-		} else {
-			// hide ads
-			if (adLayout != null) {
-				adLayout.setVisibility(View.GONE);
-				AdView adView = (AdView) adLayout.findViewById(R.id.ad);
-				if (adView != null) {
-					adView.setVisibility(View.GONE);
-				}
-			}
-		}
+			};
+		}.execute();
 	}
 
 	/**
@@ -152,7 +163,8 @@ public class AdsUtils {
 			// IF the user is generous DO
 			if (isGenerousUser(context)) {
 				// the user has the right to choose not to display ads
-				AdsUtils.showingAds = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_ADS, UserPreferences.PREFS_ADS_DEFAULT);
+				AdsUtils.showingAds = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_ADS,
+				        UserPreferences.PREFS_ADS_DEFAULT);
 			} else {
 				AdsUtils.showingAds = true;
 				UserPreferences.savePrefDefault(context, UserPreferences.PREFS_ADS, AdsUtils.showingAds);

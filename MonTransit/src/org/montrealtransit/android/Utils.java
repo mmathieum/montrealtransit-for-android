@@ -8,6 +8,7 @@ import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -200,14 +201,25 @@ public class Utils {
 	}
 
 	/**
-	 * 0 or more (no NPE)
-	 * @param list the list
-	 * @return The size of the list
+	 * @param collection the collection
+	 * @return the size of the collection (0 or more => no NPE!)
 	 */
-	public static int getListSize(List<?> list) {
+	public static int getCollectionSize(Collection<?> collection) {
 		int result = 0;
-		if (list != null) {
-			result = list.size();
+		if (collection != null) {
+			result = collection.size();
+		}
+		return result;
+	}
+
+	/**
+	 * @param map the map
+	 * @return the size of the map (0 or more => no NPE!)
+	 */
+	public static int getMapSize(Map<?, ?> map) {
+		int result = 0;
+		if (map != null) {
+			result = map.size();
 		}
 		return result;
 	}
@@ -481,15 +493,8 @@ public class Utils {
 		TextView versionTv = (TextView) view.findViewById(R.id.version);
 		versionTv.setText(activity.getString(R.string.about_version, versionName, versionCode));
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-		builder.setTitle(activity.getString(R.string.app_name));
-		builder.setIcon(android.R.drawable.ic_dialog_info);
-		builder.setView(view);
-		builder.setPositiveButton(activity.getString(android.R.string.ok), null);
-		builder.setCancelable(true);
-
-		builder.create();
-		builder.show();
+		new AlertDialog.Builder(activity).setTitle(activity.getString(R.string.app_name)).setIcon(android.R.drawable.ic_dialog_info).setView(view)
+				.setPositiveButton(activity.getString(android.R.string.ok), null).setCancelable(true).create().show();
 	}
 
 	/**

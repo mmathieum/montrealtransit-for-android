@@ -29,7 +29,7 @@
 		android:layout_toLeftOf="@id/distance" android:layout_marginRight="3dip"
 		android:singleLine="true" android:ellipsize="marquee" android:gravity="center_vertical|left"
 		android:textAppearance="?android:attr/textAppearanceLarge"
-		android:text="@string/unknow_stop_place" />
+		android:text="@string/ellipsis" />
 
 	<!-- BUS STOP CODE -->
 	<TextView android:id="@+id/stop_code"
@@ -42,6 +42,6 @@
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
 		android:layout_alignParentRight="true" android:layout_alignParentBottom="true"
 		android:textAppearance="?android:attr/textAppearanceSmall"
-		android:text="@string/unknow_subway"/>
+		android:text="@string/ellipsis"/>
 
 </RelativeLayout>

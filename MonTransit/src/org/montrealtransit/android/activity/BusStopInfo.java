@@ -18,6 +18,7 @@ import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.BusStopHours;
+import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.dialog.BusLineSelectDirection;
 import org.montrealtransit.android.dialog.NoRadarInstalled;
 import org.montrealtransit.android.provider.DataManager;
@@ -29,6 +30,7 @@ import org.montrealtransit.android.provider.StmStore.BusLine;
 import org.montrealtransit.android.provider.StmStore.BusLineDirection;
 import org.montrealtransit.android.provider.StmStore.BusStop;
 import org.montrealtransit.android.provider.StmStore.SubwayLine;
+import org.montrealtransit.android.provider.StmStore.SubwayStation;
 import org.montrealtransit.android.services.GeocodingTask;
 import org.montrealtransit.android.services.GeocodingTaskListener;
 import org.montrealtransit.android.services.NfcListener;
@@ -66,8 +68,8 @@ import android.widget.TextView;
  * This activity show information about a bus stop.
  * @author Mathieu Méa
  */
-public class BusStopInfo extends Activity implements LocationListener, NextStopListener,
-        DialogInterface.OnClickListener, OnSharedPreferenceChangeListener, NfcListener {
+public class BusStopInfo extends Activity implements LocationListener, NextStopListener, DialogInterface.OnClickListener, OnSharedPreferenceChangeListener,
+		NfcListener {
 
 	/**
 	 * The log tag.
@@ -82,9 +84,21 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	 */
 	public static final String EXTRA_STOP_CODE = "extra_stop_code";
 	/**
+	 * The extra ID for the bus stop place (not required).
+	 */
+	public static final String EXTRA_STOP_PLACE = "extra_stop_place";
+	/**
 	 * The extra ID for the bus line number.
 	 */
 	public static final String EXTRA_STOP_LINE_NUMBER = "extra_line_number";
+	/**
+	 * The extra ID for the bus line name (not required).
+	 */
+	public static final String EXTRA_STOP_LINE_NAME = "extra_line_name";
+	/**
+	 * The extra ID for the bus line type (not required).
+	 */
+	public static final String EXTRA_STOP_LINE_TYPE = "extra_line_type";
 	/**
 	 * The validity of the cache (in seconds).
 	 */
@@ -194,7 +208,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	/**
 	 * The other bus lines view.
 	 */
-	private View otherBusLinesView;
+	private View otherBusLinesTitle;
 	/**
 	 * The other bus lines layout.
 	 */
@@ -247,7 +261,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		this.subwayStationImg1 = (ImageView) findViewById(R.id.subway_img_1);
 		this.subwayStationImg2 = (ImageView) findViewById(R.id.subway_img_2);
 		this.subwayStationImg3 = (ImageView) findViewById(R.id.subway_img_3);
-		this.otherBusLinesView = findViewById(R.id.other_bus_line);
+		this.otherBusLinesTitle = findViewById(R.id.other_bus_line);
 		this.otherBusLinesLayout = (LinearLayout) findViewById(R.id.other_bus_line_list);
 		this.nextStopStringTv = (TextView) findViewById(R.id.next_stops_string);
 		this.theNextStopTv = (TextView) findViewById(R.id.the_next_stop);
@@ -334,6 +348,14 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		AdsUtils.setupAd(this);
 		setBusStopFromIntent(getIntent(), null);
+		SupportFactory.getInstance(this).enableNfcForegroundDispatch(this);
+	}
+
+	@Override
+	protected void onPause() {
+		MyLog.v(TAG, "onPause()");
+		super.onPause();
+		SupportFactory.getInstance(this).disableNfcForegroundDispatch(this);
 	}
 
 	/**
@@ -345,7 +367,10 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		MyLog.v(TAG, "setBusStopFromIntent()");
 		if (intent != null) {
 			String stopCode;
+			String stopPlace = null;
 			String lineNumber;
+			String lineName = null;
+			String lineType = null;
 			if (SupportFactory.getInstance(this).isNfcIntent(intent)) {
 				SupportFactory.getInstance(this).processNfcIntent(intent, this);
 				return;
@@ -355,9 +380,12 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 				lineNumber = pathSegment.substring(5);
 			} else {
 				stopCode = Utils.getSavedStringValue(intent, savedInstanceState, EXTRA_STOP_CODE);
+				stopPlace = Utils.getSavedStringValue(intent, savedInstanceState, EXTRA_STOP_PLACE);
 				lineNumber = Utils.getSavedStringValue(intent, savedInstanceState, EXTRA_STOP_LINE_NUMBER);
+				lineName = Utils.getSavedStringValue(intent, savedInstanceState, EXTRA_STOP_LINE_NAME);
+				lineType = Utils.getSavedStringValue(intent, savedInstanceState, EXTRA_STOP_LINE_TYPE);
 			}
-			showNewBusStop(stopCode, lineNumber);
+			showNewBusStop(stopCode, stopPlace, lineNumber, lineName, lineType);
 		}
 	}
 
@@ -405,7 +433,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 			}
 		}
 		// show the bus stop
-		showNewBusStop(stopCode, lineNumber);
+		showNewBusStop(stopCode, null, lineNumber, null, null);
 	}
 
 	@Override
@@ -420,9 +448,6 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	 */
 	public void showNextStopsInfoDialog(View v) {
 		MyLog.v(TAG, "showNextStopsInfoDialog()");
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(getString(R.string.next_bus_stops));
-		builder.setIcon(R.drawable.ic_btn_info_details);
 		String source;
 		if (this.hours != null) {
 			source = this.hours.getSourceName();
@@ -436,20 +461,16 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 				source = StmMobileTask.SOURCE_NAME; // default STM mobile
 			}
 		}
-		builder.setMessage(getString(R.string.next_bus_stops_message_and_source, source));
-		builder.setPositiveButton(getString(android.R.string.ok), null);
-		builder.setCancelable(true);
-
-		builder.create();
-		builder.show();
+		new AlertDialog.Builder(this).setTitle(getString(R.string.next_bus_stops)).setIcon(R.drawable.ic_btn_info_details)
+				.setMessage(getString(R.string.next_bus_stops_message_and_source, source)).setPositiveButton(getString(android.R.string.ok), null)
+				.setCancelable(true).create().show();
 	}
 
 	/**
 	 * @return the bus list "group by" preference.
 	 */
 	private String getProviderFromPref() {
-		return UserPreferences.getPrefDefault(this, UserPreferences.PREFS_NEXT_STOP_PROVIDER,
-		        UserPreferences.PREFS_NEXT_STOP_PROVIDER_DEFAULT);
+		return UserPreferences.getPrefDefault(this, UserPreferences.PREFS_NEXT_STOP_PROVIDER, UserPreferences.PREFS_NEXT_STOP_PROVIDER_DEFAULT);
 	}
 
 	/**
@@ -457,8 +478,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	 */
 	private void setTheStar() {
 		// try to find the existing favorite
-		Fav findFav = DataManager.findFav(this.getContentResolver(), Fav.KEY_TYPE_VALUE_BUS_STOP,
-		        this.busStop.getCode(), this.busStop.getLineNumber());
+		Fav findFav = DataManager.findFav(this.getContentResolver(), Fav.KEY_TYPE_VALUE_BUS_STOP, this.busStop.getCode(), this.busStop.getLineNumber());
 		this.starCb.setChecked(findFav != null);
 	}
 
@@ -480,17 +500,25 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		this.busLineNameTv.setText(this.busLine.getName());
 		this.busLineNameTv.requestFocus();
 		// set listener
-		BusLineSelectDirection busLineSelectDirection = new BusLineSelectDirection(this, this.busLine.getNumber());
+		BusLineSelectDirection busLineSelectDirection = new BusLineSelectDirection(this, this.busLine.getNumber(), this.busLine.getName());
 		this.busLineNumberTv.setOnClickListener(busLineSelectDirection);
 		this.busLineNameTv.setOnClickListener(busLineSelectDirection);
 		// bus line type
 		this.busTypeImg.setImageResource(BusUtils.getBusLineTypeImgFromType(this.busLine.getType()));
 		// set bus line direction
-		String directionId = this.busStop.getDirectionId();
-		BusLineDirection busLineDirection = StmManager.findBusLineDirection(this.getContentResolver(), directionId);
-		int busLineDirectionIds = BusUtils.getBusLineSimpleDirection(busLineDirection.getId());
-		String directionText = getString(R.string.direction_and_string, getString(busLineDirectionIds));
-		this.busLineDirectionTv.setText(directionText);
+		new AsyncTask<String, Void, BusLineDirection>() {
+			@Override
+			protected BusLineDirection doInBackground(String... params) {
+				return StmManager.findBusLineDirection(BusStopInfo.this.getContentResolver(), params[0]);
+			}
+
+			@Override
+			protected void onPostExecute(BusLineDirection result) {
+				int busLineDirectionIds = BusUtils.getBusLineSimpleDirection(result.getId());
+				String directionText = getString(R.string.direction_and_string, getString(busLineDirectionIds));
+				BusStopInfo.this.busLineDirectionTv.setText(directionText);
+			};
+		}.execute(this.busStop.getDirectionId());
 	}
 
 	/**
@@ -498,40 +526,50 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	 */
 	private void refreshSubwayStationInfo() {
 		MyLog.v(TAG, "refreshSubwayStationInfo()");
-		if (!TextUtils.isEmpty(this.busStop.getSubwayStationId())) {
-			this.subwayStationView.setVisibility(View.VISIBLE);
-			this.theSubwayStationLayout.setVisibility(View.VISIBLE);
-			StmStore.SubwayStation subwayStation = StmManager.findSubwayStation(getContentResolver(),
-			        this.busStop.getSubwayStationId());
-			// set subway station name
-			this.subwayStationNameTv.setText(subwayStation.getName());
-			// set subway station line(s) color(s)
-			List<SubwayLine> subwayLines = StmManager.findSubwayStationLinesList(getContentResolver(),
-			        subwayStation.getId());
-			if (subwayLines != null && subwayLines.size() > 0) {
-				int subwayLineImg0 = SubwayUtils.getSubwayLineImgId(subwayLines.get(0).getNumber());
-				this.subwayStationImg1.setImageResource(subwayLineImg0);
-				if (subwayLines.size() > 1) {
-					int subwayLineImg1 = SubwayUtils.getSubwayLineImgId(subwayLines.get(1).getNumber());
-					this.subwayStationImg2.setImageResource(subwayLineImg1);
-					if (subwayLines.size() > 2) {
-						int subwayLineImg2 = SubwayUtils.getSubwayLineImgId(subwayLines.get(2).getNumber());
-						this.subwayStationImg3.setImageResource(subwayLineImg2);
-					} else {
-						this.subwayStationImg3.setVisibility(View.GONE);
-					}
-				} else {
-					this.subwayStationImg2.setVisibility(View.GONE);
-					this.subwayStationImg3.setVisibility(View.GONE);
-				}
-			} else {
-				this.subwayStationImg1.setVisibility(View.GONE);
-				this.subwayStationImg2.setVisibility(View.GONE);
-				this.subwayStationImg3.setVisibility(View.GONE);
-			}
-		} else {
+		if (TextUtils.isEmpty(this.busStop.getSubwayStationId())) {
 			this.subwayStationView.setVisibility(View.GONE);
 			this.theSubwayStationLayout.setVisibility(View.GONE);
+		} else {
+			new AsyncTask<String, Void, Pair<SubwayStation, List<SubwayLine>>>() {
+				@Override
+				protected Pair<SubwayStation, List<SubwayLine>> doInBackground(String... params) {
+					MyLog.v(TAG, "doInBackground(%s)", params[0]);
+					// load the subway station
+					SubwayStation subwayStation = StmManager.findSubwayStation(getContentResolver(), params[0]);
+					// load the subway station line(s) color(s)
+					List<SubwayLine> subwayLines = StmManager.findSubwayStationLinesList(getContentResolver(), subwayStation.getId());
+					return new Pair<SubwayStation, List<SubwayLine>>(subwayStation, subwayLines);
+				}
+
+				@Override
+				protected void onPostExecute(Pair<SubwayStation, List<SubwayLine>> result) {
+					BusStopInfo.this.subwayStationView.setVisibility(View.VISIBLE);
+					BusStopInfo.this.theSubwayStationLayout.setVisibility(View.VISIBLE);
+					// set subway station name
+					BusStopInfo.this.subwayStationNameTv.setText(result.first.getName());
+					if (Utils.getCollectionSize(result.second) > 0) {
+						int subwayLineImg0 = SubwayUtils.getSubwayLineImgId(result.second.get(0).getNumber());
+						BusStopInfo.this.subwayStationImg1.setImageResource(subwayLineImg0);
+						if (result.second.size() > 1) {
+							int subwayLineImg1 = SubwayUtils.getSubwayLineImgId(result.second.get(1).getNumber());
+							BusStopInfo.this.subwayStationImg2.setImageResource(subwayLineImg1);
+							if (result.second.size() > 2) {
+								int subwayLineImg2 = SubwayUtils.getSubwayLineImgId(result.second.get(2).getNumber());
+								BusStopInfo.this.subwayStationImg3.setImageResource(subwayLineImg2);
+							} else {
+								BusStopInfo.this.subwayStationImg3.setVisibility(View.GONE);
+							}
+						} else {
+							BusStopInfo.this.subwayStationImg2.setVisibility(View.GONE);
+							BusStopInfo.this.subwayStationImg3.setVisibility(View.GONE);
+						}
+					} else {
+						BusStopInfo.this.subwayStationImg1.setVisibility(View.GONE);
+						BusStopInfo.this.subwayStationImg2.setVisibility(View.GONE);
+						BusStopInfo.this.subwayStationImg3.setVisibility(View.GONE);
+					}
+				};
+			}.execute(this.busStop.getSubwayStationId());
 		}
 	}
 
@@ -540,138 +578,156 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	 */
 	private void refreshOtherBusLinesInfo() {
 		MyLog.v(TAG, "refreshOtherBusLinesInfo()");
-		List<BusLine> allBusLines = StmManager.findBusStopLinesList(this.getContentResolver(), this.busStop.getCode());
-		// remove all bus lines with the same line number
-		ListIterator<BusLine> it = allBusLines.listIterator();
-		Set<String> buslinesNumber = new HashSet<String>();
-		while (it.hasNext()) {
-			BusLine busLine = it.next();
-			// IF the bus line number is the same as the current bus stop DO
-			if (busLine.getNumber().equals(this.busLine.getNumber())) {
-				it.remove();
-				// ELSE IF the bus line number is already in the list DO
-			} else if (buslinesNumber.contains(busLine.getNumber())) {
-				it.remove();
-			} else {
-				buslinesNumber.add(busLine.getNumber());
+		new AsyncTask<String, Void, List<BusLine>>() {
+			@Override
+			protected List<BusLine> doInBackground(String... params) {
+				return StmManager.findBusStopLinesList(BusStopInfo.this.getContentResolver(), params[0]);
 			}
-		}
-		this.otherBusLinesLayout.removeAllViews();
-		if (allBusLines.size() > 0) {
-			this.otherBusLinesView.setVisibility(View.VISIBLE);
-			this.otherBusLinesLayout.setVisibility(View.VISIBLE);
-			for (StmStore.BusLine busLine : allBusLines) {
-				// the view
-				View view = getLayoutInflater().inflate(R.layout.bus_stop_info_bus_line_list_item, null);
-				TextView lineNumberTv = (TextView) view.findViewById(R.id.line_number);
-				final String lineNumber = busLine.getNumber();
-				lineNumberTv.setText(lineNumber);
-				int color = BusUtils.getBusLineTypeBgColorFromType(busLine.getType());
-				lineNumberTv.setBackgroundColor(color);
-				view.setOnClickListener(new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						MyLog.v(TAG, "onClick()");
-						showNewBusStop(BusStopInfo.this.busStop.getCode(), lineNumber);
+
+			@Override
+			protected void onPostExecute(List<BusLine> result) {
+				// remove all bus lines with the same line number
+				ListIterator<BusLine> it = result.listIterator();
+				Set<String> buslinesNumber = new HashSet<String>();
+				while (it.hasNext()) {
+					BusLine busLine = it.next();
+					// IF the bus line number is the same as the current bus stop DO
+					if (busLine.getNumber().equals(BusStopInfo.this.busLine.getNumber())) {
+						it.remove();
+						// ELSE IF the bus line number is already in the list DO
+					} else if (buslinesNumber.contains(busLine.getNumber())) {
+						it.remove();
+					} else {
+						buslinesNumber.add(busLine.getNumber());
 					}
-				});
-				view.setOnLongClickListener(new View.OnLongClickListener() {
-					@Override
-					public boolean onLongClick(View v) {
-						new BusLineSelectDirection(BusStopInfo.this, lineNumber).showDialog();
-						return true;
+				}
+				BusStopInfo.this.otherBusLinesLayout.removeAllViews();
+				if (result.size() > 0) {
+					BusStopInfo.this.otherBusLinesTitle.setVisibility(View.VISIBLE);
+					BusStopInfo.this.otherBusLinesLayout.setVisibility(View.VISIBLE);
+					for (StmStore.BusLine busLine : result) {
+						// the view
+						View view = getLayoutInflater().inflate(R.layout.bus_stop_info_bus_line_list_item, null);
+						TextView lineNumberTv = (TextView) view.findViewById(R.id.line_number);
+						final String lineNumber = busLine.getNumber();
+						final String lineName = busLine.getName();
+						final String lineType = busLine.getType();
+						lineNumberTv.setText(lineNumber);
+						int color = BusUtils.getBusLineTypeBgColorFromType(busLine.getType());
+						lineNumberTv.setBackgroundColor(color);
+						view.setOnClickListener(new View.OnClickListener() {
+							@Override
+							public void onClick(View v) {
+								MyLog.v(TAG, "onClick()");
+								showNewBusStop(BusStopInfo.this.busStop.getCode(), BusStopInfo.this.busStop.getPlace(), lineNumber, lineName, lineType);
+							}
+						});
+						view.setOnLongClickListener(new View.OnLongClickListener() {
+							@Override
+							public boolean onLongClick(View v) {
+								new BusLineSelectDirection(BusStopInfo.this, lineNumber, lineName).showDialog();
+								return true;
+							}
+						});
+						BusStopInfo.this.otherBusLinesLayout.addView(view);
 					}
-				});
-				this.otherBusLinesLayout.addView(view);
-			}
-		} else {
-			this.otherBusLinesView.setVisibility(View.GONE);
-			this.otherBusLinesLayout.setVisibility(View.GONE);
-		}
+				} else {
+					BusStopInfo.this.otherBusLinesTitle.setVisibility(View.GONE);
+					BusStopInfo.this.otherBusLinesLayout.setVisibility(View.GONE);
+				}
+			};
+		}.execute(this.busStop.getCode());
 	}
 
 	/**
 	 * Show the new bus stop information.
 	 * @param newStopCode the new bus stop code MANDATORY
+	 * @param newStopPlace the new bus stop place or null (optional)
 	 * @param newLineNumber the new bus line number (optional)
+	 * @param newLineName the new bus line name or null (optional)
 	 */
-	public void showNewBusStop(String newStopCode, String newLineNumber) {
-		MyLog.v(TAG, "showNewBusStop(%s, %s)", newStopCode, newLineNumber);
-		boolean newBusStopCode = this.busStop == null || !this.busStop.getCode().equals(newStopCode)
-		        || !this.busStop.getLineNumber().equals(newLineNumber);
-		boolean newBusStopCodeAndLineNumber = newBusStopCode || this.busLine == null
-		        || !this.busLine.getNumber().equals(newLineNumber);
-		// MyLog.d(TAG, "Is there bus stop : " + (this.busStop != null));
-		// MyLog.d(TAG, "Is there bus line : " + (this.busLine != null));
-		// MyLog.d(TAG, "New bus stop code ? " + newBusStopCode);
-		// MyLog.d(TAG, "New bus stop code and line number ? " + newBusStopCodeAndLineNumber);
-		// IF no bus stop OR new bus stop DO
-		if (newBusStopCode) {
-			// MyLog.v(TAG, "New bus stop '%s' line '%s'.", newStopCode, newLineNumber);
-			this.busStopCodeTv.setText(newStopCode);
-			checkStopCode(newStopCode);
-		}
-		if (newLineNumber == null) {
-			newLineNumber = findBusLineNumnberFromStopCode(newStopCode);
-		}
-		if (newStopCode != null && newLineNumber != null) {
-			if (isNewBusStop(newStopCode, newLineNumber)) {
-				// MyLog.d(TAG, "starting NEW activity...");
-				// force starting a new instance of the activity
-				Intent newIntent = new Intent(this, BusStopInfo.class);
-				// newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // ??
-				newIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-				// newIntent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-				newIntent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, newLineNumber);
-				newIntent.putExtra(BusStopInfo.EXTRA_STOP_CODE, newStopCode);
-				startActivity(newIntent);
-				return;
-			}
-			// MyLog.d(TAG, "Using the SAME activity");
-			// load bus stop from DB if necessary
-			if (newBusStopCode) {
-				this.busStop = StmManager.findBusLineStop(this.getContentResolver(), newStopCode, newLineNumber);
-			}
-			// load bus line from DB if necessary
-			if (newBusStopCodeAndLineNumber) {
-				this.busLine = StmManager.findBusLine(this.getContentResolver(), this.busStop.getLineNumber());
-			}
-			// IF new bus stop code DO
-			if (newBusStopCode) {
-				findBusStopLocation(); // start the asynchronous task ASAP
-				this.hours = null;
-			}
-			// IF new bus stop code and line number DO
-			if (newBusStopCodeAndLineNumber) {
-				// clear the cache for the new bus stop
-				this.cache = null;
-			}
-			if (this.task != null) {
-				this.task.cancel(true);
-				this.task = null;
-			}
-			setUpUI();
-		}
-		// }
-	}
+	public void showNewBusStop(String newStopCode, String newStopPlace, String newLineNumber, String newLineName, String newLineType) {
+		MyLog.v(TAG, "showNewBusStop(%s, %s, %s, %s, %s)", newStopCode, newStopPlace, newLineNumber, newLineName, newLineType);
 
-	/**
-	 * @param newStopCode the bus stop code
-	 * @param newLineNumber the bus line number
-	 * @return false if the {@link #getIntent()} doesn't match the current bus stop code
-	 */
-	private boolean isNewBusStop(String newStopCode, String newLineNumber) {
-		MyLog.v(TAG, "isNewBusStop(%s,%s)", newStopCode, newLineNumber);
-		if (this.busStop == null || this.busLine == null) {
-			// MyLog.d(TAG, "No existing bus stop/line => NOT NEW!");
-			return false;
+		// temporary set UI
+		this.busStopCodeTv.setText(newStopCode);
+		if (!TextUtils.isEmpty(newStopPlace)) {
+			this.busStopPlaceTv.setText(newStopPlace);
 		}
-		if (!this.busStop.getCode().equals(newStopCode)) {
-			// MyLog.d(TAG, "New bus stop code => NEW!");
-			return true;
+		this.busLineNumberTv.setText(newLineNumber);
+		if (!TextUtils.isEmpty(newLineName)) {
+			this.busLineNameTv.setText(newLineName);
 		}
-		// MyLog.d(TAG, "Same bus stop code & bus line number => NOT NEW!");
-		return false;
+		if (!TextUtils.isEmpty(newLineType)) {
+			int color = BusUtils.getBusLineTypeBgColorFromType(newLineType);
+			this.busLineNumberTv.setBackgroundColor(color);
+		}
+		// hide other bus lines
+		this.otherBusLinesLayout.setVisibility(View.INVISIBLE);
+
+		new AsyncTask<String, Void, Void>() {
+			private boolean newBusStopCode;
+			private boolean newBusStopCodeAndLineNumber;
+			private String newStopCode;
+			private String newLineNumber;
+
+			@Override
+			protected Void doInBackground(String... params) {
+				this.newStopCode = params[0];
+				this.newLineNumber = params[1];
+				this.newBusStopCode = BusStopInfo.this.busStop == null || !BusStopInfo.this.busStop.getCode().equals(newStopCode)
+						|| !BusStopInfo.this.busStop.getLineNumber().equals(this.newLineNumber);
+				this.newBusStopCodeAndLineNumber = newBusStopCode || BusStopInfo.this.busLine == null
+						|| !BusStopInfo.this.busLine.getNumber().equals(this.newLineNumber);
+
+				// IF no bus stop OR new bus stop DO
+				if (this.newBusStopCode) {
+					// MyLog.v(TAG, "New bus stop '%s' line '%s'.", newStopCode, newLineNumber);
+					if (StmManager.findBusStop(BusStopInfo.this.getContentResolver(), this.newStopCode) == null) {
+						showAlertDialog(this.newStopCode);
+					}
+				}
+				if (this.newLineNumber == null) {
+					this.newLineNumber = findBusLineNumnberFromStopCode(this.newStopCode);
+				}
+				if (this.newStopCode != null && this.newLineNumber != null) {
+					// load bus stop from DB if necessary
+					if (this.newBusStopCode) {
+						BusStopInfo.this.busStop = StmManager.findBusLineStop(BusStopInfo.this.getContentResolver(), newStopCode, newLineNumber);
+					}
+					// load bus line from DB if necessary
+					if (this.newBusStopCodeAndLineNumber) {
+						BusStopInfo.this.busLine = StmManager.findBusLine(BusStopInfo.this.getContentResolver(), BusStopInfo.this.busStop.getLineNumber());
+					}
+				}
+				return null;
+			}
+
+			@Override
+			protected void onPostExecute(Void result) {
+				// IF no bus stop OR new bus stop DO
+				if (this.newBusStopCode) {
+					// MyLog.v(TAG, "New bus stop '%s' line '%s'.", newStopCode, newLineNumber);
+					BusStopInfo.this.busStopCodeTv.setText(this.newStopCode);
+				}
+				if (this.newStopCode != null && this.newLineNumber != null) {
+					// IF new bus stop code DO
+					if (this.newBusStopCode) {
+						findBusStopLocation(); // start the asynchronous task ASAP
+						BusStopInfo.this.hours = null; // clear current bus stop hours
+					}
+					// IF new bus stop code and line number DO
+					if (this.newBusStopCodeAndLineNumber) {
+						BusStopInfo.this.cache = null; // clear the cache for the new bus stop
+					}
+					if (BusStopInfo.this.task != null) {
+						BusStopInfo.this.task.cancel(true);
+						BusStopInfo.this.task = null;
+					}
+				}
+				setUpUI();
+			};
+		}.execute(newStopCode, newLineNumber);
 	}
 
 	private String findBusLineNumnberFromStopCode(String newStopCode) {
@@ -693,31 +749,15 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	}
 
 	/**
-	 * Check if the bus stop is in the current application DB.
-	 * @param stopCode the bus stop code
-	 */
-	private void checkStopCode(String stopCode) {
-		if (StmManager.findBusStop(this.getContentResolver(), stopCode) == null) {
-			showAlertDialog(stopCode);
-		}
-	}
-
-	/**
 	 * Show the dialog about the unknown bus stop id.
 	 * @param wrongStopCode
 	 */
 	private void showAlertDialog(String wrongStopCode) {
 		MyLog.v(TAG, "showAlertDialog()");
 		MyLog.w(TAG, "Wrong bus stop code '%s'?", wrongStopCode);
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setIcon(android.R.drawable.ic_dialog_alert);
-		builder.setTitle(R.string.warning);
-		String message = getString(R.string.wrong_stop_code_and_code, wrongStopCode) + "\n"
-		        + getString(R.string.wrong_stop_code_internet);
-		builder.setMessage(message);
-		builder.setPositiveButton(R.string.yes, this);
-		builder.setNegativeButton(R.string.no, this);
-		builder.create().show();
+		String message = getString(R.string.wrong_stop_code_and_code, wrongStopCode) + "\n" + getString(R.string.wrong_stop_code_internet);
+		new AlertDialog.Builder(this).setIcon(android.R.drawable.ic_dialog_alert).setTitle(R.string.warning).setMessage(message)
+				.setPositiveButton(R.string.yes, this).setNegativeButton(R.string.no, this).create().show();
 	}
 
 	@Override
@@ -736,18 +776,17 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	 * @return the bus stop location preference.
 	 */
 	private boolean isShowingBusStopLocation() {
-		return UserPreferences.getPrefDefault(this, UserPreferences.PREFS_BUS_STOP_LOCATION,
-		        UserPreferences.PREFS_BUS_STOP_LOCATION_DEFAULT);
+		return UserPreferences.getPrefDefault(this, UserPreferences.PREFS_BUS_STOP_LOCATION, UserPreferences.PREFS_BUS_STOP_LOCATION_DEFAULT);
 	}
 
 	/**
 	 * Setup all the UI (based on the bus stop).
 	 */
 	private void setUpUI() {
-		showNextBusStops();
 		refreshBusStopInfo();
 		refreshOtherBusLinesInfo();
 		refreshSubwayStationInfo();
+		showNextBusStops();
 		if (isShowingBusStopLocation()) {
 			// IF there is a valid last know location DO
 			if (LocationUtils.getBestLastKnownLocation(this) != null) {
@@ -778,8 +817,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 						BusStopInfo.this.busStop.setLng(addresses.get(0).getLongitude());
 						updateDistanceWithNewLocation(); // force update
 					} else if (!TextUtils.isEmpty(BusStopInfo.this.busStop.getSubwayStationId())
-					        && BusStopInfo.this.busStop.getSubwayStationLatOrNull() != null
-					        && BusStopInfo.this.busStop.getSubwayStationLngOrNull() != null) {
+							&& BusStopInfo.this.busStop.getSubwayStationLatOrNull() != null && BusStopInfo.this.busStop.getSubwayStationLngOrNull() != null) {
 						BusStopInfo.this.busStop.setLat(BusStopInfo.this.busStop.getSubwayStationLatOrNull());
 						BusStopInfo.this.busStop.setLng(BusStopInfo.this.busStop.getSubwayStationLngOrNull());
 						updateDistanceWithNewLocation(); // force update
@@ -804,8 +842,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 			// IF no local cache DO
 			if (this.cache == null) {
 				// load cache from database
-				this.cache = DataManager.findCache(getContentResolver(), Cache.KEY_TYPE_VALUE_BUS_STOP,
-				        busStop.getUID());
+				this.cache = DataManager.findCache(getContentResolver(), Cache.KEY_TYPE_VALUE_BUS_STOP, busStop.getUID());
 			}
 			// compute the too old date
 			int tooOld = (int) (System.currentTimeMillis() / 1000) - CACHE_TOO_OLD_IN_SEC;
@@ -1090,8 +1127,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	 * @param busStopHours the stop hours
 	 */
 	private void saveToCache(String stopCode, String lineNumber, BusStopHours busStopHours) {
-		Cache newCache = new Cache(Cache.KEY_TYPE_VALUE_BUS_STOP, BusStop.getUID(/* this.busStop.getCode() */stopCode,
-		        lineNumber), busStopHours.serialized());
+		Cache newCache = new Cache(Cache.KEY_TYPE_VALUE_BUS_STOP, BusStop.getUID(/* this.busStop.getCode() */stopCode, lineNumber), busStopHours.serialized());
 		// remove existing cache for this bus stop
 		if (this.busStop != null && lineNumber.equals(this.busStop.getLineNumber())) {
 			if (this.cache != null) {
@@ -1100,7 +1136,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 			this.cache = newCache;
 		} else {
 			DataManager.deleteCacheIfExist(getContentResolver(), Cache.KEY_TYPE_VALUE_BUS_STOP,
-			        BusStop.getUID(/* this.busStop.getCode() */stopCode, lineNumber));
+					BusStop.getUID(/* this.busStop.getCode() */stopCode, lineNumber));
 		}
 		// save the new value to cache
 		DataManager.addCache(getContentResolver(), newCache);
@@ -1117,8 +1153,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 			this.distanceTv.setText(null);
 			return;
 		}
-		if (getLocation() != null && this.busStop != null && this.busStop.getLat() != null
-		        && this.busStop.getLng() != null) {
+		if (getLocation() != null && this.busStop != null && this.busStop.getLat() != null && this.busStop.getLng() != null) {
 			// distance & accuracy
 			Location busStopLocation = LocationUtils.getNewLocation(this.busStop.getLat(), this.busStop.getLng());
 			float distanceInMeters = getLocation().distanceTo(busStopLocation);
@@ -1196,8 +1231,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	 */
 	public void addOrRemoveFavorite(View v) {
 		// try to find the existing favorite
-		Fav findFav = DataManager.findFav(getContentResolver(), Fav.KEY_TYPE_VALUE_BUS_STOP, this.busStop.getCode(),
-		        this.busStop.getLineNumber());
+		Fav findFav = DataManager.findFav(getContentResolver(), Fav.KEY_TYPE_VALUE_BUS_STOP, this.busStop.getCode(), this.busStop.getLineNumber());
 		// IF the favorite exist DO
 		if (findFav != null) {
 			// delete the favorite
@@ -1228,6 +1262,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 			// show subway station info
 			Intent intent = new Intent(BusStopInfo.this, SubwayStationInfo.class);
 			intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, subwayStationId);
+			intent.putExtra(SubwayStationInfo.EXTRA_STATION_NAME, BusStopInfo.this.busStop.getSubwayStationNameOrNull());
 			startActivity(intent);
 		}
 	}

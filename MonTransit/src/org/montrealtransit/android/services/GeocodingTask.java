@@ -69,9 +69,9 @@ public class GeocodingTask extends AsyncTask<String, String, List<Address>> {
 			        Constant.STM_LOWER_LEFT_LAT, Constant.STM_LOWER_LEFT_LNG, Constant.STM_UPPER_RIGHT_LAT,
 			        Constant.STM_UPPER_RIGHT_LNG);
 		} catch (IOException ioe) {
-			MyLog.e(TAG, ioe, "INTERNAL ERROR: the network is unavailable or any other I/O problem occurs");
+			MyLog.w(TAG, ioe, "INTERNAL ERROR: the network is unavailable or any other I/O problem occurs");
 		} catch (Exception e) {
-			MyLog.e(TAG, e, "INTERNAL ERROR: unknown problem");
+			MyLog.w(TAG, e, "INTERNAL ERROR: unknown problem");
 		}
 		return null;
 	}
