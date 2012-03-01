@@ -160,8 +160,7 @@ public class FavListTab extends Activity {
 
 			@Override
 			protected void onPostExecute(Void result) {
-				// MyLog.v(TAG, "onPostExecute()");
-				if (this.newBusStopFavList != null) { // IF favorite bus stop list was refreshed DO update the UI
+				if (this.newBusStopFavList != null && this.busStopsExtendedList != null) { // IF favorite bus stop list was refreshed DO update the UI
 					refreshBusStopsUI(this.newBusStopFavList, this.busStopsExtendedList);
 				}
 				if (this.newSubwayFavList != null) { // IF favorite subway station list was refreshed DO update the UI
