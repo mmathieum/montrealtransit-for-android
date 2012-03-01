@@ -322,7 +322,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			// hide the status layout
 			findViewById(R.id.subway_status).setVisibility(View.VISIBLE);
 			// clean the status
-			((TextView) findViewById(R.id.subway_status).findViewById(R.id.subway_status_section)).setText(R.string.subway_status);
+			((TextView) findViewById(R.id.subway_status_title).findViewById(R.id.subway_status_section)).setText(R.string.subway_status);
 			// show the loading layout
 			findViewById(R.id.subway_status_loading).setVisibility(View.VISIBLE);
 			// set the progress bar
