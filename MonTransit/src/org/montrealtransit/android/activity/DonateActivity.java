@@ -103,15 +103,15 @@ public class DonateActivity extends Activity {
 		switch (methodSpinner.getSelectedItemPosition()) {
 		case 0:
 			// Android Market
-			Utils.notifyTheUser(DonateActivity.this, DonateActivity.this.getString(R.string.donate_opening_market));
+			Utils.notifyTheUser(this, getString(R.string.donate_opening_market));
 			Uri appMarketURI = Uri.parse("market://search?q=pub:\"Mathieu Méa\"");
 			Intent appMarketIntent = new Intent(Intent.ACTION_VIEW).setData(appMarketURI);
-			DonateActivity.this.startActivity(appMarketIntent);
+			startActivity(appMarketIntent);
 			break;
 		case 1:
 			// PayPal
-			Intent intent = new Intent(DonateActivity.this, DonatePayPalActivity.class);
-			DonateActivity.this.startActivity(intent);
+			Intent intent = new Intent(this, DonatePayPalActivity.class);
+			startActivity(intent);
 			break;
 		default:
 			break;
