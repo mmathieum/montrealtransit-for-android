@@ -62,7 +62,7 @@ public class IceCreamSandwichSupport extends HoneycombSupport {
 	public void setOnNdefPushCompleteCallback(final Activity activity, final NfcListener listener) {
 		NfcAdapter nfcAdapter = NfcAdapter.getDefaultAdapter(activity);
 		if (nfcAdapter != null) {
-			NfcAdapter.getDefaultAdapter(activity).setOnNdefPushCompleteCallback(new NfcAdapter.OnNdefPushCompleteCallback() {
+			nfcAdapter.setOnNdefPushCompleteCallback(new NfcAdapter.OnNdefPushCompleteCallback() {
 
 				@Override
 				public void onNdefPushComplete(NfcEvent event) {
