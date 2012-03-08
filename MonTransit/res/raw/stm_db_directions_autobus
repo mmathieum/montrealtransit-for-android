@@ -115,6 +115,8 @@ INSERT INTO "directions_autobus" VALUES(70,'70ACO','Trajet du lundi au vendredi'
 INSERT INTO "directions_autobus" VALUES(70,'70ABE','Trajet du samedi et du dimanche');
 INSERT INTO "directions_autobus" VALUES(70,'70ABO','Trajet du samedi et du dimanche');
 INSERT INTO "directions_autobus" VALUES(70,'70ACE','Trajet du lundi au vendredi');
+INSERT INTO "directions_autobus" VALUES(71,'7101N','');
+INSERT INTO "directions_autobus" VALUES(71,'7101S','');
 INSERT INTO "directions_autobus" VALUES(72,'7201O','');
 INSERT INTO "directions_autobus" VALUES(72,'7201E','');
 INSERT INTO "directions_autobus" VALUES(73,'73JOO','');
