@@ -50,6 +50,7 @@ INSERT INTO "lignes_autobus" VALUES(67,'Saint-Michel','J',' ');
 INSERT INTO "lignes_autobus" VALUES(68,'Pierrefonds','J',' ');
 INSERT INTO "lignes_autobus" VALUES(69,'Gouin','J',' ');
 INSERT INTO "lignes_autobus" VALUES(70,'Bois-Franc','J',' ');
+INSERT INTO "lignes_autobus" VALUES(71,'Du Centre','J',' ');
 INSERT INTO "lignes_autobus" VALUES(72,'Alfred-Nobel','J',' ');
 INSERT INTO "lignes_autobus" VALUES(73,'Dalton','P',' ');
 INSERT INTO "lignes_autobus" VALUES(74,'Bridge','P',' ');
