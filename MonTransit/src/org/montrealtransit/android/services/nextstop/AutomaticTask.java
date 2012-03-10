@@ -73,7 +73,7 @@ public class AutomaticTask extends AbstractNextStopProvider implements NextStopL
 			stopAllTasks();
 		}
 		// IF valid result or the last result DO
-		if (containResult || countRunningTask() == 0) {
+		if (containResult || countRunningTask() <= 1) {
 			this.from.onNextStopsLoaded(results);
 		}
 	}

@@ -130,8 +130,8 @@ public class FavListTab extends Activity {
 			@Override
 			protected Void doInBackground(Void... params) {
 				// MyLog.v(TAG, "doInBackground()");
-				this.newBusStopFavList = DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
-				if (FavListTab.this.currentBusStopFavList == null || FavListTab.this.currentBusStopFavList.size() != this.newBusStopFavList.size()) {
+				newBusStopFavList = DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
+				if (FavListTab.this.currentBusStopFavList == null || !Fav.listEquals(FavListTab.this.currentBusStopFavList, newBusStopFavList)) {
 					MyLog.d(TAG, "Loading bus stop favorites from DB...");
 					if (Utils.getCollectionSize(this.newBusStopFavList) > 0) {
 						this.busStopsExtendedList = StmManager.findBusStopsExtendedList(FavListTab.this.getContentResolver(),
@@ -141,15 +141,15 @@ public class FavListTab extends Activity {
 				}
 
 				this.newSubwayFavList = DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
-				if (FavListTab.this.currentSubwayStationFavList == null || FavListTab.this.currentSubwayStationFavList.size() != this.newSubwayFavList.size()) {
+				if (FavListTab.this.currentSubwayStationFavList == null || !Fav.listEquals(FavListTab.this.currentSubwayStationFavList, newSubwayFavList)) {
 					MyLog.d(TAG, "Loading subway station favorites from DB...");
-					this.stations = new HashMap<String, SubwayStation>();
-					this.otherLines = new HashMap<String, List<SubwayLine>>();
+					stations = new HashMap<String, SubwayStation>();
+					otherLines = new HashMap<String, List<SubwayLine>>();
 					for (Fav subwayFav : this.newSubwayFavList) {
 						SubwayStation station = StmManager.findSubwayStation(getContentResolver(), subwayFav.getFkId());
-						this.stations.put(subwayFav.getFkId(), station);
+						stations.put(subwayFav.getFkId(), station);
 						if (station != null) {
-							this.otherLines.put(station.getId(), StmManager.findSubwayStationLinesList(getContentResolver(), station.getId()));
+							otherLines.put(station.getId(), StmManager.findSubwayStationLinesList(getContentResolver(), station.getId()));
 						}
 					}
 					MyLog.d(TAG, "Loading subway station favorites from DB... DONE");
@@ -158,12 +158,14 @@ public class FavListTab extends Activity {
 				return null;
 			}
 
+			
+
 			@Override
 			protected void onPostExecute(Void result) {
-				if (this.newBusStopFavList != null && this.busStopsExtendedList != null) { // IF favorite bus stop list was refreshed DO update the UI
+				if (newBusStopFavList != null && busStopsExtendedList != null) { // IF favorite bus stop list was refreshed DO update the UI
 					refreshBusStopsUI(this.newBusStopFavList, this.busStopsExtendedList);
 				}
-				if (this.newSubwayFavList != null) { // IF favorite subway station list was refreshed DO update the UI
+				if (newSubwayFavList != null) { // IF favorite subway station list was refreshed DO update the UI
 					refreshSubwayStationsUI(this.newSubwayFavList, this.stations, this.otherLines);
 				}
 				showEmptyFav();

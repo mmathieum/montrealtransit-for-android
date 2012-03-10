@@ -20,7 +20,7 @@ import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore.SubwayLine;
 import org.montrealtransit.android.services.ClosestSubwayStationsFinderListener;
 import org.montrealtransit.android.services.ClosestSubwayStationsFinderTask;
-import org.montrealtransit.android.services.StmInfoStatusReader;
+import org.montrealtransit.android.services.StmInfoStatusApiReader;
 import org.montrealtransit.android.services.StmInfoStatusReaderListener;
 
 import android.app.Activity;
@@ -80,7 +80,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	/**
 	 * The task used to load the subway status.
 	 */
-	private StmInfoStatusReader statusTask;
+	private StmInfoStatusApiReader statusTask;
 
 	/**
 	 * The task used to find the closest stations.
@@ -185,8 +185,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 				@Override
 				public boolean onLongClick(View v) {
 					MyLog.v(TAG, "onLongClick(%s)", v.getId());
-					SubwayLineSelectDirection selectDialog = new SubwayLineSelectDirection(SubwayTab.this, lineNumber);
-					selectDialog.showDialog();
+					new SubwayLineSelectDirection(SubwayTab.this, lineNumber).showDialog();
 					return true;
 				}
 			});
@@ -290,7 +289,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		if (this.statusTask == null || !this.statusTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
 			setStatusLoading();
 			// read the subway status from http://twitter.com/stminfo
-			this.statusTask = new StmInfoStatusReader(this, this);
+			this.statusTask = new StmInfoStatusApiReader(this, this);
 			this.statusTask.execute();
 		}
 	}
@@ -320,14 +319,14 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		if (this.serviceStatus == null) {
 			// set the BIG loading message
 			// hide the status layout
-			findViewById(R.id.subway_status).setVisibility(View.VISIBLE);
+			findViewById(R.id.subway_status).setVisibility(View.GONE);
 			// clean the status
 			((TextView) findViewById(R.id.subway_status_title).findViewById(R.id.subway_status_section)).setText(R.string.subway_status);
 			// show the loading layout
 			findViewById(R.id.subway_status_loading).setVisibility(View.VISIBLE);
 			// set the progress bar
 			TextView progressBarLoading = (TextView) findViewById(R.id.subway_status_loading).findViewById(R.id.detail_msg);
-			String loadingMsg = getString(R.string.downloading_data_from_and_source, StmInfoStatusReader.SOURCE);
+			String loadingMsg = getString(R.string.downloading_data_from_and_source, StmInfoStatusApiReader.SOURCE);
 			progressBarLoading.setText(loadingMsg);
 			progressBarLoading.setVisibility(View.VISIBLE);
 			// } else { // just notify the user ?
