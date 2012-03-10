@@ -440,7 +440,7 @@ INSERT INTO "arrets_autobus" VALUES(52920,107,'107JOS','Peel / Wellington','',''
 INSERT INTO "arrets_autobus" VALUES(52898,107,'107JOS','Wellington / Murray','','',13);
 INSERT INTO "arrets_autobus" VALUES(52925,107,'107JOS','Wellington / Bridge','','',14);
 INSERT INTO "arrets_autobus" VALUES(53870,107,'107JOS','Centre / de Condé','','',15);
-INSERT INTO "arrets_autobus" VALUES(52829,107,'107JOS','Centre / Richmond','','',16);
+INSERT INTO "arrets_autobus" VALUES(52829,107,'107JOS','Centre / de la Sucrerie','','',16);
 INSERT INTO "arrets_autobus" VALUES(52796,107,'107JOS','Centre / Shearer','','',17);
 INSERT INTO "arrets_autobus" VALUES(52716,107,'107JOS','Centre / Island','','',18);
 INSERT INTO "arrets_autobus" VALUES(52623,107,'107JOS','Centre / Ropery','','',19);
