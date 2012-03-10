@@ -120,6 +120,31 @@ public class Utils {
 	}
 
 	/**
+	 * Read the input stream and return the content as a string
+	 * @param is the input stream
+	 * @return the string
+	 */
+	public static String getInputStreamToString(InputStream is) {
+		MyLog.v(TAG, "getInputStreamToString()");
+		String result = "";
+		byte[] b = new byte[4096];
+		try {
+			for (int n; (n = is.read(b)) != -1;) {
+				result += new String(b, 0, n);
+			}
+		} catch (IOException ioe) {
+			MyLog.e(TAG, ioe, "Error while reading the input stream and writing into a string.");
+		} finally {
+			try {
+				is.close();
+			} catch (IOException ioe) {
+				MyLog.w(TAG, ioe, "Error while finishing and closing the file.");
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Format the hours according to the device settings.
 	 * @param context the context used to get the device settings
 	 * @param noFormatHour the original hours string

@@ -176,7 +176,7 @@ public class TwitterUtils {
 				editor.putString(REQUEST_TOKEN, getConsumer(this.context).getToken());
 				editor.putString(REQUEST_SECRET, getConsumer(this.context).getTokenSecret());
 				SupportFactory.getInstance(this.context).applySharedPreferencesEditor(editor);
-				AnalyticsUtils.dispatch(this.context); // while we are connected, sent the analytics data
+				AnalyticsUtils.dispatch(this.context); // while we are connected, send the analytics data
 				// launching the browser
 				this.context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(result)));
 			}

@@ -55,8 +55,7 @@ public class DataStore {
 		/**
 		 * The default sort order for favorite.
 		 */
-		public static final String DEFAULT_SORT_ORDER = DataDbHelper.T_FAVS_K_FK_ID + ", "
-		        + DataDbHelper.T_FAVS_K_FK_ID_2 + " ASC";
+		public static final String DEFAULT_SORT_ORDER = DataDbHelper.T_FAVS_K_FK_ID + ", " + DataDbHelper.T_FAVS_K_FK_ID_2 + " ASC";
 		/**
 		 * The favorite type value for bus stops.
 		 */
@@ -248,6 +247,23 @@ public class DataStore {
 		}
 
 		/**
+		 * @param favs1 a favorites list (not null)
+		 * @param favs2 a favorite list (not null)
+		 * @return true if they don't contain
+		 */
+		public static boolean listEquals(List<Fav> favs1, List<Fav> favs2) {
+			if (favs1.size() != favs2.size()) {
+				return false;
+			}
+			for (Fav fav1 : favs1) {
+				if (!Fav.contains(favs2, fav1)) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		/**
 		 * Serialize the favorites list.
 		 * @param favs the favorites list
 		 * @return the serialized favorites
@@ -386,8 +402,7 @@ public class DataStore {
 		/**
 		 * The MIME type of a {@link #CONTENT_URI} sub-directory of a single Twitter API entry.
 		 */
-		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY
-		        + ".provider.twitterapi";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY + ".provider.twitterapi";
 		/**
 		 * The default order for Twitter API.
 		 */
@@ -487,8 +502,7 @@ public class DataStore {
 		/**
 		 * The MIME type of a {@link #CONTENT_URI} sub-directory of a single service status entry.
 		 */
-		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY
-		        + ".provider.servicestatus";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY + ".provider.servicestatus";
 		/**
 		 * The default order for service status.
 		 */

@@ -72,7 +72,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 			switch (httpUrlConnection.getResponseCode()) {
 			case HttpURLConnection.HTTP_OK:
 				String html = Utils.getInputStreamToString(urlc.getInputStream(), "utf-8");
-				AnalyticsUtils.dispatch(context); // while we are connected, sent the analytics data
+				AnalyticsUtils.dispatch(context); // while we are connected, send the analytics data
 				publishProgress(this.context.getResources().getString(R.string.processing_data));
 				// FOR each bus line DO
 				for (String line : findAllBusLines(html)) {
@@ -99,6 +99,10 @@ public class StmMobileTask extends AbstractNextStopProvider {
 						errorMessage = this.context.getString(R.string.bus_stop_no_info_and_source, lineNumber, SOURCE_NAME);
 						publishProgress(errorMessage);
 						hours.put(lineNumber, new BusStopHours(SOURCE_NAME, errorMessage));
+						AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR,
+						        AnalyticsUtils.ACTION_BUS_STOP_REMOVED, busStops[0].getUID(), context.getPackageManager()
+						                .getPackageInfo(Constant.PKG, 0).versionCode);
+						
 					}
 					AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BUS_STOP_NO_INFO, busStops[0].getUID(), context
 							.getPackageManager().getPackageInfo(Constant.PKG, 0).versionCode);

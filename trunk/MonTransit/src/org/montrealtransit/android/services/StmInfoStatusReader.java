@@ -1,7 +1,6 @@
 package org.montrealtransit.android.services;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.montrealtransit.android.AnalyticsUtils;
@@ -61,7 +60,7 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 
 	@Override
 	protected String doInBackground(String... params) {
-		MyLog.v(TAG, "doInBackground(%s)", Arrays.asList(params));
+		MyLog.v(TAG, "doInBackground()");
 		boolean isConnected = false;
 		try {
 			List<TwitterApi> twitterApis = DataManager.findAllTwitterApisList(this.context.getContentResolver());
@@ -84,7 +83,7 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 				twitter = new TwitterFactory().getInstance(); // Anonymous
 			}
 			ResponseList<twitter4j.Status> userTimeline = twitter.getUserTimeline("stminfo");
-			AnalyticsUtils.dispatch(context); // while we are connected, sent the analytics data
+			AnalyticsUtils.dispatch(context); // while we are connected, send the analytics data
 
 			List<ServiceStatus> allServiceStatus = new ArrayList<ServiceStatus>();
 			// FOR each status DO
@@ -97,7 +96,7 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 			DataManager.deleteAllServiceStatus(this.context.getContentResolver());
 			// add new status
 			for (ServiceStatus serviceStatus : allServiceStatus) {
-				DataManager.addServiceStatus(context.getContentResolver(), serviceStatus);
+				DataManager.addServiceStatus(this.context.getContentResolver(), serviceStatus);
 			}
 			return null;
 		} catch (TwitterException e) {
@@ -167,7 +166,7 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 	 * @param statusText the Twitter status
 	 * @return the message language
 	 */
-	private String extractMessageLanguage(String statusText) {
+	public static String extractMessageLanguage(String statusText) {
 		if (statusText.contains(" VE ") || statusText.contains(" JE ") || statusText.contains(" RE ")) {
 			return ServiceStatus.STATUS_LANG_ENGLISH;
 		} else if (statusText.contains(" VF ") || statusText.contains(" JF ") || statusText.contains(" RF ")) {
@@ -193,7 +192,7 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 	 * @param statusText the Twitter status
 	 * @return the service status
 	 */
-	private int extractServiceStatus(String statusText) {
+	public static int extractServiceStatus(String statusText) {
 		if (statusText.contains(" VE ") || statusText.contains(" VF ")) {
 			return ServiceStatus.STATUS_TYPE_GREEN;
 		} else if (statusText.contains(" JE ") || statusText.contains(" JF ")) {
@@ -253,7 +252,7 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 
 	@Override
 	protected void onPostExecute(String errorMessage) {
-		from.onStmInfoStatusesLoaded(errorMessage);
+		this.from.onStmInfoStatusesLoaded(errorMessage);
 		super.onPostExecute(errorMessage);
 	}
 }

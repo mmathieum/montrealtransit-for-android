@@ -182,7 +182,7 @@ public class UserPreferences extends PreferenceActivity {
 	/**
 	 * The default value for the subway stations order.
 	 */
-	public static final String PREFS_SUBWAY_STATIONS_ORDER_DEFAULT = PREFS_SUBWAY_STATIONS_ORDER_AZ;
+	public static final String PREFS_SUBWAY_STATIONS_ORDER_DEFAULT = PREFS_SUBWAY_STATIONS_ORDER_NATURAL;
 
 	/**
 	 * The preference key for ads.
