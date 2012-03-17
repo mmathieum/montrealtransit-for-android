@@ -84,6 +84,8 @@
 	<string name="subway_status_updating">Updating service status&#8230;</string>
 	<string name="subway_status_done">Service status updated.</string>
 	<string name="subway_status_loading_cancelled">Update of the service status cancelled.</string>
+	<string name="shake_closest_bus_line_stop_selected">Closest bus line stop selected.</string>
+	<string name="shake_closest_subway_line_station_selected">Closest subway line station selected.</string>
 	
 	<string name="beta_pref_cat_title">BETA</string>
 	<string name="bus_stop_loc_pref_title">Bus Stops Location</string>

@@ -514,6 +514,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	 * @param newStopPlace the new bus stop place or null (optional)
 	 * @param newLineNumber the new bus line number (optional)
 	 * @param newLineName the new bus line name or null (optional)
+	 * @param newLineType the new bus line type or null (optional)
 	 */
 	public void showNewBusStop(String newStopCode, String newStopPlace, String newLineNumber, String newLineName, String newLineType) {
 		MyLog.v(TAG, "showNewBusStop(%s, %s, %s, %s, %s)", newStopCode, newStopPlace, newLineNumber, newLineName, newLineType);

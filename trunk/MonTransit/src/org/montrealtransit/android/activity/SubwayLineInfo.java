@@ -15,6 +15,8 @@ import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
+import org.montrealtransit.android.SensorUtils;
+import org.montrealtransit.android.SensorUtils.ShakeListener;
 import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.ASubwayStation;
@@ -33,6 +35,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.AsyncTask;
@@ -48,12 +54,13 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * The subway line info activity.
  * @author Mathieu Méa
  */
-public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectionDialogListener, LocationListener {
+public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectionDialogListener, LocationListener, SensorEventListener, ShakeListener {
 
 	/**
 	 * The log tag.
@@ -100,6 +107,22 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 * Is the location updates should be enabled?
 	 */
 	private boolean locationUpdatesEnabled = false;
+	/**
+	 * The acceleration apart from gravity.
+	 */
+	private float lastSensorAcceleration = 0.00f;
+	/**
+	 * The last acceleration including gravity.
+	 */
+	private float lastSensorAccelerationIncGravity = SensorManager.GRAVITY_EARTH;
+	/**
+	 * The last sensor update time-stamp.
+	 */
+	private long lastSensorUpdate = -1;
+	/**
+	 * True if the share was already handled (should be reset in {@link #onResume()}).
+	 */
+	private boolean shakeHandled;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -109,10 +132,9 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		setContentView(R.layout.subway_line_info);
 
 		setupList((ListView) findViewById(R.id.list));
-		
-		int newLineNumber = Integer.valueOf(Utils.getSavedStringValue(getIntent(), savedInstanceState, SubwayLineInfo.EXTRA_LINE_NUMBER));
-		String newOrderPref = Utils.getSavedStringValue(getIntent(), savedInstanceState, SubwayLineInfo.EXTRA_ORDER_PREF);
-		showNewSubway(newLineNumber, newOrderPref);
+
+		showNewSubway(Integer.valueOf(Utils.getSavedStringValue(getIntent(), savedInstanceState, SubwayLineInfo.EXTRA_LINE_NUMBER)),
+				Utils.getSavedStringValue(getIntent(), savedInstanceState, SubwayLineInfo.EXTRA_ORDER_PREF));
 	}
 
 	/**
@@ -204,7 +226,47 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		// refresh favorites
 		refreshFavoriteStationIdsFromDB();
+		SensorUtils.registerShakeListener(this, this);
+		this.shakeHandled = false;
 		super.onResume();
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent se) {
+		// MyLog.v(TAG, "onSensorChanged()");
+		SensorUtils.checkForShake(se.values, this.lastSensorUpdate, this.lastSensorAccelerationIncGravity, this.lastSensorAcceleration, this);
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		// MyLog.v(TAG, "onAccuracyChanged()");
+	}
+
+	@Override
+	public void onShake() {
+		MyLog.v(TAG, "onShake()");
+		showClosestStation();
+	}
+
+	/**
+	 * Show the closest subway line station (if possible).
+	 */
+	private void showClosestStation() {
+		MyLog.v(TAG, "showClosestStation()");
+		if (!this.shakeHandled && this.orderedStationsIds != null && this.orderedStationsIds.size() > 0) {
+			Toast.makeText(this, R.string.shake_closest_subway_line_station_selected, Toast.LENGTH_SHORT).show();
+			Intent intent = new Intent(this, SubwayStationInfo.class);
+			intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, this.orderedStationsIds.get(0));
+			startActivity(intent);
+			this.shakeHandled = true;
+		}
+	}
+
+	@Override
+	protected void onPause() {
+		MyLog.v(TAG, "onPause()");
+		SensorUtils.unregisterShakeListener(this, this);
+		super.onPause();
 	}
 
 	/**

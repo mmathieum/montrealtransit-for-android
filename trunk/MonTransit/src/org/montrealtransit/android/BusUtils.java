@@ -283,7 +283,7 @@ public class BusUtils {
 	 * @return the color ID matching the bus line type
 	 */
 	public static int getBusLineTypeBgColorFromType(String type) {
-		// MyLog.v(TAG, "getBusLineTypeImgFromType(" + type + ")");
+		// MyLog.v(TAG, "getBusLineTypeBgColorFromType(%s)", type);
 		// TODO use R.colors!!
 		if (StmStore.BusLine.LINE_TYPE_REGULAR_SERVICE.equalsIgnoreCase(type)) {
 			return Color.rgb(0, 96, 170); // BLUE;
@@ -294,7 +294,7 @@ public class BusUtils {
 		} else if (StmStore.BusLine.LINE_TYPE_EXPRESS_SERVICE.equalsIgnoreCase(type)) {
 			return Color.rgb(0, 115, 57); // GREEN
 		} else {
-			MyLog.w(TAG, "Unknown bus line type '%s'.", type);
+			MyLog.w(TAG, "Unknown bus line type '%s'!", type);
 			return Color.TRANSPARENT;
 		}
 	}
@@ -326,7 +326,7 @@ public class BusUtils {
 	 * @return the cleaned bus stop place
 	 */
 	public static String cleanBusStopPlace(String uncleanStopPlace) {
-		MyLog.v(TAG, "cleanBusStopPlace(%s)", uncleanStopPlace);
+		// MyLog.v(TAG, "cleanBusStopPlace(%s)", uncleanStopPlace);
 		String result = uncleanStopPlace;
 		// if (result.startsWith(Constant.PLACE_CHAR_DE_LA)) {
 		// result = result.substring(Constant.PLACE_CHAR_DE_LA_LENGTH);

@@ -506,7 +506,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 						((TextView) view.findViewById(R.id.line_number)).setBackgroundColor(color);
 						// add click listener
 						view.setOnClickListener(new SubwayStationSelectBusLineStop(SubwayStationInfo.this, SubwayStationInfo.this.subwayStation.getId(),
-								lineNumber));
+								lineNumber, lineName, lineType));
 						view.setOnLongClickListener(new View.OnLongClickListener() {
 							@Override
 							public boolean onLongClick(View v) {
