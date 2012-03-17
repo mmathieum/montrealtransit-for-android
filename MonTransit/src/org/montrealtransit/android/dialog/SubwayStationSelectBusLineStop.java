@@ -48,6 +48,14 @@ public class SubwayStationSelectBusLineStop implements View.OnClickListener {
 	 */
 	private String busLineNumber;
 	/**
+	 * The bus line name.
+	 */
+	private String busLineName;
+	/**
+	 * The bus line type.
+	 */
+	private String busLineType;
+	/**
 	 * The dialog.
 	 */
 	private AlertDialog dialog;
@@ -62,11 +70,13 @@ public class SubwayStationSelectBusLineStop implements View.OnClickListener {
 	 * @param subwayStationId the subway station ID
 	 * @param busLineNumber the bus line number
 	 */
-	public SubwayStationSelectBusLineStop(Activity context, String subwayStationId, String busLineNumber) {
+	public SubwayStationSelectBusLineStop(Activity context, String subwayStationId, String busLineNumber, String busLineName, String busLineType) {
 		MyLog.v(TAG, "SubwayStationSelectBusLineStop(%s, %s)", subwayStationId, busLineNumber);
 		this.context = context;
 		this.subwayStationId = subwayStationId;
 		this.busLineNumber = busLineNumber;
+		this.busLineName = busLineName;
+		this.busLineType = busLineType;
 	}
 
 	@Override
@@ -79,7 +89,7 @@ public class SubwayStationSelectBusLineStop implements View.OnClickListener {
 			// IF there is only 1 bus stop DO
 		} else if (this.busStops.size() == 1) {
 			// show the bus stop
-			showBusStop(this.busStops.get(0).getCode(), this.busStops.get(0).getPlace(), this.busLineNumber, null, null);
+			showBusStop(this.busStops.get(0).getCode(), this.busStops.get(0).getPlace(), this.busLineNumber, this.busLineName, this.busLineType);
 		} else {
 			// show the select dialog
 			showAlertDialog();
@@ -104,7 +114,8 @@ public class SubwayStationSelectBusLineStop implements View.OnClickListener {
 				if (SubwayStationSelectBusLineStop.this.busStops != null) {
 					BusStop busStop = SubwayStationSelectBusLineStop.this.busStops.get(position);
 					if (busStop != null) {
-						showBusStop(busStop.getCode(), busStop.getPlace(), SubwayStationSelectBusLineStop.this.busLineNumber, null, null);
+						showBusStop(busStop.getCode(), busStop.getPlace(), SubwayStationSelectBusLineStop.this.busLineNumber,
+								SubwayStationSelectBusLineStop.this.busLineName, SubwayStationSelectBusLineStop.this.busLineType);
 					}
 				}
 			}
@@ -145,6 +156,7 @@ public class SubwayStationSelectBusLineStop implements View.OnClickListener {
 	 * @param busLineNumber the bus stop line number
 	 */
 	private void showBusStop(String stopCode, String stopPlace, String busLineNumber, String busLineName, String busLineType) {
+		MyLog.v(TAG, "showBusStop(%s,%s,%s,%s,%s)", stopCode, stopPlace, busLineNumber, busLineName, busLineType);
 		if (this.dialog != null) {
 			this.dialog.dismiss();
 		}

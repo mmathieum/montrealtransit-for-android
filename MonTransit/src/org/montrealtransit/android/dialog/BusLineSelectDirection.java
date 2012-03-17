@@ -299,6 +299,7 @@ public class BusLineSelectDirection implements View.OnClickListener, BusLineSele
 
 	@Override
 	public void showNewLine(String lineNumber, String directionId) {
+		MyLog.v(TAG, "showNewLine(%s, %s)", lineNumber, directionId);
 		Intent mIntent = new Intent(this.context, BusLineInfo.class);
 		mIntent.putExtra(BusLineInfo.EXTRA_LINE_NUMBER, lineNumber);
 		mIntent.putExtra(BusLineInfo.EXTRA_LINE_NAME, this.lineName);

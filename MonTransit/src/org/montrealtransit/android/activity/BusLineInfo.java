@@ -12,6 +12,8 @@ import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
+import org.montrealtransit.android.SensorUtils;
+import org.montrealtransit.android.SensorUtils.ShakeListener;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.ABusStop;
 import org.montrealtransit.android.dialog.BusLineSelectDirection;
@@ -28,6 +30,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Typeface;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.net.Uri;
@@ -44,12 +50,13 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * This activity display information about a bus line.
  * @author Mathieu Méa
  */
-public class BusLineInfo extends Activity implements BusLineSelectDirectionDialogListener, LocationListener/* , OnSharedPreferenceChangeListener */{
+public class BusLineInfo extends Activity implements BusLineSelectDirectionDialogListener, LocationListener, SensorEventListener, ShakeListener {
 
 	/**
 	 * The log tag.
@@ -114,6 +121,22 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 * The favorite bus stops codes.
 	 */
 	private List<String> favStopCodes;
+	/**
+	 * The acceleration apart from gravity.
+	 */
+	private float lastSensorAcceleration = 0.00f;
+	/**
+	 * The last acceleration including gravity.
+	 */
+	private float lastSensorAccelerationIncGravity = SensorManager.GRAVITY_EARTH;
+	/**
+	 * The last sensor update time-stamp.
+	 */
+	private long lastSensorUpdate = -1;
+	/**
+	 * True if the share was already handled (should be reset in {@link #onResume()}).
+	 */
+	private boolean shakeHandled;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -190,7 +213,69 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		// refresh favorites
 		refreshFavoriteStopCodesFromDB();
+		SensorUtils.registerShakeListener(this, this);
+		this.shakeHandled = false;
 		super.onResume();
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent se) {
+		// MyLog.v(TAG, "onSensorChanged()");
+		SensorUtils.checkForShake(se.values, this.lastSensorUpdate, this.lastSensorAccelerationIncGravity, this.lastSensorAcceleration, this);
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		// MyLog.v(TAG, "onAccuracyChanged()");
+	}
+
+	@Override
+	public void onShake() {
+		MyLog.v(TAG, "onShake()");
+		showClosestStop();
+	}
+
+	/**
+	 * Show the closest subway line station (if possible).
+	 */
+	private void showClosestStop() {
+		MyLog.v(TAG, "showClosestStop()");
+		if (!this.shakeHandled && this.orderedStopCodes != null && this.orderedStopCodes.size() > 0) {
+			Toast.makeText(this, R.string.shake_closest_bus_line_stop_selected, Toast.LENGTH_SHORT).show();
+			Intent intent = new Intent(this, BusStopInfo.class);
+			intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, this.orderedStopCodes.get(0));
+			intent.putExtra(BusStopInfo.EXTRA_STOP_PLACE, findStopPlace(this.orderedStopCodes.get(0)));
+			if (this.busLine != null) {
+				intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, this.busLine.getNumber());
+				intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NAME, this.busLine.getName());
+				intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_TYPE, this.busLine.getType());
+			}
+			startActivity(intent);
+			this.shakeHandled = true;
+		}
+	}
+
+	/**
+	 * @param stopCode a bus stop code
+	 * @return a bus stop place or null
+	 */
+	private String findStopPlace(String stopCode) {
+		if (this.busStops == null) {
+			return null;
+		}
+		for (BusStop busStop : this.busStops) {
+			if (busStop.getCode().equals(stopCode)) {
+				return busStop.getPlace();
+			}
+		}
+		return null;
+	}
+
+	@Override
+	protected void onPause() {
+		MyLog.v(TAG, "onPause()");
+		SensorUtils.unregisterShakeListener(this, this);
+		super.onPause();
 	}
 
 	@Override
@@ -271,6 +356,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 * Refresh the bus line number UI.
 	 */
 	public void setLineNumberAndName(String lineNumber, String lineType, String lineName) {
+		// MyLog.v(TAG, "setLineNumberAndName(%s, %s, %s)", lineNumber, lineType, lineName);
 		((TextView) findViewById(R.id.line_number)).setText(lineNumber);
 		findViewById(R.id.line_number).setBackgroundColor(BusUtils.getBusLineTypeBgColorFromType(lineType));
 		((TextView) findViewById(R.id.line_name)).setText(lineName);
