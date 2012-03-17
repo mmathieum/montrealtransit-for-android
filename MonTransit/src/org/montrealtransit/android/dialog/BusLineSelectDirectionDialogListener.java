@@ -9,9 +9,8 @@ public interface BusLineSelectDirectionDialogListener {
 	/**
 	 * Show the selected bus line (direction).
 	 * @param lineNumber the line number
-	 * @param lineName the line name or null (not required)
 	 * @param directionId the line direction
 	 */
-	void showNewLine(String lineNumber, String lineName, String directionId);
+	void showNewLine(String lineNumber, String directionId);
 
 }

@@ -36,16 +36,15 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	/**
 	 * The database version use to manage database changes.
 	 */
-	public static final int DB_VERSION = 10;
+	public static final int DB_VERSION = 11;
 
 	/**
 	 * The list of SQL dump files.
 	 */
-	private static final int[] DUMP_FILES = new int[] { R.raw.stm_db_directions_autobus, R.raw.stm_db_directions_metro,
-	        R.raw.stm_db_frequences_metro, R.raw.stm_db_horaire_metro, R.raw.stm_db_lignes_autobus,
-	        R.raw.stm_db_lignes_metro, R.raw.stm_db_stations_metro, R.raw.stm_db_arrets_autobus_0,
-	        R.raw.stm_db_arrets_autobus_1, R.raw.stm_db_arrets_autobus_2, R.raw.stm_db_arrets_autobus_3,
-	        R.raw.stm_db_arrets_autobus_4, R.raw.stm_db_arrets_autobus_7 };
+	private static final int[] DUMP_FILES = new int[] { R.raw.stm_db_directions_autobus, R.raw.stm_db_directions_metro, R.raw.stm_db_frequences_metro,
+			R.raw.stm_db_horaire_metro, R.raw.stm_db_lignes_autobus, R.raw.stm_db_lignes_metro, R.raw.stm_db_stations_metro, R.raw.stm_db_arrets_autobus_loc,
+			R.raw.stm_db_arrets_autobus_0, R.raw.stm_db_arrets_autobus_1, R.raw.stm_db_arrets_autobus_2, R.raw.stm_db_arrets_autobus_3,
+			R.raw.stm_db_arrets_autobus_4, R.raw.stm_db_arrets_autobus_7 };
 
 	// BUS LINE
 	public static final String T_BUS_LINES = "lignes_autobus";
@@ -73,6 +72,13 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	public static final String T_BUS_STOPS_K_SUBWAY_STATION_ID = "station_id";
 	public static final String T_BUS_STOPS_K_STOPS_ORDER = "arret_order";
 	public static final String T_BUS_STOPS_A_SIMPLE_DIRECTION_ID = "simple_direction_id";
+
+	// BUS STOP LOCATION
+	public static final String T_BUS_STOPS_LOC = "arrets_autobus_loc";
+	public static final String T_BUS_STOPS_LOC_K_CODE = BaseColumns._ID;
+	public static final String T_BUS_STOPS_LOC_K_PLACE = "lieu";
+	public static final String T_BUS_STOPS_LOC_K_STOP_LAT = "lat";
+	public static final String T_BUS_STOPS_LOC_K_STOP_LNG = "lng";
 
 	// SUBWAY LINE
 	public static final String T_SUBWAY_LINES = "lignes_metro";
@@ -251,8 +257,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 			UserPreferences.savePrefLcl(context, UserPreferences.PREFS_LCL_STM_DB_VERSION, DB_VERSION);
 		} catch (Exception e) {
 			MyLog.w(TAG, e, "ERROR while copying the database file!");
-			AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_DB_INIT_FAIL, e
-			        .getClass().getSimpleName(), DB_VERSION);
+			AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_DB_INIT_FAIL, e.getClass().getSimpleName(), DB_VERSION);
 			// TODO handles no space left on the device
 		} finally {
 			try {

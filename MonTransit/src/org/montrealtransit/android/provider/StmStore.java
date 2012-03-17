@@ -57,8 +57,7 @@ public class StmStore {
 	/**
 	 * The standard SEARCH URI.
 	 */
-	public static final Uri GLOBAL_SEARCH_URI = Uri.parse("content://" + AUTHORITY + "/"
-	        + SearchManager.SUGGEST_URI_PATH_QUERY);
+	public static final Uri GLOBAL_SEARCH_URI = Uri.parse("content://" + AUTHORITY + "/" + SearchManager.SUGGEST_URI_PATH_QUERY);
 	/**
 	 * The subway directions URI.
 	 */
@@ -66,7 +65,6 @@ public class StmStore {
 
 	/**
 	 * Represent a bus line.
-	 * @author Mathieu Méa
 	 */
 	public static class BusLine implements BaseColumns, BusLinesColumns, BusStopsColumns {
 		/**
@@ -84,8 +82,7 @@ public class StmStore {
 		/**
 		 * The MIME type of a {@link #CONTENT_URI} sub-directory of a single bus line.
 		 */
-		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY
-		        + ".provider.buslines";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY + ".provider.buslines";
 
 		/**
 		 * The different bus line types values.
@@ -198,7 +195,6 @@ public class StmStore {
 
 	/**
 	 * The bus line columns
-	 * @author Mathieu Méa
 	 */
 	public interface BusLinesColumns {
 		public static final String LINE_NUMBER = StmDbHelper.T_BUS_LINES_K_NUMBER;
@@ -208,7 +204,6 @@ public class StmStore {
 
 	/**
 	 * Represent a bus line direction.
-	 * @author Mathieu Méa
 	 */
 	public static class BusLineDirection implements BaseColumns, BusLineDirectionsColumns {
 		/**
@@ -222,13 +217,11 @@ public class StmStore {
 		/**
 		 * The MIME type of {@link #CONTENT_URI} providing a directory of bus line directions.
 		 */
-		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd." + AUTHORITY
-		        + ".provider.buslinedirections";
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd." + AUTHORITY + ".provider.buslinedirections";
 		/**
 		 * The MIME type of a {@link #CONTENT_URI} sub-directory of a single bus line direction.
 		 */
-		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY
-		        + ".provider.buslinedirections";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY + ".provider.buslinedirections";
 
 		/**
 		 * The line direction ID.
@@ -256,14 +249,25 @@ public class StmStore {
 		}
 
 		/**
-		 * @return the direction ID
+		 * @return the full direction ID
 		 */
 		public String getId() {
 			return id;
 		}
 
+		/**
+		 * @return the simple direction ID
+		 */
 		public String getSimpleId() {
-			return getId().substring(getId().length() - 1);
+			return toSimpleDirectionId(getId());
+		}
+
+		/**
+		 * @param a full direction ID
+		 * @return the simple direction ID
+		 */
+		public static String toSimpleDirectionId(String fullId) {
+			return fullId.substring(fullId.length() - 1);
 		}
 
 		/**
@@ -283,7 +287,6 @@ public class StmStore {
 
 	/**
 	 * The bus line direction columns
-	 * @author Mathieu Méa
 	 */
 	public interface BusLineDirectionsColumns {
 		public static final String DIRECTION_ID = StmDbHelper.T_BUS_LINE_DIRECTIONS_K_ID;
@@ -293,9 +296,8 @@ public class StmStore {
 
 	/**
 	 * A bus line stop.
-	 * @author Mathieu Méa
 	 */
-	public static class BusStop implements BaseColumns, SubwayStationsColumns, BusLinesColumns, BusStopsColumns {
+	public static class BusStop implements BaseColumns, SubwayStationsColumns, BusLinesColumns, BusStopLocationColumns, BusStopsColumns {
 		/**
 		 * The content URI for a bus stop.
 		 */
@@ -315,13 +317,11 @@ public class StmStore {
 		/**
 		 * The MIME type of a {@link #CONTENT_URI} sub-directory of a single bus stop.
 		 */
-		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY
-		        + ".provider.busstops";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY + ".provider.busstops";
 		/**
 		 * The MIME type of {@link #CONTENT_URI} providing a directory of bus stops for the live folder.
 		 */
-		public static final String CONTENT_TYPE_LIVE_FOLDER = "vnd.android.cursor.item/vnd." + AUTHORITY
-		        + ".provider.busstopslivefolder";
+		public static final String CONTENT_TYPE_LIVE_FOLDER = "vnd.android.cursor.item/vnd." + AUTHORITY + ".provider.busstopslivefolder";
 		/**
 		 * The default sort order.
 		 */
@@ -329,8 +329,7 @@ public class StmStore {
 		/**
 		 * The order by bus line number and bus stop code.
 		 */
-		public static final String ORDER_BY_LINE_CODE = StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + ", "
-		        + StmDbHelper.T_BUS_STOPS_K_CODE + " ASC";
+		public static final String ORDER_BY_LINE_CODE = StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + ", " + StmDbHelper.T_BUS_STOPS_K_CODE + " ASC";
 		/**
 		 * The order by bus stop code.
 		 */
@@ -413,6 +412,14 @@ public class StmStore {
 			if (c.getColumnIndex(BusLinesColumns.LINE_TYPE) != -1) {
 				busStop.lineType = c.getString(c.getColumnIndexOrThrow(BusLinesColumns.LINE_TYPE));
 			}
+			// set the bus stop location if available
+			if (c.getColumnIndex(BusStopLocationColumns.STOP_LOCATION_LAT) != -1) {
+				busStop.lat = c.getDouble(c.getColumnIndexOrThrow(BusStopLocationColumns.STOP_LOCATION_LAT));
+			}
+			if (c.getColumnIndex(BusStopLocationColumns.STOP_LOCATION_LNG) != -1) {
+				busStop.lng = c.getDouble(c.getColumnIndexOrThrow(BusStopLocationColumns.STOP_LOCATION_LNG));
+			}
+
 			return busStop;
 		}
 
@@ -632,7 +639,6 @@ public class StmStore {
 
 	/**
 	 * The bus stop columns.
-	 * @author Mathieu Méa
 	 */
 	public interface BusStopsColumns {
 		public static final String STOP_CODE = StmDbHelper.T_BUS_STOPS_K_CODE;
@@ -644,8 +650,99 @@ public class StmStore {
 	}
 
 	/**
+	 * Represent a bus stop location.
+	 */
+	public static class BusStopLocation implements BaseColumns, BusStopLocationColumns {
+		/**
+		 * The content URI for bus line directions.
+		 */
+		public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/busstopslocations");
+		/**
+		 * The default sort order for bus line directions.
+		 */
+		public static final String DEFAULT_SORT_ORDER = StmDbHelper.T_BUS_STOPS_LOC_K_CODE + " ASC";
+		/**
+		 * The MIME type of {@link #CONTENT_URI} providing a directory of bus stops locations.
+		 */
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd." + AUTHORITY + ".provider.busstopslocations";
+		/**
+		 * The MIME type of a {@link #CONTENT_URI} sub-directory of a single bus stop location.
+		 */
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY + ".provider.busstopslocations";
+
+		/**
+		 * The bus stop code.
+		 */
+		private String code;
+		/**
+		 * The bus stop place.
+		 */
+		private String place;
+
+		/**
+		 * The subway station latitude.
+		 */
+		private double lat;
+		/**
+		 * The subway station longitude.
+		 */
+		private double lng;
+
+		/**
+		 * @param c the cursor
+		 * @return a bus line direction object.
+		 */
+		public static BusStopLocation fromCursor(Cursor c) {
+			final BusStopLocation busStopLocation = new BusStopLocation();
+			busStopLocation.code = c.getString(c.getColumnIndexOrThrow(BusStopLocationColumns.STOP_LOCATION_CODE));
+			busStopLocation.place = c.getString(c.getColumnIndexOrThrow(BusStopLocationColumns.STOP_LOCATION_PLACE));
+			busStopLocation.lat = c.getDouble(c.getColumnIndexOrThrow(BusStopLocationColumns.STOP_LOCATION_LAT));
+			busStopLocation.lng = c.getDouble(c.getColumnIndexOrThrow(BusStopLocationColumns.STOP_LOCATION_LNG));
+			return busStopLocation;
+		}
+
+		/**
+		 * @return bus stop code
+		 */
+		public String getCode() {
+			return code;
+		}
+
+		/**
+		 * @return bus stop place
+		 */
+		public String getPlace() {
+			return place;
+		}
+
+		/**
+		 * @return bus stop latitude
+		 */
+		public double getLat() {
+			return lat;
+		}
+
+		/**
+		 * @return bus stop longitude
+		 */
+		public double getLng() {
+			return lng;
+		}
+
+	}
+
+	/**
+	 * The bus stop location columns
+	 */
+	public interface BusStopLocationColumns {
+		public static final String STOP_LOCATION_CODE = StmDbHelper.T_BUS_STOPS_LOC_K_CODE;
+		public static final String STOP_LOCATION_PLACE = StmDbHelper.T_BUS_STOPS_LOC_K_PLACE;
+		public static final String STOP_LOCATION_LAT = StmDbHelper.T_BUS_STOPS_LOC_K_STOP_LAT;
+		public static final String STOP_LOCATION_LNG = StmDbHelper.T_BUS_STOPS_LOC_K_STOP_LNG;
+	}
+
+	/**
 	 * A subway line
-	 * @author Mathieu Méa
 	 */
 	public static class SubwayLine implements BaseColumns, SubwayLinesColumns, SubwayStationsColumns {
 		/**
@@ -679,14 +776,12 @@ public class StmStore {
 		/**
 		 * The MIME type of a {@link #CONTENT_URI} sub-directory of a single subway line.
 		 */
-		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY
-		        + ".provider.subwaylines";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY + ".provider.subwaylines";
 
 		/**
 		 * The default sort order.
 		 */
-		public static final String DEFAULT_SORT_ORDER = StmDbHelper.T_SUBWAY_LINES + "."
-		        + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + " ASC";
+		public static final String DEFAULT_SORT_ORDER = StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + " ASC";
 
 		/**
 		 * The subway line number.
@@ -738,7 +833,6 @@ public class StmStore {
 
 	/**
 	 * The subway line columns
-	 * @author Mathieu Méa
 	 */
 	public interface SubwayLinesColumns {
 		public static final String LINE_NUMBER = StmDbHelper.T_SUBWAY_LINES + "_" + StmDbHelper.T_SUBWAY_LINES_K_NUMBER;
@@ -747,7 +841,6 @@ public class StmStore {
 
 	/**
 	 * The subway station.
-	 * @author Mathieu Méa
 	 */
 	public static class SubwayStation implements BaseColumns, SubwayStationsColumns, SubwayLinesColumns {
 		/**
@@ -757,28 +850,24 @@ public class StmStore {
 		/**
 		 * The MIME type of {@link #CONTENT_URI} providing a directory of subway stations.
 		 */
-		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd." + AUTHORITY
-		        + ".provider.subwaystations";
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd." + AUTHORITY + ".provider.subwaystations";
 		/**
 		 * The MIME type of a {@link #CONTENT_URI} sub-directory of a single subway station.
 		 */
-		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY
-		        + ".provider.subwaystations";
+		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY + ".provider.subwaystations";
 		/**
 		 * The default sort order.
 		 */
-		public static final String DEFAULT_SORT_ORDER = StmDbHelper.T_SUBWAY_STATIONS + "."
-		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME + " ASC";
+		public static final String DEFAULT_SORT_ORDER = StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME + " ASC";
 		/**
 		 * Order subway line by the real world order 1.
 		 */
-		public static final String NATURAL_SORT_ORDER = StmDbHelper.T_SUBWAY_DIRECTIONS + "."
-		        + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ORDER + " ASC";
+		public static final String NATURAL_SORT_ORDER = StmDbHelper.T_SUBWAY_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ORDER + " ASC";
 		/**
 		 * Order subway line by the real world order 2.
 		 */
-		public static final String NATURAL_SORT_ORDER_DESC = StmDbHelper.T_SUBWAY_DIRECTIONS + "."
-		        + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ORDER + " DESC";
+		public static final String NATURAL_SORT_ORDER_DESC = StmDbHelper.T_SUBWAY_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ORDER
+				+ " DESC";
 		/**
 		 * The subway station ID.
 		 */
@@ -867,7 +956,6 @@ public class StmStore {
 
 		/**
 		 * A sub directory of a single subway station that contains all of their bus lines.
-		 * @author Mathieu Méa
 		 */
 		public static final class BusLines implements BaseColumns, BusLinesColumns, SubwayStationsColumns {
 			private BusLines() {
@@ -879,7 +967,6 @@ public class StmStore {
 
 		/**
 		 * A sub directory of a single subway station that contains all of their bus stops.
-		 * @author Mathieu Méa
 		 */
 		public static final class BusStops implements BaseColumns, BusStopsColumns, SubwayStationsColumns {
 			private BusStops() {
@@ -891,7 +978,6 @@ public class StmStore {
 
 		/**
 		 * A sub directory of a single subway station that contains all of their subway lines.
-		 * @author Mathieu Méa
 		 */
 		public static final class SubwayLines implements BaseColumns, SubwayLinesColumns, SubwayStationsColumns {
 			private SubwayLines() {
@@ -904,16 +990,11 @@ public class StmStore {
 
 	/**
 	 * The subway lines columns
-	 * @author Mathieu Méa
 	 */
 	public interface SubwayStationsColumns {
-		public static final String STATION_ID = StmDbHelper.T_SUBWAY_STATIONS + "_"
-		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID;
-		public static final String STATION_NAME = StmDbHelper.T_SUBWAY_STATIONS + "_"
-		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME;
-		public static final String STATION_LAT = StmDbHelper.T_SUBWAY_STATIONS + "_"
-		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LAT;
-		public static final String STATION_LNG = StmDbHelper.T_SUBWAY_STATIONS + "_"
-		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LNG;
+		public static final String STATION_ID = StmDbHelper.T_SUBWAY_STATIONS + "_" + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID;
+		public static final String STATION_NAME = StmDbHelper.T_SUBWAY_STATIONS + "_" + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME;
+		public static final String STATION_LAT = StmDbHelper.T_SUBWAY_STATIONS + "_" + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LAT;
+		public static final String STATION_LNG = StmDbHelper.T_SUBWAY_STATIONS + "_" + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LNG;
 	}
 }

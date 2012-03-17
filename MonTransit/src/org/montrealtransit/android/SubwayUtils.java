@@ -213,7 +213,7 @@ public class SubwayUtils {
 			return Color.rgb(0, 157, 224); // blue
 		default:
 			MyLog.w(TAG, "Unknown color for subway line number '%s'.", number);
-			return Color.WHITE;
+			return Color.TRANSPARENT;
 		}
 	}
 

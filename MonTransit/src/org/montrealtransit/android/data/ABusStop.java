@@ -2,6 +2,10 @@ package org.montrealtransit.android.data;
 
 import org.montrealtransit.android.provider.StmStore.BusStop;
 
+/**
+ * A {@link BusStop} with a distance.
+ * @author Mathieu Méa
+ */
 public class ABusStop extends BusStop {
 
 	/**

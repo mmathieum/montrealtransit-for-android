@@ -35,7 +35,7 @@ INSERT INTO "arrets_autobus" VALUES(50665,100,'100JOE','Crémazie / Clark','',''
 INSERT INTO "arrets_autobus" VALUES(50671,100,'100JOE','Crémazie / Saint-Laurent','','',34);
 INSERT INTO "arrets_autobus" VALUES(50720,100,'100JOE','Crémazie / Casgrain','','',35);
 INSERT INTO "arrets_autobus" VALUES(50734,100,'100JOE','Crémazie / Henri-Julien','','',36);
-INSERT INTO "arrets_autobus" VALUES('',100,'100JOE','Crémazie / Berri (station Crémazie)',3,'Descente seulement',37);
+INSERT INTO "arrets_autobus" VALUES(50767,100,'100JOE','Crémazie / Berri (station Crémazie)',3,'Descente seulement',37);
 INSERT INTO "arrets_autobus" VALUES(50767,100,'100JOO','Crémazie / Berri',3,'',0);
 INSERT INTO "arrets_autobus" VALUES(53947,100,'100JOO','Crémazie / Henri-Julien','','',1);
 INSERT INTO "arrets_autobus" VALUES(50669,100,'100JOO','Crémazie / Saint-Laurent','','',2);
@@ -75,7 +75,7 @@ INSERT INTO "arrets_autobus" VALUES(55858,100,'100JOO','Montée de Liesse / No 1
 INSERT INTO "arrets_autobus" VALUES(55539,100,'100JOO','Montée de Liesse / Hickmore','','',36);
 INSERT INTO "arrets_autobus" VALUES(55538,100,'100JOO','Hickmore / No 4500','','',37);
 INSERT INTO "arrets_autobus" VALUES(55988,100,'100JOO','Hickmore / No 4300','','',38);
-INSERT INTO "arrets_autobus" VALUES('',100,'100JOO','Hickmore / Mega bloks','','Descente seulement',39);
+INSERT INTO "arrets_autobus" VALUES(55923,100,'100JOO','Hickmore / Mega bloks','','Descente seulement',39);
 INSERT INTO "arrets_autobus" VALUES(53986,101,'10101O','Station Charlevoix',37,'',0);
 INSERT INTO "arrets_autobus" VALUES(52473,101,'10101O','Charlevoix / Augustin-Cantin','','',1);
 INSERT INTO "arrets_autobus" VALUES(52405,101,'10101O','Saint-Patrick / d''Argenson','','',2);
@@ -94,7 +94,7 @@ INSERT INTO "arrets_autobus" VALUES(52059,101,'10101O','Angers / de l''Église',
 INSERT INTO "arrets_autobus" VALUES(53904,101,'10101O','de l''Église / Laurendeau','','',15);
 INSERT INTO "arrets_autobus" VALUES(51908,101,'10101O','de l''Église / Eadie','','',16);
 INSERT INTO "arrets_autobus" VALUES(51845,101,'10101O','de l''Église / Hadley','','',17);
-INSERT INTO "arrets_autobus" VALUES('',101,'10101O','de l''Église / No 2244','','Descente seulement',18);
+INSERT INTO "arrets_autobus" VALUES(51771,101,'10101O','de l''Église / No 2244','','Descente seulement',18);
 INSERT INTO "arrets_autobus" VALUES(51771,101,'10101E','de l''Église / No 2244','','',0);
 INSERT INTO "arrets_autobus" VALUES(54317,101,'10101E','Saint-Patrick / No 5200','','',1);
 INSERT INTO "arrets_autobus" VALUES(54287,101,'10101E','Saint-Patrick / Gilmore','','',2);
@@ -109,7 +109,7 @@ INSERT INTO "arrets_autobus" VALUES(53734,101,'10101E','Saint-Patrick / Atwater'
 INSERT INTO "arrets_autobus" VALUES(52376,101,'10101E','Saint-Patrick / Atwater','','',11);
 INSERT INTO "arrets_autobus" VALUES(52406,101,'10101E','Saint-Patrick / d''Argenson','','',12);
 INSERT INTO "arrets_autobus" VALUES(52454,101,'10101E','Saint-Patrick / Charlevoix','','',13);
-INSERT INTO "arrets_autobus" VALUES('',101,'10101E','Station Charlevoix',37,'Descente seulement',14);
+INSERT INTO "arrets_autobus" VALUES(53986,101,'10101E','Station Charlevoix',37,'Descente seulement',14);
 INSERT INTO "arrets_autobus" VALUES(53796,102,'10201O','Station Vendôme',47,'',0);
 INSERT INTO "arrets_autobus" VALUES(51460,102,'10201O','Décarie / Sherbrooke','','',1);
 INSERT INTO "arrets_autobus" VALUES(51373,102,'10201O','Côte-Saint-Antoine / Décarie','','',2);
@@ -135,7 +135,7 @@ INSERT INTO "arrets_autobus" VALUES(50673,102,'10201O','Somerled / Doherty','','
 INSERT INTO "arrets_autobus" VALUES(50649,102,'10201O','Somerled / West Broadway','','',22);
 INSERT INTO "arrets_autobus" VALUES(50576,102,'10201O','West Broadway / Fielding','','',23);
 INSERT INTO "arrets_autobus" VALUES(50525,102,'10201O','West Broadway / Chester','','',24);
-INSERT INTO "arrets_autobus" VALUES('',102,'10201O','Connaught / West Broadway','','Descente seulement',25);
+INSERT INTO "arrets_autobus" VALUES(50489,102,'10201O','Connaught / West Broadway','','Descente seulement',25);
 INSERT INTO "arrets_autobus" VALUES(50489,102,'10201E','Connaught / West Broadway','','',0);
 INSERT INTO "arrets_autobus" VALUES(50526,102,'10201E','West Broadway / Chester','','',1);
 INSERT INTO "arrets_autobus" VALUES(50578,102,'10201E','West Broadway / Fielding','','',2);
@@ -160,8 +160,7 @@ INSERT INTO "arrets_autobus" VALUES(54072,102,'10201E','Girouard / Notre-Dame-de
 INSERT INTO "arrets_autobus" VALUES(51327,102,'10201E','Notre-Dame-de-Grâce / Décarie','','',21);
 INSERT INTO "arrets_autobus" VALUES(51372,102,'10201E','Décarie / Côte-Saint-Antoine','','',22);
 INSERT INTO "arrets_autobus" VALUES(54066,102,'10201E','Décarie / Sherbrooke','','',23);
-INSERT INTO "arrets_autobus" VALUES('',102,'10201E','de Maisonneuve / Marlowe',47,'Descente seulement',24);
-INSERT INTO "arrets_autobus" VALUES('',102,'10201E','Station Vendôme',47,'Descente seulement',25);
+INSERT INTO "arrets_autobus" VALUES(53796,102,'10201E','de Maisonneuve / Marlowe',47,'Descente seulement',24);
 INSERT INTO "arrets_autobus" VALUES(53799,103,'103ACO','Station Villa-Maria',48,'',0);
 INSERT INTO "arrets_autobus" VALUES(51202,103,'103ACO','Monkland / Girouard','','',1);
 INSERT INTO "arrets_autobus" VALUES(51170,103,'103ACO','Monkland / Marcil','','',2);
@@ -189,7 +188,7 @@ INSERT INTO "arrets_autobus" VALUES(56418,103,'103ACO','Smart / Côte-Saint-Luc'
 INSERT INTO "arrets_autobus" VALUES(56373,103,'103ACO','Arcadian / Westluke','','',24);
 INSERT INTO "arrets_autobus" VALUES(56361,103,'103ACO','Westluke / Côte-Saint-Luc','','',25);
 INSERT INTO "arrets_autobus" VALUES(56379,103,'103ACO','Côte-Saint-Luc / Wolseley','','',26);
-INSERT INTO "arrets_autobus" VALUES('',103,'103ACO','Côte-Saint-Luc / Westminster','','Descente seulement',27);
+INSERT INTO "arrets_autobus" VALUES(56388,103,'103ACO','Côte-Saint-Luc / Westminster','','Descente seulement',27);
 INSERT INTO "arrets_autobus" VALUES(56388,103,'103JOE','Côte-Saint-Luc / Westminster','','',0);
 INSERT INTO "arrets_autobus" VALUES(56396,103,'103JOE','Côte-Saint-Luc / Sunnybrooke','','',1);
 INSERT INTO "arrets_autobus" VALUES(56399,103,'103JOE','Côte-Saint-Luc / Robert-Burns','','',2);
@@ -210,8 +209,7 @@ INSERT INTO "arrets_autobus" VALUES(51122,103,'103JOE','Monkland / Melrose','','
 INSERT INTO "arrets_autobus" VALUES(51154,103,'103JOE','Monkland / Harvard','','',17);
 INSERT INTO "arrets_autobus" VALUES(51171,103,'103JOE','Monkland / Marcil','','',18);
 INSERT INTO "arrets_autobus" VALUES(51204,103,'103JOE','Monkland / Girouard','','',19);
-INSERT INTO "arrets_autobus" VALUES('',103,'103JOE','Décarie / Monkland','','Descente seulement',20);
-INSERT INTO "arrets_autobus" VALUES('',103,'103JOE','Station Villa-Maria',48,'Descente seulement',21);
+INSERT INTO "arrets_autobus" VALUES(53799,103,'103JOE','Décarie / Monkland',48,'Descente seulement',20);
 INSERT INTO "arrets_autobus" VALUES(53799,103,'103JOO','Station Villa-Maria',48,'',0);
 INSERT INTO "arrets_autobus" VALUES(51202,103,'103JOO','Monkland / Girouard','','',1);
 INSERT INTO "arrets_autobus" VALUES(51170,103,'103JOO','Monkland / Marcil','','',2);
@@ -239,7 +237,7 @@ INSERT INTO "arrets_autobus" VALUES(56418,103,'103JOO','Smart / Côte-Saint-Luc'
 INSERT INTO "arrets_autobus" VALUES(56373,103,'103JOO','Arcadian / Westluke','','',24);
 INSERT INTO "arrets_autobus" VALUES(56361,103,'103JOO','Westluke / Côte-Saint-Luc','','',25);
 INSERT INTO "arrets_autobus" VALUES(56379,103,'103JOO','Côte-Saint-Luc / Wolseley','','',26);
-INSERT INTO "arrets_autobus" VALUES('',103,'103JOO','Côte-Saint-Luc / Westminster','','Descente seulement',27);
+INSERT INTO "arrets_autobus" VALUES(56388,103,'103JOO','Côte-Saint-Luc / Westminster','','Descente seulement',27);
 INSERT INTO "arrets_autobus" VALUES(56421,104,'10401E','Caldwell / des Maimonides','','',0);
 INSERT INTO "arrets_autobus" VALUES(56341,104,'10401E','Caldwell / Mackle','','',1);
 INSERT INTO "arrets_autobus" VALUES(56346,104,'10401E','Mackle / Einstein','','',2);
@@ -281,8 +279,7 @@ INSERT INTO "arrets_autobus" VALUES(56286,104,'10401E','Sherbrooke / Greene','',
 INSERT INTO "arrets_autobus" VALUES(56290,104,'10401E','Sherbrooke / Wood','','',38);
 INSERT INTO "arrets_autobus" VALUES(51951,104,'10401E','Sherbrooke / Atwater','','',39);
 INSERT INTO "arrets_autobus" VALUES(52007,104,'10401E','Atwater / de Maisonneuve','','',40);
-INSERT INTO "arrets_autobus" VALUES('',104,'10401E','Atwater / Sainte-Catherine','','Descente seulement',41);
-INSERT INTO "arrets_autobus" VALUES('',104,'10401E','Sainte-Catherine / station Atwater',35,'Descente seulement',42);
+INSERT INTO "arrets_autobus" VALUES(56299,104,'10401E','Atwater / Sainte-Catherine',35,'Descente seulement',41);
 INSERT INTO "arrets_autobus" VALUES(56298,104,'10401O','Sainte-Catherine / station Atwater',35,'',0);
 INSERT INTO "arrets_autobus" VALUES(51990,104,'10401O','Atwater / Lincoln','','',1);
 INSERT INTO "arrets_autobus" VALUES(51952,104,'10401O','Sherbrooke / Atwater','','',2);
@@ -327,7 +324,7 @@ INSERT INTO "arrets_autobus" VALUES(56336,104,'10401O','Mackle / Parkhaven','','
 INSERT INTO "arrets_autobus" VALUES(56420,104,'10401O','Parkhaven / No 5790','','',41);
 INSERT INTO "arrets_autobus" VALUES(56365,104,'10401O','Parkhaven / Kildare','','',42);
 INSERT INTO "arrets_autobus" VALUES(56370,104,'10401O','Caldwell / Kildare','','',43);
-INSERT INTO "arrets_autobus" VALUES('',104,'10401O','Caldwell / des Maimonides','','Descente seulement',44);
+INSERT INTO "arrets_autobus" VALUES(56421,104,'10401O','Caldwell / des Maimonides','','Descente seulement',44);
 INSERT INTO "arrets_autobus" VALUES(50741,105,'10501E','Gare Montréal-Ouest','','',0);
 INSERT INTO "arrets_autobus" VALUES(53792,105,'10501E','Sherbrooke / Westmore','','',1);
 INSERT INTO "arrets_autobus" VALUES(50765,105,'10501E','Sherbrooke / West Broadway','','',2);
@@ -346,8 +343,7 @@ INSERT INTO "arrets_autobus" VALUES(51314,105,'10501E','Sherbrooke / Wilson','',
 INSERT INTO "arrets_autobus" VALUES(51345,105,'10501E','Sherbrooke / Oxford','','',15);
 INSERT INTO "arrets_autobus" VALUES(51399,105,'10501E','Sherbrooke / Girouard','','',16);
 INSERT INTO "arrets_autobus" VALUES(51463,105,'10501E','Sherbrooke / Décarie','','',17);
-INSERT INTO "arrets_autobus" VALUES('',105,'10501E','de Maisonneuve / Marlowe',47,'Descente seulement',18);
-INSERT INTO "arrets_autobus" VALUES('',105,'10501E','Station Vendôme',47,'Descente seulement',19);
+INSERT INTO "arrets_autobus" VALUES(53797,105,'10501E','de Maisonneuve / Marlowe',47,'Descente seulement',18);
 INSERT INTO "arrets_autobus" VALUES(53797,105,'10501O','Station Vendôme',47,'',0);
 INSERT INTO "arrets_autobus" VALUES(51460,105,'10501O','Décarie / Sherbrooke','','',1);
 INSERT INTO "arrets_autobus" VALUES(51396,105,'10501O','Sherbrooke / Girouard','','',2);
@@ -366,7 +362,7 @@ INSERT INTO "arrets_autobus" VALUES(50854,105,'10501O','Sherbrooke / Coronation'
 INSERT INTO "arrets_autobus" VALUES(53806,105,'10501O','Sherbrooke / Campus Loyola','','',15);
 INSERT INTO "arrets_autobus" VALUES(50763,105,'10501O','Sherbrooke / West Broadway','','',16);
 INSERT INTO "arrets_autobus" VALUES(50747,105,'10501O','Sherbrooke / Patricia','','',17);
-INSERT INTO "arrets_autobus" VALUES('',105,'10501O','Gare Montréal-Ouest','','Descente seulement',18);
+INSERT INTO "arrets_autobus" VALUES(50741,105,'10501O','Gare Montréal-Ouest','','Descente seulement',18);
 INSERT INTO "arrets_autobus" VALUES(56759,106,'10601E','Terminus Lafleur / Newman','','',0);
 INSERT INTO "arrets_autobus" VALUES(56772,106,'10601E','Lafleur / Airlie','','',1);
 INSERT INTO "arrets_autobus" VALUES(56780,106,'10601E','Centrale / Orchard','','',2);
@@ -394,7 +390,7 @@ INSERT INTO "arrets_autobus" VALUES(56945,106,'10601E','Newman / Senkus','','',2
 INSERT INTO "arrets_autobus" VALUES(56951,106,'10601E','Newman / Guy-Bouchard','','',24);
 INSERT INTO "arrets_autobus" VALUES(56960,106,'10601E','Newman / Angrignon','','',25);
 INSERT INTO "arrets_autobus" VALUES(60633,106,'10601E','Angrignon / Face aux Tours Angrignon','','',26);
-INSERT INTO "arrets_autobus" VALUES('',106,'10601E','Station Angrignon',43,'Descente seulement',27);
+INSERT INTO "arrets_autobus" VALUES(54110,106,'10601E','Station Angrignon',43,'Descente seulement',27);
 INSERT INTO "arrets_autobus" VALUES(54110,106,'10601O','Station Angrignon',43,'',0);
 INSERT INTO "arrets_autobus" VALUES(57060,106,'10601O','Newman / Carrefour Angrignon','','',1);
 INSERT INTO "arrets_autobus" VALUES(56950,106,'10601O','Newman / Guy-Bouchard','','',2);
@@ -423,7 +419,7 @@ INSERT INTO "arrets_autobus" VALUES(56779,106,'10601O','Centrale / Orchard','','
 INSERT INTO "arrets_autobus" VALUES(56773,106,'10601O','Orchard / Lasalle','','',25);
 INSERT INTO "arrets_autobus" VALUES(56765,106,'10601O','Lasalle / Lafleur','','',26);
 INSERT INTO "arrets_autobus" VALUES(56768,106,'10601O','Lafleur / Centrale','','',27);
-INSERT INTO "arrets_autobus" VALUES('',106,'10601O','Terminus Lafleur / Newman','','Descente seulement',28);
+INSERT INTO "arrets_autobus" VALUES(56759,106,'10601O','Terminus Lafleur / Newman','','Descente seulement',28);
 INSERT INTO "arrets_autobus" VALUES(54346,107,'107JOS','des Pins / Docteur-Penfield','','',0);
 INSERT INTO "arrets_autobus" VALUES(52106,107,'107JOS','Peel / des Pins','','',1);
 INSERT INTO "arrets_autobus" VALUES(52177,107,'107JOS','Peel / Docteur-Penfield','','',2);
@@ -464,7 +460,7 @@ INSERT INTO "arrets_autobus" VALUES(56576,107,'107JOS','de Verdun / Beatty','','
 INSERT INTO "arrets_autobus" VALUES(56572,107,'107JOS','de Verdun / Manning','','',37);
 INSERT INTO "arrets_autobus" VALUES(56704,107,'107JOS','de Verdun / Lasalle','','',38);
 INSERT INTO "arrets_autobus" VALUES(56565,107,'107JOS','Lasalle / Valiquette','','',39);
-INSERT INTO "arrets_autobus" VALUES('',107,'107JOS','Stephens / Lasalle','','Descente seulement',40);
+INSERT INTO "arrets_autobus" VALUES(56552,107,'107JOS','Stephens / Lasalle','','Descente seulement',40);
 INSERT INTO "arrets_autobus" VALUES(56552,107,'107JON','Stephens / Lasalle','','',0);
 INSERT INTO "arrets_autobus" VALUES(56566,107,'107JON','Lasalle / Valiquette','','',1);
 INSERT INTO "arrets_autobus" VALUES(56693,107,'107JON','de Verdun / Brault','','',2);
@@ -505,7 +501,7 @@ INSERT INTO "arrets_autobus" VALUES(52336,107,'107JON','Peel / de Maisonneuve','
 INSERT INTO "arrets_autobus" VALUES(52275,107,'107JON','Peel / Sherbrooke','','',37);
 INSERT INTO "arrets_autobus" VALUES(52176,107,'107JON','Peel / Docteur-Penfield','','',38);
 INSERT INTO "arrets_autobus" VALUES(53843,107,'107JON','Docteur-Penfield / No 855','','',39);
-INSERT INTO "arrets_autobus" VALUES('',107,'107JON','des Pins / Docteur-Penfield','','Descente seulement',40);
+INSERT INTO "arrets_autobus" VALUES(54346,107,'107JON','des Pins / Docteur-Penfield','','Descente seulement',40);
 INSERT INTO "arrets_autobus" VALUES(56703,108,'10801E','Bannantyne / Stephens','','',0);
 INSERT INTO "arrets_autobus" VALUES(56539,108,'10801E','Bannantyne / Allard','','',1);
 INSERT INTO "arrets_autobus" VALUES(56541,108,'10801E','Bannantyne / Brault','','',2);
@@ -532,8 +528,8 @@ INSERT INTO "arrets_autobus" VALUES(54181,108,'10801E','Atwater / Lionel-Groulx'
 INSERT INTO "arrets_autobus" VALUES(52193,108,'10801E','Atwater / Saint-Jacques',36,'',23);
 INSERT INTO "arrets_autobus" VALUES(56303,108,'10801E','Atwater / Saint-Antoine','','',24);
 INSERT INTO "arrets_autobus" VALUES(52085,108,'10801E','Atwater / René-Lévesque','','',25);
-INSERT INTO "arrets_autobus" VALUES('',108,'10801E','Atwater / Sainte-Catherine',35,'Descente seulement',26);
-INSERT INTO "arrets_autobus" VALUES('',108,'10801E','Tupper / Atwater','','Descente seulement',27);
+INSERT INTO "arrets_autobus" VALUES(56297,108,'10801E','Atwater / Sainte-Catherine',35,'Descente seulement',26);
+INSERT INTO "arrets_autobus" VALUES(56308,108,'10801E','Tupper / Atwater','','Descente seulement',27);
 INSERT INTO "arrets_autobus" VALUES(56308,108,'10801O','Tupper / Atwater',35,'',0);
 INSERT INTO "arrets_autobus" VALUES(52086,108,'10801O','Atwater / René-Lévesque','','',1);
 INSERT INTO "arrets_autobus" VALUES(56304,108,'10801O','Atwater / Saint-Antoine','','',2);
@@ -561,7 +557,7 @@ INSERT INTO "arrets_autobus" VALUES(56542,108,'10801O','Bannantyne / Moffat','',
 INSERT INTO "arrets_autobus" VALUES(56540,108,'10801O','Bannantyne / Brault','','',24);
 INSERT INTO "arrets_autobus" VALUES(56538,108,'10801O','Bannantyne / Allard','','',25);
 INSERT INTO "arrets_autobus" VALUES(56537,108,'10801O','Bannantyne / Rolland','','',26);
-INSERT INTO "arrets_autobus" VALUES('',108,'10801O','Bannantyne / Stephens','','Descente seulement',27);
+INSERT INTO "arrets_autobus" VALUES(56703,108,'10801O','Bannantyne / Stephens','','Descente seulement',27);
 INSERT INTO "arrets_autobus" VALUES(57023,109,'10901N','Édouard / Lacharité','','',0);
 INSERT INTO "arrets_autobus" VALUES(57018,109,'10901N','Édouard / 2e Avenue','','',1);
 INSERT INTO "arrets_autobus" VALUES(57016,109,'10901N','Édouard / 5e Avenue','','',2);
@@ -598,7 +594,7 @@ INSERT INTO "arrets_autobus" VALUES(57109,109,'10901N','Angrignon / face au Maxi
 INSERT INTO "arrets_autobus" VALUES(57108,109,'10901N','Angrignon / face au Canadian Tire','','',33);
 INSERT INTO "arrets_autobus" VALUES(57041,109,'10901N','Angrignon / Newman','','',34);
 INSERT INTO "arrets_autobus" VALUES(60633,109,'10901N','Angrignon / Face aux Tours Angrignon','','',35);
-INSERT INTO "arrets_autobus" VALUES('',109,'10901N','Station Angrignon',43,'Descente seulement',36);
+INSERT INTO "arrets_autobus" VALUES(54112,109,'10901N','Station Angrignon',43,'Descente seulement',36);
 INSERT INTO "arrets_autobus" VALUES(54112,109,'10901S','Station Angrignon',43,'',0);
 INSERT INTO "arrets_autobus" VALUES(57110,109,'10901S','Angrignon / face au Canadian Tire','','',1);
 INSERT INTO "arrets_autobus" VALUES(57111,109,'10901S','Angrignon / Face au Maxi','','',2);
@@ -639,7 +635,7 @@ INSERT INTO "arrets_autobus" VALUES(57011,109,'10901S','Centrale / 5e Avenue',''
 INSERT INTO "arrets_autobus" VALUES(57012,109,'10901S','Centrale / 2e Avenue','','',37);
 INSERT INTO "arrets_autobus" VALUES(57013,109,'10901S','Centrale / Lacharité','','',38);
 INSERT INTO "arrets_autobus" VALUES(57103,109,'10901S','Lacharité / Bannon','','',39);
-INSERT INTO "arrets_autobus" VALUES('',109,'10901S','Édouard / Lacharité','','Descente seulement',40);
+INSERT INTO "arrets_autobus" VALUES(57023,109,'10901S','Édouard / Lacharité','','Descente seulement',40);
 INSERT INTO "arrets_autobus" VALUES(57358,110,'11001E','28e Avenue / Remembrance','','',0);
 INSERT INTO "arrets_autobus" VALUES(57286,110,'11001E','Remembrance / 32e Avenue','','',1);
 INSERT INTO "arrets_autobus" VALUES(57198,110,'11001E','32e Avenue / Saint-Antoine','','',2);
@@ -717,7 +713,7 @@ INSERT INTO "arrets_autobus" VALUES(53896,110,'11001E','de La Vérendrye / Parc 
 INSERT INTO "arrets_autobus" VALUES(51785,110,'11001E','des Trinitaires / d''Aragon','','',74);
 INSERT INTO "arrets_autobus" VALUES(51687,110,'11001E','des Trinitaires / Jogues','','',75);
 INSERT INTO "arrets_autobus" VALUES(51611,110,'11001E','des Trinitaires / Lamont','','',76);
-INSERT INTO "arrets_autobus" VALUES('',110,'11001E','Station Angrignon',43,'Descente seulement',77);
+INSERT INTO "arrets_autobus" VALUES(54106,110,'11001E','Station Angrignon',43,'Descente seulement',77);
 INSERT INTO "arrets_autobus" VALUES(54106,110,'11001O','Station Angrignon',43,'',0);
 INSERT INTO "arrets_autobus" VALUES(51688,110,'11001O','des Trinitaires / Jogues','','',1);
 INSERT INTO "arrets_autobus" VALUES(51762,110,'11001O','des Trinitaires / Dumas','','',2);
@@ -785,7 +781,7 @@ INSERT INTO "arrets_autobus" VALUES(57213,110,'11001O','24e Avenue / Provost',''
 INSERT INTO "arrets_autobus" VALUES(60393,110,'11001O','24e Avenue / Saint-Antoine','','',64);
 INSERT INTO "arrets_autobus" VALUES(57331,110,'11001O','Saint-Antoine / face au centre d''accueil','','',65);
 INSERT INTO "arrets_autobus" VALUES(60398,110,'11001O','Saint-Antoine / 32e Avenue','','',66);
-INSERT INTO "arrets_autobus" VALUES('',110,'11001O','28e Avenue / Remembrance','','Descente seulement',67);
+INSERT INTO "arrets_autobus" VALUES(57358,110,'11001O','28e Avenue / Remembrance','','Descente seulement',67);
 INSERT INTO "arrets_autobus" VALUES(60874,112,'11201E','Airlie / Lafleur','','',0);
 INSERT INTO "arrets_autobus" VALUES(56772,112,'11201E','Lafleur / Airlie','','',1);
 INSERT INTO "arrets_autobus" VALUES(56780,112,'11201E','Centrale / Orchard','','',2);
@@ -825,7 +821,7 @@ INSERT INTO "arrets_autobus" VALUES(56523,112,'11201E','Beurling / Moffat','',''
 INSERT INTO "arrets_autobus" VALUES(56528,112,'11201E','Champlain / Woodland','','',36);
 INSERT INTO "arrets_autobus" VALUES(56531,112,'11201E','Champlain / Desmarchais','','',37);
 INSERT INTO "arrets_autobus" VALUES(56533,112,'11201E','Champlain / 5e Avenue','','',38);
-INSERT INTO "arrets_autobus" VALUES('',112,'11201E','Drake / Jolicoeur',41,'Descente seulement',39);
+INSERT INTO "arrets_autobus" VALUES(54101,112,'11201E','Drake / Jolicoeur',41,'Descente seulement',39);
 INSERT INTO "arrets_autobus" VALUES(54101,112,'11201O','Drake / Jolicoeur',41,'',0);
 INSERT INTO "arrets_autobus" VALUES(56534,112,'11201O','Champlain / 5e Avenue','','',1);
 INSERT INTO "arrets_autobus" VALUES(56530,112,'11201O','Champlain / Desmarchais','','',2);
@@ -864,7 +860,7 @@ INSERT INTO "arrets_autobus" VALUES(56828,112,'11201O','Airlie / 80e Avenue','',
 INSERT INTO "arrets_autobus" VALUES(56819,112,'11201O','Airlie / No 9199','','',35);
 INSERT INTO "arrets_autobus" VALUES(57076,112,'11201O','Airlie / 90e Avenue','','',36);
 INSERT INTO "arrets_autobus" VALUES(57038,112,'11201O','Airlie / Behrens','','',37);
-INSERT INTO "arrets_autobus" VALUES('',112,'11201O','Airlie / Lafleur','','Descente seulement',38);
+INSERT INTO "arrets_autobus" VALUES(60874,112,'11201O','Airlie / Lafleur','','Descente seulement',38);
 INSERT INTO "arrets_autobus" VALUES(60875,113,'11301E','Terminus Lafleur / Newman','','',0);
 INSERT INTO "arrets_autobus" VALUES(57055,113,'11301E','Lafleur / Distillerie Seagram','','',1);
 INSERT INTO "arrets_autobus" VALUES(56778,113,'11301E','Lafleur / Wanklyn','','',2);
@@ -902,7 +898,7 @@ INSERT INTO "arrets_autobus" VALUES(53896,113,'11301E','de La Vérendrye / Parc 
 INSERT INTO "arrets_autobus" VALUES(51785,113,'11301E','des Trinitaires / d''Aragon','','',34);
 INSERT INTO "arrets_autobus" VALUES(51687,113,'11301E','des Trinitaires / Jogues','','',35);
 INSERT INTO "arrets_autobus" VALUES(51611,113,'11301E','des Trinitaires / Lamont','','',36);
-INSERT INTO "arrets_autobus" VALUES('',113,'11301E','Station Angrignon',43,'Descente seulement',37);
+INSERT INTO "arrets_autobus" VALUES(54107,113,'11301E','Station Angrignon',43,'Descente seulement',37);
 INSERT INTO "arrets_autobus" VALUES(54107,113,'11301O','Station Angrignon',43,'',0);
 INSERT INTO "arrets_autobus" VALUES(51688,113,'11301O','des Trinitaires / Jogues','','',1);
 INSERT INTO "arrets_autobus" VALUES(51762,113,'11301O','des Trinitaires / Dumas','','',2);
@@ -938,7 +934,7 @@ INSERT INTO "arrets_autobus" VALUES(56763,113,'11301O','Jean-Milot / des Oblats'
 INSERT INTO "arrets_autobus" VALUES(56782,113,'11301O','Jean-Milot / Lafleur','','',32);
 INSERT INTO "arrets_autobus" VALUES(56777,113,'11301O','Lafleur / Wanklyn','','',33);
 INSERT INTO "arrets_autobus" VALUES(56734,113,'11301O','Lafleur / Distillerie Seagram','','',34);
-INSERT INTO "arrets_autobus" VALUES('',113,'11301O','Terminus Lafleur / Newman','','Descente seulement',35);
+INSERT INTO "arrets_autobus" VALUES(60875,113,'11301O','Terminus Lafleur / Newman','','Descente seulement',35);
 INSERT INTO "arrets_autobus" VALUES(56146,115,'115AME','Devonshire / Kraft sortie Nord','','',0);
 INSERT INTO "arrets_autobus" VALUES(56148,115,'115AME','Devonshire / Kraft sortie Sud','','',1);
 INSERT INTO "arrets_autobus" VALUES(56014,115,'115AME','Devonshire / No 8335','','',2);
@@ -948,7 +944,7 @@ INSERT INTO "arrets_autobus" VALUES(56026,115,'115AME','Paré / Devonshire','','
 INSERT INTO "arrets_autobus" VALUES(56109,115,'115AME','Paré / No 5530','','',6);
 INSERT INTO "arrets_autobus" VALUES(56010,115,'115AME','Paré / No 5420','','',7);
 INSERT INTO "arrets_autobus" VALUES(50478,115,'115AME','Paré / Décarie','','',8);
-INSERT INTO "arrets_autobus" VALUES('',115,'115AME','Décarie / Jean-Talon',52,'Descente seulement',9);
+INSERT INTO "arrets_autobus" VALUES(54262,115,'115AME','Décarie / Jean-Talon',52,'Descente seulement',9);
 INSERT INTO "arrets_autobus" VALUES(54262,115,'115AMO','Décarie / Jean-Talon',52,'',0);
 INSERT INTO "arrets_autobus" VALUES(50479,115,'115AMO','Paré / Décarie','','',1);
 INSERT INTO "arrets_autobus" VALUES(56009,115,'115AMO','Paré / No 5415','','',2);
@@ -957,8 +953,8 @@ INSERT INTO "arrets_autobus" VALUES(56025,115,'115AMO','Paré / Devonshire','','
 INSERT INTO "arrets_autobus" VALUES(56022,115,'115AMO','Ferrier / Devonshire','','',5);
 INSERT INTO "arrets_autobus" VALUES(56107,115,'115AMO','Ferrier / Montview','','',6);
 INSERT INTO "arrets_autobus" VALUES(56012,115,'115AMO','Montview / Royalmount','','',7);
-INSERT INTO "arrets_autobus" VALUES('',115,'115AMO','Royalmount / Paramax (descente)','','Descente seulement',8);
-INSERT INTO "arrets_autobus" VALUES('',115,'115AMO','Royalmount / Pharma Science','','Descente seulement',9);
+INSERT INTO "arrets_autobus" VALUES(53887,115,'115AMO','Royalmount / Paramax (descente)','','Descente seulement',8);
+INSERT INTO "arrets_autobus" VALUES(53889,115,'115AMO','Royalmount / Pharma Science','','Descente seulement',9);
 INSERT INTO "arrets_autobus" VALUES(53891,115,'115AMO','Royalmount / No 6150','','',10);
 INSERT INTO "arrets_autobus" VALUES(50397,115,'115AMO','Royalmount / Biotech','','',11);
 INSERT INTO "arrets_autobus" VALUES(53890,115,'115AMO','Royalmount / D.S.M.','','',12);
@@ -968,7 +964,7 @@ INSERT INTO "arrets_autobus" VALUES(56017,115,'115AMO','Royalmount / Devonshire'
 INSERT INTO "arrets_autobus" VALUES(56018,115,'115AMO','Devonshire / No 8335','','',16);
 INSERT INTO "arrets_autobus" VALUES(56149,115,'115AMO','Devonshire / Kraft sortie Sud','','',17);
 INSERT INTO "arrets_autobus" VALUES(56147,115,'115AMO','Devonshire / Kraft sortie Nord','','',18);
-INSERT INTO "arrets_autobus" VALUES('',115,'115AMO','Devonshire / Kraft sortie Nord','','Descente seulement',19);
+INSERT INTO "arrets_autobus" VALUES(56146,115,'115AMO','Devonshire / Kraft sortie Nord','','Descente seulement',19);
 INSERT INTO "arrets_autobus" VALUES(54195,115,'115PMO','Jean-Talon / Décarie',52,'',0);
 INSERT INTO "arrets_autobus" VALUES(50500,115,'115PMO','Mountain Sights / Buchan','','',1);
 INSERT INTO "arrets_autobus" VALUES(50479,115,'115PMO','Paré / Décarie','','',2);
@@ -980,14 +976,14 @@ INSERT INTO "arrets_autobus" VALUES(56015,115,'115PMO','Devonshire / Royalmount'
 INSERT INTO "arrets_autobus" VALUES(56018,115,'115PMO','Devonshire / No 8335','','',8);
 INSERT INTO "arrets_autobus" VALUES(56149,115,'115PMO','Devonshire / Kraft sortie Sud','','',9);
 INSERT INTO "arrets_autobus" VALUES(56147,115,'115PMO','Devonshire / Kraft sortie Nord','','',10);
-INSERT INTO "arrets_autobus" VALUES('',115,'115PMO','Devonshire / Kraft sortie Nord','','Descente seulement',11);
+INSERT INTO "arrets_autobus" VALUES(56146,115,'115PMO','Devonshire / Kraft sortie Nord','','Descente seulement',11);
 INSERT INTO "arrets_autobus" VALUES(56146,115,'115PME','Devonshire / Kraft sortie Nord','','',0);
 INSERT INTO "arrets_autobus" VALUES(56148,115,'115PME','Devonshire / Kraft sortie Sud','','',1);
 INSERT INTO "arrets_autobus" VALUES(56014,115,'115PME','Devonshire / No 8335','','',2);
 INSERT INTO "arrets_autobus" VALUES(56016,115,'115PME','Devonshire / Royalmount','','',3);
 INSERT INTO "arrets_autobus" VALUES(56013,115,'115PME','Royalmount / Montview','','',4);
-INSERT INTO "arrets_autobus" VALUES('',115,'115PME','Royalmount / Paramax (descente)','','Descente seulement',5);
-INSERT INTO "arrets_autobus" VALUES('',115,'115PME','Royalmount / Pharma Science','','Descente seulement',6);
+INSERT INTO "arrets_autobus" VALUES(53887,115,'115PME','Royalmount / Paramax (descente)','','Descente seulement',5);
+INSERT INTO "arrets_autobus" VALUES(53889,115,'115PME','Royalmount / Pharma Science','','Descente seulement',6);
 INSERT INTO "arrets_autobus" VALUES(53891,115,'115PME','Royalmount / No 6150','','',7);
 INSERT INTO "arrets_autobus" VALUES(50397,115,'115PME','Royalmount / Biotech','','',8);
 INSERT INTO "arrets_autobus" VALUES(53890,115,'115PME','Royalmount / D.S.M.','','',9);
@@ -999,7 +995,7 @@ INSERT INTO "arrets_autobus" VALUES(56026,115,'115PME','Paré / Devonshire','','
 INSERT INTO "arrets_autobus" VALUES(56109,115,'115PME','Paré / No 5530','','',15);
 INSERT INTO "arrets_autobus" VALUES(56010,115,'115PME','Paré / No 5420','','',16);
 INSERT INTO "arrets_autobus" VALUES(50478,115,'115PME','Paré / Décarie','','',17);
-INSERT INTO "arrets_autobus" VALUES('',115,'115PME','Jean-Talon / Décarie',52,'Descente seulement',18);
+INSERT INTO "arrets_autobus" VALUES(54195,115,'115PME','Jean-Talon / Décarie',52,'Descente seulement',18);
 INSERT INTO "arrets_autobus" VALUES(60876,116,'11601N','Terminus Lafleur / Newman','','',0);
 INSERT INTO "arrets_autobus" VALUES(57055,116,'11601N','Lafleur / Distillerie Seagram','','',1);
 INSERT INTO "arrets_autobus" VALUES(56778,116,'11601N','Lafleur / Wanklyn','','',2);
@@ -1024,7 +1020,7 @@ INSERT INTO "arrets_autobus" VALUES(57114,116,'11601N','Norman / No 435','','',2
 INSERT INTO "arrets_autobus" VALUES(57319,116,'11601N','Norman / No 1100','','',21);
 INSERT INTO "arrets_autobus" VALUES(57318,116,'11601N','Norman / No 1400','','',22);
 INSERT INTO "arrets_autobus" VALUES(57340,116,'11601N','Norman / Claire','','',23);
-INSERT INTO "arrets_autobus" VALUES('',116,'11601N','Claire / Terminus STM','','Descente seulement',24);
+INSERT INTO "arrets_autobus" VALUES(57115,116,'11601N','Claire / Terminus STM','','Descente seulement',24);
 INSERT INTO "arrets_autobus" VALUES(57115,116,'11601S','Claire / Terminus STM','','',0);
 INSERT INTO "arrets_autobus" VALUES(57116,116,'11601S','Claire / Claire crescent','','',1);
 INSERT INTO "arrets_autobus" VALUES(57235,116,'11601S','Norman / No 1400','','',2);
@@ -1049,7 +1045,7 @@ INSERT INTO "arrets_autobus" VALUES(56789,116,'11601S','Lafleur / Clément','','
 INSERT INTO "arrets_autobus" VALUES(56781,116,'11601S','Lafleur / Jean-Milot','','',21);
 INSERT INTO "arrets_autobus" VALUES(56777,116,'11601S','Lafleur / Wanklyn','','',22);
 INSERT INTO "arrets_autobus" VALUES(56734,116,'11601S','Lafleur / Distillerie Seagram','','',23);
-INSERT INTO "arrets_autobus" VALUES('',116,'11601S','Terminus Lafleur / Newman','','Descente seulement',24);
+INSERT INTO "arrets_autobus" VALUES(60876,116,'11601S','Terminus Lafleur / Newman','','Descente seulement',24);
 INSERT INTO "arrets_autobus" VALUES(50169,117,'11701S','Gouin / O''Brien','','',0);
 INSERT INTO "arrets_autobus" VALUES(53853,117,'11701S','O''Brien / Forbes','','',1);
 INSERT INTO "arrets_autobus" VALUES(50197,117,'11701S','O''Brien / de Salaberry','','',2);
@@ -1071,7 +1067,7 @@ INSERT INTO "arrets_autobus" VALUES(55685,117,'11701S','Sainte-Croix / Decelles'
 INSERT INTO "arrets_autobus" VALUES(55698,117,'11701S','Sainte-Croix / de l''Église','','',18);
 INSERT INTO "arrets_autobus" VALUES(55725,117,'11701S','Sainte-Croix / du Collège','','',19);
 INSERT INTO "arrets_autobus" VALUES(55732,117,'11701S','Sainte-Croix / Cartier','','',20);
-INSERT INTO "arrets_autobus" VALUES('',117,'11701S','Saint-Louis / Ouimet',54,'Descente seulement',21);
+INSERT INTO "arrets_autobus" VALUES(55922,117,'11701S','Saint-Louis / Ouimet',54,'Descente seulement',21);
 INSERT INTO "arrets_autobus" VALUES(55922,117,'11701N','Saint-Louis / Ouimet',54,'',0);
 INSERT INTO "arrets_autobus" VALUES(55703,117,'11701N','Décarie / du Collège',54,'',1);
 INSERT INTO "arrets_autobus" VALUES(55714,117,'11701N','du Collège / Saint-Germain','','',2);
@@ -1095,7 +1091,7 @@ INSERT INTO "arrets_autobus" VALUES(50195,117,'11701N','O''Brien / de Salaberry'
 INSERT INTO "arrets_autobus" VALUES(53852,117,'11701N','O''Brien / Forbes','','',20);
 INSERT INTO "arrets_autobus" VALUES(53863,117,'11701N','Forbes / Saint-Évariste','','',21);
 INSERT INTO "arrets_autobus" VALUES(50164,117,'11701N','Saint-Évariste / Gouin','','',22);
-INSERT INTO "arrets_autobus" VALUES('',117,'11701N','Gouin / O''Brien','','Descente seulement',23);
+INSERT INTO "arrets_autobus" VALUES(50169,117,'11701N','Gouin / O''Brien','','Descente seulement',23);
 INSERT INTO "arrets_autobus" VALUES(51157,119,'11901N','Lacombe / Côte-des-Neiges',55,'',0);
 INSERT INTO "arrets_autobus" VALUES(51167,119,'11901N','Decelles / Édouard-Montpetit','','',1);
 INSERT INTO "arrets_autobus" VALUES(51214,119,'11901N','Édouard-Montpetit / McKenna','','',2);
@@ -1133,7 +1129,7 @@ INSERT INTO "arrets_autobus" VALUES(56129,119,'11901N','Laird / Highfield','',''
 INSERT INTO "arrets_autobus" VALUES(56059,119,'11901N','Laird / Melbourne','','',34);
 INSERT INTO "arrets_autobus" VALUES(56060,119,'11901N','Laird / Jasper','','',35);
 INSERT INTO "arrets_autobus" VALUES(60679,119,'11901N','Laird / Beverley','','',36);
-INSERT INTO "arrets_autobus" VALUES('',119,'11901N','Laird / Canora','','Descente seulement',37);
+INSERT INTO "arrets_autobus" VALUES(59676,119,'11901N','Laird / Canora','','Descente seulement',37);
 INSERT INTO "arrets_autobus" VALUES(59676,119,'11901S','Laird / Canora','','',0);
 INSERT INTO "arrets_autobus" VALUES(56065,119,'11901S','Dunkirk / Cornwall','','',1);
 INSERT INTO "arrets_autobus" VALUES(56062,119,'11901S','Lombard / Graham','','',2);
@@ -1176,7 +1172,7 @@ INSERT INTO "arrets_autobus" VALUES(51188,119,'11901S','Jean-Brillant / Côte-de
 INSERT INTO "arrets_autobus" VALUES(54327,119,'11901S','Jean-Brillant / Légaré','','',39);
 INSERT INTO "arrets_autobus" VALUES(54328,119,'11901S','Lavoie / Lacombe','','',40);
 INSERT INTO "arrets_autobus" VALUES(54329,119,'11901S','Lacombe / Légaré','','',41);
-INSERT INTO "arrets_autobus" VALUES('',119,'11901S','Lacombe / Côte-des-Neiges',55,'Descente seulement',42);
+INSERT INTO "arrets_autobus" VALUES(51157,119,'11901S','Lacombe / Côte-des-Neiges',55,'Descente seulement',42);
 INSERT INTO "arrets_autobus" VALUES(55934,121,'12101E','Beaulac / Thimens','','',0);
 INSERT INTO "arrets_autobus" VALUES(55936,121,'12101E','Beaulac / Thimens','','',1);
 INSERT INTO "arrets_autobus" VALUES(55349,121,'12101E','Thimens / stationnement Sears','','',2);
@@ -1224,7 +1220,7 @@ INSERT INTO "arrets_autobus" VALUES(50634,121,'12101E','Sauvé / de Lille','',''
 INSERT INTO "arrets_autobus" VALUES(50667,121,'12101E','Sauvé / d''Iberville','','',44);
 INSERT INTO "arrets_autobus" VALUES(50686,121,'12101E','Sauvé / Sackville','','',45);
 INSERT INTO "arrets_autobus" VALUES(50719,121,'12101E','Sauvé / Larose','','',46);
-INSERT INTO "arrets_autobus" VALUES('',121,'12101E','Saint-Michel / Sauvé','','Descente seulement',47);
+INSERT INTO "arrets_autobus" VALUES(54216,121,'12101E','Saint-Michel / Sauvé','','Descente seulement',47);
 INSERT INTO "arrets_autobus" VALUES(54216,121,'12101O','Saint-Michel / Sauvé','','',0);
 INSERT INTO "arrets_autobus" VALUES(50802,121,'12101O','Charland / J.-J.-Gagnier','','',1);
 INSERT INTO "arrets_autobus" VALUES(50754,121,'12101O','Charland / Sackville','','',2);
@@ -1276,7 +1272,7 @@ INSERT INTO "arrets_autobus" VALUES(55502,121,'12101O','Côte-Vertu / Hocquart',
 INSERT INTO "arrets_autobus" VALUES(55486,121,'12101O','Côte-Vertu / Cavendish','','',48);
 INSERT INTO "arrets_autobus" VALUES(55801,121,'12101O','Côte-Vertu / Place Vertu','','',49);
 INSERT INTO "arrets_autobus" VALUES(55467,121,'12101O','Beaulac / Côte-Vertu','','',50);
-INSERT INTO "arrets_autobus" VALUES('',121,'12101O','Beaulac / Thimens','','Descente seulement',51);
+INSERT INTO "arrets_autobus" VALUES(55934,121,'12101O','Beaulac / Thimens','','Descente seulement',51);
 INSERT INTO "arrets_autobus" VALUES(57061,123,'12301N','Gagné / Champlain','','',0);
 INSERT INTO "arrets_autobus" VALUES(57097,123,'12301N','Gagné / George','','',1);
 INSERT INTO "arrets_autobus" VALUES(60242,123,'12301N','George / Raymond','','',2);
@@ -1310,8 +1306,7 @@ INSERT INTO "arrets_autobus" VALUES(56444,123,'12301N','Avon / Ronald','','',29)
 INSERT INTO "arrets_autobus" VALUES(56448,123,'12301N','Avon / Brynmor','','',30);
 INSERT INTO "arrets_autobus" VALUES(54035,123,'12301N','Elmhurst / Saint-Jacques','','',31);
 INSERT INTO "arrets_autobus" VALUES(50800,123,'12301N','Elmhurst / Harley','','',32);
-INSERT INTO "arrets_autobus" VALUES('',123,'12301N','Elmhurst / Sherbrooke','','Descente seulement',33);
-INSERT INTO "arrets_autobus" VALUES('',123,'12301N','Elmhurst / Sherbrooke','','Descente seulement',34);
+INSERT INTO "arrets_autobus" VALUES(50743,123,'12301N','Elmhurst / Sherbrooke','','Descente seulement',33);
 INSERT INTO "arrets_autobus" VALUES(50743,123,'12301S','Elmhurst / Sherbrooke','','',0);
 INSERT INTO "arrets_autobus" VALUES(50801,123,'12301S','Elmhurst / Harley','','',1);
 INSERT INTO "arrets_autobus" VALUES(50850,123,'12301S','Elmhurst / Saint-Jacques','','',2);
@@ -1351,7 +1346,7 @@ INSERT INTO "arrets_autobus" VALUES(57005,123,'12301S','Centrale / Bishop Power'
 INSERT INTO "arrets_autobus" VALUES(57004,123,'12301S','Bishop Power / No 506','','',36);
 INSERT INTO "arrets_autobus" VALUES(56979,123,'12301S','Bishop Power / George','','',37);
 INSERT INTO "arrets_autobus" VALUES(57095,123,'12301S','Champlain / Bishop Power','','',38);
-INSERT INTO "arrets_autobus" VALUES('',123,'12301S','Gagné / Champlain','','Descente seulement',39);
+INSERT INTO "arrets_autobus" VALUES(57061,123,'12301S','Gagné / Champlain','','Descente seulement',39);
 INSERT INTO "arrets_autobus" VALUES(55762,124,'12401S','Stinson / Hodge','','',0);
 INSERT INTO "arrets_autobus" VALUES(55758,124,'12401S','Hodge / Montpellier','','',1);
 INSERT INTO "arrets_autobus" VALUES(55753,124,'12401S','Hodge / Houde','','',2);
@@ -1391,7 +1386,7 @@ INSERT INTO "arrets_autobus" VALUES(56236,124,'12401S','Claremont / Côte-Saint-
 INSERT INTO "arrets_autobus" VALUES(56244,124,'12401S','Claremont / Windsor','','',36);
 INSERT INTO "arrets_autobus" VALUES(56249,124,'12401S','Claremont / Sherbrooke','','',37);
 INSERT INTO "arrets_autobus" VALUES(51591,124,'12401S','de Maisonneuve / Bulmer','','',38);
-INSERT INTO "arrets_autobus" VALUES('',124,'12401S','Station Vendôme',47,'Descente seulement',39);
+INSERT INTO "arrets_autobus" VALUES(54104,124,'12401S','Station Vendôme',47,'Descente seulement',39);
 INSERT INTO "arrets_autobus" VALUES(54104,124,'12401N','Station Vendôme',47,'',0);
 INSERT INTO "arrets_autobus" VALUES(56307,124,'12401N','Claremont / Burton','','',1);
 INSERT INTO "arrets_autobus" VALUES(56254,124,'12401N','Claremont / Sherbrooke','','',2);
@@ -1437,7 +1432,7 @@ INSERT INTO "arrets_autobus" VALUES(55895,124,'12401N','Hodge / Benoît','','',4
 INSERT INTO "arrets_autobus" VALUES(55759,124,'12401N','Hodge / Montpellier','','',42);
 INSERT INTO "arrets_autobus" VALUES(55743,124,'12401N','Montpellier / Stinson','','',43);
 INSERT INTO "arrets_autobus" VALUES(55794,124,'12401N','Stinson / Stinson','','',44);
-INSERT INTO "arrets_autobus" VALUES('',124,'12401N','Stinson / Hodge','','Descente seulement',45);
+INSERT INTO "arrets_autobus" VALUES(55762,124,'12401N','Stinson / Hodge','','Descente seulement',45);
 INSERT INTO "arrets_autobus" VALUES(54200,125,'125JOO','Station Viau',23,'',0);
 INSERT INTO "arrets_autobus" VALUES(53117,125,'125JOO','Pierre-de-Coubertin / Viau','','',1);
 INSERT INTO "arrets_autobus" VALUES(53160,125,'125JOO','Saint-Clément / Hochelaga','','',2);
@@ -1479,7 +1474,7 @@ INSERT INTO "arrets_autobus" VALUES(52516,125,'125JOO','Président-Kennedy / de 
 INSERT INTO "arrets_autobus" VALUES(52438,125,'125JOO','Président-Kennedy / Aylmer','','',38);
 INSERT INTO "arrets_autobus" VALUES(52433,125,'125JOO','de Maisonneuve / University (station McGill)',32,'',39);
 INSERT INTO "arrets_autobus" VALUES(52439,125,'125JOO','Président-Kennedy / Aylmer','','',40);
-INSERT INTO "arrets_autobus" VALUES('',125,'125JOO','Président-Kennedy / de Bleury',31,'Descente seulement',41);
+INSERT INTO "arrets_autobus" VALUES(52517,125,'125JOO','Président-Kennedy / de Bleury',31,'Descente seulement',41);
 INSERT INTO "arrets_autobus" VALUES(52517,125,'125JOE','Président-Kennedy / de Bleury',31,'',0);
 INSERT INTO "arrets_autobus" VALUES(52541,125,'125JOE','Président-Kennedy / Jeanne-Mance','','',1);
 INSERT INTO "arrets_autobus" VALUES(52612,125,'125JOE','Ontario / Saint-Laurent','','',2);
@@ -1516,7 +1511,7 @@ INSERT INTO "arrets_autobus" VALUES(53262,125,'125JOE','Ontario / Saint-Clément
 INSERT INTO "arrets_autobus" VALUES(53274,125,'125JOE','Viau / Ontario','','',33);
 INSERT INTO "arrets_autobus" VALUES(53223,125,'125JOE','Viau / de Rouen','','',34);
 INSERT INTO "arrets_autobus" VALUES(53166,125,'125JOE','Viau / Hochelaga','','',35);
-INSERT INTO "arrets_autobus" VALUES('',125,'125JOE','Station Viau',23,'Descente seulement',36);
+INSERT INTO "arrets_autobus" VALUES(54200,125,'125JOE','Station Viau',23,'Descente seulement',36);
 INSERT INTO "arrets_autobus" VALUES(55796,128,'12801S','Muir / Fortier','','',0);
 INSERT INTO "arrets_autobus" VALUES(55711,128,'12801S','Montpellier / Côte-Vertu','','',1);
 INSERT INTO "arrets_autobus" VALUES(55795,128,'12801S','Muir / Robertson','','',2);
@@ -1589,7 +1584,7 @@ INSERT INTO "arrets_autobus" VALUES(55895,128,'12801S','Hodge / Benoît','','',6
 INSERT INTO "arrets_autobus" VALUES(55759,128,'12801S','Hodge / Montpellier','','',69);
 INSERT INTO "arrets_autobus" VALUES(55743,128,'12801S','Montpellier / Stinson','','',70);
 INSERT INTO "arrets_autobus" VALUES(55794,128,'12801S','Stinson / Stinson','','',71);
-INSERT INTO "arrets_autobus" VALUES('',128,'12801S','Stinson / Hodge','','Descente seulement',72);
+INSERT INTO "arrets_autobus" VALUES(55763,128,'12801S','Stinson / Hodge','','Descente seulement',72);
 INSERT INTO "arrets_autobus" VALUES(55763,128,'12801N','Stinson / Hodge','','',0);
 INSERT INTO "arrets_autobus" VALUES(55771,128,'12801N','Stinson / Métropolitain','','',1);
 INSERT INTO "arrets_autobus" VALUES(55770,128,'12801N','Côte-de-Liesse Nord / Montpellier','','',2);
@@ -1663,7 +1658,7 @@ INSERT INTO "arrets_autobus" VALUES(55709,128,'12801N','Muir / Rochon','','',69)
 INSERT INTO "arrets_autobus" VALUES(55719,128,'12801N','Muir / Côte-Vertu','','',70);
 INSERT INTO "arrets_autobus" VALUES(55721,128,'12801N','Muir / Côte-Vertu','','',71);
 INSERT INTO "arrets_autobus" VALUES(55911,128,'12801N','Muir / Manoir Le Corbusier','','',72);
-INSERT INTO "arrets_autobus" VALUES('',128,'12801N','Muir / Fortier','','Descente seulement',73);
+INSERT INTO "arrets_autobus" VALUES(55796,128,'12801N','Muir / Fortier','','Descente seulement',73);
 INSERT INTO "arrets_autobus" VALUES(59309,129,'129JON','Saint-Antoine / Gosford',12,'',0);
 INSERT INTO "arrets_autobus" VALUES(53991,129,'129JON','Notre-Dame / Place Jacques-Cartier','','',1);
 INSERT INTO "arrets_autobus" VALUES(52968,129,'129JON','Notre-Dame / Saint-Laurent','','',2);
@@ -1704,7 +1699,7 @@ INSERT INTO "arrets_autobus" VALUES(50847,129,'129JON','Côte-Sainte-Catherine /
 INSERT INTO "arrets_autobus" VALUES(53881,129,'129JON','Décarie / Dupuis','','',37);
 INSERT INTO "arrets_autobus" VALUES(50832,129,'129JON','Earnscliffe / Dupuis','','',38);
 INSERT INTO "arrets_autobus" VALUES(50917,129,'129JON','Earnscliffe / Isabella','','',39);
-INSERT INTO "arrets_autobus" VALUES('',129,'129JON','Clanranald / Isabella','','Descente seulement',40);
+INSERT INTO "arrets_autobus" VALUES(50898,129,'129JON','Clanranald / Isabella','','Descente seulement',40);
 INSERT INTO "arrets_autobus" VALUES(50898,129,'129JOS','Clanranald / Isabella','','',0);
 INSERT INTO "arrets_autobus" VALUES(54208,129,'129JOS','Clanranald / Dupuis','','',1);
 INSERT INTO "arrets_autobus" VALUES(50728,129,'129JOS','Clanranald / Bourret','','',2);
@@ -1747,7 +1742,7 @@ INSERT INTO "arrets_autobus" VALUES(52779,129,'129JOS','de Bleury / Viger','',''
 INSERT INTO "arrets_autobus" VALUES(53820,129,'129JOS','Saint-Antoine / de Bleury','','',39);
 INSERT INTO "arrets_autobus" VALUES(59308,129,'129JOS','Saint-Antoine / Saint-Urbain',13,'',40);
 INSERT INTO "arrets_autobus" VALUES(60541,129,'129JOS','Saint-Antoine / Champ-de-Mars','','',41);
-INSERT INTO "arrets_autobus" VALUES('',129,'129JOS','Saint-Antoine / Gosford',12,'Descente seulement',42);
+INSERT INTO "arrets_autobus" VALUES(59309,129,'129JOS','Saint-Antoine / Gosford',12,'Descente seulement',42);
 INSERT INTO "arrets_autobus" VALUES(54952,131,'13101S','Angevin / Lisieux','','',0);
 INSERT INTO "arrets_autobus" VALUES(54960,131,'13101S','Lisieux / Jean-Talon','','',1);
 INSERT INTO "arrets_autobus" VALUES(54967,131,'13101S','de l''Assomption / Jean-Talon','','',2);
@@ -1764,8 +1759,7 @@ INSERT INTO "arrets_autobus" VALUES(53041,131,'13101S','de l''Assomption / Sherb
 INSERT INTO "arrets_autobus" VALUES(53081,131,'13101S','Chauveau / de l''Assomption','','',13);
 INSERT INTO "arrets_autobus" VALUES(54288,131,'13101S','Chauveau / Dickson','','',14);
 INSERT INTO "arrets_autobus" VALUES(53139,131,'13101S','Dickson / de Marseille','','',15);
-INSERT INTO "arrets_autobus" VALUES('',131,'13101S','de l''Assomption / de Marseille',22,'Descente seulement',16);
-INSERT INTO "arrets_autobus" VALUES('',131,'13101S','Station Assomption',22,'Descente seulement',17);
+INSERT INTO "arrets_autobus" VALUES(53083,131,'13101S','de l''Assomption / de Marseille',22,'Descente seulement',16);
 INSERT INTO "arrets_autobus" VALUES(60604,131,'131HPS','Antonio-Dagenais / Lespinay','','',0);
 INSERT INTO "arrets_autobus" VALUES(54970,131,'131HPS','Lacordaire / Jean-Talon','','',1);
 INSERT INTO "arrets_autobus" VALUES(54952,131,'131HPS','Angevin / Lisieux','','',2);
@@ -1784,8 +1778,7 @@ INSERT INTO "arrets_autobus" VALUES(53041,131,'131HPS','de l''Assomption / Sherb
 INSERT INTO "arrets_autobus" VALUES(53081,131,'131HPS','Chauveau / de l''Assomption','','',15);
 INSERT INTO "arrets_autobus" VALUES(54288,131,'131HPS','Chauveau / Dickson','','',16);
 INSERT INTO "arrets_autobus" VALUES(53139,131,'131HPS','Dickson / de Marseille','','',17);
-INSERT INTO "arrets_autobus" VALUES('',131,'131HPS','de l''Assomption / de Marseille',22,'Descente seulement',18);
-INSERT INTO "arrets_autobus" VALUES('',131,'131HPS','Station Assomption',22,'Descente seulement',19);
+INSERT INTO "arrets_autobus" VALUES(53083,131,'131HPS','de l''Assomption / de Marseille',22,'Descente seulement',18);
 INSERT INTO "arrets_autobus" VALUES(53083,131,'13101N','Station Assomption',22,'',0);
 INSERT INTO "arrets_autobus" VALUES(53039,131,'13101N','de l''Assomption / Sherbrooke','','',1);
 INSERT INTO "arrets_autobus" VALUES(53043,131,'13101N','de l''Assomption / Sherbrooke','','',2);
@@ -1798,7 +1791,7 @@ INSERT INTO "arrets_autobus" VALUES(52385,131,'13101N','de l''Assomption / Saint
 INSERT INTO "arrets_autobus" VALUES(52253,131,'13101N','de l''Assomption / Bélanger','','',9);
 INSERT INTO "arrets_autobus" VALUES(54983,131,'13101N','de l''Assomption / Les Becquets','','',10);
 INSERT INTO "arrets_autobus" VALUES(54964,131,'13101N','de l''Assomption / Jean-Talon','','',11);
-INSERT INTO "arrets_autobus" VALUES('',131,'13101N','Angevin / Lisieux','','Descente seulement',12);
+INSERT INTO "arrets_autobus" VALUES(54952,131,'13101N','Angevin / Lisieux','','Descente seulement',12);
 INSERT INTO "arrets_autobus" VALUES(53083,131,'131HPN','Station Assomption',22,'',0);
 INSERT INTO "arrets_autobus" VALUES(53039,131,'131HPN','de l''Assomption / Sherbrooke','','',1);
 INSERT INTO "arrets_autobus" VALUES(53043,131,'131HPN','de l''Assomption / Sherbrooke','','',2);
@@ -1812,7 +1805,7 @@ INSERT INTO "arrets_autobus" VALUES(52253,131,'131HPN','de l''Assomption / Béla
 INSERT INTO "arrets_autobus" VALUES(54983,131,'131HPN','de l''Assomption / Les Becquets','','',10);
 INSERT INTO "arrets_autobus" VALUES(54964,131,'131HPN','de l''Assomption / Jean-Talon','','',11);
 INSERT INTO "arrets_autobus" VALUES(60588,131,'131HPN','Lacordaire / Jean-Talon','','',12);
-INSERT INTO "arrets_autobus" VALUES('',131,'131HPN','Antonio-Dagenais / Lespinay','','Descente seulement',13);
+INSERT INTO "arrets_autobus" VALUES(60604,131,'131HPN','Antonio-Dagenais / Lespinay','','Descente seulement',13);
 INSERT INTO "arrets_autobus" VALUES(60250,135,'135PMN','Berri / Crémazie',3,'',0);
 INSERT INTO "arrets_autobus" VALUES(50894,135,'135PMN','de l''Esplanade / Jarry','','',1);
 INSERT INTO "arrets_autobus" VALUES(50740,135,'135PMN','de Liège / de l''Esplanade','','',2);
@@ -1827,7 +1820,7 @@ INSERT INTO "arrets_autobus" VALUES(50456,135,'135PMN','de Louvain / Saint-Laure
 INSERT INTO "arrets_autobus" VALUES(50390,135,'135PMN','Saint-Laurent / Sauvé','','',11);
 INSERT INTO "arrets_autobus" VALUES(50287,135,'135PMN','Henri-Bourassa / Waverly','','',12);
 INSERT INTO "arrets_autobus" VALUES(54394,135,'135PMN','Henri-Bourassa / No 1045','','',13);
-INSERT INTO "arrets_autobus" VALUES('',135,'135PMN','Henri-Bourassa / Dutrisac','','Descente seulement',14);
+INSERT INTO "arrets_autobus" VALUES(55997,135,'135PMN','Henri-Bourassa / Dutrisac','','Descente seulement',14);
 INSERT INTO "arrets_autobus" VALUES(55997,135,'135AMS','Dutrisac / Henri-Bourassa','','',0);
 INSERT INTO "arrets_autobus" VALUES(54389,135,'135AMS','Henri-Bourassa / Bois-de-Boulogne','','',1);
 INSERT INTO "arrets_autobus" VALUES(50298,135,'135AMS','Saint-Laurent / Henri-Bourassa','','',2);
@@ -1844,7 +1837,7 @@ INSERT INTO "arrets_autobus" VALUES(50715,135,'135AMS','de Liège / Jeanne-Mance
 INSERT INTO "arrets_autobus" VALUES(50657,135,'135AMS','Crémazie / de l''Esplanade','','',13);
 INSERT INTO "arrets_autobus" VALUES(60249,135,'135AMS','Crémazie / de Reims','','',14);
 INSERT INTO "arrets_autobus" VALUES(50665,135,'135AMS','Crémazie / Clark','','',15);
-INSERT INTO "arrets_autobus" VALUES('',135,'135AMS','Crémazie / Berri (station Crémazie)',3,'Descente seulement',16);
+INSERT INTO "arrets_autobus" VALUES(60250,135,'135AMS','Crémazie / Berri (station Crémazie)',3,'Descente seulement',16);
 INSERT INTO "arrets_autobus" VALUES(54776,136,'13601S','des Grandes-Prairies / Lacordaire','','',0);
 INSERT INTO "arrets_autobus" VALUES(54793,136,'13601S','des Grandes-Prairies / Le Prado','','',1);
 INSERT INTO "arrets_autobus" VALUES(54810,136,'13601S','Le Prado / Couture','','',2);
@@ -1875,7 +1868,7 @@ INSERT INTO "arrets_autobus" VALUES(52986,136,'13601S','Viau / Sherbrooke','',''
 INSERT INTO "arrets_autobus" VALUES(53988,136,'13601S','Viau / No 3265','','',27);
 INSERT INTO "arrets_autobus" VALUES(50108,136,'13601S','Viau / Pierre-Charbonneau','','',28);
 INSERT INTO "arrets_autobus" VALUES(53116,136,'13601S','Viau / Pierre-de-Coubertin','','',29);
-INSERT INTO "arrets_autobus" VALUES('',136,'13601S','Pierre-de-Coubertin / station Viau',23,'Descente seulement',30);
+INSERT INTO "arrets_autobus" VALUES(50105,136,'13601S','Pierre-de-Coubertin / station Viau',23,'Descente seulement',30);
 INSERT INTO "arrets_autobus" VALUES(50105,136,'13601N','Pierre-de-Coubertin / station Viau',23,'',0);
 INSERT INTO "arrets_autobus" VALUES(53118,136,'13601N','Viau / Pierre-de-Coubertin','','',1);
 INSERT INTO "arrets_autobus" VALUES(50107,136,'13601N','Viau / Pierre-Charbonneau','','',2);
@@ -1910,7 +1903,7 @@ INSERT INTO "arrets_autobus" VALUES(54763,136,'13601N','des Grandes-Prairies / S
 INSERT INTO "arrets_autobus" VALUES(54764,136,'13601N','des Grandes-Prairies / Puyseaux','','',31);
 INSERT INTO "arrets_autobus" VALUES(54774,136,'13601N','des Grandes-Prairies / Lacordaire','','',32);
 INSERT INTO "arrets_autobus" VALUES(54775,136,'13601N','des Grandes-Prairies / Lacordaire','','',33);
-INSERT INTO "arrets_autobus" VALUES('',136,'13601N','des Grandes-Prairies / Lacordaire','','Descente seulement',34);
+INSERT INTO "arrets_autobus" VALUES(54776,136,'13601N','des Grandes-Prairies / Lacordaire','','Descente seulement',34);
 INSERT INTO "arrets_autobus" VALUES(56421,138,'13801E','Caldwell / des Maimonides','','',0);
 INSERT INTO "arrets_autobus" VALUES(56341,138,'13801E','Caldwell / Mackle','','',1);
 INSERT INTO "arrets_autobus" VALUES(56346,138,'13801E','Mackle / Einstein','','',2);
@@ -1954,7 +1947,7 @@ INSERT INTO "arrets_autobus" VALUES(56290,138,'13801E','Sherbrooke / Wood','',''
 INSERT INTO "arrets_autobus" VALUES(51951,138,'13801E','Sherbrooke / Atwater','','',40);
 INSERT INTO "arrets_autobus" VALUES(52007,138,'13801E','Atwater / de Maisonneuve','','',41);
 INSERT INTO "arrets_autobus" VALUES(56299,138,'13801E','Atwater / Sainte-Catherine','','',42);
-INSERT INTO "arrets_autobus" VALUES('',138,'13801E','Sainte-Catherine / station Atwater',35,'Descente seulement',43);
+INSERT INTO "arrets_autobus" VALUES(56298,138,'13801E','Sainte-Catherine / station Atwater',35,'Descente seulement',43);
 INSERT INTO "arrets_autobus" VALUES(56298,138,'13801O','Sainte-Catherine / station Atwater',35,'',0);
 INSERT INTO "arrets_autobus" VALUES(51990,138,'13801O','Atwater / Lincoln','','',1);
 INSERT INTO "arrets_autobus" VALUES(51952,138,'13801O','Sherbrooke / Atwater','','',2);
@@ -2003,7 +1996,7 @@ INSERT INTO "arrets_autobus" VALUES(56336,138,'13801O','Mackle / Parkhaven','','
 INSERT INTO "arrets_autobus" VALUES(56420,138,'13801O','Parkhaven / No 5790','','',45);
 INSERT INTO "arrets_autobus" VALUES(56365,138,'13801O','Parkhaven / Kildare','','',46);
 INSERT INTO "arrets_autobus" VALUES(56370,138,'13801O','Caldwell / Kildare','','',47);
-INSERT INTO "arrets_autobus" VALUES('',138,'13801O','Caldwell / des Maimonides','','Descente seulement',48);
+INSERT INTO "arrets_autobus" VALUES(56421,138,'13801O','Caldwell / des Maimonides','','Descente seulement',48);
 INSERT INTO "arrets_autobus" VALUES(53296,139,'139JON','Pie-IX / Notre-Dame','','',0);
 INSERT INTO "arrets_autobus" VALUES(53258,139,'139JON','Jeanne-d''Arc / Sainte-Catherine','','',1);
 INSERT INTO "arrets_autobus" VALUES(53272,139,'139JON','Pie-IX / Sainte-Catherine','','',2);
@@ -2051,7 +2044,7 @@ INSERT INTO "arrets_autobus" VALUES(55076,139,'139JON','Pie-IX / Arthur-Champoux
 INSERT INTO "arrets_autobus" VALUES(55075,139,'139JON','d''Amos / Saint-Julien','','',44);
 INSERT INTO "arrets_autobus" VALUES(55088,139,'139JON','d''Amos / Garon','','',45);
 INSERT INTO "arrets_autobus" VALUES(55068,139,'139JON','Garon / Henri-Bourassa','','',46);
-INSERT INTO "arrets_autobus" VALUES('',139,'139JON','Henri-Bourassa / Pie-IX','','Descente seulement',47);
+INSERT INTO "arrets_autobus" VALUES(55064,139,'139JON','Henri-Bourassa / Pie-IX','','Descente seulement',47);
 INSERT INTO "arrets_autobus" VALUES(55064,139,'139JOS','Henri-Bourassa / Pie-IX','','',0);
 INSERT INTO "arrets_autobus" VALUES(55056,139,'139JOS','Gariépy / Henri-Bourassa','','',1);
 INSERT INTO "arrets_autobus" VALUES(55077,139,'139JOS','Pie-IX / Arthur-Champoux','','',2);
@@ -2095,7 +2088,7 @@ INSERT INTO "arrets_autobus" VALUES(53190,139,'139JOS','Pie-IX / Ontario','','',
 INSERT INTO "arrets_autobus" VALUES(53222,139,'139JOS','Pie-IX / La Fontaine','','',40);
 INSERT INTO "arrets_autobus" VALUES(53238,139,'139JOS','Pie-IX / Adam','','',41);
 INSERT INTO "arrets_autobus" VALUES(53270,139,'139JOS','Pie-IX / Sainte-Catherine','','',42);
-INSERT INTO "arrets_autobus" VALUES('',139,'139JOS','Pie-IX / Notre-Dame','','Descente seulement',43);
+INSERT INTO "arrets_autobus" VALUES(53296,139,'139JOS','Pie-IX / Notre-Dame','','Descente seulement',43);
 INSERT INTO "arrets_autobus" VALUES(55087,140,'14001O','Gouin / Sainte-Gertrude','','',0);
 INSERT INTO "arrets_autobus" VALUES(55107,140,'14001O','Sainte-Gertrude / Léger','','',1);
 INSERT INTO "arrets_autobus" VALUES(55111,140,'14001O','Sainte-Gertrude / Perras','','',2);
@@ -2138,8 +2131,7 @@ INSERT INTO "arrets_autobus" VALUES(50384,140,'14001O','Fleury / Saint-Hubert','
 INSERT INTO "arrets_autobus" VALUES(50368,140,'14001O','Fleury / Millen','','',39);
 INSERT INTO "arrets_autobus" VALUES(50357,140,'14001O','Fleury / Berri','','',40);
 INSERT INTO "arrets_autobus" VALUES(50394,140,'14001O','Berri / Sauriol','','',41);
-INSERT INTO "arrets_autobus" VALUES('',140,'14001O','Berri / Sauvé',2,'Descente seulement',42);
-INSERT INTO "arrets_autobus" VALUES('',140,'14001O','Berri / Sauvé',2,'Descente seulement',43);
+INSERT INTO "arrets_autobus" VALUES(50440,140,'14001O','Berri / Sauvé',2,'Descente seulement',42);
 INSERT INTO "arrets_autobus" VALUES(50440,140,'14001E','Berri / Sauvé',2,'',0);
 INSERT INTO "arrets_autobus" VALUES(50474,140,'14001E','Berri / No 9592','','',1);
 INSERT INTO "arrets_autobus" VALUES(53760,140,'14001E','Lajeunesse / de Louvain','','',2);
@@ -2186,7 +2178,7 @@ INSERT INTO "arrets_autobus" VALUES(55110,140,'14001E','Sainte-Gertrude / Perras
 INSERT INTO "arrets_autobus" VALUES(55100,140,'14001E','Léger / Hénault','','',43);
 INSERT INTO "arrets_autobus" VALUES(55097,140,'14001E','Léger / L''Archevêque','','',44);
 INSERT INTO "arrets_autobus" VALUES(55083,140,'14001E','L''Archevêque / Gouin','','',45);
-INSERT INTO "arrets_autobus" VALUES('',140,'14001E','Gouin / Sainte-Gertrude','','Descente seulement',46);
+INSERT INTO "arrets_autobus" VALUES(55087,140,'14001E','Gouin / Sainte-Gertrude','','Descente seulement',46);
 INSERT INTO "arrets_autobus" VALUES(54184,141,'141JOE','Shaughnessy / Station Saint-Michel',64,'',0);
 INSERT INTO "arrets_autobus" VALUES(51663,141,'141JOE','Jean-Talon / 13e Avenue','','',1);
 INSERT INTO "arrets_autobus" VALUES(51693,141,'141JOE','Jean-Talon / 15e Avenue','','',2);
@@ -2233,8 +2225,7 @@ INSERT INTO "arrets_autobus" VALUES(53292,141,'141JOE','des Ormeaux / de Forbin-
 INSERT INTO "arrets_autobus" VALUES(53313,141,'141JOE','des Ormeaux / Sherbrooke','','',43);
 INSERT INTO "arrets_autobus" VALUES(53301,141,'141JOE','Sherbrooke / Baldwin','','',44);
 INSERT INTO "arrets_autobus" VALUES(53287,141,'141JOE','Sherbrooke / Saint-Donat','','',45);
-INSERT INTO "arrets_autobus" VALUES('',141,'141JOE','Terminus sud de la station Honoré-Beaugrand',18,'Descente seulement',46);
-INSERT INTO "arrets_autobus" VALUES('',141,'141JOE','Terminus sud de la station Honoré-Beaugrand',18,'Descente seulement',47);
+INSERT INTO "arrets_autobus" VALUES(53876,141,'141JOE','Terminus sud de la station Honoré-Beaugrand',18,'Descente seulement',47);
 INSERT INTO "arrets_autobus" VALUES(53876,141,'141JOO','Terminus sud de la station Honoré-Beaugrand',18,'',0);
 INSERT INTO "arrets_autobus" VALUES(53279,141,'141JOO','Sherbrooke / Liébert','','',1);
 INSERT INTO "arrets_autobus" VALUES(53289,141,'141JOO','Sherbrooke / Saint-Donat','','',2);
@@ -2285,7 +2276,7 @@ INSERT INTO "arrets_autobus" VALUES(51692,141,'141JOO','Jean-Talon / 15e Avenue'
 INSERT INTO "arrets_autobus" VALUES(51662,141,'141JOO','Jean-Talon / 13e Avenue','','',47);
 INSERT INTO "arrets_autobus" VALUES(51631,141,'141JOO','Jean-Talon / Saint-Michel','','',48);
 INSERT INTO "arrets_autobus" VALUES(54294,141,'141JOO','Saint-Michel / Éverett',64,'',49);
-INSERT INTO "arrets_autobus" VALUES('',141,'141JOO','Shaughnessy / Station Saint-Michel',64,'Descente seulement',50);
+INSERT INTO "arrets_autobus" VALUES(54184,141,'141JOO','Shaughnessy / Station Saint-Michel',64,'Descente seulement',50);
 INSERT INTO "arrets_autobus" VALUES(52560,144,'14401O','de Rigaud / Berri (station Sherbrooke)',10,'',0);
 INSERT INTO "arrets_autobus" VALUES(52411,144,'14401O','des Pins / Drolet','','',1);
 INSERT INTO "arrets_autobus" VALUES(52353,144,'14401O','des Pins / de Bullion','','',2);
@@ -2306,8 +2297,8 @@ INSERT INTO "arrets_autobus" VALUES(51924,144,'14401O','Atwater / Docteur-Penfie
 INSERT INTO "arrets_autobus" VALUES(51894,144,'14401O','Atwater / Picquet','','',17);
 INSERT INTO "arrets_autobus" VALUES(54185,144,'14401O','Atwater / Sherbrooke','','',18);
 INSERT INTO "arrets_autobus" VALUES(52007,144,'14401O','Atwater / de Maisonneuve','','',19);
-INSERT INTO "arrets_autobus" VALUES('',144,'14401O','Atwater / Sainte-Catherine','','Descente seulement',20);
-INSERT INTO "arrets_autobus" VALUES('',144,'14401O','Atwater / Tupper (station Atwater)',35,'Descente seulement',21);
+INSERT INTO "arrets_autobus" VALUES(56301,144,'14401O','Atwater / Sainte-Catherine','','Descente seulement',20);
+INSERT INTO "arrets_autobus" VALUES(53786,144,'14401O','Atwater / Tupper (station Atwater)',35,'Descente seulement',21);
 INSERT INTO "arrets_autobus" VALUES(53786,144,'14401E','Atwater / Tupper (station Atwater)',35,'',0);
 INSERT INTO "arrets_autobus" VALUES(51990,144,'14401E','Atwater / Lincoln','','',1);
 INSERT INTO "arrets_autobus" VALUES(51949,144,'14401E','Atwater / Sherbrooke','','',2);
@@ -2328,7 +2319,7 @@ INSERT INTO "arrets_autobus" VALUES(52324,144,'14401E','des Pins / Saint-Dominiq
 INSERT INTO "arrets_autobus" VALUES(52364,144,'14401E','des Pins / de l''Hôtel-de-Ville','','',17);
 INSERT INTO "arrets_autobus" VALUES(52423,144,'14401E','des Pins / Saint-Denis','','',18);
 INSERT INTO "arrets_autobus" VALUES(52507,144,'14401E','Cherrier / Berri','','',19);
-INSERT INTO "arrets_autobus" VALUES('',144,'14401E','de Rigaud / Berri (station Sherbrooke)',10,'Descente seulement',20);
+INSERT INTO "arrets_autobus" VALUES(52560,144,'14401E','de Rigaud / Berri (station Sherbrooke)',10,'Descente seulement',20);
 INSERT INTO "arrets_autobus" VALUES(54150,146,'146SWE','du Mont-Cassin / Meilleur','','',0);
 INSERT INTO "arrets_autobus" VALUES(54338,146,'146SWE','Meilleur / Meilleur','','',1);
 INSERT INTO "arrets_autobus" VALUES(50343,146,'146SWE','Meilleur / Sauvé','','',2);
@@ -2361,7 +2352,7 @@ INSERT INTO "arrets_autobus" VALUES(50416,146,'146SWE','Christophe-Colomb / Fleu
 INSERT INTO "arrets_autobus" VALUES(50374,146,'146SWE','Christophe-Colomb / Prieur','','',29);
 INSERT INTO "arrets_autobus" VALUES(50349,146,'146SWE','Christophe-Colomb / Henri-Bourassa','','',30);
 INSERT INTO "arrets_autobus" VALUES(50333,146,'146SWE','Henri-Bourassa / de La Roche','','',31);
-INSERT INTO "arrets_autobus" VALUES('',146,'146SWE','Terminus de la station Henri-Bourassa',1,'Descente seulement',32);
+INSERT INTO "arrets_autobus" VALUES(53827,146,'146SWE','Terminus de la station Henri-Bourassa',1,'Descente seulement',32);
 INSERT INTO "arrets_autobus" VALUES(53827,146,'146SWO','Terminus de la station Henri-Bourassa',1,'',0);
 INSERT INTO "arrets_autobus" VALUES(50335,146,'146SWO','Henri-Bourassa / Chambord','','',1);
 INSERT INTO "arrets_autobus" VALUES(50351,146,'146SWO','Henri-Bourassa / Christophe-Colomb','','',2);
@@ -2393,7 +2384,7 @@ INSERT INTO "arrets_autobus" VALUES(50371,146,'146SWO','Meilleur / de Port-Royal
 INSERT INTO "arrets_autobus" VALUES(50340,146,'146SWO','Meilleur / Sauvé','','',28);
 INSERT INTO "arrets_autobus" VALUES(50308,146,'146SWO','Meilleur / du Mont-Cassin','','',29);
 INSERT INTO "arrets_autobus" VALUES(54123,146,'146SWO','Meilleur / Fleury','','',30);
-INSERT INTO "arrets_autobus" VALUES('',146,'146SWO','du Mont-Cassin / Meilleur','','Descente seulement',31);
+INSERT INTO "arrets_autobus" VALUES(54150,146,'146SWO','du Mont-Cassin / Meilleur','','Descente seulement',31);
 INSERT INTO "arrets_autobus" VALUES(54093,146,'146JOO','Georges-Baril / Henri-Bourassa','','',0);
 INSERT INTO "arrets_autobus" VALUES(50335,146,'146JOO','Henri-Bourassa / Chambord','','',1);
 INSERT INTO "arrets_autobus" VALUES(50351,146,'146JOO','Henri-Bourassa / Christophe-Colomb','','',2);
@@ -2425,7 +2416,7 @@ INSERT INTO "arrets_autobus" VALUES(50371,146,'146JOO','Meilleur / de Port-Royal
 INSERT INTO "arrets_autobus" VALUES(50340,146,'146JOO','Meilleur / Sauvé','','',28);
 INSERT INTO "arrets_autobus" VALUES(50308,146,'146JOO','Meilleur / du Mont-Cassin','','',29);
 INSERT INTO "arrets_autobus" VALUES(54123,146,'146JOO','Meilleur / Fleury','','',30);
-INSERT INTO "arrets_autobus" VALUES('',146,'146JOO','du Mont-Cassin / Meilleur','','Descente seulement',31);
+INSERT INTO "arrets_autobus" VALUES(54150,146,'146JOO','du Mont-Cassin / Meilleur','','Descente seulement',31);
 INSERT INTO "arrets_autobus" VALUES(54150,146,'146JOE','du Mont-Cassin / Meilleur','','',0);
 INSERT INTO "arrets_autobus" VALUES(54338,146,'146JOE','Meilleur / Meilleur','','',1);
 INSERT INTO "arrets_autobus" VALUES(50343,146,'146JOE','Meilleur / Sauvé','','',2);
@@ -2458,7 +2449,7 @@ INSERT INTO "arrets_autobus" VALUES(50416,146,'146JOE','Christophe-Colomb / Fleu
 INSERT INTO "arrets_autobus" VALUES(50374,146,'146JOE','Christophe-Colomb / Prieur','','',29);
 INSERT INTO "arrets_autobus" VALUES(50349,146,'146JOE','Christophe-Colomb / Henri-Bourassa','','',30);
 INSERT INTO "arrets_autobus" VALUES(50333,146,'146JOE','Henri-Bourassa / de La Roche','','',31);
-INSERT INTO "arrets_autobus" VALUES('',146,'146JOE','Georges-Baril / Henri-Bourassa','','Descente seulement',32);
+INSERT INTO "arrets_autobus" VALUES(54093,146,'146JOE','Georges-Baril / Henri-Bourassa','','Descente seulement',32);
 INSERT INTO "arrets_autobus" VALUES(54117,150,'15001O','Dorion / Sainte-Catherine (station Papineau)',28,'',0);
 INSERT INTO "arrets_autobus" VALUES(53065,150,'15001O','Sainte-Catherine / de Lorimier','','',1);
 INSERT INTO "arrets_autobus" VALUES(53105,150,'15001O','de Lorimier / René-Lévesque','','',2);
@@ -2485,8 +2476,8 @@ INSERT INTO "arrets_autobus" VALUES(52284,150,'15001O','René-Lévesque / Saint-
 INSERT INTO "arrets_autobus" VALUES(52198,150,'15001O','René-Lévesque / Seymour','','',23);
 INSERT INTO "arrets_autobus" VALUES(52149,150,'15001O','René-Lévesque / Sussex','','',24);
 INSERT INTO "arrets_autobus" VALUES(52078,150,'15001O','René-Lévesque / Atwater','','',25);
-INSERT INTO "arrets_autobus" VALUES('',150,'15001O','Atwater / Sainte-Catherine',35,'Descente seulement',26);
-INSERT INTO "arrets_autobus" VALUES('',150,'15001O','Sainte-Catherine / Lambert-Closse',35,'Descente seulement',27);
+INSERT INTO "arrets_autobus" VALUES(56297,150,'15001O','Atwater / Sainte-Catherine',35,'Descente seulement',26);
+INSERT INTO "arrets_autobus" VALUES(54148,150,'15001O','Sainte-Catherine / Lambert-Closse',35,'Descente seulement',27);
 INSERT INTO "arrets_autobus" VALUES(54148,150,'15001E','Sainte-Catherine / Lambert-Closse',35,'',0);
 INSERT INTO "arrets_autobus" VALUES(52150,150,'15001E','Sussex / René-Lévesque','','',1);
 INSERT INTO "arrets_autobus" VALUES(52227,150,'15001E','René-Lévesque / du Fort','','',2);
@@ -2510,7 +2501,7 @@ INSERT INTO "arrets_autobus" VALUES(53073,150,'15001E','René-Lévesque / Papine
 INSERT INTO "arrets_autobus" VALUES(53064,150,'15001E','de Lorimier / Sainte-Catherine','','',20);
 INSERT INTO "arrets_autobus" VALUES(53045,150,'15001E','de Lorimier / de Maisonneuve','','',21);
 INSERT INTO "arrets_autobus" VALUES(53034,150,'15001E','Logan / Parthenais','','',22);
-INSERT INTO "arrets_autobus" VALUES('',150,'15001E','Dorion / Sainte-Catherine (station Papineau)',28,'Descente seulement',23);
+INSERT INTO "arrets_autobus" VALUES(54117,150,'15001E','Dorion / Sainte-Catherine (station Papineau)',28,'Descente seulement',23);
 INSERT INTO "arrets_autobus" VALUES(54141,160,'16001E','Vézina / Coolbrook','','',0);
 INSERT INTO "arrets_autobus" VALUES(50607,160,'16001E','McLynn / Plamondon','','',1);
 INSERT INTO "arrets_autobus" VALUES(50630,160,'16001E','Plamondon / Décarie','','',2);
@@ -2548,8 +2539,7 @@ INSERT INTO "arrets_autobus" VALUES(51556,160,'16001E','Bernard / Saint-Urbain',
 INSERT INTO "arrets_autobus" VALUES(51571,160,'16001E','Bernard / Saint-Laurent','','',34);
 INSERT INTO "arrets_autobus" VALUES(60676,160,'16001E','de Bellechasse / Saint-Dominique','','',35);
 INSERT INTO "arrets_autobus" VALUES(60677,160,'16001E','de Bellechasse / Henri-Julien','','',36);
-INSERT INTO "arrets_autobus" VALUES(51508,160,'16001E','Saint-Denis / Beaubien','','',37);
-INSERT INTO "arrets_autobus" VALUES('',160,'16001E','de Saint-Vallier / Station Beaubien',6,'Descente seulement',38);
+INSERT INTO "arrets_autobus" VALUES(51508,160,'16001E','Saint-Denis / Beaubien',6,'',37);
 INSERT INTO "arrets_autobus" VALUES(51533,160,'16001O','de Châteaubriand / Beaubien',6,'',0);
 INSERT INTO "arrets_autobus" VALUES(51509,160,'16001O','Beaubien / Saint-Denis','','',1);
 INSERT INTO "arrets_autobus" VALUES(51481,160,'16001O','Beaubien / Alma','','',2);
@@ -2583,7 +2573,7 @@ INSERT INTO "arrets_autobus" VALUES(50721,160,'16001O','Barclay / Victoria',51,'
 INSERT INTO "arrets_autobus" VALUES(50683,160,'16001O','Barclay / Lemieux','','',30);
 INSERT INTO "arrets_autobus" VALUES(50663,160,'16001O','Barclay / Westbury','','',31);
 INSERT INTO "arrets_autobus" VALUES(50629,160,'16001O','Plamondon / Décarie','','',32);
-INSERT INTO "arrets_autobus" VALUES('',160,'16001O','Vézina / Coolbrook','','Descente seulement',33);
+INSERT INTO "arrets_autobus" VALUES(54141,160,'16001O','Vézina / Coolbrook','','Descente seulement',33);
 INSERT INTO "arrets_autobus" VALUES(51648,161,'16101O','Rosemont / de Saint-Vallier',7,'',0);
 INSERT INTO "arrets_autobus" VALUES(51448,161,'16101O','Van Horne / Waverly','','',1);
 INSERT INTO "arrets_autobus" VALUES(51407,161,'16101O','Van Horne / du Parc','','',2);
@@ -2631,7 +2621,7 @@ INSERT INTO "arrets_autobus" VALUES(56343,161,'16101O','Guelph / Westluke','',''
 INSERT INTO "arrets_autobus" VALUES(56337,161,'16101O','Guelph / Wentworth','','',44);
 INSERT INTO "arrets_autobus" VALUES(56334,161,'16101O','Kildare / Davies','','',45);
 INSERT INTO "arrets_autobus" VALUES(56335,161,'16101O','Kildare / Westluke','','',46);
-INSERT INTO "arrets_autobus" VALUES('',161,'16101O','Kildare / Westminster','','Descente seulement',47);
+INSERT INTO "arrets_autobus" VALUES(56338,161,'16101O','Kildare / Westminster','','Descente seulement',47);
 INSERT INTO "arrets_autobus" VALUES(56338,161,'16101E','Kildare / Westminster','','',0);
 INSERT INTO "arrets_autobus" VALUES(56345,161,'16101E','Kildare / McMurray','','',1);
 INSERT INTO "arrets_autobus" VALUES(56348,161,'16101E','Kildare / Melling','','',2);
@@ -2675,7 +2665,7 @@ INSERT INTO "arrets_autobus" VALUES(56191,161,'16101E','Van Horne / Querbes','',
 INSERT INTO "arrets_autobus" VALUES(51390,161,'16101E','Van Horne / Hutchison','','',40);
 INSERT INTO "arrets_autobus" VALUES(51423,161,'16101E','Van Horne / Jeanne-Mance','','',41);
 INSERT INTO "arrets_autobus" VALUES(51449,161,'16101E','Van Horne / Waverly','','',42);
-INSERT INTO "arrets_autobus" VALUES('',161,'16101E','Rosemont / de Saint-Vallier',7,'Descente seulement',43);
+INSERT INTO "arrets_autobus" VALUES(51648,161,'16101E','Rosemont / de Saint-Vallier',7,'Descente seulement',43);
 INSERT INTO "arrets_autobus" VALUES(60247,162,'16201O','Station Villa-Maria',48,'',0);
 INSERT INTO "arrets_autobus" VALUES(51202,162,'16201O','Monkland / Girouard','','',1);
 INSERT INTO "arrets_autobus" VALUES(51170,162,'16201O','Monkland / Marcil','','',2);
@@ -2716,7 +2706,7 @@ INSERT INTO "arrets_autobus" VALUES(56430,162,'16201O','Kildare / Merrimac','','
 INSERT INTO "arrets_autobus" VALUES(56426,162,'16201O','Kildare / Marc-Chagall','','',37);
 INSERT INTO "arrets_autobus" VALUES(56429,162,'16201O','Kildare / Merrimac','','',38);
 INSERT INTO "arrets_autobus" VALUES(56389,162,'16201O','Kildare / Cavendish','','',39);
-INSERT INTO "arrets_autobus" VALUES('',162,'16201O','Kildare / Cavendish','','Descente seulement',40);
+INSERT INTO "arrets_autobus" VALUES(56425,162,'16201O','Kildare / Cavendish','','Descente seulement',40);
 INSERT INTO "arrets_autobus" VALUES(56425,162,'16201E','Kildare / Cavendish','','',0);
 INSERT INTO "arrets_autobus" VALUES(56382,162,'16201E','Kildare / Kellert','','',1);
 INSERT INTO "arrets_autobus" VALUES(56374,162,'16201E','Kildare / Einstein','','',2);
@@ -2751,8 +2741,8 @@ INSERT INTO "arrets_autobus" VALUES(51122,162,'16201E','Monkland / Melrose','','
 INSERT INTO "arrets_autobus" VALUES(51154,162,'16201E','Monkland / Harvard','','',31);
 INSERT INTO "arrets_autobus" VALUES(51171,162,'16201E','Monkland / Marcil','','',32);
 INSERT INTO "arrets_autobus" VALUES(51204,162,'16201E','Monkland / Girouard','','',33);
-INSERT INTO "arrets_autobus" VALUES('',162,'16201E','Décarie / Monkland','','Descente seulement',34);
-INSERT INTO "arrets_autobus" VALUES('',162,'16201E','Station Villa-Maria',48,'Descente seulement',35);
+INSERT INTO "arrets_autobus" VALUES(51243,162,'16201E','Décarie / Monkland','','Descente seulement',34);
+INSERT INTO "arrets_autobus" VALUES(60247,162,'16201E','Station Villa-Maria',48,'Descente seulement',35);
 INSERT INTO "arrets_autobus" VALUES(60504,164,'16401E','Guénette / No 2488','','',0);
 INSERT INTO "arrets_autobus" VALUES(55883,164,'16401E','Guénette / Bois-Franc','','',1);
 INSERT INTO "arrets_autobus" VALUES(60856,164,'16401E','Guénette / Dobrin','','',2);
@@ -2803,7 +2793,7 @@ INSERT INTO "arrets_autobus" VALUES(50296,164,'16401E','Henri-Bourassa / Saint-L
 INSERT INTO "arrets_autobus" VALUES(50297,164,'16401E','Henri-Bourassa / Saint-Laurent','','',47);
 INSERT INTO "arrets_autobus" VALUES(50300,164,'16401E','Henri-Bourassa / Laverdure','','',48);
 INSERT INTO "arrets_autobus" VALUES(50303,164,'16401E','Station Henri-Bourassa / Berri','','',49);
-INSERT INTO "arrets_autobus" VALUES('',164,'16401E','Terminus de la station Henri-Bourassa',1,'Descente seulement',50);
+INSERT INTO "arrets_autobus" VALUES(53793,164,'16401E','Terminus de la station Henri-Bourassa',1,'Descente seulement',50);
 INSERT INTO "arrets_autobus" VALUES(53793,164,'16401O','Terminus de la station Henri-Bourassa',1,'',0);
 INSERT INTO "arrets_autobus" VALUES(50301,164,'16401O','Henri-Bourassa / Saint-Denis','','',1);
 INSERT INTO "arrets_autobus" VALUES(50299,164,'16401O','Henri-Bourassa / Laverdure','','',2);
@@ -2846,13 +2836,13 @@ INSERT INTO "arrets_autobus" VALUES(55402,164,'16401O','Henri-Bourassa / Sartelo
 INSERT INTO "arrets_autobus" VALUES(55392,164,'16401O','Henri-Bourassa / Félix-Leclerc','','',39);
 INSERT INTO "arrets_autobus" VALUES(55386,164,'16401O','Guénette / Henri-Bourassa','','',40);
 INSERT INTO "arrets_autobus" VALUES(55776,164,'16401O','Guénette / Cousens','','',41);
-INSERT INTO "arrets_autobus" VALUES('',164,'16401O','Guénette / centre de transport STM','','Descente seulement',42);
+INSERT INTO "arrets_autobus" VALUES(60504,164,'16401O','Guénette / centre de transport STM','','Descente seulement',42);
 INSERT INTO "arrets_autobus" VALUES(60890,164,'16401O','Guénette / Bois-Franc','','',43);
 INSERT INTO "arrets_autobus" VALUES(60857,164,'16401O','Guénette / Dobrin','','',44);
 INSERT INTO "arrets_autobus" VALUES(60860,164,'16401O','Guénette / No 2260','','',45);
 INSERT INTO "arrets_autobus" VALUES(60861,164,'16401O','Steinberg / No 4200','','',46);
 INSERT INTO "arrets_autobus" VALUES(60891,164,'16401O','Thimens / Bois-Franc','','',47);
-INSERT INTO "arrets_autobus" VALUES('',164,'16401O','Guénette / No 2488','','Descente seulement',48);
+INSERT INTO "arrets_autobus" VALUES(60504,164,'16401O','Guénette / No 2488','','Descente seulement',48);
 INSERT INTO "arrets_autobus" VALUES(56065,165,'165JOS','Dunkirk / Cornwall','','',0);
 INSERT INTO "arrets_autobus" VALUES(56062,165,'165JOS','Lombard / Graham','','',1);
 INSERT INTO "arrets_autobus" VALUES(56067,165,'165JOS','Laird / Sherwood','','',2);
@@ -2887,7 +2877,7 @@ INSERT INTO "arrets_autobus" VALUES(52196,165,'165JOS','Saint-Mathieu / Sainte-C
 INSERT INTO "arrets_autobus" VALUES(52285,165,'165JOS','Saint-Mathieu / René-Lévesque','','',31);
 INSERT INTO "arrets_autobus" VALUES(54163,165,'165JOS','René-Lévesque / Amesbury','','',32);
 INSERT INTO "arrets_autobus" VALUES(52330,165,'165JOS','Guy / René-Lévesque','','',33);
-INSERT INTO "arrets_autobus" VALUES('',165,'165JOS','Guy / de Maisonneuve',34,'Descente seulement',34);
+INSERT INTO "arrets_autobus" VALUES(52201,165,'165JOS','Guy / de Maisonneuve',34,'Descente seulement',34);
 INSERT INTO "arrets_autobus" VALUES(52201,165,'165JON','Guy / de Maisonneuve',34,'',0);
 INSERT INTO "arrets_autobus" VALUES(52113,165,'165JON','Guy / Sherbrooke','','',1);
 INSERT INTO "arrets_autobus" VALUES(52044,165,'165JON','Côte-des-Neiges / Summerhill','','',2);
@@ -2918,7 +2908,7 @@ INSERT INTO "arrets_autobus" VALUES(56076,165,'165JON','Laird / Geneva','','',26
 INSERT INTO "arrets_autobus" VALUES(56073,165,'165JON','Laird / Calédonia','','',27);
 INSERT INTO "arrets_autobus" VALUES(56069,165,'165JON','Laird / Moncrieff','','',28);
 INSERT INTO "arrets_autobus" VALUES(56066,165,'165JON','Laird / Alexander','','',29);
-INSERT INTO "arrets_autobus" VALUES('',165,'165JON','av cornwall / ch dunkirk / Cornwall','','Descente seulement',30);
+INSERT INTO "arrets_autobus" VALUES(56136,165,'165JON','Graham / Parc de Roses','','Descente seulement',30);
 INSERT INTO "arrets_autobus" VALUES(50544,166,'166L2S','Vézina / MacDonald','','',0);
 INSERT INTO "arrets_autobus" VALUES(50584,166,'166L2S','MacDonald / Plamondon','','',1);
 INSERT INTO "arrets_autobus" VALUES(50642,166,'166L2S','MacDonald / Fleet','','',2);
@@ -2967,7 +2957,7 @@ INSERT INTO "arrets_autobus" VALUES(53762,166,'166L2S','Saint-Mathieu / Baile','
 INSERT INTO "arrets_autobus" VALUES(52285,166,'166L2S','Saint-Mathieu / René-Lévesque','','',45);
 INSERT INTO "arrets_autobus" VALUES(54163,166,'166L2S','René-Lévesque / Amesbury','','',46);
 INSERT INTO "arrets_autobus" VALUES(52236,166,'166L2S','Guy / Sainte-Catherine',34,'',47);
-INSERT INTO "arrets_autobus" VALUES('',166,'166L2S','Guy / de Maisonneuve','','Descente seulement',48);
+INSERT INTO "arrets_autobus" VALUES(52195,166,'166L2S','Guy / de Maisonneuve','','Descente seulement',48);
 INSERT INTO "arrets_autobus" VALUES(52195,166,'166JON','Guy / de Maisonneuve',34,'',0);
 INSERT INTO "arrets_autobus" VALUES(52113,166,'166JON','Guy / Sherbrooke','','',1);
 INSERT INTO "arrets_autobus" VALUES(52044,166,'166JON','Côte-des-Neiges / Summerhill','','',2);
@@ -2999,7 +2989,7 @@ INSERT INTO "arrets_autobus" VALUES(50728,166,'166JON','Clanranald / Bourret',''
 INSERT INTO "arrets_autobus" VALUES(50658,166,'166JON','Clanranald / Van Horne','','',28);
 INSERT INTO "arrets_autobus" VALUES(50598,166,'166JON','Clanranald / Plamondon','','',29);
 INSERT INTO "arrets_autobus" VALUES(50550,166,'166JON','Clanranald / Vézina','','',30);
-INSERT INTO "arrets_autobus" VALUES('',166,'166JON','Vézina / MacDonald','','Descente seulement',31);
+INSERT INTO "arrets_autobus" VALUES(50544,166,'166JON','Vézina / MacDonald','','Descente seulement',31);
 INSERT INTO "arrets_autobus" VALUES(50544,166,'166JOS','Vézina / MacDonald','','',0);
 INSERT INTO "arrets_autobus" VALUES(50584,166,'166JOS','MacDonald / Plamondon','','',1);
 INSERT INTO "arrets_autobus" VALUES(50642,166,'166JOS','MacDonald / Fleet','','',2);
@@ -3036,7 +3026,7 @@ INSERT INTO "arrets_autobus" VALUES(53762,166,'166JOS','Saint-Mathieu / Baile','
 INSERT INTO "arrets_autobus" VALUES(52285,166,'166JOS','Saint-Mathieu / René-Lévesque','','',33);
 INSERT INTO "arrets_autobus" VALUES(54163,166,'166JOS','René-Lévesque / Amesbury','','',34);
 INSERT INTO "arrets_autobus" VALUES(52236,166,'166JOS','Guy / Sainte-Catherine',34,'',35);
-INSERT INTO "arrets_autobus" VALUES('',166,'166JOS','Guy / de Maisonneuve','','Descente seulement',36);
+INSERT INTO "arrets_autobus" VALUES(52195,166,'166JOS','Guy / de Maisonneuve','','Descente seulement',36);
 INSERT INTO "arrets_autobus" VALUES(52195,166,'166L2N','Guy / de Maisonneuve',34,'',0);
 INSERT INTO "arrets_autobus" VALUES(52113,166,'166L2N','Guy / Sherbrooke','','',1);
 INSERT INTO "arrets_autobus" VALUES(52044,166,'166L2N','Côte-des-Neiges / Summerhill','','',2);
@@ -3081,7 +3071,7 @@ INSERT INTO "arrets_autobus" VALUES(50728,166,'166L2N','Clanranald / Bourret',''
 INSERT INTO "arrets_autobus" VALUES(50658,166,'166L2N','Clanranald / Van Horne','','',41);
 INSERT INTO "arrets_autobus" VALUES(50598,166,'166L2N','Clanranald / Plamondon','','',42);
 INSERT INTO "arrets_autobus" VALUES(50550,166,'166L2N','Clanranald / Vézina','','',43);
-INSERT INTO "arrets_autobus" VALUES('',166,'166L2N','Vézina / MacDonald','','Descente seulement',44);
+INSERT INTO "arrets_autobus" VALUES(50544,166,'166L2N','Vézina / MacDonald','','Descente seulement',44);
 INSERT INTO "arrets_autobus" VALUES(60700,168,'168JON','Terminus de la Pointe-Sud','','',0);
 INSERT INTO "arrets_autobus" VALUES(60693,168,'168JON','de la Pointe-Sud / des Parulines','','',1);
 INSERT INTO "arrets_autobus" VALUES(60694,168,'168JON','de la Pointe-Sud / de l''Orée-du-Bois','','',2);
@@ -3111,8 +3101,8 @@ INSERT INTO "arrets_autobus" VALUES(52752,168,'168JON','University / Saint-Jacqu
 INSERT INTO "arrets_autobus" VALUES(52666,168,'168JON','University / De La Gauchetière',14,'',26);
 INSERT INTO "arrets_autobus" VALUES(52588,168,'168JON','University / René-Lévesque','','',27);
 INSERT INTO "arrets_autobus" VALUES(52499,168,'168JON','University / Sainte-Catherine','','',28);
-INSERT INTO "arrets_autobus" VALUES('',168,'168JON','University / Président-Kennedy',32,'Descente seulement',29);
-INSERT INTO "arrets_autobus" VALUES('',168,'168JON','Union / de Maisonneuve (station McGill)',32,'Descente seulement',30);
+INSERT INTO "arrets_autobus" VALUES(52412,168,'168JON','University / Président-Kennedy',32,'Descente seulement',29);
+INSERT INTO "arrets_autobus" VALUES(52451,168,'168JON','Union / de Maisonneuve (station McGill)',32,'Descente seulement',30);
 INSERT INTO "arrets_autobus" VALUES(52451,168,'168JOS','Union / de Maisonneuve (station McGill)',32,'',0);
 INSERT INTO "arrets_autobus" VALUES(52527,168,'168JOS','Union / Sainte-Catherine','','',1);
 INSERT INTO "arrets_autobus" VALUES(52626,168,'168JOS','René-Lévesque / du Beaver Hall','','',2);
@@ -3142,7 +3132,7 @@ INSERT INTO "arrets_autobus" VALUES(56653,168,'168JOS','Île-des-Soeurs / de Gas
 INSERT INTO "arrets_autobus" VALUES(60400,168,'168JOS','Île-des-Soeurs / Hall','','',26);
 INSERT INTO "arrets_autobus" VALUES(60696,168,'168JOS','de la Pointe-Sud / de l''Orée-du-Bois','','',27);
 INSERT INTO "arrets_autobus" VALUES(60697,168,'168JOS','de la Pointe-Sud / des Parulines','','',28);
-INSERT INTO "arrets_autobus" VALUES('',168,'168JOS','Terminus de la Pointe-Sud','','Descente seulement',29);
+INSERT INTO "arrets_autobus" VALUES(60700,168,'168JOS','Terminus de la Pointe-Sud','','Descente seulement',29);
 INSERT INTO "arrets_autobus" VALUES(55398,170,'170JOS','L''Heureux / Beauséjour','','',0);
 INSERT INTO "arrets_autobus" VALUES(50131,170,'170JOS','de Beauséjour / Gouin','','',1);
 INSERT INTO "arrets_autobus" VALUES(50130,170,'170JOS','Toupin / Gouin','','',2);
@@ -3169,7 +3159,7 @@ INSERT INTO "arrets_autobus" VALUES(55537,170,'170JOS','Décarie / Poirier','','
 INSERT INTO "arrets_autobus" VALUES(55566,170,'170JOS','Décarie / Deguire','','',23);
 INSERT INTO "arrets_autobus" VALUES(55589,170,'170JOS','Décarie / Tassé','','',24);
 INSERT INTO "arrets_autobus" VALUES(55614,170,'170JOS','Décarie / Rochon','','',25);
-INSERT INTO "arrets_autobus" VALUES('',170,'170JOS','Terminus de la station Côte-Vertu',65,'Descente seulement',26);
+INSERT INTO "arrets_autobus" VALUES(60293,170,'170JOS','Terminus de la station Côte-Vertu',65,'Descente seulement',26);
 INSERT INTO "arrets_autobus" VALUES(60293,170,'170JON','Terminus de la station Côte-Vertu',65,'',0);
 INSERT INTO "arrets_autobus" VALUES(55616,170,'170JON','Décarie / Rochon','','',1);
 INSERT INTO "arrets_autobus" VALUES(55588,170,'170JON','Décarie / Tassé','','',2);
@@ -3195,7 +3185,7 @@ INSERT INTO "arrets_autobus" VALUES(55400,170,'170JON','Toupin / Machabée','','
 INSERT INTO "arrets_autobus" VALUES(55390,170,'170JON','Toupin / L''Heureux','','',22);
 INSERT INTO "arrets_autobus" VALUES(55398,170,'170JON','L''Heureux / Beauséjour','','',23);
 INSERT INTO "arrets_autobus" VALUES(50131,170,'170JON','de Beauséjour / Gouin','','',24);
-INSERT INTO "arrets_autobus" VALUES('',170,'170JON','Toupin / Gouin','','Descente seulement',25);
+INSERT INTO "arrets_autobus" VALUES(50130,170,'170JON','Toupin / Gouin','','Descente seulement',25);
 INSERT INTO "arrets_autobus" VALUES(55817,171,'17101E','Thimens / Stationnement Sears','','',0);
 INSERT INTO "arrets_autobus" VALUES(55454,171,'17101E','Thimens / Cavendish','','',1);
 INSERT INTO "arrets_autobus" VALUES(55798,171,'17101E','Thimens / Todd','','',2);
@@ -3233,8 +3223,7 @@ INSERT INTO "arrets_autobus" VALUES(50296,171,'17101E','Henri-Bourassa / Saint-L
 INSERT INTO "arrets_autobus" VALUES(50297,171,'17101E','Henri-Bourassa / Saint-Laurent','','',34);
 INSERT INTO "arrets_autobus" VALUES(50300,171,'17101E','Henri-Bourassa / Laverdure','','',35);
 INSERT INTO "arrets_autobus" VALUES(50303,171,'17101E','Station Henri-Bourassa / Berri','','',36);
-INSERT INTO "arrets_autobus" VALUES('',171,'17101E','Terminus de la station Henri-Bourassa',1,'Descente seulement',37);
-INSERT INTO "arrets_autobus" VALUES('',171,'17101O','Thimens / Stationnement Sears','','Descente seulement',38);
+INSERT INTO "arrets_autobus" VALUES(54114,171,'17101E','Terminus de la station Henri-Bourassa',1,'Descente seulement',37);
 INSERT INTO "arrets_autobus" VALUES(54114,171,'17101O','Terminus de la station Henri-Bourassa',1,'',0);
 INSERT INTO "arrets_autobus" VALUES(50301,171,'17101O','Henri-Bourassa / Saint-Denis','','',1);
 INSERT INTO "arrets_autobus" VALUES(50299,171,'17101O','Henri-Bourassa / Laverdure','','',2);
@@ -3273,6 +3262,7 @@ INSERT INTO "arrets_autobus" VALUES(60853,171,'17101O','Thimens / Face au no 240
 INSERT INTO "arrets_autobus" VALUES(55797,171,'17101O','Thimens / Todd','','',35);
 INSERT INTO "arrets_autobus" VALUES(55453,171,'17101O','Thimens / Cavendish','','',36);
 INSERT INTO "arrets_autobus" VALUES(55816,171,'17101O','Cavendish / Stationnement Sears','','',37);
+INSERT INTO "arrets_autobus" VALUES(55817,171,'17101O','Thimens / Stationnement Sears','','Descente seulement',38);
 INSERT INTO "arrets_autobus" VALUES(55829,174,'17401O','Terminus de la station Côte-Vertu',65,'',0);
 INSERT INTO "arrets_autobus" VALUES(55486,174,'17401O','Côte-Vertu / Cavendish','','',1);
 INSERT INTO "arrets_autobus" VALUES(55488,174,'17401O','Côte-Vertu / Cavendish','','',2);
@@ -3285,7 +3275,7 @@ INSERT INTO "arrets_autobus" VALUES(57591,174,'17401O','Côte-Vertu / Pitfield',
 INSERT INTO "arrets_autobus" VALUES(57582,174,'17401O','Côte-Vertu / Bombardier','','',9);
 INSERT INTO "arrets_autobus" VALUES(57589,174,'17401O','Côte-Vertu / Garderie Canadair','','',10);
 INSERT INTO "arrets_autobus" VALUES(57543,174,'17401O','Côte-Vertu / Canadair','','',11);
-INSERT INTO "arrets_autobus" VALUES('',174,'17401O','Côte-Vertu / Centre Technique','','Descente seulement',12);
+INSERT INTO "arrets_autobus" VALUES(57584,174,'17401O','Côte-Vertu / Centre Technique','','Descente seulement',12);
 INSERT INTO "arrets_autobus" VALUES(57584,174,'17401E','Côte-Vertu / Centre Technique','','',0);
 INSERT INTO "arrets_autobus" VALUES(57585,174,'17401E','Côte-Vertu / Boucle Air Canada','','',1);
 INSERT INTO "arrets_autobus" VALUES(57594,174,'17401E','Côte-Vertu / No 720','','',2);
@@ -3302,7 +3292,7 @@ INSERT INTO "arrets_autobus" VALUES(55446,174,'17401E','Côte-Vertu / Bégin',''
 INSERT INTO "arrets_autobus" VALUES(55778,174,'17401E','Côte-Vertu / No 3695','','',13);
 INSERT INTO "arrets_autobus" VALUES(55466,174,'17401E','Côte-Vertu / Beaulac','','',14);
 INSERT INTO "arrets_autobus" VALUES(55487,174,'17401E','Côte-Vertu / Cavendish','','',15);
-INSERT INTO "arrets_autobus" VALUES('',174,'17401E','Terminus de la station Côte-Vertu',65,'Descente seulement',16);
+INSERT INTO "arrets_autobus" VALUES(55829,174,'17401E','Terminus de la station Côte-Vertu',65,'Descente seulement',16);
 INSERT INTO "arrets_autobus" VALUES(55921,175,'17501O','Ouimet / Saint-Louis',54,'',0);
 INSERT INTO "arrets_autobus" VALUES(55701,175,'17501O','Saint-Louis / Crevier','','',1);
 INSERT INTO "arrets_autobus" VALUES(55691,175,'17501O','Saint-Louis / Marcel-Laurin','','',2);
@@ -3345,7 +3335,7 @@ INSERT INTO "arrets_autobus" VALUES(55999,175,'17501O','Douglas-B.-Floreani / Ki
 INSERT INTO "arrets_autobus" VALUES(60581,175,'17501O','Douglas-B.-Floreani / No 3425','','',39);
 INSERT INTO "arrets_autobus" VALUES(56001,175,'17501O','Douglas-B.-Floreani / No 3499','','',40);
 INSERT INTO "arrets_autobus" VALUES(56008,175,'17501O','Douglas-B.-Floreani / L''Oréal','','',41);
-INSERT INTO "arrets_autobus" VALUES('',175,'17501O','Douglas B. Floréani / No 3499','','Descente seulement',42);
+INSERT INTO "arrets_autobus" VALUES(55998,175,'17501O','Douglas B. Floréani / No 3499','','Descente seulement',42);
 INSERT INTO "arrets_autobus" VALUES(55998,175,'17501E','Douglas B. Floréani / No 3499','','',0);
 INSERT INTO "arrets_autobus" VALUES(56000,175,'17501E','Douglas-B.-Floreani / Kieran','','',1);
 INSERT INTO "arrets_autobus" VALUES(56002,175,'17501E','Douglas-B.-Floreani / Étingin','','',2);
@@ -3386,7 +3376,7 @@ INSERT INTO "arrets_autobus" VALUES(55644,175,'17501E','Alexis-Nihon / Saint-Lou
 INSERT INTO "arrets_autobus" VALUES(55670,175,'17501E','Saint-Louis / Gratton','','',37);
 INSERT INTO "arrets_autobus" VALUES(55680,175,'17501E','Saint-Louis / Tait','','',38);
 INSERT INTO "arrets_autobus" VALUES(55702,175,'17501E','Saint-Louis / Crevier','','',39);
-INSERT INTO "arrets_autobus" VALUES('',175,'17501E','Ouimet / Saint-Louis',54,'Descente seulement',40);
+INSERT INTO "arrets_autobus" VALUES(55921,175,'17501E','Ouimet / Saint-Louis',54,'Descente seulement',40);
 INSERT INTO "arrets_autobus" VALUES(60295,177,'17701O','Terminus de la station Côte-Vertu',65,'',0);
 INSERT INTO "arrets_autobus" VALUES(55594,177,'17701O','Côte-Vertu / Marcel-Laurin','','',1);
 INSERT INTO "arrets_autobus" VALUES(55554,177,'17701O','Côte-Vertu / Alexis-Nihon','','',2);
@@ -3413,7 +3403,7 @@ INSERT INTO "arrets_autobus" VALUES(55897,177,'17701O','Henri-Bourassa / No 7900
 INSERT INTO "arrets_autobus" VALUES(55379,177,'17701O','Henri-Bourassa / Thimens','','',23);
 INSERT INTO "arrets_autobus" VALUES(55385,177,'17701O','Henri-Bourassa / Guénette','','',24);
 INSERT INTO "arrets_autobus" VALUES(55776,177,'17701O','Guénette / Cousens','','',25);
-INSERT INTO "arrets_autobus" VALUES('',177,'17701O','Guénette / centre de transport STM','','Descente seulement',26);
+INSERT INTO "arrets_autobus" VALUES(60284,177,'17701O','Guénette / centre de transport STM','','Descente seulement',26);
 INSERT INTO "arrets_autobus" VALUES(60284,177,'17701E','Guénette / centre de transport STM','','',0);
 INSERT INTO "arrets_autobus" VALUES(55883,177,'17701E','Guénette / Bois-Franc','','',1);
 INSERT INTO "arrets_autobus" VALUES(55395,177,'17701E','Bois-Franc / Thimens','','',2);
@@ -3440,18 +3430,18 @@ INSERT INTO "arrets_autobus" VALUES(55463,177,'17701E','Côte-Vertu / No 3200','
 INSERT INTO "arrets_autobus" VALUES(55487,177,'17701E','Côte-Vertu / Cavendish','','',23);
 INSERT INTO "arrets_autobus" VALUES(55556,177,'17701E','Côte-Vertu / Alexis-Nihon','','',24);
 INSERT INTO "arrets_autobus" VALUES(55596,177,'17701E','Côte-Vertu / Marcel-Laurin','','',25);
-INSERT INTO "arrets_autobus" VALUES('',177,'17701E','Terminus de la station Côte-Vertu',65,'Descente seulement',26);
+INSERT INTO "arrets_autobus" VALUES(60295,177,'17701E','Terminus de la station Côte-Vertu',65,'Descente seulement',26);
 INSERT INTO "arrets_autobus" VALUES(60744,178,'178AMS','de la Montagne / De La Gauchetière',16,'',0);
 INSERT INTO "arrets_autobus" VALUES(52530,178,'178AMS','René-Lévesque / Mansfield','','',1);
 INSERT INTO "arrets_autobus" VALUES(60745,178,'178AMS','University / De La Gauchetière','','',2);
 INSERT INTO "arrets_autobus" VALUES(52971,178,'178AMS','Nazareth / Wellington','','',3);
 INSERT INTO "arrets_autobus" VALUES(60656,178,'178AMS','Nazareth / Brennan','','',4);
-INSERT INTO "arrets_autobus" VALUES('',178,'178AMS','Campus Bell','','Descente seulement',5);
+INSERT INTO "arrets_autobus" VALUES(60748,178,'178AMS','Campus Bell','','Descente seulement',5);
 INSERT INTO "arrets_autobus" VALUES(60748,178,'178PMN','Campus Bell','','',0);
 INSERT INTO "arrets_autobus" VALUES(52973,178,'178PMN','Duke / Wellington','','',1);
 INSERT INTO "arrets_autobus" VALUES(52666,178,'178PMN','University / De La Gauchetière','','',2);
 INSERT INTO "arrets_autobus" VALUES(52529,178,'178PMN','René-Lévesque / Mansfield','','',3);
-INSERT INTO "arrets_autobus" VALUES('',178,'178PMN','de la Montagne / De La Gauchetière',16,'Descente seulement',4);
+INSERT INTO "arrets_autobus" VALUES(60744,178,'178PMN','de la Montagne / De La Gauchetière',16,'Descente seulement',4);
 INSERT INTO "arrets_autobus" VALUES(60302,179,'17901N','Beaumont / de l''Acadie',59,'',0);
 INSERT INTO "arrets_autobus" VALUES(56138,179,'17901N','Beaumont / Fleet','','',1);
 INSERT INTO "arrets_autobus" VALUES(56101,179,'17901N','Beaumont / Rockland','','',2);
@@ -3486,7 +3476,7 @@ INSERT INTO "arrets_autobus" VALUES(50242,179,'17901N','de l''Acadie / de Louisb
 INSERT INTO "arrets_autobus" VALUES(50229,179,'17901N','de l''Acadie / de Salaberry','','',31);
 INSERT INTO "arrets_autobus" VALUES(50224,179,'17901N','Valmont / Viel','','',32);
 INSERT INTO "arrets_autobus" VALUES(50221,179,'17901N','de l''Acadie / Viel','','',33);
-INSERT INTO "arrets_autobus" VALUES('',179,'17901N','de l''Acadie / de Salaberry','','Descente seulement',34);
+INSERT INTO "arrets_autobus" VALUES(50231,179,'17901N','de l''Acadie / de Salaberry','','Descente seulement',34);
 INSERT INTO "arrets_autobus" VALUES(50231,179,'17901S','de l''Acadie / de Salaberry','','',0);
 INSERT INTO "arrets_autobus" VALUES(50233,179,'17901S','de l''Acadie / de Salaberry','','',1);
 INSERT INTO "arrets_autobus" VALUES(50243,179,'17901S','de l''Acadie / de Louisbourg','','',2);
@@ -3516,7 +3506,7 @@ INSERT INTO "arrets_autobus" VALUES(50970,179,'17901S','Bloomfield / Saint-Roch'
 INSERT INTO "arrets_autobus" VALUES(51062,179,'17901S','Bloomfield / Ogilvy','','',26);
 INSERT INTO "arrets_autobus" VALUES(54355,179,'17901S','Bloomfield / Jean-Talon','','',27);
 INSERT INTO "arrets_autobus" VALUES(51084,179,'17901S','Jean-Talon / Wiseman','','',28);
-INSERT INTO "arrets_autobus" VALUES('',179,'17901S','Beaumont / de l''Acadie',59,'Descente seulement',29);
+INSERT INTO "arrets_autobus" VALUES(60302,179,'17901S','Beaumont / de l''Acadie',59,'Descente seulement',29);
 INSERT INTO "arrets_autobus" VALUES(50147,180,'180JOE','Lachapelle / Gouin','','',0);
 INSERT INTO "arrets_autobus" VALUES(50153,180,'180JOE','Lachapelle / Ranger','','',1);
 INSERT INTO "arrets_autobus" VALUES(50163,180,'180JOE','Lachapelle / Périnault','','',2);
@@ -3545,8 +3535,8 @@ INSERT INTO "arrets_autobus" VALUES(50339,180,'180JOE','Fleury / Saint-Laurent',
 INSERT INTO "arrets_autobus" VALUES(50348,180,'180JOE','Fleury / d''Auteuil','','',25);
 INSERT INTO "arrets_autobus" VALUES(50359,180,'180JOE','Fleury / Berri','','',26);
 INSERT INTO "arrets_autobus" VALUES(50394,180,'180JOE','Berri / Sauriol','','',27);
-INSERT INTO "arrets_autobus" VALUES('',180,'180JOE','Berri / Sauvé',2,'Descente seulement',28);
-INSERT INTO "arrets_autobus" VALUES('',180,'180JOE','Sauvé / Saint-Denis',2,'Descente seulement',29);
+INSERT INTO "arrets_autobus" VALUES(50437,180,'180JOE','Berri / Sauvé',2,'Descente seulement',28);
+INSERT INTO "arrets_autobus" VALUES(54088,180,'180JOE','Sauvé / Saint-Denis',2,'Descente seulement',29);
 INSERT INTO "arrets_autobus" VALUES(54088,180,'180JOO','Sauvé / Saint-Denis',2,'',0);
 INSERT INTO "arrets_autobus" VALUES(50402,180,'180JOO','Lajeunesse / Sauriol','','',1);
 INSERT INTO "arrets_autobus" VALUES(54089,180,'180JOO','Fleury / Berri','','',2);
@@ -3578,7 +3568,7 @@ INSERT INTO "arrets_autobus" VALUES(50159,180,'180JOO','Laurentien / Périnault'
 INSERT INTO "arrets_autobus" VALUES(50152,180,'180JOO','Laurentien / Émile-Nelligan (sud)','','',28);
 INSERT INTO "arrets_autobus" VALUES(60707,180,'180JOO','Laurentien / no 12245','','',29);
 INSERT INTO "arrets_autobus" VALUES(50143,180,'180JOO','Laurentien / Gouin','','',30);
-INSERT INTO "arrets_autobus" VALUES('',180,'180JOO','Lachapelle / Gouin','','Descente seulement',31);
+INSERT INTO "arrets_autobus" VALUES(50147,180,'180JOO','Lachapelle / Gouin','','Descente seulement',31);
 INSERT INTO "arrets_autobus" VALUES(53999,183,'18301O','Terminus Sherbrooke / Gouin','','',0);
 INSERT INTO "arrets_autobus" VALUES(60183,183,'18301O','Gouin / Pierre-Mercure','','',1);
 INSERT INTO "arrets_autobus" VALUES(53578,183,'18301O','Gouin / 134e Avenue','','',2);
@@ -3618,7 +3608,7 @@ INSERT INTO "arrets_autobus" VALUES(52654,183,'18301O','Rivière-des-Prairies / 
 INSERT INTO "arrets_autobus" VALUES(52566,183,'18301O','Rivière-des-Prairies / 5e Rue','','',36);
 INSERT INTO "arrets_autobus" VALUES(52470,183,'18301O','Rivière-des-Prairies / 4e Rue','','',37);
 INSERT INTO "arrets_autobus" VALUES(60325,183,'18301O','Rivière-des-Prairies / Perras','','',38);
-INSERT INTO "arrets_autobus" VALUES('',183,'18301O','58e Avenue / Gouin','','Descente seulement',39);
+INSERT INTO "arrets_autobus" VALUES(60315,183,'18301O','58e Avenue / Gouin','','Descente seulement',39);
 INSERT INTO "arrets_autobus" VALUES(60315,183,'18301E','58e Avenue / Gouin','','',0);
 INSERT INTO "arrets_autobus" VALUES(52472,183,'18301E','Gouin / Étienne-Brais','','',1);
 INSERT INTO "arrets_autobus" VALUES(52577,183,'18301E','Gouin / 68e Avenue','','',2);
@@ -3666,7 +3656,7 @@ INSERT INTO "arrets_autobus" VALUES(53912,183,'18301E','Gouin / No 13545','','',
 INSERT INTO "arrets_autobus" VALUES(53542,183,'18301E','Gouin / 132e Avenue','','',44);
 INSERT INTO "arrets_autobus" VALUES(53577,183,'18301E','Gouin / 134e Avenue','','',45);
 INSERT INTO "arrets_autobus" VALUES(60182,183,'18301E','Gouin / No 16810','','',46);
-INSERT INTO "arrets_autobus" VALUES('',183,'18301E','Terminus Sherbrooke / Gouin','','Descente seulement',47);
+INSERT INTO "arrets_autobus" VALUES(53999,183,'18301E','Terminus Sherbrooke / Gouin','','Descente seulement',47);
 INSERT INTO "arrets_autobus" VALUES(54039,185,'18501E','Frontenac / Ontario',27,'',0);
 INSERT INTO "arrets_autobus" VALUES(52934,185,'18501E','Frontenac / de Rouen','','',1);
 INSERT INTO "arrets_autobus" VALUES(52857,185,'18501E','Frontenac / Hochelaga','','',2);
@@ -3715,7 +3705,7 @@ INSERT INTO "arrets_autobus" VALUES(53402,185,'18501E','des Ormeaux / Souligny',
 INSERT INTO "arrets_autobus" VALUES(53429,185,'18501E','des Ormeaux / Tellier','','',45);
 INSERT INTO "arrets_autobus" VALUES(53450,185,'18501E','des Ormeaux / Notre-Dame','','',46);
 INSERT INTO "arrets_autobus" VALUES(53475,185,'18501E','des Ormeaux / Bellerive','','',47);
-INSERT INTO "arrets_autobus" VALUES('',185,'18501E','Bellerive / Baldwin','','Descente seulement',48);
+INSERT INTO "arrets_autobus" VALUES(53482,185,'18501E','Bellerive / Baldwin','','Descente seulement',48);
 INSERT INTO "arrets_autobus" VALUES(53482,185,'18501O','Bellerive / Baldwin','','',0);
 INSERT INTO "arrets_autobus" VALUES(53461,185,'18501O','Baldwin / Notre-Dame','','',1);
 INSERT INTO "arrets_autobus" VALUES(53452,185,'18501O','des Ormeaux / Notre-Dame','','',2);
@@ -3764,7 +3754,7 @@ INSERT INTO "arrets_autobus" VALUES(52789,185,'18501O','Gascon / Sherbrooke','',
 INSERT INTO "arrets_autobus" VALUES(52864,185,'18501O','du Havre / Hochelaga','','',45);
 INSERT INTO "arrets_autobus" VALUES(52946,185,'18501O','du Havre / de Rouen','','',46);
 INSERT INTO "arrets_autobus" VALUES(54040,185,'18501O','du Havre / Ontario','','',47);
-INSERT INTO "arrets_autobus" VALUES('',185,'18501O','Frontenac / Ontario',27,'Descente seulement',48);
+INSERT INTO "arrets_autobus" VALUES(54039,185,'18501O','Frontenac / Ontario',27,'Descente seulement',48);
 INSERT INTO "arrets_autobus" VALUES(53725,186,'18601E','Terminus nord de la station Honoré-Beaugrand',18,'',0);
 INSERT INTO "arrets_autobus" VALUES(53279,186,'18601E','Sherbrooke / Liébert','','',1);
 INSERT INTO "arrets_autobus" VALUES(53289,186,'18601E','Sherbrooke / Saint-Donat','','',2);
@@ -3807,7 +3797,7 @@ INSERT INTO "arrets_autobus" VALUES(53570,186,'18601E','Sherbrooke / Polyvalente
 INSERT INTO "arrets_autobus" VALUES(53565,186,'18601E','Sherbrooke / No 15400','','',39);
 INSERT INTO "arrets_autobus" VALUES(53574,186,'18601E','Sherbrooke / 81e Avenue','','',40);
 INSERT INTO "arrets_autobus" VALUES(54316,186,'18601E','Sherbrooke / Famille Dubreuil','','',41);
-INSERT INTO "arrets_autobus" VALUES('',186,'18601E','Terminus Sherbrooke / Gouin','','Descente seulement',42);
+INSERT INTO "arrets_autobus" VALUES(60550,186,'18601E','Terminus Sherbrooke / Gouin','','Descente seulement',42);
 INSERT INTO "arrets_autobus" VALUES(60550,186,'18601O','Terminus Sherbrooke / Gouin','','',0);
 INSERT INTO "arrets_autobus" VALUES(54315,186,'18601O','Sherbrooke / Famille Dubreuil','','',1);
 INSERT INTO "arrets_autobus" VALUES(53573,186,'18601O','Sherbrooke / 81e Avenue','','',2);
@@ -3850,8 +3840,8 @@ INSERT INTO "arrets_autobus" VALUES(53312,186,'18601O','Sherbrooke / des Ormeaux
 INSERT INTO "arrets_autobus" VALUES(53301,186,'18601O','Sherbrooke / Baldwin','','',39);
 INSERT INTO "arrets_autobus" VALUES(53287,186,'18601O','Sherbrooke / Saint-Donat','','',40);
 INSERT INTO "arrets_autobus" VALUES(53278,186,'18601O','Sherbrooke / Liébert','','',41);
-INSERT INTO "arrets_autobus" VALUES('',186,'18601O','Sherbrooke / Honoré-Beaugrand',18,'Descente seulement',42);
-INSERT INTO "arrets_autobus" VALUES('',186,'18601O','Terminus nord de la station Honoré-Beaugrand',18,'Descente seulement',43);
+INSERT INTO "arrets_autobus" VALUES(54115,186,'18601O','Sherbrooke / Honoré-Beaugrand',18,'Descente seulement',42);
+INSERT INTO "arrets_autobus" VALUES(53725,186,'18601O','Terminus nord de la station Honoré-Beaugrand',18,'Descente seulement',43);
 INSERT INTO "arrets_autobus" VALUES(53724,187,'18701E','Terminus nord de la station Honoré-Beaugrand',18,'',0);
 INSERT INTO "arrets_autobus" VALUES(53314,187,'18701E','Sherbrooke / des Ormeaux','','',1);
 INSERT INTO "arrets_autobus" VALUES(53345,187,'18701E','Sherbrooke / Fletcher','','',2);
@@ -3891,7 +3881,7 @@ INSERT INTO "arrets_autobus" VALUES(53720,187,'18701E','52e Avenue / Prince-Arth
 INSERT INTO "arrets_autobus" VALUES(53717,187,'18701E','Prince-Arthur / No 14135','','',36);
 INSERT INTO "arrets_autobus" VALUES(53466,187,'18701E','Prince-Arthur / de La Rousselière','','',37);
 INSERT INTO "arrets_autobus" VALUES(53447,187,'18701E','Prince-Arthur / 44e Avenue','','',38);
-INSERT INTO "arrets_autobus" VALUES('',187,'18701E','42e Avenue / Prince-Arthur','','Descente seulement',39);
+INSERT INTO "arrets_autobus" VALUES(53474,187,'18701E','42e Avenue / Prince-Arthur','','Descente seulement',39);
 INSERT INTO "arrets_autobus" VALUES(53474,187,'18701O','42e Avenue / Prince-Arthur','','',0);
 INSERT INTO "arrets_autobus" VALUES(53448,187,'18701O','Prince-Arthur / François-Harel','','',1);
 INSERT INTO "arrets_autobus" VALUES(53465,187,'18701O','Prince-Arthur / de La Rousselière','','',2);
@@ -3931,8 +3921,8 @@ INSERT INTO "arrets_autobus" VALUES(54480,187,'18701O','Durocher / Les Cables Ca
 INSERT INTO "arrets_autobus" VALUES(54414,187,'18701O','Durocher / Sherbrooke','','',36);
 INSERT INTO "arrets_autobus" VALUES(53344,187,'18701O','Sherbrooke / Fletcher','','',37);
 INSERT INTO "arrets_autobus" VALUES(53312,187,'18701O','Sherbrooke / des Ormeaux','','',38);
-INSERT INTO "arrets_autobus" VALUES('',187,'18701O','Sherbrooke / Honoré-Beaugrand',18,'Descente seulement',39);
-INSERT INTO "arrets_autobus" VALUES('',187,'18701O','Terminus nord de la station Honoré-Beaugrand',18,'Descente seulement',40);
+INSERT INTO "arrets_autobus" VALUES(54115,187,'18701O','Sherbrooke / Honoré-Beaugrand',18,'Descente seulement',39);
+INSERT INTO "arrets_autobus" VALUES(53724,187,'18701O','Terminus nord de la station Honoré-Beaugrand',18,'Descente seulement',40);
 INSERT INTO "arrets_autobus" VALUES(54839,188,'188AMO','Couture / Langelier','','',0);
 INSERT INTO "arrets_autobus" VALUES(54824,188,'188AMO','Couture / Le Royer','','',1);
 INSERT INTO "arrets_autobus" VALUES(54809,188,'188AMO','Couture / Le Prado','','',2);
@@ -3971,8 +3961,7 @@ INSERT INTO "arrets_autobus" VALUES(51706,188,'188AMO','Jean-Talon / 17e Avenue'
 INSERT INTO "arrets_autobus" VALUES(51692,188,'188AMO','Jean-Talon / 15e Avenue','','',35);
 INSERT INTO "arrets_autobus" VALUES(51662,188,'188AMO','Jean-Talon / 13e Avenue','','',36);
 INSERT INTO "arrets_autobus" VALUES(51631,188,'188AMO','Jean-Talon / Saint-Michel','','',37);
-INSERT INTO "arrets_autobus" VALUES('',188,'188AMO','Station Saint-Michel',64,'Descente seulement',38);
-INSERT INTO "arrets_autobus" VALUES('',188,'188AMO','Station Saint-Michel',64,'Descente seulement',39);
+INSERT INTO "arrets_autobus" VALUES(61113,188,'188AMO','Station Saint-Michel',64,'Descente seulement',38);
 INSERT INTO "arrets_autobus" VALUES(61113,188,'188PME','Station Saint-Michel',64,'',0);
 INSERT INTO "arrets_autobus" VALUES(51663,188,'188PME','Jean-Talon / 13e Avenue','','',1);
 INSERT INTO "arrets_autobus" VALUES(51693,188,'188PME','Jean-Talon / 15e Avenue','','',2);
@@ -4010,7 +3999,7 @@ INSERT INTO "arrets_autobus" VALUES(54797,188,'188PME','Couture / Lacordaire',''
 INSERT INTO "arrets_autobus" VALUES(54802,188,'188PME','Couture / Périnault','','',34);
 INSERT INTO "arrets_autobus" VALUES(54811,188,'188PME','Couture / Le Prado','','',35);
 INSERT INTO "arrets_autobus" VALUES(54825,188,'188PME','Couture / Le Royer','','',36);
-INSERT INTO "arrets_autobus" VALUES('',188,'188PME','Couture / Langelier','','Descente seulement',37);
+INSERT INTO "arrets_autobus" VALUES(54839,188,'188PME','Couture / Langelier','','Descente seulement',37);
 INSERT INTO "arrets_autobus" VALUES(61113,188,'188AME','Station Saint-Michel',64,'',0);
 INSERT INTO "arrets_autobus" VALUES(51663,188,'188AME','Jean-Talon / 13e Avenue','','',1);
 INSERT INTO "arrets_autobus" VALUES(51693,188,'188AME','Jean-Talon / 15e Avenue','','',2);
@@ -4046,7 +4035,7 @@ INSERT INTO "arrets_autobus" VALUES(54900,188,'188AME','Bombardier / No 6630',''
 INSERT INTO "arrets_autobus" VALUES(54909,188,'188AME','Pascal-Gagnon / No 8775','','',32);
 INSERT INTO "arrets_autobus" VALUES(54876,188,'188AME','Pascal-Gagnon / Lavaltrie','','',33);
 INSERT INTO "arrets_autobus" VALUES(54869,188,'188AME','Couture / Pascal-Gagnon','','',34);
-INSERT INTO "arrets_autobus" VALUES('',188,'188AME','Couture / Langelier','','Descente seulement',35);
+INSERT INTO "arrets_autobus" VALUES(54839,188,'188AME','Couture / Langelier','','Descente seulement',35);
 INSERT INTO "arrets_autobus" VALUES(54838,188,'188PMO','Couture / Langelier','','',0);
 INSERT INTO "arrets_autobus" VALUES(54868,188,'188PMO','Couture / Pascal-Gagnon','','',1);
 INSERT INTO "arrets_autobus" VALUES(54877,188,'188PMO','Pascal-Gagnon / Lavaltrie','','',2);
@@ -4082,8 +4071,7 @@ INSERT INTO "arrets_autobus" VALUES(51706,188,'188PMO','Jean-Talon / 17e Avenue'
 INSERT INTO "arrets_autobus" VALUES(51692,188,'188PMO','Jean-Talon / 15e Avenue','','',32);
 INSERT INTO "arrets_autobus" VALUES(51662,188,'188PMO','Jean-Talon / 13e Avenue','','',33);
 INSERT INTO "arrets_autobus" VALUES(51631,188,'188PMO','Jean-Talon / Saint-Michel','','',34);
-INSERT INTO "arrets_autobus" VALUES('',188,'188PMO','Station Saint-Michel',64,'Descente seulement',35);
-INSERT INTO "arrets_autobus" VALUES('',188,'188PMO','Station Saint-Michel',64,'Descente seulement',36);
+INSERT INTO "arrets_autobus" VALUES(61113,188,'188PMO','Station Saint-Michel',64,'Descente seulement',35);
 INSERT INTO "arrets_autobus" VALUES(53610,189,'189JOO','Terminus Sherbrooke / Gouin','','',0);
 INSERT INTO "arrets_autobus" VALUES(60551,189,'189JOO','Sherbrooke / Delphis-Delorme','','',1);
 INSERT INTO "arrets_autobus" VALUES(60552,189,'189JOO','Notre-Dame / Raoul-Jobin','','',2);
@@ -4147,8 +4135,7 @@ INSERT INTO "arrets_autobus" VALUES(53346,189,'189JOO','Honoré-Beaugrand / Pier
 INSERT INTO "arrets_autobus" VALUES(53335,189,'189JOO','Honoré-Beaugrand / Sainte-Claire','','',60);
 INSERT INTO "arrets_autobus" VALUES(53306,189,'189JOO','Honoré-Beaugrand / de Marseille','','',61);
 INSERT INTO "arrets_autobus" VALUES(53293,189,'189JOO','Honoré-Beaugrand / Roux','','',62);
-INSERT INTO "arrets_autobus" VALUES('',189,'189JOO','Terminus nord de la station Honoré-Beaugrand',18,'Descente seulement',63);
-INSERT INTO "arrets_autobus" VALUES('',189,'189JOO','Terminus nord de la station Honoré-Beaugrand',18,'Descente seulement',64);
+INSERT INTO "arrets_autobus" VALUES(53754,189,'189JOO','Terminus nord de la station Honoré-Beaugrand',18,'Descente seulement',64);
 INSERT INTO "arrets_autobus" VALUES(53754,189,'189JOE','Terminus nord de la station Honoré-Beaugrand',18,'',0);
 INSERT INTO "arrets_autobus" VALUES(53294,189,'189JOE','Honoré-Beaugrand / Roux','','',1);
 INSERT INTO "arrets_autobus" VALUES(53307,189,'189JOE','Honoré-Beaugrand / de Marseille','','',2);
@@ -4215,7 +4202,7 @@ INSERT INTO "arrets_autobus" VALUES(53655,189,'189JOE','Notre-Dame / 86e Avenue'
 INSERT INTO "arrets_autobus" VALUES(53846,189,'189JOE','Notre-Dame / Raoul-Jobin','','',63);
 INSERT INTO "arrets_autobus" VALUES(54337,189,'189JOE','Notre-Dame / 93e Avenue','','',64);
 INSERT INTO "arrets_autobus" VALUES(53663,189,'189JOE','Sherbrooke / Delphis-Delorme','','',65);
-INSERT INTO "arrets_autobus" VALUES('',189,'189JOE','Terminus Sherbrooke / Gouin','','Descente seulement',66);
+INSERT INTO "arrets_autobus" VALUES(53610,189,'189JOE','Terminus Sherbrooke / Gouin','','Descente seulement',66);
 INSERT INTO "arrets_autobus" VALUES(53967,191,'19101O','Station Lionel-Groulx',36,'',0);
 INSERT INTO "arrets_autobus" VALUES(54191,191,'19101O','Delisle / Greene','','',1);
 INSERT INTO "arrets_autobus" VALUES(52170,191,'19101O','Rose-de-Lima / Notre-Dame','','',2);
@@ -4288,7 +4275,7 @@ INSERT INTO "arrets_autobus" VALUES(60627,191,'19101O','Dorval / No 150','','',6
 INSERT INTO "arrets_autobus" VALUES(57464,191,'19101O','Dorval / Dawson','','',69);
 INSERT INTO "arrets_autobus" VALUES(57461,191,'19101O','Dorval / Carson','','',70);
 INSERT INTO "arrets_autobus" VALUES(57491,191,'19101O','Dorval / No 352','','',71);
-INSERT INTO "arrets_autobus" VALUES('',191,'19101O','Terminus de la gare Dorval','','Descente seulement',72);
+INSERT INTO "arrets_autobus" VALUES(57507,191,'19101O','Terminus de la gare Dorval','','Descente seulement',72);
 INSERT INTO "arrets_autobus" VALUES(57507,191,'19101E','Terminus de la gare Dorval','','',0);
 INSERT INTO "arrets_autobus" VALUES(57462,191,'19101E','Dorval / Carson','','',1);
 INSERT INTO "arrets_autobus" VALUES(57465,191,'19101E','Dorval / Dawson','','',2);
@@ -4367,7 +4354,7 @@ INSERT INTO "arrets_autobus" VALUES(52033,191,'19101E','Saint-Jacques / du Couve
 INSERT INTO "arrets_autobus" VALUES(52052,191,'19101E','Saint-Jacques / Laporte','','',75);
 INSERT INTO "arrets_autobus" VALUES(52094,191,'19101E','Saint-Jacques / Rose-de-Lima','','',76);
 INSERT INTO "arrets_autobus" VALUES(54182,191,'19101E','Station Lionel-Groulx',36,'',77);
-INSERT INTO "arrets_autobus" VALUES('',191,'19101E','Station Lionel-Groulx',36,'Descente seulement',78);
+INSERT INTO "arrets_autobus" VALUES(53967,191,'19101E','Station Lionel-Groulx',36,'Descente seulement',78);
 INSERT INTO "arrets_autobus" VALUES(54696,192,'192JOO','Centre de transport STM Anjou','','',0);
 INSERT INTO "arrets_autobus" VALUES(54709,192,'192JOO','Centre de transport STM Anjou','','',1);
 INSERT INTO "arrets_autobus" VALUES(54695,192,'192JOO','Larrey / L.-J.-Forget','','',2);
@@ -4417,8 +4404,8 @@ INSERT INTO "arrets_autobus" VALUES(50961,192,'192JOO','Crémazie / Christophe-C
 INSERT INTO "arrets_autobus" VALUES(53950,192,'192JOO','Crémazie / Collège Grasset','','',46);
 INSERT INTO "arrets_autobus" VALUES(50857,192,'192JOO','Crémazie / Saint-Hubert','','',47);
 INSERT INTO "arrets_autobus" VALUES(50812,192,'192JOO','Crémazie / Foucher','','',48);
-INSERT INTO "arrets_autobus" VALUES('',192,'192JOO','Crémazie / Lajeunesse (Station Crémazie)',3,'Descente seulement',49);
-INSERT INTO "arrets_autobus" VALUES('',192,'192JOO','Crémazie / Berri',3,'Descente seulement',50);
+INSERT INTO "arrets_autobus" VALUES(50794,192,'192JOO','Crémazie / Lajeunesse (Station Crémazie)',3,'Descente seulement',49);
+INSERT INTO "arrets_autobus" VALUES(54206,192,'192JOO','Crémazie / Berri',3,'Descente seulement',50);
 INSERT INTO "arrets_autobus" VALUES(54206,192,'192JOE','Crémazie / Berri',3,'',0);
 INSERT INTO "arrets_autobus" VALUES(50813,192,'192JOE','Crémazie / Foucher','','',1);
 INSERT INTO "arrets_autobus" VALUES(50859,192,'192JOE','Crémazie / Saint-Hubert','','',2);
@@ -4466,7 +4453,7 @@ INSERT INTO "arrets_autobus" VALUES(54687,192,'192JOE','Colbert / No 10700','','
 INSERT INTO "arrets_autobus" VALUES(54520,192,'192JOE','Colbert / Larrey','','',44);
 INSERT INTO "arrets_autobus" VALUES(54525,192,'192JOE','Larrey / Mirabeau','','',45);
 INSERT INTO "arrets_autobus" VALUES(54527,192,'192JOE','Larrey / No 8150','','',46);
-INSERT INTO "arrets_autobus" VALUES('',192,'192JOE','Centre de transport STM Anjou','','Descente seulement',47);
+INSERT INTO "arrets_autobus" VALUES(54696,192,'192JOE','Centre de transport STM Anjou','','Descente seulement',47);
 INSERT INTO "arrets_autobus" VALUES(54571,193,'19301O','Jarry / Louis-Hippolyte-La Fontaine','','',0);
 INSERT INTO "arrets_autobus" VALUES(54562,193,'19301O','Jarry / du Haut-Anjou','','',1);
 INSERT INTO "arrets_autobus" VALUES(54559,193,'19301O','Jarry / Vernantes','','',2);
@@ -4517,7 +4504,7 @@ INSERT INTO "arrets_autobus" VALUES(50830,193,'19301O','Jarry / Champagneur','',
 INSERT INTO "arrets_autobus" VALUES(50739,193,'19301O','Champagneur / d''Anvers','','',47);
 INSERT INTO "arrets_autobus" VALUES(50676,193,'19301O','Champagneur / de Liège','','',48);
 INSERT INTO "arrets_autobus" VALUES(50588,193,'19301O','Champagneur / Crémazie','','',49);
-INSERT INTO "arrets_autobus" VALUES('',193,'19301O','Querbes / Aréna Howie-Morenz','','Descente seulement',50);
+INSERT INTO "arrets_autobus" VALUES(54058,193,'19301O','Querbes / Aréna Howie-Morenz','','Descente seulement',50);
 INSERT INTO "arrets_autobus" VALUES(54058,193,'19301E','Querbes / Aréna Howie-Morenz','','',0);
 INSERT INTO "arrets_autobus" VALUES(50682,193,'19301E','de Liège / de l''Épée','','',1);
 INSERT INTO "arrets_autobus" VALUES(50748,193,'19301E','Bloomfield / d''Anvers','','',2);
@@ -4565,7 +4552,7 @@ INSERT INTO "arrets_autobus" VALUES(54732,193,'19301E','Jarry / Neuville','','',
 INSERT INTO "arrets_autobus" VALUES(54552,193,'19301E','Jarry / Les Galeries d''Anjou','','',44);
 INSERT INTO "arrets_autobus" VALUES(54558,193,'19301E','Jarry / Vernantes','','',45);
 INSERT INTO "arrets_autobus" VALUES(54563,193,'19301E','Jarry / du Haut-Anjou','','',46);
-INSERT INTO "arrets_autobus" VALUES('',193,'19301E','Jarry / Louis-Hippolyte-La Fontaine','','Descente seulement',47);
+INSERT INTO "arrets_autobus" VALUES(54571,193,'19301E','Jarry / Louis-Hippolyte-La Fontaine','','Descente seulement',47);
 INSERT INTO "arrets_autobus" VALUES(54109,195,'19501O','Station Angrignon',43,'',0);
 INSERT INTO "arrets_autobus" VALUES(57060,195,'19501O','Newman / Carrefour Angrignon','','',1);
 INSERT INTO "arrets_autobus" VALUES(56950,195,'19501O','Newman / Guy-Bouchard','','',2);
@@ -4633,7 +4620,7 @@ INSERT INTO "arrets_autobus" VALUES(57481,195,'19501O','Bouchard / No 205','',''
 INSERT INTO "arrets_autobus" VALUES(57476,195,'19501O','Bouchard / No 215','','',64);
 INSERT INTO "arrets_autobus" VALUES(57474,195,'19501O','Bouchard / George-V','','',65);
 INSERT INTO "arrets_autobus" VALUES(57512,195,'19501O','Bouchard / Autoroute 20','','',66);
-INSERT INTO "arrets_autobus" VALUES('',195,'19501O','Terminus de la gare Dorval','','Descente seulement',67);
+INSERT INTO "arrets_autobus" VALUES(57365,195,'19501O','Terminus de la gare Dorval','','Descente seulement',67);
 INSERT INTO "arrets_autobus" VALUES(57365,195,'19501E','Terminus de la gare Dorval','','',0);
 INSERT INTO "arrets_autobus" VALUES(57445,195,'19501E','Fénélon / Dumont','','',1);
 INSERT INTO "arrets_autobus" VALUES(57549,195,'19501E','Dumont / Herron','','',2);
@@ -4705,7 +4692,7 @@ INSERT INTO "arrets_autobus" VALUES(56944,195,'19501E','Senkus / Newman','','',6
 INSERT INTO "arrets_autobus" VALUES(56951,195,'19501E','Newman / Guy-Bouchard','','',68);
 INSERT INTO "arrets_autobus" VALUES(56960,195,'19501E','Newman / Angrignon','','',69);
 INSERT INTO "arrets_autobus" VALUES(60633,195,'19501E','Angrignon / Face aux Tours Angrignon','','',70);
-INSERT INTO "arrets_autobus" VALUES('',195,'19501E','Station Angrignon',43,'Descente seulement',71);
+INSERT INTO "arrets_autobus" VALUES(54109,195,'19501E','Station Angrignon',43,'Descente seulement',71);
 INSERT INTO "arrets_autobus" VALUES(57199,196,'19601N','Saint-Antoine / 32e Avenue','','',0);
 INSERT INTO "arrets_autobus" VALUES(57344,196,'19601N','Victoria / 33e Avenue','','',1);
 INSERT INTO "arrets_autobus" VALUES(57189,196,'19601N','Victoria / 34e Avenue','','',2);
@@ -4760,7 +4747,7 @@ INSERT INTO "arrets_autobus" VALUES(55778,196,'19601N','Côte-Vertu / No 3695','
 INSERT INTO "arrets_autobus" VALUES(55466,196,'19601N','Côte-Vertu / Beaulac','','',51);
 INSERT INTO "arrets_autobus" VALUES(55463,196,'19601N','Côte-Vertu / No 3200','','',52);
 INSERT INTO "arrets_autobus" VALUES(55487,196,'19601N','Côte-Vertu / Cavendish','','',53);
-INSERT INTO "arrets_autobus" VALUES('',196,'19601N','Gohier / Côte-Vertu',65,'Descente seulement',54);
+INSERT INTO "arrets_autobus" VALUES(61004,196,'19601N','Gohier / Côte-Vertu',65,'Descente seulement',54);
 INSERT INTO "arrets_autobus" VALUES(61004,196,'19601S','Gohier / Côte-Vertu',65,'',0);
 INSERT INTO "arrets_autobus" VALUES(55488,196,'19601S','Côte-Vertu / Cavendish','','',1);
 INSERT INTO "arrets_autobus" VALUES(55801,196,'19601S','Côte-Vertu / Place Vertu','','',2);
@@ -4818,7 +4805,7 @@ INSERT INTO "arrets_autobus" VALUES(57190,196,'19601S','Victoria / 34e Avenue','
 INSERT INTO "arrets_autobus" VALUES(57337,196,'19601S','Remembrance / 28e Avenue','','',54);
 INSERT INTO "arrets_autobus" VALUES(57208,196,'19601S','25e Avenue / Saint-Antoine','','',55);
 INSERT INTO "arrets_autobus" VALUES(57331,196,'19601S','Saint-Antoine / face au centre d''accueil','','',56);
-INSERT INTO "arrets_autobus" VALUES('',196,'19601S','Saint-Antoine / 32e Avenue','','Descente seulement',57);
+INSERT INTO "arrets_autobus" VALUES(57199,196,'19601S','Saint-Antoine / 32e Avenue','','Descente seulement',57);
 INSERT INTO "arrets_autobus" VALUES(51661,197,'197HPE','Terminus de la station Rosemont',7,'',0);
 INSERT INTO "arrets_autobus" VALUES(51685,197,'197HPE','Rosemont / Saint-Hubert','','',1);
 INSERT INTO "arrets_autobus" VALUES(51728,197,'197HPE','Rosemont / Christophe-Colomb','','',2);
@@ -4861,7 +4848,7 @@ INSERT INTO "arrets_autobus" VALUES(54290,197,'197HPE','de la Pépinière / Fari
 INSERT INTO "arrets_autobus" VALUES(54291,197,'197HPE','de la Pépinière / de Marseille','','',39);
 INSERT INTO "arrets_autobus" VALUES(54292,197,'197HPE','de Carignan / de Marseille','','',40);
 INSERT INTO "arrets_autobus" VALUES(53201,197,'197HPE','de Marseille / Boutet','','',41);
-INSERT INTO "arrets_autobus" VALUES('',197,'197HPE','Langelier / Sherbrooke',20,'Descente seulement',42);
+INSERT INTO "arrets_autobus" VALUES(53151,197,'197HPE','Langelier / Sherbrooke',20,'Descente seulement',42);
 INSERT INTO "arrets_autobus" VALUES(53151,197,'197JOO','Langelier / Sherbrooke',20,'',0);
 INSERT INTO "arrets_autobus" VALUES(53096,197,'197JOO','Langelier / Senneville','','',1);
 INSERT INTO "arrets_autobus" VALUES(53057,197,'197JOO','Langelier / de Renty','','',2);
@@ -4898,7 +4885,7 @@ INSERT INTO "arrets_autobus" VALUES(51787,197,'197JOO','Rosemont / Garnier','','
 INSERT INTO "arrets_autobus" VALUES(51754,197,'197JOO','Rosemont / de Normanville','','',33);
 INSERT INTO "arrets_autobus" VALUES(51726,197,'197JOO','Rosemont / Christophe-Colomb','','',34);
 INSERT INTO "arrets_autobus" VALUES(51684,197,'197JOO','Rosemont / Saint-Hubert','','',35);
-INSERT INTO "arrets_autobus" VALUES('',197,'197JOO','Terminus de la station Rosemont',7,'Descente seulement',36);
+INSERT INTO "arrets_autobus" VALUES(51661,197,'197JOO','Terminus de la station Rosemont',7,'Descente seulement',36);
 INSERT INTO "arrets_autobus" VALUES(51661,197,'197JOE','Terminus de la station Rosemont',7,'',0);
 INSERT INTO "arrets_autobus" VALUES(51685,197,'197JOE','Rosemont / Saint-Hubert','','',1);
 INSERT INTO "arrets_autobus" VALUES(51728,197,'197JOE','Rosemont / Christophe-Colomb','','',2);
@@ -4937,4 +4924,4 @@ INSERT INTO "arrets_autobus" VALUES(53097,197,'197JOE','Langelier / Senneville',
 INSERT INTO "arrets_autobus" VALUES(53152,197,'197JOE','Langelier / Sherbrooke','','',35);
 INSERT INTO "arrets_autobus" VALUES(54289,197,'197JOE','de Granby / Faribault','','',36);
 INSERT INTO "arrets_autobus" VALUES(53201,197,'197JOE','de Marseille / Boutet','','',37);
-INSERT INTO "arrets_autobus" VALUES('',197,'197JOE','Langelier / Sherbrooke',20,'Descente seulement',38);
+INSERT INTO "arrets_autobus" VALUES(53151,197,'197JOE','Langelier / Sherbrooke',20,'Descente seulement',38);

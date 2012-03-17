@@ -43,7 +43,10 @@ public class SplashScreen extends Activity {
 	 * The tracker tag.
 	 */
 	private static final String TRACKER_TAG = "/SplashScreen";
-
+	/**
+	 * True if forcing DB reset.
+	 */
+	private static final boolean DB_RESET = false;
 	/**
 	 * The progress bar title message.
 	 */
@@ -82,6 +85,10 @@ public class SplashScreen extends Activity {
 		Utils.logAppVersion(this);
 		MyLog.v(TAG, "onCreate()");
 		super.onCreate(savedInstanceState);
+		if (DB_RESET) {
+			deploy();
+			return;
+		}
 		// CHECK DB for initialize/update
 		int currentDeployedStmDbVersion = UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_STM_DB_VERSION, 0);
 		switch (currentDeployedStmDbVersion) {
@@ -104,16 +111,15 @@ public class SplashScreen extends Activity {
 	@Override
 	public void onBackPressed() { // API Level 5 - 2.0+
 		MyLog.v(TAG, "onBackPressed()");
-		new AlertDialog.Builder(this).setMessage(R.string.confirm_exit).setCancelable(false)
-		        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-			        public void onClick(DialogInterface dialog, int id) {
-				        SplashScreen.this.finish();
-			        }
-		        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
-			        public void onClick(DialogInterface dialog, int id) {
-				        dialog.cancel();
-			        }
-		        }).create().show();
+		new AlertDialog.Builder(this).setMessage(R.string.confirm_exit).setCancelable(false).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int id) {
+				SplashScreen.this.finish();
+			}
+		}).setNegativeButton("No", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int id) {
+				dialog.cancel();
+			}
+		}).create().show();
 	}
 
 	/**
@@ -122,7 +128,7 @@ public class SplashScreen extends Activity {
 	private void deploy() {
 		MyLog.v(TAG, "deploy()");
 		showSplashScreen();
-		if (!StmDbHelper.isDbExist(this)) { // initialize
+		if (!DB_RESET && !StmDbHelper.isDbExist(this)) { // initialize
 			addProgressBar();
 			// show a progress dialog
 			this.progressBar.setIndeterminate(true);
@@ -133,12 +139,10 @@ public class SplashScreen extends Activity {
 			// initialize the database
 			new InitializationTask().execute(false);
 		} else {
+			// update favorites
 			checkForBusLineUpdates();
-			StmDbHelper tmp = new StmDbHelper(this, null);
-			tmp.getReadableDatabase();
-			boolean updateAvailable = tmp.isUpdateAvailable();
-			tmp.close();
-			if (updateAvailable) { // update
+			// IF update available DO
+			if (!DB_RESET && updateAvailable()) { // update
 				addProgressBar();
 				// show a progress dialog
 				this.progressBar.setIndeterminate(true);
@@ -160,6 +164,26 @@ public class SplashScreen extends Activity {
 				new InitializationTask().execute(true);
 			}
 		}
+	}
+
+	/**
+	 * @return true if update available
+	 */
+	public boolean updateAvailable() {
+		boolean updateAvailable = false;
+		StmDbHelper tmp = null;
+		try {
+			tmp = new StmDbHelper(this, null);
+			tmp.getReadableDatabase();
+			updateAvailable = tmp.isUpdateAvailable();
+		} catch (Exception e) {
+			MyLog.w(TAG, e, "Can't check DB for update availability!");
+		} finally {
+			if (tmp != null) {
+				tmp.close();
+			}
+		}
+		return updateAvailable;
 	}
 
 	/**
@@ -201,18 +225,12 @@ public class SplashScreen extends Activity {
 				String format = SplashScreen.this.progressNumberFormat;
 				SplashScreen.this.progressBarNumber.setText(String.format(format, progress, max));
 				SpannableString tmp = new SpannableString(SplashScreen.this.progressPercentFormat.format(percent));
-				tmp.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, tmp.length(),
-				        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				tmp.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), 0, tmp.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 				SplashScreen.this.progressBarPercent.setText(tmp);
 			}
 		};
 
 		findViewById(R.id.progress_layout).setVisibility(View.VISIBLE);
-//		findViewById(R.id.message_title).setVisibility(View.VISIBLE);
-//		findViewById(R.id.message_desc).setVisibility(View.VISIBLE);
-//		findViewById(R.id.progress).setVisibility(View.VISIBLE);
-//		findViewById(R.id.progress_percent).setVisibility(View.VISIBLE);
-//		findViewById(R.id.progress_number).setVisibility(View.VISIBLE);
 	}
 
 	/**
@@ -292,11 +310,6 @@ public class SplashScreen extends Activity {
 			super.onPostExecute(result);
 			if (!SplashScreen.this.isFinishing()) { // not showing the main screen if the user left the app
 				SplashScreen.this.findViewById(R.id.progress_layout).setVisibility(View.GONE);
-//				SplashScreen.this.findViewById(R.id.message_title).setVisibility(View.VISIBLE);
-//				SplashScreen.this.findViewById(R.id.message_desc).setVisibility(View.VISIBLE);
-//				SplashScreen.this.findViewById(R.id.progress).setVisibility(View.VISIBLE);
-//				SplashScreen.this.findViewById(R.id.progress_percent).setVisibility(View.VISIBLE);
-//				SplashScreen.this.findViewById(R.id.progress_number).setVisibility(View.VISIBLE);
 				showMainScreen();
 			}
 		}

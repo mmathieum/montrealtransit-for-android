@@ -37,6 +37,7 @@ import android.content.pm.ResolveInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateUtils;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
@@ -773,4 +774,32 @@ public class Utils {
 		DataManager.addFav(context.getContentResolver(), newFav);
 		SupportFactory.getInstance(context).backupManagerDataChanged();
 	}
+
+	/**
+	 * @param context the context
+	 * @return {@link android.R.attr.textColorPrimary}.
+	 */
+	public static int getTextColorPrimary(Context context) {
+		return getThemeAttribute(context, android.R.attr.textColorPrimary);
+	}
+
+	/**
+	 * @param context the context
+	 * @return {@link android.R.attr.textColorSecondary}.
+	 */
+	public static int getTextColorSecondary(Context context) {
+		return getThemeAttribute(context, android.R.attr.textColorSecondary);
+	}
+
+	/**
+	 * @param context the context
+	 * @param resId the resource ID
+	 * @return the theme attribute
+	 */
+	public static int getThemeAttribute(Context context, int resId) {
+		TypedValue tv = new TypedValue();
+		context.getTheme().resolveAttribute(resId, tv, true);
+		return context.getResources().getColor(tv.resourceId);
+	}
+
 }

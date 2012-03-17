@@ -500,8 +500,9 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 						// bus line number
 						final String lineNumber = busLine.getNumber();
 						final String lineName = busLine.getName();
+						final String lineType = busLine.getType();
 						((TextView) view.findViewById(R.id.line_number)).setText(lineNumber);
-						int color = BusUtils.getBusLineTypeBgColorFromType(busLine.getType());
+						int color = BusUtils.getBusLineTypeBgColorFromType(lineType);
 						((TextView) view.findViewById(R.id.line_number)).setBackgroundColor(color);
 						// add click listener
 						view.setOnClickListener(new SubwayStationSelectBusLineStop(SubwayStationInfo.this, SubwayStationInfo.this.subwayStation.getId(),
@@ -510,7 +511,7 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 							@Override
 							public boolean onLongClick(View v) {
 								MyLog.d(TAG, "bus line number: %s", lineNumber);
-								new BusLineSelectDirection(SubwayStationInfo.this, lineNumber, lineName).showDialog();
+								new BusLineSelectDirection(SubwayStationInfo.this, lineNumber, lineName, lineType).showDialog();
 								return true;
 							}
 						});

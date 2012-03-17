@@ -33,6 +33,9 @@ public class Constant {
 	public static final String PLACE_CHAR_L = "l'";
 	public static final int PLACE_CHAR_L_LENGTH = PLACE_CHAR_L.length();
 
+	public static final String PLACE_CHAR_D = "d'";
+	public static final int PLACE_CHAR_D_LENGTH = PLACE_CHAR_D.length();
+
 	public static final String PLACE_CHAR_IN = "/ ";
 
 	public static final String PLACE_CHAR_IN_DE = PLACE_CHAR_IN + PLACE_CHAR_DE;
@@ -46,6 +49,8 @@ public class Constant {
 	public static final String PLACE_CHAR_IN_LA = PLACE_CHAR_IN + PLACE_CHAR_LA;
 
 	public static final String PLACE_CHAR_IN_L = PLACE_CHAR_IN + PLACE_CHAR_L;
+
+	public static final String PLACE_CHAR_IN_D = PLACE_CHAR_IN + PLACE_CHAR_D;
 
 	public static final String PLACE_CHAR_PARENTHESE = "(";
 
