@@ -98,7 +98,7 @@ public class SubwayLineSelectDirection implements View.OnClickListener, SubwayLi
 	}
 
 	/**
-	 * @return the id of the checked choice
+	 * @return the ID of the checked choice
 	 */
 	private int getCheckedItemFromPref() {
 		String sharedPreferences = UserPreferences.getPrefDefault(context, UserPreferences.getPrefsSubwayStationsOrder(this.subwayLine.getNumber()),
@@ -125,13 +125,13 @@ public class SubwayLineSelectDirection implements View.OnClickListener, SubwayLi
 		// MyTrace.d(TAG, "Last station: " + lastSubwayStationDirection.getName());
 
 		String[] items = new String[3];
-		orderPref = new String[3];
+		this.orderPref = new String[3];
 
-		orderPref[0] = UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_AZ;
+		this.orderPref[0] = UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_AZ;
 		items[0] = this.context.getString(R.string.alphabetical_order);
-		orderPref[1] = UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL;
+		this.orderPref[1] = UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL;
 		items[1] = firstSubwayStationDirection.getName();
-		orderPref[2] = UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL_DESC;
+		this.orderPref[2] = UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL_DESC;
 		items[2] = lastSubwayStationDirection.getName();
 		return items;
 	}

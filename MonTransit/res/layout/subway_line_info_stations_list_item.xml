@@ -1,43 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" android:layout_height="?android:attr/listPreferredItemHeight"
-	android:paddingLeft="5dip" android:paddingRight="5dip" android:paddingTop="0dip" android:paddingBottom="0dip">
-
-	<!-- SUBWAY LINEs IMG -->	
-	<ImageView android:id="@+id/subway_img_3"
-		android:layout_width="wrap_content" android:layout_height="fill_parent"
-		android:layout_alignParentBottom="true" android:layout_alignParentTop="true"
-		android:layout_alignParentLeft="true" android:layout_alignWithParentIfMissing="true"
-		android:layout_marginRight="3dip"
-		android:scaleType="fitXY" android:gravity="center_vertical" />
-	<ImageView android:id="@+id/subway_img_2"
-		android:layout_width="wrap_content" android:layout_height="fill_parent"
-		android:layout_alignParentTop="true" android:layout_alignParentBottom="true"
-		android:layout_toRightOf="@id/subway_img_3" android:layout_alignWithParentIfMissing="true"
-		android:layout_marginRight="3dip"
-		android:scaleType="fitXY" android:gravity="center_vertical" />
-	<ImageView android:id="@+id/subway_img_1"
-		android:layout_width="wrap_content" android:layout_height="fill_parent"
-		android:layout_alignParentTop="true" android:layout_alignParentBottom="true"
-		android:layout_toRightOf="@id/subway_img_2" android:layout_alignWithParentIfMissing="true"
-		android:layout_marginRight="3dip"
-		android:scaleType="fitXY" android:gravity="center_vertical" />
-
-	<!-- DISTANCE-->
-	<TextView android:id="@+id/distance"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:layout_centerVertical="true"
-		android:layout_alignParentRight="true" android:layout_alignWithParentIfMissing="true"
-		android:gravity="center_vertical"
-		android:textAppearance="?android:attr/textAppearanceSmall" />
-
-	<!-- PLACE -->
-	<TextView android:id="@+id/station_name"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:layout_alignParentBottom="true" android:layout_alignParentTop="true"
-		android:layout_toRightOf="@id/subway_img_1" android:layout_toLeftOf="@id/distance"
-		android:layout_marginLeft="2dip" android:layout_marginRight="3dip"
-		android:gravity="center_vertical" android:singleLine="true" android:ellipsize="marquee"
-		android:textAppearance="?android:attr/textAppearanceLarge" />
-
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:clipChildren="false">
+    <!-- FAVORITE IMG -->
+    <ImageView
+        android:id="@+id/fav_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="-16dip"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="-18dip"
+        android:scaleType="center"
+        android:src="@drawable/star_dark"
+        android:visibility="gone" />
+    <!-- SUBWAY LINEs IMG -->
+    <ImageView
+        android:id="@+id/subway_img_3"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_marginRight="3dip"
+        android:gravity="center_vertical"
+        android:scaleType="fitXY" />
+    <ImageView
+        android:id="@+id/subway_img_2"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_centerVertical="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_marginRight="3dip"
+        android:layout_toRightOf="@id/subway_img_3"
+        android:gravity="center_vertical"
+        android:scaleType="fitXY" />
+    <ImageView
+        android:id="@+id/subway_img_1"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_centerVertical="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_marginRight="3dip"
+        android:layout_toRightOf="@id/subway_img_2"
+        android:gravity="center_vertical"
+        android:scaleType="fitXY" />
+    <!-- DISTANCE -->
+    <TextView
+        android:id="@+id/distance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_centerVertical="true"
+        android:gravity="center_vertical"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="@string/ellipsis"
+        android:visibility="gone" />
+    <!-- PLACE -->
+    <TextView
+        android:id="@+id/station_name"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="2dip"
+        android:layout_marginRight="3dip"
+        android:layout_toLeftOf="@id/distance"
+        android:layout_toRightOf="@id/subway_img_1"
+        android:ellipsize="marquee"
+        android:gravity="center_vertical"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/ellipsis" />
 </RelativeLayout>
