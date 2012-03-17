@@ -815,8 +815,8 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		if (super.onPrepareOptionsMenu(menu)) {
-			// TWITTER
-			menu.findItem(R.id.twitter).setTitle(TwitterUtils.isConnected(this) ? R.string.menu_twitter_logout : R.string.menu_twitter_login);
+			// // TWITTER disabled for now (not required to get subway status anymore)
+			// menu.findItem(R.id.twitter).setTitle(TwitterUtils.isConnected(this) ? R.string.menu_twitter_logout : R.string.menu_twitter_login);
 			return true;
 		} else {
 			MyLog.w(TAG, "Error in onPrepareOptionsMenu().");
@@ -827,9 +827,9 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.twitter:
-			twitterLoginOrLogout(null);
-			return true;
+		// case R.id.twitter: disabled for now (not required to get subway status anymore)
+		// twitterLoginOrLogout(null);
+		// return true;
 		case R.id.stm_map:
 			showSTMSubwayMap(null);
 			return true;
