@@ -46,15 +46,15 @@
 				android:layout_alignParentLeft="true" android:layout_alignParentBottom="true"
 				android:layout_below="@id/stop_code"
 				android:layout_marginRight="5dip" android:layout_marginLeft="0dip"
-				android:text="@string/ellipsis"
-				android:background="#000000"/>
+				 />
+			<!--android:text="@string/ellipsis" android:background="#000000" -->
 			<!-- BUS LINE TYPE -->
 			<ImageView android:id="@+id/line_type"
 				android:layout_width="wrap_content" android:layout_height="wrap_content"
 				android:layout_alignParentRight="true" android:layout_alignTop="@id/line_number"
 				android:paddingBottom="5dip"
-				android:layout_marginLeft="3dip"
-				android:src="@drawable/bus_type_soleil"/>
+				android:layout_marginLeft="3dip" />
+			<!-- android:src="@drawable/bus_type_soleil" -->
 			<!-- BUS LINE NAME -->
 			<TextView android:id="@+id/line_name"
 				android:layout_width="fill_parent" android:layout_height="wrap_content"

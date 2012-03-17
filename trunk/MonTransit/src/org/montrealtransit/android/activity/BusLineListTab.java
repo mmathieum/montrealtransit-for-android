@@ -146,7 +146,7 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 					if (lineNumber == null) {
 						return false;
 					}
-					new BusLineSelectDirection(BusLineListTab.this, lineNumber, null).showDialog();
+					new BusLineSelectDirection(BusLineListTab.this, lineNumber, null, null).showDialog();
 					return true;
 				} else {
 					MyLog.w(TAG, "unknown view id: %s", parent.getId());
@@ -160,7 +160,7 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 				MyLog.v(TAG, "onItemClick(%s, %s,%s,%s)", l.getId(), v.getId(), position, id);
 				if (l.getId() == R.id.list) {
 					// MyLog.d(TAG, "lineNumber: %s", lineNumber);
-					new BusLineSelectDirection(BusLineListTab.this, String.valueOf(id), null).showDialog();
+					new BusLineSelectDirection(BusLineListTab.this, String.valueOf(id), null, null).showDialog();
 				} else {
 					MyLog.w(TAG, "unknown view id: %s", v.getId());
 				}

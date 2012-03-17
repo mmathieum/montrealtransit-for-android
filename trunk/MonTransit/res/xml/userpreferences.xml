@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-	<!-- BETA -->
-	<PreferenceCategory android:title="@string/beta_pref_cat_title" />
-	<CheckBoxPreference android:key="pBusStopLocation"
-		android:title="@string/bus_stop_loc_pref_title" android:summary="@string/bus_stop_loc_pref_summary"
-		android:defaultValue="false" />
 	<!-- DISPLAY -->
 	<PreferenceCategory android:title="@string/display_pref_cat_title" />
 	<ListPreference android:key="pBusLineListGroupBy"

@@ -4,7 +4,7 @@
 
 	<ListView android:id="@+id/list"
 		android:layout_width="fill_parent" android:layout_height="fill_parent"
-		android:textFilterEnabled="true" android:fastScrollEnabled="true" />
+		android:textFilterEnabled="true" />
 
 	<include android:id="@+id/list_empty" layout="@layout/loading_small_layout" />
 

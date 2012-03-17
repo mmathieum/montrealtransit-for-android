@@ -1,47 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" android:layout_height="?android:attr/listPreferredItemHeight"
-	android:padding="5dip">
-	
-	<!-- SUBWAY IMG -->	
-	<ImageView android:id="@+id/subway_img"
-        android:layout_width="30dip" android:layout_height="30dip"
-        android:layout_alignParentRight="true" android:layout_alignWithParentIfMissing="true" 
-		android:gravity="center" android:scaleType="centerInside"
-        android:src="@drawable/subway_dark"/>
-
-    <!-- DISTANCE-->
-	<TextView android:id="@+id/distance"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:layout_alignParentTop="true" android:layout_alignParentBottom="true"
-		android:layout_alignBaseline="@+id/place"
-		android:layout_toLeftOf="@id/subway_img"
-		android:layout_alignWithParentIfMissing="true"
-		android:layout_marginRight="1dip"
-		android:gravity="center_vertical"
-		android:textAppearance="?android:attr/textAppearanceSmall"
-		android:visibility="gone" />
-
-	<!-- BUS STOP PLACE -->
-	<TextView android:id="@id/place"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:layout_alignParentLeft="true" android:layout_alignParentTop="true"
-		android:layout_toLeftOf="@id/distance" android:layout_marginRight="3dip"
-		android:singleLine="true" android:ellipsize="marquee" android:gravity="center_vertical|left"
-		android:textAppearance="?android:attr/textAppearanceLarge"
-		android:text="@string/ellipsis" />
-
-	<!-- BUS STOP CODE -->
-	<TextView android:id="@+id/stop_code"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:layout_alignParentLeft="true" android:layout_alignParentBottom="true"
-		android:textStyle="bold" android:textAppearance="?android:attr/textAppearanceSmall" />
-		
-	<!-- SUBWAY STATION NAME -->
-	<TextView android:id="@+id/station_name"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:layout_alignParentRight="true" android:layout_alignParentBottom="true"
-		android:textAppearance="?android:attr/textAppearanceSmall"
-		android:text="@string/ellipsis"/>
-
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:clipChildren="false">
+    <!-- SUBWAY IMG -->
+    <ImageView
+        android:id="@+id/subway_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_marginLeft="-12dip"
+        android:layout_marginTop="-12dip"
+        android:scaleType="centerCrop"
+        android:src="@drawable/subway_dark"
+        android:visibility="gone" />
+	<!-- FAVORITE IMG -->
+    <ImageView
+        android:id="@+id/fav_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="-16dip"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="-18dip"
+        android:scaleType="center"
+        android:src="@drawable/star_dark"
+        android:visibility="gone" />    <!-- DISTANCE -->
+    <TextView
+        android:id="@+id/distance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="3dip"
+        android:layout_marginRight="7dip"
+        android:text="@string/ellipsis"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:visibility="gone" />
+    <!-- BUS STOP PLACE -->
+    <TextView
+        android:id="@+id/place"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@id/distance"
+        android:ellipsize="marquee"
+        android:layout_marginLeft="5dip"
+        android:layout_marginRight="5dip"
+        android:singleLine="true"
+        android:text="@string/ellipsis"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+    <!-- SUBWAY STATION NAME -->
+	<TextView
+        android:id="@+id/station_name"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/subway_img"
+        android:layout_toLeftOf="@id/distance"
+        android:layout_above="@id/place"
+        android:layout_marginTop="2dip"
+        android:layout_marginBottom="0dip"
+        android:paddingBottom="0dip"
+        android:paddingLeft="5dip"
+        android:text="@string/ellipsis"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:visibility="gone" />    <!-- BUS STOP CODE -->
+    <TextView
+        android:id="@+id/stop_code"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/place"
+        android:layout_toLeftOf="@id/distance"
+        android:layout_marginTop="-5dip"
+        android:paddingLeft="5dip"
+        android:text="@string/ellipsis"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textStyle="bold" />
 </RelativeLayout>

@@ -285,17 +285,17 @@ public class BusUtils {
 	public static int getBusLineTypeBgColorFromType(String type) {
 		// MyLog.v(TAG, "getBusLineTypeImgFromType(" + type + ")");
 		// TODO use R.colors!!
-		if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_REGULAR_SERVICE)) {
+		if (StmStore.BusLine.LINE_TYPE_REGULAR_SERVICE.equalsIgnoreCase(type)) {
 			return Color.rgb(0, 96, 170); // BLUE;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_RUSH_HOUR_SERVICE)) {
+		} else if (StmStore.BusLine.LINE_TYPE_RUSH_HOUR_SERVICE.equalsIgnoreCase(type)) {
 			return Color.RED;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_NIGHT_SERVICE)) {
+		} else if (StmStore.BusLine.LINE_TYPE_NIGHT_SERVICE.equalsIgnoreCase(type)) {
 			return Color.BLACK;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_EXPRESS_SERVICE)) {
+		} else if (StmStore.BusLine.LINE_TYPE_EXPRESS_SERVICE.equalsIgnoreCase(type)) {
 			return Color.rgb(0, 115, 57); // GREEN
 		} else {
 			MyLog.w(TAG, "Unknown bus line type '%s'.", type);
-			return Color.GRAY;
+			return Color.TRANSPARENT;
 		}
 	}
 
@@ -306,13 +306,13 @@ public class BusUtils {
 	 */
 	public static int getBusStringFromType(String type) {
 		// MyLog.v(TAG, "getBusStringFromType(" + type + ")");
-		if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_REGULAR_SERVICE)) {
+		if (StmStore.BusLine.LINE_TYPE_REGULAR_SERVICE.equalsIgnoreCase(type)) {
 			return R.string.bus_type_soleil;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_RUSH_HOUR_SERVICE)) {
+		} else if (StmStore.BusLine.LINE_TYPE_RUSH_HOUR_SERVICE.equalsIgnoreCase(type)) {
 			return R.string.bus_type_hot;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_NIGHT_SERVICE)) {
+		} else if (StmStore.BusLine.LINE_TYPE_NIGHT_SERVICE.equalsIgnoreCase(type)) {
 			return R.string.bus_type_snuit;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_EXPRESS_SERVICE)) {
+		} else if (StmStore.BusLine.LINE_TYPE_EXPRESS_SERVICE.equalsIgnoreCase(type)) {
 			return R.string.bus_type_express;
 		} else {
 			MyLog.w(TAG, "Unknown bus line type '%s'.", type);
@@ -342,6 +342,8 @@ public class BusUtils {
 			result = result.substring(Constant.PLACE_CHAR_LA_LENGTH);
 		} else if (result.startsWith(Constant.PLACE_CHAR_L)) {
 			result = result.substring(Constant.PLACE_CHAR_L_LENGTH);
+		} else if (result.startsWith(Constant.PLACE_CHAR_D)) {
+			result = result.substring(Constant.PLACE_CHAR_D_LENGTH);
 		}
 
 		// if (result.contains(Constant.PLACE_CHAR_IN_DE_LA)) {
@@ -358,6 +360,8 @@ public class BusUtils {
 			result = result.replace(Constant.PLACE_CHAR_IN_LA, Constant.PLACE_CHAR_IN);
 		} else if (result.contains(Constant.PLACE_CHAR_IN_L)) {
 			result = result.replace(Constant.PLACE_CHAR_IN_L, Constant.PLACE_CHAR_IN);
+		} else if (result.contains(Constant.PLACE_CHAR_IN_D)) {
+			result = result.replace(Constant.PLACE_CHAR_IN_D, Constant.PLACE_CHAR_IN);
 		}
 
 		if (result.contains(Constant.PLACE_CHAR_PARENTHESE_STATION)) {

@@ -59,46 +59,12 @@ public class FavListTab extends Activity {
 	 */
 	private List<DataStore.Fav> currentBusStopFavList;
 
-	/**
-	 * The favorite subway stations layout.
-	 */
-	private LinearLayout subwayStationsLayout;
-	/**
-	 * The favorite bus stops layout.
-	 */
-	private LinearLayout busStopsLayout;
-	/**
-	 * The favorite bus stop title layout.
-	 */
-	private View busStopsTitle;
-	/**
-	 * The favorite subway stations title layout.
-	 */
-	private View subwayStationsTitle;
-	/**
-	 * The empty layout.
-	 */
-	private View emptyLayout;
-	/**
-	 * The lists layout.
-	 */
-	private View listsLayout;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
 		super.onCreate(savedInstanceState);
 		// set the UI
 		setContentView(R.layout.fav_list_tab);
-
-		this.emptyLayout = findViewById(R.id.empty);
-		this.listsLayout = findViewById(R.id.lists);
-
-		this.busStopsTitle = findViewById(R.id.fav_bus_stops);
-		this.busStopsLayout = (LinearLayout) findViewById(R.id.bus_stops_list);
-
-		this.subwayStationsTitle = findViewById(R.id.fav_subway_stations);
-		this.subwayStationsLayout = (LinearLayout) findViewById(R.id.subway_stations_list);
 	}
 
 	@Override
@@ -158,8 +124,6 @@ public class FavListTab extends Activity {
 				return null;
 			}
 
-			
-
 			@Override
 			protected void onPostExecute(Void result) {
 				if (newBusStopFavList != null && busStopsExtendedList != null) { // IF favorite bus stop list was refreshed DO update the UI
@@ -187,21 +151,21 @@ public class FavListTab extends Activity {
 		findViewById(R.id.loading).setVisibility(View.GONE);
 		if ((this.currentBusStopFavList == null || this.currentBusStopFavList.size() == 0)
 				&& (this.currentSubwayStationFavList == null || this.currentSubwayStationFavList.size() == 0)) {
-			this.listsLayout.setVisibility(View.GONE);
-			this.emptyLayout.setVisibility(View.VISIBLE);
+			findViewById(R.id.lists).setVisibility(View.GONE);
+			findViewById(R.id.empty).setVisibility(View.VISIBLE);
 		} else {
-			this.emptyLayout.setVisibility(View.GONE);
-			this.listsLayout.setVisibility(View.VISIBLE);
+			findViewById(R.id.empty).setVisibility(View.GONE);
+			findViewById(R.id.lists).setVisibility(View.VISIBLE);
 			// IF there is no favorite bus stops DO
 			if (this.currentBusStopFavList == null || this.currentBusStopFavList.size() == 0) {
-				this.busStopsTitle.setVisibility(View.GONE);
-				this.busStopsLayout.setVisibility(View.GONE);
+				findViewById(R.id.fav_bus_stops).setVisibility(View.GONE);
+				findViewById(R.id.bus_stops_list).setVisibility(View.GONE);
 				return;
 			}
 			// IF there is no favorite bus stops DO
 			if (this.currentSubwayStationFavList == null || this.currentSubwayStationFavList.size() == 0) {
-				this.subwayStationsTitle.setVisibility(View.GONE);
-				this.subwayStationsLayout.setVisibility(View.GONE);
+				findViewById(R.id.fav_subway_stations).setVisibility(View.GONE);
+				findViewById(R.id.subway_stations_list).setVisibility(View.GONE);
 				return;
 			}
 		}
@@ -220,17 +184,18 @@ public class FavListTab extends Activity {
 		// MyLog.v(TAG, "refreshBusStopsUI(%s,%s)", Utils.getCollectionSize(newBusStopFavList), Utils.getCollectionSize(busStopsExtendedList));
 		if (this.currentBusStopFavList == null || this.currentBusStopFavList.size() != newBusStopFavList.size()) {
 			// remove all favorite bus stop views
-			this.busStopsLayout.removeAllViews();
+			LinearLayout busStopsLayout = (LinearLayout) findViewById(R.id.bus_stops_list);
+			busStopsLayout.removeAllViews();
 			// use new favorite bus stops
 			this.currentBusStopFavList = newBusStopFavList;
-			this.listsLayout.setVisibility(View.VISIBLE);
-			this.busStopsTitle.setVisibility(View.VISIBLE);
-			this.busStopsLayout.setVisibility(View.VISIBLE);
+			findViewById(R.id.lists).setVisibility(View.VISIBLE);
+			findViewById(R.id.fav_bus_stops).setVisibility(View.VISIBLE);
+			busStopsLayout.setVisibility(View.VISIBLE);
 			// FOR EACH bus stop DO
 			for (final BusStop busStop : busStopsExtendedList) {
 				// list view divider
-				if (this.busStopsLayout.getChildCount() > 0) {
-					this.busStopsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+				if (busStopsLayout.getChildCount() > 0) {
+					busStopsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
 				}
 				// create view
 				View view = getLayoutInflater().inflate(R.layout.fav_list_tab_bus_stop_item, null);
@@ -284,7 +249,7 @@ public class FavListTab extends Activity {
 													break;
 												case DELETE_CONTEXT_MENU_INDEX:
 													// remove the view from the UI
-													FavListTab.this.busStopsLayout.removeView(theViewToDelete);
+													((LinearLayout) findViewById(R.id.bus_stops_list)).removeView(theViewToDelete);
 													// remove the favorite from the current list
 													Iterator<Fav> it = FavListTab.this.currentBusStopFavList.iterator();
 													while (it.hasNext()) {
@@ -316,7 +281,7 @@ public class FavListTab extends Activity {
 						return true;
 					}
 				});
-				this.busStopsLayout.addView(view);
+				busStopsLayout.addView(view);
 			}
 		}
 	}
@@ -330,21 +295,22 @@ public class FavListTab extends Activity {
 	private void refreshSubwayStationsUI(List<DataStore.Fav> newSubwayFavList, Map<String, SubwayStation> stations, Map<String, List<SubwayLine>> otherLines) {
 		// MyLog.v(TAG, "refreshSubwayStationsUI()", Utils.getCollectionSize(newSubwayFavList), Utils.getMapSize(stations), Utils.getMapSize(otherLines));
 		if (this.currentSubwayStationFavList == null || this.currentSubwayStationFavList.size() != newSubwayFavList.size()) {
+			LinearLayout subwayStationsLayout = (LinearLayout) findViewById(R.id.subway_stations_list);
 			// remove all subway station views
-			this.subwayStationsLayout.removeAllViews();
+			subwayStationsLayout.removeAllViews();
 			// use new favorite subway station
 			this.currentSubwayStationFavList = newSubwayFavList;
-			this.listsLayout.setVisibility(View.VISIBLE);
-			this.subwayStationsTitle.setVisibility(View.VISIBLE);
-			this.subwayStationsLayout.setVisibility(View.VISIBLE);
+			findViewById(R.id.lists).setVisibility(View.VISIBLE);
+			findViewById(R.id.fav_subway_stations).setVisibility(View.VISIBLE);
+			subwayStationsLayout.setVisibility(View.VISIBLE);
 			// FOR EACH favorite subway DO
 			for (Fav subwayFav : this.currentSubwayStationFavList) {
 				final SubwayStation station = stations.get(subwayFav.getFkId());
 				if (station != null) {
 					List<SubwayLine> otherLinesId = otherLines.get(station.getId());
 					// list view divider
-					if (this.subwayStationsLayout.getChildCount() > 0) {
-						this.subwayStationsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+					if (subwayStationsLayout.getChildCount() > 0) {
+						subwayStationsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
 					}
 					// create view
 					View view = getLayoutInflater().inflate(R.layout.fav_list_tab_subway_station_item, null);
@@ -404,7 +370,7 @@ public class FavListTab extends Activity {
 														break;
 													case DELETE_CONTEXT_MENU_INDEX:
 														// remove the view from the UI
-														FavListTab.this.subwayStationsLayout.removeView(theViewToDelete);
+														((LinearLayout) findViewById(R.id.subway_stations_list)).removeView(theViewToDelete);
 														// remove the favorite from the current list
 														Iterator<Fav> it = FavListTab.this.currentSubwayStationFavList.iterator();
 														while (it.hasNext()) {
@@ -436,7 +402,7 @@ public class FavListTab extends Activity {
 							return true;
 						}
 					});
-					this.subwayStationsLayout.addView(view);
+					subwayStationsLayout.addView(view);
 				} else {
 					MyLog.w(TAG, "Can't find the favorite subway station (ID:%s)", subwayFav.getFkId());
 				}

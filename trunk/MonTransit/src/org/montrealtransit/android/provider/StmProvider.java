@@ -25,7 +25,8 @@ import android.text.TextUtils;
  * This data provider contains static informations about bus stops, bus lines, subway lines, subway stations.
  * @author Mathieu Méa
  */
-@SuppressWarnings("deprecation") //TODO use App Widgets (Android 3.0+)
+@SuppressWarnings("deprecation")
+// TODO use App Widgets (Android 3.0+)
 public class StmProvider extends ContentProvider {
 
 	/**
@@ -125,6 +126,10 @@ public class StmProvider extends ContentProvider {
 	 */
 	private static final HashMap<String, String> sBusStopsWithSubwayStationProjectionMap;
 	/**
+	 * Projection for bus stops with location and subway line name.
+	 */
+	private static final HashMap<String, String> sBusStopsWithLocationAndWithSubwayStationProjectionMap;
+	/**
 	 * Projection for the search (bus stop, bus line, subway station).
 	 */
 	private static final HashMap<String, String> sSearchProjectionMap;
@@ -151,8 +156,7 @@ public class StmProvider extends ContentProvider {
 		URI_MATCHER.addURI(AUTHORITY, "buslines/#/busstops/#", BUS_LINE_ID_STOP_ID);
 		URI_MATCHER.addURI(AUTHORITY, "buslines/#/buslinedirections", BUS_LINE_ID_DIRECTIONS);
 		URI_MATCHER.addURI(AUTHORITY, "buslines/#/buslinedirections/*/busstops", BUS_LINE_ID_DIRECTION_ID_STOPS);
-		URI_MATCHER.addURI(AUTHORITY, "buslines/#/buslinedirections/*/busstops/search/*",
-		        BUS_LINE_ID_DIRECTION_ID_STOPS_SEARCH);
+		URI_MATCHER.addURI(AUTHORITY, "buslines/#/buslinedirections/*/busstops/search/*", BUS_LINE_ID_DIRECTION_ID_STOPS_SEARCH);
 		URI_MATCHER.addURI(AUTHORITY, "buslines/*", BUS_LINES_IDS);
 		URI_MATCHER.addURI(AUTHORITY, "busstops", BUS_STOPS);
 		URI_MATCHER.addURI(AUTHORITY, "busstops/" + StmStore.BusStop.STOP_CODE, BUS_STOPS_CODE);
@@ -185,228 +189,211 @@ public class StmProvider extends ContentProvider {
 		URI_MATCHER.addURI(AUTHORITY, SearchManager.SUGGEST_URI_PATH_QUERY + "/*", SEARCH);
 
 		HashMap<String, String> map = new HashMap<String, String>();
-		map.put(StmStore.SubwayStation._ID, StmDbHelper.T_SUBWAY_STATIONS + "."
-		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID + " AS " + StmStore.SubwayStation._ID);
-		map.put(StmStore.SubwayStation.STATION_ID, StmDbHelper.T_SUBWAY_STATIONS + "."
-		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID + " AS " + StmStore.SubwayStation.STATION_ID);
-		map.put(StmStore.SubwayStation.STATION_NAME, StmDbHelper.T_SUBWAY_STATIONS + "."
-		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME + " AS " + StmStore.SubwayStation.STATION_NAME);
-		map.put(StmStore.SubwayStation.STATION_LAT, StmDbHelper.T_SUBWAY_STATIONS + "."
-		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LAT + " AS " + StmStore.SubwayStation.STATION_LAT);
-		map.put(StmStore.SubwayStation.STATION_LNG, StmDbHelper.T_SUBWAY_STATIONS + "."
-		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LNG + " AS " + StmStore.SubwayStation.STATION_LNG);
+		map.put(StmStore.SubwayStation._ID, StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID + " AS "
+				+ StmStore.SubwayStation._ID);
+		map.put(StmStore.SubwayStation.STATION_ID, StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID + " AS "
+				+ StmStore.SubwayStation.STATION_ID);
+		map.put(StmStore.SubwayStation.STATION_NAME, StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME + " AS "
+				+ StmStore.SubwayStation.STATION_NAME);
+		map.put(StmStore.SubwayStation.STATION_LAT, StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LAT + " AS "
+				+ StmStore.SubwayStation.STATION_LAT);
+		map.put(StmStore.SubwayStation.STATION_LNG, StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LNG + " AS "
+				+ StmStore.SubwayStation.STATION_LNG);
 		sSubwayStationsProjectionMap = map;
 
 		map = new HashMap<String, String>();
-		map.put(StmStore.SubwayLine._ID, StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER
-		        + " AS " + StmStore.SubwayLine._ID);
-		map.put(StmStore.SubwayLine.LINE_NUMBER, StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER
-		        + " AS " + StmStore.SubwayLine.LINE_NUMBER);
-		map.put(StmStore.SubwayLine.LINE_NAME, StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NAME
-		        + " AS " + StmStore.SubwayLine.LINE_NAME);
+		map.put(StmStore.SubwayLine._ID, StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + " AS " + StmStore.SubwayLine._ID);
+		map.put(StmStore.SubwayLine.LINE_NUMBER, StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + " AS "
+				+ StmStore.SubwayLine.LINE_NUMBER);
+		map.put(StmStore.SubwayLine.LINE_NAME, StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NAME + " AS " + StmStore.SubwayLine.LINE_NAME);
 		sSubwayLinesProjectionMap = map;
 
 		map = new HashMap<String, String>();
-		map.put(BaseColumns._ID, StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + "||'-'||"
-		        + StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID + " AS "
-		        + BaseColumns._ID);
-		map.put(StmStore.SubwayLine.LINE_NUMBER, StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER
-		        + " AS " + StmStore.SubwayLine.LINE_NUMBER);
-		map.put(StmStore.SubwayLine.LINE_NAME, StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NAME
-		        + " AS " + StmStore.SubwayLine.LINE_NAME);
-		map.put(StmStore.SubwayStation.STATION_ID, StmDbHelper.T_SUBWAY_STATIONS + "."
-		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID + " AS " + StmStore.SubwayStation.STATION_ID);
-		map.put(StmStore.SubwayStation.STATION_NAME, StmDbHelper.T_SUBWAY_STATIONS + "."
-		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME + " AS " + StmStore.SubwayStation.STATION_NAME);
-		map.put(StmStore.SubwayStation.STATION_LAT, StmDbHelper.T_SUBWAY_STATIONS + "."
-		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LAT + " AS " + StmStore.SubwayStation.STATION_LAT);
-		map.put(StmStore.SubwayStation.STATION_LNG, StmDbHelper.T_SUBWAY_STATIONS + "."
-		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LNG + " AS " + StmStore.SubwayStation.STATION_LNG);
+		map.put(BaseColumns._ID, StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + "||'-'||" + StmDbHelper.T_SUBWAY_STATIONS + "."
+				+ StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID + " AS " + BaseColumns._ID);
+		map.put(StmStore.SubwayLine.LINE_NUMBER, StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + " AS "
+				+ StmStore.SubwayLine.LINE_NUMBER);
+		map.put(StmStore.SubwayLine.LINE_NAME, StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NAME + " AS " + StmStore.SubwayLine.LINE_NAME);
+		map.put(StmStore.SubwayStation.STATION_ID, StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID + " AS "
+				+ StmStore.SubwayStation.STATION_ID);
+		map.put(StmStore.SubwayStation.STATION_NAME, StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME + " AS "
+				+ StmStore.SubwayStation.STATION_NAME);
+		map.put(StmStore.SubwayStation.STATION_LAT, StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LAT + " AS "
+				+ StmStore.SubwayStation.STATION_LAT);
+		map.put(StmStore.SubwayStation.STATION_LNG, StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LNG + " AS "
+				+ StmStore.SubwayStation.STATION_LNG);
 		sSubwayLinesStationsProjectionMap = map;
 
 		map = new HashMap<String, String>();
-		map.put(StmStore.BusLineDirection._ID, StmDbHelper.T_BUS_LINE_DIRECTIONS + "."
-		        + StmDbHelper.T_BUS_LINE_DIRECTIONS_K_ID + " AS " + StmStore.BusLineDirection._ID);
-		map.put(StmStore.BusLineDirection.DIRECTION_ID, StmDbHelper.T_BUS_LINE_DIRECTIONS + "."
-		        + StmDbHelper.T_BUS_LINE_DIRECTIONS_K_ID + " AS " + StmStore.BusLineDirection.DIRECTION_ID);
-		map.put(StmStore.BusLineDirection.DIRECTION_LINE_ID, StmDbHelper.T_BUS_LINE_DIRECTIONS + "."
-		        + StmDbHelper.T_BUS_LINE_DIRECTIONS_K_LINE_ID + " AS " + StmStore.BusLineDirection.DIRECTION_LINE_ID);
-		map.put(StmStore.BusLineDirection.DIRECTION_NAME, StmDbHelper.T_BUS_LINE_DIRECTIONS + "."
-		        + StmDbHelper.T_BUS_LINE_DIRECTIONS_K_NAME + " AS " + StmStore.BusLineDirection.DIRECTION_NAME);
+		map.put(StmStore.BusLineDirection._ID, StmDbHelper.T_BUS_LINE_DIRECTIONS + "." + StmDbHelper.T_BUS_LINE_DIRECTIONS_K_ID + " AS "
+				+ StmStore.BusLineDirection._ID);
+		map.put(StmStore.BusLineDirection.DIRECTION_ID, StmDbHelper.T_BUS_LINE_DIRECTIONS + "." + StmDbHelper.T_BUS_LINE_DIRECTIONS_K_ID + " AS "
+				+ StmStore.BusLineDirection.DIRECTION_ID);
+		map.put(StmStore.BusLineDirection.DIRECTION_LINE_ID, StmDbHelper.T_BUS_LINE_DIRECTIONS + "." + StmDbHelper.T_BUS_LINE_DIRECTIONS_K_LINE_ID + " AS "
+				+ StmStore.BusLineDirection.DIRECTION_LINE_ID);
+		map.put(StmStore.BusLineDirection.DIRECTION_NAME, StmDbHelper.T_BUS_LINE_DIRECTIONS + "." + StmDbHelper.T_BUS_LINE_DIRECTIONS_K_NAME + " AS "
+				+ StmStore.BusLineDirection.DIRECTION_NAME);
 		sBusLineDirectionsProjectionMap = map;
 
 		map = new HashMap<String, String>();
-		map.put(StmStore.BusLine._ID, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER + " AS "
-		        + StmStore.BusLine._ID);
-		map.put(StmStore.BusLine.LINE_NUMBER, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER + " AS "
-		        + StmStore.BusLine.LINE_NUMBER);
-		map.put(StmStore.BusLine.LINE_NAME, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NAME + " AS "
-		        + StmStore.BusLine.LINE_NAME);
-		map.put(StmStore.BusLine.LINE_TYPE, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_TYPE + " AS "
-		        + StmStore.BusLine.LINE_TYPE);
+		map.put(StmStore.BusLine._ID, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER + " AS " + StmStore.BusLine._ID);
+		map.put(StmStore.BusLine.LINE_NUMBER, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER + " AS " + StmStore.BusLine.LINE_NUMBER);
+		map.put(StmStore.BusLine.LINE_NAME, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NAME + " AS " + StmStore.BusLine.LINE_NAME);
+		map.put(StmStore.BusLine.LINE_TYPE, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_TYPE + " AS " + StmStore.BusLine.LINE_TYPE);
 		sBusLinesProjectionMap = map;
 
 		map = new HashMap<String, String>();
-		map.put(StmStore.BusLine._ID, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER + " AS "
-		        + StmStore.BusLine._ID);
-		map.put(StmStore.BusLine.LINE_NUMBER, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER + " AS "
-		        + StmStore.BusLine.LINE_NUMBER);
+		map.put(StmStore.BusLine._ID, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER + " AS " + StmStore.BusLine._ID);
+		map.put(StmStore.BusLine.LINE_NUMBER, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER + " AS " + StmStore.BusLine.LINE_NUMBER);
 		sBusLinesNumbersProjectionMap = map;
 
 		map = new HashMap<String, String>();
 		// TODO bus stop code + bus line number is NOT an UID for a bus stop.
 		// Need to add bus line direction ?
-		map.put(LiveFolders._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "||"
-		        + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS " + LiveFolders._ID);
-		map.put(LiveFolders.NAME, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " AS "
-		        + LiveFolders.NAME);
-		map.put(LiveFolders.DESCRIPTION, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER
-		        + "||\" \"||" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS "
-		        + LiveFolders.DESCRIPTION);
+		map.put(LiveFolders._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "||" + StmDbHelper.T_BUS_STOPS + "."
+				+ StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS " + LiveFolders._ID);
+		map.put(LiveFolders.NAME, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " AS " + LiveFolders.NAME);
+		map.put(LiveFolders.DESCRIPTION, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + "||\" \"||" + StmDbHelper.T_BUS_STOPS + "."
+				+ StmDbHelper.T_BUS_STOPS_K_CODE + " AS " + LiveFolders.DESCRIPTION);
 		sBusStopsLiveFolderProjectionMap = map;
 
 		map = new HashMap<String, String>();
-		map.put(StmStore.BusStop._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS "
-		        + StmStore.BusStop._ID);
-		map.put(StmStore.BusStop.STOP_CODE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS "
-		        + StmStore.BusStop.STOP_CODE);
-		map.put(StmStore.BusStop.STOP_PLACE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " AS "
-		        + StmStore.BusStop.STOP_PLACE);
-		map.put(StmStore.BusStop.STOP_DIRECTION_ID, StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + " AS " + StmStore.BusStop.STOP_DIRECTION_ID);
-		map.put(StmStore.BusStop.STOP_LINE_NUMBER, StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS " + StmStore.BusStop.STOP_LINE_NUMBER);
-		map.put(StmStore.BusStop.STOP_SUBWAY_STATION_ID, StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + " AS " + StmStore.BusStop.STOP_SUBWAY_STATION_ID);
+		map.put(StmStore.BusStop._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS " + StmStore.BusStop._ID);
+		map.put(StmStore.BusStop.STOP_CODE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS " + StmStore.BusStop.STOP_CODE);
+		map.put(StmStore.BusStop.STOP_PLACE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " AS " + StmStore.BusStop.STOP_PLACE);
+		map.put(StmStore.BusStop.STOP_DIRECTION_ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + " AS "
+				+ StmStore.BusStop.STOP_DIRECTION_ID);
+		map.put(StmStore.BusStop.STOP_LINE_NUMBER, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS "
+				+ StmStore.BusStop.STOP_LINE_NUMBER);
+		map.put(StmStore.BusStop.STOP_SUBWAY_STATION_ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + " AS "
+				+ StmStore.BusStop.STOP_SUBWAY_STATION_ID);
 		sBusStopsProjectionMap = map;
 
 		map = new HashMap<String, String>();
-		map.put(StmStore.BusStop._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS "
-		        + StmStore.BusStop._ID);
-		map.put(StmStore.BusStop.STOP_CODE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS "
-		        + StmStore.BusStop.STOP_CODE);
+		map.put(StmStore.BusStop._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS " + StmStore.BusStop._ID);
+		map.put(StmStore.BusStop.STOP_CODE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS " + StmStore.BusStop.STOP_CODE);
 		sBusStopsCodeProjectionMap = map;
 
 		map = new HashMap<String, String>();
-		map.put(StmStore.BusStop._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS "
-		        + StmStore.BusStop._ID);
-		map.put(StmStore.BusStop.STOP_CODE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS "
-		        + StmStore.BusStop.STOP_CODE);
-		map.put(StmStore.BusStop.STOP_PLACE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " AS "
-		        + StmStore.BusStop.STOP_PLACE);
-		map.put(StmStore.BusStop.STOP_DIRECTION_ID, StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + " AS " + StmStore.BusStop.STOP_DIRECTION_ID);
-		map.put(StmStore.BusStop.STOP_LINE_NUMBER, StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS " + StmStore.BusStop.STOP_LINE_NUMBER);
-		map.put(StmStore.BusStop.STOP_SUBWAY_STATION_ID, StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + " AS " + StmStore.BusStop.STOP_SUBWAY_STATION_ID);
-		map.put(StmStore.SubwayStation.STATION_NAME, StmDbHelper.T_SUBWAY_STATIONS + "."
-		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME + " AS " + StmStore.SubwayStation.STATION_NAME);
-		map.put(StmStore.SubwayStation.STATION_LAT, StmDbHelper.T_SUBWAY_STATIONS + "."
-		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LAT + " AS " + StmStore.SubwayStation.STATION_LAT);
-		map.put(StmStore.SubwayStation.STATION_LNG, StmDbHelper.T_SUBWAY_STATIONS + "."
-		        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LNG + " AS " + StmStore.SubwayStation.STATION_LNG);
+		map.put(StmStore.BusStop._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS " + StmStore.BusStop._ID);
+		map.put(StmStore.BusStop.STOP_CODE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS " + StmStore.BusStop.STOP_CODE);
+		map.put(StmStore.BusStop.STOP_PLACE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " AS " + StmStore.BusStop.STOP_PLACE);
+		map.put(StmStore.BusStop.STOP_DIRECTION_ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + " AS "
+				+ StmStore.BusStop.STOP_DIRECTION_ID);
+		map.put(StmStore.BusStop.STOP_LINE_NUMBER, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS "
+				+ StmStore.BusStop.STOP_LINE_NUMBER);
+		map.put(StmStore.BusStop.STOP_SUBWAY_STATION_ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + " AS "
+				+ StmStore.BusStop.STOP_SUBWAY_STATION_ID);
+		map.put(StmStore.SubwayStation.STATION_NAME, StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME + " AS "
+				+ StmStore.SubwayStation.STATION_NAME);
+		map.put(StmStore.SubwayStation.STATION_LAT, StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LAT + " AS "
+				+ StmStore.SubwayStation.STATION_LAT);
+		map.put(StmStore.SubwayStation.STATION_LNG, StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LNG + " AS "
+				+ StmStore.SubwayStation.STATION_LNG);
 		sBusStopsWithSubwayStationProjectionMap = map;
 
 		map = new HashMap<String, String>();
-		map.put(StmStore.BusStop._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS "
-		        + StmStore.BusStop._ID);
-		map.put(StmStore.BusStop.STOP_CODE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS "
-		        + StmStore.BusStop.STOP_CODE);
-		map.put(StmStore.BusStop.STOP_PLACE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " AS "
-		        + StmStore.BusStop.STOP_PLACE);
-		map.put(StmStore.BusStop.STOP_DIRECTION_ID, StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + " AS " + StmStore.BusStop.STOP_DIRECTION_ID);
-		map.put(StmStore.BusStop.STOP_LINE_NUMBER, StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS " + StmStore.BusStop.STOP_LINE_NUMBER);
-		map.put(StmStore.BusStop.LINE_NAME, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NAME + " AS "
-		        + StmStore.BusStop.LINE_NAME);
-		map.put(StmStore.BusStop.LINE_TYPE, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_TYPE + " AS "
-		        + StmStore.BusStop.LINE_TYPE);
-		map.put(StmStore.BusStop.STOP_SUBWAY_STATION_ID, StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + " AS " + StmStore.BusStop.STOP_SUBWAY_STATION_ID);
+		map.put(StmStore.BusStop._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS " + StmStore.BusStop._ID);
+		map.put(StmStore.BusStop.STOP_CODE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS " + StmStore.BusStop.STOP_CODE);
+		map.put(StmStore.BusStop.STOP_PLACE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " AS " + StmStore.BusStop.STOP_PLACE);
+		map.put(StmStore.BusStop.STOP_DIRECTION_ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + " AS "
+				+ StmStore.BusStop.STOP_DIRECTION_ID);
+		map.put(StmStore.BusStop.STOP_LINE_NUMBER, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS "
+				+ StmStore.BusStop.STOP_LINE_NUMBER);
+		map.put(StmStore.BusStop.STOP_SUBWAY_STATION_ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + " AS "
+				+ StmStore.BusStop.STOP_SUBWAY_STATION_ID);
+		map.put(StmStore.SubwayStation.STATION_NAME, StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME + " AS "
+				+ StmStore.SubwayStation.STATION_NAME);
+		map.put(StmStore.SubwayStation.STATION_LAT, StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LAT + " AS "
+				+ StmStore.SubwayStation.STATION_LAT);
+		map.put(StmStore.SubwayStation.STATION_LNG, StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LNG + " AS "
+				+ StmStore.SubwayStation.STATION_LNG);
+		map.put(StmStore.BusStopLocation.STOP_LOCATION_LAT, StmDbHelper.T_BUS_STOPS_LOC + "." + StmDbHelper.T_BUS_STOPS_LOC_K_STOP_LAT + " AS "
+				+ StmStore.BusStopLocation.STOP_LOCATION_LAT);
+		map.put(StmStore.BusStopLocation.STOP_LOCATION_LNG, StmDbHelper.T_BUS_STOPS_LOC + "." + StmDbHelper.T_BUS_STOPS_LOC_K_STOP_LNG + " AS "
+				+ StmStore.BusStopLocation.STOP_LOCATION_LNG);
+		sBusStopsWithLocationAndWithSubwayStationProjectionMap = map;
+
+		map = new HashMap<String, String>();
+		map.put(StmStore.BusStop._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS " + StmStore.BusStop._ID);
+		map.put(StmStore.BusStop.STOP_CODE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS " + StmStore.BusStop.STOP_CODE);
+		map.put(StmStore.BusStop.STOP_PLACE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " AS " + StmStore.BusStop.STOP_PLACE);
+		map.put(StmStore.BusStop.STOP_DIRECTION_ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + " AS "
+				+ StmStore.BusStop.STOP_DIRECTION_ID);
+		map.put(StmStore.BusStop.STOP_LINE_NUMBER, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS "
+				+ StmStore.BusStop.STOP_LINE_NUMBER);
+		map.put(StmStore.BusStop.LINE_NAME, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NAME + " AS " + StmStore.BusStop.LINE_NAME);
+		map.put(StmStore.BusStop.LINE_TYPE, StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_TYPE + " AS " + StmStore.BusStop.LINE_TYPE);
+		map.put(StmStore.BusStop.STOP_SUBWAY_STATION_ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + " AS "
+				+ StmStore.BusStop.STOP_SUBWAY_STATION_ID);
 		sBusStopsExtendedProjectionMap = map;
 
 		map = new HashMap<String, String>();
-		map.put(BaseColumns._ID, StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_DIRECTION_ID + " AS "
-		        + BaseColumns._ID);
-		map.put(StmStore.HOUR, "strftime('%Hh%M'," + StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_HOUR
-		        + ") AS " + StmStore.HOUR);
-		map.put(StmStore.FIRST_LAST, StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_FIRST_LAST + " AS "
-		        + StmStore.FIRST_LAST);
+		map.put(BaseColumns._ID, StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_DIRECTION_ID + " AS " + BaseColumns._ID);
+		map.put(StmStore.HOUR, "strftime('%Hh%M'," + StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_HOUR + ") AS " + StmStore.HOUR);
+		map.put(StmStore.FIRST_LAST, StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_FIRST_LAST + " AS " + StmStore.FIRST_LAST);
 		sSubwayStationHourProjectionMap = map;
 
 		map = new HashMap<String, String>();
-		map.put(BaseColumns._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "||'"
-		        + BusStop.UID_SEPARATOR + "'||" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER
-		        + " AS " + BaseColumns._ID);
-		map.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA, StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_CODE + "||'" + BusStop.UID_SEPARATOR + "'||" + StmDbHelper.T_BUS_STOPS
-		        + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS " + SearchManager.SUGGEST_COLUMN_INTENT_DATA);
-		map.put(SearchManager.SUGGEST_COLUMN_TEXT_1, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE
-		        + " AS " + SearchManager.SUGGEST_COLUMN_TEXT_1);
-		map.put(SearchManager.SUGGEST_COLUMN_TEXT_2, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE
-		        + "||' - '||" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + "||' '||"
-		        + "substr(" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + ",length("
-		        + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + "))" + " AS "
-		        + SearchManager.SUGGEST_COLUMN_TEXT_2);
+		map.put(BaseColumns._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "||'" + BusStop.UID_SEPARATOR + "'||"
+				+ StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS " + BaseColumns._ID);
+		map.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "||'" + BusStop.UID_SEPARATOR
+				+ "'||" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS " + SearchManager.SUGGEST_COLUMN_INTENT_DATA);
+		map.put(SearchManager.SUGGEST_COLUMN_TEXT_1, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " AS "
+				+ SearchManager.SUGGEST_COLUMN_TEXT_1);
+		map.put(SearchManager.SUGGEST_COLUMN_TEXT_2, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "||' - '||" + StmDbHelper.T_BUS_STOPS
+				+ "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + "||' '||" + "substr(" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID
+				+ ",length(" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + "))" + " AS " + SearchManager.SUGGEST_COLUMN_TEXT_2);
 		sSearchSimpleProjectionMap = map;
 
 		map = new HashMap<String, String>();
-		map.put(BaseColumns._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "||'"
-		        + BusStop.UID_SEPARATOR + "'||" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER
-		        + " AS " + BaseColumns._ID);
-		map.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA, StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_CODE + "||'" + BusStop.UID_SEPARATOR + "'||" + StmDbHelper.T_BUS_STOPS
-		        + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS " + SearchManager.SUGGEST_COLUMN_INTENT_DATA);
-		map.put(SearchManager.SUGGEST_COLUMN_TEXT_1, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE
-		        + "||' '||" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " AS "
-		        + SearchManager.SUGGEST_COLUMN_TEXT_1);
+		map.put(BaseColumns._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "||'" + BusStop.UID_SEPARATOR + "'||"
+				+ StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS " + BaseColumns._ID);
+		map.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "||'" + BusStop.UID_SEPARATOR
+				+ "'||" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS " + SearchManager.SUGGEST_COLUMN_INTENT_DATA);
+		map.put(SearchManager.SUGGEST_COLUMN_TEXT_1, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "||' '||" + StmDbHelper.T_BUS_STOPS + "."
+				+ StmDbHelper.T_BUS_STOPS_K_PLACE + " AS " + SearchManager.SUGGEST_COLUMN_TEXT_1);
 		// TODO add subway station to text 1 (only when there is a subway station)
-		map.put(SearchManager.SUGGEST_COLUMN_TEXT_2, StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + "||' '||" + StmDbHelper.T_BUS_LINES + "."
-		        + StmDbHelper.T_BUS_LINES_K_NAME + "||' '||" + "substr(" + StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + ",length(" + StmDbHelper.T_BUS_STOPS + "."
-		        + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + "))" + " AS " + SearchManager.SUGGEST_COLUMN_TEXT_2);
+		map.put(SearchManager.SUGGEST_COLUMN_TEXT_2, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + "||' '||"
+				+ StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NAME + "||' '||" + "substr(" + StmDbHelper.T_BUS_STOPS + "."
+				+ StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + ",length(" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + "))" + " AS "
+				+ SearchManager.SUGGEST_COLUMN_TEXT_2);
 		sSearchProjectionMap = map;
 	}
 
 	private StmDbHelper mOpenHelper;
 
-	private static final String SUBWAY_LINE_STATIONS_JOIN = StmDbHelper.T_SUBWAY_LINES + " LEFT OUTER JOIN "
-	        + StmDbHelper.T_SUBWAY_DIRECTIONS + " ON " + StmDbHelper.T_SUBWAY_LINES + "."
-	        + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + "=" + StmDbHelper.T_SUBWAY_DIRECTIONS + "."
-	        + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_LINE_ID + " LEFT OUTER JOIN " + StmDbHelper.T_SUBWAY_STATIONS
-	        + " ON " + StmDbHelper.T_SUBWAY_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ID
-	        + "=" + StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID;
+	private static final String SUBWAY_LINE_STATIONS_JOIN = StmDbHelper.T_SUBWAY_LINES + " LEFT OUTER JOIN " + StmDbHelper.T_SUBWAY_DIRECTIONS + " ON "
+			+ StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + "=" + StmDbHelper.T_SUBWAY_DIRECTIONS + "."
+			+ StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_LINE_ID + " LEFT OUTER JOIN " + StmDbHelper.T_SUBWAY_STATIONS + " ON " + StmDbHelper.T_SUBWAY_DIRECTIONS
+			+ "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ID + "=" + StmDbHelper.T_SUBWAY_STATIONS + "."
+			+ StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID;
 
-	private static final String BUS_STOP_LINES_JOIN = StmDbHelper.T_BUS_LINES + " JOIN " + StmDbHelper.T_BUS_STOPS
-	        + " ON " + StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER + "=" + StmDbHelper.T_BUS_STOPS
-	        + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER;
+	private static final String BUS_STOP_LINES_JOIN = StmDbHelper.T_BUS_LINES + " JOIN " + StmDbHelper.T_BUS_STOPS + " ON " + StmDbHelper.T_BUS_LINES + "."
+			+ StmDbHelper.T_BUS_LINES_K_NUMBER + "=" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER;
 
-	private static final String SUBWAY_STATIONS_LINE_JOIN = StmDbHelper.T_SUBWAY_LINES + " JOIN "
-	        + StmDbHelper.T_SUBWAY_DIRECTIONS + " ON " + StmDbHelper.T_SUBWAY_LINES + "."
-	        + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + "=" + StmDbHelper.T_SUBWAY_DIRECTIONS + "."
-	        + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_LINE_ID;
+	private static final String SUBWAY_STATIONS_LINE_JOIN = StmDbHelper.T_SUBWAY_LINES + " JOIN " + StmDbHelper.T_SUBWAY_DIRECTIONS + " ON "
+			+ StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + "=" + StmDbHelper.T_SUBWAY_DIRECTIONS + "."
+			+ StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_LINE_ID;
 
-	private static final String SUBWAY_STATIONS_LINE_DIRECTION_JOIN = StmDbHelper.T_SUBWAY_DIRECTIONS + " JOIN "
-	        + StmDbHelper.T_SUBWAY_LINES + " ON " + StmDbHelper.T_SUBWAY_LINES + "."
-	        + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + "=" + StmDbHelper.T_SUBWAY_DIRECTIONS + "."
-	        + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_LINE_ID + " JOIN " + StmDbHelper.T_SUBWAY_STATIONS + " ON "
-	        + StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID + "="
-	        + StmDbHelper.T_SUBWAY_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ID;
+	private static final String SUBWAY_STATIONS_LINE_DIRECTION_JOIN = StmDbHelper.T_SUBWAY_DIRECTIONS + " JOIN " + StmDbHelper.T_SUBWAY_LINES + " ON "
+			+ StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + "=" + StmDbHelper.T_SUBWAY_DIRECTIONS + "."
+			+ StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_LINE_ID + " JOIN " + StmDbHelper.T_SUBWAY_STATIONS + " ON " + StmDbHelper.T_SUBWAY_STATIONS + "."
+			+ StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID + "=" + StmDbHelper.T_SUBWAY_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ID;
 
-	private static final String BUS_STOP_SUBWAY_STATION_JOIN = StmDbHelper.T_BUS_STOPS + " LEFT OUTER JOIN "
-	        + StmDbHelper.T_SUBWAY_STATIONS + " ON " + StmDbHelper.T_BUS_STOPS + "."
-	        + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + "=" + StmDbHelper.T_SUBWAY_STATIONS + "."
-	        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID;
+	private static final String BUS_STOP_SUBWAY_STATION_JOIN = StmDbHelper.T_BUS_STOPS + " LEFT OUTER JOIN " + StmDbHelper.T_SUBWAY_STATIONS + " ON "
+			+ StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + "=" + StmDbHelper.T_SUBWAY_STATIONS + "."
+			+ StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID;
 
-	private static final String BUS_STOP_ALL_JOIN = StmDbHelper.T_BUS_STOPS + " LEFT OUTER JOIN "
-	        + StmDbHelper.T_BUS_LINES + " ON " + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER
-	        + "=" + StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER + " LEFT OUTER JOIN "
-	        + StmDbHelper.T_SUBWAY_STATIONS + " ON " + StmDbHelper.T_BUS_STOPS + "."
-	        + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + "=" + StmDbHelper.T_SUBWAY_STATIONS + "."
-	        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID;
+	private static final String BUS_STOP_LOCATION_SUBWAY_STATION_JOIN = StmDbHelper.T_BUS_STOPS + " LEFT OUTER JOIN " + StmDbHelper.T_BUS_STOPS_LOC + " ON "
+			+ StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "=" + StmDbHelper.T_BUS_STOPS_LOC + "." + StmDbHelper.T_BUS_STOPS_LOC_K_CODE
+			+ " LEFT OUTER JOIN " + StmDbHelper.T_SUBWAY_STATIONS + " ON " + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + "="
+			+ StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID;
+
+	private static final String BUS_STOP_ALL_JOIN = StmDbHelper.T_BUS_STOPS + " LEFT OUTER JOIN " + StmDbHelper.T_BUS_LINES + " ON " + StmDbHelper.T_BUS_STOPS
+			+ "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + "=" + StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER + " LEFT OUTER JOIN "
+			+ StmDbHelper.T_SUBWAY_STATIONS + " ON " + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + "="
+			+ StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID;
 
 	@Override
 	public boolean onCreate() {
@@ -417,15 +404,13 @@ public class StmProvider extends ContentProvider {
 	/**
 	 * Excluded bus lines.
 	 */
-	private static final String EXCLUDED_BUS_LINES = StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER
-	        + " NOT IN(767,769,777)";
+	private static final String EXCLUDED_BUS_LINES = StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER + " NOT IN(767,769,777)";
 
 	private static final String SEARCH_SPLIT_ON = "[\\s\\W]";
 
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-		MyLog.v(TAG, "query(%s, %s, %s, %s, %s)", uri.getPath(), Arrays.toString(projection), selection,
-		        Arrays.toString(selectionArgs), sortOrder);
+		MyLog.v(TAG, "query(%s, %s, %s, %s, %s)", uri.getPath(), Arrays.toString(projection), selection, Arrays.toString(selectionArgs), sortOrder);
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 		MyLog.i(TAG, "[%s]", uri);
 		String limit = null;
@@ -453,11 +438,9 @@ public class StmProvider extends ContentProvider {
 					if (inWhere.length() > 0) {
 						inWhere += " AND ";
 					}
-					inWhere += "(" + StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER + " LIKE '%"
-					        + keyword + "%'";
+					inWhere += "(" + StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER + " LIKE '%" + keyword + "%'";
 					inWhere += " OR ";
-					inWhere += StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NAME + " LIKE '%" + keyword
-					        + "%')";
+					inWhere += StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NAME + " LIKE '%" + keyword + "%')";
 				}
 				qb.appendWhere(inWhere);
 			}
@@ -490,22 +473,17 @@ public class StmProvider extends ContentProvider {
 			break;
 		case BUS_LINE_ID_STOP_ID:
 			MyLog.v(TAG, "query>BUS_LINE_ID_STOP_ID");
-			qb.setTables(StmDbHelper.T_BUS_STOPS);
-			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + "=");
-			String busLineNumber = uri.getPathSegments().get(1);
-			qb.appendWhere(busLineNumber);
-			qb.appendWhere(" AND ");
-			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "=");
-			String busStopCode = uri.getPathSegments().get(3);
-			qb.appendWhere(busStopCode);
+			qb.setTables(BUS_STOP_LOCATION_SUBWAY_STATION_JOIN);
+			qb.setProjectionMap(sBusStopsWithLocationAndWithSubwayStationProjectionMap);
+			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + "=" + uri.getPathSegments().get(1) + " AND "
+					+ StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "=" + uri.getPathSegments().get(3));
 			break;
 		case BUS_STOP_ID_BUS_LINES:
 			MyLog.v(TAG, "BUS_STOP_ID_BUS_LINES");
 			qb.setTables(BUS_STOP_LINES_JOIN);
 			qb.setProjectionMap(sBusLinesProjectionMap);
 			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "=");
-			busStopCode = uri.getPathSegments().get(1);
-			qb.appendWhere(busStopCode);
+			qb.appendWhere(uri.getPathSegments().get(1));
 			break;
 		case BUS_LINE_ID_DIRECTIONS:
 			MyLog.v(TAG, "query>BUS_LINE_ID_DIRECTIONS");
@@ -517,34 +495,28 @@ public class StmProvider extends ContentProvider {
 			break;
 		case BUS_LINE_ID_DIRECTION_ID_STOPS:
 			MyLog.v(TAG, "query>BUS_LINE_DIRECTION_STOPS");
-			qb.setTables(BUS_STOP_SUBWAY_STATION_JOIN);
-			qb.setProjectionMap(sBusStopsWithSubwayStationProjectionMap);
-			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + "="
-			        + uri.getPathSegments().get(1) + " AND " + StmDbHelper.T_BUS_STOPS + "."
-			        + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + "=\"" + uri.getPathSegments().get(3) + "\"");
+			qb.setTables(BUS_STOP_LOCATION_SUBWAY_STATION_JOIN);
+			qb.setProjectionMap(sBusStopsWithLocationAndWithSubwayStationProjectionMap);
+			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + "=" + uri.getPathSegments().get(1) + " AND "
+					+ StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + "=\"" + uri.getPathSegments().get(3) + "\"");
 			break;
 		case BUS_LINE_ID_DIRECTION_ID_STOPS_SEARCH:
 			MyLog.v(TAG, "query>BUS_LINE_ID_DIRECTION_ID_STOPS_SEARCH");
 			qb.setTables(BUS_STOP_SUBWAY_STATION_JOIN);
 			qb.setProjectionMap(sBusStopsWithSubwayStationProjectionMap);
-			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + "="
-			        + uri.getPathSegments().get(1));
+			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + "=" + uri.getPathSegments().get(1));
 			qb.appendWhere(" AND ");
-			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + "=\""
-			        + uri.getPathSegments().get(3) + "\"");
+			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_DIRECTION_ID + "=\"" + uri.getPathSegments().get(3) + "\"");
 			search = Uri.decode(uri.getPathSegments().get(6));
 			if (!TextUtils.isEmpty(search)) {
 				String[] keywords = search.split(SEARCH_SPLIT_ON);
 				for (String keyword : keywords) {
 					qb.appendWhere(" AND ");
-					qb.appendWhere("(" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " LIKE '%"
-					        + keyword + "%'");
+					qb.appendWhere("(" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " LIKE '%" + keyword + "%'");
 					qb.appendWhere(" OR ");
-					qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " LIKE '%"
-					        + keyword + "%'");
+					qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " LIKE '%" + keyword + "%'");
 					qb.appendWhere(" OR ");
-					qb.appendWhere(StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME
-					        + " LIKE '%" + keyword + "%')");
+					qb.appendWhere(StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME + " LIKE '%" + keyword + "%')");
 				}
 			}
 			break;
@@ -568,10 +540,8 @@ public class StmProvider extends ContentProvider {
 				if (i > 0) {
 					qb.appendWhere("OR ");
 				}
-				qb.appendWhere("(" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " = "
-				        + BusStop.getCodeFromUID(favIds[i]) + " AND " + StmDbHelper.T_BUS_STOPS + "."
-				        + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " = " + BusStop.getLineNumberFromUID(favIds[i])
-				        + ") ");
+				qb.appendWhere("(" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " = " + BusStop.getCodeFromUID(favIds[i]) + " AND "
+						+ StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " = " + BusStop.getLineNumberFromUID(favIds[i]) + ") ");
 			}
 			break;
 		case BUS_STOPS_SEARCH:
@@ -590,17 +560,14 @@ public class StmProvider extends ContentProvider {
 						inWhere += "(";
 						if (TextUtils.isDigitsOnly(keyword)) {
 							// BUS STOP CODE
-							inWhere += StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " LIKE '%"
-							        + keyword + "%'";
+							inWhere += StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " LIKE '%" + keyword + "%'";
 							inWhere += " OR ";
 							// BUS STOP LINE NUMBER
-							inWhere += StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER
-							        + " LIKE '%" + keyword + "%'";
+							inWhere += StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " LIKE '%" + keyword + "%'";
 							inWhere += " OR ";
 						}
 						// BUS STOP PLACE
-						inWhere += StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " LIKE '%"
-						        + keyword + "%'";
+						inWhere += StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " LIKE '%" + keyword + "%'";
 						if (!TextUtils.isDigitsOnly(keyword)) {
 							// inWhere += " OR ";
 							// TODO ? BUS STOP SUBWAY STATION NAME
@@ -608,8 +575,7 @@ public class StmProvider extends ContentProvider {
 							// + " LIKE '%" + keyword + "%'";
 							inWhere += " OR ";
 							// BUS STOP LINE NAME
-							inWhere += StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NAME + " LIKE '%"
-							        + keyword + "%'";
+							inWhere += StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NAME + " LIKE '%" + keyword + "%'";
 						}
 						inWhere += ")";
 					}
@@ -626,10 +592,8 @@ public class StmProvider extends ContentProvider {
 				if (i > 0) {
 					qb.appendWhere("OR ");
 				}
-				qb.appendWhere("(" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " = "
-				        + BusStop.getCodeFromUID(favIds[i]) + " AND " + StmDbHelper.T_BUS_STOPS + "."
-				        + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " = " + BusStop.getLineNumberFromUID(favIds[i])
-				        + ") ");
+				qb.appendWhere("(" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " = " + BusStop.getCodeFromUID(favIds[i]) + " AND "
+						+ StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " = " + BusStop.getLineNumberFromUID(favIds[i]) + ") ");
 			}
 			break;
 		case BUS_STOP_ID:
@@ -645,8 +609,7 @@ public class StmProvider extends ContentProvider {
 			MyLog.v(TAG, "query>BUS_LINE_DIRECTION_ID");
 			qb.setTables(StmDbHelper.T_BUS_LINE_DIRECTIONS);
 			qb.setProjectionMap(sBusLineDirectionsProjectionMap);
-			qb.appendWhere(StmDbHelper.T_BUS_LINE_DIRECTIONS + "." + StmDbHelper.T_BUS_LINE_DIRECTIONS_K_ID + "=\""
-			        + uri.getPathSegments().get(1) + "\"");
+			qb.appendWhere(StmDbHelper.T_BUS_LINE_DIRECTIONS + "." + StmDbHelper.T_BUS_LINE_DIRECTIONS_K_ID + "=\"" + uri.getPathSegments().get(1) + "\"");
 			break;
 		case SUBWAY_LINES:
 			MyLog.v(TAG, "query>SUBWAY_LINES");
@@ -664,11 +627,9 @@ public class StmProvider extends ContentProvider {
 					if (inWhere.length() > 0) {
 						inWhere += " AND ";
 					}
-					inWhere += "(" + StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER
-					        + " LIKE '%" + keyword + "%'";
+					inWhere += "(" + StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + " LIKE '%" + keyword + "%'";
 					inWhere += " OR ";
-					inWhere += StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NAME + " LIKE '%"
-					        + keyword + "%')";
+					inWhere += StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NAME + " LIKE '%" + keyword + "%')";
 				}
 				qb.appendWhere(inWhere);
 			}
@@ -677,8 +638,7 @@ public class StmProvider extends ContentProvider {
 			MyLog.v(TAG, "query>SUBWAY_STATION_ID_LINES");
 			qb.setTables(SUBWAY_STATIONS_LINE_JOIN);
 			qb.setProjectionMap(sSubwayLinesProjectionMap);
-			qb.appendWhere(StmDbHelper.T_SUBWAY_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ID
-			        + "=" + uri.getPathSegments().get(1));
+			qb.appendWhere(StmDbHelper.T_SUBWAY_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ID + "=" + uri.getPathSegments().get(1));
 			break;
 		case SUBWAY_STATIONS_AND_LINES:
 			MyLog.v(TAG, "query>SUBWAY_STATIONS_AND_LINES");
@@ -689,12 +649,11 @@ public class StmProvider extends ContentProvider {
 			MyLog.v(TAG, "query>SUBWAY_STATION_ID_LINES_OTHER");
 			qb.setTables(SUBWAY_STATIONS_LINE_DIRECTION_JOIN);
 			qb.setProjectionMap(sSubwayLinesStationsProjectionMap);
-			qb.appendWhere(StmDbHelper.T_SUBWAY_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_LINE_ID
-			        + "!=" + uri.getPathSegments().get(1) + " AND " + StmDbHelper.T_SUBWAY_DIRECTIONS + "."
-			        + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ID + " IN (" + "SELECT "
-			        + StmDbHelper.T_SUBWAY_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ID
-			        + " FROM " + StmDbHelper.T_SUBWAY_DIRECTIONS + " WHERE " + StmDbHelper.T_SUBWAY_DIRECTIONS + "."
-			        + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_LINE_ID + "=" + uri.getPathSegments().get(1) + ")");
+			qb.appendWhere(StmDbHelper.T_SUBWAY_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_LINE_ID + "!=" + uri.getPathSegments().get(1)
+					+ " AND " + StmDbHelper.T_SUBWAY_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ID + " IN (" + "SELECT "
+					+ StmDbHelper.T_SUBWAY_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ID + " FROM " + StmDbHelper.T_SUBWAY_DIRECTIONS
+					+ " WHERE " + StmDbHelper.T_SUBWAY_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_LINE_ID + "=" + uri.getPathSegments().get(1)
+					+ ")");
 			break;
 		case SUBWAY_LINE_ID:
 			MyLog.v(TAG, "query>SUBWAY_LINE_ID");
@@ -714,15 +673,13 @@ public class StmProvider extends ContentProvider {
 			MyLog.v(TAG, "query>SUBWAY_LINE_ID_STATIONS_SEARCH");
 			qb.setTables(SUBWAY_LINE_STATIONS_JOIN);
 			qb.setProjectionMap(sSubwayStationsProjectionMap);
-			qb.appendWhere(StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + "="
-			        + uri.getPathSegments().get(1));
+			qb.appendWhere(StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + "=" + uri.getPathSegments().get(1));
 			search = Uri.decode(uri.getPathSegments().get(4));
 			if (!TextUtils.isEmpty(search)) {
 				String[] keywords = search.split(SEARCH_SPLIT_ON);
 				for (String keyword : keywords) {
 					qb.appendWhere(" AND ");
-					qb.appendWhere(StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME
-					        + " LIKE '%" + keyword + "%'");
+					qb.appendWhere(StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME + " LIKE '%" + keyword + "%'");
 				}
 			}
 			break;
@@ -755,58 +712,50 @@ public class StmProvider extends ContentProvider {
 			qb.setDistinct(true);
 			qb.setProjectionMap(sBusLinesProjectionMap);
 			qb.setTables(BUS_STOP_LINES_JOIN);
-			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + "="
-			        + uri.getPathSegments().get(1));
+			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + "=" + uri.getPathSegments().get(1));
 			break;
 		case SUBWAY_STATION_ID_BUS_LINE_ID_BUS_STOPS:
 			MyLog.v(TAG, "query>SUBWAY_STATION_ID_BUS_LINE_ID_BUS_STOPS");
 			qb.setDistinct(true);
 			qb.setProjectionMap(sBusStopsProjectionMap);
 			qb.setTables(StmDbHelper.T_BUS_STOPS);
-			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + "="
-			        + uri.getPathSegments().get(1) + " AND " + StmDbHelper.T_BUS_STOPS + "."
-			        + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + "=" + uri.getPathSegments().get(3) + " AND "
-			        + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "!=''");
+			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + "=" + uri.getPathSegments().get(1) + " AND "
+					+ StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + "=" + uri.getPathSegments().get(3) + " AND "
+					+ StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "!=''");
 			break;
 		case SUBWAY_STATION_ID_BUS_STOPS:
 			MyLog.v(TAG, "query>SUBWAY_STATION_ID_BUS_STOPS");
 			qb.setDistinct(true);
 			qb.setProjectionMap(sBusStopsExtendedProjectionMap);
 			qb.setTables(BUS_STOP_LINES_JOIN);
-			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + "="
-			        + uri.getPathSegments().get(1));
+			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + "=" + uri.getPathSegments().get(1));
 			break;
 		case SUBWAY_STATION_ID_DIRECTION_ID_WEEK_DAY:
 			MyLog.v(TAG, "query>SUBWAY_STATION_ID_DIRECTION_ID_WEEK_DAY");
 			qb.setProjectionMap(sSubwayStationHourProjectionMap);
 			qb.setTables(StmDbHelper.T_SUBWAY_HOUR);
-			qb.appendWhere(StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_STATION_ID + "="
-			        + uri.getPathSegments().get(1) + " AND " + StmDbHelper.T_SUBWAY_HOUR + "."
-			        + StmDbHelper.T_SUBWAY_HOUR_K_DIRECTION_ID + "=" + uri.getPathSegments().get(3) + " AND "
-			        + StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_DAY + "=''");
+			qb.appendWhere(StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_STATION_ID + "=" + uri.getPathSegments().get(1) + " AND "
+					+ StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_DIRECTION_ID + "=" + uri.getPathSegments().get(3) + " AND "
+					+ StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_DAY + "=''");
 			break;
 		case SUBWAY_STATION_ID_DIRECTION_ID_DAY:
 			MyLog.v(TAG, "query>SUBWAY_STATION_ID_DIRECTION_ID_DAY");
 			qb.setTables(StmDbHelper.T_SUBWAY_HOUR);
 			qb.setProjectionMap(sSubwayStationHourProjectionMap);
-			qb.appendWhere(StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_STATION_ID + "="
-			        + uri.getPathSegments().get(1) + " AND " + StmDbHelper.T_SUBWAY_HOUR + "."
-			        + StmDbHelper.T_SUBWAY_HOUR_K_DIRECTION_ID + "=" + uri.getPathSegments().get(3) + " AND "
-			        + StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_DAY + "='"
-			        + uri.getPathSegments().get(4) + "'");
+			qb.appendWhere(StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_STATION_ID + "=" + uri.getPathSegments().get(1) + " AND "
+					+ StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_DIRECTION_ID + "=" + uri.getPathSegments().get(3) + " AND "
+					+ StmDbHelper.T_SUBWAY_HOUR + "." + StmDbHelper.T_SUBWAY_HOUR_K_DAY + "='" + uri.getPathSegments().get(4) + "'");
 			break;
 
 		case SUBWAY_DIRECTION_ID_WEEK_DAY_HOUR_ID:
 			MyLog.v(TAG, "query>SUBWAY_DIRECTION_ID_WEEK_DAY_HOUR_ID");
 			qb.setTables(StmDbHelper.T_SUBWAY_FREQUENCES);
 			HashMap<String, String> map = new HashMap<String, String>();
-			map.put(StmStore.FREQUENCY, StmDbHelper.T_SUBWAY_FREQUENCES + "."
-			        + StmDbHelper.T_SUBWAY_FREQUENCES_K_FREQUENCE + " AS " + StmStore.FREQUENCY);
+			map.put(StmStore.FREQUENCY, StmDbHelper.T_SUBWAY_FREQUENCES + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_FREQUENCE + " AS " + StmStore.FREQUENCY);
 			qb.setProjectionMap(map);
-			qb.appendWhere(StmDbHelper.T_SUBWAY_FREQUENCES + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_DIRECTION + "="
-			        + uri.getPathSegments().get(1) + " AND " + StmDbHelper.T_SUBWAY_FREQUENCES + "."
-			        + StmDbHelper.T_SUBWAY_FREQUENCES_K_DAY + "='' AND time(" + StmDbHelper.T_SUBWAY_FREQUENCES + "."
-			        + StmDbHelper.T_SUBWAY_FREQUENCES_K_HOUR + ", '-2 hour') <= '" + uri.getPathSegments().get(3) + "'");
+			qb.appendWhere(StmDbHelper.T_SUBWAY_FREQUENCES + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_DIRECTION + "=" + uri.getPathSegments().get(1) + " AND "
+					+ StmDbHelper.T_SUBWAY_FREQUENCES + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_DAY + "='' AND time(" + StmDbHelper.T_SUBWAY_FREQUENCES + "."
+					+ StmDbHelper.T_SUBWAY_FREQUENCES_K_HOUR + ", '-2 hour') <= '" + uri.getPathSegments().get(3) + "'");
 			limit = "1";
 			sortOrder = StmDbHelper.T_SUBWAY_FREQUENCES + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_HOUR + " DESC";
 
@@ -815,22 +764,19 @@ public class StmProvider extends ContentProvider {
 			MyLog.v(TAG, "query>SUBWAY_DIRECTION_ID_DAY_ID_HOUR_ID");
 			qb.setTables(StmDbHelper.T_SUBWAY_FREQUENCES);
 			HashMap<String, String> map2 = new HashMap<String, String>();
-			map2.put(StmStore.FREQUENCY, StmDbHelper.T_SUBWAY_FREQUENCES + "."
-			        + StmDbHelper.T_SUBWAY_FREQUENCES_K_FREQUENCE + " AS " + StmStore.FREQUENCY);
+			map2.put(StmStore.FREQUENCY, StmDbHelper.T_SUBWAY_FREQUENCES + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_FREQUENCE + " AS " + StmStore.FREQUENCY);
 			qb.setProjectionMap(map2);
-			qb.appendWhere(StmDbHelper.T_SUBWAY_FREQUENCES + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_DIRECTION + "="
-			        + uri.getPathSegments().get(1) + " AND " + StmDbHelper.T_SUBWAY_FREQUENCES + "."
-			        + StmDbHelper.T_SUBWAY_FREQUENCES_K_DAY + "='" + uri.getPathSegments().get(3) + "' AND time("
-			        + StmDbHelper.T_SUBWAY_FREQUENCES + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_HOUR
-			        + ", '-2 hour') <= '" + uri.getPathSegments().get(5) + "'");
+			qb.appendWhere(StmDbHelper.T_SUBWAY_FREQUENCES + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_DIRECTION + "=" + uri.getPathSegments().get(1) + " AND "
+					+ StmDbHelper.T_SUBWAY_FREQUENCES + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_DAY + "='" + uri.getPathSegments().get(3) + "' AND time("
+					+ StmDbHelper.T_SUBWAY_FREQUENCES + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_HOUR + ", '-2 hour') <= '" + uri.getPathSegments().get(5) + "'");
 			limit = "1";
 			sortOrder = StmDbHelper.T_SUBWAY_FREQUENCES + "." + StmDbHelper.T_SUBWAY_FREQUENCES_K_HOUR + " DESC";
 			break;
 		case SEARCH:
 			MyLog.v(TAG, "query>SEARCH");
 			// IF simple search DO
-			if (UserPreferences.getPrefDefault(getContext(), UserPreferences.PREFS_SEARCH,
-			        UserPreferences.PREFS_SEARCH_DEFAULT).equals(UserPreferences.PREFS_SEARCH_SIMPLE)) {
+			if (UserPreferences.getPrefDefault(getContext(), UserPreferences.PREFS_SEARCH, UserPreferences.PREFS_SEARCH_DEFAULT).equals(
+					UserPreferences.PREFS_SEARCH_SIMPLE)) {
 				qb.setTables(StmDbHelper.T_BUS_STOPS);
 				qb.setProjectionMap(sSearchSimpleProjectionMap);
 				qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "!=''");
@@ -847,18 +793,15 @@ public class StmProvider extends ContentProvider {
 								// IF the keyword start with 5 or 6 OR the keyword length is more than 3 DO
 								if (keyword.startsWith("5") || keyword.startsWith("6") || keyword.length() > 3) {
 									// BUS STOP CODE
-									inWhere += StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE
-									        + " LIKE '%" + keyword + "%'";
+									inWhere += StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " LIKE '%" + keyword + "%'";
 									inWhere += " OR ";
 								}
 								// BUS STOP LINE NUMBER
-								inWhere += StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER
-								        + " LIKE '%" + keyword + "%'";
+								inWhere += StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " LIKE '%" + keyword + "%'";
 								inWhere += " OR ";
 							}
 							// BUS STOP PLACE
-							inWhere += StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " LIKE '%"
-							        + keyword + "%'";
+							inWhere += StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " LIKE '%" + keyword + "%'";
 
 							inWhere += ")";
 						}
@@ -881,26 +824,21 @@ public class StmProvider extends ContentProvider {
 							inWhere += "(";
 							if (TextUtils.isDigitsOnly(keyword)) {
 								// BUS STOP CODE
-								inWhere += StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " LIKE '%"
-								        + keyword + "%'";
+								inWhere += StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " LIKE '%" + keyword + "%'";
 								inWhere += " OR ";
 								// BUS STOP LINE NUMBER
-								inWhere += StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER
-								        + " LIKE '%" + keyword + "%'";
+								inWhere += StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " LIKE '%" + keyword + "%'";
 								inWhere += " OR ";
 							}
 							// BUS STOP PLACE
-							inWhere += StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " LIKE '%"
-							        + keyword + "%'";
+							inWhere += StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " LIKE '%" + keyword + "%'";
 							if (!TextUtils.isDigitsOnly(keyword)) {
 								inWhere += " OR ";
 								// BUS STOP LINE NAME
-								inWhere += StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NAME + " LIKE '%"
-								        + keyword + "%'";
+								inWhere += StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NAME + " LIKE '%" + keyword + "%'";
 								inWhere += " OR ";
 								// BUS STOP SUBWAY STATION NAME
-								inWhere += StmDbHelper.T_SUBWAY_STATIONS + "."
-								        + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME + " LIKE '%" + keyword + "%'";
+								inWhere += StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_NAME + " LIKE '%" + keyword + "%'";
 							}
 							inWhere += ")";
 						}
