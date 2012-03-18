@@ -28,12 +28,29 @@
 			</LinearLayout>
 			<!-- SUBWAY STATUS -->
 			<include layout="@layout/subway_tab_subway_status_title" />
-			<include layout="@layout/loading_layout" android:id="@+id/subway_status_loading" />
-			<include layout="@layout/subway_tab_subway_status" />
+			<ViewStub
+			    android:id="@+id/subway_status_loading"
+			    android:layout="@layout/loading_layout"
+			    android:layout_width="fill_parent"
+			    android:layout_height="?android:attr/listPreferredItemHeight" />
+			<ViewStub
+			    android:id="@+id/subway_status_stub"
+			    android:layout="@layout/subway_tab_subway_status"
+			    android:layout_width="fill_parent"
+    			android:layout_height="?android:attr/listPreferredItemHeight" />
 			<!-- CLOSEST SUBWAY STATIONs -->
 			<include layout="@layout/subway_tab_closest_stations_title" />
-			<include layout="@layout/loading_layout" android:id="@+id/closest_stations_loading" />
-			<include layout="@layout/subway_tab_closest_stations" />
+			<ViewStub
+			    android:id="@+id/closest_stations_loading_stub"
+			    android:inflatedId="@+id/closest_stations_loading"
+			    android:layout="@layout/loading_layout"
+			    android:layout_width="fill_parent"
+			    android:layout_height="?android:attr/listPreferredItemHeight" />
+			<ViewStub
+			    android:id="@+id/closest_stations_stub"
+			    android:layout="@layout/subway_tab_closest_stations"
+				android:layout_width="fill_parent"
+    			android:layout_height="wrap_content" />
 		</LinearLayout>
 	</ScrollView>
 </RelativeLayout>
