@@ -791,7 +791,7 @@ INSERT INTO "arrets_autobus" VALUES(52368,24,'2401O','Sherbrooke / University','
 INSERT INTO "arrets_autobus" VALUES(52314,24,'2401O','Sherbrooke / Mansfield','','',22);
 INSERT INTO "arrets_autobus" VALUES(52278,24,'2401O','Sherbrooke / Peel','','',23);
 INSERT INTO "arrets_autobus" VALUES(52203,24,'2401O','Sherbrooke / de la Montagne','','',24);
-INSERT INTO "arrets_autobus" VALUES(52166,24,'2401O','Sherbrooke / Bishop','','',25);
+INSERT INTO "arrets_autobus" VALUES(61239,24,'2401O','Sherbrooke / Bishop','','',25);
 INSERT INTO "arrets_autobus" VALUES(52114,24,'2401O','Sherbrooke / Côte-des-Neiges','','',26);
 INSERT INTO "arrets_autobus" VALUES(52095,24,'2401O','Sherbrooke / Saint-Mathieu','','',27);
 INSERT INTO "arrets_autobus" VALUES(52065,24,'2401O','Sherbrooke / Saint-Marc','','',28);
