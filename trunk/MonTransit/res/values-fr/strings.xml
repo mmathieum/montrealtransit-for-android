@@ -325,11 +325,11 @@
     <string name="back">Retour</string>
 
     <string name="init_dialog_title">Initialisation</string>
-    <string name="init_dialog_message">Veuillez patienter quelques minutes pendant l\'initialisation de MonTransit &#8230;</string>
+    <string name="init_dialog_message">Veuillez patienter pendant l\'initialisation de MonTransit &#8230;</string>
     <string name="update_dialog_title">Mise à jour</string>
-    <string name="update_dialog_message">Veuillez patienter quelques minutes pendant la mise à jour de MonTransit &#8230;</string>
+    <string name="update_dialog_message">Veuillez patienter pendant la mise à jour de MonTransit &#8230;</string>
     <string name="reset_dialog_title">Re-Initialisation</string>
-    <string name="reset_dialog_message">Veuillez patienter quelques minutes pendant la re-initialisation de MonTransit &#8230;</string>
+    <string name="reset_dialog_message">Veuillez patienter pendant la re-initialisation de MonTransit &#8230;</string>
     
     <string name="confirm_exit">Etes-vous sûr de vouloir quitter?</string>
 

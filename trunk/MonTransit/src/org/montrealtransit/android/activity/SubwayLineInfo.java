@@ -162,8 +162,6 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	@Override
 	public void showNewSubway(int newLineNumber, final String newOrderPref) {
 		MyLog.v(TAG, "showNewSubway(%s, %s)", newLineNumber, newOrderPref);
-		MyLog.d(TAG, "this.orderPref: " + this.orderPref);
-		MyLog.d(TAG, "this.orderPref diff? " + (this.orderPref != null && !this.orderPref.equals(newOrderPref)));
 		if ((this.subwayLine == null || this.subwayLine.getNumber() != newLineNumber) || (this.orderPref != null && !this.orderPref.equals(newOrderPref))) {
 			// temporary show the subway line name
 			((TextView) findViewById(R.id.line_name)).setText(SubwayUtils.getSubwayLineName(newLineNumber));
@@ -189,7 +187,6 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 						UserPreferences.savePrefDefault(SubwayLineInfo.this, UserPreferences.getPrefsSubwayStationsOrder(result.getNumber()), newOrderPref);
 						SubwayLineInfo.this.orderPref = newOrderPref;
 					}
-					MyLog.d(TAG, "SubwayLineInfo.this.orderPref: " + SubwayLineInfo.this.orderPref);
 					refreshAll();
 				};
 			}.execute(newLineNumber);
@@ -407,7 +404,6 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 * @return the sort order from the order preference
 	 */
 	private String getSortOrderFromOrderPref(int subwayLineNumber) {
-		MyLog.v(TAG, "getSortOrderFromOrderPref(%s)", subwayLineNumber);
 		String prefsSubwayStationsOrder = UserPreferences.getPrefsSubwayStationsOrder(subwayLineNumber);
 		String sharedPreferences = UserPreferences.getPrefDefault(this, prefsSubwayStationsOrder, UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_DEFAULT);
 		if (sharedPreferences.equals(UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL)) {

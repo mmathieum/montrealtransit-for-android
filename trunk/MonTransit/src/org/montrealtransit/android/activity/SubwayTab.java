@@ -8,6 +8,8 @@ import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
+import org.montrealtransit.android.SensorUtils;
+import org.montrealtransit.android.SensorUtils.ShakeListener;
 import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.TwitterUtils;
 import org.montrealtransit.android.Utils;
@@ -27,6 +29,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.Cursor;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.AsyncTask;
@@ -37,16 +43,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewStub;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Display a list of subway lines.
  * @author Mathieu Méa
  */
-public class SubwayTab extends Activity implements LocationListener, StmInfoStatusReaderListener, ClosestSubwayStationsFinderListener {
+public class SubwayTab extends Activity implements LocationListener, StmInfoStatusReaderListener, ClosestSubwayStationsFinderListener, SensorEventListener, ShakeListener {
 
 	/**
 	 * The log tag.
@@ -97,6 +105,23 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 */
 	private static final int STATUS_TOO_OLD_IN_SEC = 20 * 60; // 20 minutes
 
+	/**
+	 * The acceleration apart from gravity.
+	 */
+	private float lastSensorAcceleration = 0.00f;
+	/**
+	 * The last acceleration including gravity.
+	 */
+	private float lastSensorAccelerationIncGravity = SensorManager.GRAVITY_EARTH;
+	/**
+	 * The last sensor update time-stamp.
+	 */
+	private long lastSensorUpdate = -1;
+	/**
+	 * True if the share was already handled (should be reset in {@link #onResume()}).
+	 */
+	private boolean shakeHandled;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
@@ -133,13 +158,48 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		}
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		AdsUtils.setupAd(this);
+		SensorUtils.registerShakeListener(this, this);
+		this.shakeHandled = false;
 		super.onResume();
+	}
+	
+	@Override
+	public void onSensorChanged(SensorEvent se) {
+		// MyLog.v(TAG, "onSensorChanged()");
+		SensorUtils.checkForShake(se.values, this.lastSensorUpdate, this.lastSensorAccelerationIncGravity, this.lastSensorAcceleration, this);
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		// MyLog.v(TAG, "onAccuracyChanged()");
+	}
+
+	@Override
+	public void onShake() {
+		MyLog.v(TAG, "onShake()");
+		showClosestStation();
+	}
+
+	/**
+	 * Show the closest subway line station (if possible).
+	 */
+	private void showClosestStation() {
+		MyLog.v(TAG, "showClosestStation()");
+		if (!this.shakeHandled && this.closestStations != null && this.closestStations.getStations().size() > 0) {
+			Toast.makeText(this, R.string.shake_closest_subway_line_station_selected, Toast.LENGTH_SHORT).show();
+			Intent intent = new Intent(this, SubwayStationInfo.class);
+			intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, this.closestStations.getStations().get(0).getId());
+			intent.putExtra(SubwayStationInfo.EXTRA_STATION_NAME, this.closestStations.getStations().get(0).getName());
+			startActivity(intent);
+			this.shakeHandled = true;
+		}
 	}
 
 	@Override
 	protected void onPause() {
 		MyLog.v(TAG, "onPause()");
 		LocationUtils.disableLocationUpdates(this, this);
+		SensorUtils.unregisterShakeListener(this, this);
 		super.onPause();
 	}
 
@@ -235,6 +295,9 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		// hide loading (progress bar)
 		findViewById(R.id.subway_status_loading).setVisibility(View.GONE);
 		if (this.serviceStatus != null) {
+			if (findViewById(R.id.subway_status) == null) { // IF NOT present/inflated DO
+				((ViewStub) findViewById(R.id.subway_status_stub)).inflate(); // inflate
+			}
 			View statusLayout = findViewById(R.id.subway_status);
 			ImageView statusImg = (ImageView) statusLayout.findViewById(R.id.subway_status_img);
 			// set the status title with the date
@@ -469,9 +532,14 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			String text = LocationUtils.getLocationString(this, this.closestStations.getLocationAddress(), this.closestStations.getLocation().getAccuracy());
 			((TextView) findViewById(R.id.closest_stations_title).findViewById(R.id.closest_subway_stations)).setText(text);
 			// hide loading
-			findViewById(R.id.closest_stations_loading).setVisibility(View.GONE);
-			// clear the previous list
+			if (findViewById(R.id.closest_stations_loading) != null) { // IF inflated/present DO
+				findViewById(R.id.closest_stations_loading).setVisibility(View.GONE); // hide
+			}
+			if (findViewById(R.id.closest_stations) == null) { // IF NOT present/inflated DO
+				((ViewStub) findViewById(R.id.closest_stations_stub)).inflate(); // inflate
+			}
 			LinearLayout closestStationsLayout = (LinearLayout) findViewById(R.id.closest_stations);
+			// clear the previous list
 			closestStationsLayout.removeAllViews();
 			// show stations list
 			closestStationsLayout.setVisibility(View.VISIBLE);
@@ -579,11 +647,16 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			// set the BIG loading message
 			// remove last location from the list divider
 			((TextView) closestStationsTitle.findViewById(R.id.closest_subway_stations)).setText(R.string.closest_subway_stations);
-			// hide the list
-			findViewById(R.id.closest_stations).setVisibility(View.GONE);
-			// clean the list
-			((LinearLayout) findViewById(R.id.closest_stations)).removeAllViews(); // useful ?
+			if (findViewById(R.id.closest_stations) != null) { // IF inflated/present DO
+				// hide the list
+				findViewById(R.id.closest_stations).setVisibility(View.GONE);
+				// clean the list (useful ?)
+				((LinearLayout) findViewById(R.id.closest_stations)).removeAllViews();
+			}
 			// show loading
+			if (findViewById(R.id.closest_stations_loading) == null) { // IF NOT inflated/present DO
+				((ViewStub) findViewById(R.id.closest_stations_loading_stub)).inflate(); // inflate
+			}
 			findViewById(R.id.closest_stations_loading).setVisibility(View.VISIBLE);
 			// show waiting for location
 			TextView detailMsgTv = (TextView) findViewById(R.id.closest_stations_loading).findViewById(R.id.detail_msg);

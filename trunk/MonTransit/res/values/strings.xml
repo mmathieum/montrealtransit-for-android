@@ -325,11 +325,11 @@
     <string name="back">Back</string>
 
     <string name="init_dialog_title">Initialization</string>
-    <string name="init_dialog_message">Please wait a couple of minutes while initializing MonTransit&#8230;</string>
+    <string name="init_dialog_message">Please wait while initializing MonTransit&#8230;</string>
     <string name="update_dialog_title">Update</string>
-    <string name="update_dialog_message">Please wait a couple of minutes while updating MonTransit&#8230;</string>
+    <string name="update_dialog_message">Please wait while updating MonTransit&#8230;</string>
     <string name="reset_dialog_title">Re-Initialization</string>
-    <string name="reset_dialog_message">Please wait a couple of minutes while re-initializing MonTransit&#8230;</string>
+    <string name="reset_dialog_message">Please wait while re-initializing MonTransit&#8230;</string>
     
     <string name="confirm_exit">Are you sure you want to exit?</string>
 
