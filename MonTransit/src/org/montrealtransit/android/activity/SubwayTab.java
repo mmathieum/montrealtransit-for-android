@@ -36,6 +36,7 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.util.Linkify;
@@ -54,7 +55,8 @@ import android.widget.Toast;
  * Display a list of subway lines.
  * @author Mathieu Méa
  */
-public class SubwayTab extends Activity implements LocationListener, StmInfoStatusReaderListener, ClosestSubwayStationsFinderListener, SensorEventListener, ShakeListener {
+public class SubwayTab extends Activity implements LocationListener, StmInfoStatusReaderListener, ClosestSubwayStationsFinderListener, SensorEventListener,
+		ShakeListener {
 
 	/**
 	 * The log tag.
@@ -128,7 +130,36 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		super.onCreate(savedInstanceState);
 		// set the UI
 		setContentView(R.layout.subway_tab);
+
+		if (Utils.isVersionOlderThan(Build.VERSION_CODES.DONUT)) {
+			onCreatePreDonut();
+		}
 		showAll();
+	}
+
+	/**
+	 * onCreate() method only for Android version older than Android 1.6.
+	 */
+	private void onCreatePreDonut() {
+		// since 'android:onClick' requires API Level 4
+		findViewById(R.id.subway_status_section_refresh_or_stop_refresh).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				refreshOrStopRefreshStatus(v);
+			}
+		});
+		findViewById(R.id.subway_status_section_info).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				showSubwayStatusInfoDialog(v);
+			}
+		});
+		findViewById(R.id.closest_subway_stations_refresh).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				refreshOrStopRefreshClosestStations(v);
+			}
+		});
 	}
 
 	@Override
@@ -162,7 +193,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		this.shakeHandled = false;
 		super.onResume();
 	}
-	
+
 	@Override
 	public void onSensorChanged(SensorEvent se) {
 		// MyLog.v(TAG, "onSensorChanged()");
