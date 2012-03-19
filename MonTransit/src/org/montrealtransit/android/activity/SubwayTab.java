@@ -324,7 +324,9 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	private void showNewStatus() {
 		MyLog.v(TAG, "showNewStatus()");
 		// hide loading (progress bar)
-		findViewById(R.id.subway_status_loading).setVisibility(View.GONE);
+		if (findViewById(R.id.subway_status_loading) != null) { // IF present/inflated DO
+			findViewById(R.id.subway_status_loading).setVisibility(View.GONE);
+		}
 		if (this.serviceStatus != null) {
 			if (findViewById(R.id.subway_status) == null) { // IF NOT present/inflated DO
 				((ViewStub) findViewById(R.id.subway_status_stub)).inflate(); // inflate
@@ -412,11 +414,16 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		MyLog.v(TAG, "setStatusLoading()");
 		if (this.serviceStatus == null) {
 			// set the BIG loading message
-			// hide the status layout
-			findViewById(R.id.subway_status).setVisibility(View.GONE);
+			if (findViewById(R.id.subway_status) != null) { // IF present/inflated DO
+				// hide the status layout
+				findViewById(R.id.subway_status).setVisibility(View.GONE);
+			}
 			// clean the status
 			((TextView) findViewById(R.id.subway_status_title).findViewById(R.id.subway_status_section)).setText(R.string.subway_status);
 			// show the loading layout
+			if (findViewById(R.id.subway_status_loading) == null) { // IF NOT present/inflated DO
+				((ViewStub) findViewById(R.id.subway_status_loading_stub)).inflate(); // inflate
+			}
 			findViewById(R.id.subway_status_loading).setVisibility(View.VISIBLE);
 			// set the progress bar
 			TextView progressBarLoading = (TextView) findViewById(R.id.subway_status_loading).findViewById(R.id.detail_msg);
@@ -452,11 +459,16 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			// notify the user but keep showing the old status ?
 			Utils.notifyTheUser(this, getString(R.string.subway_status_loading_cancelled));
 		} else {
+			if (findViewById(R.id.subway_status) == null) { // IF NOT present/inflated DO
+				((ViewStub) findViewById(R.id.subway_status_stub)).inflate(); // inflate
+			}
 			// show the BIG cancel message
 			findViewById(R.id.subway_status).setVisibility(View.VISIBLE);
 			((TextView) findViewById(R.id.subway_status).findViewById(R.id.subway_status_message)).setText(getString(R.string.subway_status_loading_cancelled));
 			// hide loading (progress bar)
-			findViewById(R.id.subway_status_loading).setVisibility(View.GONE);
+			if (findViewById(R.id.subway_status_loading) != null) { // IF present/inflated DO
+				findViewById(R.id.subway_status_loading).setVisibility(View.GONE);
+			}
 		}
 		setStatusNotLoading();
 	}
@@ -474,8 +486,13 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		} else {
 			// show the BIG error message
 			// hide loading (progress bar)
-			findViewById(R.id.subway_status_loading).setVisibility(View.GONE);
+			if (findViewById(R.id.subway_status_loading) != null) { // IF present/inflated DO
+				findViewById(R.id.subway_status_loading).setVisibility(View.GONE);
+			}
 			// show message
+			if (findViewById(R.id.subway_status) == null) { // IF NOT present/inflated DO
+				((ViewStub) findViewById(R.id.subway_status_stub)).inflate(); // inflate
+			}
 			findViewById(R.id.subway_status).setVisibility(View.VISIBLE); // inflate ViewStub
 			((TextView) findViewById(R.id.subway_status).findViewById(R.id.subway_status_message)).setText(errorMessage);
 		}
