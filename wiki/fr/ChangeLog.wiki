@@ -3,6 +3,17 @@
 
 = !ChangeLog =
 
+ * 1.6 (r567)
+  * ajout de la nouvelle ligne de bus 71
+  * mise à jour du code de l'arrêt "Sherbrooke / Bishop" 52166 => 61239
+  * emplacement précis des arrêts de bus (désormais toujours activé)
+  * nouvelle API pour l'état de service du métro (plus besoin de Twitter)
+  * nouvelle source "Auto" de prochains passages d'arrêts de bus
+  * secouer l'appareil pour sélectionner l'arrêt de bus ou la station de métro la plus proche dans l'onglet "Métro" ou dans les écrans "Ligne de Bus" ou "Ligne de Métro"
+  * Android Beam© entre 2 appareils Android équipés de la technologie NFC et d'Android 4+
+  * service de sauvegarde des favoris et des paramètres de l'application de [http://code.google.com/android/backup/index.html Google]
+  * autres améliorations et corrections de bugs
+
  * 1.5.9.9.2 (r524)
   * ajout de la nouvelle ligne de bus 26.
 

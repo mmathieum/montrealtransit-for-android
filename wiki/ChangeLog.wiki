@@ -3,6 +3,17 @@
 
 = !ChangeLog =
 
+ * 1.6 (r567)
+  * add new 71 bus line
+  * updated "Sherbrooke / Bishop" stop code (52166 => 61239)
+  * accurate bus stops location (now always enabled)
+  * new Subway Status API (no need for Twitter anymore)
+  * new source 'Auto' for next bus stop passages
+  * shake to select the closest bus stops or subway station in subway tab, subway line screen and bus line screen
+  * android Beam between 2 NFC-capable devices running Android 4+
+  * [http://code.google.com/android/backup/index.html Google Android Backup Service] for favorites and app settings
+  * other improvements and bug fixes
+
  * 1.5.9.9.2 (r524)
   * add the new bus line 26
 
