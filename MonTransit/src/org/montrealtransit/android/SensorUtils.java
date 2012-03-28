@@ -5,6 +5,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.util.FloatMath;
 
 /**
  * This class provide some tools to handle {@link SensorEvent}.
@@ -77,7 +78,7 @@ public final class SensorUtils {
 		float x = values[0];
 		float y = values[1];
 		float z = values[2];
-		return (float) Math.sqrt((double) (x * x + y * y + z * z));
+		return FloatMath.sqrt((x * x + y * y + z * z));
 	}
 
 	/**

@@ -13,7 +13,7 @@
 		android:layout_width="fill_parent" android:layout_height="wrap_content"
 		android:layout_alignParentTop="true" android:layout_alignParentLeft="true"
 		android:layout_toLeftOf="@id/ok" android:inputType="number"
-		android:numeric="integer" android:hint="@string/stop_code_hint"
+		android:numeric="integer" android:digits="0123456789" android:hint="@string/stop_code_hint"
 		android:textStyle="bold" android:lines="1" android:ellipsize="end"
 		android:marqueeRepeatLimit="1" android:singleLine="true"
 		android:maxLines="1" android:maxLength="5" android:imeOptions="actionSearch"

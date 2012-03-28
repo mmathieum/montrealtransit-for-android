@@ -236,6 +236,7 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 					return StmManager.findAllBusLines(BusLineListTab.this.getContentResolver());
 				}
 
+				@SuppressWarnings("deprecation") //TODO use {@link android.app.LoaderManager} with a {@link android.content.CursorLoader}
 				protected void onPostExecute(Cursor result) {
 					BusLineListTab.this.cursor = result;
 					String[] from = new String[] { StmStore.BusLine.LINE_NUMBER, StmStore.BusLine.LINE_NAME, StmStore.BusLine.LINE_TYPE };

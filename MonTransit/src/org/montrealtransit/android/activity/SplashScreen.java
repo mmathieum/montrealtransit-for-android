@@ -13,6 +13,7 @@ import org.montrealtransit.android.provider.StmDbHelper;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -27,6 +28,7 @@ import android.text.style.StyleSpan;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * This class is the first screen displayed by the application.
@@ -101,6 +103,14 @@ public class SplashScreen extends Activity {
 		}
 	}
 
+	/**
+	 * @param context the context
+	 * @return true if an update is required
+	 */
+	public static boolean isUpdateRequired(Context context) {
+		return UserPreferences.getPrefLcl(context, UserPreferences.PREFS_LCL_STM_DB_VERSION, 0) != StmDbHelper.DB_VERSION;
+	}
+
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
@@ -128,6 +138,13 @@ public class SplashScreen extends Activity {
 	private void deploy() {
 		MyLog.v(TAG, "deploy()");
 		showSplashScreen();
+
+		// 1 - check for free space in user space /data/data/org.montrealtransit.android/...
+		if (Utils.getAvailableSize() < StmDbHelper.getRequiredSize(this)) {
+			// show dialog => exit
+			Toast.makeText(this, R.string.update_not_enough_free_space, Toast.LENGTH_LONG).show();
+			finish();
+		}
 		if (!DB_RESET && !StmDbHelper.isDbExist(this)) { // initialize
 			addProgressBar();
 			// show a progress dialog

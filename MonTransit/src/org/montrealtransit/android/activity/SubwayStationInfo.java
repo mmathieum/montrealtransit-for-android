@@ -1,9 +1,7 @@
 package org.montrealtransit.android.activity;
 
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
@@ -35,6 +33,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -238,14 +237,14 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 		findViewById(R.id.hours_list).setVisibility(View.GONE);
 		new AsyncTask<String, Void, Void>() {
 			private List<StmStore.SubwayLine> subwayLines;
-			private Map<Integer, SubwayStation> firstSubwayStationDirections;
-			private Map<Integer, SubwayStation> lastSubwayStationDirections;
+			private SparseArray<SubwayStation> firstSubwayStationDirections;
+			private SparseArray<SubwayStation> lastSubwayStationDirections;
 
 			@Override
 			protected Void doInBackground(String... params) {
 				subwayLines = StmManager.findSubwayStationLinesList(SubwayStationInfo.this.getContentResolver(), params[0]);
-				firstSubwayStationDirections = new HashMap<Integer, SubwayStation>();
-				lastSubwayStationDirections = new HashMap<Integer, SubwayStation>();
+				firstSubwayStationDirections = new SparseArray<SubwayStation>();
+				lastSubwayStationDirections = new SparseArray<SubwayStation>();
 				// FOR EACH subway line DO
 				for (StmStore.SubwayLine subwayLine : subwayLines) {
 					// FIRST direction

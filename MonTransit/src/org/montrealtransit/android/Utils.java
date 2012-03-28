@@ -36,6 +36,8 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.StatFs;
 import android.text.format.DateUtils;
 import android.util.TypedValue;
 import android.view.View;
@@ -610,6 +612,8 @@ public class Utils {
 	 * @param version {@link Build#VERSION_CODES} value
 	 * @return true if the version is older than the current version
 	 */
+	@SuppressWarnings("deprecation")
+	// TODO use Build.VERSION.SDK_INT
 	public static boolean isVersionOlderThan(int version) {
 		return Integer.parseInt(Build.VERSION.SDK) < version;
 	}
@@ -800,6 +804,15 @@ public class Utils {
 		TypedValue tv = new TypedValue();
 		context.getTheme().resolveAttribute(resId, tv, true);
 		return context.getResources().getColor(tv.resourceId);
+	}
+
+	/**
+	 * @return the available space for the application (/data/data/...)
+	 */
+	public static int getAvailableSize() {
+		MyLog.v(TAG, "getAvailableSize()");
+		StatFs stat = new StatFs(Environment.getDataDirectory().getPath());
+		return stat.getAvailableBlocks() * stat.getBlockSize();
 	}
 
 }

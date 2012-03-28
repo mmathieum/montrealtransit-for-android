@@ -209,6 +209,7 @@ public class UserPreferences extends PreferenceActivity {
 	 */
 	private int versionCount;
 
+	@SuppressWarnings("deprecation") //TODO use PreferenceActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
@@ -326,6 +327,7 @@ public class UserPreferences extends PreferenceActivity {
 	 * Setup the clear cache preference.
 	 */
 	private void setClearCachePref() {
+		@SuppressWarnings("deprecation") //TODO use PreferenceActivity
 		PreferenceScreen clearCachePref = (PreferenceScreen) findPreference(PREFS_CLEAR_CACHE);
 		clearCachePref.setEnabled(DataManager.findAllCacheList(getContentResolver()) != null);
 		clearCachePref.setSummary(clearCachePref.isEnabled() ? R.string.clear_cache_pref_summary : R.string.clear_cache_pref_summary_disabled);
