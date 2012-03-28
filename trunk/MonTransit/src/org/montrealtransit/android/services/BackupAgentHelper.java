@@ -3,6 +3,7 @@ package org.montrealtransit.android.services;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.activity.UserPreferences;
 
+import android.annotation.TargetApi;
 import android.app.backup.SharedPreferencesBackupHelper;
 import android.preference.PreferenceManager;
 
@@ -14,6 +15,7 @@ import android.preference.PreferenceManager;
  * </ul>
  * @author Mathieu Méa
  */
+@TargetApi(8)
 public class BackupAgentHelper extends android.app.backup.BackupAgentHelper {
 
 	/**

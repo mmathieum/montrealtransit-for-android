@@ -2,6 +2,7 @@ package org.montrealtransit.android.api;
 
 import org.montrealtransit.android.services.NfcListener;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.content.SharedPreferences.Editor;
  * Features available for Android 1.5 Cupcake (API Level 3) and higher.
  * @author Mathieu Méa
  */
+@TargetApi(3)
 public class CupcakeSupport implements SupportUtil {
 
 	/**

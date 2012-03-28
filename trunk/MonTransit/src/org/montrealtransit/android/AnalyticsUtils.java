@@ -140,13 +140,14 @@ public class AnalyticsUtils {
 		tracker.setCustomVar(CUSTOM_VAR_INDEX_ANDROID_VERSION, "android", androidVersion, SCOPE_VISITOR_LEVEL);
 
 		// 3 - Android SDK
+		@SuppressWarnings("deprecation") //TODO use Build.VERSION.SDK_INT
 		String sdk = Build.VERSION.SDK;
 		// MyLog.d(TAG, "sdk_version: '%s'.", sdk);
 		tracker.setCustomVar(CUSTOM_VAR_INDEX_SDK_VERSION, "sdk", sdk, SCOPE_VISITOR_LEVEL);
 
 		// 4 - Device
 		String device = "";
-		if (Integer.parseInt(Build.VERSION.SDK) >= Build.VERSION_CODES.DONUT) {
+		if (Integer.parseInt(sdk) >= Build.VERSION_CODES.DONUT) {
 			device += SupportFactory.getInstance(context).getBuildManufacturer() + " ";
 		}
 		device += Build.MODEL;

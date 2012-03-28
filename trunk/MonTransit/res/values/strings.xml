@@ -324,6 +324,8 @@
     <string name="next">Next</string>
     <string name="back">Back</string>
 
+    <string name="update_required">Update required!</string>
+    <string name="update_not_enough_free_space">Not enough free space!</string>
     <string name="init_dialog_title">Initialization</string>
     <string name="init_dialog_message">Please wait while initializing MonTransit&#8230;</string>
     <string name="update_dialog_title">Update</string>

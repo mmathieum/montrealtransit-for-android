@@ -130,6 +130,7 @@ public class SearchResult extends ListActivity {
 		String[] from = new String[] { StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE,
 		        StmStore.BusStop.STOP_LINE_NUMBER, StmStore.BusStop.LINE_NAME, StmStore.BusStop.STOP_DIRECTION_ID };
 		int[] to = new int[] { R.id.stop_code, R.id.label, R.id.line_number, R.id.line_name, R.id.line_direction };
+		@SuppressWarnings("deprecation") //TODO use {@link android.app.LoaderManager} with a {@link android.content.CursorLoader}
 		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.search_result_bus_stop_item, cursor, from,
 		        to);
 		adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {

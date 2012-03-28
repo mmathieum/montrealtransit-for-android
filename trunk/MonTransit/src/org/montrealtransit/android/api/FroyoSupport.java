@@ -2,6 +2,7 @@ package org.montrealtransit.android.api;
 
 import org.montrealtransit.android.MyLog;
 
+import android.annotation.TargetApi;
 import android.app.backup.BackupManager;
 import android.content.Context;
 import android.content.SharedPreferences.Editor;
@@ -10,6 +11,7 @@ import android.content.SharedPreferences.Editor;
  * Features available for Android 2.2 Froyo (API Level 8) and higher.
  * @author Mathieu Méa
  */
+@TargetApi(8)
 public class FroyoSupport extends EclairSupport {
 
 	/**

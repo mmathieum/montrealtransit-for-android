@@ -16,6 +16,7 @@ import org.montrealtransit.android.activity.UserPreferences;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore.Fav;
 
+import android.annotation.TargetApi;
 import android.app.backup.BackupDataInputStream;
 import android.app.backup.BackupDataOutput;
 import android.app.backup.BackupHelper;
@@ -26,6 +27,7 @@ import android.os.ParcelFileDescriptor;
  * The {@link Fav} backup helper.
  * @author Mathieu Méa
  */
+@TargetApi(8)
 public class FavoritesBackupHelper implements BackupHelper {
 
 	/**

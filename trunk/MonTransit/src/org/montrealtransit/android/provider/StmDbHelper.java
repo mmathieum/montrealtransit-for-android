@@ -288,4 +288,20 @@ public class StmDbHelper extends SQLiteOpenHelper {
 			MyLog.w(TAG, "Error while closing the databases!", e);
 		}
 	}
+
+	/**
+	 * @return return the required free space required to deploy the DB
+	 */
+	public static int getRequiredSize(Context context) {
+		MyLog.v(TAG, "getRequiredSize()");
+		int size = 0;
+		for (int rawFileId : DUMP_FILES) {
+			try {
+				size += context.getResources().openRawResource(rawFileId).available();
+			} catch (IOException ioe) {
+				size += 1000000; // default size
+			}
+		}
+		return size * 2; // twice the size to be sure
+	}
 }

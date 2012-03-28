@@ -1,12 +1,12 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_height="fill_parent" android:layout_width="fill_parent">
 	<!-- ADs -->
-	<include layout="@layout/ad_layout" />
+	<include layout="@layout/ad_layout" android:id="@id/ad_layout" />
 
 	<LinearLayout
 		android:layout_width="fill_parent" android:layout_height="fill_parent"
-		android:layout_above="@id/ad_layout"
+		android:layout_above="@+id/ad_layout"
 		android:orientation="vertical">
 	
 		<!-- BUS STOP INFORMATIONS -->

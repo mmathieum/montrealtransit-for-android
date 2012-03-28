@@ -22,6 +22,7 @@ public class SupportFactory {
 	 */
 	public static SupportUtil getInstance(Context context) {
 		String className = SupportFactory.class.getPackage().getName();
+		@SuppressWarnings("deprecation") //TODO use Build.VERSION.SDK_INT
 		int sdkVersion = Integer.parseInt(Build.VERSION.SDK);
 		if (sdkVersion < Build.VERSION_CODES.CUPCAKE) {
 			MyLog.d(TAG, "Unknow API Level: " + sdkVersion);
@@ -44,7 +45,7 @@ public class SupportFactory {
 		        || sdkVersion == Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
 			className += ".IceCreamSandwichSupport"; // 14 15
 		} else if (sdkVersion > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-			MyLog.w(TAG, "Unknow API Level: %s", Build.VERSION.SDK);
+			MyLog.w(TAG, "Unknow API Level: %s", sdkVersion);
 			className += ".IceCreamSandwichSupport"; // default for newer SDK
 		}
 

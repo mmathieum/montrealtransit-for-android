@@ -168,6 +168,7 @@ public class BusStopCodeTab extends Activity {
 					return DataManager.findAllHistory(BusStopCodeTab.this.getContentResolver());
 				}
 
+				@SuppressWarnings("deprecation") //TODO use {@link android.app.LoaderManager} with a {@link android.content.CursorLoader}
 				@Override
 				protected void onPostExecute(Cursor result) {
 					((ListView) findViewById(R.id.list)).setAdapter(new SimpleCursorAdapter(BusStopCodeTab.this, android.R.layout.simple_list_item_1, result,

@@ -59,6 +59,7 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * This activity show information about a bus stop.
@@ -137,6 +138,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
 		super.onCreate(savedInstanceState);
+		checkForUpdateRequired();
 		// set the UI
 		setContentView(R.layout.bus_stop_info);
 
@@ -145,6 +147,19 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		}
 		SupportFactory.getInstance(this).registerNfcCallback(this, this, MIME_TYPE);
 		SupportFactory.getInstance(this).setOnNdefPushCompleteCallback(this, this);
+	}
+
+	/**
+	 * Check if an update is required since the activity can be launched directly.
+	 */
+	public void checkForUpdateRequired() {
+		if (SplashScreen.isUpdateRequired(this)) {
+			Toast.makeText(this, R.string.update_required, Toast.LENGTH_SHORT).show();
+			// show splash screen
+			Intent intent = new Intent(this, SplashScreen.class);
+			startActivity(intent);
+			this.finish(); // close this activity
+		}
 	}
 
 	/**
