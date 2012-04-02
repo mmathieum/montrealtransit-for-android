@@ -809,10 +809,10 @@ public class Utils {
 	/**
 	 * @return the available space for the application (/data/data/...)
 	 */
-	public static int getAvailableSize() {
+	public static long getAvailableSize() {
 		MyLog.v(TAG, "getAvailableSize()");
 		StatFs stat = new StatFs(Environment.getDataDirectory().getPath());
-		return stat.getAvailableBlocks() * stat.getBlockSize();
+		return (long) stat.getAvailableBlocks() * (long) stat.getBlockSize();
 	}
 
 }

@@ -121,15 +121,16 @@ public class SplashScreen extends Activity {
 	@Override
 	public void onBackPressed() { // API Level 5 - 2.0+
 		MyLog.v(TAG, "onBackPressed()");
-		new AlertDialog.Builder(this).setMessage(R.string.confirm_exit).setCancelable(false).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int id) {
-				SplashScreen.this.finish();
-			}
-		}).setNegativeButton("No", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int id) {
-				dialog.cancel();
-			}
-		}).create().show();
+		new AlertDialog.Builder(this).setMessage(R.string.confirm_exit).setCancelable(false)
+				.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						SplashScreen.this.finish();
+					}
+				}).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.cancel();
+					}
+				}).create().show();
 	}
 
 	/**
@@ -143,6 +144,7 @@ public class SplashScreen extends Activity {
 		if (Utils.getAvailableSize() < StmDbHelper.getRequiredSize(this)) {
 			// show dialog => exit
 			Toast.makeText(this, R.string.update_not_enough_free_space, Toast.LENGTH_LONG).show();
+			// MyLog.d(TAG, "available size: %s (required size: %s)", Utils.getAvailableSize(), StmDbHelper.getRequiredSize(this));
 			finish();
 		}
 		if (!DB_RESET && !StmDbHelper.isDbExist(this)) { // initialize

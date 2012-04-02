@@ -292,9 +292,9 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	/**
 	 * @return return the required free space required to deploy the DB
 	 */
-	public static int getRequiredSize(Context context) {
+	public static long getRequiredSize(Context context) {
 		MyLog.v(TAG, "getRequiredSize()");
-		int size = 0;
+		long size = 0;
 		for (int rawFileId : DUMP_FILES) {
 			try {
 				size += context.getResources().openRawResource(rawFileId).available();
