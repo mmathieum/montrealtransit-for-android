@@ -58,11 +58,15 @@ public class StmMobileTask extends AbstractNextStopProvider {
 
 	@Override
 	protected Map<String, BusStopHours> doInBackground(StmStore.BusStop... busStops) {
+		MyLog.v(TAG, "doInBackground()");
+		Map<String, BusStopHours> hours = new HashMap<String, BusStopHours>();
+		String errorMessage = this.context.getString(R.string.error); // set the default error message
+		if (busStops == null || busStops.length == 0 || busStops[0] == null) {
+			return null; //TODO return error message?
+		}
 		String stopCode = busStops[0].getCode();
 		String lineNumber = busStops[0].getLineNumber();
 		String urlString = getUrlString(stopCode);
-		String errorMessage = this.context.getString(R.string.error); // set the default error message
-		Map<String, BusStopHours> hours = new HashMap<String, BusStopHours>();
 		try {
 			publishProgress(context.getString(R.string.downloading_data_from_and_source, StmMobileTask.SOURCE_NAME));
 			URL url = new URL(urlString);
@@ -99,10 +103,9 @@ public class StmMobileTask extends AbstractNextStopProvider {
 						errorMessage = this.context.getString(R.string.bus_stop_no_info_and_source, lineNumber, SOURCE_NAME);
 						publishProgress(errorMessage);
 						hours.put(lineNumber, new BusStopHours(SOURCE_NAME, errorMessage));
-						AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR,
-						        AnalyticsUtils.ACTION_BUS_STOP_REMOVED, busStops[0].getUID(), context.getPackageManager()
-						                .getPackageInfo(Constant.PKG, 0).versionCode);
-						
+						AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BUS_STOP_REMOVED, busStops[0].getUID(), context
+								.getPackageManager().getPackageInfo(Constant.PKG, 0).versionCode);
+
 					}
 					AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BUS_STOP_NO_INFO, busStops[0].getUID(), context
 							.getPackageManager().getPackageInfo(Constant.PKG, 0).versionCode);
