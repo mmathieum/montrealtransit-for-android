@@ -30,7 +30,7 @@
 			<include layout="@layout/subway_tab_subway_status_title" />
 			<ViewStub
 			    android:id="@+id/subway_status_loading_stub"
-			     android:inflatedId="@+id/subway_status_loading"
+			    android:inflatedId="@+id/subway_status_loading"
 			    android:layout="@layout/loading_layout"
 			    android:layout_width="fill_parent"
 			    android:layout_height="?android:attr/listPreferredItemHeight" />
