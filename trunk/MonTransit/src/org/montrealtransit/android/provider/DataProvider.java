@@ -384,7 +384,12 @@ public class DataProvider extends ContentProvider {
 	 * @return the database helper
 	 */
 	private DataDbHelper getDBHelper() {
-		if (this.mOpenHelper == null || this.mOpenHelper.getReadableDatabase().getVersion() != DataDbHelper.DATABASE_VERSION) {
+		if (this.mOpenHelper == null) {
+			// initialize
+			this.mOpenHelper = new DataDbHelper(getContext());
+		} else if (this.mOpenHelper.getReadableDatabase().getVersion() != DataDbHelper.DATABASE_VERSION) {
+			// reset
+			this.mOpenHelper.close();
 			this.mOpenHelper = new DataDbHelper(getContext());
 		}
 		return this.mOpenHelper;

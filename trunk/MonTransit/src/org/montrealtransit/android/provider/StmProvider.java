@@ -927,7 +927,12 @@ public class StmProvider extends ContentProvider {
 	 * @return the database helper
 	 */
 	private StmDbHelper getDBHelper() {
-		if (this.mOpenHelper == null || this.mOpenHelper.getReadableDatabase().getVersion() != StmDbHelper.DB_VERSION) {
+		if (this.mOpenHelper == null) {
+			// initialize
+			this.mOpenHelper = new StmDbHelper(getContext(), null);
+		} else if (this.mOpenHelper.getReadableDatabase().getVersion() != StmDbHelper.DB_VERSION) {
+			// reset
+			this.mOpenHelper.close();
 			this.mOpenHelper = new StmDbHelper(getContext(), null);
 		}
 		return this.mOpenHelper;
