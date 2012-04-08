@@ -13,7 +13,6 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.provider.LiveFolders;
@@ -23,7 +22,8 @@ import android.text.TextUtils;
  * This provider give information about the user.
  * @author Mathieu Méa
  */
-@SuppressWarnings("deprecation") //TODO use App Widgets (Android 3.0+)
+@SuppressWarnings("deprecation")
+// TODO use App Widgets (Android 3.0+)
 public class DataProvider extends ContentProvider {
 
 	/**
@@ -85,14 +85,12 @@ public class DataProvider extends ContentProvider {
 		LIVE_FOLDER_PROJECTION_MAP = new HashMap<String, String>();
 		LIVE_FOLDER_PROJECTION_MAP.put(LiveFolders._ID, DataDbHelper.T_FAVS_K_ID + " AS " + LiveFolders._ID);
 		LIVE_FOLDER_PROJECTION_MAP.put(LiveFolders.NAME, DataDbHelper.T_FAVS_K_FK_ID + " AS " + LiveFolders.NAME);
-		LIVE_FOLDER_PROJECTION_MAP.put(LiveFolders.DESCRIPTION, DataDbHelper.T_FAVS_K_FK_ID_2 + " AS "
-		        + LiveFolders.DESCRIPTION);
+		LIVE_FOLDER_PROJECTION_MAP.put(LiveFolders.DESCRIPTION, DataDbHelper.T_FAVS_K_FK_ID_2 + " AS " + LiveFolders.DESCRIPTION);
 	}
 
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-		MyLog.v(TAG, "query(%s, %s, %s, %s, %s)", uri.getPath(), Arrays.toString(projection), selection,
-		        Arrays.toString(selectionArgs), sortOrder);
+		MyLog.v(TAG, "query(%s, %s, %s, %s, %s)", uri.getPath(), Arrays.toString(projection), selection, Arrays.toString(selectionArgs), sortOrder);
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 		MyLog.i(TAG, "[%s]", uri);
 		switch (URI_MATCHER.match(uri)) {
@@ -114,12 +112,11 @@ public class DataProvider extends ContentProvider {
 			int favType = Integer.valueOf(ids[2]);
 			String where = null;
 			if (favType == DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP) {
-				where = DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND "
-				        + DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_FK_ID_2 + "=" + fkId2 + " AND "
-				        + DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_TYPE + "=" + favType;
+				where = DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND " + DataDbHelper.T_FAVS + "."
+						+ DataDbHelper.T_FAVS_K_FK_ID_2 + "=" + fkId2 + " AND " + DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_TYPE + "=" + favType;
 			} else if (favType == DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION) {
-				where = DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND "
-				        + DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_TYPE + "=" + favType;
+				where = DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND " + DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_TYPE
+						+ "=" + favType;
 			}
 			qb.appendWhere(where);
 			break;
@@ -139,8 +136,7 @@ public class DataProvider extends ContentProvider {
 		case HISTORY_ID:
 			MyLog.v(TAG, "HISTORY_ID");
 			qb.setTables(DataDbHelper.T_HISTORY);
-			qb.appendWhere(DataDbHelper.T_HISTORY + "." + DataDbHelper.T_HISTORY_K_ID + "="
-			        + uri.getPathSegments().get(1));
+			qb.appendWhere(DataDbHelper.T_HISTORY + "." + DataDbHelper.T_HISTORY_K_ID + "=" + uri.getPathSegments().get(1));
 			break;
 		case TWITTER_API:
 			MyLog.v(TAG, "TWITTER_API");
@@ -149,8 +145,7 @@ public class DataProvider extends ContentProvider {
 		case TWITTER_API_ID:
 			MyLog.v(TAG, "TWITTER_API_ID");
 			qb.setTables(DataDbHelper.T_TWITTER_API);
-			qb.appendWhere(DataDbHelper.T_TWITTER_API + "." + DataDbHelper.T_TWITTER_API_K_ID + "="
-			        + uri.getPathSegments().get(1));
+			qb.appendWhere(DataDbHelper.T_TWITTER_API + "." + DataDbHelper.T_TWITTER_API_K_ID + "=" + uri.getPathSegments().get(1));
 			break;
 		case SERVICE_STATUS:
 			MyLog.v(TAG, "SERVICE_STATUS");
@@ -159,8 +154,7 @@ public class DataProvider extends ContentProvider {
 		case SERVICE_STATUS_ID:
 			MyLog.v(TAG, "SERVICE_STATUS_ID");
 			qb.setTables(DataDbHelper.T_SERVICE_STATUS);
-			qb.appendWhere(DataDbHelper.T_SERVICE_STATUS + "." + DataDbHelper.T_SERVICE_STATUS_K_ID + "="
-			        + uri.getPathSegments().get(1));
+			qb.appendWhere(DataDbHelper.T_SERVICE_STATUS + "." + DataDbHelper.T_SERVICE_STATUS_K_ID + "=" + uri.getPathSegments().get(1));
 			break;
 		case CACHE:
 			MyLog.v(TAG, "CACHE");
@@ -179,8 +173,8 @@ public class DataProvider extends ContentProvider {
 			int type = Integer.valueOf(ids[1]);
 			where = null;
 			if (type == DataStore.Cache.KEY_TYPE_VALUE_BUS_STOP) {
-				where = DataDbHelper.T_CACHE + "." + DataDbHelper.T_CACHE_K_FK_ID + "='" + fkId + "' AND "
-				        + DataDbHelper.T_CACHE + "." + DataDbHelper.T_CACHE_K_TYPE + "=" + type;
+				where = DataDbHelper.T_CACHE + "." + DataDbHelper.T_CACHE_K_FK_ID + "='" + fkId + "' AND " + DataDbHelper.T_CACHE + "."
+						+ DataDbHelper.T_CACHE_K_TYPE + "=" + type;
 			}
 			qb.appendWhere(where);
 			break;
@@ -224,10 +218,11 @@ public class DataProvider extends ContentProvider {
 			orderBy = sortOrder;
 		}
 
-		SQLiteDatabase db = mOpenHelper.getReadableDatabase();
+		SQLiteDatabase db = getDBHelper().getReadableDatabase();
 		Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy);
-		c.setNotificationUri(getContext().getContentResolver(), uri);
-
+		if (c != null) {
+			c.setNotificationUri(getContext().getContentResolver(), uri);
+		}
 		return c;
 	}
 
@@ -268,7 +263,7 @@ public class DataProvider extends ContentProvider {
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
 		MyLog.v(TAG, "delete(%s, %s, %s)", uri.getPath(), selection, Arrays.toString(selectionArgs));
-		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+		SQLiteDatabase db = getDBHelper().getWritableDatabase();
 
 		int count = 0;
 		switch (URI_MATCHER.match(uri)) {
@@ -279,18 +274,16 @@ public class DataProvider extends ContentProvider {
 			int favType = Integer.valueOf(selectionArgs[2]);
 			String whereClause = null;
 			if (favType == DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP) {
-				whereClause = DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND " + DataDbHelper.T_FAVS_K_FK_ID_2 + "="
-				        + fkId2 + " AND " + DataDbHelper.T_FAVS_K_TYPE + "=" + favType;
+				whereClause = DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND " + DataDbHelper.T_FAVS_K_FK_ID_2 + "=" + fkId2 + " AND "
+						+ DataDbHelper.T_FAVS_K_TYPE + "=" + favType;
 			} else if (favType == DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION) {
-				whereClause = DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND " + DataDbHelper.T_FAVS_K_TYPE + "="
-				        + favType;
+				whereClause = DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND " + DataDbHelper.T_FAVS_K_TYPE + "=" + favType;
 			}
 			count = db.delete(DataDbHelper.T_FAVS, whereClause, null);
 			break;
 		case FAV_ID:
 			MyLog.v(TAG, "DELETE>FAV_ID");
-			count = db.delete(DataDbHelper.T_FAVS, DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_ID + "="
-			        + uri.getPathSegments().get(1), null);
+			count = db.delete(DataDbHelper.T_FAVS, DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_ID + "=" + uri.getPathSegments().get(1), null);
 			break;
 		case HISTORY:
 			MyLog.v(TAG, "DELETE>HISTORY");
@@ -310,13 +303,11 @@ public class DataProvider extends ContentProvider {
 			break;
 		case CACHE_ID:
 			MyLog.v(TAG, "DELETE>CACHE_ID");
-			count = db.delete(DataDbHelper.T_CACHE, DataDbHelper.T_CACHE + "." + DataDbHelper.T_CACHE_K_ID + "="
-			        + uri.getPathSegments().get(1), null);
+			count = db.delete(DataDbHelper.T_CACHE, DataDbHelper.T_CACHE + "." + DataDbHelper.T_CACHE_K_ID + "=" + uri.getPathSegments().get(1), null);
 			break;
 		case CACHE_DATE:
 			MyLog.v(TAG, "DELETE>CACHE_DATE");
-			count = db.delete(DataDbHelper.T_CACHE, DataDbHelper.T_CACHE + "." + DataDbHelper.T_CACHE_K_DATE + " < "
-			        + uri.getPathSegments().get(1), null);
+			count = db.delete(DataDbHelper.T_CACHE, DataDbHelper.T_CACHE + "." + DataDbHelper.T_CACHE_K_DATE + " < " + uri.getPathSegments().get(1), null);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI (delete): " + uri);
@@ -334,7 +325,7 @@ public class DataProvider extends ContentProvider {
 		// } else {
 		// values = new ContentValues();
 		// }
-		SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+		SQLiteDatabase db = getDBHelper().getWritableDatabase();
 		Uri insertUri = null;
 		switch (URI_MATCHER.match(uri)) {
 		case FAVS:
@@ -356,8 +347,7 @@ public class DataProvider extends ContentProvider {
 			}
 			break;
 		case SERVICE_STATUS:
-			long serviceStatusId = db.insert(DataDbHelper.T_SERVICE_STATUS, DataDbHelper.T_SERVICE_STATUS_K_MESSAGE,
-			        values);
+			long serviceStatusId = db.insert(DataDbHelper.T_SERVICE_STATUS, DataDbHelper.T_SERVICE_STATUS_K_MESSAGE, values);
 			if (serviceStatusId > 0) {
 				insertUri = ContentUris.withAppendedId(DataStore.ServiceStatus.CONTENT_URI, serviceStatusId);
 			}
@@ -381,15 +371,23 @@ public class DataProvider extends ContentProvider {
 
 	/**
 	 * The SQLite open helper object.
-	 * @see DataDbHelper
 	 */
-	private SQLiteOpenHelper mOpenHelper;
+	private DataDbHelper mOpenHelper;
 
 	@Override
 	public boolean onCreate() {
 		MyLog.v(TAG, "onCreate()");
-		mOpenHelper = new DataDbHelper(getContext());
 		return true;
+	}
+
+	/**
+	 * @return the database helper
+	 */
+	private DataDbHelper getDBHelper() {
+		if (this.mOpenHelper == null || this.mOpenHelper.getReadableDatabase().getVersion() != DataDbHelper.DATABASE_VERSION) {
+			this.mOpenHelper = new DataDbHelper(getContext());
+		}
+		return this.mOpenHelper;
 	}
 
 	@Override

@@ -28,7 +28,7 @@ public class DataDbHelper extends SQLiteOpenHelper {
 	/**
 	 * The database version use to manage database changes.
 	 */
-	private static final int DATABASE_VERSION = 5;
+	public static final int DATABASE_VERSION = 5;
 
 	/**
 	 * The favorites table.
