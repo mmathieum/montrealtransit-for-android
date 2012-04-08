@@ -14,7 +14,6 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.provider.BaseColumns;
@@ -360,8 +359,6 @@ public class StmProvider extends ContentProvider {
 				+ SearchManager.SUGGEST_COLUMN_TEXT_2);
 		sSearchProjectionMap = map;
 	}
-
-	private StmDbHelper mOpenHelper;
 
 	private static final String SUBWAY_LINE_STATIONS_JOIN = StmDbHelper.T_SUBWAY_LINES + " LEFT OUTER JOIN " + StmDbHelper.T_SUBWAY_DIRECTIONS + " ON "
 			+ StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + "=" + StmDbHelper.T_SUBWAY_DIRECTIONS + "."
@@ -915,15 +912,22 @@ public class StmProvider extends ContentProvider {
 
 		SQLiteDatabase db = getDBHelper().getReadableDatabase();
 		Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy, limit);
-		c.setNotificationUri(getContext().getContentResolver(), uri);
+		if (c != null) {
+			c.setNotificationUri(getContext().getContentResolver(), uri);
+		}
 		return c;
 	}
 
 	/**
+	 * The SQLite open helper object.
+	 */
+	private StmDbHelper mOpenHelper;
+
+	/**
 	 * @return the database helper
 	 */
-	private SQLiteOpenHelper getDBHelper() {
-		if (this.mOpenHelper == null) {
+	private StmDbHelper getDBHelper() {
+		if (this.mOpenHelper == null || this.mOpenHelper.getReadableDatabase().getVersion() != StmDbHelper.DB_VERSION) {
 			this.mOpenHelper = new StmDbHelper(getContext(), null);
 		}
 		return this.mOpenHelper;
