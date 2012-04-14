@@ -10,8 +10,9 @@ import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
+import org.montrealtransit.android.activity.UserPreferences;
 import org.montrealtransit.android.data.ASubwayStation;
-import org.montrealtransit.android.data.ClosestSubwayStations;
+import org.montrealtransit.android.data.ClosestPOI;
 import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.data.SubwayStationDistancesComparator;
 import org.montrealtransit.android.provider.StmManager;
@@ -26,7 +27,7 @@ import android.os.AsyncTask;
  * Find the closest subway stations.
  * @author Mathieu Méa
  */
-public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String, ClosestSubwayStations> {
+public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String, ClosestPOI<ASubwayStation>> {
 
 	/**
 	 * The log tag.
@@ -61,17 +62,16 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 	}
 
 	@Override
-	protected ClosestSubwayStations doInBackground(Location... params) {
+	protected ClosestPOI<ASubwayStation> doInBackground(Location... params) {
 		MyLog.v(TAG, "doInBackground()");
-		ClosestSubwayStations result = null;
+		ClosestPOI<ASubwayStation> result = null;
 		// read last (not too old) location
 		Location currentLocation = params[0];
 		// MyLog.d(TAG, "currentLocation:" + currentLocation);
 		// IF location available DO
 		if (currentLocation != null) {
 			publishProgress(this.context.getString(R.string.processing));
-			result = new ClosestSubwayStations();
-			result.setLocationAndAddress(currentLocation, this.context);
+			result = new ClosestPOI<ASubwayStation>();
 			// read location accuracy
 			float currentAccuracy = currentLocation.getAccuracy();
 			// MyLog.d(TAG, "currentAccuracy: " + currentAccuracy);
@@ -84,14 +84,13 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 			// FOR each ordered station DO
 			for (ASubwayStation station : stationsWithOtherLines) {
 				// IF minimum station not reached DO
-				if (result.getStations().size() < MIN_CLOSEST_STATIONS_LIST_SIZE) {
+				if (result.getPoiList().size() < MIN_CLOSEST_STATIONS_LIST_SIZE) {
 					// add the station
-					result.getStations().add(station);
+					result.getPoiList().add(station);
 					// ELSE ID maximum stations not reached AND location is too bad DO
-				} else if (result.getStations().size() < MAX_CLOSEST_STATIONS_LIST_SIZE
-				        && station.getDistance() < currentAccuracy) {
+				} else if (result.getPoiList().size() < MAX_CLOSEST_STATIONS_LIST_SIZE && station.getDistance() < currentAccuracy) {
 					// add the station
-					result.getStations().add(station);
+					result.getPoiList().add(station);
 				} else {
 					// it's over
 					break;
@@ -108,22 +107,22 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 	 */
 	private List<ASubwayStation> getAllStationsWithLines(Location currentLocation) {
 		Map<String, ASubwayStation> aresult = new HashMap<String, ASubwayStation>();
+		float accuracy = currentLocation.getAccuracy();
+		boolean isDetailed = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
+				UserPreferences.PREFS_DISTANCE_DETAILED);
+		String distanceUnit = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
 		// FOR each subway line + station combinations DO
-		for (Pair<SubwayLine, SubwayStation> lineStation : StmManager.findSubwayStationsAndLinesList(context
-		        .getContentResolver())) {
+		for (Pair<SubwayLine, SubwayStation> lineStation : StmManager.findSubwayStationsAndLinesList(context.getContentResolver())) {
 			// read subway line number
 			SubwayLine subwayLine = lineStation.first;
 			// read subway station ID
 			SubwayStation subwayStation = lineStation.second;
-			// IF this is the first line of the station DO
+			// IF this is the 1st line of the station DO
 			if (!aresult.containsKey(subwayStation.getId())) {
 				ASubwayStation station = new ASubwayStation(subwayStation);
 				// location
-				Location stationLocation = LocationUtils.getNewLocation(subwayStation.getLat(), subwayStation.getLng());
-				station.setDistance(currentLocation.distanceTo(stationLocation));
-				String distanceString = Utils.getDistanceString(this.context, station.getDistance(),
-				        currentLocation.getAccuracy());
-				station.setDistanceString(distanceString);
+				station.setDistance(currentLocation.distanceTo(LocationUtils.getNewLocation(subwayStation.getLat(), subwayStation.getLng())));
+				station.setDistanceString(Utils.getDistanceString(station.getDistance(), accuracy, isDetailed, distanceUnit));
 				aresult.put(subwayStation.getId(), station);
 			}
 			// add the subway line number
@@ -141,9 +140,27 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 	}
 
 	@Override
-	protected void onPostExecute(ClosestSubwayStations result) {
+	protected void onPostExecute(ClosestPOI<ASubwayStation> result) {
 		MyLog.v(TAG, "onPostExecute()");
 		from.onClosestStationsDone(result);
 		super.onPostExecute(result);
+	}
+	
+	/**
+	 * Contract for handling {@link ClosestSubwayStationsFinderTask}.
+	 */
+	public interface ClosestSubwayStationsFinderListener {
+
+		/**
+		 * Called to share task execution progress
+		 * @param message the progress
+		 */
+		void onClosestStationsProgress(String message);
+
+		/**
+		 * Call when the task is completed.
+		 * @param result the result of the task
+		 */
+		void onClosestStationsDone(ClosestPOI<ASubwayStation> result);
 	}
 }

@@ -198,7 +198,12 @@ public class UserPreferences extends PreferenceActivity {
 	 * The latest version of the STM DB successfully deployed.
 	 */
 	public static final String PREFS_LCL_STM_DB_VERSION = "pStmDbVersion";
-
+	
+	/**
+	 * The latest update of the Bixi database.
+	 */
+	public static final String PREFS_LCL_BIXI_LAST_UPDATE = "pBixiLastUpdate";
+	
 	/**
 	 * The ads check box.
 	 */

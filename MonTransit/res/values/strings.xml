@@ -84,8 +84,28 @@
 	<string name="subway_status_updating">Updating service status&#8230;</string>
 	<string name="subway_status_done">Service status updated.</string>
 	<string name="subway_status_loading_cancelled">Update of the service status cancelled.</string>
-	<string name="shake_closest_bus_line_stop_selected">Closest bus line stop selected.</string>
-	<string name="shake_closest_subway_line_station_selected">Closest subway line station selected.</string>
+	<string name="shake_closest_bus_line_stop_selected">Closest bus line stop selected</string>
+	<string name="shake_closest_subway_line_station_selected">Closest subway line station selected</string>
+	<string name="shake_closest_subway_station_selected">Closest subway station selected</string>
+	<string name="shake_closest_bike_station_selected">Closest bike station selected</string>
+	<string name="bike">Bike</string>
+	<string name="bikes">Bikes</string>
+	<string name="bike_no">No Bike!</string>
+	<string name="bike_and_nb">Bike: %s</string>
+	<string name="bikes_and_nb">Bikes: %s</string>
+	<string name="dock">Dock</string>
+	<string name="docks">Docks</string>
+	<string name="dock_no">No Dock!</string>
+	<string name="dock_and_nb">Dock : %s</string>
+	<string name="docks_and_nb">Docks : %s</string>
+	<string name="bike_station">Bike station</string>
+	<string name="bike_stations">Bike stations</string>
+	<string name="closest_bike_stations">Closest stations</string>
+	<string name="closest_bike_stations_hour">Closest stations (%s)</string>
+	<string name="closest_bike_stations_error">Error while searching for closest stations.</string>
+	<string name="closest_bike_stations_cancelled">Search for closest stations cancelled.</string>
+	<string name="bike_station_status">Availability</string>
+	<string name="bike_station_status_hour">Availability (%s)</string>
 	
 	<string name="beta_pref_cat_title">BETA</string>
 	<string name="bus_stop_loc_pref_title">Bus Stops Location</string>
@@ -201,6 +221,7 @@
 	
 	<string name="view_bus_stop">View bus stop</string>
 	<string name="view_subway_station">View subway station</string>
+	<string name="view_bike_station">View bike station</string>
 	<string name="view_fav">View favorite</string>
     <string name="remove_fav">Remove from favorites</string>
     <string name="no_fav">No favorite.</string>

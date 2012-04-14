@@ -45,6 +45,10 @@ public class MainScreen extends ActivityGroup {
 	 * The subway lines list tab ID.
 	 */
 	private static final String TAB_SUBWAY = "tab_subway";
+	/**
+	 * The bike stations list tab ID.
+	 */
+	private static final String TAB_BIKE = "tab_bike";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -76,6 +80,11 @@ public class MainScreen extends ActivityGroup {
 		subwayLinesListTab.setIndicator(getString(R.string.subway), getResources().getDrawable(R.drawable.ic_tab_subway));
 		subwayLinesListTab.setContent(new Intent(this, SubwayTab.class));
 		tabHost.addTab(subwayLinesListTab);
+		// the bike stations list
+		TabSpec bikeStationsListTab = tabHost.newTabSpec(TAB_BIKE);
+		bikeStationsListTab.setIndicator(getString(R.string.bike), getResources().getDrawable(R.drawable.ic_tab_bike));
+		bikeStationsListTab.setContent(new Intent(this, BikeTab.class));
+		tabHost.addTab(bikeStationsListTab);
 		try {
 			// IF there is one or more favorites DO
 			if (UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_IS_FAV, UserPreferences.PREFS_LCL_IS_FAV_DEFAULT)) {

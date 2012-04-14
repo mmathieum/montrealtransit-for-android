@@ -117,6 +117,9 @@ public class DataProvider extends ContentProvider {
 			} else if (favType == DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION) {
 				where = DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND " + DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_TYPE
 						+ "=" + favType;
+			} else if (favType == DataStore.Fav.KEY_TYPE_VALUE_BIKE_STATIONS) {
+				where = DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND " + DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_TYPE
+						+ "=" + favType;
 			}
 			qb.appendWhere(where);
 			break;

@@ -132,6 +132,9 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	 * The task used to load the next bus stops.
 	 */
 	private AsyncTask<StmStore.BusStop, String, Map<String, BusStopHours>> task;
+	/**
+	 * The other bus lines.
+	 */
 	protected List<BusLine> otherBusLines;
 
 	@Override
@@ -865,7 +868,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 			findViewById(R.id.next_stops_loading).setVisibility(View.VISIBLE);
 			// } else { // notify the user ?
 		}
-		// show stop icon instead of refresh
+		// hide refresh icon
 		findViewById(R.id.next_stops_refresh).setVisibility(View.INVISIBLE);
 		// show progress bar
 		findViewById(R.id.progress_bar_next_stop).setVisibility(View.VISIBLE);
@@ -1045,7 +1048,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 			Location busStopLocation = LocationUtils.getNewLocation(this.busStop.getLat(), this.busStop.getLng());
 			float distanceInMeters = getLocation().distanceTo(busStopLocation);
 			float accuracyInMeters = getLocation().getAccuracy();
-			String distanceString = Utils.getDistanceString(this, distanceInMeters, accuracyInMeters);
+			String distanceString = Utils.getDistanceStringUsingPref(this, distanceInMeters, accuracyInMeters);
 			distanceTv.setVisibility(View.VISIBLE);
 			distanceTv.setText(distanceString);
 		}

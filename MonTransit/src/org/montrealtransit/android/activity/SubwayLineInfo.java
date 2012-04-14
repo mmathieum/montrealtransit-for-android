@@ -440,9 +440,12 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	private void updateDistancesWithNewLocation() {
 		if (getLocation() != null && this.stations != null) {
 			float accuracyInMeters = getLocation().getAccuracy();
+			boolean isDetailed = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
+					UserPreferences.PREFS_DISTANCE_DETAILED);
+			String distanceUnit = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
 			for (ASubwayStation station : this.stations) {
 				station.setDistance(getLocation().distanceTo(LocationUtils.getNewLocation(station.getLat(), station.getLng())));
-				station.setDistanceString(Utils.getDistanceString(this, station.getDistance(), accuracyInMeters));
+				station.setDistanceString(Utils.getDistanceString(station.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
 			}
 			generateOrderedStationsIds();
 			if (this.adapter != null) {

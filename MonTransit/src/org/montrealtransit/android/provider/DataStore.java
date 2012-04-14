@@ -65,6 +65,10 @@ public class DataStore {
 		 */
 		public static final int KEY_TYPE_VALUE_SUBWAY_STATION = DataDbHelper.KEY_FAVS_TYPE_VALUE_SUBWAY_STATION;
 		/**
+		 * The favorite type value for bike stations.
+		 */
+		public static final int KEY_TYPE_VALUE_BIKE_STATIONS = DataDbHelper.KEY_FAVS_TYPE_VALUE_BIKE_STATION;
+		/**
 		 * The favorite ID.
 		 */
 		private int id;

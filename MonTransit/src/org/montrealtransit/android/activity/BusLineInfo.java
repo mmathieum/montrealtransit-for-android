@@ -580,11 +580,14 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		MyLog.v(TAG, "updateDistancesWithNewLocation()");
 		if (getLocation() != null) {
 			float accuracyInMeters = getLocation().getAccuracy();
+			boolean isDetailed = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
+					UserPreferences.PREFS_DISTANCE_DETAILED);
+			String distanceUnit = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
 			for (ABusStop busStop : this.busStops) {
 				// IF the bus stop location is known DO
 				if (busStop.getLat() != null && busStop.getLng() != null) {
 					busStop.setDistance(getLocation().distanceTo(LocationUtils.getNewLocation(busStop.getLat(), busStop.getLng())));
-					busStop.setDistanceString(Utils.getDistanceString(this, busStop.getDistance(), accuracyInMeters));
+					busStop.setDistanceString(Utils.getDistanceString(busStop.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
 				}
 			}
 			generateOrderedStopCodes();

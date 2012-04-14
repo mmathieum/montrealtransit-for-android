@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" android:layout_height="fill_parent">
+	android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical">
 	<TextView android:id="@+id/empty" android:layout_height="fill_parent"
 		android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall"
 		android:gravity="center" android:text="@string/no_fav_message"
@@ -45,6 +45,25 @@
 					android:gravity="center_vertical" android:text="@string/subway_stations" />
 			</RelativeLayout>
 			<LinearLayout android:id="@+id/subway_stations_list"
+				android:layout_width="fill_parent" android:layout_height="fill_parent"
+				android:orientation="vertical" android:visibility="gone" />
+			<!-- FAVORITEs BIKE STATIONs -->
+			<RelativeLayout android:id="@+id/fav_bike_stations"
+				android:layout_width="fill_parent" android:layout_height="25dip"
+				android:background="@drawable/dark_header_dither"
+				android:visibility="gone">
+				<ImageView android:id="@+id/bike_station_logo"
+					android:layout_width="wrap_content" android:layout_height="fill_parent"
+					android:layout_alignParentLeft="true" android:src="@drawable/ic_btn_bike"
+					android:gravity="center_vertical" android:focusable="false" />
+				<TextView android:id="@+id/fav_bike_stations_text"
+					android:layout_width="wrap_content" android:layout_height="fill_parent"
+					android:layout_toRightOf="@id/bike_station_logo"
+					android:textStyle="bold" android:textSize="14sp"
+					android:textColor="?android:attr/textColorSecondary"
+					android:gravity="center_vertical" android:text="@string/bike_stations" />
+			</RelativeLayout>
+			<LinearLayout android:id="@+id/bike_stations_list"
 				android:layout_width="fill_parent" android:layout_height="fill_parent"
 				android:orientation="vertical" android:visibility="gone" />
 		</LinearLayout>
