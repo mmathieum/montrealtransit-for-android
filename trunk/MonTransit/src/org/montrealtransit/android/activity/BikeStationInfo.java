@@ -5,6 +5,7 @@ import java.util.List;
 import org.montrealtransit.android.AdsUtils;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.LocationUtils;
+import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
@@ -29,6 +30,8 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
@@ -61,7 +64,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	/**
 	 * The validity of the cache (in seconds).
 	 */
-	private static final int CACHE_TOO_OLD_IN_SEC = 30 * 60; // 30 minutes (source is not always up to date)
+	private static final int CACHE_TOO_OLD_IN_SEC = 15 * 60; // 15 minutes
 
 	/**
 	 * The bike station.
@@ -90,7 +93,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	 * The task used to load the new bike station info.
 	 */
 	private BixiDataReader task;
-	
+
 	/**
 	 * Is the location updates should be enabled?
 	 */
@@ -309,14 +312,6 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			this.task.cancel(true);
 			this.task = null;
 		} else {
-			refreshNextStops();
-		}
-	}
-
-	private void refreshNextStops() {
-		MyLog.v(TAG, "refreshNextStops()");
-		// IF the task is NOT already running DO
-		if (this.task == null || !this.task.getStatus().equals(AsyncTask.Status.RUNNING)) {
 			setStatusAsLoading();
 			// find the next bus stop
 			this.task = new BixiDataReader(this, this, false);
@@ -521,7 +516,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		// clear the previous list
 		closestStationsLayout.removeAllViews();
 		// hide loading
-		setClosestStationsAsNotLoading(); 
+		setClosestStationsAsNotLoading();
 		// show stations list
 		int i = 1;
 		for (ABikeStation station : this.closestBikeStations) {
@@ -651,6 +646,16 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		Fav findFav = DataManager.findFav(this.getContentResolver(), Fav.KEY_TYPE_VALUE_BIKE_STATIONS, this.bikeStation.getTerminalName(), null);
 		((CheckBox) findViewById(R.id.star)).setChecked(findFav != null);
 		findViewById(R.id.star).setVisibility(View.VISIBLE);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		return MenuUtils.inflateMenu(this, menu, R.menu.bike_station_info_menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		return MenuUtils.handleCommonMenuActions(this, item);
 	}
 
 	@Override

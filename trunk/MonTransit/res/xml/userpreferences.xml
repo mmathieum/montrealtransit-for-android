@@ -14,11 +14,11 @@
 		android:defaultValue="meter" />
 	<!-- DATA -->
 	<PreferenceCategory android:title="@string/data_pref_cat_title" />
-	<ListPreference android:key="pNextStopProvider"
+	<ListPreference android:key="pNextStopProvider2"
 		android:title="@string/next_stop_pref_title" android:summary="@string/next_stop_pref_summary"
 		android:entries="@array/next_stop_pref_entries" android:entryValues="@array/next_stop_pref_values"
 		android:dialogTitle="@string/next_stop_pref_dialog_title"
-		android:defaultValue="stmmobile" />
+		android:defaultValue="auto" />
 	<!-- ADVANCED -->
 	<PreferenceCategory android:title="@string/advanced_pref_cat_title" />
 	<ListPreference android:key="pSearch"

@@ -1266,25 +1266,25 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		return MenuUtils.inflateMenu(this, menu, R.menu.bus_stop_info_menu);
 	}
 
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		MyLog.v(TAG, "onPrepareOptionsMenu()");
-		if (super.onPrepareOptionsMenu(menu)) {
-			// PROVIDERs
-			String provider = getProviderFromPref();
-			if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_MOBILE)) {
-				menu.findItem(R.id.provider_stm_mobile).setChecked(true);
-			} else if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_INFO)) {
-				menu.findItem(R.id.provider_stm_info).setChecked(true);
-			} else {
-				menu.findItem(R.id.provider_auto).setChecked(true); // default = Auto
-			}
-			return true;
-		} else {
-			MyLog.w(TAG, "Error in onPrepareOptionsMenu().");
-			return false;
-		}
-	}
+	// @Override
+	// public boolean onPrepareOptionsMenu(Menu menu) {
+	// MyLog.v(TAG, "onPrepareOptionsMenu()");
+	// if (super.onPrepareOptionsMenu(menu)) {
+	// // PROVIDERs
+	// String provider = getProviderFromPref();
+	// if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_MOBILE)) {
+	// menu.findItem(R.id.provider_stm_mobile).setChecked(true);
+	// } else if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_INFO)) {
+	// menu.findItem(R.id.provider_stm_info).setChecked(true);
+	// } else {
+	// menu.findItem(R.id.provider_auto).setChecked(true); // default = Auto
+	// }
+	// return true;
+	// } else {
+	// MyLog.w(TAG, "Error in onPrepareOptionsMenu().");
+	// return false;
+	// }
+	// }
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
@@ -1298,18 +1298,17 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		case R.id.radar:
 			showStopInRadar(null);
 			return true;
-		case R.id.provider_stm_info:
-			switchToStmInfoProvider(null);
-			return true;
-		case R.id.provider_stm_mobile:
-			switchToStmMobileProvider(null);
-			return true;
-		case R.id.provider_auto:
-			switchToAutoProvider(null);
-			return true;
+			// case R.id.provider_stm_info:
+			// switchToStmInfoProvider(null);
+			// return true;
+			// case R.id.provider_stm_mobile:
+			// switchToStmMobileProvider(null);
+			// return true;
+			// case R.id.provider_auto:
+			// switchToAutoProvider(null);
+			// return true;
 		}
 		return MenuUtils.handleCommonMenuActions(this, item);
-
 	}
 
 	@Override

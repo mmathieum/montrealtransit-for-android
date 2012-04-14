@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.LocationUtils;
+import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.SensorUtils;
@@ -35,6 +36,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView.OnItemClickListener;
@@ -640,6 +643,16 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		MyLog.v(TAG, "onStatusChanged(%s, %s)", provider, status);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		return MenuUtils.inflateMenu(this, menu, R.menu.bike_tab_menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		return MenuUtils.handleCommonMenuActions(this, item);
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package org.montrealtransit.android.activity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -105,8 +106,8 @@ public class FavListTab extends Activity {
 			@Override
 			protected Void doInBackground(Void... params) {
 				// MyLog.v(TAG, "doInBackground()");
-				newBusStopFavList = DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
-				if (FavListTab.this.currentBusStopFavList == null || !Fav.listEquals(FavListTab.this.currentBusStopFavList, newBusStopFavList)) {
+				this.newBusStopFavList = DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
+				if (FavListTab.this.currentBusStopFavList == null || !Fav.listEquals(FavListTab.this.currentBusStopFavList, this.newBusStopFavList)) {
 					MyLog.d(TAG, "Loading bus stop favorites from DB...");
 					if (Utils.getCollectionSize(this.newBusStopFavList) > 0) {
 						this.busStopsExtendedList = StmManager.findBusStopsExtendedList(FavListTab.this.getContentResolver(),
@@ -116,31 +117,36 @@ public class FavListTab extends Activity {
 				}
 
 				this.newSubwayFavList = DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
-				if (FavListTab.this.currentSubwayStationFavList == null || !Fav.listEquals(FavListTab.this.currentSubwayStationFavList, newSubwayFavList)) {
+				if (FavListTab.this.currentSubwayStationFavList == null || !Fav.listEquals(FavListTab.this.currentSubwayStationFavList, this.newSubwayFavList)) {
 					MyLog.d(TAG, "Loading subway station favorites from DB...");
-					stations = new HashMap<String, SubwayStation>();
-					otherLines = new HashMap<String, List<SubwayLine>>();
+					this.stations = new HashMap<String, SubwayStation>();
+					this.otherLines = new HashMap<String, List<SubwayLine>>();
 					for (Fav subwayFav : this.newSubwayFavList) {
 						SubwayStation station = StmManager.findSubwayStation(getContentResolver(), subwayFav.getFkId());
-						stations.put(subwayFav.getFkId(), station);
+						this.stations.put(subwayFav.getFkId(), station);
 						if (station != null) {
-							otherLines.put(station.getId(), StmManager.findSubwayStationLinesList(getContentResolver(), station.getId()));
+							this.otherLines.put(station.getId(), StmManager.findSubwayStationLinesList(getContentResolver(), station.getId()));
 						}
 					}
 					MyLog.d(TAG, "Loading subway station favorites from DB... DONE");
 				}
 
-				this.newBikeFavList = DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BIKE_STATIONS);
-				if (FavListTab.this.currentBikeStationFavList == null || !Fav.listEquals(FavListTab.this.currentBikeStationFavList, newBikeFavList)) {
+				List<Fav> bikeFavList = DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BIKE_STATIONS);
+				if (FavListTab.this.currentBikeStationFavList == null || !Fav.listEquals(FavListTab.this.currentBikeStationFavList, bikeFavList)) {
 					MyLog.d(TAG, "Loading bike station favorites from DB...");
-					bikeStations = new HashMap<String, BikeStation>();
-					for (Fav bikeFav : this.newBikeFavList) {
+					this.bikeStations = new HashMap<String, BikeStation>();
+					this.newBikeFavList = new ArrayList<DataStore.Fav>();
+					for (Fav bikeFav : bikeFavList) {
 						BikeStation station = BixiManager.findBikeStation(getContentResolver(), bikeFav.getFkId());
-						bikeStations.put(bikeFav.getFkId(), station);
+						if (station != null) { // IF station found DO (maybe no loaded yet)
+							this.bikeStations.put(bikeFav.getFkId(), station);
+							this.newBikeFavList.add(bikeFav);
+						}
 					}
 					MyLog.d(TAG, "Loading bike station favorites from DB... DONE");
+				} else {
+					this.newBikeFavList = bikeFavList;
 				}
-
 				return null;
 			}
 
@@ -457,7 +463,7 @@ public class FavListTab extends Activity {
 				// create view
 				View view = getLayoutInflater().inflate(R.layout.fav_list_tab_bike_station_item, null);
 				// subway station name
-				((TextView) view.findViewById(R.id.station_name)).setText(bikeStation.getName());
+				((TextView) view.findViewById(R.id.station_name)).setText(Utils.cleanBikeStationName(bikeStation.getName()));
 				// add click listener
 				view.setOnClickListener(new View.OnClickListener() {
 					@Override

@@ -792,6 +792,7 @@ public class Utils {
 		newFav.setType(Fav.KEY_TYPE_VALUE_BIKE_STATIONS);
 		newFav.setFkId("6415"); // Wilson / Sherbrooke
 		newFav.setFkId2(null);
+		DataManager.addFav(context.getContentResolver(), newFav);
 		SupportFactory.getInstance(context).backupManagerDataChanged();
 	}
 
