@@ -17,6 +17,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
+import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.activity.UserPreferences;
 import org.montrealtransit.android.provider.BixiManager;
 import org.montrealtransit.android.provider.BixiStore.BikeStation;
@@ -147,7 +148,6 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 				publishProgress(from, context.getString(R.string.error));
 				return null;
 			}
-
 		} catch (UnknownHostException uhe) {
 			if (MyLog.isLoggable(Log.DEBUG)) {
 				MyLog.w(TAG, uhe, "No Internet Connection!");
@@ -175,9 +175,47 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 	 * @param forceDBUpdate true if forcing the full database to be updated
 	 * @param forceDBUpdateTerminalNames the list of bike station terminal names to be updated in the database or null
 	 */
-	public static synchronized void updateDatabase(Context context, List<BikeStation> newBikeStations, boolean forceDBUpdate,
+	public static synchronized void updateDatabase(final Context context, final List<BikeStation> newBikeStations, final boolean forceDBUpdate,
 			List<String> forceDBUpdateTerminalNames) {
 		// MyLog.v(TAG, "updateDatabase(%s,%s,%s)", Utils.getCollectionSize(newBikeStations), forceDBUpdate, forceDBUpdateTerminalNames);
+
+		// IF no bike stations terminal names were provided DO
+		if (Utils.getCollectionSize(forceDBUpdateTerminalNames) == 0) {
+			// synchronously update all
+			updateDatabaseAll(context, newBikeStations, forceDBUpdate);
+		} else {
+			int updated = 0;
+			// synchronously update these bike stations
+			for (BikeStation newBikeStation : newBikeStations) {
+				if (forceDBUpdateTerminalNames.contains(newBikeStation.getTerminalName())) {
+					BixiManager.deleteBikeStation(context.getContentResolver(), newBikeStation.getTerminalName());
+					BixiManager.addBikeStation(context.getContentResolver(), newBikeStation, false);
+					// TODO BixiManager.updateBikeStation(context.getContentResolver(), newBikeStation, newBikeStation.getTerminalName());
+					updated++;
+					// TODO remove updated bike station from list
+				}
+				if (forceDBUpdateTerminalNames.size() == updated) {
+					break; // all forced updates done
+				}
+			}
+			// asynchronously update the rest
+			new AsyncTask<Void, Void, Void>() {
+				@Override
+				protected Void doInBackground(Void... params) {
+					updateDatabaseAll(context, newBikeStations, forceDBUpdate);
+					return null;
+				}
+			}.execute();
+		}
+	}
+
+	/**
+	 * Update all the database.
+	 * @param context the context
+	 * @param newBikeStations the new bike stations
+	 * @param forceDBUpdate true if forcing database update for all bike stations (even when {@link BikeStation#equals(BikeStation, BikeStation)} returns true)
+	 */
+	public static void updateDatabaseAll(Context context, List<BikeStation> newBikeStations, boolean forceDBUpdate) {
 		// 1 - try retrieving current bike stations from local DB
 		Map<String, BikeStation> oldBikeStations = null;
 		try {
@@ -192,9 +230,9 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 			BikeStation bikeStation = (BikeStation) newIt.next();
 			if (oldBikeStations != null && oldBikeStations.containsKey(bikeStation.getTerminalName())) {
 				// update existing bike station
-				boolean forced = forceDBUpdateTerminalNames != null && forceDBUpdateTerminalNames.contains(bikeStation.getTerminalName());
-				// IF forced DB update OR one of the forced updates OR bike station changed DO
-				if (forceDBUpdate || forced || !BikeStation.equals(bikeStation, oldBikeStations.get(bikeStation.getTerminalName()))) {
+				// boolean forced = forceDBUpdateTerminalNames != null && forceDBUpdateTerminalNames.contains(bikeStation.getTerminalName());
+				// IF forced DB update (OR one of the forced updates) OR bike station changed DO
+				if (forceDBUpdate /* || forced */|| !BikeStation.equals(bikeStation, oldBikeStations.get(bikeStation.getTerminalName()))) {
 					BixiManager.deleteBikeStation(context.getContentResolver(), bikeStation.getTerminalName());
 					BixiManager.addBikeStation(context.getContentResolver(), bikeStation, false);
 					// TODO BixiManager.updateBikeStation(context.getContentResolver(), bikeStation, bikeStation.getTerminalName());

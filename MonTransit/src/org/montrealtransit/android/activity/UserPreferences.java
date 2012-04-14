@@ -77,9 +77,9 @@ public class UserPreferences extends PreferenceActivity {
 	public static final String PREFS_BUS_LINE_LIST_GROUP_BY_DEFAULT = PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP;
 
 	/**
-	 * The preference key for the next stop provider.
+	 * The preference key for the next stop provider V2.
 	 */
-	public static final String PREFS_NEXT_STOP_PROVIDER = "pNextStopProvider";
+	public static final String PREFS_NEXT_STOP_PROVIDER = "pNextStopProvider2";
 	/**
 	 * The preference value for automatic next stop provider.
 	 */
