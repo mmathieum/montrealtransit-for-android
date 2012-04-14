@@ -53,7 +53,7 @@ public class BixiProvider extends ContentProvider {
 		MyLog.v(TAG, "onCreate()");
 		return true;
 	}
-	
+
 	/**
 	 * @return the database helper
 	 */
@@ -161,7 +161,8 @@ public class BixiProvider extends ContentProvider {
 			break;
 		case BIKE_STATION_ID:
 			MyLog.d(TAG, "DELETE>BIKE_STATION_ID");
-			db.delete(BixiDbHelper.T_BIKE_STATIONS, BixiDbHelper.T_BIKE_STATIONS + "." + BixiDbHelper.T_BIKE_STATIONS_K_TERMINAL_NAME + "=" + uri.getPathSegments().get(1), null);
+			db.delete(BixiDbHelper.T_BIKE_STATIONS, BixiDbHelper.T_BIKE_STATIONS + "." + BixiDbHelper.T_BIKE_STATIONS_K_TERMINAL_NAME + "="
+					+ uri.getPathSegments().get(1), null);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI (delete): " + uri);
@@ -173,22 +174,18 @@ public class BixiProvider extends ContentProvider {
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		MyLog.v(TAG, "update(%s, %s, %s)", uri.getPath(), selection, Arrays.toString(selectionArgs));
-		MyLog.d(TAG, "The update method is not available!");
-		return 0;
-		// TODO
-		// SQLiteDatabase db = this.mOpenHelper.getWritableDatabase();
-		// int count = 0;
-		// switch (URI_MATCHER.match(uri)) {
-		// case BIKE_STATION:
-		// MyLog.v(TAG, "UPDATE>BIKE_STATION");
-		// count = db.update(BixiDbHelper.T_BIKE_STATIONS, values, BixiDbHelper.T_BIKE_STATIONS_K_ID + "="
-		// + uri.getPathSegments().get(1), null);
-		// break;
-		// default:
-		// throw new IllegalArgumentException("Unknown URI (update): " + uri);
-		// }
-		// getContext().getContentResolver().notifyChange(uri, null);
-		// return count;
+		SQLiteDatabase db = this.mOpenHelper.getWritableDatabase();
+		int count = 0;
+		switch (URI_MATCHER.match(uri)) {
+		case BIKE_STATION_ID:
+			MyLog.v(TAG, "UPDATE>BIKE_STATION");
+			count = db.update(BixiDbHelper.T_BIKE_STATIONS, values, BixiDbHelper.T_BIKE_STATIONS_K_TERMINAL_NAME + "=" + uri.getPathSegments().get(1), null);
+			break;
+		default:
+			throw new IllegalArgumentException("Unknown URI (update): " + uri);
+		}
+		getContext().getContentResolver().notifyChange(uri, null);
+		return count;
 	}
 
 }
