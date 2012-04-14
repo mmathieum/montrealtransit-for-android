@@ -532,11 +532,24 @@ public class Utils {
 	 * @param accuracyInMeters the accuracy in meter
 	 * @return the distance string.
 	 */
-	public static String getDistanceString(Context context, float distanceInMeters, float accuracyInMeters) {
-		// MyLog.v(TAG, "getDistanceString(" + distanceInMeters + ", " + accuracyInMeters + ")");
+	public static String getDistanceStringUsingPref(Context context, float distanceInMeters, float accuracyInMeters) {
+		// MyLog.v(TAG, "getDistanceStringUsingPref(" + distanceInMeters + ", " + accuracyInMeters + ")");
 		boolean isDetailed = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
 				UserPreferences.PREFS_DISTANCE_DETAILED);
 		String distanceUnit = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
+		return getDistanceString(distanceInMeters, accuracyInMeters, isDetailed, distanceUnit);
+	}
+
+	/**
+	 * Return the distance string matching the accuracy and the user settings.
+	 * @param context the activity
+	 * @param distanceInMeters the distance in meter
+	 * @param accuracyInMeters the accuracy in meter
+	 * @param isDetailed true if detailed {@link UserPreferences#PREFS_DISTANCE}
+	 * @param distanceUnit {@link UserPreferences#PREFS_DISTANCE_UNIT}
+	 * @return the distance string.
+	 */
+	public static String getDistanceString(float distanceInMeters, float accuracyInMeters, boolean isDetailed, String distanceUnit) {
 		// IF distance unit is Imperial DO
 		if (distanceUnit.equals(UserPreferences.PREFS_DISTANCE_UNIT_IMPERIAL)) {
 			float distanceInFeet = distanceInMeters * Constant.FEET_PER_M;
@@ -558,7 +571,7 @@ public class Utils {
 	 * @return the distance string
 	 */
 	private static String getDistance(float distance, float accuracy, boolean isDetailed, float smallPerBig, int threshold, String smallUnit, String bigUnit) {
-		String result = "";
+		StringBuilder sb = new StringBuilder();
 		// IF the location is enough precise AND the accuracy is 10% or more of the distance DO
 		if (isDetailed && accuracy < distance && accuracy / distance > 0.1) {
 			float shorterDistanceInFeet = distance - accuracy / 2;
@@ -570,12 +583,12 @@ public class Utils {
 				float niceShorterDistanceInMile = ((Integer) Math.round(shorterDistanceInMile * 10)).floatValue() / 10;
 				float longerDistanceInMile = longerDistanceInFeet / smallPerBig;
 				float niceLongerDistanceInMile = ((Integer) Math.round(longerDistanceInMile * 10)).floatValue() / 10;
-				result = niceShorterDistanceInMile + " - " + niceLongerDistanceInMile + " " + bigUnit;
+				sb.append(niceShorterDistanceInMile).append(" - ").append(niceLongerDistanceInMile).append(" ").append(bigUnit);
 			} else {
 				// use "small unit"
 				int niceShorterDistanceInFeet = Math.round(shorterDistanceInFeet);
 				int niceLongerDistanceInFeet = Math.round(longerDistanceInFeet);
-				result = niceShorterDistanceInFeet + " - " + niceLongerDistanceInFeet + " " + smallUnit;
+				sb.append(niceShorterDistanceInFeet).append(" - ").append(niceLongerDistanceInFeet).append(" ").append(smallUnit);
 			}
 			// ELSE IF the accuracy of the location is more than the distance DO
 		} else if (accuracy > distance) { // basically, the location is in the blue circle in Maps
@@ -585,11 +598,11 @@ public class Utils {
 				// use "big unit"
 				float accuracyInMile = accuracy / smallPerBig;
 				float niceAccuracyInMile = ((Integer) Math.round(accuracyInMile * 10)).floatValue() / 10;
-				result += "< " + niceAccuracyInMile + " " + bigUnit;
+				sb.append("< ").append(niceAccuracyInMile).append(" ").append(bigUnit);
 			} else {
 				// use "small unit"
 				int niceAccuracyInFeet = Math.round(accuracy);
-				result += "< " + niceAccuracyInFeet + " " + smallUnit;
+				sb.append("< ").append(niceAccuracyInFeet).append(" ").append(smallUnit);
 			}
 			// TODO ? ELSE if accuracy non-significant DO show the longer distance ?
 		} else {
@@ -598,14 +611,14 @@ public class Utils {
 				// use "big unit"
 				float distanceInMile = distance / smallPerBig;
 				float niceDistanceInMile = ((Integer) Math.round(distanceInMile * 10)).floatValue() / 10;
-				result += niceDistanceInMile + " " + bigUnit;
+				sb.append(niceDistanceInMile).append(" ").append(bigUnit);
 			} else {
 				// use "small unit"
 				int niceDistanceInFeet = Math.round(distance);
-				result += niceDistanceInFeet + " " + smallUnit;
+				sb.append(niceDistanceInFeet).append(" ").append(smallUnit);
 			}
 		}
-		return result;
+		return sb.toString();
 	}
 
 	/**
@@ -776,6 +789,9 @@ public class Utils {
 		newFav.setFkId("9"); // Mont-Royal
 		newFav.setFkId2(null);
 		DataManager.addFav(context.getContentResolver(), newFav);
+		newFav.setType(Fav.KEY_TYPE_VALUE_BIKE_STATIONS);
+		newFav.setFkId("6415"); // Wilson / Sherbrooke
+		newFav.setFkId2(null);
 		SupportFactory.getInstance(context).backupManagerDataChanged();
 	}
 
@@ -815,4 +831,26 @@ public class Utils {
 		return (long) stat.getAvailableBlocks() * (long) stat.getBlockSize();
 	}
 
+	/**
+	 * @param timestampInMillis time-stamp in milliseconds
+	 * @return time-stamp in seconds
+	 */
+	public static int toTimestampInSeconds(Long timestampInMillis) {
+		if (timestampInMillis == null) {
+			return 0;
+		}
+		return (int) (timestampInMillis.longValue() / 1000);
+	}
+
+	public static String cleanBikeStationName(String uncleanPlace) {
+		String result = uncleanPlace;
+		
+		result = BusUtils.cleanBusStopPlace(result);
+		
+		// clean "/" => " / "
+		result = result.replaceAll("(\\w)(/)(\\w)", "$1 / $3");
+		
+		return result;
+	}
+	
 }

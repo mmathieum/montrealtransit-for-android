@@ -60,9 +60,13 @@ public class DataDbHelper extends SQLiteOpenHelper {
 	 */
 	public static final int KEY_FAVS_TYPE_VALUE_BUS_STOP = 1;
 	/**
-	 * The favorite type value for bus stops.
+	 * The favorite type value for subway stations.
 	 */
 	public static final int KEY_FAVS_TYPE_VALUE_SUBWAY_STATION = 2;
+	/**
+	 * The favorite type value for bike stations.
+	 */
+	public static final int KEY_FAVS_TYPE_VALUE_BIKE_STATION = 3;
 
 	/**
 	 * The history table.

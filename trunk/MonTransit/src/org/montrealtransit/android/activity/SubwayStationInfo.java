@@ -393,15 +393,12 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	 * Update the distance with the latest device location.
 	 */
 	private void updateDistanceWithNewLocation() {
-		MyLog.v(TAG, "updateDistanceWithNewLocation(%s)", getLocation());
-		if (getLocation() != null && this.subwayStation != null) {
+		Location currentLocation = getLocation();
+		MyLog.v(TAG, "updateDistanceWithNewLocation(%s)", currentLocation);
+		if (currentLocation != null && this.subwayStation != null) {
 			// distance & accuracy
-			Location stationLocation = LocationUtils.getNewLocation(subwayStation.getLat(), subwayStation.getLng());
-			float distanceInMeters = getLocation().distanceTo(stationLocation);
-			float accuracyInMeters = getLocation().getAccuracy();
-			// MyLog.d(TAG, "distance in meters: " + distanceInMeters + " (accuracy: " + accuracyInMeters + ").");
-			String distanceString = Utils.getDistanceString(this, distanceInMeters, accuracyInMeters);
-			((TextView) findViewById(R.id.distance)).setText(distanceString);
+			((TextView) findViewById(R.id.distance)).setText(Utils.getDistanceStringUsingPref(this,
+					currentLocation.distanceTo(LocationUtils.getNewLocation(subwayStation.getLat(), subwayStation.getLng())), currentLocation.getAccuracy()));
 		}
 	}
 

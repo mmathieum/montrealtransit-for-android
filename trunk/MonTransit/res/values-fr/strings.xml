@@ -84,9 +84,29 @@
     <string name="subway_status_updating">Mise à jour de l\'état du service &#8230;</string>
     <string name="subway_status_done">État du service mis à jour.</string>
     <string name="subway_status_loading_cancelled">Mise à jour de l\'état du service annulée.</string>
-    <string name="shake_closest_bus_line_stop_selected">Arrêt le plus proche de la ligne de bus sélectionné.</string>
+    <string name="shake_closest_bus_line_stop_selected">Arrêt le plus proche de la ligne de bus sélectionné</string>
     <string name="shake_closest_subway_line_station_selected">Station la plus proche de ligne de métro sélectionée</string>
-
+    <string name="shake_closest_subway_station_selected">Station de métro la plus proche sélectionée</string>
+    <string name="shake_closest_bike_station_selected">Closest bike station selected</string>
+    <string name="bike">Vélo</string>
+	<string name="bikes">Vélos</string>
+	<string name="bike_no">Aucun vélo!</string>
+	<string name="bike_and_nb">Vélos : %s</string>
+	<string name="bikes_and_nb">Vélos : %s</string>
+	<string name="dock">Emplacement</string>
+	<string name="docks">Emplacements</string>
+	<string name="dock_no">Aucun emplacement!</string>
+	<string name="dock_and_nb">Emplacement : %s</string>
+	<string name="docks_and_nb">Emplacements : %s</string>
+	<string name="bike_station">Station de vélo</string>
+	<string name="bike_stations">Stations de vélo</string>
+	<string name="closest_bike_stations">Stations proches</string>
+	<string name="closest_bike_stations_hour">Stations proches (%s)</string>
+	<string name="closest_bike_stations_error">Erreur pendant la recherche des stations proches.</string>
+	<string name="closest_bike_stations_cancelled">Recherche des stations proches annulée.</string>
+	<string name="bike_station_status">Disponibilité</string>
+	<string name="bike_station_status_hour">Disponibilité (%s)</string>
+    
     <string name="beta_pref_cat_title">BETA</string>
 	<string name="bus_stop_loc_pref_title">Emplacement des arrêts de bus.</string>
 	<string name="bus_stop_loc_pref_summary">Essayer d\'afficher l\'emplacement des arrêt de bus (BETA).</string>
@@ -201,6 +221,7 @@
     
     <string name="view_bus_stop">Afficher l\'arrêt</string>
 	<string name="view_subway_station">Afficher la station</string>
+	<string name="view_bike_station">Afficher la station</string>
     <string name="view_fav">Afficher le favori</string>
     <string name="remove_fav">Supprimer des favoris</string>
     <string name="no_fav">Pas de favoris.</string>

@@ -13,6 +13,8 @@ import org.montrealtransit.android.R;
 import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.api.SupportFactory;
+import org.montrealtransit.android.provider.BixiManager;
+import org.montrealtransit.android.provider.BixiStore.BikeStation;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.DataStore.Fav;
@@ -48,6 +50,11 @@ public class FavListTab extends Activity {
 	 * The tracker tag.
 	 */
 	private static final String TRACKER_TAG = "/FavList";
+
+	/**
+	 * The favorite bike station list.
+	 */
+	private List<DataStore.Fav> currentBikeStationFavList;
 
 	/**
 	 * The favorite subway stations list.
@@ -92,6 +99,8 @@ public class FavListTab extends Activity {
 			private List<DataStore.Fav> newSubwayFavList;
 			private Map<String, SubwayStation> stations;
 			private Map<String, List<SubwayLine>> otherLines;
+			private List<DataStore.Fav> newBikeFavList;
+			private Map<String, BikeStation> bikeStations;
 
 			@Override
 			protected Void doInBackground(Void... params) {
@@ -121,6 +130,17 @@ public class FavListTab extends Activity {
 					MyLog.d(TAG, "Loading subway station favorites from DB... DONE");
 				}
 
+				this.newBikeFavList = DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BIKE_STATIONS);
+				if (FavListTab.this.currentBikeStationFavList == null || !Fav.listEquals(FavListTab.this.currentBikeStationFavList, newBikeFavList)) {
+					MyLog.d(TAG, "Loading bike station favorites from DB...");
+					bikeStations = new HashMap<String, BikeStation>();
+					for (Fav bikeFav : this.newBikeFavList) {
+						BikeStation station = BixiManager.findBikeStation(getContentResolver(), bikeFav.getFkId());
+						bikeStations.put(bikeFav.getFkId(), station);
+					}
+					MyLog.d(TAG, "Loading bike station favorites from DB... DONE");
+				}
+
 				return null;
 			}
 
@@ -132,15 +152,19 @@ public class FavListTab extends Activity {
 				if (newSubwayFavList != null) { // IF favorite subway station list was refreshed DO update the UI
 					refreshSubwayStationsUI(this.newSubwayFavList, this.stations, this.otherLines);
 				}
+				if (newBikeFavList != null) { // IF favorite bike station list was refreshed DO update the UI
+					refreshBikeStationsUI(this.newBikeFavList, this.bikeStations);
+				}
 				showEmptyFav();
-				UserPreferences.savePrefLcl(
-						FavListTab.this,
-						UserPreferences.PREFS_LCL_IS_FAV,
-						Utils.getCollectionSize(FavListTab.this.currentBusStopFavList) > 0
-								|| Utils.getCollectionSize(FavListTab.this.currentSubwayStationFavList) > 0);
+				UserPreferences.savePrefLcl(FavListTab.this, UserPreferences.PREFS_LCL_IS_FAV, isThereAtLeastOneFavorite());
 			}
 
 		}.execute();
+	}
+
+	public boolean isThereAtLeastOneFavorite() {
+		return Utils.getCollectionSize(FavListTab.this.currentBusStopFavList) > 0 || Utils.getCollectionSize(FavListTab.this.currentSubwayStationFavList) > 0
+				|| Utils.getCollectionSize(FavListTab.this.currentBikeStationFavList) > 0;
 	}
 
 	/**
@@ -149,8 +173,7 @@ public class FavListTab extends Activity {
 	private void showEmptyFav() {
 		MyLog.v(TAG, "showEmptyFav()");
 		findViewById(R.id.loading).setVisibility(View.GONE);
-		if ((this.currentBusStopFavList == null || this.currentBusStopFavList.size() == 0)
-				&& (this.currentSubwayStationFavList == null || this.currentSubwayStationFavList.size() == 0)) {
+		if (!isThereAtLeastOneFavorite()) {
 			findViewById(R.id.lists).setVisibility(View.GONE);
 			findViewById(R.id.empty).setVisibility(View.VISIBLE);
 		} else {
@@ -162,10 +185,16 @@ public class FavListTab extends Activity {
 				findViewById(R.id.bus_stops_list).setVisibility(View.GONE);
 				return;
 			}
-			// IF there is no favorite bus stops DO
+			// IF there is no favorite subway stations DO
 			if (this.currentSubwayStationFavList == null || this.currentSubwayStationFavList.size() == 0) {
 				findViewById(R.id.fav_subway_stations).setVisibility(View.GONE);
 				findViewById(R.id.subway_stations_list).setVisibility(View.GONE);
+				return;
+			}
+			// IF there is no favorite bike stations DO
+			if (this.currentBikeStationFavList == null || this.currentBikeStationFavList.size() == 0) {
+				findViewById(R.id.fav_bike_stations).setVisibility(View.GONE);
+				findViewById(R.id.bike_stations_list).setVisibility(View.GONE);
 				return;
 			}
 		}
@@ -261,11 +290,7 @@ public class FavListTab extends Activity {
 													}
 													// refresh empty
 													showEmptyFav();
-													UserPreferences.savePrefLcl(
-															FavListTab.this,
-															UserPreferences.PREFS_LCL_IS_FAV,
-															Utils.getCollectionSize(FavListTab.this.currentBusStopFavList) > 0
-																	|| Utils.getCollectionSize(FavListTab.this.currentSubwayStationFavList) > 0);
+													UserPreferences.savePrefLcl(FavListTab.this, UserPreferences.PREFS_LCL_IS_FAV, isThereAtLeastOneFavorite());
 													// find the favorite to delete
 													Fav findFav = DataManager.findFav(FavListTab.this.getContentResolver(),
 															DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP, busStop.getCode(), busStop.getLineNumber());
@@ -382,11 +407,8 @@ public class FavListTab extends Activity {
 														}
 														// refresh empty
 														showEmptyFav();
-														UserPreferences.savePrefLcl(
-																FavListTab.this,
-																UserPreferences.PREFS_LCL_IS_FAV,
-																Utils.getCollectionSize(FavListTab.this.currentBusStopFavList) > 0
-																		|| Utils.getCollectionSize(FavListTab.this.currentSubwayStationFavList) > 0);
+														UserPreferences.savePrefLcl(FavListTab.this, UserPreferences.PREFS_LCL_IS_FAV,
+																isThereAtLeastOneFavorite());
 														// delete the favorite
 														Fav findFav = DataManager.findFav(FavListTab.this.getContentResolver(),
 																DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION, station.getId(), null);
@@ -406,6 +428,97 @@ public class FavListTab extends Activity {
 				} else {
 					MyLog.w(TAG, "Can't find the favorite subway station (ID:%s)", subwayFav.getFkId());
 				}
+			}
+		}
+	}
+
+	/**
+	 * Refresh bike station UI.
+	 * @param newBikeFavList the new favorite bike stations list
+	 * @param bikeStations the new favorite bike stations
+	 */
+	private void refreshBikeStationsUI(List<DataStore.Fav> newBikeFavList, Map<String, BikeStation> bikeStations) {
+		// MyLog.v(TAG, "refreshBikeStationsUI(%s,%s)", Utils.getCollectionSize(newBikeFavList), Utils.getMapSize(bikeStations));
+		if (this.currentBikeStationFavList == null || this.currentBikeStationFavList.size() != newBikeFavList.size()) {
+			LinearLayout bikeStationsLayout = (LinearLayout) findViewById(R.id.bike_stations_list);
+			// remove all bike station views
+			bikeStationsLayout.removeAllViews();
+			// use new favorite bike station
+			this.currentBikeStationFavList = newBikeFavList;
+			findViewById(R.id.lists).setVisibility(View.VISIBLE);
+			findViewById(R.id.fav_bike_stations).setVisibility(View.VISIBLE);
+			bikeStationsLayout.setVisibility(View.VISIBLE);
+			// FOR EACH favorite bike DO
+			for (final BikeStation bikeStation : bikeStations.values()) {
+				// list view divider
+				if (bikeStationsLayout.getChildCount() > 0) {
+					bikeStationsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+				}
+				// create view
+				View view = getLayoutInflater().inflate(R.layout.fav_list_tab_bike_station_item, null);
+				// subway station name
+				((TextView) view.findViewById(R.id.station_name)).setText(bikeStation.getName());
+				// add click listener
+				view.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						MyLog.v(TAG, "onClick(%s)", v.getId());
+						Intent intent = new Intent(FavListTab.this, BikeStationInfo.class);
+						intent.putExtra(BikeStationInfo.EXTRA_STATION_TERMINAL_NAME, bikeStation.getTerminalName());
+						intent.putExtra(BikeStationInfo.EXTRA_STATION_NAME, bikeStation.getName());
+						startActivity(intent);
+					}
+				});
+				// add context menu
+				view.setOnLongClickListener(new View.OnLongClickListener() {
+					@Override
+					public boolean onLongClick(View v) {
+						MyLog.v(TAG, "onLongClick(%s)", v.getId());
+						final View theViewToDelete = v;
+						new AlertDialog.Builder(FavListTab.this)
+								.setTitle(bikeStation.getName())
+								.setItems(new CharSequence[] { getString(R.string.view_bike_station), getString(R.string.remove_fav) },
+										new DialogInterface.OnClickListener() {
+											public void onClick(DialogInterface dialog, int item) {
+												MyLog.v(TAG, "onClick(%s)", item);
+												switch (item) {
+												case VIEW_CONTEXT_MENU_INDEX:
+													Intent intent = new Intent(FavListTab.this, BikeStationInfo.class);
+													intent.putExtra(BikeStationInfo.EXTRA_STATION_TERMINAL_NAME, bikeStation.getTerminalName());
+													intent.putExtra(BikeStationInfo.EXTRA_STATION_NAME, bikeStation.getName());
+													startActivity(intent);
+													break;
+												case DELETE_CONTEXT_MENU_INDEX:
+													// remove the view from the UI
+													((LinearLayout) findViewById(R.id.bike_stations_list)).removeView(theViewToDelete);
+													// remove the favorite from the current list
+													Iterator<Fav> it = FavListTab.this.currentBikeStationFavList.iterator();
+													while (it.hasNext()) {
+														DataStore.Fav fav = (DataStore.Fav) it.next();
+														if (fav.getFkId().equals(bikeStation.getTerminalName())) {
+															it.remove();
+															break;
+														}
+													}
+													// refresh empty
+													showEmptyFav();
+													UserPreferences.savePrefLcl(FavListTab.this, UserPreferences.PREFS_LCL_IS_FAV, isThereAtLeastOneFavorite());
+													// delete the favorite
+													Fav findFav = DataManager.findFav(FavListTab.this.getContentResolver(),
+															DataStore.Fav.KEY_TYPE_VALUE_BIKE_STATIONS, bikeStation.getTerminalName(), null);
+													// delete the favorite
+													DataManager.deleteFav(FavListTab.this.getContentResolver(), findFav.getId());
+													SupportFactory.getInstance(FavListTab.this).backupManagerDataChanged();
+													break;
+												default:
+													break;
+												}
+											}
+										}).create().show();
+						return true;
+					}
+				});
+				bikeStationsLayout.addView(view);
 			}
 		}
 	}

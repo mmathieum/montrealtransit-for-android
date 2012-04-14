@@ -14,14 +14,14 @@ import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.TwitterUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.ASubwayStation;
-import org.montrealtransit.android.data.ClosestSubwayStations;
+import org.montrealtransit.android.data.ClosestPOI;
 import org.montrealtransit.android.dialog.SubwayLineSelectDirection;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore.ServiceStatus;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore.SubwayLine;
-import org.montrealtransit.android.services.ClosestSubwayStationsFinderListener;
 import org.montrealtransit.android.services.ClosestSubwayStationsFinderTask;
+import org.montrealtransit.android.services.ClosestSubwayStationsFinderTask.ClosestSubwayStationsFinderListener;
 import org.montrealtransit.android.services.StmInfoStatusApiReader;
 import org.montrealtransit.android.services.StmInfoStatusReaderListener;
 
@@ -33,6 +33,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Address;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.AsyncTask;
@@ -85,7 +86,15 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	/**
 	 * The closest stations.
 	 */
-	private ClosestSubwayStations closestStations;
+	private List<ASubwayStation> closestStations;
+	/**
+	 * The location used to generate the closest stations.
+	 */
+	private Location closestStationsLocation;
+	/**
+	 * The location address used to generate the closest stations.
+	 */
+	protected Address closestStationsLocationAddress;
 
 	/**
 	 * The task used to load the subway status.
@@ -216,11 +225,11 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 */
 	private void showClosestStation() {
 		MyLog.v(TAG, "showClosestStation()");
-		if (!this.shakeHandled && this.closestStations != null && this.closestStations.getStations().size() > 0) {
+		if (!this.shakeHandled && this.closestStations != null && this.closestStations.size() > 0) {
 			Toast.makeText(this, R.string.shake_closest_subway_line_station_selected, Toast.LENGTH_SHORT).show();
 			Intent intent = new Intent(this, SubwayStationInfo.class);
-			intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, this.closestStations.getStations().get(0).getId());
-			intent.putExtra(SubwayStationInfo.EXTRA_STATION_NAME, this.closestStations.getStations().get(0).getName());
+			intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, this.closestStations.get(0).getId());
+			intent.putExtra(SubwayStationInfo.EXTRA_STATION_NAME, this.closestStations.get(0).getName());
 			startActivity(intent);
 			this.shakeHandled = true;
 		}
@@ -563,7 +572,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			// show the closest stations
 			showNewClosestStations();
 			// IF the latest location is too old DO
-			if (LocationUtils.isTooOld(this.closestStations.getLocation())) {
+			if (LocationUtils.isTooOld(this.closestStationsLocation)) {
 				// start refreshing
 				refreshClosestStations();
 			}
@@ -577,8 +586,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		MyLog.v(TAG, "showNewClosestStations()");
 		if (this.closestStations != null) {
 			// set the closest station title
-			String text = LocationUtils.getLocationString(this, this.closestStations.getLocationAddress(), this.closestStations.getLocation().getAccuracy());
-			((TextView) findViewById(R.id.closest_stations_title).findViewById(R.id.closest_subway_stations)).setText(text);
+			showNewClosestStationsTitle();
 			// hide loading
 			if (findViewById(R.id.closest_stations_loading) != null) { // IF inflated/present DO
 				findViewById(R.id.closest_stations_loading).setVisibility(View.GONE); // hide
@@ -592,7 +600,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			// show stations list
 			closestStationsLayout.setVisibility(View.VISIBLE);
 			int i = 1;
-			for (ASubwayStation station : this.closestStations.getStations()) {
+			for (ASubwayStation station : this.closestStations) {
 				// list view divider
 				if (closestStationsLayout.getChildCount() > 0) {
 					closestStationsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
@@ -650,6 +658,16 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	}
 
 	/**
+	 * Show new closest stations title.
+	 */
+	public void showNewClosestStationsTitle() {
+		if (this.closestStationsLocationAddress != null && this.closestStationsLocation != null) {
+			String text = LocationUtils.getLocationString(this, this.closestStationsLocationAddress, this.closestStationsLocation.getAccuracy());
+			((TextView) findViewById(R.id.closest_stations_title).findViewById(R.id.closest_subway_stations)).setText(text);
+		}
+	}
+
+	/**
 	 * Start the refresh closest stations tasks if necessary.
 	 */
 	private void refreshClosestStations() {
@@ -658,10 +676,29 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		if (this.closestStationsTask == null || !this.closestStationsTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
 			setClosestStationsLoading();
 			// IF location found DO
-			if (getLocation() != null) {
+			Location currentLocation = getLocation();
+			if (currentLocation != null) {
 				// find the closest stations
 				this.closestStationsTask = new ClosestSubwayStationsFinderTask(this, this);
-				this.closestStationsTask.execute(getLocation());
+				this.closestStationsTask.execute(currentLocation);
+				this.closestStationsLocation = currentLocation;
+				new AsyncTask<Location, Void, Address>() {
+
+					@Override
+					protected Address doInBackground(Location... locations) {
+						return LocationUtils.getLocationAddress(SubwayTab.this, locations[0]);
+					}
+
+					@Override
+					protected void onPostExecute(Address result) {
+						boolean refreshRequired = SubwayTab.this.closestStationsLocationAddress == null;
+						SubwayTab.this.closestStationsLocationAddress = result;
+						if (refreshRequired) {
+							showNewClosestStationsTitle();
+						}
+					}
+
+				}.execute(this.closestStationsLocation);
 			}
 			// ELSE wait for location...
 		}
@@ -772,7 +809,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 
 	@Override
 	public void onClosestStationsProgress(String progress) {
-		MyLog.v(TAG, "onClosestStationsProgress()");
+		MyLog.v(TAG, "onClosestStationsProgress(%s)", progress);
 		// if (this.closestStations != null) {notify the user ?
 		if (this.closestStations == null) {
 			// update the BIG message
@@ -784,14 +821,14 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	}
 
 	@Override
-	public void onClosestStationsDone(ClosestSubwayStations result) {
+	public void onClosestStationsDone(ClosestPOI<ASubwayStation> result) {
 		MyLog.v(TAG, "onClosestStationsDone()");
-		if (result == null) {
+		if (result == null || result.getPoiListOrNull() == null) {
 			// show the error
 			setClosestStationsError();
 		} else {
 			// get the result
-			this.closestStations = result;
+			this.closestStations = result.getPoiList();
 			// shot the result
 			showNewClosestStations();
 			setClosestStationsNotLoading();
@@ -803,23 +840,25 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 */
 	private void updateDistancesWithNewLocation() {
 		MyLog.v(TAG, "updateDistancesWithNewLocation()");
+		Location currentLocation = getLocation();
 		// IF no closest stations AND new location DO
-		if (this.closestStations == null && getLocation() != null) {
+		if (this.closestStations == null && currentLocation != null) {
 			// start refreshing if not running.
 			refreshClosestStations();
 			return;
 		}
 		// ELSE IF there are closest stations AND new location DO
-		if (this.closestStations != null && getLocation() != null) {
+		if (this.closestStations != null && currentLocation != null) {
 			// update the list distances
-			float accuracyInMeters = getLocation().getAccuracy();
-			for (ASubwayStation station : this.closestStations.getStations()) {
+			float accuracyInMeters = currentLocation.getAccuracy();
+			boolean isDetailed = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
+					UserPreferences.PREFS_DISTANCE_DETAILED);
+			String distanceUnit = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
+			for (ASubwayStation station : this.closestStations) {
 				// distance
-				Location stationLocation = LocationUtils.getNewLocation(station.getLat(), station.getLng());
-				float distanceInMeters = getLocation().distanceTo(stationLocation);
+				station.setDistance(currentLocation.distanceTo(LocationUtils.getNewLocation(station.getLat(), station.getLng())));
 				// MyLog.v(TAG, "distance in meters: " + distanceInMeters + " (accuracy: " + accuracyInMeters + ").");
-				String distanceString = Utils.getDistanceString(this, distanceInMeters, accuracyInMeters);
-				station.setDistanceString(distanceString);
+				station.setDistanceString(Utils.getDistanceString(station.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
 			}
 			// update the view
 			refreshClosestSubwayStationsDistancesList();
@@ -833,7 +872,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		MyLog.v(TAG, "refreshClosestSubwayStationsDistancesList()");
 		findViewById(R.id.closest_stations).setVisibility(View.VISIBLE);
 		int i = 1;
-		for (ASubwayStation station : this.closestStations.getStations()) {
+		for (ASubwayStation station : this.closestStations) {
 			View stationView = findViewById(R.id.closest_stations).findViewWithTag("station" + i++);
 			if (stationView != null && !TextUtils.isEmpty(station.getDistanceString())) {
 				((TextView) stationView.findViewById(R.id.distance)).setText(station.getDistanceString());

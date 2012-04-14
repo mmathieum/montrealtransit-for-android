@@ -10,15 +10,15 @@ import android.location.Address;
 import android.location.Location;
 
 /**
- * Represent list of close {@link ASubwayStation} and the location (+address).
+ * Represent list of close Point Of Interest and the location (+address).
  * @author Mathieu Méa
  */
-public class ClosestSubwayStations {
+public class ClosestPOI<T> {
 
 	/**
-	 * The closest stations.
+	 * The closest Point Of Interest list.
 	 */
-	private List<ASubwayStation> stations;
+	private List<T> poiList;
 	/**
 	 * The location.
 	 */
@@ -27,31 +27,46 @@ public class ClosestSubwayStations {
 	 * The location address.
 	 */
 	private Address locationAddress;
+	
+	private String errorMessage;
 
 	/**
 	 * The default constructor.
 	 */
-	public ClosestSubwayStations() {
+	public ClosestPOI() {
 	}
 
 	/**
-	 * Set the location and the location address.
+	 * Set the location and LOAD the location address.
 	 * @param location the location
 	 * @param context the context
 	 */
+	@Deprecated
 	public void setLocationAndAddress(Location location, Context context) {
 		this.location = location;
 		this.locationAddress = LocationUtils.getLocationAddress(context, this.location);
 	}
+	
+	public void setLocation(Location location) {
+		this.location = location;
+	}
 
 	/**
-	 * @return the stations (initialize if null)
+	 * @return the Point Of Interest list (initialize if null)
 	 */
-	public List<ASubwayStation> getStations() {
-		if (this.stations == null) {
-			this.stations = new ArrayList<ASubwayStation>();
+	public List<T> getPoiList() {
+		if (this.poiList == null) {
+			this.poiList = new ArrayList<T>();
 		}
-		return this.stations;
+		return this.poiList;
+	}
+	
+	public  List<T> getPoiListOrNull() {
+		return this.poiList;
+	}
+	
+	public void setPoiList(List<T> poiList) {
+		this.poiList = poiList;
 	}
 
 	/**
@@ -66,5 +81,13 @@ public class ClosestSubwayStations {
 	 */
 	public Address getLocationAddress() {
 		return this.locationAddress;
+	}
+	
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
+	}
+	
+	public String getErrorMessage() {
+		return errorMessage;
 	}
 }
