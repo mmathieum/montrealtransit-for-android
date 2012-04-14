@@ -45,7 +45,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 	public static final String SOURCE = "montreal.bixi.com";
 
 	/**
-	 * The stm.info XML URL.
+	 * The montreal.bixi.com XML URL.
 	 */
 	public static final String XML_SOURCE = "https://montreal.bixi.com/data/bikeStations.xml";
 
@@ -95,7 +95,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 			// just return all (or none!)
 			return updatedBikeStations;
 		}
-		// else filter to only returns the required bike station(s)
+		// ELSE filter to only returns the required bike station(s)
 		List<BikeStation> result = new ArrayList<BikeStation>();
 		for (BikeStation updatedBikeStation : updatedBikeStations) {
 			for (String bikeStationTerminalName : bikeStationTerminalNames) {
@@ -108,7 +108,6 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 				break; // found all
 			}
 		}
-
 		return result;
 	}
 
@@ -188,9 +187,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 			// synchronously update these bike stations
 			for (BikeStation newBikeStation : newBikeStations) {
 				if (forceDBUpdateTerminalNames.contains(newBikeStation.getTerminalName())) {
-					BixiManager.deleteBikeStation(context.getContentResolver(), newBikeStation.getTerminalName());
-					BixiManager.addBikeStation(context.getContentResolver(), newBikeStation, false);
-					// TODO BixiManager.updateBikeStation(context.getContentResolver(), newBikeStation, newBikeStation.getTerminalName());
+					BixiManager.updateBikeStation(context.getContentResolver(), newBikeStation, newBikeStation.getTerminalName());
 					updated++;
 					// TODO remove updated bike station from list
 				}
@@ -230,12 +227,9 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 			BikeStation bikeStation = (BikeStation) newIt.next();
 			if (oldBikeStations != null && oldBikeStations.containsKey(bikeStation.getTerminalName())) {
 				// update existing bike station
-				// boolean forced = forceDBUpdateTerminalNames != null && forceDBUpdateTerminalNames.contains(bikeStation.getTerminalName());
-				// IF forced DB update (OR one of the forced updates) OR bike station changed DO
-				if (forceDBUpdate /* || forced */|| !BikeStation.equals(bikeStation, oldBikeStations.get(bikeStation.getTerminalName()))) {
-					BixiManager.deleteBikeStation(context.getContentResolver(), bikeStation.getTerminalName());
-					BixiManager.addBikeStation(context.getContentResolver(), bikeStation, false);
-					// TODO BixiManager.updateBikeStation(context.getContentResolver(), bikeStation, bikeStation.getTerminalName());
+				// IF forced DB update OR bike station changed DO
+				if (forceDBUpdate || !BikeStation.equals(bikeStation, oldBikeStations.get(bikeStation.getTerminalName()))) {
+					BixiManager.updateBikeStation(context.getContentResolver(), bikeStation, bikeStation.getTerminalName());
 					reallyUpdated++;
 				} else {
 					notRealyUpdated++;

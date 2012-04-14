@@ -64,9 +64,7 @@ public class BixiManager {
 	 * @param newBikeStation the new bike station
 	 * @param terminal the new bike station terminal name (ID)
 	 * @return true if 1 (or more) bike stations entries have been updated
-	 * @deprecated NOT WORKING use {@link #deleteBikeStation(ContentResolver, String)} and {@link #addBikeStation(ContentResolver, BikeStation, boolean)} for now
 	 */
-	@Deprecated
 	public static boolean updateBikeStation(ContentResolver contentResolver, BikeStation newBikeStation, String terminalName) {
 		MyLog.v(TAG, "updateBikeStation(%s)", terminalName);
 		return contentResolver.update(Uri.withAppendedPath(BikeStation.CONTENT_URI, terminalName), newBikeStation.getContentValues(), null, null)  > 0;
