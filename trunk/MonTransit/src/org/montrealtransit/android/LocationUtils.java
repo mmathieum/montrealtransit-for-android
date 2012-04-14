@@ -248,13 +248,19 @@ public class LocationUtils {
 		Geocoder geocoder = new Geocoder(context);
 		try {
 			int maxResults = 1;
+			MyLog.d(TAG, "before geocoder get address: " + System.currentTimeMillis());
 			List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), maxResults);
+			MyLog.d(TAG, "after geocoder get address: " + System.currentTimeMillis());
 			if (addresses != null && addresses.size() >= 1) {
 				result = addresses.get(0);
 				// MyLog.d(TAG, "Found address: %s", result.getAddressLine(0));
 			}
 		} catch (IOException ioe) {
-			MyLog.w(TAG, ioe, "Can't find the adress of the current location!");
+			if (MyLog.isLoggable(Log.DEBUG)) {
+				MyLog.w(TAG, ioe, "Can't find the adress of the current location!");
+			} else {
+				MyLog.w(TAG, "Can't find the adress of the current location!");
+			}
 		}
 		return result;
 	}
@@ -281,7 +287,7 @@ public class LocationUtils {
 				text += ", " + locationAddress.getLocality();
 			}
 			if (accuracy != null) {
-				text += " ± " + Utils.getDistanceString(context, accuracy, 0);
+				text += " ± " + Utils.getDistanceStringUsingPref(context, accuracy, 0);
 			}
 			text += ")";
 		}
