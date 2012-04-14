@@ -248,9 +248,7 @@ public class LocationUtils {
 		Geocoder geocoder = new Geocoder(context);
 		try {
 			int maxResults = 1;
-			MyLog.d(TAG, "before geocoder get address: " + System.currentTimeMillis());
 			List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), maxResults);
-			MyLog.d(TAG, "after geocoder get address: " + System.currentTimeMillis());
 			if (addresses != null && addresses.size() >= 1) {
 				result = addresses.get(0);
 				// MyLog.d(TAG, "Found address: %s", result.getAddressLine(0));
