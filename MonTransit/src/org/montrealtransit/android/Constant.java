@@ -56,6 +56,8 @@ public class Constant {
 
 	public static final String PLACE_CHAR_PARENTHESE_STATION = PLACE_CHAR_PARENTHESE + "station ";
 	public static final int PLACE_CHAR_PARENTHESE_STATION_LENGTH = PLACE_CHAR_PARENTHESE_STATION.length();
+	public static final String PLACE_CHAR_PARENTHESE_STATION_BIG = PLACE_CHAR_PARENTHESE + "Station ";
+	public static final int PLACE_CHAR_PARENTHESE_STATION_BIG_LENGTH = PLACE_CHAR_PARENTHESE_STATION_BIG.length();
 
 	/**
 	 * Montreal location (source:wikipedia.org)

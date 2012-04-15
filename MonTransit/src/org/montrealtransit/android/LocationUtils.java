@@ -118,7 +118,7 @@ public class LocationUtils {
 	 */
 	public static String locationToString(Location location) {
 		return String.format("%s > %s,%s (%s) %s seconds ago", location.getProvider(), location.getLatitude(), location.getLongitude(), location.getAccuracy(),
-				((System.currentTimeMillis() - location.getTime()) / 1000));
+				Utils.toTimestampInSeconds((System.currentTimeMillis() - location.getTime())));
 	}
 
 	/**

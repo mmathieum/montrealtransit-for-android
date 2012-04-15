@@ -315,9 +315,8 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 					// show latest service status
 					showNewStatus();
 					// check service age
-					int nowInSec = (int) (System.currentTimeMillis() / 1000);
 					// IF the latest service is too old DO
-					if (nowInSec >= SubwayTab.this.serviceStatus.getReadDate() + STATUS_TOO_OLD_IN_SEC) {
+					if (Utils.currentTimeSec() >= SubwayTab.this.serviceStatus.getReadDate() + STATUS_TOO_OLD_IN_SEC) {
 						// look for new service status
 						refreshStatus();
 					}
