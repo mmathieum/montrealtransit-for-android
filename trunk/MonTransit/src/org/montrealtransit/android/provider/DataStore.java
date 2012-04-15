@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.montrealtransit.android.MyLog;
+import org.montrealtransit.android.Utils;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -786,7 +787,7 @@ public class DataStore {
 		 * @param object the cache object
 		 */
 		public Cache(int type, String fkId, String object) {
-			this.date = (int) (System.currentTimeMillis() / 1000);
+			this.date = Utils.currentTimeSec();
 			this.type = type;
 			this.fkId = fkId;
 			this.object = object;

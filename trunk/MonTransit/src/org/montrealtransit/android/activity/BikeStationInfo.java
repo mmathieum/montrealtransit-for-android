@@ -64,7 +64,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	/**
 	 * The validity of the cache (in seconds).
 	 */
-	private static final int CACHE_TOO_OLD_IN_SEC = 15 * 60; // 15 minutes
+	private static final int CACHE_TOO_OLD_IN_SEC = 10 * 60; // 10 minutes
 
 	/**
 	 * The bike station.
@@ -334,6 +334,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			showNewBikeStationStatus();
 			setStatusNotLoading();
 		} else {
+			setStatusNotLoading();
 			setStatusError();
 		}
 
@@ -571,11 +572,26 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	private void showBikeStationStatus() {
 		MyLog.v(TAG, "showBikeStationStatus()");
 		// compute the too old date
-		int tooOld = (int) (System.currentTimeMillis() / 1000) - CACHE_TOO_OLD_IN_SEC;
-		if (tooOld >= this.bikeStation.getLatestUpdateTime()) {
+		int tooOld = Utils.currentTimeSec() - CACHE_TOO_OLD_IN_SEC;
+		if (tooOld >= getLastUpdateTime()) {
 			refreshStatus(null); // asynchronously start refreshing
 		}
 		showNewBikeStationStatus();
+	}
+
+	/**
+	 * @return the last update time
+	 */
+	public int getLastUpdateTime() {
+		int timestamp = 0;
+		timestamp = UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, 0);
+		if (timestamp == 0 && this.bikeStation != null) {
+			 timestamp = this.bikeStation.getLatestUpdateTime();
+		}
+		if (timestamp == 0) {
+			timestamp =  Utils.currentTimeSec(); // use device time
+		}
+		return timestamp;
 	}
 
 	/**
@@ -622,10 +638,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		progressBar.setProgress(this.bikeStation.getNbBikes());
 		progressBar.setIndeterminate(false);
 		// show last update time
-		int timestamp = this.bikeStation.getLatestUpdateTime(); // from data source
-		if (timestamp == 0) {
-			timestamp = UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, 0); // use device time
-		}
+		int timestamp = getLastUpdateTime();
 		if (timestamp != 0) {
 			CharSequence readTime = Utils.formatSameDayDateInSec(timestamp);
 			final String sectionTitle = getString(R.string.bike_station_status_hour, readTime);

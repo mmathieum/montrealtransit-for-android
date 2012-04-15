@@ -138,7 +138,7 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 		// dates
 		int pubDate = (int) (twitterStatus.getCreatedAt().getTime() / 1000);
 		serviceStatus.setPubDate(pubDate);
-		int readDate = (int) (System.currentTimeMillis() / 1000);
+		int readDate = Utils.currentTimeSec(); // now
 		serviceStatus.setReadDate(readDate);
 		// source name
 		serviceStatus.setSourceName("stminfo");

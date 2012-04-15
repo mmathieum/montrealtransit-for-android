@@ -729,7 +729,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 				this.cache = DataManager.findCache(getContentResolver(), Cache.KEY_TYPE_VALUE_BUS_STOP, busStop.getUID());
 			}
 			// compute the too old date
-			int tooOld = (int) (System.currentTimeMillis() / 1000) - CACHE_TOO_OLD_IN_SEC;
+			int tooOld = Utils.currentTimeSec() - CACHE_TOO_OLD_IN_SEC;
 			// IF the cache is too old DO
 			if (this.cache != null && tooOld >= this.cache.getDate()) {
 				// don't use the cache

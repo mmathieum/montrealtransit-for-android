@@ -367,6 +367,9 @@ public class BusUtils {
 		if (result.contains(Constant.PLACE_CHAR_PARENTHESE_STATION)) {
 			result = result.replace(Constant.PLACE_CHAR_PARENTHESE_STATION, Constant.PLACE_CHAR_PARENTHESE);
 		}
+		if (result.contains(Constant.PLACE_CHAR_PARENTHESE_STATION_BIG)) {
+			result = result.replace(Constant.PLACE_CHAR_PARENTHESE_STATION_BIG, Constant.PLACE_CHAR_PARENTHESE);
+		}
 		// TODO MORE ?
 		return result;
 	}

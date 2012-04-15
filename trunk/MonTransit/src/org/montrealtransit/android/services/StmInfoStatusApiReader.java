@@ -16,6 +16,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
+import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore.ServiceStatus;
 import org.xml.sax.Attributes;
@@ -198,7 +199,7 @@ public class StmInfoStatusApiReader extends AsyncTask<String, String, String> {
 				serviceStatus.setMessage(string);
 				serviceStatus.setType(type);
 				// date
-				int now = (int) (System.currentTimeMillis() / 1000);
+				int now = Utils.currentTimeSec();
 				serviceStatus.setReadDate(now);
 				serviceStatus.setPubDate(now);
 				// source name

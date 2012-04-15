@@ -843,15 +843,27 @@ public class Utils {
 		return (int) (timestampInMillis.longValue() / 1000);
 	}
 
-	public static String cleanBikeStationName(String uncleanPlace) {
-		String result = uncleanPlace;
-		
+	/**
+	 * @return the local system time in seconds
+	 */
+	public static int currentTimeSec() {
+		return toTimestampInSeconds(System.currentTimeMillis());
+	}
+
+	/**
+	 * Clean a bike station name.
+	 * @param uncleanStation the source station string
+	 * @return the cleaned bike station
+	 */
+	public static String cleanBikeStationName(String uncleanStation) {
+		String result = uncleanStation;
+
 		result = BusUtils.cleanBusStopPlace(result);
-		
+
 		// clean "/" => " / "
 		result = result.replaceAll("(\\w)(/)(\\w)", "$1 / $3");
-		
+
 		return result;
 	}
-	
+
 }

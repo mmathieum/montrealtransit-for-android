@@ -97,7 +97,9 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	 * The task used to load the closest bike stations.
 	 */
 	private ClosestBikeStationsFinderTask closestBikeStationsTask;
-
+	/**
+	 * Number of closest bike stations displayed.
+	 */
 	private static final int NB_CLOSEST_BIKE_STATIONS = ClosestBikeStationsFinderTask.NO_LIMIT;
 
 	/**

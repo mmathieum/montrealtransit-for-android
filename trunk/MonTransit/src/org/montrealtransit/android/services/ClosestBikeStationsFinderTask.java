@@ -3,6 +3,7 @@ package org.montrealtransit.android.services;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import org.montrealtransit.android.LocationUtils;
@@ -85,11 +86,12 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 			List<BikeStation> bikeStations = null;
 			// IF the local cache is too old DO
 			if (FORCE_UPDATE_FROM_WEB
-					|| Utils.toTimestampInSeconds(System.currentTimeMillis()) >= UserPreferences.getPrefLcl(this.context,
+					|| Utils.currentTimeSec() >= UserPreferences.getPrefLcl(this.context,
 							UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, 0) + BIKE_STATION_LIST_TOO_OLD_IN_SEC) {
 				publishProgress(this.context.getString(R.string.downloading_data_from_and_source, BixiDataReader.SOURCE));
 				// look for new data
 				bikeStations = BixiDataReader.doInForeground(this.context, this, true, null);
+				removeNotInstalled(bikeStations);
 			} else {
 				publishProgress(this.context.getString(R.string.processing));
 				// get the closest bike station from database or NULL
@@ -102,6 +104,20 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * Remove not installed station
+	 * @param bikeStations the bike stations list to update
+	 */
+	private void removeNotInstalled(List<BikeStation> bikeStations) {
+		Iterator<BikeStation> it = bikeStations.iterator();
+		while (it.hasNext()) {
+			BikeStation bikeStation = (BikeStation) it.next();
+			if (!bikeStation.isInstalled()) {
+				it.remove();
+			}
+		}
 	}
 
 	/**
