@@ -55,7 +55,7 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 	 * The maximum number of results (0 = no limit).
 	 */
 	private int maxResult = NO_LIMIT;
-	
+
 	/**
 	 * Represents no limit in the number of returned result.
 	 */
@@ -86,8 +86,8 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 			List<BikeStation> bikeStations = null;
 			// IF the local cache is too old DO
 			if (FORCE_UPDATE_FROM_WEB
-					|| Utils.currentTimeSec() >= UserPreferences.getPrefLcl(this.context,
-							UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, 0) + BIKE_STATION_LIST_TOO_OLD_IN_SEC) {
+					|| Utils.currentTimeSec() >= UserPreferences.getPrefLcl(this.context, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, 0)
+							+ BIKE_STATION_LIST_TOO_OLD_IN_SEC) {
 				publishProgress(this.context.getString(R.string.downloading_data_from_and_source, BixiDataReader.SOURCE));
 				// look for new data
 				bikeStations = BixiDataReader.doInForeground(this.context, this, true, null);
@@ -111,11 +111,13 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 	 * @param bikeStations the bike stations list to update
 	 */
 	private void removeNotInstalled(List<BikeStation> bikeStations) {
-		Iterator<BikeStation> it = bikeStations.iterator();
-		while (it.hasNext()) {
-			BikeStation bikeStation = (BikeStation) it.next();
-			if (!bikeStation.isInstalled()) {
-				it.remove();
+		if (bikeStations != null) {
+			Iterator<BikeStation> it = bikeStations.iterator();
+			while (it.hasNext()) {
+				BikeStation bikeStation = (BikeStation) it.next();
+				if (!bikeStation.isInstalled()) {
+					it.remove();
+				}
 			}
 		}
 	}
