@@ -36,7 +36,7 @@ public class StmProvider extends ContentProvider {
 	/**
 	 * The content provider authority as described in the AndroidManifest.
 	 */
-	public static final String AUTHORITY = Constant.PKG;
+	public static final String AUTHORITY = Constant.PKG + ".stm";
 
 	/**
 	 * The content URIs matcher IDs.
