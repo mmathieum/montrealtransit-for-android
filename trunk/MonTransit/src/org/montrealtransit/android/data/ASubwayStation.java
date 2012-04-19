@@ -6,6 +6,8 @@ import java.util.Set;
 
 import org.montrealtransit.android.provider.StmStore.SubwayStation;
 
+import android.graphics.Matrix;
+
 /**
  * Represents a localized subway station.
  * @author Mathieu Méa
@@ -28,6 +30,10 @@ public class ASubwayStation extends SubwayStation {
 	 * The distance in meter.
 	 */
 	private float distance;
+	/**
+	 * The compass rotation matrix.
+	 */
+	private Matrix compassMatrix;
 
 	/**
 	 * The default constructor.
@@ -115,5 +121,19 @@ public class ASubwayStation extends SubwayStation {
 	 */
 	public float getDistance() {
 		return distance;
+	}
+
+	/**
+	 * @param matrix the new compass rotation matrix
+	 */
+	public void setCompassMatrix(Matrix matrix) {
+		this.compassMatrix = matrix;
+	}
+
+	/**
+	 * @return the compass rotation matrix
+	 */
+	public Matrix getCompassMatrix() {
+		return compassMatrix;
 	}
 }

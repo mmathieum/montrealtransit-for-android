@@ -41,6 +41,19 @@
         android:text="@string/ellipsis"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:visibility="gone" />
+    <!-- COMPASS -->
+    <ImageView
+        android:id="@+id/compass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+        android:layout_marginTop="3dp"
+        android:layout_toLeftOf="@+id/distance"
+        android:scaleType="matrix"
+        android:src="@drawable/heading_arrow"
+        android:visibility="gone" />
     <!-- BUS STOP PLACE -->
     <TextView
         android:id="@+id/place"
@@ -48,7 +61,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        android:layout_toLeftOf="@id/distance"
+        android:layout_toLeftOf="@id/compass"
         android:ellipsize="marquee"
         android:layout_marginLeft="5dip"
         android:layout_marginRight="5dip"
@@ -61,7 +74,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/subway_img"
-        android:layout_toLeftOf="@id/distance"
+        android:layout_toLeftOf="@id/compass"
         android:layout_above="@id/place"
         android:layout_marginTop="2dip"
         android:layout_marginBottom="0dip"

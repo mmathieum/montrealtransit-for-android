@@ -8,10 +8,13 @@ import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
+import org.montrealtransit.android.SensorUtils;
+import org.montrealtransit.android.SensorUtils.CompassListener;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.ABikeStation;
 import org.montrealtransit.android.data.ClosestPOI;
+import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.provider.BixiManager;
 import org.montrealtransit.android.provider.BixiStore.BikeStation;
 import org.montrealtransit.android.provider.DataManager;
@@ -23,7 +26,12 @@ import org.montrealtransit.android.services.ClosestBikeStationsFinderTask.Closes
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Matrix;
 import android.graphics.Typeface;
+import android.hardware.GeomagneticField;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.location.Location;
 import android.location.LocationListener;
 import android.os.AsyncTask;
@@ -34,13 +42,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class BikeStationInfo extends Activity implements BixiDataReaderListener, ClosestBikeStationsFinderListener, LocationListener {
+public class BikeStationInfo extends Activity implements BixiDataReaderListener, ClosestBikeStationsFinderListener, LocationListener, SensorEventListener,
+		CompassListener {
 
 	/**
 	 * The log tag.
@@ -104,6 +114,19 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	 */
 	private Location location;
 
+	/**
+	 * The {@link Sensor#TYPE_ACCELEROMETER} values.
+	 */
+	private float[] accelerometerValues;
+	/**
+	 * The {@link Sensor#TYPE_MAGNETIC_FIELD} values.
+	 */
+	private float[] magneticFieldValues;
+	/**
+	 * The last compass degree.
+	 */
+	private int lastCompassInDegree = -1;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
@@ -163,8 +186,99 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		MyLog.v(TAG, "onResume()");
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		AdsUtils.setupAd(this);
+		SensorUtils.registerCompassListener(this, this);
 		setBikeStationFromIntent(getIntent(), null);
 		super.onResume();
+	}
+
+	@Override
+	protected void onPause() {
+		MyLog.v(TAG, "onResume()");
+		SensorUtils.unregisterSensorListener(this, this);
+		super.onPause();
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		// MyLog.v(TAG, "onAccuracyChanged(%s)", accuracy);
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		// MyLog.v(TAG, "onSensorChanged()");
+		// SensorUtils.checkForCompass(event, this.accelerometerValues, this.magneticFieldValues, this);
+		checkForCompass(event, this);
+	}
+
+	/**
+	 * @see SensorUtils#checkForCompass(SensorEvent, float[], float[], CompassListener)
+	 */
+	public void checkForCompass(SensorEvent event, CompassListener listener) {
+		switch (event.sensor.getType()) {
+		case Sensor.TYPE_ACCELEROMETER:
+			accelerometerValues = event.values;
+			if (magneticFieldValues != null) {
+				listener.onCompass();
+			}
+			break;
+		case Sensor.TYPE_MAGNETIC_FIELD:
+			magneticFieldValues = event.values;
+			if (accelerometerValues != null) {
+				listener.onCompass();
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
+	@Override
+	public void onCompass() {
+		// MyLog.v(TAG, "onCompass()");
+		if (this.accelerometerValues != null && this.magneticFieldValues != null) {
+			updateCompass(SensorUtils.calculateOrientation(this.accelerometerValues, this.magneticFieldValues));
+		}
+	}
+
+	/**
+	 * Update the compass image(s).
+	 * @param orientation the new orientation
+	 */
+	private void updateCompass(float[] orientation) {
+		// MyLog.v(TAG, "updateCompass(%s)", orientation);
+		Location currentLocation = getLocation();
+		if (currentLocation != null) {
+			if (lastCompassInDegree != (int) orientation[0]) {
+				lastCompassInDegree = (int) orientation[0];
+				float declination = new GeomagneticField(Double.valueOf(currentLocation.getLatitude()).floatValue(), Double.valueOf(
+						currentLocation.getLongitude()).floatValue(), Double.valueOf(currentLocation.getAltitude()).floatValue(), System.currentTimeMillis())
+						.getDeclination();
+				// update bike station compass
+				if (this.bikeStation != null) {
+					Location bikeStationLocation = LocationUtils.getNewLocation(this.bikeStation.getLat(), this.bikeStation.getLng());
+					Pair<Integer, Integer> dim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow_light);
+					Matrix matrix = SensorUtils.getCompassRotationMatrix(this, currentLocation, bikeStationLocation, orientation, dim.first, dim.second,
+							declination);
+					ImageView compassImg = (ImageView) findViewById(R.id.compass);
+					compassImg.setImageMatrix(matrix);
+					compassImg.setVisibility(View.VISIBLE);
+				}
+				// update closest bike stations compass
+				if (this.closestBikeStations != null) {
+					Pair<Integer, Integer> dim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow);
+					int i = 1;
+					for (ABikeStation station : this.closestBikeStations) {
+						View stationView = findViewById(R.id.closest_stations).findViewWithTag(getStationViewTag(i++));
+						Location bikeStationLocation = LocationUtils.getNewLocation(station.getLat(), station.getLng());
+						Matrix matrix = SensorUtils.getCompassRotationMatrix(this, currentLocation, bikeStationLocation, orientation, dim.first, dim.second,
+								declination);
+						ImageView compassImg = (ImageView) stationView.findViewById(R.id.compass);
+						compassImg.setImageMatrix(matrix);
+						compassImg.setVisibility(View.VISIBLE);
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -175,9 +289,11 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		MyLog.v(TAG, "updateDistancesWithNewLocation(%s)", currentLocation);
 		if (currentLocation != null && this.bikeStation != null) {
 			// distance & accuracy
-			((TextView) findViewById(R.id.distance)).setText(Utils.getDistanceStringUsingPref(this,
+			TextView distanceTv = (TextView) findViewById(R.id.distance);
+			distanceTv.setText(Utils.getDistanceStringUsingPref(this,
 					currentLocation.distanceTo(LocationUtils.getNewLocation(this.bikeStation.getLat(), this.bikeStation.getLng())),
 					currentLocation.getAccuracy()));
+			distanceTv.setVisibility(View.VISIBLE);
 		}
 		// update other stations
 		if (this.closestBikeStations != null && currentLocation != null) {
@@ -198,7 +314,9 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		for (ABikeStation station : this.closestBikeStations) {
 			View stationView = findViewById(R.id.closest_stations).findViewWithTag(getStationViewTag(i++));
 			if (stationView != null && !TextUtils.isEmpty(station.getDistanceString())) {
-				((TextView) stationView.findViewById(R.id.distance)).setText(station.getDistanceString());
+				TextView distanceTv = (TextView) stationView.findViewById(R.id.distance);
+				distanceTv.setText(station.getDistanceString());
+				distanceTv.setVisibility(View.VISIBLE);
 			}
 		}
 	}
@@ -337,7 +455,6 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			setStatusNotLoading();
 			setStatusError();
 		}
-
 	}
 
 	/**
@@ -531,9 +648,15 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			// bike station name
 			((TextView) view.findViewById(R.id.station_name)).setText(Utils.cleanBikeStationName(station.getName()));
 			// bike station distance
+			TextView distanceTv = (TextView) view.findViewById(R.id.distance);
 			if (!TextUtils.isEmpty(station.getDistanceString())) {
-				((TextView) view.findViewById(R.id.distance)).setText(station.getDistanceString());
+				distanceTv.setText(station.getDistanceString());
+				distanceTv.setVisibility(View.VISIBLE);
+			} else {
+				distanceTv.setVisibility(View.GONE);
+				distanceTv.setText(null);
 			}
+			view.findViewById(R.id.compass).setVisibility(View.GONE);
 			// add click listener
 			final String terminalName = station.getTerminalName();
 			final String name = station.getName();
@@ -586,10 +709,10 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		int timestamp = 0;
 		timestamp = UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, 0);
 		if (timestamp == 0 && this.bikeStation != null) {
-			 timestamp = this.bikeStation.getLatestUpdateTime();
+			timestamp = this.bikeStation.getLatestUpdateTime();
 		}
 		if (timestamp == 0) {
-			timestamp =  Utils.currentTimeSec(); // use device time
+			timestamp = Utils.currentTimeSec(); // use device time
 		}
 		return timestamp;
 	}

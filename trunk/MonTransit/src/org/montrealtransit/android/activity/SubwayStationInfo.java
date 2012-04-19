@@ -9,8 +9,10 @@ import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
+import org.montrealtransit.android.SensorUtils;
 import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.Utils;
+import org.montrealtransit.android.SensorUtils.CompassListener;
 import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.dialog.BusLineSelectDirection;
@@ -27,6 +29,11 @@ import org.montrealtransit.android.provider.StmStore.SubwayStation;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.Matrix;
+import android.hardware.GeomagneticField;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.location.Location;
 import android.location.LocationListener;
 import android.net.Uri;
@@ -47,7 +54,7 @@ import android.widget.TextView;
  * Show information about a subway station.
  * @author Mathieu Méa
  */
-public class SubwayStationInfo extends Activity implements LocationListener {
+public class SubwayStationInfo extends Activity implements LocationListener, SensorEventListener, CompassListener {
 
 	/**
 	 * The log tag.
@@ -77,6 +84,14 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	 * Is the location updates enabled?
 	 */
 	private boolean locationUpdatesEnabled = false;
+	/**
+	 * The {@link Sensor#TYPE_ACCELEROMETER} values.
+	 */
+	private float[] accelerometerValues;
+	/**
+	 * The {@link Sensor#TYPE_MAGNETIC_FIELD} values.
+	 */
+	private float[] magneticFieldValues;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -135,7 +150,80 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
+		SensorUtils.registerCompassListener(this, this);
 		super.onResume();
+	}
+
+	@Override
+	protected void onPause() {
+		MyLog.v(TAG, "onPause()");
+		SensorUtils.unregisterSensorListener(this, this);
+		super.onPause();
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		// MyLog.v(TAG, "onAccuracyChanged(%s)", accuracy);
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		// MyLog.v(TAG, "onSensorChanged()");
+		// SensorUtils.checkForCompass(event, this.accelerometerValues, this.magneticFieldValues, this);
+		checkForCompass(event, this);
+	}
+
+	/**
+	 * @see SensorUtils#checkForCompass(SensorEvent, float[], float[], CompassListener)
+	 */
+	public void checkForCompass(SensorEvent event, CompassListener listener) {
+		switch (event.sensor.getType()) {
+		case Sensor.TYPE_ACCELEROMETER:
+			accelerometerValues = event.values;
+			if (magneticFieldValues != null) {
+				listener.onCompass();
+			}
+			break;
+		case Sensor.TYPE_MAGNETIC_FIELD:
+			magneticFieldValues = event.values;
+			if (accelerometerValues != null) {
+				listener.onCompass();
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
+	@Override
+	public void onCompass() {
+		// MyLog.v(TAG, "onCompass()");
+		if (this.accelerometerValues != null && this.magneticFieldValues != null) {
+			updateCompass(SensorUtils.calculateOrientation(this.accelerometerValues, this.magneticFieldValues));
+		}
+	}
+
+	/**
+	 * Update the compass image(s).
+	 * @param orientation the new orientation
+	 */
+	private void updateCompass(float[] orientation) {
+		// MyLog.v(TAG, "updateCompass(%s)", orientation);
+		Location currentLocation = getLocation();
+		if (currentLocation != null) {
+			float declination = new GeomagneticField(Double.valueOf(currentLocation.getLatitude()).floatValue(), Double.valueOf(currentLocation.getLongitude())
+					.floatValue(), Double.valueOf(currentLocation.getAltitude()).floatValue(), System.currentTimeMillis()).getDeclination();
+			// update bike station compass
+			if (this.subwayStation != null) {
+				Location subwayStationLocation = LocationUtils.getNewLocation(this.subwayStation.getLat(), this.subwayStation.getLng());
+				Pair<Integer, Integer> dim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow_light);
+				Matrix matrix = SensorUtils.getCompassRotationMatrix(this, currentLocation, subwayStationLocation, orientation, dim.first, dim.second,
+						declination);
+				ImageView compassImg = (ImageView) findViewById(R.id.compass);
+				compassImg.setImageMatrix(matrix);
+				compassImg.setVisibility(View.VISIBLE);
+			}
+		}
 	}
 
 	/**
@@ -397,8 +485,10 @@ public class SubwayStationInfo extends Activity implements LocationListener {
 		MyLog.v(TAG, "updateDistanceWithNewLocation(%s)", currentLocation);
 		if (currentLocation != null && this.subwayStation != null) {
 			// distance & accuracy
-			((TextView) findViewById(R.id.distance)).setText(Utils.getDistanceStringUsingPref(this,
-					currentLocation.distanceTo(LocationUtils.getNewLocation(subwayStation.getLat(), subwayStation.getLng())), currentLocation.getAccuracy()));
+			TextView distanceTv = (TextView) findViewById(R.id.distance);
+			Location subwayStationLocation = LocationUtils.getNewLocation(this.subwayStation.getLat(), this.subwayStation.getLng());
+			distanceTv.setText(Utils.getDistanceStringUsingPref(this, currentLocation.distanceTo(subwayStationLocation), currentLocation.getAccuracy()));
+			distanceTv.setVisibility(View.VISIBLE);
 		}
 	}
 

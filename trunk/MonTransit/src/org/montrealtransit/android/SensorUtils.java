@@ -1,10 +1,20 @@
 package org.montrealtransit.android;
 
+import org.montrealtransit.android.api.SupportFactory;
+import org.montrealtransit.android.data.Pair;
+
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.util.DisplayMetrics;
 import android.util.FloatMath;
 
 /**
@@ -12,6 +22,11 @@ import android.util.FloatMath;
  * @author Mathieu Méa
  */
 public final class SensorUtils {
+
+	/**
+	 * The log tag.
+	 */
+	private static final String TAG = SensorUtils.class.getSimpleName();
 
 	/**
 	 * The shake threshold acceleration.
@@ -30,22 +45,13 @@ public final class SensorUtils {
 	}
 
 	/**
-	 * Register the listener for the context sensor service.
+	 * Register the listener for the shake sensor service.
 	 * @param context the context
 	 * @param listener the listener
 	 */
 	public static void registerShakeListener(Context context, SensorEventListener listener) {
 		SensorManager mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-		mSensorManager.registerListener(listener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
-	}
-
-	/**
-	 * Unregister the listener for the context sensor service.
-	 * @param context the context
-	 * @param listener the listener
-	 */
-	public static void unregisterShakeListener(Context context, SensorEventListener listener) {
-		((SensorManager) context.getSystemService(Context.SENSOR_SERVICE)).unregisterListener(listener);
+		mSensorManager.registerListener(listener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_UI);
 	}
 
 	/**
@@ -56,18 +62,164 @@ public final class SensorUtils {
 	 * @param lastAccel the last acceleration
 	 * @param listener the {@link ShakeListener}
 	 */
-	public static void checkForShake(float[] values, long lastSensorUpdate, float lastAccelIncGravity, float lastAccel, ShakeListener listener) {
-		long now = System.currentTimeMillis();
-		if ((now - lastSensorUpdate) > SHAKE_THRESHOLD_PERIOD) {
-			lastSensorUpdate = now; // save last update
-			float currentAccelIncGravity = extractAcceleration(values);
-			lastAccel = lastAccel * 0.9f + (currentAccelIncGravity - lastAccelIncGravity); // perform low-cut filter
-			if (lastAccel > SHAKE_THRESHOLD_ACCELERATION) {
-				listener.onShake();
+	public static void checkForShake(SensorEvent event, long lastSensorUpdate, float lastAccelIncGravity, float lastAccel, ShakeListener listener) {
+		switch (event.sensor.getType()) {
+		case Sensor.TYPE_ACCELEROMETER:
+			long now = System.currentTimeMillis();
+			if ((now - lastSensorUpdate) > SHAKE_THRESHOLD_PERIOD) {
+				lastSensorUpdate = now; // save last update
+				float currentAccelIncGravity = extractAcceleration(event.values);
+				lastAccel = lastAccel * 0.9f + (currentAccelIncGravity - lastAccelIncGravity); // perform low-cut filter
+				if (lastAccel > SHAKE_THRESHOLD_ACCELERATION) {
+					listener.onShake();
+				}
+				// save last sensor acceleration
+				lastAccelIncGravity = currentAccelIncGravity;
 			}
-			// save last sensor acceleration
-			lastAccelIncGravity = currentAccelIncGravity;
+			break;
 		}
+	}
+
+	/**
+	 * The shake listener.
+	 */
+	public interface ShakeListener {
+
+		/**
+		 * Called when a shake is detected.
+		 */
+		void onShake();
+	}
+
+	/**
+	 * Register the listener for the compass sensor service.
+	 * @param context the context
+	 * @param listener the listener
+	 */
+	public static void registerCompassListener(Context context, SensorEventListener listener) {
+		SensorManager mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+		mSensorManager.registerListener(listener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_UI);
+		mSensorManager.registerListener(listener, mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_UI);
+	}
+
+	/**
+	 * @param activity the activity
+	 * @param currentLocation the current location
+	 * @param destinationLocation the destination location
+	 * @param orientation the orientation from {@link SensorManager}
+	 * @param sourceWidth the image source width
+	 * @param sourceHeight the image source height
+	 * @return the compass rotation matrix
+	 */
+	public static Matrix getCompassRotationMatrix(Activity activity, Location currentLocation, Location destinationLocation, float[] orientation,
+			int sourceWidth, int sourceHeight, float declination) {
+		Matrix matrix = new Matrix();
+		matrix.postRotate(getCompassRotationInDegree(activity, currentLocation, destinationLocation, orientation, declination), sourceWidth / 2,
+				sourceHeight / 2);
+		return matrix;
+	}
+
+	/**
+	 * @param activity the activity
+	 * @param currentLocation the current device location
+	 * @param destinationLocation the destination location
+	 * @param orientation the sensor orientation
+	 * @param declination align with true north
+	 * @return compass rotation in degree
+	 */
+	private static float getCompassRotationInDegree(Activity activity, Location currentLocation, Location destinationLocation, float[] orientation,
+			float declination) {
+		float bearTo = currentLocation.bearingTo(destinationLocation);
+		float orientationFix = SupportFactory.getInstance(activity).getDisplayRotation(activity);
+		// float rotationDegrees = bearTo - (orientation[0] + declination)
+		float rotationDegrees = bearTo - (orientation[0] + declination) + orientationFix;
+		return rotationDegrees;
+	}
+
+	/**
+	 * @param accelerometerValues the {@link Sensor#TYPE_ACCELEROMETER} values
+	 * @param magneticFieldValues the {@link Sensor#TYPE_MAGNETIC_FIELD} values
+	 * @return the orientation
+	 */
+	public static float[] calculateOrientation(float[] accelerometerValues, float[] magneticFieldValues) {
+		if (accelerometerValues == null || magneticFieldValues == null) {
+			MyLog.w(TAG, "accelerometer and magnetic field values are required!");
+			return null;
+		}
+		float[] R = new float[9];
+		SensorManager.getRotationMatrix(R, null, accelerometerValues, magneticFieldValues);
+		float[] outR = new float[9];
+		outR = R; // TODO use SensorManager.remapCoordinateSystem(R, SensorManager.AXIS_X, SensorManager.AXIS_Z, outR);
+		float[] values = new float[3];
+		SensorManager.getOrientation(outR, values);
+
+		// Convert from Radians to Degrees.
+		values[0] = (float) Math.toDegrees(values[0]);
+		values[1] = (float) Math.toDegrees(values[1]);
+		values[2] = (float) Math.toDegrees(values[2]);
+
+		return values;
+	}
+
+	/**
+	 * @param activity the activity
+	 * @param resId the resource ID
+	 * @return the resource dimensions (width, height) in pixel
+	 */
+	public static Pair<Integer, Integer> getResourceDimension(Activity activity, int resId) {
+		Bitmap bitmapOrg = BitmapFactory.decodeResource(activity.getResources(), resId);
+		DisplayMetrics dm = new DisplayMetrics();
+		activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
+		return new Pair<Integer, Integer>(bitmapOrg.getWidth(), bitmapOrg.getHeight());
+	}
+
+	/**
+	 * Set the accelerometer and magnetic field values.
+	 * @param event the sensor event
+	 * @param accelerometerValues the {@link Sensor#TYPE_ACCELEROMETER} values
+	 * @param magneticFieldValues the {@link Sensor#TYPE_MAGNETIC_FIELD} values
+	 * @param listener the listener
+	 * @deprecated not working yet
+	 */
+	@Deprecated
+	public static void checkForCompass(SensorEvent event, float[] accelerometerValues, float[] magneticFieldValues, CompassListener listener) {
+		// MyLog.v(TAG, "checkForCompass(%s,%s,%s)", event.sensor.getType(), accelerometerValues, magneticFieldValues);
+		switch (event.sensor.getType()) {
+		case Sensor.TYPE_ACCELEROMETER:
+			accelerometerValues = event.values;
+			if (magneticFieldValues != null) {
+				listener.onCompass();
+			}
+			break;
+		case Sensor.TYPE_MAGNETIC_FIELD:
+			magneticFieldValues = event.values;
+			if (accelerometerValues != null) {
+				listener.onCompass();
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
+	/**
+	 * The compass listener.
+	 */
+	public interface CompassListener {
+
+		/**
+		 * Called when the compass change.
+		 */
+		void onCompass();
+	}
+
+	/**
+	 * Unregister the listener for the context sensor service.
+	 * @param context the context
+	 * @param listener the listener
+	 */
+	public static void unregisterSensorListener(Context context, SensorEventListener listener) {
+		((SensorManager) context.getSystemService(Context.SENSOR_SERVICE)).unregisterListener(listener);
 	}
 
 	/**
@@ -81,14 +233,31 @@ public final class SensorUtils {
 		return FloatMath.sqrt((x * x + y * y + z * z));
 	}
 
-	/**
-	 * The shake listener.
-	 */
-	public interface ShakeListener {
-
-		/**
-		 * Called when a shake is detected.
-		 */
-		void onShake();
+	@Deprecated
+	public static void registerOrientationListener(Context context, SensorEventListener listener) {
+		SensorManager mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+		mSensorManager.registerListener(listener, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_GAME);
 	}
+
+	@Deprecated
+	public static Matrix getRotationMatrixFromOrientation(Activity activity, Location currentLocation, Location destinationLocation, float[] orientation,
+			int sourceWidth, int sourceHeight) {
+		float bearTo = currentLocation.bearingTo(destinationLocation);
+		float orientationFix = SupportFactory.getInstance(activity).getDisplayRotation(activity);
+		float declination = new GeomagneticField(Double.valueOf(currentLocation.getLatitude()).floatValue(), Double.valueOf(currentLocation.getLongitude())
+				.floatValue(), Double.valueOf(currentLocation.getAltitude()).floatValue(), System.currentTimeMillis()).getDeclination();
+		float rotationDegrees = bearTo - (orientation[0] + declination) + orientationFix;
+		Matrix matrix = new Matrix();
+		matrix.postRotate(rotationDegrees, sourceWidth / 2, sourceHeight / 2);
+		return matrix;
+	}
+
+	@Deprecated
+	public static void checkForOrientation(SensorEvent event, float[] orientationFieldValues, CompassListener listener) {
+		if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
+			orientationFieldValues = event.values;
+			listener.onCompass();
+		}
+	}
+
 }
