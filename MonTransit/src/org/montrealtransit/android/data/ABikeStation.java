@@ -2,6 +2,8 @@ package org.montrealtransit.android.data;
 
 import org.montrealtransit.android.provider.BixiStore.BikeStation;
 
+import android.graphics.Matrix;
+
 /**
  * A {@link BikeStation} with a distance.
  * @author Mathieu Méa
@@ -17,6 +19,11 @@ public class ABikeStation extends BikeStation {
 	 */
 	private Float distance;
 	
+	/**
+	 * The compass rotation matrix or null.
+	 */
+	private Matrix compassMatrix;
+
 	/**
 	 * The default constructor.
 	 */
@@ -70,4 +77,19 @@ public class ABikeStation extends BikeStation {
 	public Float getDistance() {
 		return distance;
 	}
+
+	/**
+	 * @param matrix the new compass rotation matrix
+	 */
+	public void setCompassMatrix(Matrix matrix) {
+		this.compassMatrix = matrix;
+	}
+
+	/**
+	 * @return the compass rotation matrix
+	 */
+	public Matrix getCompassMatrix() {
+		return compassMatrix;
+	}
+
 }

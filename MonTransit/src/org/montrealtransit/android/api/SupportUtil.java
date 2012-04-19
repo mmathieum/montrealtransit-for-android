@@ -4,6 +4,7 @@ import org.montrealtransit.android.services.NfcListener;
 
 import android.app.Activity;
 import android.app.backup.BackupManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -71,5 +72,10 @@ public interface SupportUtil {
 	 * @param activity the activity
 	 */
 	void disableNfcForegroundDispatch(Activity activity);
+
+	/**
+	 * @return the display rotation
+	 */
+	float getDisplayRotation(Context context);
 
 }

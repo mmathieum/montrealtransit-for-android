@@ -16,6 +16,7 @@ import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.SensorUtils;
+import org.montrealtransit.android.SensorUtils.CompassListener;
 import org.montrealtransit.android.SensorUtils.ShakeListener;
 import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.Utils;
@@ -25,16 +26,18 @@ import org.montrealtransit.android.dialog.SubwayLineSelectDirection;
 import org.montrealtransit.android.dialog.SubwayLineSelectDirectionDialogListener;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore;
+import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
-import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.StmStore.SubwayLine;
 import org.montrealtransit.android.provider.StmStore.SubwayStation;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Matrix;
 import android.graphics.Typeface;
+import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -49,6 +52,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView.OnScrollListener;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -60,7 +65,8 @@ import android.widget.Toast;
  * The subway line info activity.
  * @author Mathieu Méa
  */
-public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectionDialogListener, LocationListener, SensorEventListener, ShakeListener {
+public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectionDialogListener, LocationListener, SensorEventListener, ShakeListener,
+		CompassListener, OnScrollListener {
 
 	/**
 	 * The log tag.
@@ -124,6 +130,24 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 */
 	private boolean shakeHandled;
 
+	/**
+	 * The {@link Sensor#TYPE_ACCELEROMETER} values.
+	 */
+	private float[] accelerometerValues;
+	/**
+	 * The {@link Sensor#TYPE_MAGNETIC_FIELD} values.
+	 */
+	private float[] magneticFieldValues;
+
+	/**
+	 * The last compass value.
+	 */
+	private int lastCompassInDegree = -1;
+	/**
+	 * The list scroll state.
+	 */
+	private int scrollState = OnScrollListener.SCROLL_STATE_IDLE;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
@@ -157,6 +181,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 				}
 			}
 		});
+		list.setOnScrollListener(this);
 	}
 
 	@Override
@@ -224,6 +249,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		// refresh favorites
 		refreshFavoriteStationIdsFromDB();
 		SensorUtils.registerShakeListener(this, this);
+		SensorUtils.registerCompassListener(this, this);
 		this.shakeHandled = false;
 		super.onResume();
 	}
@@ -231,7 +257,31 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	@Override
 	public void onSensorChanged(SensorEvent se) {
 		// MyLog.v(TAG, "onSensorChanged()");
-		SensorUtils.checkForShake(se.values, this.lastSensorUpdate, this.lastSensorAccelerationIncGravity, this.lastSensorAcceleration, this);
+		SensorUtils.checkForShake(se, this.lastSensorUpdate, this.lastSensorAccelerationIncGravity, this.lastSensorAcceleration, this);
+		// SensorUtils.checkForCompass(event, this.accelerometerValues, this.magneticFieldValues, this);
+		checkForCompass(se, this);
+	}
+
+	/**
+	 * @see SensorUtils#checkForCompass(SensorEvent, float[], float[], CompassListener)
+	 */
+	public void checkForCompass(SensorEvent event, CompassListener listener) {
+		switch (event.sensor.getType()) {
+		case Sensor.TYPE_ACCELEROMETER:
+			accelerometerValues = event.values;
+			if (magneticFieldValues != null) {
+				listener.onCompass();
+			}
+			break;
+		case Sensor.TYPE_MAGNETIC_FIELD:
+			magneticFieldValues = event.values;
+			if (accelerometerValues != null) {
+				listener.onCompass();
+			}
+			break;
+		default:
+			break;
+		}
 	}
 
 	@Override
@@ -260,9 +310,59 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	}
 
 	@Override
+	public void onCompass() {
+		// MyLog.v(TAG, "onCompass()");
+		if (this.accelerometerValues != null && this.magneticFieldValues != null) {
+			updateCompass(SensorUtils.calculateOrientation(this.accelerometerValues, this.magneticFieldValues));
+		}
+	}
+
+	/**
+	 * Update the compass image(s).
+	 * @param orientation the new orientation
+	 */
+	private void updateCompass(float[] orientation) {
+		// MyLog.v(TAG, "updateCompass(%s)", orientation);
+		Location currentLocation = getLocation();
+		if (currentLocation != null) {
+			if (lastCompassInDegree != (int) orientation[0]) {
+				lastCompassInDegree = (int) orientation[0];
+				float declination = new GeomagneticField(Double.valueOf(currentLocation.getLatitude()).floatValue(), Double.valueOf(
+						currentLocation.getLongitude()).floatValue(), Double.valueOf(currentLocation.getAltitude()).floatValue(), System.currentTimeMillis())
+						.getDeclination();
+				// update closest bike stations compass
+				if (this.stations != null) {
+					Pair<Integer, Integer> dim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow);
+					for (ASubwayStation subwayStation : this.stations) {
+						Location subwayStationLocation = LocationUtils.getNewLocation(subwayStation.getLat(), subwayStation.getLng());
+						Matrix matrix = SensorUtils.getCompassRotationMatrix(this, currentLocation, subwayStationLocation, orientation, dim.first, dim.second,
+								declination);
+						subwayStation.setCompassMatrix(matrix);
+					}
+					// update the view
+					if (this.adapter != null && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE) {
+						this.adapter.notifyDataSetChanged();
+					}
+				}
+			}
+		}
+	}
+
+	@Override
+	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+	}
+
+	@Override
+	public void onScrollStateChanged(AbsListView view, int scrollState) {
+		if (view == findViewById(R.id.list)) {
+			this.scrollState = scrollState;
+		}
+	}
+
+	@Override
 	protected void onPause() {
 		MyLog.v(TAG, "onPause()");
-		SensorUtils.unregisterShakeListener(this, this);
+		SensorUtils.unregisterSensorListener(this, this);
 		super.onPause();
 	}
 
@@ -579,13 +679,22 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 					view.findViewById(R.id.fav_img).setVisibility(View.GONE);
 				}
 				// station distance
+				TextView distanceTv = (TextView) view.findViewById(R.id.distance);
 				if (!TextUtils.isEmpty(station.getDistanceString())) {
-					((TextView) view.findViewById(R.id.distance)).setText(station.getDistanceString());
-					view.findViewById(R.id.distance).setVisibility(View.VISIBLE);
+					distanceTv.setText(station.getDistanceString());
+					distanceTv.setVisibility(View.VISIBLE);
 				} else {
-					view.findViewById(R.id.distance).setVisibility(View.GONE);
-					((TextView) view.findViewById(R.id.distance)).setText(null);
+					distanceTv.setVisibility(View.INVISIBLE);
 				}
+				// station compass
+				ImageView compassImg = (ImageView) view.findViewById(R.id.compass);
+				if (!TextUtils.isEmpty(station.getDistanceString())) {
+					compassImg.setImageMatrix(station.getCompassMatrix());
+					compassImg.setVisibility(View.VISIBLE);
+				} else {
+					compassImg.setVisibility(View.INVISIBLE);
+				}
+
 				// set style for closest bus stop
 				int index = -1;
 				if (SubwayLineInfo.this.orderedStationsIds != null) {
@@ -594,13 +703,13 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 				switch (index) {
 				case 0:
 					((TextView) view.findViewById(R.id.station_name)).setTypeface(Typeface.DEFAULT_BOLD);
-					((TextView) view.findViewById(R.id.distance)).setTypeface(Typeface.DEFAULT_BOLD);
-					((TextView) view.findViewById(R.id.distance)).setTextColor(Utils.getTextColorPrimary(getContext()));
+					distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
+					distanceTv.setTextColor(Utils.getTextColorPrimary(getContext()));
 					break;
 				default:
 					((TextView) view.findViewById(R.id.station_name)).setTypeface(Typeface.DEFAULT);
-					((TextView) view.findViewById(R.id.distance)).setTypeface(Typeface.DEFAULT);
-					((TextView) view.findViewById(R.id.distance)).setTextColor(Utils.getTextColorSecondary(getContext()));
+					distanceTv.setTypeface(Typeface.DEFAULT);
+					distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
 					break;
 				}
 			}

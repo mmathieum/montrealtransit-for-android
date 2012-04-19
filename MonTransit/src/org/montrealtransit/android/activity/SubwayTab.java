@@ -206,7 +206,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	@Override
 	public void onSensorChanged(SensorEvent se) {
 		// MyLog.v(TAG, "onSensorChanged()");
-		SensorUtils.checkForShake(se.values, this.lastSensorUpdate, this.lastSensorAccelerationIncGravity, this.lastSensorAcceleration, this);
+		SensorUtils.checkForShake(se, this.lastSensorUpdate, this.lastSensorAccelerationIncGravity, this.lastSensorAcceleration, this);
 	}
 
 	@Override
@@ -239,7 +239,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	protected void onPause() {
 		MyLog.v(TAG, "onPause()");
 		LocationUtils.disableLocationUpdates(this, this);
-		SensorUtils.unregisterShakeListener(this, this);
+		SensorUtils.unregisterSensorListener(this, this);
 		super.onPause();
 	}
 

@@ -69,7 +69,21 @@
                 android:layout_alignLeft="@id/station_name"
                 android:layout_alignWithParentIfMissing="true"
                 android:layout_below="@id/station_name"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:text="@string/ellipsis"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:visibility="gone" />
+            <!-- COMPASS -->
+            <ImageView
+                android:id="@+id/compass"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/station_name"
+                android:layout_toRightOf="@id/distance"
+                android:src="@drawable/heading_arrow_light"
+                android:scaleType="matrix"
+                android:layout_marginTop="3dp"
+                android:layout_marginLeft="5dp"
+                android:visibility="gone" />
         </RelativeLayout>
         <ScrollView
             android:layout_width="fill_parent"

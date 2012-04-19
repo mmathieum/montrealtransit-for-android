@@ -9,10 +9,12 @@ import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.SensorUtils;
+import org.montrealtransit.android.SensorUtils.CompassListener;
 import org.montrealtransit.android.SensorUtils.ShakeListener;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.ABikeStation;
 import org.montrealtransit.android.data.ClosestPOI;
+import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.BixiStore.BikeStation;
@@ -23,7 +25,9 @@ import org.montrealtransit.android.services.ClosestBikeStationsFinderTask.Closes
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Matrix;
 import android.graphics.Typeface;
+import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -43,6 +47,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,7 +56,8 @@ import android.widget.Toast;
  * Display a list of bike stations.
  * @author Mathieu Méa
  */
-public class BikeTab extends Activity implements LocationListener, ClosestBikeStationsFinderListener, SensorEventListener, ShakeListener, OnItemClickListener {
+public class BikeTab extends Activity implements LocationListener, ClosestBikeStationsFinderListener, SensorEventListener, ShakeListener, OnItemClickListener,
+		CompassListener {
 
 	/**
 	 * The log tag.
@@ -100,7 +106,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	/**
 	 * Number of closest bike stations displayed.
 	 */
-	private static final int NB_CLOSEST_BIKE_STATIONS = ClosestBikeStationsFinderTask.NO_LIMIT;
+	private static final int NB_CLOSEST_BIKE_STATIONS = 10; //ClosestBikeStationsFinderTask.NO_LIMIT;
 
 	/**
 	 * The acceleration apart from gravity.
@@ -118,6 +124,14 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	 * True if the share was already handled (should be reset in {@link #onResume()}).
 	 */
 	private boolean shakeHandled;
+	/**
+	 * The {@link Sensor#TYPE_ACCELEROMETER} values.
+	 */
+	private float[] accelerometerValues;
+	/**
+	 * The {@link Sensor#TYPE_MAGNETIC_FIELD} values.
+	 */
+	private float[] magneticFieldValues;
 	/**
 	 * The favorites bike station terminal names.
 	 */
@@ -178,14 +192,39 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 		// refresh favorites
 		refreshFavoriteTerminalNamesFromDB();
 		SensorUtils.registerShakeListener(this, this);
+		SensorUtils.registerCompassListener(this, this);
 		this.shakeHandled = false;
 		super.onResume();
 	}
 
 	@Override
-	public void onSensorChanged(SensorEvent se) {
+	public void onSensorChanged(SensorEvent event) {
 		// MyLog.v(TAG, "onSensorChanged()");
-		SensorUtils.checkForShake(se.values, this.lastSensorUpdate, this.lastSensorAccelerationIncGravity, this.lastSensorAcceleration, this);
+		SensorUtils.checkForShake(event, this.lastSensorUpdate, this.lastSensorAccelerationIncGravity, this.lastSensorAcceleration, this);
+		// SensorUtils.checkForCompass(event, this.accelerometerValues, this.magneticFieldValues, this);
+		checkForCompass(event, this);
+	}
+	
+	/**
+	 * @see SensorUtils#checkForCompass(SensorEvent, float[], float[], CompassListener)
+	 */
+	public void checkForCompass(SensorEvent event, CompassListener listener) {
+		switch (event.sensor.getType()) {
+		case Sensor.TYPE_ACCELEROMETER:
+			accelerometerValues = event.values;
+			if (magneticFieldValues != null) {
+				listener.onCompass();
+			}
+			break;
+		case Sensor.TYPE_MAGNETIC_FIELD:
+			magneticFieldValues = event.values;
+			if (accelerometerValues != null) {
+				listener.onCompass();
+			}
+			break;
+		default:
+			break;
+		}
 	}
 
 	@Override
@@ -197,6 +236,42 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	public void onShake() {
 		MyLog.v(TAG, "onShake()");
 		showClosestStation();
+	}
+
+	@Override
+	public void onCompass() {
+		// MyLog.v(TAG, "onCompass()");
+		if (this.accelerometerValues != null && this.magneticFieldValues != null) {
+			updateCompass(SensorUtils.calculateOrientation(this.accelerometerValues, this.magneticFieldValues));
+		}
+	}
+
+	/**
+	 * Update the compass image(s).
+	 * @param orientation the new orientation
+	 */
+	private void updateCompass(float[] orientation) {
+		// MyLog.v(TAG, "updateCompass(%s)", orientation);
+		Location currentLocation = getLocation();
+		if (currentLocation != null) {
+			float declination = new GeomagneticField(Double.valueOf(currentLocation.getLatitude()).floatValue(), Double.valueOf(currentLocation.getLongitude())
+					.floatValue(), Double.valueOf(currentLocation.getAltitude()).floatValue(), System.currentTimeMillis()).getDeclination();
+			// update closest bike stations compass
+			if (this.closestBikeStations != null) {
+				Pair<Integer, Integer> dim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow);
+				// int i = 1;
+				for (ABikeStation station : this.closestBikeStations) {
+					Location bikeStationLocation = LocationUtils.getNewLocation(station.getLat(), station.getLng());
+					Matrix matrix = SensorUtils.getCompassRotationMatrix(this, currentLocation, bikeStationLocation, orientation, dim.first, dim.second,
+							declination);
+					station.setCompassMatrix(matrix);
+				}
+				// update the view
+				if (this.adapter != null) {
+					this.adapter.notifyDataSetChanged();
+				}
+			}
+		}
 	}
 
 	/**
@@ -219,7 +294,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	protected void onPause() {
 		MyLog.v(TAG, "onPause()");
 		LocationUtils.disableLocationUpdates(this, this);
-		SensorUtils.unregisterShakeListener(this, this);
+		SensorUtils.unregisterSensorListener(this, this);
 		super.onPause();
 	}
 
@@ -241,21 +316,22 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	private void updateDistancesWithNewLocation() {
 		MyLog.v(TAG, "updateDistancesWithNewLocation()");
 		// IF no closest bike stations AND new location DO
-		if (this.closestBikeStations == null && getLocation() != null) {
+		Location currentLocation = getLocation();
+		if (this.closestBikeStations == null && currentLocation != null) {
 			// start refreshing if not running.
 			refreshClosestBikeStations();
 			return;
 		}
 		// ELSE IF there are closest stations AND new location DO
-		if (this.closestBikeStations != null && getLocation() != null) {
+		if (this.closestBikeStations != null && currentLocation != null) {
 			// update the list distances
 			boolean isDetailed = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
 					UserPreferences.PREFS_DISTANCE_DETAILED);
 			String distanceUnit = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
-			float accuracyInMeters = getLocation().getAccuracy();
+			float accuracyInMeters = currentLocation.getAccuracy();
 			for (ABikeStation station : this.closestBikeStations) {
 				// distance
-				station.setDistance(getLocation().distanceTo(LocationUtils.getNewLocation(station.getLat(), station.getLng())));
+				station.setDistance(currentLocation.distanceTo(LocationUtils.getNewLocation(station.getLat(), station.getLng())));
 				station.setDistanceString(Utils.getDistanceString(station.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
 			}
 			generateOrderedStationsIds();
@@ -388,13 +464,23 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 					((TextView) convertView.findViewById(R.id.station_name)).setTextColor(Utils.getTextColorPrimary(getContext()));
 				}
 				// distance
+				TextView distanceTv = (TextView) convertView.findViewById(R.id.distance);
 				if (!TextUtils.isEmpty(bikeStation.getDistanceString())) {
-					((TextView) convertView.findViewById(R.id.distance)).setText(bikeStation.getDistanceString());
-					convertView.findViewById(R.id.distance).setVisibility(View.VISIBLE);
+					distanceTv.setText(bikeStation.getDistanceString());
+					distanceTv.setVisibility(View.VISIBLE);
 				} else {
-					convertView.findViewById(R.id.distance).setVisibility(View.GONE);
-					((TextView) convertView.findViewById(R.id.distance)).setText(null);
+					distanceTv.setVisibility(View.GONE);
+					distanceTv.setText(null);
 				}
+				// compass
+				ImageView compassImg = (ImageView) convertView.findViewById(R.id.compass);
+				if (bikeStation.getCompassMatrix()!=null) {
+					compassImg.setImageMatrix(bikeStation.getCompassMatrix());
+					compassImg.setVisibility(View.VISIBLE);
+				} else {
+					compassImg.setVisibility(View.GONE);
+				}
+				
 				// closest bike station
 				int index = -1;
 				if (BikeTab.this.orderedStationsIds != null) {
@@ -403,13 +489,13 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 				switch (index) {
 				case 0:
 					((TextView) convertView.findViewById(R.id.station_name)).setTypeface(Typeface.DEFAULT_BOLD);
-					((TextView) convertView.findViewById(R.id.distance)).setTypeface(Typeface.DEFAULT_BOLD);
-					((TextView) convertView.findViewById(R.id.distance)).setTextColor(Utils.getTextColorPrimary(getContext()));
+					distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
+					distanceTv.setTextColor(Utils.getTextColorPrimary(getContext()));
 					break;
 				default:
 					((TextView) convertView.findViewById(R.id.station_name)).setTypeface(Typeface.DEFAULT);
-					((TextView) convertView.findViewById(R.id.distance)).setTypeface(Typeface.DEFAULT);
-					((TextView) convertView.findViewById(R.id.distance)).setTextColor(Utils.getTextColorSecondary(getContext()));
+					distanceTv.setTypeface(Typeface.DEFAULT);
+					distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
 					break;
 				}
 			}

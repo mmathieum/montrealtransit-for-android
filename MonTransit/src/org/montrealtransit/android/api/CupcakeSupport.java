@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Configuration;
 
 /**
  * Features available for Android 1.5 Cupcake (API Level 3) and higher.
@@ -77,5 +78,14 @@ public class CupcakeSupport implements SupportUtil {
 	@Override
 	public void disableNfcForegroundDispatch(Activity activity) {
 		// not supported until Gingerbread (API Level 9)
+	}
+
+	@Override
+	public float getDisplayRotation(Context context) {
+		// does not handle other orientation
+		if (Configuration.ORIENTATION_LANDSCAPE == context.getResources().getConfiguration().orientation) {
+			return -90f;
+		}
+		return 0f;
 	}
 }
