@@ -131,7 +131,7 @@
 	<string name="donate_pref_title">Donate</string>
 	<string name="donate_pref_summary">Support MonTransit development.</string>
 	<string name="about_pref_title">About</string>
-	<string name="about_pref_summary">More informations about MonTransit.</string>
+	<string name="about_pref_summary">More information about MonTransit.</string>
 	<string name="version_pref_title">Version</string>
 	<string name="version_pref_summary">%1$s (r%2$s)</string>
 
@@ -304,7 +304,7 @@
     <string name="about_text7_twitter">Twitter: http://twitter.com/montransit</string>
     <string name="about_text8_facebook">Facebook: http://tiny.cc/MTLFacebookM</string>
     <string name="about_version">Version %1$s (r%2$s)</string>
-    <string name="about_text_analytics">This app anonymously track and report a user\'s activity.</string>
+    <string name="about_text_analytics">This app anonymously tracks and reports a user\'s activity.</string>
     
     <string name="menu_twitter_login">Login</string>
     <string name="menu_twitter_logout">Logout</string>
