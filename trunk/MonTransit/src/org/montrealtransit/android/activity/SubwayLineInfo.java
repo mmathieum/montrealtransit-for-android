@@ -717,7 +717,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 				}
 				// station compass
 				ImageView compassImg = (ImageView) view.findViewById(R.id.compass);
-				if (!TextUtils.isEmpty(station.getDistanceString())) {
+				if (station.getCompassMatrixOrNull() != null) {
 					compassImg.setImageMatrix(station.getCompassMatrix());
 					compassImg.setVisibility(View.VISIBLE);
 				} else {
