@@ -15,9 +15,9 @@ import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.ABikeStation;
 import org.montrealtransit.android.data.ClosestPOI;
 import org.montrealtransit.android.data.Pair;
+import org.montrealtransit.android.provider.BixiStore.BikeStation;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore;
-import org.montrealtransit.android.provider.BixiStore.BikeStation;
 import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.services.ClosestBikeStationsFinderTask;
 import org.montrealtransit.android.services.ClosestBikeStationsFinderTask.ClosestBikeStationsFinderListener;
@@ -25,7 +25,6 @@ import org.montrealtransit.android.services.ClosestBikeStationsFinderTask.Closes
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Matrix;
 import android.graphics.Typeface;
 import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
@@ -44,8 +43,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -57,7 +58,7 @@ import android.widget.Toast;
  * @author Mathieu Méa
  */
 public class BikeTab extends Activity implements LocationListener, ClosestBikeStationsFinderListener, SensorEventListener, ShakeListener, OnItemClickListener,
-		CompassListener {
+		CompassListener, OnScrollListener {
 
 	/**
 	 * The log tag.
@@ -106,7 +107,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	/**
 	 * Number of closest bike stations displayed.
 	 */
-	private static final int NB_CLOSEST_BIKE_STATIONS = 10; //ClosestBikeStationsFinderTask.NO_LIMIT;
+	private static final int NB_CLOSEST_BIKE_STATIONS = ClosestBikeStationsFinderTask.NO_LIMIT;
 
 	/**
 	 * The acceleration apart from gravity.
@@ -132,6 +133,14 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	 * The {@link Sensor#TYPE_MAGNETIC_FIELD} values.
 	 */
 	private float[] magneticFieldValues;
+	/**
+	 * The last compass value.
+	 */
+	private int lastCompassInDegree = -1;
+	/**
+	 * The list scroll state.
+	 */
+	private int scrollState = OnScrollListener.SCROLL_STATE_IDLE;
 	/**
 	 * The favorites bike station terminal names.
 	 */
@@ -191,8 +200,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		// refresh favorites
 		refreshFavoriteTerminalNamesFromDB();
-		SensorUtils.registerShakeListener(this, this);
-		SensorUtils.registerCompassListener(this, this);
+		SensorUtils.registerShakeAndCompassListener(this, this);
 		this.shakeHandled = false;
 		super.onResume();
 	}
@@ -204,7 +212,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 		// SensorUtils.checkForCompass(event, this.accelerometerValues, this.magneticFieldValues, this);
 		checkForCompass(event, this);
 	}
-	
+
 	/**
 	 * @see SensorUtils#checkForCompass(SensorEvent, float[], float[], CompassListener)
 	 */
@@ -221,8 +229,6 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			if (accelerometerValues != null) {
 				listener.onCompass();
 			}
-			break;
-		default:
 			break;
 		}
 	}
@@ -242,7 +248,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	public void onCompass() {
 		// MyLog.v(TAG, "onCompass()");
 		if (this.accelerometerValues != null && this.magneticFieldValues != null) {
-			updateCompass(SensorUtils.calculateOrientation(this.accelerometerValues, this.magneticFieldValues));
+			updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues));
 		}
 	}
 
@@ -251,26 +257,75 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	 * @param orientation the new orientation
 	 */
 	private void updateCompass(float[] orientation) {
-		// MyLog.v(TAG, "updateCompass(%s)", orientation);
+		// MyLog.v(TAG, "updateCompass(%s)", orientation[0]);
 		Location currentLocation = getLocation();
 		if (currentLocation != null) {
-			float declination = new GeomagneticField(Double.valueOf(currentLocation.getLatitude()).floatValue(), Double.valueOf(currentLocation.getLongitude())
-					.floatValue(), Double.valueOf(currentLocation.getAltitude()).floatValue(), System.currentTimeMillis()).getDeclination();
-			// update closest bike stations compass
-			if (this.closestBikeStations != null) {
-				Pair<Integer, Integer> dim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow);
-				// int i = 1;
-				for (ABikeStation station : this.closestBikeStations) {
-					Location bikeStationLocation = LocationUtils.getNewLocation(station.getLat(), station.getLng());
-					Matrix matrix = SensorUtils.getCompassRotationMatrix(this, currentLocation, bikeStationLocation, orientation, dim.first, dim.second,
-							declination);
-					station.setCompassMatrix(matrix);
-				}
-				// update the view
-				if (this.adapter != null) {
-					this.adapter.notifyDataSetChanged();
+			int io = (int) orientation[0];
+			if (io != 0 && Math.abs(this.lastCompassInDegree - io) > SensorUtils.LIST_VIEW_COMPASS_DEGREE_UPDATE_THRESOLD) {
+				this.lastCompassInDegree = io;
+				// update closest bike stations compass
+				if (this.closestBikeStations != null) {
+					for (ABikeStation station : this.closestBikeStations) {
+						station.getCompassMatrix().reset();
+						station.getCompassMatrix().postRotate(
+								SensorUtils.getCompassRotationInDegree(this, currentLocation, station.getLocation(), orientation, getLocationDeclination()),
+								getArrowDim().first / 2, getArrowDim().second / 2);
+					}
+					// update the view
+					notifyDataSetChanged();
 				}
 			}
+		}
+	}
+
+	/**
+	 * The minimum between 2 {@link ArrayAdapter#notifyDataSetChanged()} in milliseconds.
+	 */
+	private static final int ADAPTER_NOTIFY_THRESOLD = 150; // 0.15 seconds
+
+	/**
+	 * The last {@link ArrayAdapter#notifyDataSetChanged() time-stamp in milliseconds.
+	 */
+	private long lastNotifyDataSetChanged = -1;
+
+	/**
+	 * {@link ArrayAdapter#notifyDataSetChanged()} if necessary
+	 */
+	public void notifyDataSetChanged() {
+		long now = System.currentTimeMillis();
+		if (this.adapter != null && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE && (now - this.lastNotifyDataSetChanged) > ADAPTER_NOTIFY_THRESOLD) {
+			// MyLog.d(TAG, "Notify data set changed");
+			this.adapter.notifyDataSetChanged();
+			this.lastNotifyDataSetChanged = now;
+		}
+	}
+
+	private Pair<Integer, Integer> arrowDim;
+	private Float locationDeclination;
+
+	private float getLocationDeclination() {
+		if (this.locationDeclination == null && this.location != null) {
+			this.locationDeclination = new GeomagneticField((float) this.location.getLatitude(), (float) this.location.getLongitude(),
+					(float) this.location.getAltitude(), this.location.getTime()).getDeclination();
+		}
+		return this.locationDeclination;
+	}
+
+	public Pair<Integer, Integer> getArrowDim() {
+		if (this.arrowDim == null) {
+			this.arrowDim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow);
+		}
+		return this.arrowDim;
+	}
+
+	@Override
+	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+	}
+
+	@Override
+	public void onScrollStateChanged(AbsListView view, int scrollState) {
+		if (view == findViewById(R.id.list)) {
+			this.scrollState = scrollState;
 		}
 	}
 
@@ -331,14 +386,11 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			float accuracyInMeters = currentLocation.getAccuracy();
 			for (ABikeStation station : this.closestBikeStations) {
 				// distance
-				station.setDistance(currentLocation.distanceTo(LocationUtils.getNewLocation(station.getLat(), station.getLng())));
+				station.setDistance(currentLocation.distanceTo(station.getLocation()));
 				station.setDistanceString(Utils.getDistanceString(station.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
 			}
 			generateOrderedStationsIds();
-			// update the view
-			if (this.adapter != null) {
-				this.adapter.notifyDataSetChanged();
-			}
+			notifyDataSetChanged();
 		}
 	}
 
@@ -382,6 +434,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			this.adapter = new ArrayAdapterWithCustomView(this, R.layout.bike_station_tab_closest_stations_list_item, array);
 			list.setAdapter(this.adapter);
 			list.setOnItemClickListener(this);
+			list.setOnScrollListener(this);
 
 			setClosestStationsNotLoading();
 		}
@@ -474,13 +527,13 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 				}
 				// compass
 				ImageView compassImg = (ImageView) convertView.findViewById(R.id.compass);
-				if (bikeStation.getCompassMatrix()!=null) {
+				if (bikeStation.getCompassMatrixOrNull() != null) {
 					compassImg.setImageMatrix(bikeStation.getCompassMatrix());
 					compassImg.setVisibility(View.VISIBLE);
 				} else {
 					compassImg.setVisibility(View.GONE);
 				}
-				
+
 				// closest bike station
 				int index = -1;
 				if (BikeTab.this.orderedStationsIds != null) {
@@ -676,8 +729,8 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 				}
 				BikeTab.this.favTerminalNames = newfavTerminalNames;
 				// trigger change if necessary
-				if (newFav && BikeTab.this.adapter != null) {
-					BikeTab.this.adapter.notifyDataSetChanged();
+				if (newFav) {
+					notifyDataSetChanged();
 				}
 			};
 		}.execute();

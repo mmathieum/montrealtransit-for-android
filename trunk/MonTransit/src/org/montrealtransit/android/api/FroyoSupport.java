@@ -57,4 +57,10 @@ public class FroyoSupport extends EclairSupport {
 			return 0f;
 		}
 	}
+
+	@Override
+	public int getSurfaceRotation(Context context) {
+		Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+		return display.getRotation();
+	}
 }

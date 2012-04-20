@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
+import android.view.Surface;
 
 /**
  * Features available for Android 1.5 Cupcake (API Level 3) and higher.
@@ -87,5 +88,13 @@ public class CupcakeSupport implements SupportUtil {
 			return -90f;
 		}
 		return 0f;
+	}
+
+	@Override
+	public int getSurfaceRotation(Context context) {
+		if (Configuration.ORIENTATION_LANDSCAPE == context.getResources().getConfiguration().orientation) {
+			return Surface.ROTATION_90;
+		}
+		return Surface.ROTATION_0;
 	}
 }

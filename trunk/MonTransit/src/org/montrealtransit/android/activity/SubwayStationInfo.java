@@ -10,9 +10,9 @@ import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.SensorUtils;
+import org.montrealtransit.android.SensorUtils.CompassListener;
 import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.Utils;
-import org.montrealtransit.android.SensorUtils.CompassListener;
 import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.dialog.BusLineSelectDirection;
@@ -92,6 +92,10 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 	 * The {@link Sensor#TYPE_MAGNETIC_FIELD} values.
 	 */
 	private float[] magneticFieldValues;
+	/**
+	 * The last compass value.
+	 */
+	private int lastCompassInDegree = -1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -190,8 +194,6 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 				listener.onCompass();
 			}
 			break;
-		default:
-			break;
 		}
 	}
 
@@ -199,7 +201,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 	public void onCompass() {
 		// MyLog.v(TAG, "onCompass()");
 		if (this.accelerometerValues != null && this.magneticFieldValues != null) {
-			updateCompass(SensorUtils.calculateOrientation(this.accelerometerValues, this.magneticFieldValues));
+			updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues));
 		}
 	}
 
@@ -211,19 +213,39 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 		// MyLog.v(TAG, "updateCompass(%s)", orientation);
 		Location currentLocation = getLocation();
 		if (currentLocation != null) {
-			float declination = new GeomagneticField(Double.valueOf(currentLocation.getLatitude()).floatValue(), Double.valueOf(currentLocation.getLongitude())
-					.floatValue(), Double.valueOf(currentLocation.getAltitude()).floatValue(), System.currentTimeMillis()).getDeclination();
-			// update bike station compass
-			if (this.subwayStation != null) {
-				Location subwayStationLocation = LocationUtils.getNewLocation(this.subwayStation.getLat(), this.subwayStation.getLng());
-				Pair<Integer, Integer> dim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow_light);
-				Matrix matrix = SensorUtils.getCompassRotationMatrix(this, currentLocation, subwayStationLocation, orientation, dim.first, dim.second,
-						declination);
-				ImageView compassImg = (ImageView) findViewById(R.id.compass);
-				compassImg.setImageMatrix(matrix);
-				compassImg.setVisibility(View.VISIBLE);
+			int io = (int) orientation[0];
+			if (io != 0 && Math.abs(this.lastCompassInDegree - io) > SensorUtils.LIST_VIEW_COMPASS_DEGREE_UPDATE_THRESOLD) {
+				this.lastCompassInDegree = io;
+				// update bike station compass
+				if (this.subwayStation != null) {
+					Matrix matrix = new Matrix();
+					matrix.postRotate(SensorUtils.getCompassRotationInDegree(this, currentLocation, this.subwayStation.getLocation(), orientation,
+							getLocationDeclination()), getArrowDimLight().first / 2, getArrowDimLight().second / 2);
+					ImageView compassImg = (ImageView) findViewById(R.id.compass);
+					compassImg.setImageMatrix(matrix);
+					compassImg.setVisibility(View.VISIBLE);
+				}
 			}
 		}
+	}
+
+	private Float locationDeclination;
+
+	private float getLocationDeclination() {
+		if (this.locationDeclination == null && this.location != null) {
+			this.locationDeclination = new GeomagneticField((float) this.location.getLatitude(), (float) this.location.getLongitude(),
+					(float) this.location.getAltitude(), this.location.getTime()).getDeclination();
+		}
+		return this.locationDeclination;
+	}
+
+	private Pair<Integer, Integer> arrowDimLight;
+
+	public Pair<Integer, Integer> getArrowDimLight() {
+		if (this.arrowDimLight == null) {
+			this.arrowDimLight = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow_light);
+		}
+		return this.arrowDimLight;
 	}
 
 	/**
@@ -486,8 +508,8 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 		if (currentLocation != null && this.subwayStation != null) {
 			// distance & accuracy
 			TextView distanceTv = (TextView) findViewById(R.id.distance);
-			Location subwayStationLocation = LocationUtils.getNewLocation(this.subwayStation.getLat(), this.subwayStation.getLng());
-			distanceTv.setText(Utils.getDistanceStringUsingPref(this, currentLocation.distanceTo(subwayStationLocation), currentLocation.getAccuracy()));
+			distanceTv.setText(Utils.getDistanceStringUsingPref(this, currentLocation.distanceTo(this.subwayStation.getLocation()),
+					currentLocation.getAccuracy()));
 			distanceTv.setVisibility(View.VISIBLE);
 		}
 	}

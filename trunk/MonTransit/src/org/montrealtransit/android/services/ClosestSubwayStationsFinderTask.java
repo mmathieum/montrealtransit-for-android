@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
@@ -121,7 +120,7 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 			if (!aresult.containsKey(subwayStation.getId())) {
 				ASubwayStation station = new ASubwayStation(subwayStation);
 				// location
-				station.setDistance(currentLocation.distanceTo(LocationUtils.getNewLocation(subwayStation.getLat(), subwayStation.getLng())));
+				station.setDistance(currentLocation.distanceTo(subwayStation.getLocation()));
 				station.setDistanceString(Utils.getDistanceString(station.getDistance(), accuracy, isDetailed, distanceUnit));
 				aresult.put(subwayStation.getId(), station);
 			}

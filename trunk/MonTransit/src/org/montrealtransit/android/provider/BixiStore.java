@@ -1,7 +1,10 @@
 package org.montrealtransit.android.provider;
 
+import org.montrealtransit.android.LocationUtils;
+
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.location.Location;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -94,6 +97,10 @@ public class BixiStore {
 		 * The bike stations latest update time.
 		 */
 		private int latestUpdateTime;
+		/**
+		 * The bike station location or null.
+		 */
+		private Location location;
 
 		/**
 		 * @param c the cursor
@@ -362,6 +369,16 @@ public class BixiStore {
 			}
 			// TODO what else?
 			return true;
+		}
+
+		/**
+		 * @return the location (not null)
+		 */
+		public Location getLocation() {
+			if (this.location == null) {
+				this.location = LocationUtils.getNewLocation(this.lat, this.lng);
+			}
+			return this.location;
 		}
 	}
 

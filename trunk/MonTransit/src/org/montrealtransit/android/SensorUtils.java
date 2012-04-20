@@ -16,6 +16,7 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.util.DisplayMetrics;
 import android.util.FloatMath;
+import android.view.Surface;
 
 /**
  * This class provide some tools to handle {@link SensorEvent}.
@@ -39,9 +40,24 @@ public final class SensorUtils {
 	public static final int SHAKE_THRESHOLD_PERIOD = 1000; // 1 second
 
 	/**
+	 * The minimum degree change for a list view to be updated.
+	 */
+	public static final int LIST_VIEW_COMPASS_DEGREE_UPDATE_THRESOLD = 9;
+
+	/**
 	 * Utility class.
 	 */
 	private SensorUtils() {
+	}
+
+	/**
+	 * @see #registerShakeListener(Context, SensorEventListener)
+	 * @see #registerCompassListener(Context, SensorEventListener)
+	 */
+	public static void registerShakeAndCompassListener(Context context, SensorEventListener listener) {
+		SensorManager mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+		mSensorManager.registerListener(listener, getAccelerometerSensor(mSensorManager), SensorManager.SENSOR_DELAY_UI);
+		mSensorManager.registerListener(listener, getMagneticFieldSensor(mSensorManager), SensorManager.SENSOR_DELAY_UI);
 	}
 
 	/**
@@ -51,7 +67,7 @@ public final class SensorUtils {
 	 */
 	public static void registerShakeListener(Context context, SensorEventListener listener) {
 		SensorManager mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-		mSensorManager.registerListener(listener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_UI);
+		mSensorManager.registerListener(listener, getAccelerometerSensor(mSensorManager), SensorManager.SENSOR_DELAY_UI);
 	}
 
 	/**
@@ -79,6 +95,17 @@ public final class SensorUtils {
 			break;
 		}
 	}
+	
+	/**
+	 * @param values the {@link SensorEvent} values
+	 * @return the acceleration (including gravity)
+	 */
+	public static float extractAcceleration(float[] values) {
+		float x = values[0];
+		float y = values[1];
+		float z = values[2];
+		return FloatMath.sqrt((x * x + y * y + z * z));
+	}
 
 	/**
 	 * The shake listener.
@@ -98,8 +125,36 @@ public final class SensorUtils {
 	 */
 	public static void registerCompassListener(Context context, SensorEventListener listener) {
 		SensorManager mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-		mSensorManager.registerListener(listener, mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_UI);
-		mSensorManager.registerListener(listener, mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_UI);
+		mSensorManager.registerListener(listener, getAccelerometerSensor(mSensorManager), SensorManager.SENSOR_DELAY_UI);
+		mSensorManager.registerListener(listener, getMagneticFieldSensor(mSensorManager), SensorManager.SENSOR_DELAY_UI);
+	}
+
+	/**
+	 * @param mSensorManager the sensor manager
+	 * @return the default magnetic field sensor or null
+	 */
+	public static Sensor getMagneticFieldSensor(SensorManager mSensorManager) {
+		return mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+		// List<Sensor> list = mSensorManager.getSensorList(Sensor.TYPE_MAGNETIC_FIELD);
+		// MyLog.d(TAG, "MagneticFieldSensor: " + list.size());
+		// if (list.size() > 0) {
+		// return list.get(0);
+		// }
+		// return null;
+	}
+
+	/**
+	 * @param mSensorManager the sensor manager
+	 * @return the default accelerometer sensor or null
+	 */
+	public static Sensor getAccelerometerSensor(SensorManager mSensorManager) {
+		return mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		// List<Sensor> list = mSensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
+		// MyLog.d(TAG, "AccelerometerSensor: " + list.size());
+		// if (list.size() > 0) {
+		// return list.get(0);
+		// }
+		// return null;
 	}
 
 	/**
@@ -111,6 +166,7 @@ public final class SensorUtils {
 	 * @param sourceHeight the image source height
 	 * @return the compass rotation matrix
 	 */
+	@Deprecated
 	public static Matrix getCompassRotationMatrix(Activity activity, Location currentLocation, Location destinationLocation, float[] orientation,
 			int sourceWidth, int sourceHeight, float declination) {
 		Matrix matrix = new Matrix();
@@ -127,12 +183,10 @@ public final class SensorUtils {
 	 * @param declination align with true north
 	 * @return compass rotation in degree
 	 */
-	private static float getCompassRotationInDegree(Activity activity, Location currentLocation, Location destinationLocation, float[] orientation,
+	public static float getCompassRotationInDegree(Activity activity, Location currentLocation, Location destinationLocation, float[] orientation,
 			float declination) {
 		float bearTo = currentLocation.bearingTo(destinationLocation);
-		float orientationFix = SupportFactory.getInstance(activity).getDisplayRotation(activity);
-		// float rotationDegrees = bearTo - (orientation[0] + declination)
-		float rotationDegrees = bearTo - (orientation[0] + declination) + orientationFix;
+		float rotationDegrees = bearTo - (orientation[0] + declination);
 		return rotationDegrees;
 	}
 
@@ -141,7 +195,7 @@ public final class SensorUtils {
 	 * @param magneticFieldValues the {@link Sensor#TYPE_MAGNETIC_FIELD} values
 	 * @return the orientation
 	 */
-	public static float[] calculateOrientation(float[] accelerometerValues, float[] magneticFieldValues) {
+	public static float[] calculateOrientation(Context context, float[] accelerometerValues, float[] magneticFieldValues) {
 		if (accelerometerValues == null || magneticFieldValues == null) {
 			MyLog.w(TAG, "accelerometer and magnetic field values are required!");
 			return null;
@@ -149,7 +203,27 @@ public final class SensorUtils {
 		float[] R = new float[9];
 		SensorManager.getRotationMatrix(R, null, accelerometerValues, magneticFieldValues);
 		float[] outR = new float[9];
-		outR = R; // TODO use SensorManager.remapCoordinateSystem(R, SensorManager.AXIS_X, SensorManager.AXIS_Z, outR);
+
+		int x_axis = SensorManager.AXIS_X;
+		int y_axis = SensorManager.AXIS_Y;
+		int rotation = SupportFactory.getInstance(context).getSurfaceRotation(context);
+		switch (rotation) {
+		case Surface.ROTATION_0:
+			break;
+		case Surface.ROTATION_90:
+			x_axis = SensorManager.AXIS_Y;
+			y_axis = SensorManager.AXIS_MINUS_X;
+			break;
+		case Surface.ROTATION_180:
+			y_axis = SensorManager.AXIS_MINUS_Y;
+			break;
+		case Surface.ROTATION_270:
+			x_axis = SensorManager.AXIS_MINUS_Y;
+			y_axis = SensorManager.AXIS_X;
+			break;
+		}
+		SensorManager.remapCoordinateSystem(R, x_axis, y_axis, outR);
+
 		float[] values = new float[3];
 		SensorManager.getOrientation(outR, values);
 
@@ -220,17 +294,6 @@ public final class SensorUtils {
 	 */
 	public static void unregisterSensorListener(Context context, SensorEventListener listener) {
 		((SensorManager) context.getSystemService(Context.SENSOR_SERVICE)).unregisterListener(listener);
-	}
-
-	/**
-	 * @param values the {@link SensorEvent} values
-	 * @return the acceleration (including gravity)
-	 */
-	public static float extractAcceleration(float[] values) {
-		float x = values[0];
-		float y = values[1];
-		float z = values[2];
-		return FloatMath.sqrt((x * x + y * y + z * z));
 	}
 
 	@Deprecated

@@ -18,7 +18,7 @@ public class ABikeStation extends BikeStation {
 	 * The distance in meter.
 	 */
 	private Float distance;
-	
+
 	/**
 	 * The compass rotation matrix or null.
 	 */
@@ -29,7 +29,7 @@ public class ABikeStation extends BikeStation {
 	 */
 	public ABikeStation() {
 	}
-	
+
 	/**
 	 * A constructor initializing the properties with a {@link BikeStation} object.
 	 * @param subwayStation {@link BikeStation} object.
@@ -86,10 +86,19 @@ public class ABikeStation extends BikeStation {
 	}
 
 	/**
-	 * @return the compass rotation matrix
+	 * @return the compass rotation matrix (not null)
 	 */
 	public Matrix getCompassMatrix() {
+		if (this.compassMatrix == null) {
+			this.compassMatrix = new Matrix();
+		}
 		return compassMatrix;
 	}
 
+	/**
+	 * @return the compass rotation matrix or null
+	 */
+	public Matrix getCompassMatrixOrNull() {
+		return compassMatrix;
+	}
 }
