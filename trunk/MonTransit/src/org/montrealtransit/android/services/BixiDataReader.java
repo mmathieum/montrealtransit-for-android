@@ -11,6 +11,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLHandshakeException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -120,7 +122,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 		try {
 			URL url = new URL(XML_SOURCE);
 			URLConnection urlc = url.openConnection();
-			HttpURLConnection httpUrlConnection = (HttpURLConnection) urlc;
+			HttpsURLConnection httpUrlConnection = (HttpsURLConnection) urlc;
 			switch (httpUrlConnection.getResponseCode()) {
 			case HttpURLConnection.HTTP_OK:
 				publishProgress(from, context.getString(R.string.downloading_data_from_and_source, BixiDataReader.SOURCE));
@@ -147,6 +149,10 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 				publishProgress(from, context.getString(R.string.error));
 				return null;
 			}
+		} catch (SSLHandshakeException sslhe) {
+			MyLog.w(TAG, sslhe, "SSL error!");
+			publishProgress(from, context.getString(R.string.error));
+			return null;
 		} catch (UnknownHostException uhe) {
 			if (MyLog.isLoggable(Log.DEBUG)) {
 				MyLog.w(TAG, uhe, "No Internet Connection!");
