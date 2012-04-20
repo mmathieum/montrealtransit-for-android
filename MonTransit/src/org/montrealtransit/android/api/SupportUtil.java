@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.view.Surface;
 
 /**
  * The methods that all platforms version need to implement.
@@ -77,5 +78,10 @@ public interface SupportUtil {
 	 * @return the display rotation
 	 */
 	float getDisplayRotation(Context context);
+
+	/**
+	 * @return the display rotation {@link Surface#ROTATION_0} ...
+	 */
+	int getSurfaceRotation(Context context);
 
 }

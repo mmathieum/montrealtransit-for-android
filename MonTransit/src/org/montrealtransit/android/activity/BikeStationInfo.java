@@ -227,8 +227,6 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 				listener.onCompass();
 			}
 			break;
-		default:
-			break;
 		}
 	}
 
@@ -236,7 +234,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	public void onCompass() {
 		// MyLog.v(TAG, "onCompass()");
 		if (this.accelerometerValues != null && this.magneticFieldValues != null) {
-			updateCompass(SensorUtils.calculateOrientation(this.accelerometerValues, this.magneticFieldValues));
+			updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues));
 		}
 	}
 
@@ -248,37 +246,59 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		// MyLog.v(TAG, "updateCompass(%s)", orientation);
 		Location currentLocation = getLocation();
 		if (currentLocation != null) {
-			if (lastCompassInDegree != (int) orientation[0]) {
-				lastCompassInDegree = (int) orientation[0];
-				float declination = new GeomagneticField(Double.valueOf(currentLocation.getLatitude()).floatValue(), Double.valueOf(
-						currentLocation.getLongitude()).floatValue(), Double.valueOf(currentLocation.getAltitude()).floatValue(), System.currentTimeMillis())
-						.getDeclination();
+			int io = (int) orientation[0];
+			if (io != 0 && Math.abs(this.lastCompassInDegree - io) > SensorUtils.LIST_VIEW_COMPASS_DEGREE_UPDATE_THRESOLD) {
+				this.lastCompassInDegree = io;
 				// update bike station compass
 				if (this.bikeStation != null) {
-					Location bikeStationLocation = LocationUtils.getNewLocation(this.bikeStation.getLat(), this.bikeStation.getLng());
-					Pair<Integer, Integer> dim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow_light);
-					Matrix matrix = SensorUtils.getCompassRotationMatrix(this, currentLocation, bikeStationLocation, orientation, dim.first, dim.second,
-							declination);
+					Matrix matrix = new Matrix();
+					matrix.postRotate(SensorUtils.getCompassRotationInDegree(this, currentLocation, this.bikeStation.getLocation(), orientation,
+							getLocationDeclination()), getArrowDimLight().first / 2, getArrowDimLight().second / 2);
 					ImageView compassImg = (ImageView) findViewById(R.id.compass);
 					compassImg.setImageMatrix(matrix);
 					compassImg.setVisibility(View.VISIBLE);
 				}
 				// update closest bike stations compass
 				if (this.closestBikeStations != null) {
-					Pair<Integer, Integer> dim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow);
 					int i = 1;
 					for (ABikeStation station : this.closestBikeStations) {
-						View stationView = findViewById(R.id.closest_stations).findViewWithTag(getStationViewTag(i++));
-						Location bikeStationLocation = LocationUtils.getNewLocation(station.getLat(), station.getLng());
-						Matrix matrix = SensorUtils.getCompassRotationMatrix(this, currentLocation, bikeStationLocation, orientation, dim.first, dim.second,
-								declination);
-						ImageView compassImg = (ImageView) stationView.findViewById(R.id.compass);
-						compassImg.setImageMatrix(matrix);
+						station.getCompassMatrix().reset();
+						station.getCompassMatrix().postRotate(
+								SensorUtils.getCompassRotationInDegree(this, currentLocation, station.getLocation(), orientation, getLocationDeclination()),
+								getArrowDim().first / 2, getArrowDim().second / 2);
+						ImageView compassImg = (ImageView) findViewById(R.id.closest_stations).findViewWithTag(getStationViewTag(i++)).findViewById(
+								R.id.compass);
+						compassImg.setImageMatrix(station.getCompassMatrix());
 						compassImg.setVisibility(View.VISIBLE);
 					}
 				}
 			}
 		}
+	}
+
+	private Float locationDeclination;
+	private float getLocationDeclination() {
+		if (this.locationDeclination == null && this.location != null) {
+			this.locationDeclination = new GeomagneticField((float) this.location.getLatitude(), (float) this.location.getLongitude(),
+					(float) this.location.getAltitude(), this.location.getTime()).getDeclination();
+		}
+		return this.locationDeclination;
+	}
+
+	private Pair<Integer, Integer> arrowDim;
+	public Pair<Integer, Integer> getArrowDim() {
+		if (this.arrowDim == null) {
+			this.arrowDim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow);
+		}
+		return this.arrowDim;
+	}
+	
+	private Pair<Integer, Integer> arrowDimLight;
+	public Pair<Integer, Integer> getArrowDimLight() {
+		if (this.arrowDimLight == null) {
+			this.arrowDimLight = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow_light);
+		}
+		return this.arrowDimLight;
 	}
 
 	/**
@@ -290,9 +310,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		if (currentLocation != null && this.bikeStation != null) {
 			// distance & accuracy
 			TextView distanceTv = (TextView) findViewById(R.id.distance);
-			distanceTv.setText(Utils.getDistanceStringUsingPref(this,
-					currentLocation.distanceTo(LocationUtils.getNewLocation(this.bikeStation.getLat(), this.bikeStation.getLng())),
-					currentLocation.getAccuracy()));
+			distanceTv.setText(Utils.getDistanceStringUsingPref(this, currentLocation.distanceTo(bikeStation.getLocation()), currentLocation.getAccuracy()));
 			distanceTv.setVisibility(View.VISIBLE);
 		}
 		// update other stations
@@ -340,7 +358,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		for (ABikeStation station : this.closestBikeStations) {
 			// distance
 			if (location != null) {
-				station.setDistance(location.distanceTo(LocationUtils.getNewLocation(station.getLat(), station.getLng())));
+				station.setDistance(location.distanceTo(station.getLocation()));
 				station.setDistanceString(Utils.getDistanceString(station.getDistance(), location.getAccuracy(), isDetailed, distanceUnit));
 			} else {
 				station.setDistance(null);
@@ -587,7 +605,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			}
 			setClosestStationsAsLoading(); // set as loading
 			this.closestBikeStationsTask = new ClosestBikeStationsFinderTask(this, this, NB_CLOSEST_BIKE_STATIONS + 1);
-			this.closestBikeStationsTask.execute(LocationUtils.getNewLocation(this.bikeStation.getLat(), this.bikeStation.getLng()));
+			this.closestBikeStationsTask.execute(this.bikeStation.getLocation());
 		}
 	}
 

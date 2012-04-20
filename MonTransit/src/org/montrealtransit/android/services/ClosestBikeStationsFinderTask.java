@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
@@ -139,7 +138,7 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 		for (BikeStation bikeStation : bikeStations) {
 			ABikeStation astation = new ABikeStation(bikeStation);
 			// add location => distance
-			astation.setDistance(currentLocation.distanceTo(LocationUtils.getNewLocation(bikeStation.getLat(), bikeStation.getLng())));
+			astation.setDistance(currentLocation.distanceTo(bikeStation.getLocation()));
 			aresult.add(astation);
 		}
 		sortBikeStations(aresult);

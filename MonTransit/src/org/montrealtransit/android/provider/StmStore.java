@@ -1,10 +1,12 @@
 package org.montrealtransit.android.provider;
 
+import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.Utils;
 
 import android.app.SearchManager;
 import android.database.Cursor;
+import android.location.Location;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
@@ -386,6 +388,10 @@ public class StmStore {
 		 * The bus stop longitude or <b>NULL</b>
 		 */
 		private Double lng;
+		/**
+		 * The bus stop location or null.
+		 */
+		private Location location;
 
 		public static BusStop fromCursor(Cursor c) {
 			final BusStop busStop = new BusStop();
@@ -623,6 +629,16 @@ public class StmStore {
 		 */
 		public void setSubwayStationId(String subwayStationId) {
 			this.subwayStationId = subwayStationId;
+		}
+
+		/**
+		 * @return the bus stop location or null if no location
+		 */
+		public Location getLocation() {
+			if (this.location == null && this.lat != null && this.lng != null) {
+				this.location = LocationUtils.getNewLocation(this.lat, this.lng);
+			}
+			return this.location;
 		}
 
 		/**
@@ -884,6 +900,10 @@ public class StmStore {
 		 * The subway station longitude.
 		 */
 		private double lng;
+		/**
+		 * The subway station location or null.
+		 */
+		private Location location;
 
 		/**
 		 * @param c the cursor
@@ -952,6 +972,16 @@ public class StmStore {
 		 */
 		public void setLng(double lng) {
 			this.lng = lng;
+		}
+
+		/**
+		 * @return the subway station location (not null)
+		 */
+		public Location getLocation() {
+			if (this.location == null) {
+				this.location = LocationUtils.getNewLocation(this.lat, this.lng);
+			}
+			return this.location;
 		}
 
 		/**

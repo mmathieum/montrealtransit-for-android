@@ -9,12 +9,14 @@ import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.SensorUtils;
+import org.montrealtransit.android.SensorUtils.CompassListener;
 import org.montrealtransit.android.SensorUtils.ShakeListener;
 import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.TwitterUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.ASubwayStation;
 import org.montrealtransit.android.data.ClosestPOI;
+import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.dialog.SubwayLineSelectDirection;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore.ServiceStatus;
@@ -29,6 +31,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.Cursor;
+import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -57,7 +60,7 @@ import android.widget.Toast;
  * @author Mathieu Méa
  */
 public class SubwayTab extends Activity implements LocationListener, StmInfoStatusReaderListener, ClosestSubwayStationsFinderListener, SensorEventListener,
-		ShakeListener {
+		ShakeListener, CompassListener {
 
 	/**
 	 * The log tag.
@@ -132,6 +135,18 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 * True if the share was already handled (should be reset in {@link #onResume()}).
 	 */
 	private boolean shakeHandled;
+	/**
+	 * The {@link Sensor#TYPE_ACCELEROMETER} values.
+	 */
+	private float[] accelerometerValues;
+	/**
+	 * The {@link Sensor#TYPE_MAGNETIC_FIELD} values.
+	 */
+	private float[] magneticFieldValues;
+	/**
+	 * The last compass value.
+	 */
+	private int lastCompassInDegree = -1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -198,7 +213,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		}
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		AdsUtils.setupAd(this);
-		SensorUtils.registerShakeListener(this, this);
+		SensorUtils.registerShakeAndCompassListener(this, this);
 		this.shakeHandled = false;
 		super.onResume();
 	}
@@ -207,6 +222,83 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	public void onSensorChanged(SensorEvent se) {
 		// MyLog.v(TAG, "onSensorChanged()");
 		SensorUtils.checkForShake(se, this.lastSensorUpdate, this.lastSensorAccelerationIncGravity, this.lastSensorAcceleration, this);
+		// SensorUtils.checkForCompass(event, this.accelerometerValues, this.magneticFieldValues, this);
+		checkForCompass(se, this);
+	}
+
+	/**
+	 * @see SensorUtils#checkForCompass(SensorEvent, float[], float[], CompassListener)
+	 */
+	public void checkForCompass(SensorEvent event, CompassListener listener) {
+		switch (event.sensor.getType()) {
+		case Sensor.TYPE_ACCELEROMETER:
+			accelerometerValues = event.values;
+			if (magneticFieldValues != null) {
+				listener.onCompass();
+			}
+			break;
+		case Sensor.TYPE_MAGNETIC_FIELD:
+			magneticFieldValues = event.values;
+			if (accelerometerValues != null) {
+				listener.onCompass();
+			}
+			break;
+		}
+	}
+
+	@Override
+	public void onCompass() {
+		// MyLog.v(TAG, "onCompass()");
+		if (this.accelerometerValues != null && this.magneticFieldValues != null) {
+			updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues));
+		}
+	}
+
+	/**
+	 * Update the compass image(s).
+	 * @param orientation the new orientation
+	 */
+	private void updateCompass(float[] orientation) {
+		// MyLog.v(TAG, "updateCompass(%s)", orientation);
+		Location currentLocation = getLocation();
+		if (currentLocation != null) {
+			int io = (int) orientation[0];
+			if (io != 0 && Math.abs(this.lastCompassInDegree - io) > SensorUtils.LIST_VIEW_COMPASS_DEGREE_UPDATE_THRESOLD) {
+				this.lastCompassInDegree = io;
+				// update closest bike stations compass
+				int i = 1;
+				if (this.closestStations != null) {
+					for (ASubwayStation station : this.closestStations) {
+						station.getCompassMatrix().reset();
+						station.getCompassMatrix().postRotate(
+								SensorUtils.getCompassRotationInDegree(this, currentLocation, station.getLocation(), orientation, getLocationDeclination()),
+								getArrowDim().first / 2, getArrowDim().second / 2);
+						// update the view
+						ImageView compassImg = (ImageView) findViewById(R.id.closest_stations).findViewWithTag("station" + i++).findViewById(R.id.compass);
+						compassImg.setImageMatrix(station.getCompassMatrix());
+						compassImg.setVisibility(View.VISIBLE);
+					}
+				}
+			}
+		}
+	}
+
+	private Pair<Integer, Integer> arrowDim;
+	private Float locationDeclination;
+
+	private float getLocationDeclination() {
+		if (this.locationDeclination == null && this.location != null) {
+			this.locationDeclination = new GeomagneticField((float) this.location.getLatitude(), (float) this.location.getLongitude(),
+					(float) this.location.getAltitude(), this.location.getTime()).getDeclination();
+		}
+		return this.locationDeclination;
+	}
+
+	public Pair<Integer, Integer> getArrowDim() {
+		if (this.arrowDim == null) {
+			this.arrowDim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow);
+		}
+		return this.arrowDim;
 	}
 
 	@Override
@@ -636,8 +728,17 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 				}
 				// station distance
 				if (!TextUtils.isEmpty(station.getDistanceString())) {
-					((TextView) view.findViewById(R.id.distance)).setText(station.getDistanceString());
+					TextView distanceTv = (TextView) view.findViewById(R.id.distance);
+					distanceTv.setText(station.getDistanceString());
+					distanceTv.setVisibility(View.VISIBLE);
 				}
+				// station compass
+				if (station.getCompassMatrixOrNull() != null) {
+					ImageView compassTv = (ImageView) view.findViewById(R.id.compass);
+					compassTv.setImageMatrix(station.getCompassMatrix());
+					compassTv.setVisibility(View.VISIBLE);
+				}
+
 				// add click listener
 				final String subwayStationId = station.getId();
 				final String subwayStationName = station.getName();
@@ -854,9 +955,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 					UserPreferences.PREFS_DISTANCE_DETAILED);
 			String distanceUnit = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
 			for (ASubwayStation station : this.closestStations) {
-				// distance
-				station.setDistance(currentLocation.distanceTo(LocationUtils.getNewLocation(station.getLat(), station.getLng())));
-				// MyLog.v(TAG, "distance in meters: " + distanceInMeters + " (accuracy: " + accuracyInMeters + ").");
+				station.setDistance(currentLocation.distanceTo(station.getLocation()));
 				station.setDistanceString(Utils.getDistanceString(station.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
 			}
 			// update the view
@@ -874,7 +973,9 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		for (ASubwayStation station : this.closestStations) {
 			View stationView = findViewById(R.id.closest_stations).findViewWithTag("station" + i++);
 			if (stationView != null && !TextUtils.isEmpty(station.getDistanceString())) {
-				((TextView) stationView.findViewById(R.id.distance)).setText(station.getDistanceString());
+				TextView distanceTv = (TextView) stationView.findViewById(R.id.distance);
+				distanceTv.setText(station.getDistanceString());
+				distanceTv.setVisibility(View.VISIBLE);
 			}
 		}
 	}

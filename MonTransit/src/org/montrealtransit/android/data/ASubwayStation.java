@@ -131,9 +131,19 @@ public class ASubwayStation extends SubwayStation {
 	}
 
 	/**
-	 * @return the compass rotation matrix
+	 * @return the compass rotation matrix (not null)
 	 */
 	public Matrix getCompassMatrix() {
+		if (this.compassMatrix == null) {
+			this.compassMatrix = new Matrix();
+		}
+		return compassMatrix;
+	}
+
+	/**
+	 * @return the compass rotation matrix or null
+	 */
+	public Matrix getCompassMatrixOrNull() {
 		return compassMatrix;
 	}
 }

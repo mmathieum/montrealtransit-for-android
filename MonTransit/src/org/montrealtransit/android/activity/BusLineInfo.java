@@ -31,7 +31,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Matrix;
 import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -235,8 +234,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		// refresh favorites
 		refreshFavoriteStopCodesFromDB();
-		SensorUtils.registerShakeListener(this, this);
-		SensorUtils.registerCompassListener(this, this);
+		SensorUtils.registerShakeAndCompassListener(this, this);
 		this.shakeHandled = false;
 		super.onResume();
 	}
@@ -266,8 +264,6 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 				listener.onCompass();
 			}
 			break;
-		default:
-			break;
 		}
 	}
 
@@ -286,7 +282,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	public void onCompass() {
 		// MyLog.v(TAG, "onCompass()");
 		if (this.accelerometerValues != null && this.magneticFieldValues != null) {
-			updateCompass(SensorUtils.calculateOrientation(this.accelerometerValues, this.magneticFieldValues));
+			updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues));
 		}
 	}
 
@@ -298,29 +294,65 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		// MyLog.v(TAG, "updateCompass(%s)", orientation);
 		Location currentLocation = getLocation();
 		if (currentLocation != null) {
-			if (lastCompassInDegree != (int) orientation[0]) {
-				lastCompassInDegree = (int) orientation[0];
-				float declination = new GeomagneticField(Double.valueOf(currentLocation.getLatitude()).floatValue(), Double.valueOf(
-						currentLocation.getLongitude()).floatValue(), Double.valueOf(currentLocation.getAltitude()).floatValue(), System.currentTimeMillis())
-						.getDeclination();
+			int io = (int) orientation[0];
+			if (io != 0 && Math.abs(this.lastCompassInDegree - io) > SensorUtils.LIST_VIEW_COMPASS_DEGREE_UPDATE_THRESOLD) {
+				this.lastCompassInDegree = io;
 				// update closest bike stations compass
 				if (this.busStops != null) {
-					Pair<Integer, Integer> dim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow);
 					for (ABusStop busStop : this.busStops) {
-						Location bikeStationLocation = LocationUtils.getNewLocation(busStop.getLat(), busStop.getLng());
-						Matrix matrix = SensorUtils.getCompassRotationMatrix(this, currentLocation, bikeStationLocation, orientation, dim.first, dim.second,
-								declination);
-						busStop.setCompassMatrix(matrix);
+						busStop.getCompassMatrix().reset();
+						busStop.getCompassMatrix().postRotate(
+								SensorUtils.getCompassRotationInDegree(this, currentLocation, busStop.getLocation(), orientation, getLocationDeclination()),
+								getArrowDim().first / 2, getArrowDim().second / 2);
 					}
 					// update the view
-					if (this.adapter != null && this.scrollState == SCROLL_STATE_IDLE) {
-						this.adapter.notifyDataSetChanged();
-					}
+					notifyDataSetChanged();
 				}
 			}
 		}
 	}
-	
+
+	/**
+	 * The minimum between 2 {@link ArrayAdapter#notifyDataSetChanged()} in milliseconds.
+	 */
+	private static final int ADAPTER_NOTIFY_THRESOLD = 150; // 0.15 seconds
+
+	/**
+	 * The last {@link ArrayAdapter#notifyDataSetChanged() time-stamp in milliseconds.
+	 */
+	private long lastNotifyDataSetChanged = -1;
+
+	/**
+	 * {@link ArrayAdapter#notifyDataSetChanged()} if necessary
+	 */
+	public void notifyDataSetChanged() {
+		long now = System.currentTimeMillis();
+		if (this.adapter != null && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE && (now - this.lastNotifyDataSetChanged) > ADAPTER_NOTIFY_THRESOLD) {
+			// MyLog.d(TAG, "Notify data set changed");
+			this.adapter.notifyDataSetChanged();
+			this.lastNotifyDataSetChanged = now;
+		}
+	}
+
+	private Float locationDeclination;
+
+	private float getLocationDeclination() {
+		if (this.locationDeclination == null && this.location != null) {
+			this.locationDeclination = new GeomagneticField((float) this.location.getLatitude(), (float) this.location.getLongitude(),
+					(float) this.location.getAltitude(), this.location.getTime()).getDeclination();
+		}
+		return this.locationDeclination;
+	}
+
+	private Pair<Integer, Integer> arrowDim;
+
+	public Pair<Integer, Integer> getArrowDim() {
+		if (this.arrowDim == null) {
+			this.arrowDim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow);
+		}
+		return this.arrowDim;
+	}
+
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 	}
@@ -532,9 +564,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 					}
 				}
 				// trigger change
-				if (BusLineInfo.this.adapter != null) {
-					BusLineInfo.this.adapter.notifyDataSetChanged();
-				}
+				notifyDataSetChanged();
 			};
 		}.execute();
 	}
@@ -610,7 +640,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 				}
 				// bus stop compass
 				ImageView compassTv = (ImageView) convertView.findViewById(R.id.compass);
-				if (busStop.getCompassMatrix() != null) {
+				if (busStop.getCompassMatrixOrNull() != null) {
 					compassTv.setImageMatrix(busStop.getCompassMatrix());
 					compassTv.setVisibility(View.VISIBLE);
 				} else {
@@ -690,15 +720,11 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 			String distanceUnit = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
 			for (ABusStop busStop : this.busStops) {
 				// IF the bus stop location is known DO
-				if (busStop.getLat() != null && busStop.getLng() != null) {
-					busStop.setDistance(currentLocation.distanceTo(LocationUtils.getNewLocation(busStop.getLat(), busStop.getLng())));
-					busStop.setDistanceString(Utils.getDistanceString(busStop.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
-				}
+				busStop.setDistance(currentLocation.distanceTo(busStop.getLocation()));
+				busStop.setDistanceString(Utils.getDistanceString(busStop.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
 			}
 			generateOrderedStopCodes();
-			if (this.adapter != null) {
-				this.adapter.notifyDataSetChanged();
-			}
+			notifyDataSetChanged();
 		}
 	}
 

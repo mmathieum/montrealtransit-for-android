@@ -73,7 +73,8 @@ import android.widget.Toast;
  * This activity show information about a bus stop.
  * @author Mathieu Méa
  */
-public class BusStopInfo extends Activity implements LocationListener, NextStopListener, DialogInterface.OnClickListener, NfcListener, SensorEventListener, CompassListener {
+public class BusStopInfo extends Activity implements LocationListener, NextStopListener, DialogInterface.OnClickListener, NfcListener, SensorEventListener,
+		CompassListener {
 
 	/**
 	 * The log tag.
@@ -152,6 +153,10 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	 * The {@link Sensor#TYPE_MAGNETIC_FIELD} values.
 	 */
 	private float[] magneticFieldValues;
+	/**
+	 * The last compass degree.
+	 */
+	private int lastCompassInDegree = -1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -261,7 +266,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		SensorUtils.unregisterSensorListener(this, this);
 		super.onPause();
 	}
-	
+
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// MyLog.v(TAG, "onAccuracyChanged(%s)", accuracy);
@@ -291,8 +296,6 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 				listener.onCompass();
 			}
 			break;
-		default:
-			break;
 		}
 	}
 
@@ -300,7 +303,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	public void onCompass() {
 		// MyLog.v(TAG, "onCompass()");
 		if (this.accelerometerValues != null && this.magneticFieldValues != null) {
-			updateCompass(SensorUtils.calculateOrientation(this.accelerometerValues, this.magneticFieldValues));
+			updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues));
 		}
 	}
 
@@ -312,19 +315,40 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		// MyLog.v(TAG, "updateCompass(%s)", orientation[0]);
 		Location currentLocation = getLocation();
 		if (currentLocation != null) {
-			float declination = new GeomagneticField(Double.valueOf(currentLocation.getLatitude()).floatValue(), Double.valueOf(currentLocation.getLongitude())
-					.floatValue(), Double.valueOf(currentLocation.getAltitude()).floatValue(), System.currentTimeMillis()).getDeclination();
-			// update bike station compass
-			if (this.busStop != null ) {
-				Location busStopLocation = LocationUtils.getNewLocation(this.busStop.getLat(), this.busStop.getLng());
-				Pair<Integer, Integer> dim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow_light);
-				Matrix matrix = SensorUtils.getCompassRotationMatrix(this, currentLocation, busStopLocation, orientation, dim.first, dim.second,
-						declination);
-				ImageView compassImg = (ImageView) findViewById(R.id.compass);
-				compassImg.setImageMatrix(matrix);
-				compassImg.setVisibility(View.VISIBLE);
+			int io = (int) orientation[0];
+			if (io != 0 && Math.abs(this.lastCompassInDegree - io) > SensorUtils.LIST_VIEW_COMPASS_DEGREE_UPDATE_THRESOLD) {
+				this.lastCompassInDegree = io;
+				// update bike station compass
+				if (this.busStop != null) {
+					Matrix matrix = new Matrix();
+					matrix.postRotate(
+							SensorUtils.getCompassRotationInDegree(this, currentLocation, this.busStop.getLocation(), orientation, getLocationDeclination()),
+							getArrowDimLight().first / 2, getArrowDimLight().second / 2);
+					ImageView compassImg = (ImageView) findViewById(R.id.compass);
+					compassImg.setImageMatrix(matrix);
+					compassImg.setVisibility(View.VISIBLE);
+				}
 			}
 		}
+	}
+
+	private Float locationDeclination;
+
+	private float getLocationDeclination() {
+		if (this.locationDeclination == null && this.location != null) {
+			this.locationDeclination = new GeomagneticField((float) this.location.getLatitude(), (float) this.location.getLongitude(),
+					(float) this.location.getAltitude(), this.location.getTime()).getDeclination();
+		}
+		return this.locationDeclination;
+	}
+
+	private Pair<Integer, Integer> arrowDimLight;
+
+	public Pair<Integer, Integer> getArrowDimLight() {
+		if (this.arrowDimLight == null) {
+			this.arrowDimLight = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow_light);
+		}
+		return this.arrowDimLight;
 	}
 
 	/**
@@ -1124,16 +1148,12 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	 * Update the distance with the latest device location.
 	 */
 	private void updateDistanceWithNewLocation() {
-		MyLog.v(TAG, "updateDistanceWithNewLocation(%s)", getLocation());
+		Location currentLocation = getLocation();
+		MyLog.v(TAG, "updateDistanceWithNewLocation(%s)", currentLocation);
 		TextView distanceTv = (TextView) findViewById(R.id.distance);
-		if (getLocation() != null && this.busStop != null && this.busStop.getLat() != null && this.busStop.getLng() != null) {
-			// distance & accuracy
-			Location busStopLocation = LocationUtils.getNewLocation(this.busStop.getLat(), this.busStop.getLng());
-			float distanceInMeters = getLocation().distanceTo(busStopLocation);
-			float accuracyInMeters = getLocation().getAccuracy();
-			String distanceString = Utils.getDistanceStringUsingPref(this, distanceInMeters, accuracyInMeters);
+		if (currentLocation != null && this.busStop != null && this.busStop.getLat() != null && this.busStop.getLng() != null) {
+			distanceTv.setText(Utils.getDistanceStringUsingPref(this, currentLocation.distanceTo(this.busStop.getLocation()), currentLocation.getAccuracy()));
 			distanceTv.setVisibility(View.VISIBLE);
-			distanceTv.setText(distanceString);
 		}
 	}
 
