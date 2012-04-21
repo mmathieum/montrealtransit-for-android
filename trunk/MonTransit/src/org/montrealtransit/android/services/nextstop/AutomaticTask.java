@@ -48,6 +48,9 @@ public class AutomaticTask extends AbstractNextStopProvider implements NextStopL
 		MyLog.v(TAG, "doInBackground()");
 		// TODO ask the most reliable 1st and after 5 seconds, if no response, ask the other one(s)
 		this.busStop = busStops[0];
+		if (this.busStop == null) {
+			return null;
+		}
 
 		this.taskStmMobile = new StmMobileTask(this, context);
 		this.taskStmMobile.execute(this.busStop);
@@ -67,7 +70,8 @@ public class AutomaticTask extends AbstractNextStopProvider implements NextStopL
 	@Override
 	public void onNextStopsLoaded(Map<String, BusStopHours> results) {
 		MyLog.v(TAG, "onNextStopsLoaded()");
-		boolean containResult = results != null && results.get(this.busStop.getLineNumber()).getSHours().size() > 0;
+		boolean containResult = results != null && results.containsKey(this.busStop.getLineNumber())
+				&& results.get(this.busStop.getLineNumber()).getSHours().size() > 0;
 		if (containResult) {
 			// cancel/stop all other tasks now
 			stopAllTasks();
