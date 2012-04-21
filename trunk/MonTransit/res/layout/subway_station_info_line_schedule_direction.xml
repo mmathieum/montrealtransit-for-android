@@ -1,45 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" android:layout_height="?android:attr/listPreferredItemHeight"
-	android:padding="5dip">
-
-	<!-- SUBWAY LINE IMG -->
-	<ImageView android:id="@+id/subway_img"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:layout_alignParentTop="true" android:layout_alignParentLeft="true"
-		android:layout_alignWithParentIfMissing="true"
-		android:layout_marginRight="3dip"
-		android:layout_marginTop="7dip"
-		android:gravity="center_horizontal" />
-
-	<!-- HOURS (FIRST - LAST) -->
-	<TextView android:id="@+id/direction_hours"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:layout_alignParentTop="true" android:layout_alignParentRight="true"
-		android:layout_marginTop="7dip"
-		android:textAppearance="?android:attr/textAppearanceSmall" />
-
-	<!-- SUBWAY STATION -->
-	<TextView android:id="@+id/direction_station"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:layout_alignParentTop="true"
-		android:layout_toRightOf="@id/subway_img" android:layout_toLeftOf="@id/direction_hours"
-		android:layout_marginRight="3dip"
-		android:singleLine="true" android:ellipsize="marquee"
-		android:focusable="true" android:gravity="center_vertical|left"
-		android:textAppearance="?android:attr/textAppearanceLarge"/>
-
-	<!-- FREQUENCY -->
-	<TextView android:id="@+id/direction_frequency_string"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:layout_alignParentBottom="true" android:layout_alignParentLeft="true"
-		android:layout_below="@id/direction_station" 
-		android:textAppearance="?android:attr/textAppearanceMedium"
-		android:text="@string/frequency" />
-	<TextView android:id="@+id/direction_frequency"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:layout_alignParentBottom="true" android:layout_alignParentRight="true"
-		android:layout_alignBaseline="@id/direction_frequency_string"
-		android:textAppearance="?android:attr/textAppearanceMedium" />
-
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:padding="5dip" >
+    <!-- SUBWAY LINE IMG -->
+    <ImageView
+        android:id="@+id/subway_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_marginRight="3dip"
+        android:layout_marginTop="7dip"
+        android:gravity="center_horizontal" />
+    <!-- HOURS (FIRST - LAST) -->
+    <TextView
+        android:id="@+id/direction_hours"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="7dip"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+    <!-- SUBWAY STATION -->
+    <TextView
+        android:id="@+id/direction_station"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="3dip"
+        android:layout_toLeftOf="@id/direction_hours"
+        android:layout_toRightOf="@id/subway_img"
+        android:ellipsize="marquee"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:gravity="center_vertical|left"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+    <!-- FREQUENCY -->
+    <TextView
+        android:id="@+id/direction_frequency_string"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/direction_station"
+        android:text="@string/frequency"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+    <TextView
+        android:id="@+id/direction_frequency"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/direction_frequency_string"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 </RelativeLayout>

@@ -246,8 +246,6 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		// refresh favorites
 		refreshFavoriteStationIdsFromDB();
-		SensorUtils.registerShakeAndCompassListener(this, this);
-		this.shakeHandled = false;
 		super.onResume();
 	}
 
@@ -713,7 +711,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 					distanceTv.setText(station.getDistanceString());
 					distanceTv.setVisibility(View.VISIBLE);
 				} else {
-					distanceTv.setVisibility(View.INVISIBLE);
+					distanceTv.setVisibility(View.GONE);
 				}
 				// station compass
 				ImageView compassImg = (ImageView) view.findViewById(R.id.compass);
@@ -721,9 +719,8 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 					compassImg.setImageMatrix(station.getCompassMatrix());
 					compassImg.setVisibility(View.VISIBLE);
 				} else {
-					compassImg.setVisibility(View.INVISIBLE);
+					compassImg.setVisibility(View.GONE);
 				}
-
 				// set style for closest bus stop
 				int index = -1;
 				if (SubwayLineInfo.this.orderedStationsIds != null) {
@@ -786,6 +783,8 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		if (newLocation != null) {
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
+				SensorUtils.registerShakeAndCompassListener(this, this);
+				this.shakeHandled = false;
 			}
 		}
 	}
