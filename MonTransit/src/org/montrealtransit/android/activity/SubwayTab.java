@@ -213,8 +213,6 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		}
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		AdsUtils.setupAd(this);
-		SensorUtils.registerShakeAndCompassListener(this, this);
-		this.shakeHandled = false;
 		super.onResume();
 	}
 
@@ -988,6 +986,8 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			MyLog.d(TAG, "new location: %s.", LocationUtils.locationToString(newLocation));
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
+				SensorUtils.registerShakeAndCompassListener(this, this);
+				this.shakeHandled = false;
 			}
 		}
 	}

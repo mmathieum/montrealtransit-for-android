@@ -254,7 +254,6 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		super.onResume();
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		AdsUtils.setupAd(this);
-		SensorUtils.registerCompassListener(this, this);
 		setBusStopFromIntent(getIntent(), null);
 		SupportFactory.getInstance(this).enableNfcForegroundDispatch(this);
 	}
@@ -1192,6 +1191,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		if (newLocation != null) {
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
+				SensorUtils.registerCompassListener(this, this);
 			}
 		}
 	}

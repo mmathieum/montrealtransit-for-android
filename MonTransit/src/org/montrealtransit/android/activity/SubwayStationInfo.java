@@ -154,7 +154,6 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
-		SensorUtils.registerCompassListener(this, this);
 		super.onResume();
 	}
 
@@ -546,6 +545,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 			MyLog.d(TAG, "new location: '%s'.", LocationUtils.locationToString(newLocation));
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
+				SensorUtils.registerCompassListener(this, this);
 			}
 		}
 	}

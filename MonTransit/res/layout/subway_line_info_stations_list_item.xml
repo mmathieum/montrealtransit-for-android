@@ -2,17 +2,17 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
-    android:clipChildren="false">
+    android:clipChildren="false" >
     <!-- FAVORITE IMG -->
     <ImageView
         android:id="@+id/fav_img"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignWithParentIfMissing="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="-16dip"
         android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignWithParentIfMissing="true"
         android:layout_marginBottom="-18dip"
+        android:layout_marginRight="-16dip"
         android:scaleType="center"
         android:src="@drawable/star_dark"
         android:visibility="gone" />
@@ -21,9 +21,9 @@
         android:id="@+id/subway_img_3"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
-        android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
         android:layout_alignWithParentIfMissing="true"
+        android:layout_centerVertical="true"
         android:layout_marginRight="3dip"
         android:gravity="center_vertical"
         android:scaleType="fitXY" />
@@ -31,8 +31,8 @@
         android:id="@+id/subway_img_2"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
-        android:layout_centerVertical="true"
         android:layout_alignWithParentIfMissing="true"
+        android:layout_centerVertical="true"
         android:layout_marginRight="3dip"
         android:layout_toRightOf="@id/subway_img_3"
         android:gravity="center_vertical"
@@ -41,8 +41,8 @@
         android:id="@+id/subway_img_1"
         android:layout_width="wrap_content"
         android:layout_height="fill_parent"
-        android:layout_centerVertical="true"
         android:layout_alignWithParentIfMissing="true"
+        android:layout_centerVertical="true"
         android:layout_marginRight="3dip"
         android:layout_toRightOf="@id/subway_img_2"
         android:gravity="center_vertical"
@@ -56,19 +56,20 @@
         android:layout_alignWithParentIfMissing="true"
         android:layout_centerVertical="true"
         android:gravity="center_vertical"
-        android:textAppearance="?android:attr/textAppearanceSmall"
         android:text="@string/ellipsis"
-        android:visibility="gone" />
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:visibility="visible" />
     <!-- COMPASS -->
     <ImageView
         android:id="@+id/compass"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignWithParentIfMissing="true"
         android:layout_centerVertical="true"
         android:layout_marginLeft="3dp"
         android:layout_marginRight="3dp"
         android:layout_marginTop="3dp"
-        android:layout_toLeftOf="@+id/distance"
+        android:layout_toLeftOf="@id/distance"
         android:scaleType="matrix"
         android:src="@drawable/heading_arrow"
         android:visibility="gone" />
@@ -77,14 +78,15 @@
         android:id="@+id/station_name"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_alignWithParentIfMissing="true"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="2dip"
-        android:layout_marginRight="3dip"
+        android:paddingLeft="2dip"
+        android:paddingRight="5dip"
         android:layout_toLeftOf="@id/compass"
         android:layout_toRightOf="@id/subway_img_1"
         android:ellipsize="marquee"
         android:gravity="center_vertical"
         android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/ellipsis" />
+        android:text="@string/ellipsis"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 </RelativeLayout>

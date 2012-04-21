@@ -200,8 +200,6 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		// refresh favorites
 		refreshFavoriteTerminalNamesFromDB();
-		SensorUtils.registerShakeAndCompassListener(this, this);
-		this.shakeHandled = false;
 		super.onResume();
 	}
 
@@ -361,6 +359,8 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			// MyLog.d(TAG, "new location: %s.", LocationUtils.locationToString(newLocation));
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
+				SensorUtils.registerShakeAndCompassListener(this, this);
+				this.shakeHandled = false;
 			}
 		}
 	}

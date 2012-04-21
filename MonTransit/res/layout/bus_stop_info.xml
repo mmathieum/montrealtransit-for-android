@@ -117,7 +117,7 @@
                 android:layout_alignWithParentIfMissing="true"
                 android:layout_marginLeft="5dip"
                 android:layout_marginRight="3dip"
-                android:layout_marginBottom="1dip"
+                android:layout_marginBottom="3dip"
                 android:layout_toLeftOf="@id/distance"
                 android:scaleType="matrix"
                 android:src="@drawable/heading_arrow_light"

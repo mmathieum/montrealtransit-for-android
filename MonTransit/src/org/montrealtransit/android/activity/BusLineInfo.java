@@ -234,8 +234,6 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		// refresh favorites
 		refreshFavoriteStopCodesFromDB();
-		SensorUtils.registerShakeAndCompassListener(this, this);
-		this.shakeHandled = false;
 		super.onResume();
 	}
 
@@ -636,7 +634,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 					distanceTv.setText(busStop.getDistanceString());
 					distanceTv.setVisibility(View.VISIBLE);
 				} else {
-					distanceTv.setVisibility(View.INVISIBLE);
+					distanceTv.setVisibility(View.GONE);
 				}
 				// bus stop compass
 				ImageView compassTv = (ImageView) convertView.findViewById(R.id.compass);
@@ -644,7 +642,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 					compassTv.setImageMatrix(busStop.getCompassMatrix());
 					compassTv.setVisibility(View.VISIBLE);
 				} else {
-					compassTv.setVisibility(View.INVISIBLE);
+					compassTv.setVisibility(View.GONE);
 				}
 				// set style for closest bus stop
 				int index = -1;
@@ -684,6 +682,8 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		if (newLocation != null) {
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
+				SensorUtils.registerShakeAndCompassListener(this, this);
+				this.shakeHandled = false;
 			}
 		}
 	}

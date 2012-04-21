@@ -103,6 +103,10 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	 * The task used to load the new bike station info.
 	 */
 	private BixiDataReader task;
+	/**
+	 * The last message from the {@link BixiDataReader}.
+	 */
+	private String lastBixiDataMessage;
 
 	/**
 	 * Is the location updates should be enabled?
@@ -186,7 +190,6 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		MyLog.v(TAG, "onResume()");
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		AdsUtils.setupAd(this);
-		SensorUtils.registerCompassListener(this, this);
 		setBikeStationFromIntent(getIntent(), null);
 		super.onResume();
 	}
@@ -277,6 +280,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	}
 
 	private Float locationDeclination;
+
 	private float getLocationDeclination() {
 		if (this.locationDeclination == null && this.location != null) {
 			this.locationDeclination = new GeomagneticField((float) this.location.getLatitude(), (float) this.location.getLongitude(),
@@ -286,14 +290,16 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	}
 
 	private Pair<Integer, Integer> arrowDim;
+
 	public Pair<Integer, Integer> getArrowDim() {
 		if (this.arrowDim == null) {
 			this.arrowDim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow);
 		}
 		return this.arrowDim;
 	}
-	
+
 	private Pair<Integer, Integer> arrowDimLight;
+
 	public Pair<Integer, Integer> getArrowDimLight() {
 		if (this.arrowDimLight == null) {
 			this.arrowDimLight = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow_light);
@@ -394,6 +400,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			// MyLog.d(TAG, "new location: '%s'.", LocationUtils.locationToString(newLocation));
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
+				SensorUtils.registerCompassListener(this, this);
 			}
 		}
 	}
@@ -458,6 +465,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	@Override
 	public void onBixiDataProgress(String progress) {
 		MyLog.v(TAG, "onBixiDataProgress(%s)", progress);
+		this.lastBixiDataMessage = progress;
 		// nothing
 	}
 
@@ -480,7 +488,11 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	 */
 	private void setStatusError() {
 		MyLog.v(TAG, "setStatusError()");
-		Toast.makeText(this, R.string.error, Toast.LENGTH_SHORT).show();
+		String errorMsg = getString(R.string.error);
+		if (!TextUtils.isEmpty(this.lastBixiDataMessage)) {
+			errorMsg = this.lastBixiDataMessage;
+		}
+		Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show();
 	}
 
 	/**

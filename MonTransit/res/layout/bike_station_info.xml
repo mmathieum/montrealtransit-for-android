@@ -43,32 +43,15 @@
                 android:layout_alignWithParentIfMissing="true"
                 android:layout_centerVertical="true"
                 android:onClick="addOrRemoveFavorite" />
-            <!-- STATION NAME -->
-            <TextView
-                android:id="@+id/station_name"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="3dip"
-                android:layout_marginTop="5dip"
-                android:layout_toLeftOf="@id/star"
-                android:layout_toRightOf="@id/img"
-                android:ellipsize="marquee"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:gravity="center_vertical|left"
-                android:singleLine="true"
-                android:text="@string/ellipsis"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@color/nofocustext"
-                android:textStyle="bold" />
             <!-- DISTANCE -->
             <TextView
                 android:id="@+id/distance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignLeft="@id/station_name"
+                android:layout_alignParentBottom="true"
                 android:layout_alignWithParentIfMissing="true"
-                android:layout_below="@id/station_name"
+                android:layout_marginBottom="3dip"
+                android:layout_toRightOf="@id/img"
                 android:text="@string/ellipsis"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:visibility="gone" />
@@ -77,13 +60,36 @@
                 android:id="@+id/compass"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/station_name"
-                android:layout_toRightOf="@id/distance"
-                android:src="@drawable/heading_arrow_light"
-                android:scaleType="matrix"
-                android:layout_marginTop="3dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignWithParentIfMissing="true"
                 android:layout_marginLeft="5dp"
+                android:layout_marginTop="3dp"
+                android:layout_marginBottom="3dip"
+                android:layout_toRightOf="@id/distance"
+                android:scaleType="matrix"
+                android:src="@drawable/heading_arrow_light"
                 android:visibility="gone" />
+            <!-- BIKE STATION NAME -->
+            <TextView
+                android:id="@+id/station_name"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/distance"
+                android:layout_alignParentTop="true"
+                android:layout_alignWithParentIfMissing="true"
+                android:layout_marginRight="3dip"
+                android:layout_marginTop="5dip"
+                android:layout_toLeftOf="@id/star"
+                android:layout_toRightOf="@id/img"
+                android:ellipsize="marquee"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:gravity="center_vertical"
+                android:singleLine="true"
+                android:text="@string/ellipsis"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="@color/nofocustext"
+                android:textStyle="bold" />
         </RelativeLayout>
         <ScrollView
             android:layout_width="fill_parent"
