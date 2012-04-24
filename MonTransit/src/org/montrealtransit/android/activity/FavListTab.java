@@ -182,26 +182,23 @@ public class FavListTab extends Activity {
 		if (!isThereAtLeastOneFavorite()) {
 			findViewById(R.id.lists).setVisibility(View.GONE);
 			findViewById(R.id.empty).setVisibility(View.VISIBLE);
-		} else {
+		} else { // at least 1 favorite
 			findViewById(R.id.empty).setVisibility(View.GONE);
 			findViewById(R.id.lists).setVisibility(View.VISIBLE);
 			// IF there is no favorite bus stops DO
 			if (this.currentBusStopFavList == null || this.currentBusStopFavList.size() == 0) {
 				findViewById(R.id.fav_bus_stops).setVisibility(View.GONE);
 				findViewById(R.id.bus_stops_list).setVisibility(View.GONE);
-				return;
 			}
 			// IF there is no favorite subway stations DO
 			if (this.currentSubwayStationFavList == null || this.currentSubwayStationFavList.size() == 0) {
 				findViewById(R.id.fav_subway_stations).setVisibility(View.GONE);
 				findViewById(R.id.subway_stations_list).setVisibility(View.GONE);
-				return;
 			}
 			// IF there is no favorite bike stations DO
 			if (this.currentBikeStationFavList == null || this.currentBikeStationFavList.size() == 0) {
 				findViewById(R.id.fav_bike_stations).setVisibility(View.GONE);
 				findViewById(R.id.bike_stations_list).setVisibility(View.GONE);
-				return;
 			}
 		}
 	}
