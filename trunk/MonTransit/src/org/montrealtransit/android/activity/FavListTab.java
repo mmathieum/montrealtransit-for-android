@@ -137,10 +137,12 @@ public class FavListTab extends Activity {
 					this.bikeStations = new HashMap<String, BikeStation>();
 					this.newBikeFavList = new ArrayList<DataStore.Fav>();
 					for (Fav bikeFav : bikeFavList) {
-						BikeStation station = BixiManager.findBikeStation(getContentResolver(), bikeFav.getFkId());
-						if (station != null) { // IF station found DO (maybe no loaded yet)
-							this.bikeStations.put(bikeFav.getFkId(), station);
-							this.newBikeFavList.add(bikeFav);
+						if (bikeFav.getFkId() != null) { // need check because of previous issue corrupting favorites
+    						BikeStation station = BixiManager.findBikeStation(getContentResolver(), bikeFav.getFkId());
+    						if (station != null) { // IF station found DO (maybe no loaded yet)
+    							this.bikeStations.put(bikeFav.getFkId(), station);
+    							this.newBikeFavList.add(bikeFav);
+    						}
 						}
 					}
 					MyLog.d(TAG, "Loading bike station favorites from DB... DONE");

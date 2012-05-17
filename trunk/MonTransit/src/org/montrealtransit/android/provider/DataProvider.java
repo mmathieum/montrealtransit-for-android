@@ -279,7 +279,7 @@ public class DataProvider extends ContentProvider {
 			if (favType == DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP) {
 				whereClause = DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND " + DataDbHelper.T_FAVS_K_FK_ID_2 + "=" + fkId2 + " AND "
 						+ DataDbHelper.T_FAVS_K_TYPE + "=" + favType;
-			} else if (favType == DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION) {
+			} else if (favType == DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION || favType == DataStore.Fav.KEY_TYPE_VALUE_BIKE_STATIONS) {
 				whereClause = DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND " + DataDbHelper.T_FAVS_K_TYPE + "=" + favType;
 			}
 			count = db.delete(DataDbHelper.T_FAVS, whereClause, null);
