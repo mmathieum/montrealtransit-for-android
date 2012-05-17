@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical">
 	<TextView android:id="@+id/empty" android:layout_height="fill_parent"
-		android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall"
+		android:layout_width="fill_parent" android:textAppearance="?android:attr/textAppearanceSmall"
 		android:gravity="center" android:text="@string/no_fav_message"
 		android:visibility="gone" />
 	<include android:id="@+id/loading" layout="@layout/loading_small_layout" />
