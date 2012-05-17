@@ -201,6 +201,7 @@ public class DataStore {
 					}
 					fav.setFkId2(keys[2]);
 				case Fav.KEY_TYPE_VALUE_SUBWAY_STATION:
+				case Fav.KEY_TYPE_VALUE_BIKE_STATIONS:
 					fav.setFkId(keys[1]);
 				}
 				return fav;
