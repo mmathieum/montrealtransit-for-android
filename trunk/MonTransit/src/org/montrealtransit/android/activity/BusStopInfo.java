@@ -1017,18 +1017,18 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 
 	/**
 	 * Set the next stops view as error.
-	 * @param hours the error
+	 * @param hours the {@link BusStopHours} object containing the error or <b>null</b>
 	 */
 	private void setNextStopsError(BusStopHours hours) {
 		MyLog.v(TAG, "setNextStopsError()");
 		// IF there are hours to show DO
 		if (this.hours != null) {
 			// notify the user but keep showing the old stations
-			if (!TextUtils.isEmpty(hours.getError())) {
+			if (hours != null && !TextUtils.isEmpty(hours.getError())) {
 				Utils.notifyTheUser(this, hours.getError());
-			} else if (!TextUtils.isEmpty(hours.getMessage())) {
+			} else if (hours != null && !TextUtils.isEmpty(hours.getMessage())) {
 				Utils.notifyTheUser(this, hours.getMessage());
-			} else if (!TextUtils.isEmpty(hours.getMessage2())) {
+			} else if (hours != null && !TextUtils.isEmpty(hours.getMessage2())) {
 				Utils.notifyTheUser(this, hours.getMessage2());
 			} else {
 				MyLog.w(TAG, "no next stop or message or error for %s %s!", busStop.getCode(), busLine.getNumber());
@@ -1045,25 +1045,29 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 			message2Tv.setVisibility(View.GONE);
 			findViewById(R.id.next_stops_loading).setVisibility(View.GONE);
 			// set next stop header with source name
-			((TextView) findViewById(R.id.next_stops_string)).setText(getString(R.string.next_bus_stops_and_source, hours.getSourceName()));
+			if (hours == null || TextUtils.isEmpty(hours.getSourceName())) {
+				((TextView) findViewById(R.id.next_stops_string)).setText(getString(R.string.next_bus_stops));
+			} else {
+				((TextView) findViewById(R.id.next_stops_string)).setText(getString(R.string.next_bus_stops_and_source, hours.getSourceName()));
+			}
 			// show message 1
 			message1Tv.setVisibility(View.VISIBLE);
 			// IF an error occurs during the process DO
-			if (!TextUtils.isEmpty(hours.getError())) {
+			if (hours != null && !TextUtils.isEmpty(hours.getError())) {
 				message1Tv.setText(hours.getError());
 			} else {
 				// IF there is a secondary message from the STM DO
-				if (!TextUtils.isEmpty(hours.getMessage2())) {
+				if (hours != null && !TextUtils.isEmpty(hours.getMessage2())) {
 					message1Tv.setText(hours.getMessage2());
 					Linkify.addLinks(message1Tv, Linkify.ALL);
 					// IF there is also an error message from the STM DO
-					if (!TextUtils.isEmpty(hours.getMessage())) {
+					if (hours != null && !TextUtils.isEmpty(hours.getMessage())) {
 						message2Tv.setVisibility(View.VISIBLE);
 						message2Tv.setText(hours.getMessage());
 						Linkify.addLinks(message2Tv, Linkify.ALL);
 					}
 					// ELSE IF there is only an error message from the STM DO
-				} else if (!TextUtils.isEmpty(hours.getMessage())) {
+				} else if (hours != null && !TextUtils.isEmpty(hours.getMessage())) {
 					message1Tv.setText(hours.getMessage());
 					Linkify.addLinks(message1Tv, Linkify.ALL);
 					// ELSE
