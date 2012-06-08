@@ -84,4 +84,9 @@ public interface SupportUtil {
 	 */
 	int getSurfaceRotation(Context context);
 
+	/**
+	 * Enable Strict Mode if supported.
+	 */
+	void enableStrictMode();
+
 }
