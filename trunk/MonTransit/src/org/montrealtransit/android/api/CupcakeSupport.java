@@ -97,4 +97,9 @@ public class CupcakeSupport implements SupportUtil {
 		}
 		return Surface.ROTATION_0;
 	}
+
+	@Override
+	public void enableStrictMode() {
+		// not supported until Gingerbread (API Level 9)
+	}
 }
