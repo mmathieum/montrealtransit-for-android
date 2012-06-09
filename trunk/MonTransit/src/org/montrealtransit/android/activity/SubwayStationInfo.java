@@ -126,16 +126,36 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 		});
 	}
 
+	/**
+	 * True if the activity has the focus, false otherwise.
+	 */
+	private boolean hasFocus = true;
+
 	@Override
-	protected void onStop() {
-		MyLog.v(TAG, "onStop()");
-		LocationUtils.disableLocationUpdates(this, this);
-		super.onStop();
+	public void onWindowFocusChanged(boolean hasFocus) {
+		MyLog.v(TAG, "onWindowFocusChanged(%s)", hasFocus);
+		// IF the activity just regained the focus DO
+		if (!this.hasFocus && hasFocus) {
+			onResumeWithFocus();
+		}
+		this.hasFocus = hasFocus;
 	}
 
 	@Override
-	protected void onRestart() {
-		MyLog.v(TAG, "onRestart()");
+	protected void onResume() {
+		MyLog.v(TAG, "onResume()");
+		// IF the activity has the focus DO
+		if (this.hasFocus) {
+			onResumeWithFocus();
+		}
+		super.onResume();
+	}
+
+	/**
+	 * {@link #onResume()} when activity has the focus
+	 */
+	public void onResumeWithFocus() {
+		MyLog.v(TAG, "onResumeWithFocus()");
 		// IF location updates should be enabled DO
 		if (this.locationUpdatesEnabled) {
 			// IF there is a valid last know location DO
@@ -148,11 +168,6 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 			LocationUtils.enableLocationUpdates(this, this);
 		}
 		super.onRestart();
-	}
-
-	@Override
-	protected void onResume() {
-		MyLog.v(TAG, "onResume()");
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		super.onResume();
 	}
@@ -160,6 +175,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 	@Override
 	protected void onPause() {
 		MyLog.v(TAG, "onPause()");
+		LocationUtils.disableLocationUpdates(this, this);
 		SensorUtils.unregisterSensorListener(this, this);
 		super.onPause();
 	}

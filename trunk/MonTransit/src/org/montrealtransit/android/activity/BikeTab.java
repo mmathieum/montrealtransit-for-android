@@ -124,7 +124,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	/**
 	 * True if the share was already handled (should be reset in {@link #onResume()}).
 	 */
-	private boolean shakeHandled;
+	private boolean shakeHandled = false;
 	/**
 	 * The {@link Sensor#TYPE_ACCELEROMETER} values.
 	 */
@@ -172,9 +172,36 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 		});
 	}
 
+	/**
+	 * True if the activity has the focus, false otherwise.
+	 */
+	private boolean hasFocus = true;
+
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		MyLog.v(TAG, "onWindowFocusChanged(%s)", hasFocus);
+		// IF the activity just regained the focus DO
+		if (!this.hasFocus && hasFocus) {
+			onResumeWithFocus();
+		}
+		this.hasFocus = hasFocus;
+	}
+
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
+		// IF the activity has the focus DO
+		if (this.hasFocus) {
+			onResumeWithFocus();
+		}
+		super.onResume();
+	}
+
+	/**
+	 * {@link #onResume()} when activity has the focus
+	 */
+	public void onResumeWithFocus() {
+		MyLog.v(TAG, "onResumeWithFocus()");
 		// IF location updates should be enabled DO
 		if (this.locationUpdatesEnabled) {
 			new AsyncTask<Void, Void, Location>() {
@@ -200,7 +227,14 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		// refresh favorites
 		refreshFavoriteTerminalNamesFromDB();
-		super.onResume();
+	}
+
+	@Override
+	protected void onPause() {
+		MyLog.v(TAG, "onPause()");
+		LocationUtils.disableLocationUpdates(this, this);
+		SensorUtils.unregisterSensorListener(this, this);
+		super.onPause();
 	}
 
 	@Override
@@ -332,7 +366,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	 */
 	private void showClosestStation() {
 		MyLog.v(TAG, "showClosestStation()");
-		if (!this.shakeHandled && this.closestBikeStations != null && this.closestBikeStations.size() > 0) {
+		if (this.hasFocus && !this.shakeHandled && this.closestBikeStations != null && this.closestBikeStations.size() > 0) {
 			Toast.makeText(this, R.string.shake_closest_bike_station_selected, Toast.LENGTH_SHORT).show();
 			// show bike station view
 			Intent intent = new Intent(this, BikeStationInfo.class);
@@ -341,14 +375,6 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			startActivity(intent);
 			this.shakeHandled = true;
 		}
-	}
-
-	@Override
-	protected void onPause() {
-		MyLog.v(TAG, "onPause()");
-		LocationUtils.disableLocationUpdates(this, this);
-		SensorUtils.unregisterSensorListener(this, this);
-		super.onPause();
 	}
 
 	/**

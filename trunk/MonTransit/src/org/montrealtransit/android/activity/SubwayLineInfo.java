@@ -127,8 +127,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	/**
 	 * True if the share was already handled (should be reset in {@link #onResume()}).
 	 */
-	private boolean shakeHandled;
-
+	private boolean shakeHandled = false;
 	/**
 	 * The {@link Sensor#TYPE_ACCELEROMETER} values.
 	 */
@@ -216,16 +215,36 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		}
 	}
 
+	/**
+	 * True if the activity has the focus, false otherwise.
+	 */
+	private boolean hasFocus = true;
+
 	@Override
-	protected void onStop() {
-		MyLog.v(TAG, "onStop()");
-		LocationUtils.disableLocationUpdates(this, this);
-		super.onStop();
+	public void onWindowFocusChanged(boolean hasFocus) {
+		MyLog.v(TAG, "onWindowFocusChanged(%s)", hasFocus);
+		// IF the activity just regained the focus DO
+		if (!this.hasFocus && hasFocus) {
+			onResumeWithFocus();
+		}
+		this.hasFocus = hasFocus;
 	}
 
 	@Override
-	protected void onRestart() {
-		MyLog.v(TAG, "onRestart()");
+	protected void onResume() {
+		MyLog.v(TAG, "onResume()");
+		// IF the activity has the focus DO
+		if (this.hasFocus) {
+			onResumeWithFocus();
+		}
+		super.onResume();
+	}
+
+	/**
+	 * {@link #onResume()} when activity has the focus
+	 */
+	public void onResumeWithFocus() {
+		MyLog.v(TAG, "onResumeWithFocus()");
 		// IF location updates should be enabled DO
 		if (this.locationUpdatesEnabled) {
 			// IF there is a valid last know location DO
@@ -237,16 +256,18 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 			// re-enable
 			LocationUtils.enableLocationUpdates(this, this);
 		}
-		super.onRestart();
-	}
-
-	@Override
-	protected void onResume() {
-		MyLog.v(TAG, "onResume()");
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		// refresh favorites
 		refreshFavoriteStationIdsFromDB();
 		super.onResume();
+	}
+
+	@Override
+	protected void onPause() {
+		MyLog.v(TAG, "onPause()");
+		LocationUtils.disableLocationUpdates(this, this);
+		SensorUtils.unregisterSensorListener(this, this);
+		super.onPause();
 	}
 
 	@Override
@@ -295,7 +316,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 */
 	private void showClosestStation() {
 		MyLog.v(TAG, "showClosestStation()");
-		if (!this.shakeHandled && this.orderedStationsIds != null && this.orderedStationsIds.size() > 0) {
+		if (this.hasFocus && !this.shakeHandled && this.orderedStationsIds != null && this.orderedStationsIds.size() > 0) {
 			Toast.makeText(this, R.string.shake_closest_subway_line_station_selected, Toast.LENGTH_SHORT).show();
 			Intent intent = new Intent(this, SubwayStationInfo.class);
 			intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, this.orderedStationsIds.get(0));
@@ -388,13 +409,6 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		if (view == findViewById(R.id.list)) {
 			this.scrollState = scrollState;
 		}
-	}
-
-	@Override
-	protected void onPause() {
-		MyLog.v(TAG, "onPause()");
-		SensorUtils.unregisterSensorListener(this, this);
-		super.onPause();
 	}
 
 	/**

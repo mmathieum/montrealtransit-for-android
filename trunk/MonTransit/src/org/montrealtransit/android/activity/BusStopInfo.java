@@ -218,15 +218,42 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	}
 
 	@Override
-	protected void onStop() {
-		MyLog.v(TAG, "onStop()");
-		LocationUtils.disableLocationUpdates(this, this);
-		super.onStop();
+	protected void onNewIntent(Intent intent) {
+		MyLog.v(TAG, "onNewIntent()");
+		super.onNewIntent(intent);
+		setIntent(intent);
+	}
+
+	/**
+	 * True if the activity has the focus, false otherwise.
+	 */
+	private boolean hasFocus = true;
+
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		MyLog.v(TAG, "onWindowFocusChanged(%s)", hasFocus);
+		// IF the activity just regained the focus DO
+		if (!this.hasFocus && hasFocus) {
+			onResumeWithFocus();
+		}
+		this.hasFocus = hasFocus;
 	}
 
 	@Override
-	protected void onRestart() {
-		MyLog.v(TAG, "onRestart()");
+	protected void onResume() {
+		MyLog.v(TAG, "onResume()");
+		// IF the activity has the focus DO
+		if (this.hasFocus) {
+			onResumeWithFocus();
+		}
+		super.onResume();
+	}
+
+	/**
+	 * {@link #onResume()} when activity has the focus
+	 */
+	public void onResumeWithFocus() {
+		MyLog.v(TAG, "onResumeWithFocus()");
 		// IF location updates should be enabled DO
 		if (this.locationUpdatesEnabled) {
 			// IF there is a valid last know location DO
@@ -238,23 +265,10 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 			// re-enable
 			LocationUtils.enableLocationUpdates(this, this);
 		}
-		super.onRestart();
-	}
-
-	@Override
-	protected void onNewIntent(Intent intent) {
-		MyLog.v(TAG, "onNewIntent()");
-		super.onNewIntent(intent);
-		setIntent(intent);
-	}
-
-	@Override
-	protected void onResume() {
-		MyLog.v(TAG, "onResume()");
-		super.onResume();
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		AdsUtils.setupAd(this);
 		setBusStopFromIntent(getIntent(), null);
+		setIntent(null); // set intent as processed
 		SupportFactory.getInstance(this).enableNfcForegroundDispatch(this);
 	}
 
@@ -262,6 +276,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	protected void onPause() {
 		MyLog.v(TAG, "onPause()");
 		SupportFactory.getInstance(this).disableNfcForegroundDispatch(this);
+		LocationUtils.disableLocationUpdates(this, this);
 		SensorUtils.unregisterSensorListener(this, this);
 		super.onPause();
 	}
