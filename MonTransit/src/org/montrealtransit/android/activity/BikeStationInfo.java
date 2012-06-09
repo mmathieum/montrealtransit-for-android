@@ -589,7 +589,12 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 						BikeStationInfo.this.task.cancel(true);
 						BikeStationInfo.this.task = null;
 					}
-					setUpUI();
+					// IF no bike station found (bike station removed ...) DO
+					if (BikeStationInfo.this.bikeStation == null) {
+						BikeStationInfo.this.finish(); // close the activity
+					} else {
+						setUpUI();
+					}
 				}
 			}.execute(newBikeStationTerminalName);
 		}
