@@ -302,7 +302,7 @@ public class StmManager {
 	 * @return the bus line direction
 	 */
 	public static StmStore.BusLineDirection findBusLineDirection(ContentResolver contentResolver, String busLineDirectionId) {
-		// MyTrace.v(TAG, "findBusLineDirection("+busLineDirectionId+")");
+		// MyLog.v(TAG, "findBusLineDirection(%s)", busLineDirectionId);
 		return findBusLineDirection(contentResolver, Uri.withAppendedPath(StmStore.BusLineDirection.CONTENT_URI, busLineDirectionId));
 	}
 
@@ -314,7 +314,7 @@ public class StmManager {
 	 * @return a subway line
 	 */
 	public static StmStore.SubwayLine findSubwayLine(ContentResolver contentResolver, int subwayLineId) {
-		// MyTrace.v(TAG, "findSubwayLine("+subwayLineId+")");
+		// MyLog.v(TAG, "findSubwayLine("+subwayLineId+")");
 		return findSubwayLine(contentResolver, ContentUris.withAppendedId(StmStore.SubwayLine.CONTENT_URI, subwayLineId));
 	}
 

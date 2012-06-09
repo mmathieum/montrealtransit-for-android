@@ -71,7 +71,6 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	public static final String T_BUS_STOPS_K_DIRECTION_ID = "direction_id";
 	public static final String T_BUS_STOPS_K_SUBWAY_STATION_ID = "station_id";
 	public static final String T_BUS_STOPS_K_STOPS_ORDER = "arret_order";
-	public static final String T_BUS_STOPS_A_SIMPLE_DIRECTION_ID = "simple_direction_id";
 
 	// BUS STOP LOCATION
 	public static final String T_BUS_STOPS_LOC = "arrets_autobus_loc";
