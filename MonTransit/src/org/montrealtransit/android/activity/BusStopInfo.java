@@ -704,42 +704,43 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 				if (newStopCode != null && newLineNumber != null) {
 
 					if (isNewBusStop) {
-						if (BusStopInfo.this.busStop != null && BusStopInfo.this.busLine != null && Utils.getCollectionSize(BusStopInfo.this.otherBusLines) > 0
-								&& BusStopInfo.this.busStop.getCode().equals(newStopCode)) {
-							// just switching bus line
-							BusStopInfo.this.otherBusLines.add(BusStopInfo.this.busLine);
-							BusLine newBusLine = null;
-							ListIterator<BusLine> it = BusStopInfo.this.otherBusLines.listIterator();
-							while (it.hasNext()) {
-								BusLine otherBusLine = it.next();
-								if (otherBusLine.getNumber().equals(newLineNumber)) {
-									newBusLine = otherBusLine;
-									it.remove(); // remove new bus line from other bus line
-									break;
-								}
-							}
-							BusStopInfo.this.busLine = newBusLine;
-							BusStopInfo.this.busStop.setLineNumber(newLineNumber);
+						// DOESN'T WORK because bus stop direction need to be read from the Bus Stop entry in the DB
+						// if (BusStopInfo.this.busStop != null && BusStopInfo.this.busLine != null && Utils.getCollectionSize(BusStopInfo.this.otherBusLines) >
+						// 0
+						// && BusStopInfo.this.busStop.getCode().equals(newStopCode)) {
+						// // just switching bus line
+						// BusStopInfo.this.otherBusLines.add(BusStopInfo.this.busLine);
+						// BusLine newBusLine = null;
+						// ListIterator<BusLine> it = BusStopInfo.this.otherBusLines.listIterator();
+						// while (it.hasNext()) {
+						// BusLine otherBusLine = it.next();
+						// if (otherBusLine.getNumber().equals(newLineNumber)) {
+						// newBusLine = otherBusLine;
+						// it.remove(); // remove new bus line from other bus lines
+						// break;
+						// }
+						// }
+						// BusStopInfo.this.busLine = newBusLine;
+						// BusStopInfo.this.busStop.setLineNumber(newLineNumber);
+						// } else {
+						// load bus stop from DB if necessary
+						BusStopInfo.this.busStop = StmManager.findBusLineStopExt(BusStopInfo.this.getContentResolver(), newStopCode, newLineNumber);
+						BusStopInfo.this.otherBusLines = null;
+						// set subways station
+						if (!TextUtils.isEmpty(BusStopInfo.this.busStop.getSubwayStationId())) {
+							BusStopInfo.this.subwayStation = new StmStore.SubwayStation();
+							BusStopInfo.this.subwayStation.setId(BusStopInfo.this.busStop.getSubwayStationId());
+							BusStopInfo.this.subwayStation.setName(BusStopInfo.this.busStop.getSubwayStationNameOrNull());
+							BusStopInfo.this.subwayStation.setLat(BusStopInfo.this.busStop.getSubwayStationLatOrNull());
+							BusStopInfo.this.subwayStation.setLng(BusStopInfo.this.busStop.getSubwayStationLngOrNull());
 						} else {
-							// load bus stop from DB if necessary
-							BusStopInfo.this.busStop = StmManager.findBusLineStopExt(BusStopInfo.this.getContentResolver(), newStopCode, newLineNumber);
-							BusStopInfo.this.otherBusLines = null;
-							// set subways station
-							if (!TextUtils.isEmpty(BusStopInfo.this.busStop.getSubwayStationId())) {
-								BusStopInfo.this.subwayStation = new StmStore.SubwayStation();
-								BusStopInfo.this.subwayStation.setId(BusStopInfo.this.busStop.getSubwayStationId());
-								BusStopInfo.this.subwayStation.setName(BusStopInfo.this.busStop.getSubwayStationNameOrNull());
-								BusStopInfo.this.subwayStation.setLat(BusStopInfo.this.busStop.getSubwayStationLatOrNull());
-								BusStopInfo.this.subwayStation.setLng(BusStopInfo.this.busStop.getSubwayStationLngOrNull());
-							} else {
-								BusStopInfo.this.subwayStation = null;
-							}
-							// load bus line from DB if necessary
-							if (isNewBusLine) {
-								BusStopInfo.this.busLine = StmManager.findBusLine(BusStopInfo.this.getContentResolver(),
-										BusStopInfo.this.busStop.getLineNumber());
-							}
+							BusStopInfo.this.subwayStation = null;
 						}
+						// load bus line from DB if necessary
+						if (isNewBusLine) {
+							BusStopInfo.this.busLine = StmManager.findBusLine(BusStopInfo.this.getContentResolver(), BusStopInfo.this.busStop.getLineNumber());
+						}
+						// }
 						BusStopInfo.this.busStopDirection = StmManager.findBusLineDirection(BusStopInfo.this.getContentResolver(),
 								BusStopInfo.this.busStop.getDirectionId());
 					}
