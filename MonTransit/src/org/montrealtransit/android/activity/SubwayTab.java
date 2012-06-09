@@ -134,7 +134,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	/**
 	 * True if the share was already handled (should be reset in {@link #onResume()}).
 	 */
-	private boolean shakeHandled;
+	private boolean shakeHandled = false;
 	/**
 	 * The {@link Sensor#TYPE_ACCELEROMETER} values.
 	 */
@@ -186,9 +186,36 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		});
 	}
 
+	/**
+	 * True if the activity has the focus, false otherwise.
+	 */
+	private boolean hasFocus = true;
+
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		MyLog.v(TAG, "onWindowFocusChanged(%s)", hasFocus);
+		// IF the activity just regained the focus DO
+		if (!this.hasFocus && hasFocus) {
+			onResumeWithFocus();
+		}
+		this.hasFocus = hasFocus;
+	}
+
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
+		// IF the activity has the focus DO
+		if (this.hasFocus) {
+			onResumeWithFocus();
+		}
+		super.onResume();
+	}
+
+	/**
+	 * {@link #onResume()} when activity has the focus
+	 */
+	public void onResumeWithFocus() {
+		MyLog.v(TAG, "onResumeWithFocus()");
 		// IF location updates should be enabled DO
 		if (this.locationUpdatesEnabled) {
 			new AsyncTask<Void, Void, Location>() {
@@ -213,7 +240,6 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		}
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		AdsUtils.setupAd(this);
-		super.onResume();
 	}
 
 	@Override
@@ -315,7 +341,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 */
 	private void showClosestStation() {
 		MyLog.v(TAG, "showClosestStation()");
-		if (!this.shakeHandled && this.closestStations != null && this.closestStations.size() > 0) {
+		if (this.hasFocus && !this.shakeHandled && this.closestStations != null && this.closestStations.size() > 0) {
 			Toast.makeText(this, R.string.shake_closest_subway_line_station_selected, Toast.LENGTH_SHORT).show();
 			Intent intent = new Intent(this, SubwayStationInfo.class);
 			intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, this.closestStations.get(0).getId());

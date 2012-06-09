@@ -161,17 +161,36 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		});
 	}
 
+	/**
+	 * True if the activity has the focus, false otherwise.
+	 */
+	private boolean hasFocus = true;
+
 	@Override
-	protected void onStop() {
-		MyLog.v(TAG, "onStop()");
-		LocationUtils.disableLocationUpdates(this, this);
-		super.onStop();
+	public void onWindowFocusChanged(boolean hasFocus) {
+		MyLog.v(TAG, "onWindowFocusChanged(%s)", hasFocus);
+		// IF the activity just regained the focus DO
+		if (!this.hasFocus && hasFocus) {
+			onResumeWithFocus();
+		}
+		this.hasFocus = hasFocus;
 	}
 
 	@Override
-	protected void onRestart() {
-		MyLog.v(TAG, "onRestart()");
-		// IF location updates should be enabled DO
+	protected void onResume() {
+		MyLog.v(TAG, "onResume()");
+		// IF the activity has the focus DO
+		if (this.hasFocus) {
+			onResumeWithFocus();
+		}
+		super.onResume();
+	}
+
+	/**
+	 * {@link #onResume()} when activity has the focus
+	 */
+	public void onResumeWithFocus() {
+		MyLog.v(TAG, "onResumeWithFocus()");
 		if (this.locationUpdatesEnabled) {
 			// IF there is a valid last know location DO
 			if (LocationUtils.getBestLastKnownLocation(this) != null) {
@@ -182,21 +201,16 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			// re-enable
 			LocationUtils.enableLocationUpdates(this, this);
 		}
-		super.onRestart();
-	}
-
-	@Override
-	protected void onResume() {
-		MyLog.v(TAG, "onResume()");
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		AdsUtils.setupAd(this);
 		setBikeStationFromIntent(getIntent(), null);
-		super.onResume();
+		setIntent(null); // set intent as processed
 	}
 
 	@Override
 	protected void onPause() {
 		MyLog.v(TAG, "onResume()");
+		LocationUtils.disableLocationUpdates(this, this);
 		SensorUtils.unregisterSensorListener(this, this);
 		super.onPause();
 	}
@@ -710,7 +724,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	 */
 	private void refreshBikeStationInfo() {
 		MyLog.v(TAG, "refreshBikeStationInfo()");
-		MyLog.d(TAG, "this.bikeStatio null? " + (this.bikeStation == null));
+		MyLog.d(TAG, "this.bikeStatio null? %s", this.bikeStation == null);
 		// set bike station name
 		((TextView) findViewById(R.id.station_name)).setText(Utils.cleanBikeStationName(this.bikeStation.getName()));
 		// set the favorite icon
