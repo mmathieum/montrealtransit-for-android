@@ -37,6 +37,11 @@
 		
 		<TextView
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
+			android:text="@string/about_google_plus" android:autoLink="web"
+			android:textAppearance="?android:attr/textAppearanceSmall" android:textColor="#ffff" />
+		
+		<TextView
+			android:layout_width="fill_parent" android:layout_height="wrap_content"
 			android:text="@string/about_text7_twitter" android:autoLink="web"
 			android:textAppearance="?android:attr/textAppearanceSmall" android:textColor="#ffff" />
 		
