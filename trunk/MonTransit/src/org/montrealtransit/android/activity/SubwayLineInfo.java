@@ -259,7 +259,6 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		// refresh favorites
 		refreshFavoriteStationIdsFromDB();
-		super.onResume();
 	}
 
 	@Override

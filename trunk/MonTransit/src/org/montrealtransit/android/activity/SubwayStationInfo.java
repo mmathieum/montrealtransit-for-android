@@ -167,9 +167,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 			// re-enable
 			LocationUtils.enableLocationUpdates(this, this);
 		}
-		super.onRestart();
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
-		super.onResume();
 	}
 
 	@Override
