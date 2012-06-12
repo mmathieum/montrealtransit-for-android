@@ -147,7 +147,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	 */
 	private void onCreatePreDonut() {
 		// since 'android:onClick' requires API Level 4
-		findViewById(R.id.next_stops_refresh).setOnClickListener(new View.OnClickListener() {
+		findViewById(R.id.availability_refresh).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				refreshStatus(v);
