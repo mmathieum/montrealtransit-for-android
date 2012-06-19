@@ -9,6 +9,7 @@ import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.provider.BixiStore.BikeStation;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 
@@ -26,12 +27,12 @@ public class BixiManager {
 	/**
 	 * Delete <b>ALL</b> bike station entries
 	 * @param contentResolver the content resolver
-	 * @return true if 1 (or more) bike stations entries have been deleted
+	 * @return the number of bike stations deleted
 	 */
-	public static boolean deleteAllBikeStations(ContentResolver contentResolver) {
-		return contentResolver.delete(BixiStore.BikeStation.CONTENT_URI, null, null) > 0;
+	public static int deleteAllBikeStations(ContentResolver contentResolver) {
+		return contentResolver.delete(BixiStore.BikeStation.CONTENT_URI, null, null);
 	}
-	
+
 	/**
 	 * Delete a bike station.
 	 * @param contentResolver the content resolver
@@ -39,7 +40,7 @@ public class BixiManager {
 	 * @return true if 1 (or more) bike stations entries have been deleted
 	 */
 	public static boolean deleteBikeStation(ContentResolver contentResolver, String terminalName) {
-		return contentResolver.delete(Uri.withAppendedPath(BikeStation.CONTENT_URI, terminalName), null, null) > 0;
+		return contentResolver.delete(getBikeStationURI(terminalName), null, null) > 0;
 	}
 
 	/**
@@ -57,7 +58,7 @@ public class BixiManager {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Update a bike station.
 	 * @param contentResolver the content resolver
@@ -67,19 +68,30 @@ public class BixiManager {
 	 */
 	public static boolean updateBikeStation(ContentResolver contentResolver, BikeStation newBikeStation, String terminalName) {
 		MyLog.v(TAG, "updateBikeStation(%s)", terminalName);
-		return contentResolver.update(Uri.withAppendedPath(BikeStation.CONTENT_URI, terminalName), newBikeStation.getContentValues(), null, null)  > 0;
+		return contentResolver.update(getBikeStationURI(terminalName), newBikeStation.getContentValues(), null, null) > 0;
 	}
 
 	/**
-	 * Add a bike stations entry to the content provider
+	 * @param the bike station terminal name (ID)
+	 * @return the bike station URI
+	 */
+	public static Uri getBikeStationURI(String terminalName) {
+		return Uri.withAppendedPath(BikeStation.CONTENT_URI, terminalName);
+	}
+
+	/**
+	 * Add bike stations entry to the content provider
 	 * @param contentResolver the content resolver
 	 * @param newBikeStations the new bike stations entries
+	 * @return the number of newly created bike stations
 	 */
-	public static void addBikeStations(ContentResolver contentResolver, List<BikeStation> newBikeStations) {
+	public static int addBikeStations(ContentResolver contentResolver, List<BikeStation> newBikeStations) {
 		MyLog.v(TAG, "addBikeStations(%s)", newBikeStations.size());
-		for (BikeStation newBikeStation : newBikeStations) {
-			contentResolver.insert(BixiStore.BikeStation.CONTENT_URI, newBikeStation.getContentValues());
+		List<ContentValues> bulkInsertValues = new ArrayList<ContentValues>();
+		for (BikeStation bikeStation : newBikeStations) {
+			bulkInsertValues.add(bikeStation.getContentValues());
 		}
+		return contentResolver.bulkInsert(BixiStore.BikeStation.CONTENT_URI, bulkInsertValues.toArray(new ContentValues[] {}));
 	}
 
 	/**
@@ -104,7 +116,7 @@ public class BixiManager {
 		}
 		return bikeStation;
 	}
-	
+
 	/**
 	 * @see {@link StmManager#findBikeStation(ContentResolver, Uri)}
 	 * @param contentResolver the content resolver
@@ -112,7 +124,7 @@ public class BixiManager {
 	 * @return the bike station with this terminal name or null
 	 */
 	public static BikeStation findBikeStation(ContentResolver contentResolver, String terminalName) {
-		return findBikeStation(contentResolver, Uri.withAppendedPath(BikeStation.CONTENT_URI, terminalName));
+		return findBikeStation(contentResolver, getBikeStationURI(terminalName));
 	}
 
 	/**
@@ -153,7 +165,7 @@ public class BixiManager {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * Find all bike stations (Terminal Name => Bike Station).
 	 * @param contentResolver the content resolver

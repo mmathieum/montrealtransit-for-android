@@ -7,9 +7,7 @@ import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLHandshakeException;
@@ -139,7 +137,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 				xr.parse(new InputSource(urlc.getInputStream()));
 				MyLog.d(TAG, "Parsing data... DONE");
 				publishProgress(from, context.getString(R.string.processing));
-				updateDatabase(context, handler.getBikeStations(), forceDBUpdate, forceDBUpdateTerminalNames);
+				updateDatabaseAll(context, handler.getBikeStations(), forceDBUpdate);
 				// save new last update
 				UserPreferences.savePrefLcl(context, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, handler.getLastUpdate());
 				return handler.getBikeStations();
@@ -179,7 +177,9 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 	 * @param newBikeStations the new bike stations to put in the database
 	 * @param forceDBUpdate true if forcing the full database to be updated
 	 * @param forceDBUpdateTerminalNames the list of bike station terminal names to be updated in the database or null
+	 * @deprecated not useful anymore. Use {@link #updateDatabaseAll(Context, List, boolean)} directly.
 	 */
+	@Deprecated
 	public static synchronized void updateDatabase(final Context context, final List<BikeStation> newBikeStations, final boolean forceDBUpdate,
 			List<String> forceDBUpdateTerminalNames) {
 		// MyLog.v(TAG, "updateDatabase(%s,%s,%s)", Utils.getCollectionSize(newBikeStations), forceDBUpdate, forceDBUpdateTerminalNames);
@@ -219,43 +219,11 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 	 * @param forceDBUpdate true if forcing database update for all bike stations (even when {@link BikeStation#equals(BikeStation, BikeStation)} returns true)
 	 */
 	public static void updateDatabaseAll(Context context, List<BikeStation> newBikeStations, boolean forceDBUpdate) {
-		// 1 - try retrieving current bike stations from local DB
-		Map<String, BikeStation> oldBikeStations = null;
-		try {
-			oldBikeStations = BixiManager.findAllBikeStationsMap(context.getContentResolver(), true);
-		} catch (Exception e) {
-			MyLog.w(TAG, e, "Error while reading current bus stops from DB");
-		}
-		// 2 - check all new bike stations for required update
-		Iterator<BikeStation> newIt = newBikeStations.iterator();
-		int added = 0, reallyUpdated = 0, notRealyUpdated = 0, removed = 0;
-		while (newIt.hasNext()) {
-			BikeStation bikeStation = (BikeStation) newIt.next();
-			if (oldBikeStations != null && oldBikeStations.containsKey(bikeStation.getTerminalName())) {
-				// update existing bike station
-				// IF forced DB update OR bike station changed DO
-				if (forceDBUpdate || !BikeStation.equals(bikeStation, oldBikeStations.get(bikeStation.getTerminalName()))) {
-					BixiManager.updateBikeStation(context.getContentResolver(), bikeStation, bikeStation.getTerminalName());
-					reallyUpdated++;
-				} else {
-					notRealyUpdated++;
-				}
-				oldBikeStations.remove(bikeStation.getTerminalName());
-			} else {
-				// add new bike station
-				BixiManager.addBikeStation(context.getContentResolver(), bikeStation, false);
-				added++;
-			}
-		}
-		// 3 - remove deleted bike stations
-		if (oldBikeStations != null) {
-			for (String oldBikeStationTerminalName : oldBikeStations.keySet()) {
-				// delete old bike station
-				BixiManager.deleteBikeStation(context.getContentResolver(), oldBikeStationTerminalName);
-				removed++;
-			}
-		}
-		MyLog.d(TAG, "Added: %s, Updated: %s (%s), Removed: %s", added, reallyUpdated, notRealyUpdated, removed);
+		MyLog.v(TAG, "updateDatabaseAll(%s, %s)", Utils.getCollectionSize(newBikeStations), forceDBUpdate);
+		// delete all existing bike stations
+		BixiManager.deleteAllBikeStations(context.getContentResolver());
+		// add all new bike stations
+		BixiManager.addBikeStations(context.getContentResolver(), newBikeStations);
 	}
 
 	/**

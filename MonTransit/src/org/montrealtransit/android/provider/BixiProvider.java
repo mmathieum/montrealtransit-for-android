@@ -1,13 +1,17 @@
 package org.montrealtransit.android.provider;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
 
 import android.content.ContentProvider;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -147,6 +151,80 @@ public class BixiProvider extends ContentProvider {
 			getContext().getContentResolver().notifyChange(insertUri, null);
 			return insertUri;
 		}
+	}
+
+	@Override
+	public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
+		MyLog.v(TAG, "applyBatch(%s)", operations.size());
+		return super.applyBatch(operations);
+		// TODO ?
+		// ContentProviderResult[] res = new ContentProviderResult[operations.size()];
+		// SQLiteDatabase db = null;
+		// try {
+		// db = getDBHelper().getWritableDatabase();
+		// db.beginTransaction(); // starting the transaction
+		//
+		// // for (ContentProviderOperation operation : operations) {
+		// // operation.describeContents();
+		// // }
+		//
+		// for (int i = 0; i < operations.size(); i++) {
+		// res[i] = operations.get(i).apply(this, res, i);
+		// }
+		// db.setTransactionSuccessful();// mark the transaction as successful
+		// } catch (Exception e) {
+		// MyLog.w(TAG, e, "ERROR while applying batch update to the database!");
+		// } finally {
+		// try {
+		// if (db != null) {
+		// db.endTransaction(); // end the transaction
+		// db.close();
+		// }
+		// } catch (Exception e) {
+		// MyLog.w(TAG, e, "ERROR while closing the new database!");
+		// }
+		// }
+		// return res;
+	}
+
+	@Override
+	public int bulkInsert(Uri uri, ContentValues[] values) {
+		MyLog.v(TAG, "bulkInsert(%s)", values.length);
+		int count = 0;
+		switch (URI_MATCHER.match(uri)) {
+		case BIKE_STATION:
+			MyLog.d(TAG, "INSERT_BULK>BIKE_STATION");
+    		SQLiteDatabase db = null;
+    		try {
+    			db = getDBHelper().getWritableDatabase();
+    			db.beginTransaction(); // starting the transaction
+    			for (ContentValues value : values) {
+    				// TODO use "OR REPLACE" so no delete required?
+    				final long rowId = db.insert(BixiDbHelper.T_BIKE_STATIONS, BixiDbHelper.T_BIKE_STATIONS_K_ID, value);
+    				if (rowId > 0) {
+    					count++;
+    				}
+    			}
+    			db.setTransactionSuccessful();// mark the transaction as successful
+    			MyLog.d(TAG, "bulk insert successful! (%s inserts)", count);
+    		} catch (Exception e) {
+    			MyLog.w(TAG, e, "ERROR while applying batch update to the database!");
+    		} finally {
+    			try {
+    				if (db != null) {
+    					db.endTransaction(); // end the transaction
+    					db.close();
+    				}
+    			} catch (Exception e) {
+    				MyLog.w(TAG, e, "ERROR while closing the new database!");
+    			}
+    		}
+		break;
+		default:
+			throw new IllegalArgumentException("Unknown URI (delete): " + uri);
+		}
+		getContext().getContentResolver().notifyChange(uri, null);
+		return count;
 	}
 
 	@Override
