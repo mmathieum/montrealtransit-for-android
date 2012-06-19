@@ -46,7 +46,7 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 	private ClosestBikeStationsFinderListener from;
 
 	/**
-	 * The last bixi data message.
+	 * The last Bixi data message.
 	 */
 	private String lastBixiDataMessage;
 
