@@ -55,11 +55,15 @@ public class StmInfoTask extends AbstractNextStopProvider {
 
 	@Override
 	protected Map<String, BusStopHours> doInBackground(StmStore.BusStop... busStops) {
-		String stopCode = busStops[0].getCode();
-		String lineNumber = busStops[0].getLineNumber();
+		MyLog.v(TAG, "doInBackground()");
 		Utils.logAppVersion(this.context);
 		String errorMessage = this.context.getString(R.string.error); // set the default error message
 		Map<String, BusStopHours> hours = new HashMap<String, BusStopHours>();
+		if (busStops==null || busStops.length == 0) {
+			return null;
+		}
+		String stopCode = busStops[0].getCode();
+		String lineNumber = busStops[0].getLineNumber();
 		try {
 			publishProgress(context.getString(R.string.downloading_data_from_and_source, StmInfoTask.SOURCE_NAME));
 			String urlString = URL_PART_1_BEFORE_LANG;
