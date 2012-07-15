@@ -1272,6 +1272,9 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	 * @param v a view (not used)
 	 */
 	public void showSubwayStation(View v) {
+		if (this.busStop == null) {
+			return;
+		}
 		// IF there is a subway station DO
 		String subwayStationId = BusStopInfo.this.busStop.getSubwayStationId();
 		if (!TextUtils.isEmpty(subwayStationId)) {
