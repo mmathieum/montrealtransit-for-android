@@ -59,7 +59,7 @@ public class StmInfoTask extends AbstractNextStopProvider {
 		Utils.logAppVersion(this.context);
 		String errorMessage = this.context.getString(R.string.error); // set the default error message
 		Map<String, BusStopHours> hours = new HashMap<String, BusStopHours>();
-		if (busStops==null || busStops.length == 0) {
+		if (busStops == null || busStops.length == 0) {
 			return null;
 		}
 		String stopCode = busStops[0].getCode();
