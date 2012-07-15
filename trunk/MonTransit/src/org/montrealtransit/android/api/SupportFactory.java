@@ -22,31 +22,47 @@ public class SupportFactory {
 	 */
 	public static SupportUtil getInstance(Context context) {
 		String className = SupportFactory.class.getPackage().getName();
-		@SuppressWarnings("deprecation") //TODO use Build.VERSION.SDK_INT
+		@SuppressWarnings("deprecation")
+		// TODO use Build.VERSION.SDK_INT
 		int sdkVersion = Integer.parseInt(Build.VERSION.SDK);
-		if (sdkVersion < Build.VERSION_CODES.CUPCAKE) {
+		switch (sdkVersion) {
+		case Build.VERSION_CODES.BASE:
+		case Build.VERSION_CODES.BASE_1_1: // unsupported versions
 			MyLog.d(TAG, "Unknow API Level: " + sdkVersion);
-			className += ".CupcakeSupport"; // unsupported version
-		} else if (sdkVersion == Build.VERSION_CODES.CUPCAKE) {
+		case Build.VERSION_CODES.CUPCAKE:
 			className += ".CupcakeSupport"; // 3
-		} else if (sdkVersion == Build.VERSION_CODES.DONUT) {
+			break;
+		case Build.VERSION_CODES.DONUT:
 			className += ".DonutSupport"; // 4
-		} else if (sdkVersion == Build.VERSION_CODES.ECLAIR || sdkVersion == Build.VERSION_CODES.ECLAIR_0_1
-		        || sdkVersion == Build.VERSION_CODES.ECLAIR_MR1) {
+			break;
+		case Build.VERSION_CODES.ECLAIR:
+		case Build.VERSION_CODES.ECLAIR_0_1:
+		case Build.VERSION_CODES.ECLAIR_MR1:
 			className += ".EclairSupport"; // 5 6 7
-		} else if (sdkVersion == Build.VERSION_CODES.FROYO) {
+			break;
+		case Build.VERSION_CODES.FROYO:
 			className += ".FroyoSupport"; // 8
-		} else if (sdkVersion == Build.VERSION_CODES.GINGERBREAD || sdkVersion == Build.VERSION_CODES.GINGERBREAD_MR1) {
+			break;
+		case Build.VERSION_CODES.GINGERBREAD:
+		case Build.VERSION_CODES.GINGERBREAD_MR1:
 			className += ".GingerbreadSupport"; // 9 10
-		} else if (sdkVersion == Build.VERSION_CODES.HONEYCOMB || sdkVersion == Build.VERSION_CODES.HONEYCOMB_MR1
-		        || sdkVersion == Build.VERSION_CODES.HONEYCOMB_MR2) {
+			break;
+		case Build.VERSION_CODES.HONEYCOMB:
+		case Build.VERSION_CODES.HONEYCOMB_MR1:
+		case Build.VERSION_CODES.HONEYCOMB_MR2:
 			className += ".HoneycombSupport"; // 11 12 13
-		} else if (sdkVersion == Build.VERSION_CODES.ICE_CREAM_SANDWICH
-		        || sdkVersion == Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+			break;
+		case Build.VERSION_CODES.ICE_CREAM_SANDWICH:
+		case Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1:
 			className += ".IceCreamSandwichSupport"; // 14 15
-		} else if (sdkVersion > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+			break;
+		case Build.VERSION_CODES.JELLY_BEAN:
+			className += ".JellyBeanSupport"; // 16
+			break;
+		default:
 			MyLog.w(TAG, "Unknow API Level: %s", sdkVersion);
-			className += ".IceCreamSandwichSupport"; // default for newer SDK
+			className += ".JellyBeanSupport"; // default for newer SDK
+			break;
 		}
 
 		try {
