@@ -1578,6 +1578,15 @@ INSERT INTO "arrets_autobus" VALUES(58545,219,'21901O','Clark-Graham / No 20275'
 INSERT INTO "arrets_autobus" VALUES(58534,219,'21901O','Clark-Graham / No 20425','','',37);
 INSERT INTO "arrets_autobus" VALUES(58544,219,'21901O','Clark-Graham / Pirie','','',38);
 INSERT INTO "arrets_autobus" VALUES(58537,219,'21901O','Clark-Graham / Boucle - fin de rue','','Descente seulement',39);
+INSERT INTO "arrets_autobus" VALUES(61100,220,'22001E','Terminus Kieran / No 5600','','',0);
+INSERT INTO "arrets_autobus" VALUES(61105,220,'22001E','Kieran / No 5825','','',1);
+INSERT INTO "arrets_autobus" VALUES(61104,220,'22001E','Kieran / No 5900','','',2);
+INSERT INTO "arrets_autobus" VALUES(55921,220,'22001E','Ouimet / Saint-Louis',54,'Descente seulement',3);
+INSERT INTO "arrets_autobus" VALUES(55921,220,'22001O','Ouimet / Saint-Louis',54,'',0);
+INSERT INTO "arrets_autobus" VALUES(61103,220,'22001O','Kieran / No 5900','','',1);
+INSERT INTO "arrets_autobus" VALUES(61101,220,'22001O','Kieran / No 5825','','',2);
+INSERT INTO "arrets_autobus" VALUES(61106,220,'22001O','Kieran / No 5600','','',3);
+INSERT INTO "arrets_autobus" VALUES(61100,220,'22001O','Terminus Kieran / No 5600','','Descente seulement',4);
 INSERT INTO "arrets_autobus" VALUES(57815,225,'22501E','Terminus Fairview','','',0);
 INSERT INTO "arrets_autobus" VALUES(57628,225,'22501E','Brunswick / Revcon','','',1);
 INSERT INTO "arrets_autobus" VALUES(57640,225,'22501E','Brunswick / Selkirk','','',2);

@@ -9365,3 +9365,4 @@ INSERT INTO "arrets_autobus_loc" VALUES('61258','Rinaldo-Lemme / du Palomino','4
 INSERT INTO "arrets_autobus_loc" VALUES('61260','Herron / Dumont','45.448345','-73.752068');
 INSERT INTO "arrets_autobus_loc" VALUES('61261','Roméo-Vachon / ','45.448563','-73.742523');
 INSERT INTO "arrets_autobus_loc" VALUES('61262','Saint-Jean / Gare Cedar Park','45.441540','-73.814897');
+INSERT INTO "arrets_autobus_loc" VALUES('61263','Station Angrignon / Terminus','45.446554','-73.604390');

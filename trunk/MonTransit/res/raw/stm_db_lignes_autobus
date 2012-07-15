@@ -145,6 +145,7 @@ INSERT INTO "lignes_autobus" VALUES(216,'Transcanadienne','P',' ');
 INSERT INTO "lignes_autobus" VALUES(217,'Anse-à-l''Orme','J',' ');
 INSERT INTO "lignes_autobus" VALUES(218,'Antoine-Faucon','P',' ');
 INSERT INTO "lignes_autobus" VALUES(219,'Chemin Sainte-Marie','P',' ');
+INSERT INTO "lignes_autobus" VALUES(220,'Kieran','J',' ');
 INSERT INTO "lignes_autobus" VALUES(225,'Hymus','P',' ');
 INSERT INTO "lignes_autobus" VALUES(252,'Navette Or - Montréal-Nord','J',' ');
 INSERT INTO "lignes_autobus" VALUES(253,'Navette Or - Saint-Michel','J',' ');
