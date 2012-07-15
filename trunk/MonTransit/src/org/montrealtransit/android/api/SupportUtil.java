@@ -89,4 +89,8 @@ public interface SupportUtil {
 	 */
 	void enableStrictMode();
 
+	/**
+	 * @return the number of the closest POI displayed
+	 */
+	int getNbClosestPOIDisplay();
 }

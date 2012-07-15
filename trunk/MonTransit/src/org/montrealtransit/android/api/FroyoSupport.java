@@ -63,4 +63,9 @@ public class FroyoSupport extends EclairSupport {
 		Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
 		return display.getRotation();
 	}
+
+	@Override
+	public int getNbClosestPOIDisplay() {
+		return 50;
+	}
 }

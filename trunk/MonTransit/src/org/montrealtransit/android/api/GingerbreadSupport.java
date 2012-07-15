@@ -42,4 +42,9 @@ public class GingerbreadSupport extends FroyoSupport {
 		VmPolicy vmPolicy = new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects().detectLeakedClosableObjects().penaltyLog().penaltyDeath().build();
 		StrictMode.setVmPolicy(vmPolicy);
 	}
+
+	@Override
+	public int getNbClosestPOIDisplay() {
+		return 100;
+	}
 }

@@ -12,6 +12,7 @@ import org.montrealtransit.android.SensorUtils;
 import org.montrealtransit.android.SensorUtils.CompassListener;
 import org.montrealtransit.android.SensorUtils.ShakeListener;
 import org.montrealtransit.android.Utils;
+import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.ABikeStation;
 import org.montrealtransit.android.data.ClosestPOI;
 import org.montrealtransit.android.data.Pair;
@@ -104,10 +105,6 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	 * The task used to load the closest bike stations.
 	 */
 	private ClosestBikeStationsFinderTask closestBikeStationsTask;
-	/**
-	 * Number of closest bike stations displayed.
-	 */
-	private static final int NB_CLOSEST_BIKE_STATIONS = ClosestBikeStationsFinderTask.NO_LIMIT;
 
 	/**
 	 * The acceleration apart from gravity.
@@ -680,7 +677,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			Location locationUsed = getLocation();
 			if (locationUsed != null) {
 				// find the closest stations
-				this.closestBikeStationsTask = new ClosestBikeStationsFinderTask(this, this, NB_CLOSEST_BIKE_STATIONS);
+				this.closestBikeStationsTask = new ClosestBikeStationsFinderTask(this, this, SupportFactory.getInstance(this).getNbClosestPOIDisplay());
 				this.closestBikeStationsTask.execute(locationUsed);
 				this.closestBikeStationsLocation = locationUsed;
 				new AsyncTask<Location, Void, Address>() {

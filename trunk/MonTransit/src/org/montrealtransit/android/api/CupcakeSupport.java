@@ -102,4 +102,9 @@ public class CupcakeSupport implements SupportUtil {
 	public void enableStrictMode() {
 		// not supported until Gingerbread (API Level 9)
 	}
+
+	@Override
+	public int getNbClosestPOIDisplay() {
+		return 10;
+	}
 }
