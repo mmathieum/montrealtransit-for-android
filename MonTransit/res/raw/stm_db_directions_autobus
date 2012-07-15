@@ -319,6 +319,8 @@ INSERT INTO "directions_autobus" VALUES(218,'21801O','');
 INSERT INTO "directions_autobus" VALUES(218,'21801E','');
 INSERT INTO "directions_autobus" VALUES(219,'21901E','');
 INSERT INTO "directions_autobus" VALUES(219,'21901O','');
+INSERT INTO "directions_autobus" VALUES(220,'22001E','');
+INSERT INTO "directions_autobus" VALUES(220,'22001O','');
 INSERT INTO "directions_autobus" VALUES(225,'22501E','');
 INSERT INTO "directions_autobus" VALUES(225,'22501O','');
 INSERT INTO "directions_autobus" VALUES(252,'25201E','');
