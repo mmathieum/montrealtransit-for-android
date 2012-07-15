@@ -18,4 +18,9 @@ public class EclairSupport extends DonutSupport {
 		super(context);
 	}
 
+	@Override
+	public int getNbClosestPOIDisplay() {
+		return 25;
+	}
+
 }
