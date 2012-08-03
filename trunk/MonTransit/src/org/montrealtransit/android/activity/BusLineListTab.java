@@ -166,7 +166,7 @@ public class BusLineListTab extends Activity implements OnSharedPreferenceChange
 					String lineNumber = String.valueOf(id);
 					String lineName = null;
 					String lineType = null;
-					if (BusLineListTab.this.cursor != null) {
+					if (BusLineListTab.this.cursor != null && !BusLineListTab.this.cursor.isClosed()) {
 						lineName = BusLineListTab.this.cursor.getString(BusLineListTab.this.cursor.getColumnIndex(StmStore.BusLine.LINE_NAME));
 						lineType = BusLineListTab.this.cursor.getString(BusLineListTab.this.cursor.getColumnIndex(StmStore.BusLine.LINE_TYPE));
 					}
