@@ -61,10 +61,16 @@ public class ClosestPOI<T> {
 		return this.poiList;
 	}
 	
-	public  List<T> getPoiListOrNull() {
+	/**
+	 * @return the Point Of Interest list or null
+	 */
+	public List<T> getPoiListOrNull() {
 		return this.poiList;
 	}
 	
+	/**
+	 * @param poiList the new Point Of Interest list
+	 */
 	public void setPoiList(List<T> poiList) {
 		this.poiList = poiList;
 	}
