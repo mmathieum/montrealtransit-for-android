@@ -9,6 +9,6 @@
 		android:layout_width="wrap_content" android:layout_height="wrap_content"
 		android:visibility="gone"
 		android:layout_centerHorizontal="true"
-		ads:adUnitId="ENTER_ADMOB_PUBLISHER_ID_HERE" ads:adSize="IAB_LEADERBOARD"
+		ads:adUnitId="@string/admob_publisher_id" ads:adSize="BANNER"
 		ads:loadAdOnCreate="false" />
 </RelativeLayout>
