@@ -241,6 +241,8 @@
     <string name="colon">:&#160;</string>
     <string name="error">Error</string>
     <string name="error_http_500_and_source">Internal Server Error. Try again later or use another source (Menu > %s).</string>
+    <string name="error_ssl">Can\'t load data from the server!</string>
+    <string name="error_ssl_and_url">Can\'t load data from the %s!</string>
     <string name="loading">Loading&#8230;</string>
     <string name="select_next_stop_data_source">Source</string>
     <string name="data_source">Source</string>
