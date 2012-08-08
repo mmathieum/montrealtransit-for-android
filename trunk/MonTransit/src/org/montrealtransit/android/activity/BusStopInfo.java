@@ -242,7 +242,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
-    super.onResume();
+		super.onResume();
 		// IF the activity has the focus DO
 		if (this.hasFocus) {
 			onResumeWithFocus();
