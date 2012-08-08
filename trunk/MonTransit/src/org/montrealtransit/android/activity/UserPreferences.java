@@ -9,6 +9,7 @@ import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.provider.DataManager;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -372,6 +373,7 @@ public class UserPreferences extends PreferenceActivity {
 	 * @param prefKey the preference key
 	 * @param newValue the new preference value
 	 */
+	@SuppressLint("CommitPrefEdits")
 	private static void savePref(Context context, SharedPreferences sharedPreferences, String prefKey, String newValue) {
 		// MyLog.v(TAG, "savePref(%s, %s)", prefKey, newValue);
 		SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -405,6 +407,7 @@ public class UserPreferences extends PreferenceActivity {
 	 * @param prefKey the preference key
 	 * @param newValue the new preference value
 	 */
+	@SuppressLint("CommitPrefEdits")
 	private static void savePref(Context context, SharedPreferences sharedPreferences, String prefKey, boolean newValue) {
 		// MyLog.v(TAG, "savePref(%s, %s)", prefKey, newValue);
 		SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -439,6 +442,7 @@ public class UserPreferences extends PreferenceActivity {
 	 * @param prefKey the preference key
 	 * @param newValue the new preference value
 	 */
+	@SuppressLint("CommitPrefEdits")
 	private static void savePref(Context context, SharedPreferences sharedPreferences, String prefKey, int newValue) {
 		// MyLog.v(TAG, "savePref(%s, %s)", prefKey, newValue);
 		SharedPreferences.Editor editor = sharedPreferences.edit();
