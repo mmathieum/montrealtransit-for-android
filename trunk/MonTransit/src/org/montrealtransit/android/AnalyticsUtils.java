@@ -69,6 +69,10 @@ public class AnalyticsUtils {
 	 * Action for DB initialization fail.
 	 */
 	public static final String ACTION_DB_INIT_FAIL = "db_init_failt";
+	/**
+	 * Action for Bixi data loading fail.
+	 */
+	public static final String ACTION_BIXI_DATA_LOADING_FAIL = "bixi_data_loading_fail";
 
 	/**
 	 * The instance.

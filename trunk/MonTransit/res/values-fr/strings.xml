@@ -241,6 +241,8 @@
     <string name="colon">&#160;:&#160;</string>
     <string name="error">Erreur</string>
     <string name="error_http_500_and_source">Erreur interne du serveur. Réessayer plus tard ou utiliser une autre source (Menu > %s).</string>
+    <string name="error_ssl">Impossible de charger des données depuis le serveur !</string>
+    <string name="error_ssl_and_url">Impossible de charger des données depuis %s !</string>
     <string name="loading">Chargement &#8230;</string>
     <string name="select_next_stop_data_source">Source</string>
     <string name="data_source">Source</string>

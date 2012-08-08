@@ -145,11 +145,14 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 				MyLog.w(TAG, "ERROR: HTTP URL-Connection Response Code %s (Message: %s)", httpUrlConnection.getResponseCode(),
 						httpUrlConnection.getResponseMessage());
 				publishProgress(from, context.getString(R.string.error));
+				AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BIXI_DATA_LOADING_FAIL,
+						httpUrlConnection.getResponseMessage(), httpUrlConnection.getResponseCode());
 				return null;
 			}
 		} catch (SSLHandshakeException sslhe) {
 			MyLog.w(TAG, sslhe, "SSL error!");
-			publishProgress(from, context.getString(R.string.error));
+			publishProgress(from, context.getString(R.string.error_ssl_and_url, SOURCE));
+			AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BIXI_DATA_LOADING_FAIL, sslhe.getMessage(), 0);
 			return null;
 		} catch (UnknownHostException uhe) {
 			if (MyLog.isLoggable(Log.DEBUG)) {
@@ -167,6 +170,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 			// Unknown error
 			MyLog.e(TAG, e, "INTERNAL ERROR: Unknown Exception");
 			publishProgress(from, context.getString(R.string.error));
+			AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BIXI_DATA_LOADING_FAIL, e.getMessage(), 0);
 			return null;
 		}
 	}
