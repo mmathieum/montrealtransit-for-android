@@ -105,7 +105,6 @@ public class StmMobileTask extends AbstractNextStopProvider {
 						hours.put(lineNumber, new BusStopHours(SOURCE_NAME, errorMessage));
 						AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BUS_STOP_REMOVED, busStops[0].getUID(), context
 								.getPackageManager().getPackageInfo(Constant.PKG, 0).versionCode);
-
 					}
 					AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BUS_STOP_NO_INFO, busStops[0].getUID(), context
 							.getPackageManager().getPackageInfo(Constant.PKG, 0).versionCode);
