@@ -1,17 +1,13 @@
 package org.montrealtransit.android.provider;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
 
 import android.content.ContentProvider;
-import android.content.ContentProviderOperation;
-import android.content.ContentProviderResult;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -151,40 +147,6 @@ public class BixiProvider extends ContentProvider {
 			getContext().getContentResolver().notifyChange(insertUri, null);
 			return insertUri;
 		}
-	}
-
-	@Override
-	public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
-		MyLog.v(TAG, "applyBatch(%s)", operations.size());
-		return super.applyBatch(operations);
-		// TODO ?
-		// ContentProviderResult[] res = new ContentProviderResult[operations.size()];
-		// SQLiteDatabase db = null;
-		// try {
-		// db = getDBHelper().getWritableDatabase();
-		// db.beginTransaction(); // starting the transaction
-		//
-		// // for (ContentProviderOperation operation : operations) {
-		// // operation.describeContents();
-		// // }
-		//
-		// for (int i = 0; i < operations.size(); i++) {
-		// res[i] = operations.get(i).apply(this, res, i);
-		// }
-		// db.setTransactionSuccessful();// mark the transaction as successful
-		// } catch (Exception e) {
-		// MyLog.w(TAG, e, "ERROR while applying batch update to the database!");
-		// } finally {
-		// try {
-		// if (db != null) {
-		// db.endTransaction(); // end the transaction
-		// db.close();
-		// }
-		// } catch (Exception e) {
-		// MyLog.w(TAG, e, "ERROR while closing the new database!");
-		// }
-		// }
-		// return res;
 	}
 
 	@Override
