@@ -6,8 +6,7 @@
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 	<uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.READ_PHONE_STATE"/><!-- use by the PayPal API -->
-	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /><!--  use by Analytics + Google AdMob -->
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /><!-- required for Google Analytics & Google AdMob -->
 	<uses-permission android:name="android.permission.NFC" /><!-- required for Android Beam -->
 	<!-- TraceView uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /-->
 	<!-- mock location dev uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" /-->
@@ -108,16 +107,6 @@
 				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
 		</activity>
-		<!-- DONATE -->
-		<activity android:name=".activity.DonateActivity"
-			android:configChanges="keyboardHidden|orientation" />
-		<!-- DONATE PAYPAL -->
-		<activity android:name=".activity.DonatePayPalActivity"
-			android:configChanges="keyboardHidden|orientation" />
-		<!-- PAYPAL API -->
-		<activity android:name="com.paypal.android.MEP.PayPalActivity"
-			android:theme="@android:style/Theme.Translucent.NoTitleBar"
-			android:configChanges="keyboardHidden|orientation" />
 		<!-- GOOGLE ADMOB ACTIVITY -->
 		<activity android:name="com.google.ads.AdActivity"
 			android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />

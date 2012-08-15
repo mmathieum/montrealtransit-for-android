@@ -199,12 +199,12 @@ public class UserPreferences extends PreferenceActivity {
 	 * The latest version of the STM DB successfully deployed.
 	 */
 	public static final String PREFS_LCL_STM_DB_VERSION = "pStmDbVersion";
-	
+
 	/**
 	 * The latest update of the Bixi database.
 	 */
 	public static final String PREFS_LCL_BIXI_LAST_UPDATE = "pBixiLastUpdate";
-	
+
 	/**
 	 * The ads check box.
 	 */
@@ -215,7 +215,8 @@ public class UserPreferences extends PreferenceActivity {
 	 */
 	private int versionCount;
 
-	@SuppressWarnings("deprecation") //TODO use PreferenceActivity
+	@SuppressWarnings("deprecation")
+	// TODO use PreferenceActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
@@ -266,11 +267,15 @@ public class UserPreferences extends PreferenceActivity {
 			}
 		});
 
-		// donate dialog
+		// donate
 		((PreferenceScreen) findPreference("pDonate")).setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
-				UserPreferences.this.startActivity(new Intent(UserPreferences.this, DonateActivity.class));
+				// Google Play Store
+				Utils.notifyTheUser(UserPreferences.this, getString(R.string.donate_opening_market));
+				Uri appMarketURI = Uri.parse("market://details?id=" + Constant.DONATE_PKG);
+				Intent appMarketIntent = new Intent(Intent.ACTION_VIEW).setData(appMarketURI);
+				startActivity(appMarketIntent);
 				return false;
 			}
 		});
@@ -333,7 +338,8 @@ public class UserPreferences extends PreferenceActivity {
 	 * Setup the clear cache preference.
 	 */
 	private void setClearCachePref() {
-		@SuppressWarnings("deprecation") //TODO use PreferenceActivity
+		@SuppressWarnings("deprecation")
+		// TODO use PreferenceActivity
 		PreferenceScreen clearCachePref = (PreferenceScreen) findPreference(PREFS_CLEAR_CACHE);
 		clearCachePref.setEnabled(DataManager.findAllCacheList(getContentResolver()) != null);
 		clearCachePref.setSummary(clearCachePref.isEnabled() ? R.string.clear_cache_pref_summary : R.string.clear_cache_pref_summary_disabled);

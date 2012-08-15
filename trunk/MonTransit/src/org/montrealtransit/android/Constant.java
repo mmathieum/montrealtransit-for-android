@@ -11,6 +11,10 @@ public class Constant {
 	 */
 	public static final String PKG = "org.montrealtransit.android";
 	/**
+	 * The donation package.
+	 */
+	public static final String DONATE_PKG = "org.montrealtransit.android.donate.mm.onetrip";
+	/**
 	 * The log tag for all the logs from the app.
 	 */
 	public static final String MAIN_TAG = "MonTransit";
