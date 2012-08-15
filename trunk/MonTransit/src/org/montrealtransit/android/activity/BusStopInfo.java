@@ -234,7 +234,12 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		MyLog.v(TAG, "onWindowFocusChanged(%s)", hasFocus);
 		// IF the activity just regained the focus DO
 		if (!this.hasFocus && hasFocus) {
-			onResumeWithFocus();
+			// try to enable everything but may fail if the activity is not yet resumed
+			try {
+				onResumeWithFocus();
+			} catch (Throwable t) {
+				// not that bad, will do it when the activity #onResume() method is called
+			}
 		}
 		this.hasFocus = hasFocus;
 	}
