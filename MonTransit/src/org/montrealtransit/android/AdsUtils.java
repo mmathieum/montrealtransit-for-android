@@ -192,7 +192,7 @@ public class AdsUtils {
 			for (PackageInfo pkg : packageManager.getInstalledPackages(0)) {
 				if (pkg.packageName.startsWith(DONATE_PACKAGES_START_WITH)) {
 					AdsUtils.generousUser = true;
-					// TODO check that the app was bought (Android Market Licensing)
+					// TODO check that the app was bought (Google Play Store Licensing)
 					break;
 				}
 			}

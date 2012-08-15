@@ -55,23 +55,4 @@
 		<item>simple</item>
 		<item>detailed</item>
 	</string-array>
-	
-	<!-- DONATION AMOUNTS -->
-	<string-array name="donate_amounts">
-        <item>@string/donate_1_trip</item>
-        <item>@string/donate_2_trips</item>
-        <item>@string/donate_6_trips</item>
-        <item>@string/donate_10_trips</item>
-        <item>@string/donate_weekly_cam</item>
-        <item>@string/donate_montly_cam</item>
-    </string-array>
-    <!-- DONATION METHODS -->
-	<string-array name="donate_methods">
-		<item>@string/donate_method_market</item>
-        <item>@string/donate_method_paypal</item>
-    </string-array>
-     <!-- DONATION DEVS -->
-	<string-array name="donate_devs">
-        <item>@string/paypal_recipient_name_mathieu_mea</item>
-    </string-array>
 </resources>

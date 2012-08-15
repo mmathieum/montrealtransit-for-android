@@ -333,17 +333,14 @@
     <string name="donate_montly_cam">CAM mensuelle (72.75$)</string>
     <string name="donate_method">Méthode de paiement : </string>
     <string name="donate_select_method">Choisir la méthode de paiement</string>
-    <string name="donate_method_paypal">PayPal</string>
-    <string name="donate_method_market">Android Market</string>
+    <string name="donate_method_market">Google Play Store</string>
     <string name="donate_dev">Développeur: </string>
     <string name="donate_select_dev">Choisir le développeur</string>
     <string name="donate_montransit_dev">MonTransit (%s)</string>
-    <string name="donate_loading_paypal">Connexion aux serveurs de PayPal &#8230;</string>
-    <string name="donate_paypal_button_message">Sélectionner le montant Cliquer sur le bouton PayPal pour compléter la donation.</string>
     <string name="donate_payment_completed">Donation complétée. Merci !</string>
     <string name="donate_payment_cancelled">Donation annullée.</string>
     <string name="donate_payment_failure">Échec de la donation ! Merci de réessayer plus tard.</string>
-    <string name="donate_opening_market">Ouverture de l\'Android Market &#8230;</string>
+    <string name="donate_opening_market">Ouverture de le Google Play Store &#8230;</string>
 
     <string name="next">Suivant</string>
     <string name="back">Retour</string>
