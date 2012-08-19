@@ -665,7 +665,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	@Override
 	public void onClosestBikeStationsDone(ClosestPOI<ABikeStation> result) {
 		MyLog.v(TAG, "onClosestBikeStationsDone()");
-		if (result != null) {
+		if (result != null && result.getPoiList().size() > 0) {
 			this.closestBikeStations = result.getPoiList().subList(1, result.getPoiList().size());
 			// set location
 			setClosestStationsDistances(getLocation());
