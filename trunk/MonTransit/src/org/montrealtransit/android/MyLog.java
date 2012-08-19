@@ -73,6 +73,19 @@ public class MyLog {
 	}
 
 	/**
+	 * @see Log#d(String, String, Throwable)
+	 * @param tag the class tag
+	 * @param t the error
+	 * @param msg the message
+	 * @param args the message arguments
+	 */
+	public static void d(String tag, Throwable t, String msg, Object... args) {
+		if (DEBUG || Log.isLoggable(Constant.MAIN_TAG, Log.DEBUG)) {
+			Log.d(Constant.MAIN_TAG, String.format("%s>%s", tag, String.format(msg, args)), t);
+		}
+	}
+
+	/**
 	 * @see Log#i(String, String)
 	 * @param tag the class log
 	 * @param msg the message
