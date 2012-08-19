@@ -9,6 +9,7 @@ import org.montrealtransit.android.MyLog;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -221,7 +222,7 @@ public class DataProvider extends ContentProvider {
 			orderBy = sortOrder;
 		}
 
-		SQLiteDatabase db = getDBHelper().getReadableDatabase();
+		SQLiteDatabase db = getDBHelper(getContext()).getReadableDatabase();
 		Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy);
 		if (c != null) {
 			c.setNotificationUri(getContext().getContentResolver(), uri);
@@ -266,7 +267,7 @@ public class DataProvider extends ContentProvider {
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
 		MyLog.v(TAG, "delete(%s, %s, %s)", uri.getPath(), selection, Arrays.toString(selectionArgs));
-		SQLiteDatabase db = getDBHelper().getWritableDatabase();
+		SQLiteDatabase db = getDBHelper(getContext()).getWritableDatabase();
 
 		int count = 0;
 		switch (URI_MATCHER.match(uri)) {
@@ -328,7 +329,7 @@ public class DataProvider extends ContentProvider {
 		// } else {
 		// values = new ContentValues();
 		// }
-		SQLiteDatabase db = getDBHelper().getWritableDatabase();
+		SQLiteDatabase db = getDBHelper(getContext()).getWritableDatabase();
 		Uri insertUri = null;
 		switch (URI_MATCHER.match(uri)) {
 		case FAVS:
@@ -375,7 +376,7 @@ public class DataProvider extends ContentProvider {
 	/**
 	 * The SQLite open helper object.
 	 */
-	private DataDbHelper mOpenHelper;
+	private static DataDbHelper mOpenHelper;
 
 	@Override
 	public boolean onCreate() {
@@ -386,16 +387,21 @@ public class DataProvider extends ContentProvider {
 	/**
 	 * @return the database helper
 	 */
-	private DataDbHelper getDBHelper() {
-		if (this.mOpenHelper == null) {
-			// initialize
-			this.mOpenHelper = new DataDbHelper(getContext());
-		} else if (this.mOpenHelper.getReadableDatabase().getVersion() != DataDbHelper.DATABASE_VERSION) {
-			// reset
-			this.mOpenHelper.close();
-			this.mOpenHelper = new DataDbHelper(getContext());
+	private static DataDbHelper getDBHelper(Context context) {
+		if (mOpenHelper == null) { // initialize
+			mOpenHelper = new DataDbHelper(context.getApplicationContext());
+		} else { // reset
+			try {
+				if (mOpenHelper.getReadableDatabase().getVersion() != DataDbHelper.DATABASE_VERSION) {
+					mOpenHelper.close();
+					mOpenHelper = new DataDbHelper(context.getApplicationContext());
+				}
+			} catch (Exception e) {
+				// fail if locked, will try again later
+				MyLog.d(TAG, e, "Can't check DB version!");
+			}
 		}
-		return this.mOpenHelper;
+		return mOpenHelper;
 	}
 
 	@Override

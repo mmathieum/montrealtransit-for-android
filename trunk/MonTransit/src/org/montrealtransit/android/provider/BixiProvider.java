@@ -8,6 +8,7 @@ import org.montrealtransit.android.MyLog;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -46,7 +47,7 @@ public class BixiProvider extends ContentProvider {
 	/**
 	 * The SQLite open helper object.
 	 */
-	private BixiDbHelper mOpenHelper;
+	private static BixiDbHelper mOpenHelper;
 
 	@Override
 	public boolean onCreate() {
@@ -57,16 +58,22 @@ public class BixiProvider extends ContentProvider {
 	/**
 	 * @return the database helper
 	 */
-	private BixiDbHelper getDBHelper() {
-		if (this.mOpenHelper == null) {
-			// initialize
-			this.mOpenHelper = new BixiDbHelper(getContext());
-		} else if (this.mOpenHelper.getReadableDatabase().getVersion() != BixiDbHelper.DATABASE_VERSION) {
-			// reset
-			this.mOpenHelper.close();
-			this.mOpenHelper = new BixiDbHelper(getContext());
+	private static BixiDbHelper getDBHelper(Context context) {
+		if (mOpenHelper == null) { // initialize
+			mOpenHelper = new BixiDbHelper(context.getApplicationContext());
+		} else { // try to check DB version
+			try {
+				if (mOpenHelper.getReadableDatabase().getVersion() != BixiDbHelper.DATABASE_VERSION) {
+					// reset
+					mOpenHelper.close();
+					mOpenHelper = new BixiDbHelper(context.getApplicationContext());
+				}
+			} catch (Exception e) {
+				// fail if locked, will try again later
+				MyLog.d(TAG, e, "Can't check DB version!");
+			}
 		}
-		return this.mOpenHelper;
+		return mOpenHelper;
 	}
 
 	@Override
@@ -87,7 +94,6 @@ public class BixiProvider extends ContentProvider {
 		default:
 			throw new IllegalArgumentException("Unknown URI (query) :" + uri);
 		}
-
 		// If no sort order is specified use the default
 		String orderBy;
 		if (TextUtils.isEmpty(sortOrder)) {
@@ -103,11 +109,9 @@ public class BixiProvider extends ContentProvider {
 		} else {
 			orderBy = sortOrder;
 		}
-
-		SQLiteDatabase db = getDBHelper().getReadableDatabase();
+		SQLiteDatabase db = getDBHelper(getContext()).getReadableDatabase();
 		Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy);
 		c.setNotificationUri(getContext().getContentResolver(), uri);
-
 		return c;
 	}
 
@@ -128,7 +132,7 @@ public class BixiProvider extends ContentProvider {
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
 		MyLog.v(TAG, "insert(%s, %s)", uri, values.size());
-		SQLiteDatabase db = getDBHelper().getWritableDatabase();
+		SQLiteDatabase db = getDBHelper(getContext()).getWritableDatabase();
 		Uri insertUri = null;
 		switch (URI_MATCHER.match(uri)) {
 		case BIKE_STATION:
@@ -158,8 +162,8 @@ public class BixiProvider extends ContentProvider {
 			MyLog.d(TAG, "INSERT_BULK>BIKE_STATION");
     		SQLiteDatabase db = null;
     		try {
-    			db = getDBHelper().getWritableDatabase();
-    			db.beginTransaction(); // starting the transaction
+    			db = getDBHelper(getContext()).getWritableDatabase();
+    			db.beginTransaction(); // start the transaction
     			for (ContentValues value : values) {
     				// TODO use "OR REPLACE" so no delete required?
     				final long rowId = db.insert(BixiDbHelper.T_BIKE_STATIONS, BixiDbHelper.T_BIKE_STATIONS_K_ID, value);
@@ -192,7 +196,7 @@ public class BixiProvider extends ContentProvider {
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
 		MyLog.v(TAG, "delete(%s, %s, %s)", uri.getPath(), selection, Arrays.toString(selectionArgs));
-		SQLiteDatabase db = getDBHelper().getWritableDatabase();
+		SQLiteDatabase db = getDBHelper(getContext()).getWritableDatabase();
 		int count = 0;
 		switch (URI_MATCHER.match(uri)) {
 		case BIKE_STATION:
@@ -214,7 +218,7 @@ public class BixiProvider extends ContentProvider {
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		MyLog.v(TAG, "update(%s, %s, %s)", uri.getPath(), selection, Arrays.toString(selectionArgs));
-		SQLiteDatabase db = this.mOpenHelper.getWritableDatabase();
+		SQLiteDatabase db = getDBHelper(getContext()).getWritableDatabase();
 		int count = 0;
 		switch (URI_MATCHER.match(uri)) {
 		case BIKE_STATION_ID:

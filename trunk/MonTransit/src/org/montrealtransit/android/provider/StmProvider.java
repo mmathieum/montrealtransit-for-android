@@ -11,6 +11,7 @@ import org.montrealtransit.android.provider.StmStore.BusStop;
 import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -910,7 +911,7 @@ public class StmProvider extends ContentProvider {
 			orderBy = sortOrder;
 		}
 
-		SQLiteDatabase db = getDBHelper().getReadableDatabase();
+		SQLiteDatabase db = getDBHelper(getContext()).getReadableDatabase();
 		Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy, limit);
 		if (c != null) {
 			c.setNotificationUri(getContext().getContentResolver(), uri);
@@ -921,21 +922,26 @@ public class StmProvider extends ContentProvider {
 	/**
 	 * The SQLite open helper object.
 	 */
-	private StmDbHelper mOpenHelper;
+	private static StmDbHelper mOpenHelper;
 
 	/**
 	 * @return the database helper
 	 */
-	private StmDbHelper getDBHelper() {
-		if (this.mOpenHelper == null) {
-			// initialize
-			this.mOpenHelper = new StmDbHelper(getContext(), null);
-		} else if (this.mOpenHelper.getReadableDatabase().getVersion() != StmDbHelper.DB_VERSION) {
-			// reset
-			this.mOpenHelper.close();
-			this.mOpenHelper = new StmDbHelper(getContext(), null);
+	private static StmDbHelper getDBHelper(Context context) {
+		if (mOpenHelper == null) { // initialize
+			mOpenHelper = new StmDbHelper(context.getApplicationContext(), null);
+		} else { // reset
+			try {
+				if (mOpenHelper.getReadableDatabase().getVersion() != StmDbHelper.DB_VERSION) {
+					mOpenHelper.close();
+					mOpenHelper = new StmDbHelper(context.getApplicationContext(), null);
+				}
+			} catch (Exception e) {
+				// fail if locked, will try again later
+				MyLog.d(TAG, e, "Can't check DB version!");
+			}
 		}
-		return this.mOpenHelper;
+		return mOpenHelper;
 	}
 
 	@Override
