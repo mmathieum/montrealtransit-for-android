@@ -967,16 +967,15 @@ public class StmManager {
 	/**
 	 * Find all bus stop codes.
 	 * @param contentResolver the content resolver
-	 * @return the bus stop codes
+	 * @return the bus stop codes or empty list
 	 */
 	public static List<String> findAllBusStopCodeList(ContentResolver contentResolver) {
-		List<String> result = null;
+		List<String> result = new ArrayList<String>();
 		Cursor c = null;
 		try {
 			c = findAllBusStopCode(contentResolver);
-			if (c.getCount() > 0) {
+			if (c != null && c.getCount() > 0) {
 				if (c.moveToFirst()) {
-					result = new ArrayList<String>();
 					do {
 						result.add(c.getString(c.getColumnIndexOrThrow(StmStore.BusStop.STOP_CODE)));
 					} while (c.moveToNext());
@@ -1002,16 +1001,15 @@ public class StmManager {
 	/**
 	 * Find all bus line numbers.
 	 * @param contentResolver the content resolver
-	 * @return the bus line numbers
+	 * @return the bus line numbers or empty list
 	 */
 	public static List<String> findAllBusLinesNumbersList(ContentResolver contentResolver) {
-		List<String> result = null;
+		List<String> result = new ArrayList<String>();;
 		Cursor c = null;
 		try {
 			c = findAllBusLinesNumbers(contentResolver);
-			if (c.getCount() > 0) {
+			if (c != null && c.getCount() > 0) {
 				if (c.moveToFirst()) {
-					result = new ArrayList<String>();
 					do {
 						result.add(c.getString(c.getColumnIndexOrThrow(StmStore.BusLine.LINE_NUMBER)));
 					} while (c.moveToNext());
