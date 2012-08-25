@@ -3161,7 +3161,7 @@ INSERT INTO "arrets_autobus" VALUES(55589,170,'170JOS','Décarie / Tassé','',''
 INSERT INTO "arrets_autobus" VALUES(55614,170,'170JOS','Décarie / Rochon','','',25);
 INSERT INTO "arrets_autobus" VALUES(60293,170,'170JOS','Terminus de la station Côte-Vertu',65,'Descente seulement',26);
 INSERT INTO "arrets_autobus" VALUES(60293,170,'170JON','Terminus de la station Côte-Vertu',65,'',0);
-INSERT INTO "arrets_autobus" VALUES(55616,170,'170JON','Décarie / Rochon','','',1);
+INSERT INTO "arrets_autobus" VALUES(55613,170,'170JON','Décarie / Rochon','','',1);
 INSERT INTO "arrets_autobus" VALUES(55588,170,'170JON','Décarie / Tassé','','',2);
 INSERT INTO "arrets_autobus" VALUES(55565,170,'170JON','Décarie / Deguire','','',3);
 INSERT INTO "arrets_autobus" VALUES(55535,170,'170JON','Décarie / Poirier','','',4);
