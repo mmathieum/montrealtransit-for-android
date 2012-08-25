@@ -7,7 +7,7 @@ INSERT INTO "arrets_autobus" VALUES(52945,715,'71501E','Wellington / Ann','','',
 INSERT INTO "arrets_autobus" VALUES(52972,715,'71501E','Wellington / Duke','','',6);
 INSERT INTO "arrets_autobus" VALUES(52975,715,'71501E','Wellington / Queen','','',7);
 INSERT INTO "arrets_autobus" VALUES(52992,715,'71501E','Wellington / des Soeurs-Grises','','',8);
-INSERT INTO "arrets_autobus" VALUES(60716,715,'71501E','de la Commune / McGill','','',9);
+INSERT INTO "arrets_autobus" VALUES(61269,715,'71501E','de la Commune / McGill','','',9);
 INSERT INTO "arrets_autobus" VALUES(60717,715,'71501E','de la Commune / de Callière','','',10);
 INSERT INTO "arrets_autobus" VALUES(60718,715,'71501E','de la Commune / Saint-Laurent','','',11);
 INSERT INTO "arrets_autobus" VALUES(60719,715,'71501E','de la Commune / Place Jacques-Cartier','','',12);
