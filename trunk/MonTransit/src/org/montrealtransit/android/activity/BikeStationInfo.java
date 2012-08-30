@@ -468,7 +468,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			// stopping the task
 			this.task.cancel(true);
 			this.task = null;
-		} else {
+		} else if (this.bikeStation != null) {
 			setStatusAsLoading();
 			// find the next bus stop
 			this.task = new BixiDataReader(this, this, false);
