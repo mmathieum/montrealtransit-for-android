@@ -946,8 +946,8 @@ INSERT INTO "arrets_autobus_loc" VALUES('51046','Côte-Sainte-Catherine / Côte-
 INSERT INTO "arrets_autobus_loc" VALUES('51047','Côte-des-Neiges / Côte-Sainte-Catherine','45.498670','-73.627689');
 INSERT INTO "arrets_autobus_loc" VALUES('51048','Côte-Sainte-Catherine / Côte-des-Neiges','45.498467','-73.627560');
 INSERT INTO "arrets_autobus_loc" VALUES('51049','Côte-Sainte-Catherine / Côte-des-Neiges','45.498005','-73.628185');
-INSERT INTO "arrets_autobus_loc" VALUES('51050','Station Swondon (Queen-Mary / Westbury)','45.485555','-73.627755');
-INSERT INTO "arrets_autobus_loc" VALUES('51051','Station Swondon (Queen-Mary / Circle)','45.485101','-73.627765');
+INSERT INTO "arrets_autobus_loc" VALUES('51050','Station Snowdon (Queen-Mary / Westbury)','45.485555','-73.627755');
+INSERT INTO "arrets_autobus_loc" VALUES('51051','Station Snowdon (Queen-Mary / Circle)','45.485101','-73.627765');
 INSERT INTO "arrets_autobus_loc" VALUES('51052','Saint-Denis / Gounod','45.541791','-73.625894');
 INSERT INTO "arrets_autobus_loc" VALUES('51053','Saint-Denis / Gounod','45.541682','-73.626280');
 INSERT INTO "arrets_autobus_loc" VALUES('51054','Barclay / Wilderton','45.512394','-73.626799');
@@ -9082,7 +9082,7 @@ INSERT INTO "arrets_autobus_loc" VALUES('60901','Rodolphe-Forget / No 12420','45
 INSERT INTO "arrets_autobus_loc" VALUES('60902','Rodolphe-Forget / No 12100','45.644954','-73.574592');
 INSERT INTO "arrets_autobus_loc" VALUES('60903','Jacques-Rousseau / No 7950','45.638233','-73.599624');
 INSERT INTO "arrets_autobus_loc" VALUES('60906','Saint-Germain / Ontario','45.541702','-73.546852');
-INSERT INTO "arrets_autobus_loc" VALUES('60907','Cuvillier / Habitations Hochelaga','45.542522','-73.537307');
+INSERT INTO "arrets_autobus_loc" VALUES('60907','Joliette / Charles-Wilson (Habitations Hochelaga)','45.542522','-73.537307');
 INSERT INTO "arrets_autobus_loc" VALUES('60909','d''Orléans / Adam','45.547351','-73.538528');
 INSERT INTO "arrets_autobus_loc" VALUES('60910','Desjardins / Adam','45.549758','-73.536682');
 INSERT INTO "arrets_autobus_loc" VALUES('60911','Desjardins / La Fontaine','45.550506','-73.538658');
@@ -9093,7 +9093,7 @@ INSERT INTO "arrets_autobus_loc" VALUES('60917','La Fontaine / Viau','45.558452'
 INSERT INTO "arrets_autobus_loc" VALUES('60918','Aird / No 2600','45.558731','-73.547172');
 INSERT INTO "arrets_autobus_loc" VALUES('60919','Pierre-de-Coubertin / Leclaire','45.560401','-73.547203');
 INSERT INTO "arrets_autobus_loc" VALUES('60920','Viau / de Marseille (Centre P.-Charbonneau)','45.563705','-73.548912');
-INSERT INTO "arrets_autobus_loc" VALUES('60921','du Trianon / entrée Place Versailles','45.591609','-73.543540');
+INSERT INTO "arrets_autobus_loc" VALUES('60921','Centre commercial Place Versailles face au Nickels','45.591609','-73.543540');
 INSERT INTO "arrets_autobus_loc" VALUES('60922','Viau / de Marseille (Centre P.-Charbonneau)','45.563907','-73.549384');
 INSERT INTO "arrets_autobus_loc" VALUES('60923','Bennett / No 2600','45.557861','-73.547828');
 INSERT INTO "arrets_autobus_loc" VALUES('60924','La Fontaine / No 4920','45.558406','-73.533660');
@@ -9111,7 +9111,7 @@ INSERT INTO "arrets_autobus_loc" VALUES('60938','De Cadillac / Ontario','45.5705
 INSERT INTO "arrets_autobus_loc" VALUES('60939','Pierre-de-Coubertin / de la Pépinière','45.576133','-73.537902');
 INSERT INTO "arrets_autobus_loc" VALUES('60940','de la Pépinière / de Marseille','45.577045','-73.540672');
 INSERT INTO "arrets_autobus_loc" VALUES('60941','de la Pépinière / No 3165','45.577728','-73.542762');
-INSERT INTO "arrets_autobus_loc" VALUES('60942','de Granby / Faribault','45.580802','-73.542831');
+INSERT INTO "arrets_autobus_loc" VALUES('60942','de Granby / Centre commercial Du Domaine','45.580802','-73.542831');
 INSERT INTO "arrets_autobus_loc" VALUES('60943','Arcand / Jean-Lecompte','45.584651','-73.539611');
 INSERT INTO "arrets_autobus_loc" VALUES('60944','Pierre-de-Coubertin / Émile-Legrand','45.584545','-73.532447');
 INSERT INTO "arrets_autobus_loc" VALUES('60945','Paul-David / Cléophée-Têtu','45.591617','-73.534805');
@@ -9368,3 +9368,6 @@ INSERT INTO "arrets_autobus_loc" VALUES('61262','Saint-Jean / Gare Cedar Park','
 INSERT INTO "arrets_autobus_loc" VALUES('61263','Station Angrignon / Terminus','45.446554','-73.604390');
 INSERT INTO "arrets_autobus_loc" VALUES('61268','Henri-Bourassa Est / No 3663','45.590981','-73.646849');
 INSERT INTO "arrets_autobus_loc" VALUES('61269','de la Commune / McGill','45.498691','-73.552779');
+INSERT INTO "arrets_autobus_loc" VALUES('61270','de Granby / Stationnement centre du Domaine','45.580968','-73.543051');
+INSERT INTO "arrets_autobus_loc" VALUES('61272','Saint-Denis / Roy','45.519270','-73.572414');
+INSERT INTO "arrets_autobus_loc" VALUES('61273','Rolland-Jeanneau / 89e Avenue','45.655629','-73.535075');

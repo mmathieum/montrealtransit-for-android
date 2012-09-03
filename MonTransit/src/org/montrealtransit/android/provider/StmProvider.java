@@ -402,7 +402,7 @@ public class StmProvider extends ContentProvider {
 	/**
 	 * Excluded bus lines.
 	 */
-	private static final String EXCLUDED_BUS_LINES = StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER + " NOT IN(767,769,777)";
+	private static final String EXCLUDED_BUS_LINES = StmDbHelper.T_BUS_LINES + "." + StmDbHelper.T_BUS_LINES_K_NUMBER + " NOT IN()";
 
 	private static final String SEARCH_SPLIT_ON = "[\\s\\W]";
 

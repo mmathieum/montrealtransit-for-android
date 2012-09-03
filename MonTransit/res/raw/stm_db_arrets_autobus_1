@@ -2464,7 +2464,7 @@ INSERT INTO "arrets_autobus" VALUES(52834,150,'15001O','René-Lévesque / de l''
 INSERT INTO "arrets_autobus" VALUES(52783,150,'15001O','René-Lévesque / Saint-Laurent','','',11);
 INSERT INTO "arrets_autobus" VALUES(52745,150,'15001O','René-Lévesque / Saint-Urbain','','',12);
 INSERT INTO "arrets_autobus" VALUES(52697,150,'15001O','René-Lévesque / Anderson','','',13);
-INSERT INTO "arrets_autobus" VALUES(52625,150,'15001O','René-Lévesque / Beaver Hall','','',14);
+INSERT INTO "arrets_autobus" VALUES(52625,150,'15001O','René-Lévesque / place du Frère-André','','',14);
 INSERT INTO "arrets_autobus" VALUES(52587,150,'15001O','René-Lévesque / University','','',15);
 INSERT INTO "arrets_autobus" VALUES(52529,150,'15001O','René-Lévesque / Mansfield','','',16);
 INSERT INTO "arrets_autobus" VALUES(52483,150,'15001O','René-Lévesque / Peel','','',17);
