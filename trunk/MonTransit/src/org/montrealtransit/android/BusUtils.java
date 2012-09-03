@@ -195,7 +195,7 @@ public class BusUtils {
 			case 439:
 				if (extraDirectionInfo.equals("AM")) {
 					results.add(R.string.am_route);
-				} else if (extraDirectionInfo.equals("TP")) {
+				} else if (extraDirectionInfo.equals("PM")) {
 					results.add(R.string.pm_route);
 				}
 				break;
