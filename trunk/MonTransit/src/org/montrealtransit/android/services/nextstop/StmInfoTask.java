@@ -66,20 +66,13 @@ public class StmInfoTask extends AbstractNextStopProvider {
 		String lineNumber = busStops[0].getLineNumber();
 		try {
 			publishProgress(context.getString(R.string.downloading_data_from_and_source, StmInfoTask.SOURCE_NAME));
-			String urlString = URL_PART_1_BEFORE_LANG;
-			if (Utils.getSupportedUserLocale().equals(Locale.FRENCH.toString())) {
-				urlString += "Fr";
-			} else {
-				urlString += "En";
-			}
-			urlString += URL_PART_2_BEFORE_BUS_STOP + stopCode;
-			URL url = new URL(urlString);
+			URL url = new URL(getUrlString(stopCode));
 			URLConnection urlc = url.openConnection();
 			MyLog.d(TAG, "URL created: '%s'", url.toString());
 			HttpURLConnection httpUrlConnection = (HttpURLConnection) urlc;
 			switch (httpUrlConnection.getResponseCode()) {
 			case HttpURLConnection.HTTP_OK:
-				String html = Utils.getInputStreamToString(urlc.getInputStream(), "iso-8859-1");
+				String html = Utils.getInputStreamToString(urlc.getInputStream(), "utf-8");
 				AnalyticsUtils.dispatch(context); // while we are connected, send the analytics data
 				publishProgress(this.context.getResources().getString(R.string.processing_data));
 				// FOR each bus line DO
@@ -94,17 +87,15 @@ public class StmInfoTask extends AbstractNextStopProvider {
 					errorMessage = this.context.getString(R.string.bus_stop_no_info_and_source, lineNumber, SOURCE_NAME);
 					publishProgress(errorMessage);
 					hours.put(lineNumber, new BusStopHours(SOURCE_NAME, errorMessage));
-					AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR,
-					        AnalyticsUtils.ACTION_BUS_STOP_REMOVED, busStops[0].getUID(), context.getPackageManager()
-					                .getPackageInfo(Constant.PKG, 0).versionCode);
+					AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BUS_STOP_REMOVED, busStops[0].getUID(), context
+							.getPackageManager().getPackageInfo(Constant.PKG, 0).versionCode);
 				}
 				return hours;
 			case HttpURLConnection.HTTP_INTERNAL_ERROR:
-				errorMessage = this.context.getString(R.string.error_http_500_and_source,
-				        this.context.getString(R.string.select_next_stop_data_source));
+				errorMessage = this.context.getString(R.string.error_http_500_and_source, this.context.getString(R.string.select_next_stop_data_source));
 			default:
-				MyLog.w(TAG, "ERROR: HTTP URL-Connection Response Code %s (Message: %s)",
-				        httpUrlConnection.getResponseCode(), httpUrlConnection.getResponseMessage());
+				MyLog.w(TAG, "ERROR: HTTP URL-Connection Response Code %s (Message: %s)", httpUrlConnection.getResponseCode(),
+						httpUrlConnection.getResponseMessage());
 				hours.put(lineNumber, new BusStopHours(SOURCE_NAME, errorMessage));
 				return hours;
 			}
@@ -127,10 +118,18 @@ public class StmInfoTask extends AbstractNextStopProvider {
 	}
 
 	/**
+	 * @param stopCode the bus stop code
+	 * @return the URL of the bus stop page on m.stm.info
+	 */
+	public String getUrlString(String stopCode) {
+		return new StringBuilder().append(URL_PART_1_BEFORE_LANG).append(Utils.getSupportedUserLocale().equals(Locale.FRENCH.toString()) ? "fr" : "en")
+				.append(URL_PART_2_BEFORE_BUS_STOP).append(stopCode).toString();
+	}
+
+	/**
 	 * The pattern to extract the bus line number from the HTML source.
 	 */
-	private static final Pattern PATTERN_REGEX_LINE_NUMBER = Pattern
-	        .compile("<td[^>]*>(<b[^>]*>)?([0-9]{1,3})(</b>)?</td>");
+	private static final Pattern PATTERN_REGEX_LINE_NUMBER = Pattern.compile("<td[^>]*>(<b[^>]*>)?([0-9]{1,3})(</b>)?</td>");
 
 	/**
 	 * @param html the HTML source
@@ -178,8 +177,7 @@ public class StmInfoTask extends AbstractNextStopProvider {
 			// find onClick message
 			Map<String, List<String>> onClickMessages = findOnClickMessages(interestingPart);
 			if (onClickMessages.size() > 0) {
-				if (onClickMessages.size() == 1
-				        && onClickMessages.values().iterator().next().size() == result.getSHours().size()) {
+				if (onClickMessages.size() == 1 && onClickMessages.values().iterator().next().size() == result.getSHours().size()) {
 					// only one message concerning all bus stops
 					result.addMessage2String(onClickMessages.keySet().iterator().next());
 				} else {
@@ -222,7 +220,7 @@ public class StmInfoTask extends AbstractNextStopProvider {
 	 * The pattern used to extract API error message from HTML code.
 	 */
 	private static final Pattern PATTERN_REGEX_ERROR_API = Pattern
-	        .compile("<div id=\"panErreurApi\">[\\s]*<span id=\"lblErreurApi\"[^>]*>(<b[^>]*>)?(<font[^>]*>)?(([^<])*)(</font>)?(</b>)?</span>");
+			.compile("<div id=\"panErreurApi\">[\\s]*<span id=\"lblErreurApi\"[^>]*>(<b[^>]*>)?(<font[^>]*>)?(([^<])*)(</font>)?(</b>)?</span>");
 
 	/**
 	 * Extract API error message from HTML code.
@@ -242,9 +240,8 @@ public class StmInfoTask extends AbstractNextStopProvider {
 	/**
 	 * The pattern used to extract stops message.
 	 */
-	private static final Pattern PATTERN_REGEX_ONCLICK_MESSAGE = Pattern
-	        .compile("<a href\\=javascript\\:void\\(0\\) onclick=\"" + "AfficherMessage\\('(([^'])*)'\\)"
-	                + "\">(([^<])*)</a>"); // "AfficherMessage\\('(([^'])*)'\\)");
+	private static final Pattern PATTERN_REGEX_ONCLICK_MESSAGE = Pattern.compile("<a href\\=javascript\\:void\\(0\\) onclick=\""
+			+ "AfficherMessage\\('(([^'])*)'\\)" + "\">(([^<])*)</a>"); // "AfficherMessage\\('(([^'])*)'\\)");
 
 	/**
 	 * Extract stops message from interesting part of HTML code.
@@ -271,9 +268,8 @@ public class StmInfoTask extends AbstractNextStopProvider {
 	/**
 	 * The pattern used for stop global message.
 	 */
-	private static final Pattern PATTERN_REGEX_NOTE_MESSAGE = Pattern.compile("<tr>[\\s]*"
-	        + "<td[^>]*>(<IMG[^>]*>)?[^<]*</td>" + "<td[^>]*>(<b[^>]*>)?[^<]*" + "(</b>)?</td>"
-	        + "<td[^>]*>(<b[^>]*>)?[^<]*(</b>)?</td>" + "<td[^>]*>(([^<])*)</td>[\\s]*</tr>");
+	private static final Pattern PATTERN_REGEX_NOTE_MESSAGE = Pattern.compile("<tr>[\\s]*" + "<td[^>]*>(<IMG[^>]*>)?[^<]*</td>" + "<td[^>]*>(<b[^>]*>)?[^<]*"
+			+ "(</b>)?</td>" + "<td[^>]*>(<b[^>]*>)?[^<]*(</b>)?</td>" + "<td[^>]*>(([^<])*)</td>[\\s]*</tr>");
 
 	/**
 	 * Find the global bus stop in the interesting part of HTML code.
@@ -299,9 +295,8 @@ public class StmInfoTask extends AbstractNextStopProvider {
 	private String getInterestingPart(String html, String lineNumber) {
 		MyLog.v(TAG, "getInterestingPart(%s, %s)", html.length(), lineNumber);
 		String result = null;
-		String regex = "<tr>[\\s]*" + "<td[^>]*>(<IMG[^>]*>)?[^<]*</td>" + "<td[^>]*>(<b[^>]*>)?" + lineNumber
-		        + "(</b>)?</td>" + "<td[^>]*>(<b[^>]*>)?[^<]*(</b>)?</td>" + "("
-		        + "<td[^>]*>[<a[^>]*>]?[^<]*[</a>]?[^<]*</td>" + "){0,6}[\\s]*</tr>";
+		String regex = "<tr>[\\s]*" + "<td[^>]*>(<IMG[^>]*>)?[^<]*</td>" + "<td[^>]*>(<b[^>]*>)?" + lineNumber + "(</b>)?</td>"
+				+ "<td[^>]*>(<b[^>]*>)?[^<]*(</b>)?</td>" + "(" + "<td[^>]*>[<a[^>]*>]?[^<]*[</a>]?[^<]*</td>" + "){0,6}[\\s]*</tr>";
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(html);
 		if (matcher.find()) {
