@@ -62,7 +62,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 		Map<String, BusStopHours> hours = new HashMap<String, BusStopHours>();
 		String errorMessage = this.context.getString(R.string.error); // set the default error message
 		if (busStops == null || busStops.length == 0 || busStops[0] == null) {
-			return null; //TODO return error message?
+			return null; // TODO return error message?
 		}
 		String stopCode = busStops[0].getCode();
 		String lineNumber = busStops[0].getLineNumber();
@@ -181,13 +181,8 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	 * @return the URL of the bus stop page on m.stm.info
 	 */
 	public static String getUrlString(String stopCode) {
-		String result = URL_PART_1_BEFORE_STOP_CODE + stopCode;
-		if (Utils.getUserLanguage().equals("fr")) {
-			result += URL_PART_2_BEFORE_LANG + "fr";
-		} else {
-			result += URL_PART_2_BEFORE_LANG + "en";
-		}
-		return result;
+		return new StringBuilder().append(URL_PART_1_BEFORE_STOP_CODE).append(stopCode).append(URL_PART_2_BEFORE_LANG)
+				.append(Utils.getUserLanguage().equals("fr") ? "fr" : "en").toString();
 	}
 
 	/**
