@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+    <!-- BUS LINEs -->
+    <TextView
+        android:id="@+id/bus_line"
+        style="?android:attr/listSeparatorTextViewStyle"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:focusable="false"
+        android:paddingLeft="5dp"
+        android:text="@string/lines" />
+    <include
+        android:id="@+id/bus_lines_loading"
+        android:layout_width="fill_parent"
+        android:layout_height="?android:attr/listPreferredItemHeight"
+        layout="@layout/loading_small_layout" />
+    <HorizontalScrollView
+        android:id="@+id/bus_lines"
+        android:layout_width="fill_parent"
+        android:layout_height="?android:attr/listPreferredItemHeight"
+        android:visibility="gone" >
+        <LinearLayout
+            android:id="@+id/bus_line_list"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:gravity="bottom"
+            android:orientation="horizontal"
+            android:padding="2dip" />
+    </HorizontalScrollView>
+    <!-- CLOSEST BUS STOPs -->
+    <include layout="@layout/bus_tab_closest_stops_title" />
+    <ViewStub
+        android:id="@+id/closest_stops_loading_stub"
+        android:layout_width="fill_parent"
+        android:layout_height="?android:attr/listPreferredItemHeight"
+        android:inflatedId="@+id/closest_stops_loading"
+        android:layout="@layout/loading_layout" />
+    <ViewStub
+        android:id="@+id/closest_stops_stub"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout="@layout/bus_tab_closest_stops" />
+</LinearLayout>

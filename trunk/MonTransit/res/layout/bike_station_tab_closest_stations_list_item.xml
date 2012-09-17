@@ -3,7 +3,7 @@
     android:layout_width="fill_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:background="@android:drawable/list_selector_background"
-    android:clipChildren="false" >
+    android:clipChildren="false">
     <!-- FAVORITE IMG -->
     <ImageView
         android:id="@+id/fav_img"

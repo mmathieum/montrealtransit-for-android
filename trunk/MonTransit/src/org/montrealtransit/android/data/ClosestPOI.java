@@ -27,11 +27,13 @@ public class ClosestPOI<T> {
 	 * The location address.
 	 */
 	private Address locationAddress;
-	
+	/**
+	 * The error message.
+	 */
 	private String errorMessage;
 
 	/**
-	 * The default constructor.
+	 * Default constructor.
 	 */
 	public ClosestPOI() {
 	}
@@ -46,7 +48,10 @@ public class ClosestPOI<T> {
 		this.location = location;
 		this.locationAddress = LocationUtils.getLocationAddress(context, this.location);
 	}
-	
+
+	/**
+	 * @param location the new location
+	 */
 	public void setLocation(Location location) {
 		this.location = location;
 	}
@@ -60,14 +65,21 @@ public class ClosestPOI<T> {
 		}
 		return this.poiList;
 	}
-	
+
 	/**
 	 * @return the Point Of Interest list or null
 	 */
 	public List<T> getPoiListOrNull() {
 		return this.poiList;
 	}
-	
+
+	/**
+	 * @return the Point Of Interest list size (null-safe)
+	 */
+	public int getPoiListSize() {
+		return this.poiList == null ? 0 : this.poiList.size();
+	}
+
 	/**
 	 * @param poiList the new Point Of Interest list
 	 */
@@ -88,11 +100,17 @@ public class ClosestPOI<T> {
 	public Address getLocationAddress() {
 		return this.locationAddress;
 	}
-	
+
+	/**
+	 * @param errorMessage the new error message
+	 */
 	public void setErrorMessage(String errorMessage) {
 		this.errorMessage = errorMessage;
 	}
-	
+
+	/**
+	 * @return the error message
+	 */
 	public String getErrorMessage() {
 		return errorMessage;
 	}

@@ -1,7 +1,9 @@
 package org.montrealtransit.android.provider;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.data.Pair;
@@ -12,6 +14,7 @@ import org.montrealtransit.android.provider.StmStore.SubwayStation;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.database.Cursor;
+import android.location.Location;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
@@ -48,9 +51,13 @@ public class StmManager {
 	/**
 	 * Represents the fields the content provider will return for an extended bus stop (including bus line info).
 	 */
-	private static final String[] PROJECTION_BUS_STOP_EXTENDED = new String[] { StmStore.BusStop._ID, StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE,
-			StmStore.BusStop.STOP_DIRECTION_ID, StmStore.BusStop.STOP_LINE_NUMBER, StmStore.BusStop.LINE_NAME, StmStore.BusStop.LINE_TYPE,
-			StmStore.BusStop.STOP_SUBWAY_STATION_ID };
+	private static final String[] PROJECTION_BUS_STOP_EXTENDED = new String[] { "uid", StmStore.BusStop._ID, StmStore.BusStop.STOP_CODE,
+			StmStore.BusStop.STOP_PLACE, StmStore.BusStop.STOP_DIRECTION_ID, StmStore.BusStop.STOP_LINE_NUMBER, StmStore.BusStop.LINE_NAME,
+			StmStore.BusStop.LINE_TYPE, StmStore.BusStop.STOP_SUBWAY_STATION_ID };
+
+	private static final String[] PROJECTION_BUS_STOP_EXTENDED_W_LOC = new String[] { StmStore.BusStop._ID, StmStore.BusStop.STOP_CODE,
+			StmStore.BusStop.STOP_PLACE, StmStore.BusStop.STOP_DIRECTION_ID, StmStore.BusStop.STOP_LINE_NUMBER, StmStore.BusStop.LINE_NAME,
+			StmStore.BusStop.LINE_TYPE, StmStore.BusStop.STOP_SUBWAY_STATION_ID, StmStore.BusStop.STOP_LOCATION_LAT, StmStore.BusStop.STOP_LOCATION_LNG };
 
 	/**
 	 * Represents the fields the content provider will return for an extended bus stop (including subway station name).
@@ -206,20 +213,57 @@ public class StmManager {
 	 */
 	public static StmStore.BusStop findBusStopExt(ContentResolver contentResolver, Uri uri) {
 		MyLog.v(TAG, "findBusStopExt(%s)", uri.getPath());
-		StmStore.BusStop busStop = null;
 		Cursor cursor = null;
 		try {
 			cursor = contentResolver.query(uri, PROJECTION_BUS_STOP_W_LOC_AND_SUBWAY_STATION, null, null, null);
 			if (cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
-					busStop = StmStore.BusStop.fromCursor(cursor);
+					return StmStore.BusStop.fromCursor(cursor);
 				}
 			}
+			return null;
 		} finally {
 			if (cursor != null)
 				cursor.close();
 		}
-		return busStop;
+	}
+
+	/**
+	 * Find an extended bus stop matching the bus stop code and the bus line number.
+	 * @see {@link StmManager#findBusStop(ContentResolver, Uri)}
+	 * @param contentResolver the content resolver
+	 * @param busStopCode the bus stop code
+	 * @param busLineNumber the bus line number
+	 * @return an extended bus stop
+	 */
+	public static StmStore.BusStop findBusLineStopExt2(ContentResolver contentResolver, String busStopCode, String busLineNumber) {
+		Uri busLineUri = Uri.withAppendedPath(StmStore.BusLine.CONTENT_URI, busLineNumber);
+		Uri busLineStopsUri = Uri.withAppendedPath(busLineUri, StmStore.BusLine.BusStops.CONTENT_DIRECTORY);
+		Uri busLineStopUri = Uri.withAppendedPath(busLineStopsUri, busStopCode);
+		return findBusStopExt2(contentResolver, busLineStopUri);
+	}
+
+	/**
+	 * Find a bus line stop.
+	 * @param contentResolver the content resolver.
+	 * @param uri the content URI
+	 * @return the bus stop
+	 */
+	public static StmStore.BusStop findBusStopExt2(ContentResolver contentResolver, Uri uri) {
+		MyLog.v(TAG, "findBusStopExt(%s)", uri.getPath());
+		Cursor cursor = null;
+		try {
+			cursor = contentResolver.query(uri, PROJECTION_BUS_STOP_EXTENDED, null, null, null);
+			if (cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
+					return StmStore.BusStop.fromCursor(cursor);
+				}
+			}
+			return null;
+		} finally {
+			if (cursor != null)
+				cursor.close();
+		}
 	}
 
 	/**
@@ -403,20 +447,19 @@ public class StmManager {
 		List<StmStore.BusStop> result = null;
 		Cursor c = null;
 		try {
+			MyLog.d(TAG, "finding bus stops...");
 			c = findBusStopsExtended(contentResolver, busStopIdsString);
+			MyLog.d(TAG, "finding bus stops... DONE");
+			MyLog.d(TAG, "generating result...");
 			if (c.getCount() > 0) {
 				if (c.moveToFirst()) {
 					result = new ArrayList<StmStore.BusStop>();
+					Set<String> uids = new HashSet<String>();
 					do {
 						BusStop newBusStop = StmStore.BusStop.fromCursor(c);
-						boolean alreadyInTheList = false;
-						for (BusStop busStop : result) {
-							if (busStop.getCode().equals(newBusStop.getCode()) && busStop.getLineNumber().equals(newBusStop.getLineNumber())) {
-								alreadyInTheList = true;
-							}
-						}
-						if (!alreadyInTheList) {
+						if (!uids.contains(newBusStop.getUID())) {
 							result.add(newBusStop);
+							uids.add(newBusStop.getUID());
 						}
 					} while (c.moveToNext());
 				} else {
@@ -425,6 +468,7 @@ public class StmManager {
 			} else {
 				MyLog.w(TAG, "No result found for bus stops '%s'", busStopIdsString);
 			}
+			MyLog.d(TAG, "generating result...DONE");
 		} finally {
 			if (c != null)
 				c.close();
@@ -1004,7 +1048,8 @@ public class StmManager {
 	 * @return the bus line numbers or empty list
 	 */
 	public static List<String> findAllBusLinesNumbersList(ContentResolver contentResolver) {
-		List<String> result = new ArrayList<String>();;
+		List<String> result = new ArrayList<String>();
+		;
 		Cursor c = null;
 		try {
 			c = findAllBusLinesNumbers(contentResolver);
@@ -1317,6 +1362,75 @@ public class StmManager {
 			if (c.getCount() > 0) {
 				if (c.moveToFirst()) {
 					result = c.getString(c.getColumnIndexOrThrow(StmStore.FREQUENCY));
+				}
+			}
+		} finally {
+			if (c != null)
+				c.close();
+		}
+		return result;
+	}
+
+	/**
+	 * @param contentResolver content resolver
+	 * @return all bus stops w/ location
+	 */
+	public static Cursor findAllBusStopLocation(ContentResolver contentResolver) {
+		MyLog.v(TAG, "findAllBusStopLocation()");
+		return contentResolver.query(StmStore.BusStop.CONTENT_URI_LOC, PROJECTION_BUS_STOP_EXTENDED_W_LOC, null, null, StmStore.BusStop.ORDER_BY_CODE);
+	}
+
+	/**
+	 * @param contentResolver content resolver
+	 * @return all bus stops w/ location list
+	 */
+	public static List<StmStore.BusStop> findAllBusStopLocationList(ContentResolver contentResolver) {
+		List<StmStore.BusStop> result = null;
+		Cursor c = null;
+		try {
+			c = findAllBusStopLocation(contentResolver);
+			if (c.getCount() > 0) {
+				if (c.moveToFirst()) {
+					result = new ArrayList<StmStore.BusStop>();
+					do {
+						result.add(StmStore.BusStop.fromCursor(c));
+					} while (c.moveToNext());
+				}
+			}
+		} finally {
+			if (c != null)
+				c.close();
+		}
+		return result;
+	}
+
+	/**
+	 * @param contentResolver content resolver
+	 * @param location the location
+	 * @return all bus stops w/ location close to a location
+	 */
+	public static Cursor findAllBusStopLocation(ContentResolver contentResolver, Location location) {
+		MyLog.v(TAG, "findAllBusStopLocation()");
+		return contentResolver.query(Uri.withAppendedPath(StmStore.BusStop.CONTENT_URI_LOC, location.getLatitude() + "+" + location.getLongitude()),
+				PROJECTION_BUS_STOP_EXTENDED_W_LOC, null, null, StmStore.BusStop.ORDER_BY_CODE);
+	}
+
+	/**
+	 * @param contentResolver content resolver
+	 * @param location the location
+	 * @return all bus stops w/ location list close to a location
+	 */
+	public static List<StmStore.BusStop> findAllBusStopLocationList(ContentResolver contentResolver, Location location) {
+		List<StmStore.BusStop> result = null;
+		Cursor c = null;
+		try {
+			c = findAllBusStopLocation(contentResolver, location);
+			if (c.getCount() > 0) {
+				if (c.moveToFirst()) {
+					result = new ArrayList<StmStore.BusStop>();
+					do {
+						result.add(StmStore.BusStop.fromCursor(c));
+					} while (c.moveToNext());
 				}
 			}
 		} finally {

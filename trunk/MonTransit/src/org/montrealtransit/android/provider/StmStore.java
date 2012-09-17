@@ -313,6 +313,10 @@ public class StmStore {
 		 */
 		public static final Uri CONTENT_URI_SEARCH = Uri.parse("content://" + AUTHORITY + "/busstopssearch");
 		/**
+		 * The content URI for the location.
+		 */
+		public static final Uri CONTENT_URI_LOC = Uri.parse("content://" + AUTHORITY + "/busstopsloc");
+		/**
 		 * The MIME type of {@link #CONTENT_URI} providing a directory of bus stops.
 		 */
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd." + AUTHORITY + ".provider.busstops";
@@ -450,11 +454,10 @@ public class StmStore {
 		 */
 		public static String getCodeFromUID(String uid) {
 			String[] split = uid.split(UID_SEPARATOR);
-			if (split.length >= 0) {
-				return split[0];
-			} else {
+			if (split.length < 0) {
 				return null;
 			}
+			return split[0];
 		}
 
 		/**
@@ -462,11 +465,10 @@ public class StmStore {
 		 */
 		public static String getLineNumberFromUID(String uid) {
 			String[] split = uid.split(UID_SEPARATOR);
-			if (split.length >= 1) {
-				return split[1];
-			} else {
+			if (split.length < 1) {
 				return null;
 			}
+			return split[1];
 		}
 
 		/**
@@ -502,6 +504,13 @@ public class StmStore {
 		 */
 		public String getLineNameOrNull() {
 			return lineName;
+		}
+
+		/**
+		 * @param the new line name
+		 */
+		public void setLineName(String lineName) {
+			this.lineName = lineName;
 		}
 
 		/**

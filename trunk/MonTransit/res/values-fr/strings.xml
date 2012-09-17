@@ -38,6 +38,7 @@
     <string name="no_bus_line">Aucune ligne de bus !</string>
     <string name="no_subway_line">Aucune ligne de métro !</string>
     <string name="line">Ligne</string>
+    <string name="lines">Lignes</string>
     <string name="green_line">Ligne Verte</string>
     <string name="green_line_short">Verte</string>
 	<string name="orange_line">Ligne Orange</string>
@@ -56,6 +57,8 @@
 	<string name="next_bus_stops_message_auto">MonTransit récupére les horaires des prochains passages en temps réel depuis la meilleure source disponible.</string>
 	<string name="next_bus_stops_note">%1$s : %2$s</string>
 	<string name="other_bus_line">Autre(s) Ligne(s) de Bus</string>
+	<string name="closest_bus_stops">Arrêts proches</string>
+	<string name="closest_bus_stops_error">Erreur pendant la recherche des arêts proches.</string>
 	<string name="subway_station">Station de Métro</string>
 	<string name="subway_station_short">Station</string>
 	<string name="subway_station_with_name_short">Station %1$s</string>
@@ -220,7 +223,9 @@
 	<string name="no_more_stops_for_this_bus_line">Pas de service pour la ligne de bus %s.</string>
     
     <string name="view_bus_stop">Afficher l\'arrêt</string>
+    <string name="view_bus_stop_line">Afficher la ligne</string>
 	<string name="view_subway_station">Afficher la station</string>
+	<string name="view_subway_station_line">Afficher la ligne</string>
 	<string name="view_bike_station">Afficher la station</string>
     <string name="view_fav">Afficher le favori</string>
     <string name="remove_fav">Supprimer des favoris</string>
@@ -237,6 +242,7 @@
     <string name="processing_data">Traitement des données</string>
     <string name="processing">Traitement &#8230;</string>
     <string name="please_wait">Veuillez patienter &#8230;</string>
+    <string name="please_wait_for_and_seconds">Veuillez patienter pendant %s secondes&#8230;</string>
     <string name="ellipsis">&#160;</string>
     <string name="colon">&#160;:&#160;</string>
     <string name="error">Erreur</string>

@@ -269,27 +269,28 @@ public class LocationUtils {
 	 * @param accuracy the accuracy
 	 * @return the location string
 	 */
-	public static String getLocationString(Context context, Address locationAddress, Float accuracy) {
+	public static String getLocationString(Context context, int stringId, Address locationAddress, Float accuracy) {
 		MyLog.v(TAG, "getLocationString()");
-		String text = context.getString(R.string.closest_subway_stations);
+		StringBuilder sb = new StringBuilder();
+		sb.append(context.getString(stringId));
 		if (locationAddress != null) {
-			text += " (";
+			sb.append(" (");
 			if (locationAddress.getAddressLine(0) != null) {
 				// first line of the address (1234, street name)
-				text += locationAddress.getAddressLine(0);
+				sb.append(locationAddress.getAddressLine(0));
 			} else if (locationAddress.getThoroughfare() != null) {
 				// street name only
-				text += locationAddress.getThoroughfare();
+				sb.append(locationAddress.getThoroughfare());
 			} else if (locationAddress.getLocality() != null) {
 				// city
-				text += ", " + locationAddress.getLocality();
+				sb.append(", ").append(locationAddress.getLocality());
 			}
 			if (accuracy != null) {
-				text += " ± " + Utils.getDistanceStringUsingPref(context, accuracy, 0);
+				sb.append(" ± ").append(Utils.getDistanceStringUsingPref(context, accuracy, 0));
 			}
-			text += ")";
+			sb.append(")");
 		}
-		// MyLog.d(TAG, "text: " + text);
-		return text;
+		// MyLog.d(TAG, "text: " + sb.toString();
+		return sb.toString();
 	}
 }

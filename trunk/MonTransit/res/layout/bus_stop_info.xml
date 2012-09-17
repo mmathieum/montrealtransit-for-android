@@ -15,7 +15,7 @@
         <RelativeLayout
             android:id="@+id/banner"
             android:layout_width="fill_parent"
-            android:layout_height="85dip"
+            android:layout_height="?android:attr/listPreferredItemHeight"
             android:background="@android:drawable/title_bar"
             android:gravity="fill_horizontal"
             android:orientation="horizontal"
@@ -23,88 +23,87 @@
             android:paddingLeft="0dip"
             android:paddingRight="5dip"
             android:paddingTop="0dip" >
-            <!-- BUS STOP CODE -->
-            <TextView
-                android:id="@+id/stop_code"
-                android:layout_width="77dip"
-                android:layout_height="wrap_content"
+            <!-- BUS LINE -->
+            <LinearLayout
+                android:id="@+id/line"
+                android:layout_width="wrap_content"
+                android:layout_height="fill_parent"
                 android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
-                android:gravity="center_horizontal"
-                android:padding="1dip"
-                android:singleLine="true"
-                android:text="@string/ellipsis"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textStyle="bold" />
+                android:orientation="vertical"
+                android:paddingRight="5dip" >
+                <!-- BUS LINE NUMBER -->
+                <TextView
+                    android:id="@+id/line_number"
+                    style="@style/BusLineNumber"
+                    android:layout_width="66dip"
+                    android:layout_height="44dip"
+                    android:textSize="33dip"
+                    android:background="#FFFF0000"
+                    android:text="@string/default_line_number" />
+                <!-- BUS LINE DIRECTION -->
+                <TextView
+                    android:id="@+id/line_direction"
+                    android:layout_width="66dip"
+                    android:layout_height="fill_parent"
+                    android:background="#000000"
+                    android:ellipsize="end"
+                    android:gravity="center_horizontal"
+                    android:singleLine="true"
+                    android:text="@string/ellipsis"
+                    android:textAllCaps="true"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+            </LinearLayout>
             <!-- FAVORITE ICON -->
-            <CheckBox
+             <CheckBox
                 android:id="@+id/star"
                 style="?android:attr/starStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginLeft="3dip"
+               	android:layout_centerVertical="true"
                 android:onClick="addOrRemoveFavorite" />
             <!-- BUS STOP PLACE -->
             <TextView
                 android:id="@+id/bus_stop_place"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignBaseline="@id/stop_code"
-                android:layout_toLeftOf="@id/star"
-                android:layout_toRightOf="@id/stop_code"
-                android:ellipsize="marquee"
+                android:layout_toRightOf="@id/line"
+               	android:layout_toLeftOf="@id/star"
+                android:paddingTop="10dip"
+                android:ellipsize="end"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:gravity="center_vertical|left"
                 android:singleLine="true"
                 android:text="@string/ellipsis"
+                android:textStyle="bold"
                 android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="@color/nofocustext"
-                android:textStyle="bold" />
-            <!-- BUS LINE NUMBER -->
+                android:textColor="@color/nofocustext" />
+            <!-- BUS STOP CODE -->
             <TextView
-                android:id="@+id/line_number"
-                style="@style/BusLineNumber"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentLeft="true"
-                android:layout_below="@id/stop_code"
-                android:layout_marginLeft="0dip"
-                android:layout_marginRight="5dip" />
-            <!-- android:text="@string/ellipsis" android:background="#000000" -->
-            <!-- BUS LINE TYPE -->
-            <ImageView
-                android:id="@+id/line_type"
+                android:id="@+id/stop_code"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_alignTop="@id/line_number"
-                android:layout_marginLeft="3dip"
-                android:paddingBottom="5dip" />
-            <!-- android:src="@drawable/bus_type_soleil" -->
-            <!-- BUS LINE NAME -->
-            <TextView
-                android:id="@+id/line_name"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignTop="@id/line_number"
-                android:layout_toLeftOf="@id/line_type"
-                android:layout_toRightOf="@id/line_number"
-                android:ellipsize="marquee"
-                android:focusable="true"
-                android:gravity="center_vertical|left"
+                android:layout_alignLeft="@+id/bus_stop_place"
+       			android:layout_below="@+id/bus_stop_place"
+                android:layout_toRightOf="@+id/line"
+                android:padding="0dip"
                 android:singleLine="true"
-                android:text="@string/ellipsis"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:text="@string/default_bus_stop_code"
+                android:textColor="#FFFFFF"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textStyle="bold" />
             <!-- DISTANCE -->
             <TextView
                 android:id="@+id/distance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
+                android:layout_below="@id/bus_stop_place"
+                android:layout_toLeftOf="@id/star"
+                android:layout_alignParentBottom="true"
                 android:layout_alignWithParentIfMissing="true"
-                android:layout_below="@id/line_name"
                 android:text="@string/ellipsis"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:visibility="gone" />
@@ -114,25 +113,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@id/distance"
+                android:layout_toLeftOf="@id/distance"
+                android:layout_below="@id/bus_stop_place"
                 android:layout_alignWithParentIfMissing="true"
+                android:layout_marginBottom="3dip"
                 android:layout_marginLeft="5dip"
                 android:layout_marginRight="3dip"
-                android:layout_marginBottom="3dip"
-                android:layout_toLeftOf="@id/distance"
                 android:scaleType="matrix"
                 android:src="@drawable/heading_arrow_light"
                 android:visibility="gone" />
-            <!-- DIRECTION LINE -->
-            <TextView
-                android:id="@+id/direction_main"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignWithParentIfMissing="true"
-                android:layout_below="@id/line_name"
-                android:layout_toLeftOf="@id/compass"
-                android:layout_toRightOf="@id/line_number"
-                android:text="@string/ellipsis"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
         </RelativeLayout>
         <ScrollView
             android:layout_width="fill_parent"
@@ -248,7 +237,7 @@
                     android:padding="5dip"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:visibility="gone" />
-                <!-- OTHER BUS LINE -->
+                <!-- OTHER BUS LINEs -->
                 <RelativeLayout
                     android:id="@+id/other_bus_line"
                     android:layout_width="fill_parent"

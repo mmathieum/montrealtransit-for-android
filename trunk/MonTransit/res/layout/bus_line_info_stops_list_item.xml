@@ -95,7 +95,7 @@
         android:layout_marginTop="-5dip"
         android:layout_toLeftOf="@id/distance"
         android:paddingLeft="5dip"
-        android:text="@string/ellipsis"
+        android:text="@string/default_bus_stop_code"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textStyle="bold" />
 </RelativeLayout>

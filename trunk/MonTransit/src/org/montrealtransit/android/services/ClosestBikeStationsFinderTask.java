@@ -89,7 +89,7 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 							+ BIKE_STATION_LIST_TOO_OLD_IN_SEC) {
 				publishProgress(this.context.getString(R.string.downloading_data_from_and_source, BixiDataReader.SOURCE));
 				// look for new data
-				bikeStations = BixiDataReader.doInForeground(this.context, this, true, null);
+				bikeStations = BixiDataReader.doInForeground(this.context, this, true, null, 0);
 				removeNotInstalled(bikeStations);
 			} else {
 				publishProgress(this.context.getString(R.string.processing));
@@ -141,6 +141,7 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 			astation.setDistance(currentLocation.distanceTo(bikeStation.getLocation()));
 			aresult.add(astation);
 		}
+		// sort the bike stations
 		sortBikeStations(aresult);
 		if (maxResult > 0) {
 			maxResult = aresult.size() < maxResult ? aresult.size() : maxResult; // use size if max result too big

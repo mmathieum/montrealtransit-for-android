@@ -25,6 +25,31 @@ public class ABusStop extends BusStop {
 	private Matrix compassMatrix;
 
 	/**
+	 * Default constructor.
+	 */
+	public ABusStop() {
+	}
+
+	/**
+	 * A constructor initializing the properties with a {@link BusStop} object.
+	 * @param busStop {@link BusStop} object.
+	 */
+	public ABusStop(BusStop busStop) {
+		setCode(busStop.getCode());
+		setDirectionId(busStop.getDirectionId());
+		setPlace(busStop.getPlace());
+		setSubwayStationId(busStop.getSubwayStationId());
+		setSubwayStationName(busStop.getSubwayStationNameOrNull());
+		setSubwayStationLat(busStop.getSubwayStationLatOrNull());
+		setSubwayStationLng(busStop.getSubwayStationLngOrNull());
+		setLineNumber(busStop.getLineNumber());
+		setLineName(busStop.getLineNameOrNull());
+		setLineType(busStop.getLineTypeOrNull());
+		setLat(busStop.getLat());
+		setLng(busStop.getLng());
+	}
+
+	/**
 	 * @param distanceString the new distance string
 	 */
 	public void setDistanceString(String distanceString) {

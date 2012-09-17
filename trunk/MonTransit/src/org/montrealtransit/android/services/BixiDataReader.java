@@ -5,12 +5,19 @@ import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.SSLSession;
+import java.security.cert.X509Certificate;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -89,7 +96,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 	protected List<BikeStation> doInBackground(String... bikeStationTerminalNames) {
 		MyLog.v(TAG, "doInBackground()");
 		List<BikeStation> updatedBikeStations = BixiDataReader.doInForeground(this.context, this.from, this.forceDBUpdate,
-				Arrays.asList(bikeStationTerminalNames));
+				Arrays.asList(bikeStationTerminalNames), 0);
 		// IF no result OR no specific bike station to return DO
 		if (updatedBikeStations == null || bikeStationTerminalNames == null || bikeStationTerminalNames.length == 0) {
 			// just return all (or none!)
@@ -112,16 +119,21 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 	}
 
 	/**
+	 * The maximum number of retries for loading data.
+	 */
+	private static final int MAX_RETRY = 1;
+
+	/**
 	 * Synchronous {@link #doInBackground(String...)} for access from another {@link AsyncTask}.
 	 */
 	public static List<BikeStation> doInForeground(Context context, BixiDataReaderListener from, final boolean forceDBUpdate,
-			final List<String> forceDBUpdateTerminalNames) {
+			final List<String> forceDBUpdateTerminalNames, int tried) {
 		// MyLog.v(TAG, "doInForeground(%s,%s)", forceDBUpdate, Utils.getCollectionSize(forceDBUpdateTerminalNames));
 		try {
 			URL url = new URL(XML_SOURCE);
 			URLConnection urlc = url.openConnection();
-			HttpsURLConnection httpUrlConnection = (HttpsURLConnection) urlc;
-			switch (httpUrlConnection.getResponseCode()) {
+			HttpsURLConnection httpsUrlConnection = (HttpsURLConnection) urlc;
+			switch (httpsUrlConnection.getResponseCode()) {
 			case HttpURLConnection.HTTP_OK:
 				publishProgress(from, context.getString(R.string.downloading_data_from_and_source, BixiDataReader.SOURCE));
 				AnalyticsUtils.dispatch(context); // while we are connected, send the analytics data
@@ -140,20 +152,32 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 				updateDatabaseAll(context, handler.getBikeStations(), forceDBUpdate);
 				// save new last update
 				UserPreferences.savePrefLcl(context, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, handler.getLastUpdate());
+				if (tried > 0) { // didn't work on 1st try but worked on retry
+					AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BIXI_DATA_LOADING_FAIL, "Success after X retry.",
+							tried);
+				}
 				return handler.getBikeStations();
 			default:
-				MyLog.w(TAG, "ERROR: HTTP URL-Connection Response Code %s (Message: %s)", httpUrlConnection.getResponseCode(),
-						httpUrlConnection.getResponseMessage());
+				MyLog.w(TAG, "ERROR: HTTP URL-Connection Response Code %s (Message: %s)", httpsUrlConnection.getResponseCode(),
+						httpsUrlConnection.getResponseMessage());
 				publishProgress(from, context.getString(R.string.error));
 				AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BIXI_DATA_LOADING_FAIL,
-						httpUrlConnection.getResponseMessage(), httpUrlConnection.getResponseCode());
-				return null;
+						tried + httpsUrlConnection.getResponseMessage(), httpsUrlConnection.getResponseCode());
+				if (tried < MAX_RETRY) {
+					return doInForeground(context, from, forceDBUpdate, forceDBUpdateTerminalNames, ++tried);
+				} else {
+					return null;
+				}
 			}
 		} catch (SSLHandshakeException sslhe) {
 			MyLog.w(TAG, sslhe, "SSL error!");
 			publishProgress(from, context.getString(R.string.error_ssl_and_url, SOURCE));
-			AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BIXI_DATA_LOADING_FAIL, sslhe.getMessage(), 0);
-			return null;
+			AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BIXI_DATA_LOADING_FAIL, tried + sslhe.getMessage(), 0);
+			if (tried < MAX_RETRY) {
+				return doInForeground(context, from, forceDBUpdate, forceDBUpdateTerminalNames, ++tried);
+			} else {
+				return null;
+			}
 		} catch (UnknownHostException uhe) {
 			if (MyLog.isLoggable(Log.DEBUG)) {
 				MyLog.w(TAG, uhe, "No Internet Connection!");
@@ -172,6 +196,40 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 			publishProgress(from, context.getString(R.string.error));
 			AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BIXI_DATA_LOADING_FAIL, e.getMessage(), 0);
 			return null;
+		}
+	}
+
+	/**
+	 * Disable SSL certificate validation. WARNING: security issue!
+	 */
+	public static void disableCertificateValidation() {
+		// create a trust manager that does not validate certificate chains
+		TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+			public X509Certificate[] getAcceptedIssuers() {
+				return new X509Certificate[0];
+			}
+
+			public void checkClientTrusted(X509Certificate[] certs, String authType) {
+				// do nothing
+			}
+
+			public void checkServerTrusted(X509Certificate[] certs, String authType) {
+				// do nothing
+			}
+		} };
+		// ignore differences between given host-name and certificate host-name
+		HostnameVerifier hv = new HostnameVerifier() {
+			public boolean verify(String hostname, SSLSession session) {
+				return true;
+			}
+		};
+		// install the all-trusting trust manager
+		try {
+			SSLContext sc = SSLContext.getInstance("SSL");
+			sc.init(null, trustAllCerts, new SecureRandom());
+			HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+			HttpsURLConnection.setDefaultHostnameVerifier(hv);
+		} catch (Exception e) {
 		}
 	}
 

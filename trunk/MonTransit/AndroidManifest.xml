@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="org.montrealtransit.android" android:versionName="1.6.3.8"
+	package="org.montrealtransit.android" android:versionName="1.7 PREVIEW"
 	android:versionCode="662" android:installLocation="auto">
 
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -8,7 +8,7 @@
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /><!-- required for Google Analytics & Google AdMob -->
 	<uses-permission android:name="android.permission.NFC" /><!-- required for Android Beam -->
-	<!-- TraceView uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /-->
+	<!-- TraceView <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/> /-->
 	<!-- mock location dev uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" /-->
 	<uses-sdk android:minSdkVersion="3" android:targetSdkVersion="10" />
 	<supports-screens
@@ -55,8 +55,8 @@
 		<!-- 4 TABs -->
 		<activity android:name=".activity.FavListTab" />
 		<activity android:name=".activity.BusStopCodeTab" />
-		<activity android:name=".activity.BusLineListTab" />
-		<activity android:name=".activity.SubwayTab" />
+		<activity android:name=".activity.BusTab" android:configChanges="orientation|keyboardHidden" />
+		<activity android:name=".activity.SubwayTab" android:configChanges="orientation|keyboardHidden" />
 		<activity android:name=".activity.BikeTab" />
 		<!-- BUS LINE INFO -->
 		<activity android:name=".activity.BusLineInfo"
