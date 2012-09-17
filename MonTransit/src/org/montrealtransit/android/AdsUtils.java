@@ -53,8 +53,8 @@ public class AdsUtils {
 	/**
 	 * Ads keywords.
 	 */
-	private static final Set<String> KEYWORDS = new HashSet<String>(Arrays.asList(new String[] { "montreal", "transit",
-	        "STM", "bus", "subway", "metro", "taxi", "quebec", "canada" }));
+	private static final Set<String> KEYWORDS = new HashSet<String>(Arrays.asList(new String[] { "montreal", "transit", "STM", "bus", "subway", "metro",
+			"taxi", "quebec", "canada" }));
 
 	/**
 	 * The donate apps package name.
@@ -163,8 +163,7 @@ public class AdsUtils {
 			// IF the user is generous DO
 			if (isGenerousUser(context)) {
 				// the user has the right to choose not to display ads
-				AdsUtils.showingAds = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_ADS,
-				        UserPreferences.PREFS_ADS_DEFAULT);
+				AdsUtils.showingAds = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_ADS, UserPreferences.PREFS_ADS_DEFAULT);
 			} else {
 				AdsUtils.showingAds = true;
 				UserPreferences.savePrefDefault(context, UserPreferences.PREFS_ADS, AdsUtils.showingAds);

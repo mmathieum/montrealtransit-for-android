@@ -106,16 +106,17 @@ public class FavListTab extends Activity {
 			@Override
 			protected Void doInBackground(Void... params) {
 				// MyLog.v(TAG, "doInBackground()");
+				// BUS STOPs
 				this.newBusStopFavList = DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
 				if (FavListTab.this.currentBusStopFavList == null || !Fav.listEquals(FavListTab.this.currentBusStopFavList, this.newBusStopFavList)) {
 					MyLog.d(TAG, "Loading bus stop favorites from DB...");
 					if (Utils.getCollectionSize(this.newBusStopFavList) > 0) {
-						this.busStopsExtendedList = StmManager.findBusStopsExtendedList(FavListTab.this.getContentResolver(),
+						this.busStopsExtendedList = StmManager.findBusStopsExtendedList(getContentResolver(),
 								Utils.extractBusStopIDsFromFavList(this.newBusStopFavList));
 					}
 					MyLog.d(TAG, "Loading bus stop favorites from DB... DONE");
 				}
-
+				// SUBWAY STATIONs
 				this.newSubwayFavList = DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
 				if (FavListTab.this.currentSubwayStationFavList == null || !Fav.listEquals(FavListTab.this.currentSubwayStationFavList, this.newSubwayFavList)) {
 					MyLog.d(TAG, "Loading subway station favorites from DB...");
@@ -130,7 +131,7 @@ public class FavListTab extends Activity {
 					}
 					MyLog.d(TAG, "Loading subway station favorites from DB... DONE");
 				}
-
+				// BIKE STATIONs
 				List<Fav> bikeFavList = DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BIKE_STATIONS);
 				if (FavListTab.this.currentBikeStationFavList == null || !Fav.listEquals(FavListTab.this.currentBikeStationFavList, bikeFavList)) {
 					MyLog.d(TAG, "Loading bike station favorites from DB...");
@@ -206,14 +207,10 @@ public class FavListTab extends Activity {
 	}
 
 	/**
-	 * Context menu to view the favorite.
+	 * Refresh the favorite bus stops UI
+	 * @param newBusStopFavList the new favorite bus stops
+	 * @param busStopsExtendedList the bus stops (extended)
 	 */
-	private static final int VIEW_CONTEXT_MENU_INDEX = 0;
-	/**
-	 * Context menu to delete the favorite.
-	 */
-	private static final int DELETE_CONTEXT_MENU_INDEX = 1;
-
 	private void refreshBusStopsUI(List<DataStore.Fav> newBusStopFavList, List<BusStop> busStopsExtendedList) {
 		// MyLog.v(TAG, "refreshBusStopsUI(%s,%s)", Utils.getCollectionSize(newBusStopFavList), Utils.getCollectionSize(busStopsExtendedList));
 		if (this.currentBusStopFavList == null || this.currentBusStopFavList.size() != newBusStopFavList.size()) {
@@ -239,9 +236,10 @@ public class FavListTab extends Activity {
 				String busStopPlace = BusUtils.cleanBusStopPlace(busStop.getPlace());
 				((TextView) view.findViewById(R.id.label)).setText(busStopPlace);
 				// bus stop line number
-				((TextView) view.findViewById(R.id.line_number)).setText(busStop.getLineNumber());
-				// bus stop line name
-				((TextView) view.findViewById(R.id.line_name)).setText(busStop.getLineNameOrNull());
+				TextView lineNumberTv = (TextView) view.findViewById(R.id.line_number);
+				lineNumberTv.setText(busStop.getLineNumber());
+				int color = BusUtils.getBusLineTypeBgColorFromType(busStop.getLineTypeOrNull());
+				lineNumberTv.setBackgroundColor(color);
 				// bus stop line direction
 				int busLineDirection = BusUtils.getBusLineSimpleDirection(busStop.getDirectionId());
 				((TextView) view.findViewById(R.id.line_direction)).setText(busLineDirection);
@@ -267,12 +265,12 @@ public class FavListTab extends Activity {
 						final View theViewToDelete = v;
 						new AlertDialog.Builder(FavListTab.this)
 								.setTitle(getString(R.string.bus_stop_and_line_short, busStop.getCode(), busStop.getLineNumber()))
-								.setItems(new CharSequence[] { getString(R.string.view_bus_stop), getString(R.string.remove_fav) },
+								.setItems(new CharSequence[] { getString(R.string.view_bus_stop), getString(R.string.view_bus_stop_line), getString(R.string.remove_fav) },
 										new DialogInterface.OnClickListener() {
 											public void onClick(DialogInterface dialog, int item) {
 												MyLog.v(TAG, "onClick(%s)", item);
 												switch (item) {
-												case VIEW_CONTEXT_MENU_INDEX:
+												case 0:
 													Intent intent = new Intent(FavListTab.this, BusStopInfo.class);
 													intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, busStop.getLineNumber());
 													intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NAME, busStop.getLineNameOrNull());
@@ -281,7 +279,15 @@ public class FavListTab extends Activity {
 													intent.putExtra(BusStopInfo.EXTRA_STOP_PLACE, busStop.getPlace());
 													startActivity(intent);
 													break;
-												case DELETE_CONTEXT_MENU_INDEX:
+												case 1:
+													Intent intent2 = new Intent(FavListTab.this, BusLineInfo.class);
+													intent2.putExtra(BusLineInfo.EXTRA_LINE_NUMBER, busStop.getLineNumber());
+													intent2.putExtra(BusLineInfo.EXTRA_LINE_NAME, busStop.getLineNameOrNull());
+													intent2.putExtra(BusLineInfo.EXTRA_LINE_TYPE, busStop.getLineTypeOrNull());
+													intent2.putExtra(BusLineInfo.EXTRA_LINE_DIRECTION_ID, busStop.getDirectionId());
+													startActivity(intent2);
+													break;
+												case 2:
 													// remove the view from the UI
 													((LinearLayout) findViewById(R.id.bus_stops_list)).removeView(theViewToDelete);
 													// remove the favorite from the current list
@@ -392,13 +398,13 @@ public class FavListTab extends Activity {
 												public void onClick(DialogInterface dialog, int item) {
 													MyLog.v(TAG, "onClick(%s)", item);
 													switch (item) {
-													case VIEW_CONTEXT_MENU_INDEX:
+													case 0:
 														Intent intent = new Intent(FavListTab.this, SubwayStationInfo.class);
 														intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, station.getId());
 														intent.putExtra(SubwayStationInfo.EXTRA_STATION_NAME, station.getName());
 														startActivity(intent);
 														break;
-													case DELETE_CONTEXT_MENU_INDEX:
+													case 1:
 														// remove the view from the UI
 														((LinearLayout) findViewById(R.id.subway_stations_list)).removeView(theViewToDelete);
 														// remove the favorite from the current list
@@ -487,13 +493,13 @@ public class FavListTab extends Activity {
 											public void onClick(DialogInterface dialog, int item) {
 												MyLog.v(TAG, "onClick(%s)", item);
 												switch (item) {
-												case VIEW_CONTEXT_MENU_INDEX:
+												case 0:
 													Intent intent = new Intent(FavListTab.this, BikeStationInfo.class);
 													intent.putExtra(BikeStationInfo.EXTRA_STATION_TERMINAL_NAME, bikeStation.getTerminalName());
 													intent.putExtra(BikeStationInfo.EXTRA_STATION_NAME, bikeStation.getName());
 													startActivity(intent);
 													break;
-												case DELETE_CONTEXT_MENU_INDEX:
+												case 1:
 													// remove the view from the UI
 													((LinearLayout) findViewById(R.id.bike_stations_list)).removeView(theViewToDelete);
 													// remove the favorite from the current list

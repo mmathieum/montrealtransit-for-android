@@ -95,7 +95,7 @@ public final class SensorUtils {
 			break;
 		}
 	}
-	
+
 	/**
 	 * @param values the {@link SensorEvent} values
 	 * @return the acceleration (including gravity)

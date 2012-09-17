@@ -7,6 +7,7 @@ import android.app.backup.BackupManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.view.Surface;
 
@@ -93,4 +94,10 @@ public interface SupportUtil {
 	 * @return the number of the closest POI displayed
 	 */
 	int getNbClosestPOIDisplay();
+
+	/**
+	 * @param configuration the configuration
+	 * @return the screen layout size (small, normal, large, xlarge)
+	 */
+	int getScreenLayoutSize(Configuration configuration);
 }

@@ -75,6 +75,10 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	 * The validity of the cache (in seconds).
 	 */
 	private static final int CACHE_TOO_OLD_IN_SEC = 10 * 60; // 10 minutes
+	/**
+	 * No DDOS on the server!
+	 */
+	private static final int CACHE_TOO_FRESH_IN_SEC = 1 * 60; // 1 minute
 
 	/**
 	 * The bike station.
@@ -469,6 +473,12 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			this.task.cancel(true);
 			this.task = null;
 		} else if (this.bikeStation != null) {
+			// check if it's not too soon
+			int waitFor = getLastUpdateTime() + CACHE_TOO_FRESH_IN_SEC - Utils.currentTimeSec();
+			if (waitFor > 0) {
+				Toast.makeText(this, getString(R.string.please_wait_for_and_seconds, waitFor), Toast.LENGTH_SHORT).show();
+				return;
+			}
 			setStatusAsLoading();
 			// find the next bus stop
 			this.task = new BixiDataReader(this, this, false);

@@ -38,6 +38,7 @@
     <string name="no_bus_line">No bus line!</string>
     <string name="no_subway_line">No subway line!</string>
     <string name="line">Line</string>
+    <string name="lines">Lines</string>
     <string name="green_line">Green line</string>
     <string name="green_line_short">Green</string>
 	<string name="orange_line">Orange line</string>
@@ -52,10 +53,12 @@
 	<string name="last_trains">Last trains</string>
 	<string name="next_bus_stops">Next passages</string>
 	<string name="next_bus_stops_and_source">Next passages (%s)</string>
-	<string name="next_bus_stops_message_and_source">MonTransit gets the next bus stops passages in real time from %s.</string>
-	<string name="next_bus_stops_message_auto">MonTransit gets the next bus stops passages in real time from the best source available.</string>
+	<string name="next_bus_stops_message_and_source">MonTransit retrieves the next bus stops passages in real time from %s.</string>
+	<string name="next_bus_stops_message_auto">MonTransit retrieves the next bus stops passages in real time from the best source available.</string>
 	<string name="next_bus_stops_note">%1$s: %2$s</string>
 	<string name="other_bus_line">Other bus line(s)</string>
+	<string name="closest_bus_stops">Closest stops</string>
+	<string name="closest_bus_stops_error">Error while searching for closest stops.</string>
 	<string name="subway_station">Subway station</string>
 	<string name="subway_station_short">Station</string>
 	<string name="subway_station_with_name_short">%1$s station</string>
@@ -220,7 +223,9 @@
 	<string name="no_more_stops_for_this_bus_line">No service for the bus line %s.</string>
 	
 	<string name="view_bus_stop">View bus stop</string>
+	<string name="view_bus_stop_line">View bus line</string>
 	<string name="view_subway_station">View subway station</string>
+	<string name="view_subway_station_line">View subway line</string>
 	<string name="view_bike_station">View bike station</string>
 	<string name="view_fav">View favorite</string>
     <string name="remove_fav">Remove from favorites</string>
@@ -237,6 +242,7 @@
     <string name="processing">Processing&#8230;</string>
     <string name="processing_data">Processing the data</string>
     <string name="please_wait">Please wait&#8230;</string>
+    <string name="please_wait_for_and_seconds">Please wait for %s seconds&#8230;</string>
     <string name="ellipsis">&#160;&#8230;</string>
     <string name="colon">:&#160;</string>
     <string name="error">Error</string>

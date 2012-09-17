@@ -71,10 +71,10 @@ public class MainScreen extends ActivityGroup {
 		busStopCodeTab.setContent(new Intent(this, BusStopCodeTab.class));
 		tabHost.addTab(busStopCodeTab);
 		// the bus lines list
-		TabSpec busLinesListTab = tabHost.newTabSpec(TAB_BUS);
-		busLinesListTab.setIndicator(getString(R.string.bus), getResources().getDrawable(R.drawable.ic_tab_bus));
-		busLinesListTab.setContent(new Intent(this, BusLineListTab.class));
-		tabHost.addTab(busLinesListTab);
+		TabSpec busTab = tabHost.newTabSpec(TAB_BUS);
+		busTab.setIndicator(getString(R.string.bus), getResources().getDrawable(R.drawable.ic_tab_bus));
+		busTab.setContent(new Intent(this, BusTab.class));
+		tabHost.addTab(busTab);
 		// the subway lines list
 		TabSpec subwayLinesListTab = tabHost.newTabSpec(TAB_SUBWAY);
 		subwayLinesListTab.setIndicator(getString(R.string.subway), getResources().getDrawable(R.drawable.ic_tab_subway));
@@ -97,7 +97,6 @@ public class MainScreen extends ActivityGroup {
 		}
 		RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT,
 				RelativeLayout.LayoutParams.FILL_PARENT);
-		layoutParams.addRule(RelativeLayout.ABOVE, R.id.ad_layout);
 		((RelativeLayout) findViewById(R.id.main)).addView(tabHost, layoutParams);
 	}
 

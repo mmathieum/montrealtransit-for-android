@@ -87,6 +87,7 @@ public class SplashScreen extends Activity {
 		Utils.logAppVersion(this);
 		MyLog.v(TAG, "onCreate()");
 		super.onCreate(savedInstanceState);
+		// deploy/update DB if necessary. TODO do in background
 		if (DB_RESET) {
 			deploy();
 			return;
@@ -274,8 +275,7 @@ public class SplashScreen extends Activity {
 	 */
 	private void showMainScreen() {
 		MyLog.v(TAG, "showMainScreen()");
-		Intent intent = new Intent(this, MainScreen.class);
-		startActivity(intent);
+		startActivity(new Intent(this, MainScreen.class));
 		this.finish();
 	}
 

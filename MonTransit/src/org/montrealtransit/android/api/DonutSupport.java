@@ -2,6 +2,7 @@ package org.montrealtransit.android.api;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Build;
 
 /**
@@ -22,5 +23,10 @@ public class DonutSupport extends CupcakeSupport {
 	@Override
 	public String getBuildManufacturer() {
 		return Build.MANUFACTURER;
+	}
+	
+	@Override
+	public int getScreenLayoutSize(Configuration configuration) {
+		return configuration.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
 	}
 }

@@ -663,7 +663,8 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 			ASubwayStation station = this.stations[position];
 			if (station != null) {
 				// station name
-				((TextView) view.findViewById(R.id.station_name)).setText(station.getName());
+				final TextView nameTv = (TextView) view.findViewById(R.id.station_name);
+				nameTv.setText(station.getName());
 				// station lines color
 				List<Integer> otherLines = station.getOtherLinesId();
 				// 1 - find the station line image
@@ -741,12 +742,12 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 				}
 				switch (index) {
 				case 0:
-					((TextView) view.findViewById(R.id.station_name)).setTypeface(Typeface.DEFAULT_BOLD);
+					nameTv.setTypeface(Typeface.DEFAULT_BOLD);
 					distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
 					distanceTv.setTextColor(Utils.getTextColorPrimary(getContext()));
 					break;
 				default:
-					((TextView) view.findViewById(R.id.station_name)).setTypeface(Typeface.DEFAULT);
+					nameTv.setTypeface(Typeface.DEFAULT);
 					distanceTv.setTypeface(Typeface.DEFAULT);
 					distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
 					break;

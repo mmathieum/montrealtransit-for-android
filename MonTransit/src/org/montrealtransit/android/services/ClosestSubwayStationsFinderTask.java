@@ -33,14 +33,14 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 	 */
 	private static final String TAG = ClosestSubwayStationsFinderTask.class.getSimpleName();
 
-	/**
-	 * The minimum number of closest stations in the list.
-	 */
-	private static final int MIN_CLOSEST_STATIONS_LIST_SIZE = 3;
-	/**
-	 * The maximum number of closest stations in the list.
-	 */
-	private static final int MAX_CLOSEST_STATIONS_LIST_SIZE = 5;
+	// /**
+	// * The minimum number of closest stations in the list.
+	// */
+	// private static final int MIN_CLOSEST_STATIONS_LIST_SIZE = 3;
+	// /**
+	// * The maximum number of closest stations in the list.
+	// */
+	// private static final int MAX_CLOSEST_STATIONS_LIST_SIZE = 5;
 	/**
 	 * The context.
 	 */
@@ -71,30 +71,11 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 		if (currentLocation != null) {
 			publishProgress(this.context.getString(R.string.processing));
 			result = new ClosestPOI<ASubwayStation>();
-			// read location accuracy
-			float currentAccuracy = currentLocation.getAccuracy();
-			// MyLog.d(TAG, "currentAccuracy: " + currentAccuracy);
 			// create a list of all stations with lines and location
 			List<ASubwayStation> stationsWithOtherLines = getAllStationsWithLines(currentLocation);
 			// order the stations list by distance (closest first)
-			SubwayStationDistancesComparator comparator = new SubwayStationDistancesComparator();
-			Collections.sort(stationsWithOtherLines, comparator);
-			// select only the firsts stations
-			// FOR each ordered station DO
-			for (ASubwayStation station : stationsWithOtherLines) {
-				// IF minimum station not reached DO
-				if (result.getPoiList().size() < MIN_CLOSEST_STATIONS_LIST_SIZE) {
-					// add the station
-					result.getPoiList().add(station);
-					// ELSE ID maximum stations not reached AND location is too bad DO
-				} else if (result.getPoiList().size() < MAX_CLOSEST_STATIONS_LIST_SIZE && station.getDistance() < currentAccuracy) {
-					// add the station
-					result.getPoiList().add(station);
-				} else {
-					// it's over
-					break;
-				}
-			}
+			Collections.sort(stationsWithOtherLines, new SubwayStationDistancesComparator());
+			result.setPoiList(stationsWithOtherLines);
 		}
 		return result;
 	}
@@ -144,7 +125,7 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 		from.onClosestStationsDone(result);
 		super.onPostExecute(result);
 	}
-	
+
 	/**
 	 * Contract for handling {@link ClosestSubwayStationsFinderTask}.
 	 */

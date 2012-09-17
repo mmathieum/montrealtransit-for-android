@@ -48,6 +48,10 @@ public class BixiProvider extends ContentProvider {
 	 * The SQLite open helper object.
 	 */
 	private static BixiDbHelper mOpenHelper;
+	/**
+	 * Stored the current DB version.
+	 */
+	private static int currentDbVersion = 0;
 
 	@Override
 	public boolean onCreate() {
@@ -61,12 +65,14 @@ public class BixiProvider extends ContentProvider {
 	private static BixiDbHelper getDBHelper(Context context) {
 		if (mOpenHelper == null) { // initialize
 			mOpenHelper = new BixiDbHelper(context.getApplicationContext());
+			currentDbVersion = BixiDbHelper.DATABASE_VERSION;
 		} else { // try to check DB version
 			try {
-				if (mOpenHelper.getReadableDatabase().getVersion() != BixiDbHelper.DATABASE_VERSION) {
+				if (currentDbVersion != BixiDbHelper.DATABASE_VERSION) {
 					// reset
 					mOpenHelper.close();
-					mOpenHelper = new BixiDbHelper(context.getApplicationContext());
+					mOpenHelper = null;
+					return getDBHelper(context);
 				}
 			} catch (Exception e) {
 				// fail if locked, will try again later
@@ -160,32 +166,32 @@ public class BixiProvider extends ContentProvider {
 		switch (URI_MATCHER.match(uri)) {
 		case BIKE_STATION:
 			MyLog.d(TAG, "INSERT_BULK>BIKE_STATION");
-    		SQLiteDatabase db = null;
-    		try {
-    			db = getDBHelper(getContext()).getWritableDatabase();
-    			db.beginTransaction(); // start the transaction
-    			for (ContentValues value : values) {
-    				// TODO use "OR REPLACE" so no delete required?
-    				final long rowId = db.insert(BixiDbHelper.T_BIKE_STATIONS, BixiDbHelper.T_BIKE_STATIONS_K_ID, value);
-    				if (rowId > 0) {
-    					count++;
-    				}
-    			}
-    			db.setTransactionSuccessful();// mark the transaction as successful
-    			MyLog.d(TAG, "bulk insert successful! (%s inserts)", count);
-    		} catch (Exception e) {
-    			MyLog.w(TAG, e, "ERROR while applying batch update to the database!");
-    		} finally {
-    			try {
-    				if (db != null) {
-    					db.endTransaction(); // end the transaction
-    					db.close();
-    				}
-    			} catch (Exception e) {
-    				MyLog.w(TAG, e, "ERROR while closing the new database!");
-    			}
-    		}
-		break;
+			SQLiteDatabase db = null;
+			try {
+				db = getDBHelper(getContext()).getWritableDatabase();
+				db.beginTransaction(); // start the transaction
+				for (ContentValues value : values) {
+					// TODO use "OR REPLACE" so no delete required?
+					final long rowId = db.insert(BixiDbHelper.T_BIKE_STATIONS, BixiDbHelper.T_BIKE_STATIONS_K_ID, value);
+					if (rowId > 0) {
+						count++;
+					}
+				}
+				db.setTransactionSuccessful();// mark the transaction as successful
+				MyLog.d(TAG, "bulk insert successful! (%s inserts)", count);
+			} catch (Exception e) {
+				MyLog.w(TAG, e, "ERROR while applying batch update to the database!");
+			} finally {
+				try {
+					if (db != null) {
+						db.endTransaction(); // end the transaction
+						db.close();
+					}
+				} catch (Exception e) {
+					MyLog.w(TAG, e, "ERROR while closing the new database!");
+				}
+			}
+			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI (delete): " + uri);
 		}

@@ -377,6 +377,10 @@ public class DataProvider extends ContentProvider {
 	 * The SQLite open helper object.
 	 */
 	private static DataDbHelper mOpenHelper;
+	/**
+	 * Stores the current DB version.
+	 */
+	private static int currentDbVersion = 0;
 
 	@Override
 	public boolean onCreate() {
@@ -390,11 +394,13 @@ public class DataProvider extends ContentProvider {
 	private static DataDbHelper getDBHelper(Context context) {
 		if (mOpenHelper == null) { // initialize
 			mOpenHelper = new DataDbHelper(context.getApplicationContext());
+			currentDbVersion = DataDbHelper.DATABASE_VERSION;
 		} else { // reset
 			try {
-				if (mOpenHelper.getReadableDatabase().getVersion() != DataDbHelper.DATABASE_VERSION) {
+				if (currentDbVersion != DataDbHelper.DATABASE_VERSION) {
 					mOpenHelper.close();
-					mOpenHelper = new DataDbHelper(context.getApplicationContext());
+					mOpenHelper = null;
+					return getDBHelper(context);
 				}
 			} catch (Exception e) {
 				// fail if locked, will try again later

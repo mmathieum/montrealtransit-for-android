@@ -481,7 +481,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	public void showNewClosestBikeStationsTitle() {
 		if (this.closestBikeStationsLocationAddress != null && this.closestBikeStationsLocation != null) {
 			((TextView) findViewById(R.id.closest_bike_stations_title).findViewById(R.id.closest_bike_stations_title_text)).setText(LocationUtils
-					.getLocationString(this, this.closestBikeStationsLocationAddress, this.closestBikeStationsLocation.getAccuracy()));
+					.getLocationString(this, R.string.closest_bike_stations, this.closestBikeStationsLocationAddress, this.closestBikeStationsLocation.getAccuracy()));
 		}
 	}
 
@@ -556,7 +556,6 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 				} else {
 					compassImg.setVisibility(View.GONE);
 				}
-
 				// closest bike station
 				int index = -1;
 				if (BikeTab.this.orderedStationsIds != null) {
@@ -744,11 +743,9 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 				List<String> newfavTerminalNames = new ArrayList<String>();
 				for (Fav busStopFav : result) {
 					if (BikeTab.this.favTerminalNames == null || !BikeTab.this.favTerminalNames.contains(busStopFav.getFkId())) {
-						newfavTerminalNames.add(busStopFav.getFkId()); // store terminal name
 						newFav = true; // new favorite
-					} else {
-						newfavTerminalNames.add(busStopFav.getFkId()); // store terminal name
 					}
+					newfavTerminalNames.add(busStopFav.getFkId()); // store terminal name
 				}
 				BikeTab.this.favTerminalNames = newfavTerminalNames;
 				// trigger change if necessary

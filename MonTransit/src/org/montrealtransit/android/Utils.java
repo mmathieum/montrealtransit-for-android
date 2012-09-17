@@ -34,6 +34,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -233,11 +234,10 @@ public class Utils {
 	 * @return the size of the collection (0 or more => no NPE!)
 	 */
 	public static int getCollectionSize(Collection<?> collection) {
-		int result = 0;
-		if (collection != null) {
-			result = collection.size();
+		if (collection == null) {
+			return 0;
 		}
-		return result;
+		return collection.size();
 	}
 
 	/**
@@ -245,11 +245,10 @@ public class Utils {
 	 * @return the size of the map (0 or more => no NPE!)
 	 */
 	public static int getMapSize(Map<?, ?> map) {
-		int result = 0;
-		if (map != null) {
-			result = map.size();
+		if (map == null) {
+			return 0;
 		}
-		return result;
+		return map.size();
 	}
 
 	/**
@@ -258,17 +257,18 @@ public class Utils {
 	 * @return the string
 	 */
 	public static String toStringListOfString(List<String> list) {
-		String result = "[";
+		StringBuilder sb = new StringBuilder();
+		sb.append("[");
 		int i = 0;
 		for (String string : list) {
-			if (result.length() > 2) {
-				result += "|";
+			if (sb.length() > 2) {
+				sb.append("|");
 			}
-			result += i + ":" + string;
+			sb.append(i).append(":").append(string);
 			i++;
 		}
-		result += "]";
-		return result;
+		sb.append("]");
+		return sb.toString();
 	}
 
 	/**
@@ -277,15 +277,16 @@ public class Utils {
 	 * @return the string
 	 */
 	public static String toStringMapOfStringString(Map<String, String> map) {
-		String result = "[";
+		StringBuilder sb = new StringBuilder();
+		sb.append("[");
 		for (String mapKey : map.keySet()) {
-			if (result.length() > 2) {
-				result += "|";
+			if (sb.length() > 2) {
+				sb.append("|");
 			}
-			result += ":" + mapKey + ">" + map.get(mapKey);
+			sb.append(":").append(mapKey).append(">").append(map.get(mapKey));
 		}
-		result += "]";
-		return result;
+		sb.append("]");
+		return sb.toString();
 	}
 
 	/**
@@ -493,14 +494,14 @@ public class Utils {
 	 * @return the bus stop IDs string
 	 */
 	public static String extractBusStopIDsFromFavList(List<Fav> busStopFavList) {
-		String result = "";
+		StringBuilder sb = new StringBuilder();
 		for (Fav busStopFav : busStopFavList) {
-			if (result.length() > 0) {
-				result += "+";
+			if (sb.length() > 0) {
+				sb.append("+");
 			}
-			result += BusStop.getUID(busStopFav.getFkId(), busStopFav.getFkId2());
+			sb.append(BusStop.getUID(busStopFav.getFkId(), busStopFav.getFkId2()));
 		}
-		return result;
+		return sb.toString();
 	}
 
 	/**
@@ -864,6 +865,17 @@ public class Utils {
 		result = result.replaceAll("(\\w)(/)(\\w)", "$1 / $3");
 
 		return result;
+	}
+
+	/**
+	 * @param context context
+	 * @param configuration configuration
+	 * @return true if the screen is small (hide ad, hide non-necessary stuff...)
+	 */
+	public static boolean isScreenHeightSmall(Context context, Configuration configuration) {
+		final int sizeMask = SupportFactory.getInstance(context).getScreenLayoutSize(configuration);
+		final boolean smallScreen = sizeMask == Configuration.SCREENLAYOUT_SIZE_SMALL || sizeMask == Configuration.SCREENLAYOUT_SIZE_NORMAL;
+		return configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && smallScreen;
 	}
 
 }

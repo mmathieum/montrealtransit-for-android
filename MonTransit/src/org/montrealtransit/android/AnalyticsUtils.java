@@ -144,7 +144,8 @@ public class AnalyticsUtils {
 		tracker.setCustomVar(CUSTOM_VAR_INDEX_ANDROID_VERSION, "android", androidVersion, SCOPE_VISITOR_LEVEL);
 
 		// 3 - Android SDK
-		@SuppressWarnings("deprecation") //TODO use Build.VERSION.SDK_INT
+		@SuppressWarnings("deprecation")
+		// TODO use Build.VERSION.SDK_INT
 		String sdk = Build.VERSION.SDK;
 		// MyLog.d(TAG, "sdk_version: '%s'.", sdk);
 		tracker.setCustomVar(CUSTOM_VAR_INDEX_SDK_VERSION, "sdk", sdk, SCOPE_VISITOR_LEVEL);
@@ -179,23 +180,22 @@ public class AnalyticsUtils {
 	 * @param label the event label
 	 * @param value the event value
 	 */
-	public static void trackEvent(Context context, final String category, final String action, final String label,
-	        final int value) {
+	public static void trackEvent(Context context, final String category, final String action, final String label, final int value) {
 		MyLog.v(TAG, "trackEvent()");
 		if (TRACKING) {
-			GoogleAnalyticsTracker gaTracker = getGoogleAnalyticsTracker(context);
-			initTrackerWithUserData(context, gaTracker);
-			new AsyncTask<GoogleAnalyticsTracker, Void, Void>() {
+			new AsyncTask<Context, Void, Void>() {
 				@Override
-				protected Void doInBackground(GoogleAnalyticsTracker... params) {
+				protected Void doInBackground(Context... params) {
 					try {
-						params[0].trackEvent(category, action, label, value);
+						GoogleAnalyticsTracker gaTracker = getGoogleAnalyticsTracker(params[0]);
+						initTrackerWithUserData(params[0], gaTracker);
+						gaTracker.trackEvent(category, action, label, value);
 					} catch (Throwable t) {
 						MyLog.w(TAG, t, "Error while tracing view!");
 					}
 					return null;
 				}
-			}.execute(gaTracker);
+			}.execute(context);
 		}
 	}
 
@@ -207,19 +207,19 @@ public class AnalyticsUtils {
 	public static void trackPageView(Context context, final String page) {
 		MyLog.v(TAG, "trackPageView(%s)", page);
 		if (TRACKING) {
-			GoogleAnalyticsTracker gaTracker = getGoogleAnalyticsTracker(context);
-			initTrackerWithUserData(context, gaTracker);
-			new AsyncTask<GoogleAnalyticsTracker, Void, Void>() {
+			new AsyncTask<Context, Void, Void>() {
 				@Override
-				protected Void doInBackground(GoogleAnalyticsTracker... params) {
+				protected Void doInBackground(Context... params) {
 					try {
-						params[0].trackPageView(page);
+						GoogleAnalyticsTracker gaTracker = getGoogleAnalyticsTracker(params[0]);
+						initTrackerWithUserData(params[0], gaTracker);
+						gaTracker.trackPageView(page);
 					} catch (Throwable t) {
 						MyLog.w(TAG, t, "Error while tracing view!");
 					}
 					return null;
 				}
-			}.execute(gaTracker);
+			}.execute(context);
 		}
 	}
 

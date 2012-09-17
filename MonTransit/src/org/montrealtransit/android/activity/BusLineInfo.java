@@ -31,6 +31,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Typeface;
 import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -665,13 +666,13 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 				}
 				switch (index) {
 				case 0:
-					// placeTv.setTypeface(Typeface.DEFAULT_BOLD);
-					// distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
+					placeTv.setTypeface(Typeface.DEFAULT_BOLD);
+					distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
 					distanceTv.setTextColor(Utils.getTextColorPrimary(getContext()));
 					break;
 				default:
-					// placeTv.setTypeface(Typeface.DEFAULT);
-					// distanceTv.setTypeface(Typeface.DEFAULT);
+					placeTv.setTypeface(Typeface.DEFAULT);
+					distanceTv.setTypeface(Typeface.DEFAULT);
 					distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
 					break;
 				}
