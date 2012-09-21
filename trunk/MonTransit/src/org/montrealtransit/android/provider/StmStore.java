@@ -251,6 +251,19 @@ public class StmStore {
 		}
 
 		/**
+		 * @param the new bus line direction number
+		 * @param the new bus line direction ID
+		 * @return a bus line direction with no name
+		 */
+		public static BusLineDirection create(String lineNumber, String directionId) {
+			BusLineDirection busLineDirection = new BusLineDirection();
+			busLineDirection.id = directionId;
+			busLineDirection.lineId = lineNumber;
+			// busLineDirection.name = lineName;
+			return busLineDirection;
+		}
+
+		/**
 		 * @return the full direction ID
 		 */
 		public String getId() {
@@ -281,6 +294,7 @@ public class StmStore {
 
 		/**
 		 * @return the direction name
+		 * @deprecated do not use
 		 */
 		public String getName() {
 			return name;
@@ -431,6 +445,17 @@ public class StmStore {
 			}
 
 			return busStop;
+		}
+
+		/**
+		 * @return a bus line created from bus stop value (may be incomplete)
+		 */
+		public BusLine getBusLine() {
+			BusLine busLine = new BusLine();
+			busLine.setName(getLineNameOrNull());
+			busLine.setNumber(getLineNumber());
+			busLine.setType(getLineTypeOrNull());
+			return busLine;
 		}
 
 		/**

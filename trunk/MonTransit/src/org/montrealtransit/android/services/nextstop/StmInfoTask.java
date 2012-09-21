@@ -68,7 +68,7 @@ public class StmInfoTask extends AbstractNextStopProvider {
 			publishProgress(context.getString(R.string.downloading_data_from_and_source, StmInfoTask.SOURCE_NAME));
 			URL url = new URL(getUrlString(stopCode));
 			URLConnection urlc = url.openConnection();
-			MyLog.d(TAG, "URL created: '%s'", url.toString());
+			// MyLog.d(TAG, "URL created: '%s'", url.toString());
 			HttpURLConnection httpUrlConnection = (HttpURLConnection) urlc;
 			switch (httpUrlConnection.getResponseCode()) {
 			case HttpURLConnection.HTTP_OK:
@@ -212,7 +212,7 @@ public class StmInfoTask extends AbstractNextStopProvider {
 				result.setError(errorAPIMsg);
 			}
 		}
-		MyLog.d(TAG, "result:" + result.serialized());
+		// MyLog.d(TAG, "result:" + result.serialized());
 		return result;
 	}
 

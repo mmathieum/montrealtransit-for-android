@@ -114,15 +114,15 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	/**
 	 * The list of bus stops.
 	 */
-	private ABusStop[] busStops = new ABusStop[0];
+	private List<ABusStop> busStops = new ArrayList<ABusStop>(); // new ABusStop[0];
 	/**
 	 * The bus stops list adapter.
 	 */
 	private ArrayAdapter<ABusStop> adapter;
 	/**
-	 * The bus line stops codes ordered by distance (closest first).
+	 * The closest bus line stop code by distance.
 	 */
-	private List<String> orderedStopCodes;
+	private String closestStopCode;
 	/**
 	 * The favorite bus stops codes.
 	 */
@@ -189,11 +189,11 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 			@Override
 			public void onItemClick(AdapterView<?> l, View v, int position, long id) {
 				// MyLog.v(TAG, "onItemClick(%s, %s, %s ,%s)", l.getId(), v.getId(), position, id);
-				if (BusLineInfo.this.busStops != null && position < BusLineInfo.this.busStops.length && BusLineInfo.this.busStops[position] != null
-						&& !TextUtils.isEmpty(BusLineInfo.this.busStops[position].getCode())) {
+				if (BusLineInfo.this.busStops != null && position < BusLineInfo.this.busStops.size() && BusLineInfo.this.busStops.get(position) != null
+						&& !TextUtils.isEmpty(BusLineInfo.this.busStops.get(position).getCode())) {
 					Intent intent = new Intent(BusLineInfo.this, BusStopInfo.class);
-					String busStopCode = BusLineInfo.this.busStops[position].getCode();
-					String busStopPlace = BusLineInfo.this.busStops[position].getPlace();
+					String busStopCode = BusLineInfo.this.busStops.get(position).getCode();
+					String busStopPlace = BusLineInfo.this.busStops.get(position).getPlace();
 					intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, busStopCode);
 					intent.putExtra(BusStopInfo.EXTRA_STOP_PLACE, busStopPlace);
 					intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, BusLineInfo.this.busLine.getNumber());
@@ -389,11 +389,11 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 */
 	private void showClosestStop() {
 		MyLog.v(TAG, "showClosestStop()");
-		if (this.hasFocus && !this.shakeHandled && this.orderedStopCodes != null && this.orderedStopCodes.size() > 0) {
+		if (this.hasFocus && !this.shakeHandled && !TextUtils.isEmpty(this.closestStopCode)) {
 			Toast.makeText(this, R.string.shake_closest_bus_line_stop_selected, Toast.LENGTH_SHORT).show();
 			Intent intent = new Intent(this, BusStopInfo.class);
-			intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, this.orderedStopCodes.get(0));
-			intent.putExtra(BusStopInfo.EXTRA_STOP_PLACE, findStopPlace(this.orderedStopCodes.get(0)));
+			intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, this.closestStopCode);
+			intent.putExtra(BusStopInfo.EXTRA_STOP_PLACE, findStopPlace(this.closestStopCode));
 			if (this.busLine != null) {
 				intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, this.busLine.getNumber());
 				intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NAME, this.busLine.getName());
@@ -469,8 +469,6 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	private void refreshBusLineInfo() {
 		// bus line number & name
 		setLineNumberAndName(this.busLine.getNumber(), this.busLine.getType(), this.busLine.getName());
-		// bus line type
-		((ImageView) findViewById(R.id.bus_type)).setImageResource(BusUtils.getBusLineTypeImgFromType(this.busLine.getType()));
 		// bus line direction
 		setupBusLineDirection((TextView) findViewById(R.id.bus_line_stop_text));
 	}
@@ -546,9 +544,9 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 
 			@Override
 			protected void onPostExecute(ABusStop[] result) {
-				BusLineInfo.this.busStops = result;
+				BusLineInfo.this.busStops = Arrays.asList(result);
 				refreshFavoriteStopCodesFromDB();
-				BusLineInfo.this.adapter = new ArrayAdapterWithCustomView(BusLineInfo.this, R.layout.bus_line_info_stops_list_item, BusLineInfo.this.busStops);
+				BusLineInfo.this.adapter = new ArrayAdapterWithCustomView(BusLineInfo.this, R.layout.bus_line_info_stops_list_item);
 				((ListView) findViewById(R.id.list)).setAdapter(BusLineInfo.this.adapter);
 				((ListView) findViewById(R.id.list)).setOnScrollListener(BusLineInfo.this);
 				updateDistancesWithNewLocation(); // force update all bus stop with location
@@ -592,10 +590,6 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		 */
 		private LayoutInflater layoutInflater;
 		/**
-		 * The bus stops.
-		 */
-		private ABusStop[] busStops;
-		/**
 		 * The view ID.
 		 */
 		private int viewId;
@@ -604,13 +598,26 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		 * The default constructor.
 		 * @param context the context
 		 * @param viewId the the view ID
-		 * @param objects the stations
 		 */
-		public ArrayAdapterWithCustomView(Context context, int viewId, ABusStop[] busStops) {
-			super(context, viewId, busStops);
+		public ArrayAdapterWithCustomView(Context context, int viewId) {
+			super(context, viewId);
 			this.viewId = viewId;
-			this.busStops = busStops;
 			this.layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		}
+
+		@Override
+		public int getCount() {
+			return BusLineInfo.this.busStops == null ? 0 : BusLineInfo.this.busStops.size();
+		}
+
+		@Override
+		public int getPosition(ABusStop item) {
+			return BusLineInfo.this.busStops.indexOf(item);
+		}
+
+		@Override
+		public ABusStop getItem(int position) {
+			return BusLineInfo.this.busStops.get(position);
 		}
 
 		@Override
@@ -619,8 +626,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(this.viewId, parent, false);
 			}
-
-			ABusStop busStop = this.busStops[position];
+			ABusStop busStop = getItem(position);
 			if (busStop != null) {
 				// bus stop code
 				((TextView) convertView.findViewById(R.id.stop_code)).setText(busStop.getCode());
@@ -661,8 +667,8 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 				}
 				// set style for closest bus stop
 				int index = -1;
-				if (BusLineInfo.this.orderedStopCodes != null) {
-					index = BusLineInfo.this.orderedStopCodes.indexOf(busStop.getCode());
+				if (!TextUtils.isEmpty(BusLineInfo.this.closestStopCode)) {
+					index = busStop.getCode().equals(BusLineInfo.this.closestStopCode) ? 0 : 999;
 				}
 				switch (index) {
 				case 0:
@@ -747,7 +753,10 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 * Generate the ordered bus line stops codes.
 	 */
 	public void generateOrderedStopCodes() {
-		List<ABusStop> orderedStops = new ArrayList<ABusStop>(Arrays.asList(this.busStops));
+		if (this.busStops.size() == 0) {
+			return;
+		}
+		List<ABusStop> orderedStops = new ArrayList<ABusStop>(this.busStops);
 		// order the stations list by distance (closest first)
 		Collections.sort(orderedStops, new Comparator<ABusStop>() {
 			@Override
@@ -763,10 +772,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 				}
 			}
 		});
-		this.orderedStopCodes = new ArrayList<String>();
-		for (ABusStop orderedStop : orderedStops) {
-			this.orderedStopCodes.add(orderedStop.getCode());
-		}
+		this.closestStopCode = orderedStops.get(0).getCode();
 	}
 
 	@Override

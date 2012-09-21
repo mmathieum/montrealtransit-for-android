@@ -89,9 +89,9 @@ public class StmInfoStatusApiReader extends AsyncTask<String, String, String> {
 				// Create a new ContentHandler and apply it to the XML-Reader
 				StmInfoStatusApiHandler handler = new StmInfoStatusApiHandler();
 				xr.setContentHandler(handler);
-				MyLog.d(TAG, "Parsing data ...");
+				// MyLog.d(TAG, "Parsing data ...");
 				xr.parse(new InputSource(urlc.getInputStream()));
-				MyLog.d(TAG, "Parsing data... DONE");
+				// MyLog.d(TAG, "Parsing data... DONE");
 				publishProgress(this.context.getString(R.string.done));
 				List<ServiceStatus> allServiceStatus = handler.getServiceStatus();
 				// delete existing status

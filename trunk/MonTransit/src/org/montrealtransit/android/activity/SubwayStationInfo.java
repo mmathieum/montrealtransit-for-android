@@ -1,7 +1,9 @@
 package org.montrealtransit.android.activity;
 
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
@@ -17,12 +19,11 @@ import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.dialog.BusLineSelectDirection;
 import org.montrealtransit.android.dialog.NoRadarInstalled;
-import org.montrealtransit.android.dialog.SubwayStationSelectBusLineStop;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
-import org.montrealtransit.android.provider.StmStore.BusLine;
+import org.montrealtransit.android.provider.StmStore.BusStop;
 import org.montrealtransit.android.provider.StmStore.SubwayLine;
 import org.montrealtransit.android.provider.StmStore.SubwayStation;
 
@@ -556,7 +557,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 	 */
 	public void setLocation(Location newLocation) {
 		if (newLocation != null) {
-			MyLog.d(TAG, "new location: '%s'.", LocationUtils.locationToString(newLocation));
+			// MyLog.d(TAG, "new location: '%s'.", LocationUtils.locationToString(newLocation));
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
 				SensorUtils.registerCompassListener(this, this);
@@ -601,43 +602,59 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 	 */
 	private void refreshBusLines() {
 		MyLog.v(TAG, "refreshBusLines()");
-		new AsyncTask<String, Void, List<BusLine>>() {
+		new AsyncTask<String, Void, List<BusStop>>() {
 			@Override
-			protected List<BusLine> doInBackground(String... params) {
-				return StmManager.findSubwayStationBusLinesList(SubwayStationInfo.this.getContentResolver(), params[0]);
+			protected List<BusStop> doInBackground(String... params) {
+				return StmManager.findSubwayStationBusStopsWithLineList(SubwayStationInfo.this.getContentResolver(), params[0]);
 			}
 
 			@Override
-			protected void onPostExecute(java.util.List<BusLine> result) {
+			protected void onPostExecute(List<BusStop> result) {
 				LinearLayout busLinesLayout = (LinearLayout) findViewById(R.id.bus_line_list);
 				busLinesLayout.removeAllViews();
+				Set<String> busLinesNumberDirection = new HashSet<String>();
 				// IF there is one or more bus lines DO
 				if (Utils.getCollectionSize(result) > 0) {
 					findViewById(R.id.bus_line).setVisibility(View.VISIBLE);
 					busLinesLayout.setVisibility(View.VISIBLE);
 					// FOR EACH bus line DO
-					for (StmStore.BusLine busLine : result) {
+					for (final BusStop busStop : result) {
+						// check if same bus line number & direction not already in the list
+						if (busLinesNumberDirection.contains(busStop.getLineNumber() + BusUtils.getBusLineSimpleDirection(busStop.getDirectionId()))) {
+							continue;
+						}
+						
 						// create view
 						View view = getLayoutInflater().inflate(R.layout.subway_station_info_bus_line_list_item, null);
 						// bus line number
-						final String lineNumber = busLine.getNumber();
-						final String lineName = busLine.getName();
-						final String lineType = busLine.getType();
-						((TextView) view.findViewById(R.id.line_number)).setText(lineNumber);
-						int color = BusUtils.getBusLineTypeBgColorFromType(lineType);
+						((TextView) view.findViewById(R.id.line_number)).setText(busStop.getLineNumber());
+						int color = BusUtils.getBusLineTypeBgColorFromType(busStop.getLineTypeOrNull());
 						((TextView) view.findViewById(R.id.line_number)).setBackgroundColor(color);
+						// bus line direction
+						int busLineDirection = BusUtils.getBusLineSimpleDirection(busStop.getDirectionId());
+						((TextView) view.findViewById(R.id.line_direction)).setText(busLineDirection);
 						// add click listener
-						view.setOnClickListener(new SubwayStationSelectBusLineStop(SubwayStationInfo.this, SubwayStationInfo.this.subwayStation.getId(),
-								lineNumber, lineName, lineType));
+						view.setOnClickListener(new View.OnClickListener() {
+							@Override
+							public void onClick(View v) {
+								Intent intent = new Intent(SubwayStationInfo.this, BusStopInfo.class);
+								intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, busStop.getCode());
+								intent.putExtra(BusStopInfo.EXTRA_STOP_PLACE, busStop.getPlace());
+								intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, busStop.getLineNumber());
+								intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NAME, busStop.getLineNameOrNull());
+								intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_TYPE, busStop.getLineTypeOrNull());
+								startActivity(intent);
+							}
+						});
 						view.setOnLongClickListener(new View.OnLongClickListener() {
 							@Override
 							public boolean onLongClick(View v) {
-								MyLog.d(TAG, "bus line number: %s", lineNumber);
-								new BusLineSelectDirection(SubwayStationInfo.this, lineNumber, lineName, lineType).showDialog();
+								new BusLineSelectDirection(SubwayStationInfo.this, busStop.getLineNumber(), busStop.getLineNameOrNull(), busStop.getLineTypeOrNull()).showDialog();
 								return true;
 							}
 						});
 						busLinesLayout.addView(view);
+						busLinesNumberDirection.add(busStop.getLineNumber() + BusUtils.getBusLineSimpleDirection(busStop.getDirectionId()));
 					}
 				} else {
 					findViewById(R.id.bus_line).setVisibility(View.GONE);
@@ -648,7 +665,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 	}
 
 	/**
-	 * Show the station in a radar-enabled app.
+	 * Show the station in a radar-enabled application.
 	 * @param v the view (not used)
 	 */
 	public void showStationInRadar(View v) {

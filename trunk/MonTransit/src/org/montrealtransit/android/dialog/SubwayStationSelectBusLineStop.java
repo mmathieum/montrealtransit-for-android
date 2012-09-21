@@ -158,7 +158,7 @@ public class SubwayStationSelectBusLineStop implements View.OnClickListener {
 	private void showBusStop(String stopCode, String stopPlace, String busLineNumber, String busLineName, String busLineType) {
 		MyLog.v(TAG, "showBusStop(%s,%s,%s,%s,%s)", stopCode, stopPlace, busLineNumber, busLineName, busLineType);
 		if (this.dialog != null) {
-			this.dialog.dismiss();
+			this.dialog.dismiss(); // close dialog
 		}
 		Intent intent = new Intent(this.context, BusStopInfo.class);
 		intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, stopCode);

@@ -1,12 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/bus_line_view"
-	android:layout_width="wrap_content" android:layout_height="?android:attr/listPreferredItemHeight"
-	android:padding="2dip"
-	android:background="@android:drawable/list_selector_background"
-	android:focusable="true">
-
-	<!-- BUS LINE NUMBER -->
-	<TextView android:id="@+id/line_number" style="@style/BusLineNumber" />
-
-</RelativeLayout>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/line"
+    android:layout_width="wrap_content"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:layout_alignParentLeft="true"
+    android:background="@android:drawable/list_selector_background"
+    android:orientation="vertical"
+    android:padding="2dip" >
+    <!-- BUS LINE NUMBER -->
+    <TextView
+        android:id="@+id/line_number"
+        style="@style/BusLineNumber"
+        android:layout_width="66dip"
+        android:layout_height="44dip"
+        android:background="#FFFF0000"
+        android:text="@string/default_line_number"
+        android:textSize="33dip" />
+    <!-- BUS LINE DIRECTION -->
+    <TextView
+        android:id="@+id/line_direction"
+        android:layout_width="66dip"
+        android:layout_height="fill_parent"
+        android:background="#000000"
+        android:ellipsize="end"
+        android:gravity="center_horizontal"
+        android:singleLine="true"
+        android:text="@string/ellipsis"
+        android:textAllCaps="true"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold" />
+</LinearLayout>

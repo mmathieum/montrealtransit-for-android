@@ -257,26 +257,26 @@ public class BusUtils {
 		return results;
 	}
 
-	/**
-	 * Return the R.drawable ID of the image matching the bus line type.
-	 * @param type the bus line type
-	 * @return the image ID
-	 */
-	public static int getBusLineTypeImgFromType(String type) {
-		// MyLog.v(TAG, "getBusLineTypeImgFromType(" + type + ")");
-		if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_REGULAR_SERVICE)) {
-			return R.drawable.bus_type_soleil;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_RUSH_HOUR_SERVICE)) {
-			return R.drawable.bus_type_hot;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_NIGHT_SERVICE)) {
-			return R.drawable.bus_type_snuit;
-		} else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_EXPRESS_SERVICE)) {
-			return R.drawable.bus_type_express;
-		} else {
-			MyLog.w(TAG, "Unknown bus line type '%s'.", type);
-			return android.R.drawable.ic_dialog_alert;
-		}
-	}
+	// /**
+	// * Return the R.drawable ID of the image matching the bus line type.
+	// * @param type the bus line type
+	// * @return the image ID
+	// */
+	// public static int getBusLineTypeImgFromType(String type) {
+	// // MyLog.v(TAG, "getBusLineTypeImgFromType(" + type + ")");
+	// if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_REGULAR_SERVICE)) {
+	// return R.drawable.bus_type_soleil;
+	// } else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_RUSH_HOUR_SERVICE)) {
+	// return R.drawable.bus_type_hot;
+	// } else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_NIGHT_SERVICE)) {
+	// return R.drawable.bus_type_snuit;
+	// } else if (type.equalsIgnoreCase(StmStore.BusLine.LINE_TYPE_EXPRESS_SERVICE)) {
+	// return R.drawable.bus_type_express;
+	// } else {
+	// MyLog.w(TAG, "Unknown bus line type '%s'.", type);
+	// return android.R.drawable.ic_dialog_alert;
+	// }
+	// }
 
 	/**
 	 * @param type the bus line type

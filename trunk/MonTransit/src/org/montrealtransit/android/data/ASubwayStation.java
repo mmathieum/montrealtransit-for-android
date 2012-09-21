@@ -47,10 +47,9 @@ public class ASubwayStation extends SubwayStation {
 	 */
 	public ASubwayStation(SubwayStation subwayStation) {
 		setId(subwayStation.getId());
-		this.setId(subwayStation.getId());
-		this.setName(subwayStation.getName());
-		this.setLat(subwayStation.getLat());
-		this.setLng(subwayStation.getLng());
+		setName(subwayStation.getName());
+		setLat(subwayStation.getLat());
+		setLng(subwayStation.getLng());
 	}
 
 	/**

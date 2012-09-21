@@ -245,11 +245,12 @@ public class BusLineSelectDirection implements View.OnClickListener, BusLineSele
 				String number = BusLineSelectDirection.this.lineNumber;
 				String directionId = BusLineSelectDirection.this.detailDirectionsIds.get(which);
 				BusLineSelectDirection.this.listener.showNewLine(number, directionId);
+				dialog.dismiss(); // CLOSE
 			}
 		}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				dialog.cancel();// CANCEL
+				dialog.cancel(); // CANCEL
 				BusLineSelectDirection.this.secondDialog = false;
 				showDialog(); // show first dialog
 			}

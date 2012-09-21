@@ -589,7 +589,16 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 
 				@Override
 				protected BikeStation doInBackground(String... params) {
-					return BixiManager.findBikeStation(getContentResolver(), params[0]);
+					try {
+						return BixiManager.findBikeStation(getContentResolver(), params[0]);
+					} catch (Exception e) {
+						MyLog.d(TAG, "Error the 1st try... wait 3 seconds and retry", e);
+						try {
+							Thread.sleep(3 * 1000);
+						} catch (InterruptedException ie) {
+						}
+						return BixiManager.findBikeStation(getContentResolver(), params[0]);
+					}
 				}
 
 				@Override
@@ -739,7 +748,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	 */
 	private void refreshBikeStationInfo() {
 		MyLog.v(TAG, "refreshBikeStationInfo()");
-		MyLog.d(TAG, "this.bikeStatio null? %s", this.bikeStation == null);
+		// MyLog.d(TAG, "this.bikeStatio null? %s", this.bikeStation == null);
 		// set bike station name
 		((TextView) findViewById(R.id.station_name)).setText(Utils.cleanBikeStationName(this.bikeStation.getName()));
 		// set the favorite icon

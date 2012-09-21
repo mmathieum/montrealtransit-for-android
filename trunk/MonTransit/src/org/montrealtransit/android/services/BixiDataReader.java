@@ -145,9 +145,9 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 				// Create a new ContentHandler and apply it to the XML-Reader
 				BixiBikeStationsDataHandler handler = new BixiBikeStationsDataHandler();
 				xr.setContentHandler(handler);
-				MyLog.d(TAG, "Parsing data...");
+				// MyLog.d(TAG, "Parsing data...");
 				xr.parse(new InputSource(urlc.getInputStream()));
-				MyLog.d(TAG, "Parsing data... DONE");
+				// MyLog.d(TAG, "Parsing data... DONE");
 				publishProgress(from, context.getString(R.string.processing));
 				updateDatabaseAll(context, handler.getBikeStations(), forceDBUpdate);
 				// save new last update
@@ -195,7 +195,11 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 			MyLog.e(TAG, e, "INTERNAL ERROR: Unknown Exception");
 			publishProgress(from, context.getString(R.string.error));
 			AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BIXI_DATA_LOADING_FAIL, e.getMessage(), 0);
-			return null;
+			if (tried < MAX_RETRY) {
+				return doInForeground(context, from, forceDBUpdate, forceDBUpdateTerminalNames, ++tried);
+			} else {
+				return null;
+			}
 		}
 	}
 
