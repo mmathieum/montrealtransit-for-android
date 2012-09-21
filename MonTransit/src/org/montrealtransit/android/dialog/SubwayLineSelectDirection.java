@@ -83,16 +83,16 @@ public class SubwayLineSelectDirection implements View.OnClickListener, SubwayLi
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						MyLog.v(TAG, "onClick(%s)", which);
-						dialog.dismiss(); // close the dialog
 						int lineNumber = SubwayLineSelectDirection.this.subwayLine.getNumber();
 						String orderPref = SubwayLineSelectDirection.this.orderPref[which];
 						SubwayLineSelectDirection.this.listener.showNewSubway(lineNumber, orderPref);
+						dialog.dismiss(); // close the dialog
 					}
 				}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						// MyLog.v(TAG, "onClick(%s)", which); // CANCEL
-						dialog.dismiss(); // close the dialog (do nothing)
+						dialog.cancel(); // close the dialog (do nothing)
 					}
 				}).create().show();
 	}

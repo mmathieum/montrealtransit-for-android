@@ -18,8 +18,8 @@ import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.dialog.BusLineSelectDirection;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore;
-import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.DataStore.Fav;
+import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore.BusLine;
 import org.montrealtransit.android.provider.StmStore.BusStop;
 import org.montrealtransit.android.services.ClosestBusStopsFinderTask;
@@ -340,8 +340,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 			ListView closestStopsLayout = (ListView) findViewById(R.id.closest_stops);
 			// show stops list
 			closestStopsLayout.setVisibility(View.VISIBLE);
-			ABusStop[] array = this.closestStops.toArray(new ABusStop[] {});
-			this.adapter = new ArrayAdapterWithCustomView(this, R.layout.bus_tab_closest_stops_list_item, array);
+			this.adapter = new ArrayAdapterWithCustomView(this, R.layout.bus_tab_closest_stops_list_item);
 			closestStopsLayout.setAdapter(this.adapter);
 			closestStopsLayout.setOnItemClickListener(this);
 			closestStopsLayout.setOnScrollListener(this);
@@ -374,10 +373,6 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 		 */
 		private LayoutInflater layoutInflater;
 		/**
-		 * The bus stops.
-		 */
-		private ABusStop[] busStops;
-		/**
 		 * The view ID.
 		 */
 		private int viewId;
@@ -386,13 +381,26 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 		 * The default constructor.
 		 * @param context the context
 		 * @param viewId the the view ID
-		 * @param busStops the stops
 		 */
-		public ArrayAdapterWithCustomView(Context context, int viewId, ABusStop[] busStops) {
-			super(context, viewId, busStops);
+		public ArrayAdapterWithCustomView(Context context, int viewId) {
+			super(context, viewId);
 			this.viewId = viewId;
-			this.busStops = busStops;
 			this.layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		}
+
+		@Override
+		public int getCount() {
+			return BusTab.this.closestStops == null ? 0 : BusTab.this.closestStops.size();
+		}
+
+		@Override
+		public int getPosition(ABusStop item) {
+			return BusTab.this.closestStops.indexOf(item);
+		}
+
+		@Override
+		public ABusStop getItem(int position) {
+			return BusTab.this.closestStops.get(position);
 		}
 
 		@Override
@@ -401,8 +409,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(this.viewId, parent, false);
 			}
-
-			ABusStop stop = this.busStops[position];
+			ABusStop stop = getItem(position);
 			if (stop != null) {
 				// bus stop code
 				((TextView) convertView.findViewById(R.id.stop_code)).setText(stop.getCode());
@@ -509,7 +516,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 			// IF location found DO
 			Location currentLocation = getLocation();
 			if (currentLocation == null) {
-				MyLog.d(TAG, "no location yet...");
+				// MyLog.d(TAG, "no location yet...");
 				return;
 			}
 			// find the closest stations
@@ -588,7 +595,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 	 */
 	private void setLocation(Location newLocation) {
 		if (newLocation != null) {
-			MyLog.d(TAG, "new location: %s.", LocationUtils.locationToString(newLocation));
+			// MyLog.d(TAG, "new location: %s.", LocationUtils.locationToString(newLocation));
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
 				SensorUtils.registerShakeAndCompassListener(this, this);

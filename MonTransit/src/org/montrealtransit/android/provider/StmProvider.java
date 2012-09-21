@@ -46,7 +46,7 @@ public class StmProvider extends ContentProvider {
 	private static final int BUS_LINES = 1;
 	private static final int BUS_LINE_ID = 2;
 	private static final int BUS_STOPS = 3;
-	private static final int BUS_STOP_ID = 4;
+	private static final int BUS_STOPS_ID = 4;
 	private static final int SUBWAY_LINES = 5;
 	private static final int SUBWAY_LINE_ID = 6;
 	private static final int SUBWAY_STATIONS = 7;
@@ -61,7 +61,7 @@ public class StmProvider extends ContentProvider {
 	private static final int BUS_LINE_DIRECTION_ID = 17;
 	private static final int BUS_STOP_ID_BUS_LINES = 18;
 	private static final int BUS_LINES_IDS = 19;
-	private static final int BUS_STOPS_IDS = 20;
+	private static final int BUS_STOPS_UIDS = 20;
 	private static final int BUS_STOPS_LIVE_FOLDER = 21;
 	private static final int SUBWAY_STATION_ID_BUS_LINES = 22;
 	private static final int SUBWAY_STATION_ID_BUS_STOPS = 23;
@@ -117,7 +117,7 @@ public class StmProvider extends ContentProvider {
 	 */
 	private static final HashMap<String, String> sBusStopsExtendedProjectionMap;
 	/**
-	 * Projection for bus stops extented with location.
+	 * Projection for bus stops extended with location.
 	 */
 	private static final HashMap<String, String> sBusStopsExtendedWithLocationProjectionMap;
 	/**
@@ -171,9 +171,9 @@ public class StmProvider extends ContentProvider {
 		URI_MATCHER.addURI(AUTHORITY, "busstops/" + StmStore.BusStop.STOP_CODE, BUS_STOPS_CODE);
 		URI_MATCHER.addURI(AUTHORITY, "busstopslivefolder/*", BUS_STOPS_LIVE_FOLDER);
 		URI_MATCHER.addURI(AUTHORITY, "busstopssearch/*", BUS_STOPS_SEARCH);
-		URI_MATCHER.addURI(AUTHORITY, "busstops/#", BUS_STOP_ID);
+		URI_MATCHER.addURI(AUTHORITY, "busstops/#", BUS_STOPS_ID);
 		URI_MATCHER.addURI(AUTHORITY, "busstops/#/buslines", BUS_STOP_ID_BUS_LINES);
-		URI_MATCHER.addURI(AUTHORITY, "busstops/*", BUS_STOPS_IDS);
+		URI_MATCHER.addURI(AUTHORITY, "busstops/*", BUS_STOPS_UIDS);
 		URI_MATCHER.addURI(AUTHORITY, "buslinedirections", BUS_LINE_DIRECTIONS);
 		URI_MATCHER.addURI(AUTHORITY, "buslinedirections/*", BUS_LINE_DIRECTION_ID);
 		URI_MATCHER.addURI(AUTHORITY, "subwaylines", SUBWAY_LINES);
@@ -579,7 +579,7 @@ public class StmProvider extends ContentProvider {
 			qb.setTables(StmDbHelper.T_BUS_STOPS);
 			qb.setProjectionMap(sBusStopsCodeProjectionMap);
 			break;
-		case BUS_STOPS_IDS:
+		case BUS_STOPS_UIDS:
 			MyLog.v(TAG, "query>BUS_STOPS_IDS");
 			qb.setTables(BUS_STOP_LINES_JOIN);
 			qb.setProjectionMap(sBusStopsExtendedProjectionMap);
@@ -645,10 +645,11 @@ public class StmProvider extends ContentProvider {
 						+ StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " = " + BusStop.getLineNumberFromUID(favIds[i]) + ") ");
 			}
 			break;
-		case BUS_STOP_ID:
-			MyLog.v(TAG, "query>BUS_STOP_ID");
-			qb.setTables(StmDbHelper.T_BUS_STOPS);
-			qb.appendWhere(StmDbHelper.T_BUS_STOPS_K_CODE + "=" + uri.getPathSegments().get(1));
+		case BUS_STOPS_ID:
+			MyLog.v(TAG, "query>BUS_STOPS_ID");
+			qb.setTables(BUS_STOP_LINES_JOIN);
+			qb.setProjectionMap(sBusStopsExtendedProjectionMap);
+			qb.appendWhere(StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "=" + uri.getPathSegments().get(1));
 			break;
 		case BUS_LINE_DIRECTIONS:
 			MyLog.v(TAG, "query>BUS_LINE_DIRECTIONS");
@@ -918,12 +919,12 @@ public class StmProvider extends ContentProvider {
 			case BUS_LINE_ID_DIRECTION_ID_STOPS:
 			case BUS_LINE_ID_DIRECTION_ID_STOPS_SEARCH:
 			case BUS_STOPS:
-			case BUS_STOPS_IDS:
+			case BUS_STOPS_UIDS:
 			case BUS_STOPS_SEARCH:
 			case BUS_LINE_ID_STOP_ID:
 			case SUBWAY_STATION_ID_BUS_STOPS:
 			case SUBWAY_STATION_ID_BUS_LINE_ID_BUS_STOPS:
-			case BUS_STOP_ID:
+			case BUS_STOPS_ID:
 				orderBy = StmStore.BusStop.DEFAULT_SORT_ORDER;
 				break;
 			case BUS_STOPS_CODE:
@@ -1017,7 +1018,7 @@ public class StmProvider extends ContentProvider {
 			return StmStore.BusStop.CONTENT_TYPE_LIVE_FOLDER;
 		case BUS_LINE_ID_DIRECTION_ID_STOPS:
 		case BUS_LINE_ID_DIRECTION_ID_STOPS_SEARCH:
-		case BUS_STOPS_IDS:
+		case BUS_STOPS_UIDS:
 		case BUS_STOPS_SEARCH:
 		case SUBWAY_STATION_ID_BUS_STOPS:
 		case SUBWAY_STATION_ID_BUS_LINE_ID_BUS_STOPS:
@@ -1025,7 +1026,7 @@ public class StmProvider extends ContentProvider {
 		case BUS_STOPS_LOC:
 		case BUS_STOPS_LOC_LAT_LNG:
 			return StmStore.BusStop.CONTENT_TYPE;
-		case BUS_STOP_ID:
+		case BUS_STOPS_ID:
 			return StmStore.BusStop.CONTENT_ITEM_TYPE;
 		case BUS_LINE_ID_DIRECTIONS:
 		case BUS_LINE_DIRECTIONS:

@@ -57,7 +57,7 @@ public class AdsUtils {
 			"taxi", "quebec", "canada" }));
 
 	/**
-	 * The donate apps package name.
+	 * The donate application package name.
 	 */
 	private static final String DONATE_PACKAGES_START_WITH = "org.montrealtransit.android.donate";
 
@@ -147,6 +147,7 @@ public class AdsUtils {
 				AdView adView = (AdView) adLayout.findViewById(R.id.ad);
 				if (adView != null) {
 					adView.stopLoading();
+					adView.removeAllViews();
 					adView.destroy();
 				}
 			}

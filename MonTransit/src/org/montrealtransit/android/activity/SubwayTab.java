@@ -1,6 +1,8 @@
 package org.montrealtransit.android.activity;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.montrealtransit.android.AdsUtils;
@@ -358,14 +360,30 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 */
 	private void showClosestStation() {
 		MyLog.v(TAG, "showClosestStation()");
-		if (this.hasFocus && !this.shakeHandled && this.closestStations != null && this.closestStations.size() > 0) {
+		if (this.hasFocus && !this.shakeHandled && !TextUtils.isEmpty(this.closestStationId)) {
 			Toast.makeText(this, R.string.shake_closest_subway_line_station_selected, Toast.LENGTH_SHORT).show();
 			Intent intent = new Intent(this, SubwayStationInfo.class);
-			intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, this.closestStations.get(0).getId());
-			intent.putExtra(SubwayStationInfo.EXTRA_STATION_NAME, this.closestStations.get(0).getName());
+			intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, this.closestStationId);
+			intent.putExtra(SubwayStationInfo.EXTRA_STATION_NAME, findStationName(this.closestStationId));
 			startActivity(intent);
 			this.shakeHandled = true;
 		}
+	}
+
+	/**
+	 * @param stationId a subway station ID
+	 * @return a subway station name or null
+	 */
+	private String findStationName(String stationId) {
+		if (this.closestStations == null) {
+			return null;
+		}
+		for (SubwayStation subwayStation : this.closestStations) {
+			if (subwayStation.getId().equals(stationId)) {
+				return subwayStation.getName();
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -741,8 +759,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			ListView closestStationsLayout = (ListView) findViewById(R.id.closest_stations);
 			// show stations list
 			closestStationsLayout.setVisibility(View.VISIBLE);
-			ASubwayStation[] array = this.closestStations.toArray(new ASubwayStation[] {});
-			this.adapter = new ArrayAdapterWithCustomView(this, R.layout.subway_tab_closest_stations_list_item, array);
+			this.adapter = new ArrayAdapterWithCustomView(this, R.layout.subway_tab_closest_stations_list_item);
 			closestStationsLayout.setAdapter(this.adapter);
 			closestStationsLayout.setOnItemClickListener(this);
 			closestStationsLayout.setOnScrollListener(this);
@@ -806,10 +823,6 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		 */
 		private LayoutInflater layoutInflater;
 		/**
-		 * The subways stations.
-		 */
-		private ASubwayStation[] subwayStations;
-		/**
 		 * The view ID.
 		 */
 		private int viewId;
@@ -820,11 +833,25 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		 * @param viewId the the view ID
 		 * @param subwayStations the stations
 		 */
-		public ArrayAdapterWithCustomView(Context context, int viewId, ASubwayStation[] subwayStations) {
-			super(context, viewId, subwayStations);
+		public ArrayAdapterWithCustomView(Context context, int viewId) {
+			super(context, viewId);
 			this.viewId = viewId;
-			this.subwayStations = subwayStations;
 			this.layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		}
+
+		@Override
+		public int getCount() {
+			return SubwayTab.this.closestStations == null ? 0 : SubwayTab.this.closestStations.size();
+		}
+
+		@Override
+		public int getPosition(ASubwayStation item) {
+			return SubwayTab.this.closestStations.indexOf(item);
+		}
+
+		@Override
+		public ASubwayStation getItem(int position) {
+			return SubwayTab.this.closestStations.get(position);
 		}
 
 		@Override
@@ -833,8 +860,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(this.viewId, parent, false);
 			}
-
-			ASubwayStation station = this.subwayStations[position];
+			ASubwayStation station = getItem(position);
 			if (station != null) {
 				// subway station name
 				final TextView nameTv = (TextView) convertView.findViewById(R.id.station_name);
@@ -892,8 +918,8 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 				}
 				// closest bike station
 				int index = -1;
-				if (SubwayTab.this.orderedStationsIds != null) {
-					index = SubwayTab.this.orderedStationsIds.indexOf(station.getId());
+				if (!TextUtils.isEmpty(SubwayTab.this.closestStationId)) {
+					index = station.getId().equals(SubwayTab.this.closestStationId) ? 0 : 999;
 				}
 				switch (index) {
 				case 0:
@@ -1195,17 +1221,30 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	/**
 	 * The subway stations IDs ordered by distance (closest first).
 	 */
-	private List<String> orderedStationsIds;
+	private String closestStationId;
 
 	/**
 	 * Generate the ordered subway line station IDs.
 	 */
 	public void generateOrderedStationsIds() {
 		MyLog.v(TAG, "generateOrderedStationsIds()");
-		this.orderedStationsIds = new ArrayList<String>();
-		for (ASubwayStation orderedStation : this.closestStations) {
-			this.orderedStationsIds.add(orderedStation.getId());
-		}
+		List<ASubwayStation> orderedStations = new ArrayList<ASubwayStation>(this.closestStations);
+		// order the stations list by distance (closest first)
+		Collections.sort(orderedStations, new Comparator<ASubwayStation>() {
+			@Override
+			public int compare(ASubwayStation lhs, ASubwayStation rhs) {
+				float d1 = lhs.getDistance();
+				float d2 = rhs.getDistance();
+				if (d1 > d2) {
+					return +1;
+				} else if (d1 < d2) {
+					return -1;
+				} else {
+					return 0;
+				}
+			}
+		});
+		this.closestStationId = orderedStations.get(0).getId();
 	}
 
 	/**
@@ -1213,7 +1252,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 */
 	private void setLocation(Location newLocation) {
 		if (newLocation != null) {
-			MyLog.d(TAG, "new location: %s.", LocationUtils.locationToString(newLocation));
+			// MyLog.d(TAG, "new location: %s.", LocationUtils.locationToString(newLocation));
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
 				SensorUtils.registerShakeAndCompassListener(this, this);

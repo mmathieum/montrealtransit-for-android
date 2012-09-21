@@ -15,7 +15,7 @@
         android:layout_marginRight="5dip"
         android:gravity="center_vertical"
         android:scaleType="center"
-        android:src="@drawable/status_green"
+        android:src="@android:drawable/ic_dialog_info"
         android:visibility="gone" />
     <TextView
         android:id="@+id/subway_status_message"
