@@ -69,11 +69,9 @@ public class AdsUtils {
 	@SuppressWarnings("deprecation")
 	public static void setupAd(final Activity activity) {
 		MyLog.v(TAG, "setupAd()");
-		
 		if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.ECLAIR_MR1) {
 			return; // no ads before 2.1 (limited support)
 		}
-
 		new AsyncTask<Void, Void, Boolean>() {
 			@Override
 			protected Boolean doInBackground(Void... params) {
@@ -164,8 +162,12 @@ public class AdsUtils {
 	 * @param context the context
 	 * @return true if showing ads
 	 */
+	@SuppressWarnings("deprecation")
 	public static boolean isShowingAds(Context context) {
 		MyLog.v(TAG, "isShowingAds()");
+		if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.ECLAIR_MR1) {
+			return false; // no ads before 2.1 (limited support)
+		}
 		if (AdsUtils.showingAds == null) {
 			// IF the user is generous DO
 			if (isGenerousUser(context)) {
