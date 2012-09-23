@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+    <!-- ADs -->
+    <include
+        android:id="@id/ad_layout"
+        layout="@layout/ad_layout" />
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_above="@id/ad_layout"
+        android:orientation="vertical" >
+        <!-- SUBWAY LINEs -->
+        <TextView
+            android:id="@+id/subway_line"
+            style="?android:attr/listSeparatorTextViewStyle"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:paddingLeft="5dp"
+            android:text="@string/subway_lines" />
+        <LinearLayout
+            android:id="@+id/subway_line_list"
+            android:layout_width="fill_parent"
+            android:layout_height="?android:attr/listPreferredItemHeight"
+            android:orientation="horizontal"
+            android:weightSum="4" >
+            <include layout="@layout/subway_tab_subway_line_item" />
+            <include layout="@layout/subway_tab_subway_line_item" />
+            <include layout="@layout/subway_tab_subway_line_item" />
+            <include layout="@layout/subway_tab_subway_line_item" />
+        </LinearLayout>
+        <!-- SUBWAY STATUS -->
+        <include layout="@layout/subway_tab_subway_status_title" />
+        <ViewStub
+            android:id="@+id/subway_status_loading_stub"
+            android:layout_width="fill_parent"
+            android:layout_height="?android:attr/listPreferredItemHeight"
+            android:inflatedId="@+id/subway_status_loading"
+            android:layout="@layout/loading_layout" />
+        <ViewStub
+            android:id="@+id/subway_status_stub"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout="@layout/subway_tab_subway_status" />
+        <!-- CLOSEST SUBWAY STATIONs -->
+        <include layout="@layout/subway_tab_closest_stations_title" />
+        <ViewStub
+            android:id="@+id/closest_stations_loading_stub"
+            android:layout_width="fill_parent"
+            android:layout_height="?android:attr/listPreferredItemHeight"
+            android:inflatedId="@+id/closest_stations_loading"
+            android:layout="@layout/loading_layout" />
+        <ViewStub
+            android:id="@+id/closest_stations_stub"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout="@layout/subway_tab_closest_stations" />
+    </LinearLayout>
+</RelativeLayout>

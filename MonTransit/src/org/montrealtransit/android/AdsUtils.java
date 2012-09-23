@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.view.View;
 
 import com.google.ads.Ad;
@@ -65,8 +66,13 @@ public class AdsUtils {
 	 * Setup the ad in the activity.
 	 * @param activity the activity
 	 */
+	@SuppressWarnings("deprecation")
 	public static void setupAd(final Activity activity) {
 		MyLog.v(TAG, "setupAd()");
+		
+		if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.ECLAIR_MR1) {
+			return; // no ads before 2.1 (limited support)
+		}
 
 		new AsyncTask<Void, Void, Boolean>() {
 			@Override
