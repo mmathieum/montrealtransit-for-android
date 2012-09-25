@@ -8,7 +8,7 @@
     <string name="favorite">Favorites</string>
     <string name="stop_code">Stop code</string>
     
-    <string name="stop_code_hint">Enter a bus stop code.</string>
+    <string name="stop_code_hint">Stop code (or line number).</string>
     <string name="please_enter_a_stop_code">Please, enter a stop code.</string>
     <string name="no_history">No history.</string>
     <string name="clear_history">Clear the history.</string>

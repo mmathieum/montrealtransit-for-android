@@ -8,7 +8,7 @@
     <string name="favorite">Favoris</string>
     <string name="stop_code">Code d\'arrêt</string>
     
-    <string name="stop_code_hint">Entrer un code d\'arrêt.</string>
+    <string name="stop_code_hint">Code d\'arrêt (ou numéro de ligne).</string>
     <string name="please_enter_a_stop_code">Veuillez entrer un code d\'arrêt.</string>
     <string name="no_history">Historique vide.</string>
     <string name="clear_history">Supprimer tout l\'historique.</string>
