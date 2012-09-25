@@ -2,11 +2,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 	<!-- DISPLAY -->
 	<PreferenceCategory android:title="@string/display_pref_cat_title" />
-	<ListPreference android:key="pBusLineListGroupBy"
-		android:title="@string/group_by_pref_title" android:summary="@string/group_by_pref_summary"
-		android:entries="@array/group_by_pref_entries" android:entryValues="@array/group_by_pref_values"
-		android:dialogTitle="@string/group_by_pref_dialog_title"
-		android:defaultValue="no" />
 	<ListPreference android:key="pDistanceUnit"
 		android:title="@string/distance_unit_pref_title" android:summary="@string/distance_unit_pref_summary"
 		android:entries="@array/distance_unit_pref_entries" android:entryValues="@array/distance_unit_pref_values"
