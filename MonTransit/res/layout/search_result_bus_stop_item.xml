@@ -1,43 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" android:layout_height="?android:attr/listPreferredItemHeight"
-	android:padding="5dip">
-
-	<!-- BUS STOP PLACE -->
-	<TextView android:id="@+id/label"
-		android:layout_width="wrap_content" android:layout_height="wrap_content" 
-		android:layout_alignParentTop="true" android:layout_alignParentLeft="true"
-		android:layout_alignParentRight="true"
-		android:singleLine="true" android:ellipsize="marquee"
-		android:marqueeRepeatLimit="1" android:gravity="center_vertical|left"
-		android:textAppearance="?android:attr/textAppearanceLarge" />
-
-	<!-- BUS LINE NUMBER -->
-	<TextView android:id="@+id/line_number"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:layout_alignParentLeft="true" android:layout_alignParentBottom="true"
-		android:layout_marginRight="3dip"
-		android:textSize="20sp" android:textStyle="bold" />
-	<!-- BUS LINE NAME -->
-	<TextView android:id="@+id/line_name"
-		android:layout_width="wrap_content"	android:layout_height="wrap_content"
-		android:layout_toRightOf="@id/line_number" android:layout_alignBaseline="@id/line_number"
-		android:layout_marginRight="5dip"
-		android:singleLine="true" android:ellipsize="marquee" android:gravity="center_vertical|left"
-		android:textAppearance="?android:attr/textAppearanceSmall" android:textStyle="bold" />
-	<!-- BUS LINE DIRECTION -->
-	<TextView android:id="@+id/line_direction"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:layout_toRightOf="@id/line_name" android:layout_toLeftOf="@id/stop_code"
-		android:layout_alignBaseline="@id/line_number"
-		android:singleLine="true"
-		android:textAppearance="?android:attr/textAppearanceSmall" />
-	
-	<!-- BUS STOP CODE -->
-	<TextView android:id="@+id/stop_code"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:layout_alignParentRight="true" android:layout_alignParentBottom="true"
-		android:layout_alignBaseline="@id/line_number"
-		android:textStyle="bold" android:textAppearance="?android:attr/textAppearanceSmall" />
-
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:padding="5dip" >
+    <!-- BUS STOP PLACE -->
+    <TextView
+        android:id="@+id/label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:ellipsize="marquee"
+        android:gravity="center_vertical|left"
+        android:marqueeRepeatLimit="1"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+    <!-- BUS LINE NUMBER -->
+    <TextView
+        android:id="@+id/line_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="3dip"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+    <!-- BUS LINE NAME -->
+    <TextView
+        android:id="@+id/line_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/line_number"
+        android:layout_marginRight="5dip"
+        android:layout_toRightOf="@id/line_number"
+        android:ellipsize="marquee"
+        android:gravity="center_vertical|left"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textStyle="bold" />
+    <!-- BUS LINE DIRECTION -->
+    <TextView
+        android:id="@+id/line_direction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/line_number"
+        android:layout_toLeftOf="@id/stop_code"
+        android:layout_toRightOf="@id/line_name"
+        android:singleLine="true"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+    <!-- BUS STOP CODE -->
+    <TextView
+        android:id="@+id/stop_code"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/line_number"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textStyle="bold" />
 </RelativeLayout>
