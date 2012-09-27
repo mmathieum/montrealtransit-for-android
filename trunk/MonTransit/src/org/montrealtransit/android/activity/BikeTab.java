@@ -303,7 +303,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 								getArrowDim().first / 2, getArrowDim().second / 2);
 					}
 					// update the view
-					notifyDataSetChanged();
+					notifyDataSetChanged(false);
 				}
 			}
 		}
@@ -320,11 +320,14 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	private long lastNotifyDataSetChanged = -1;
 
 	/**
+	 * @param force true to force notify
 	 * {@link ArrayAdapter#notifyDataSetChanged()} if necessary
 	 */
-	public void notifyDataSetChanged() {
+	public void notifyDataSetChanged(boolean force) {
+		// MyLog.v(TAG, "notifyDataSetChanged(%s)", force);
 		long now = System.currentTimeMillis();
-		if (this.adapter != null && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE && (now - this.lastNotifyDataSetChanged) > ADAPTER_NOTIFY_THRESOLD) {
+		if (this.adapter != null && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE
+				&& (force || (now - this.lastNotifyDataSetChanged) > ADAPTER_NOTIFY_THRESOLD)) {
 			// MyLog.d(TAG, "Notify data set changed");
 			this.adapter.notifyDataSetChanged();
 			this.lastNotifyDataSetChanged = now;
@@ -430,8 +433,9 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 				station.setDistance(currentLocation.distanceTo(station.getLocation()));
 				station.setDistanceString(Utils.getDistanceString(station.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
 			}
+			String previousClosest = this.closestStationTerminalName;
 			generateOrderedStationsIds();
-			notifyDataSetChanged();
+			notifyDataSetChanged(this.closestStationTerminalName == null ? false : this.closestStationTerminalName.equals(previousClosest));
 		}
 	}
 
@@ -488,7 +492,6 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			list.setAdapter(this.adapter);
 			list.setOnItemClickListener(this);
 			list.setOnScrollListener(this);
-
 			setClosestStationsNotLoading();
 		}
 	}
@@ -779,16 +782,16 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 					newFav = true; // different size => different favorites
 				}
 				List<String> newfavTerminalNames = new ArrayList<String>();
-				for (Fav busStopFav : result) {
-					if (BikeTab.this.favTerminalNames == null || !BikeTab.this.favTerminalNames.contains(busStopFav.getFkId())) {
+				for (Fav bikeStationFav : result) {
+					if (BikeTab.this.favTerminalNames == null || !BikeTab.this.favTerminalNames.contains(bikeStationFav.getFkId())) {
 						newFav = true; // new favorite
 					}
-					newfavTerminalNames.add(busStopFav.getFkId()); // store terminal name
+					newfavTerminalNames.add(bikeStationFav.getFkId()); // store terminal name
 				}
 				BikeTab.this.favTerminalNames = newfavTerminalNames;
 				// trigger change if necessary
 				if (newFav) {
-					notifyDataSetChanged();
+					notifyDataSetChanged(true);
 				}
 			};
 		}.execute();

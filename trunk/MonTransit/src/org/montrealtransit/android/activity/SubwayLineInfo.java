@@ -369,7 +369,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 										getLocationDeclination()), getArrowDim().first / 2, getArrowDim().second / 2);
 					}
 					// update the view
-					notifyDataSetChanged();
+					notifyDataSetChanged(false);
 				}
 			}
 		}
@@ -386,11 +386,14 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	private long lastNotifyDataSetChanged = -1;
 
 	/**
+	 * @param force true to force notify
 	 * {@link ArrayAdapter#notifyDataSetChanged()} if necessary
 	 */
-	public void notifyDataSetChanged() {
+	public void notifyDataSetChanged(boolean force) {
+		MyLog.v(TAG, "notifyDataSetChanged(%s)", force);
 		long now = System.currentTimeMillis();
-		if (this.adapter != null && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE && (now - this.lastNotifyDataSetChanged) > ADAPTER_NOTIFY_THRESOLD) {
+		if (this.adapter != null && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE
+				&& (force || (now - this.lastNotifyDataSetChanged) > ADAPTER_NOTIFY_THRESOLD)) {
 			// MyLog.d(TAG, "Notify data set changed");
 			this.adapter.notifyDataSetChanged();
 			this.lastNotifyDataSetChanged = now;
@@ -398,14 +401,6 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	}
 
 	private Pair<Integer, Integer> arrowDim;
-
-	public Pair<Integer, Integer> getArrowDim() {
-		if (this.arrowDim == null) {
-			this.arrowDim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow);
-		}
-		return this.arrowDim;
-	}
-
 	private Float locationDeclination;
 
 	private float getLocationDeclination() {
@@ -414,6 +409,13 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 					(float) this.location.getAltitude(), this.location.getTime()).getDeclination();
 		}
 		return this.locationDeclination;
+	}
+	
+	public Pair<Integer, Integer> getArrowDim() {
+		if (this.arrowDim == null) {
+			this.arrowDim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow);
+		}
+		return this.arrowDim;
 	}
 
 	@Override
@@ -485,6 +487,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 			@Override
 			protected void onPostExecute(List<ASubwayStation> result) {
 				SubwayLineInfo.this.stations = result;
+				generateOrderedStationsIds();
 				refreshFavoriteStationIdsFromDB();
 				SubwayLineInfo.this.adapter = new ArrayAdapterWithCustomView(SubwayLineInfo.this, R.layout.subway_line_info_stations_list_item);
 				updateDistancesWithNewLocation();
@@ -506,12 +509,22 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 
 			@Override
 			protected void onPostExecute(List<Fav> result) {
-				for (Fav subwayStationFav : result) {
-					// keep all subway stations favorites (can't be that much!)
-					SubwayLineInfo.this.favStationsIds.add(subwayStationFav.getFkId()); // store stop code
+				boolean newFav = false;
+				if (Utils.getCollectionSize(result) != Utils.getCollectionSize(SubwayLineInfo.this.favStationsIds)) {
+					newFav = true; // different size => different favorites
 				}
+				List<String> newfavStationsIds = new ArrayList<String>();
+				for (Fav subwayStationFav : result) {
+					if (SubwayLineInfo.this.favStationsIds == null || !SubwayLineInfo.this.favStationsIds.contains(subwayStationFav.getFkId())) {
+						newFav = true; // new favorite
+					}
+					newfavStationsIds.add(subwayStationFav.getFkId()); // store stop code
+				}
+				SubwayLineInfo.this.favStationsIds = newfavStationsIds;
 				// trigger change
-				notifyDataSetChanged();
+				if (newFav) {
+					notifyDataSetChanged(true);
+				}
 			};
 		}.execute();
 	}
@@ -598,8 +611,9 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 				station.setDistance(getLocation().distanceTo(station.getLocation()));
 				station.setDistanceString(Utils.getDistanceString(station.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
 			}
+			String previousClosest = this.closestStationId;
 			generateOrderedStationsIds();
-			notifyDataSetChanged();
+			notifyDataSetChanged(this.closestStationId == null ? false : this.closestStationId.equals(previousClosest));
 		}
 	}
 
