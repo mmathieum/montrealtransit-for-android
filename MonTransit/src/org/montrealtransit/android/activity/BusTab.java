@@ -247,7 +247,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 								getArrowDim().first / 2, getArrowDim().second / 2);
 					}
 					// update the view
-					notifyDataSetChanged();
+					notifyDataSetChanged(false);
 				}
 			}
 		}
@@ -494,11 +494,14 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 	}
 
 	/**
+	 * @param force true to force notify
 	 * {@link ArrayAdapter#notifyDataSetChanged()} if necessary
 	 */
-	public void notifyDataSetChanged() {
+	public void notifyDataSetChanged(boolean force) {
+		// MyLog.v(TAG, "notifyDataSetChanged(%s)", force);
 		long now = System.currentTimeMillis();
-		if (this.adapter != null && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE && (now - this.lastNotifyDataSetChanged) > ADAPTER_NOTIFY_THRESOLD) {
+		if (this.adapter != null && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE
+				&& (force || (now - this.lastNotifyDataSetChanged) > ADAPTER_NOTIFY_THRESOLD)) {
 			// MyLog.d(TAG, "Notify data set changed");
 			this.adapter.notifyDataSetChanged();
 			this.lastNotifyDataSetChanged = now;
@@ -751,6 +754,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 		} else {
 			// get the result
 			this.closestStops = result.getPoiList();
+			// generateOrderedStationsIds();
 			refreshFavoriteUIDsFromDB();
 			// shot the result
 			showNewClosestStops();
@@ -785,7 +789,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 				BusTab.this.favUIDs = newfavUIDs;
 				// trigger change if necessary
 				if (newFav) {
-					notifyDataSetChanged();
+					notifyDataSetChanged(true);
 				}
 			};
 		}.execute();
@@ -846,7 +850,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 			}
 			// update the view
 			// generateOrderedStationsIds();
-			notifyDataSetChanged();
+			notifyDataSetChanged(false);
 		}
 	}
 

@@ -320,7 +320,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 								getArrowDim().first / 2, getArrowDim().second / 2);
 					}
 					// update the view
-					notifyDataSetChanged();
+					notifyDataSetChanged(false);
 				}
 			}
 		}
@@ -965,11 +965,14 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	}
 
 	/**
+	 * @param force true to force notify
 	 * {@link ArrayAdapter#notifyDataSetChanged()} if necessary
 	 */
-	public void notifyDataSetChanged() {
+	public void notifyDataSetChanged(boolean force) {
+		// MyLog.v(TAG, "notifyDataSetChanged(%s)", force);
 		long now = System.currentTimeMillis();
-		if (this.adapter != null && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE && (now - this.lastNotifyDataSetChanged) > ADAPTER_NOTIFY_THRESOLD) {
+		if (this.adapter != null && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE
+				&& (force || (now - this.lastNotifyDataSetChanged) > ADAPTER_NOTIFY_THRESOLD)) {
 			// MyLog.d(TAG, "Notify data set changed");
 			this.adapter.notifyDataSetChanged();
 			this.lastNotifyDataSetChanged = now;
@@ -1149,6 +1152,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		} else {
 			// get the result
 			this.closestStations = result.getPoiList();
+			generateOrderedStationsIds();
 			refreshFavoriteIDsFromDB();
 			// shot the result
 			showNewClosestStations();
@@ -1174,7 +1178,6 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 				}
 				List<String> newfavUIDs = new ArrayList<String>();
 				for (Fav subwayStationFav : result) {
-					// String UID = BusStop.getUID(busStopFav.getFkId(), busStopFav.getFkId2());
 					if (SubwayTab.this.favStationIds == null || !SubwayTab.this.favStationIds.contains(subwayStationFav.getFkId())) {
 						newFav = true; // new favorite
 					}
@@ -1183,7 +1186,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 				SubwayTab.this.favStationIds = newfavUIDs;
 				// trigger change if necessary
 				if (newFav) {
-					notifyDataSetChanged();
+					notifyDataSetChanged(true);
 				}
 			};
 		}.execute();
@@ -1204,17 +1207,19 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		// ELSE IF there are closest stations AND new location DO
 		if (this.closestStations != null && currentLocation != null) {
 			// update the list distances
-			float accuracyInMeters = currentLocation.getAccuracy();
 			boolean isDetailed = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
 					UserPreferences.PREFS_DISTANCE_DETAILED);
 			String distanceUnit = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
+			float accuracyInMeters = currentLocation.getAccuracy();
 			for (ASubwayStation station : this.closestStations) {
+				// distance
 				station.setDistance(currentLocation.distanceTo(station.getLocation()));
 				station.setDistanceString(Utils.getDistanceString(station.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
 			}
 			// update the view
+			String previousClosest = this.closestStationId;
 			generateOrderedStationsIds();
-			notifyDataSetChanged();
+			notifyDataSetChanged(this.closestStationId == null ? false : this.closestStationId.equals(previousClosest));
 		}
 	}
 

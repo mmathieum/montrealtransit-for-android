@@ -326,7 +326,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 								getArrowDim().first / 2, getArrowDim().second / 2);
 					}
 					// update the view
-					notifyDataSetChanged();
+					notifyDataSetChanged(false);
 				}
 			}
 		}
@@ -343,17 +343,21 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	private long lastNotifyDataSetChanged = -1;
 
 	/**
+	 * @param force true to force notify
 	 * {@link ArrayAdapter#notifyDataSetChanged()} if necessary
 	 */
-	public void notifyDataSetChanged() {
+	public void notifyDataSetChanged(boolean force) {
+		// MyLog.v(TAG, "notifyDataSetChanged(%s)", force);
 		long now = System.currentTimeMillis();
-		if (this.adapter != null && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE && (now - this.lastNotifyDataSetChanged) > ADAPTER_NOTIFY_THRESOLD) {
+		if (this.adapter != null && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE
+				&& (force || (now - this.lastNotifyDataSetChanged) > ADAPTER_NOTIFY_THRESOLD)) {
 			// MyLog.d(TAG, "Notify data set changed");
 			this.adapter.notifyDataSetChanged();
 			this.lastNotifyDataSetChanged = now;
 		}
 	}
 
+	private Pair<Integer, Integer> arrowDim;
 	private Float locationDeclination;
 
 	private float getLocationDeclination() {
@@ -363,8 +367,6 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		}
 		return this.locationDeclination;
 	}
-
-	private Pair<Integer, Integer> arrowDim;
 
 	public Pair<Integer, Integer> getArrowDim() {
 		if (this.arrowDim == null) {
@@ -545,6 +547,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 			@Override
 			protected void onPostExecute(ABusStop[] result) {
 				BusLineInfo.this.busStops = Arrays.asList(result);
+				generateOrderedStopCodes();
 				refreshFavoriteStopCodesFromDB();
 				BusLineInfo.this.adapter = new ArrayAdapterWithCustomView(BusLineInfo.this, R.layout.bus_line_info_stops_list_item);
 				((ListView) findViewById(R.id.list)).setAdapter(BusLineInfo.this.adapter);
@@ -559,7 +562,6 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 * Find favorites bus stop codes.
 	 */
 	private void refreshFavoriteStopCodesFromDB() {
-		this.favStopCodes = new ArrayList<String>(); // clear list
 		new AsyncTask<Void, Void, List<Fav>>() {
 			@Override
 			protected List<Fav> doInBackground(Void... params) {
@@ -569,13 +571,24 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 
 			@Override
 			protected void onPostExecute(List<Fav> result) {
+				boolean newFav = false;
+				if (Utils.getCollectionSize(result) != Utils.getCollectionSize(BusLineInfo.this.favStopCodes)) {
+					newFav = true; // different size => different favorites
+				}
+				List<String> newfavStopCodes = new ArrayList<String>();
 				for (Fav busStopFav : result) {
-					if (BusLineInfo.this.busLine != null && BusLineInfo.this.busLine.getNumber().equals(busStopFav.getFkId2())) { // compare line number
-						BusLineInfo.this.favStopCodes.add(busStopFav.getFkId()); // store stop code
+					if (BusLineInfo.this.busLine != null && BusLineInfo.this.busLine.getNumber().equals(busStopFav.getFkId2())) { // check line number
+						if (BusLineInfo.this.favStopCodes == null || !BusLineInfo.this.favStopCodes.contains(busStopFav.getFkId())) {
+							newFav = true; // new favorite
+						}
+						newfavStopCodes.add(busStopFav.getFkId()); // store stop code
 					}
 				}
+				BusLineInfo.this.favStopCodes = newfavStopCodes;
 				// trigger change
-				notifyDataSetChanged();
+				if (newFav) {
+					notifyDataSetChanged(true);
+				}
 			};
 		}.execute();
 	}
@@ -744,8 +757,9 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 				busStop.setDistance(currentLocation.distanceTo(busStop.getLocation()));
 				busStop.setDistanceString(Utils.getDistanceString(busStop.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
 			}
+			String previousClosest = this.closestStopCode;
 			generateOrderedStopCodes();
-			notifyDataSetChanged();
+			notifyDataSetChanged(this.closestStopCode == null ? false : this.closestStopCode.equals(previousClosest));
 		}
 	}
 
