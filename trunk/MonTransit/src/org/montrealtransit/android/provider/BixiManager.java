@@ -11,6 +11,7 @@ import org.montrealtransit.android.provider.BixiStore.BikeStation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.location.Location;
 import android.net.Uri;
 
 /**
@@ -192,6 +193,47 @@ public class BixiManager {
 		} finally {
 			if (cursor != null)
 				cursor.close();
+		}
+		return result;
+	}
+
+	/**
+	 * @param contentResolver content resolver
+	 * @param location the location
+	 * @return all bike stations w/ location close to a location
+	 */
+	public static Cursor findAllBikeStationsLocation(ContentResolver contentResolver, Location location) {
+		MyLog.v(TAG, "findAllBikeStationsLocation()");
+		return contentResolver.query(Uri.withAppendedPath(BixiStore.BikeStation.CONTENT_URI_LOC, location.getLatitude() + "+" + location.getLongitude()), null, null,
+				null, null);
+	}
+
+	/**
+	 * @param contentResolver content resolver
+	 * @param location the location
+	 * @param includeNotInstalled true if including not installed bike station in the result
+	 * @return all bike stations w/ location list close to a location
+	 */
+	public static List<BikeStation> findAllBikeStationsLocationList(ContentResolver contentResolver, Location location, boolean includeNotInstalled) {
+		MyLog.v(TAG, "findAllBikeStationsLocationList(%s)", includeNotInstalled);
+		List<BikeStation> result = null;
+		Cursor c = null;
+		try {
+			c = findAllBikeStationsLocation(contentResolver, location);
+			if (c.getCount() > 0) {
+				if (c.moveToFirst()) {
+					result = new ArrayList<BikeStation>();
+					do {
+						BikeStation fromCursor = BixiStore.BikeStation.fromCursor(c);
+						if (includeNotInstalled || fromCursor.isInstalled()) {
+							result.add(fromCursor);
+						}
+					} while (c.moveToNext());
+				}
+			}
+		} finally {
+			if (c != null)
+				c.close();
 		}
 		return result;
 	}

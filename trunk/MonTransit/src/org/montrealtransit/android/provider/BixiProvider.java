@@ -1,6 +1,7 @@
 package org.montrealtransit.android.provider;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
@@ -32,6 +33,7 @@ public class BixiProvider extends ContentProvider {
 	private static final int BIKE_STATION = 1;
 	private static final int BIKE_STATION_ID = 2;
 	private static final int BIKE_STATION_IDS = 3;
+	private static final int BIKE_STATION_LOC_LAT_LNG = 4;
 
 	/**
 	 * The URI matcher filter the content URI calls.
@@ -42,6 +44,7 @@ public class BixiProvider extends ContentProvider {
 		URI_MATCHER.addURI(AUTHORITY, "bikestations", BIKE_STATION);
 		URI_MATCHER.addURI(AUTHORITY, "bikestations/#", BIKE_STATION_ID);
 		URI_MATCHER.addURI(AUTHORITY, "bikestations/*", BIKE_STATION_IDS);
+		URI_MATCHER.addURI(AUTHORITY, "bikestationsloc/*", BIKE_STATION_LOC_LAT_LNG);
 	}
 
 	/**
@@ -97,6 +100,18 @@ public class BixiProvider extends ContentProvider {
 			qb.setTables(BixiDbHelper.T_BIKE_STATIONS);
 			qb.appendWhere(BixiDbHelper.T_BIKE_STATIONS + "." + BixiDbHelper.T_BIKE_STATIONS_K_TERMINAL_NAME + "=" + uri.getPathSegments().get(1));
 			break;
+		case BIKE_STATION_LOC_LAT_LNG:
+			MyLog.d(TAG, "BIKE_STATION_LOC_LAT_LNG");
+			qb.setTables(BixiDbHelper.T_BIKE_STATIONS);
+			String[] latlng = uri.getPathSegments().get(1).split("\\+");
+			double d1 = Double.parseDouble(String.format(Locale.US, "%.4g", Double.parseDouble(latlng[0])));
+			double d2 = Double.valueOf(String.format(Locale.US, "%.4g", Double.parseDouble(latlng[1])));
+			qb.appendWhere(BixiDbHelper.T_BIKE_STATIONS + "." + BixiDbHelper.T_BIKE_STATIONS_K_LAT + " BETWEEN "
+					+ String.format(Locale.US, "%.4g", d1 - 0.01) + " AND " + String.format(Locale.US, "%.4g", d1 + 0.01));
+			qb.appendWhere(" AND ");
+			qb.appendWhere(BixiDbHelper.T_BIKE_STATIONS + "." + BixiDbHelper.T_BIKE_STATIONS_K_LNG + " BETWEEN "
+					+ String.format(Locale.US, "%.4g", d2 - 0.01) + " AND " + String.format(Locale.US, "%.4g", d2 + 0.01));
+			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI (query) :" + uri);
 		}
@@ -107,6 +122,7 @@ public class BixiProvider extends ContentProvider {
 			case BIKE_STATION:
 			case BIKE_STATION_ID:
 			case BIKE_STATION_IDS:
+			case BIKE_STATION_LOC_LAT_LNG:
 				orderBy = BixiStore.BikeStation.DEFAULT_SORT_ORDER;
 				break;
 			default:
@@ -127,6 +143,7 @@ public class BixiProvider extends ContentProvider {
 		switch (URI_MATCHER.match(uri)) {
 		case BIKE_STATION:
 		case BIKE_STATION_IDS:
+		case BIKE_STATION_LOC_LAT_LNG:
 			return BixiStore.BikeStation.CONTENT_TYPE;
 		case BIKE_STATION_ID:
 			return BixiStore.BikeStation.CONTENT_ITEM_TYPE;

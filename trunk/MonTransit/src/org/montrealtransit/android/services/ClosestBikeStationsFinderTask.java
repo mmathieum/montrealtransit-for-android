@@ -82,20 +82,17 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 		// IF location available DO
 		if (currentLocation != null) {
 			result = new ClosestPOI<ABikeStation>();
-			List<BikeStation> bikeStations = null;
 			// IF the local cache is too old DO
 			if (FORCE_UPDATE_FROM_WEB
 					|| Utils.currentTimeSec() >= UserPreferences.getPrefLcl(this.context, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, 0)
 							+ BIKE_STATION_LIST_TOO_OLD_IN_SEC) {
 				publishProgress(this.context.getString(R.string.downloading_data_from_and_source, BixiDataReader.SOURCE));
 				// look for new data
-				bikeStations = BixiDataReader.doInForeground(this.context, this, true, null, 0);
-				removeNotInstalled(bikeStations);
-			} else {
-				publishProgress(this.context.getString(R.string.processing));
-				// get the closest bike station from database or NULL
-				bikeStations = BixiManager.findAllBikeStationsList(this.context.getContentResolver(), false);
+				BixiDataReader.doInForeground(this.context, this, true, null, 0);
 			}
+			publishProgress(this.context.getString(R.string.processing));
+			// get the closest bike station from database or NULL
+			List<BikeStation> bikeStations = getAllBikeStations(currentLocation);
 			if (bikeStations != null) {
 				result.setPoiList(getABikeStations(this.context, bikeStations, currentLocation, this.maxResult));
 			} else {
@@ -105,11 +102,23 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 		return result;
 	}
 
+	public List<BikeStation> getAllBikeStations(Location currentLocation) {
+		MyLog.v(TAG, "getAllBikeStations()");
+		// try the short way with location hack
+		List<BikeStation> allBikeStationsWithLoc = BixiManager.findAllBikeStationsLocationList(context.getContentResolver(), currentLocation, false);
+		MyLog.d(TAG, "1st try: " + Utils.getCollectionSize(allBikeStationsWithLoc));
+		if (Utils.getCollectionSize(allBikeStationsWithLoc) == 0) { // if no value return
+			// do it the hard long way
+			allBikeStationsWithLoc = BixiManager.findAllBikeStationsList(this.context.getContentResolver(), false);
+		}
+		return allBikeStationsWithLoc;
+	}
+
 	/**
 	 * Remove not installed station
 	 * @param bikeStations the bike stations list to update
 	 */
-	private void removeNotInstalled(List<BikeStation> bikeStations) {
+	public void removeNotInstalled(List<BikeStation> bikeStations) {
 		if (bikeStations != null) {
 			Iterator<BikeStation> it = bikeStations.iterator();
 			while (it.hasNext()) {
