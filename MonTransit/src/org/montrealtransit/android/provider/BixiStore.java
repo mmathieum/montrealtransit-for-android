@@ -33,6 +33,10 @@ public class BixiStore {
 		 */
 		public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/bikestations");
 		/**
+		 * The content URI for the location.
+		 */
+		public static final Uri CONTENT_URI_LOC = Uri.parse("content://" + AUTHORITY + "/bikestationsloc");
+		/**
 		 * The MIME type of {@link #CONTENT_URI} providing a directory of bike station entries.
 		 */
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd." + AUTHORITY + ".provider.bikestations";
