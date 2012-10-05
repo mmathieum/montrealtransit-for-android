@@ -134,6 +134,14 @@ public class BusLineSelectDirection implements View.OnClickListener, BusLineSele
 			showFirstAlertDialog();
 		} catch (WrongBusLineNumberException e) {
 			Utils.notifyTheUser(this.context, this.context.getString(R.string.wrong_line_number_and_number, this.lineNumber));
+		} catch (OutOfMemoryError oome) { // occurs on some low end devices (like Samsung Galaxy 551)
+			if (this.simpleDirectionsIds == null || this.simpleDirectionsIds.isEmpty()) {
+				getFirstItems();
+			}
+			// show the 1st direction
+			String directionId = getDirectionId(BusLineSelectDirection.this.simpleDirectionsIds.get(0));
+			String number = BusLineSelectDirection.this.lineNumber;
+			BusLineSelectDirection.this.listener.showNewLine(number, directionId);
 		}
 	}
 
@@ -156,8 +164,8 @@ public class BusLineSelectDirection implements View.OnClickListener, BusLineSele
 						// FIRST DIALOG (simple directions)
 						// IF more than 1 detail directions for this simple direction DO
 						if (isMoreThanOneDirectionFor(BusLineSelectDirection.this.simpleDirectionsIds.get(which))) {
-							// show the second dialog
-							showSecondDialog(BusLineSelectDirection.this.simpleDirectionsIds.get(which));
+							// show the 2nd dialog
+							showSecondDialog(BusLineSelectDirection.this.simpleDirectionsIds.get(which), dialog);
 						} else {
 							// show the bus line direction
 							String directionId = getDirectionId(BusLineSelectDirection.this.simpleDirectionsIds.get(which));
@@ -171,7 +179,7 @@ public class BusLineSelectDirection implements View.OnClickListener, BusLineSele
 				}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss(); // CANCEL
+						dialog.cancel(); // CANCEL
 					}
 				}).create().show();
 	}
@@ -220,17 +228,18 @@ public class BusLineSelectDirection implements View.OnClickListener, BusLineSele
 	/**
 	 * Show the second dialog (detail directions)
 	 * @param simpleDirectionId the simple direction ID
+	 * @param firstDialog 1st dialog
 	 */
-	public void showSecondDialog(String simpleDirectionId) {
+	public void showSecondDialog(String simpleDirectionId, DialogInterface firstDialog) {
 		this.secondDialog = true;
-		showSecondAlertDialog(simpleDirectionId);
+		showSecondAlertDialog(simpleDirectionId, firstDialog);
 	}
 
 	/**
 	 * @param simpleDirectionId the simple direction ID
 	 * @return the dialog of detail directions ID
 	 */
-	private void showSecondAlertDialog(String simpleDirectionId) {
+	private void showSecondAlertDialog(String simpleDirectionId, final DialogInterface firstDialog) {
 		String title = this.context.getString(R.string.select_bus_line_detail_direction_and_number_and_direction, this.lineNumber,
 				this.context.getString(BusUtils.getBusLineDirectionStringIdFromId(simpleDirectionId).get(0)));
 		String[] secondItems = getSecondItems(simpleDirectionId); // initialize detailDirectionsIds
@@ -246,13 +255,14 @@ public class BusLineSelectDirection implements View.OnClickListener, BusLineSele
 				String directionId = BusLineSelectDirection.this.detailDirectionsIds.get(which);
 				BusLineSelectDirection.this.listener.showNewLine(number, directionId);
 				dialog.dismiss(); // CLOSE
+				firstDialog.dismiss(); // also close 1st dialog
 			}
 		}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.cancel(); // CANCEL
 				BusLineSelectDirection.this.secondDialog = false;
-				showDialog(); // show first dialog
+				// 1st dialog is still open
 			}
 		}).create().show();
 	}
