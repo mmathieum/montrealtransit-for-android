@@ -15,9 +15,9 @@ import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.SensorUtils;
+import org.montrealtransit.android.SensorUtils.CompassListener;
 import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.Utils;
-import org.montrealtransit.android.SensorUtils.CompassListener;
 import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.BusStopHours;
 import org.montrealtransit.android.data.Pair;
@@ -507,14 +507,24 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		((TextView) findViewById(R.id.bus_stop_place)).setText(BusUtils.cleanBusStopPlace(this.busStop.getPlace()));
 		// set the favorite icon
 		setTheStar();
-		// set bus line number
-		((TextView) findViewById(R.id.line_number)).setText(this.busLine.getNumber());
-		findViewById(R.id.line_number).setBackgroundColor(BusUtils.getBusLineTypeBgColorFromType(this.busLine.getType()));
-		// set listener
-		BusLineSelectDirection busLineSelectDirection = new BusLineSelectDirection(this, this.busLine.getNumber(), this.busLine.getName(),
-				this.busLine.getType(), this.busStopDirection.getId());
-		findViewById(R.id.line_number).setOnClickListener(busLineSelectDirection);
+		// set bus line number & direction
+		TextView lineNumberTv = (TextView) findViewById(R.id.line_number);
+		lineNumberTv.setText(this.busLine.getNumber());
+		lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColorFromType(this.busLine.getType()));
 		((TextView) findViewById(R.id.line_direction)).setText(BusUtils.getBusLineSimpleDirection(this.busStop.getDirectionId()));
+		// set listener
+		findViewById(R.id.line).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent mIntent = new Intent(BusStopInfo.this, BusLineInfo.class);
+				mIntent.putExtra(BusLineInfo.EXTRA_LINE_NUMBER, BusStopInfo.this.busLine.getNumber());
+				mIntent.putExtra(BusLineInfo.EXTRA_LINE_NAME, BusStopInfo.this.busLine.getName());
+				mIntent.putExtra(BusLineInfo.EXTRA_LINE_TYPE, BusStopInfo.this.busLine.getType());
+				mIntent.putExtra(BusLineInfo.EXTRA_LINE_DIRECTION_ID, BusStopInfo.this.busStopDirection.getId());
+				startActivity(mIntent);
+
+			}
+		});
 	}
 
 	/**
