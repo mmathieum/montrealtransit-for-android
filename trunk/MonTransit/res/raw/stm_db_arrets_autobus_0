@@ -1147,7 +1147,7 @@ INSERT INTO "arrets_autobus" VALUES(52844,30,'3001S','Berri / Sainte-Catherine',
 INSERT INTO "arrets_autobus" VALUES(52906,30,'3001S','Berri / René-Lévesque','','',41);
 INSERT INTO "arrets_autobus" VALUES(52977,30,'3001S','Berri / Viger','','',42);
 INSERT INTO "arrets_autobus" VALUES(60613,30,'3001S','Saint-Antoine / Saint-Hubert','','',43);
-INSERT INTO "arrets_autobus" VALUES(30614,30,'3001S','Amherst / Viger','','Descente seulement',44);
+INSERT INTO "arrets_autobus" VALUES(60614,30,'3001S','Amherst / Viger','','Descente seulement',44);
 INSERT INTO "arrets_autobus" VALUES(60614,30,'3001N','Amherst / Viger','','',0);
 INSERT INTO "arrets_autobus" VALUES(60615,30,'3001N','Viger / Saint-Hubert','','',1);
 INSERT INTO "arrets_autobus" VALUES(52904,30,'3001N','Berri / René-Lévesque','','',2);
@@ -1991,7 +1991,7 @@ INSERT INTO "arrets_autobus" VALUES(51471,41,'4101E','Saint-Michel / Crémazie',
 INSERT INTO "arrets_autobus" VALUES(51473,41,'4101E','Saint-Michel / Crémazie','','',31);
 INSERT INTO "arrets_autobus" VALUES(51519,41,'4101E','Saint-Michel / Villeray','','',32);
 INSERT INTO "arrets_autobus" VALUES(51557,41,'4101E','Saint-Michel / L.-O.-David','','',33);
-INSERT INTO "arrets_autobus" VALUES(51605,41,'4101E','Station Saint-Michel Ouest',64,'',34);
+INSERT INTO "arrets_autobus" VALUES(60771,41,'4101E','Station Saint-Michel',64,'',34);
 INSERT INTO "arrets_autobus" VALUES(51663,41,'4101E','Jean-Talon / 13e Avenue','','',35);
 INSERT INTO "arrets_autobus" VALUES(51693,41,'4101E','Jean-Talon / 15e Avenue','','',36);
 INSERT INTO "arrets_autobus" VALUES(51707,41,'4101E','Jean-Talon / 17e Avenue','','',37);
@@ -2133,7 +2133,7 @@ INSERT INTO "arrets_autobus" VALUES(55033,43,'43ABO','Gouin / Audoin','','',57);
 INSERT INTO "arrets_autobus" VALUES(55331,43,'43ABO','Gouin / Belleville','','',58);
 INSERT INTO "arrets_autobus" VALUES(55316,43,'43ABO','Gouin / Laurentides','','',59);
 INSERT INTO "arrets_autobus" VALUES(55044,43,'43ABO','Saint-Vital / Henri-Bourassa','','Descente seulement',60);
-INSERT INTO "arrets_autobus" VALUES(61268,43,'43ABE','Henri-Bourassa Est / No 3663','','',0);
+INSERT INTO "arrets_autobus" VALUES(55337,43,'43ABE','Saint-Vital / Henri-Bourassa','','',0);
 INSERT INTO "arrets_autobus" VALUES(55332,43,'43ABE','Gouin Est / No 3591','','',1);
 INSERT INTO "arrets_autobus" VALUES(55032,43,'43ABE','Gouin / Lausanne','','',2);
 INSERT INTO "arrets_autobus" VALUES(55030,43,'43ABE','Gouin Est / No 3315','','',3);
