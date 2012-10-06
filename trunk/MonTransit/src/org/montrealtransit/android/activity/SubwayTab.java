@@ -789,7 +789,9 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	private void adaptToScreenSize(Configuration configuration) {
 		if (Utils.isScreenHeightSmall(this, configuration)) {
 			// HIDE AD
-			findViewById(R.id.ad_layout).setVisibility(View.GONE); // not enough space on phone
+			if (findViewById(R.id.ad_layout) != null) {
+				findViewById(R.id.ad_layout).setVisibility(View.GONE); // not enough space on phone
+			}
 			// HIDE STATUS
 			findViewById(R.id.subway_status_title).setVisibility(View.GONE);
 			if (findViewById(R.id.subway_status) != null) { // IF present/inflated DO
@@ -965,8 +967,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	}
 
 	/**
-	 * @param force true to force notify
-	 * {@link ArrayAdapter#notifyDataSetChanged()} if necessary
+	 * @param force true to force notify {@link ArrayAdapter#notifyDataSetChanged()} if necessary
 	 */
 	public void notifyDataSetChanged(boolean force) {
 		// MyLog.v(TAG, "notifyDataSetChanged(%s)", force);
