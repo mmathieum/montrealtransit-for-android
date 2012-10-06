@@ -43,6 +43,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -191,6 +192,13 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 				// MyLog.v(TAG, "onItemClick(%s, %s, %s ,%s)", l.getId(), v.getId(), position, id);
 				if (BusLineInfo.this.busStops != null && position < BusLineInfo.this.busStops.size() && BusLineInfo.this.busStops.get(position) != null
 						&& !TextUtils.isEmpty(BusLineInfo.this.busStops.get(position).getCode())) {
+					// IF last bus stop, show descent only
+					if (position + 1 == BusLineInfo.this.busStops.size()) {
+						Toast toast = Toast.makeText(BusLineInfo.this, R.string.bus_stop_descent_only, Toast.LENGTH_SHORT);
+						toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+						toast.show();
+						return;
+					}
 					Intent intent = new Intent(BusLineInfo.this, BusStopInfo.class);
 					String busStopCode = BusLineInfo.this.busStops.get(position).getCode();
 					String busStopPlace = BusLineInfo.this.busStops.get(position).getPlace();
