@@ -77,6 +77,7 @@
 	<string name="bus_stop_short">Stop</string>
 	<string name="bus_stop_and_line_short">Stop %1$s (Line %2$s)</string>
 	<string name="bus_stop_removed">The bus line %s no longer passes at this bus stop!</string>
+	<string name="bus_stop_descent_only">Descent only</string>
 	<string name="bus_stop_no_info_and_source">No information on %2$s about the line %1$s at this bus stop.</string>
 	<string name="waiting_for_location_fix">Waiting for location&#8230;</string>
 	<string name="no_location_provider_available">No location provider available.\nYou need to enable location by wireless network or GPS satellites in your phone settings.</string>
@@ -93,14 +94,18 @@
 	<string name="shake_closest_bike_station_selected">Closest bike station selected</string>
 	<string name="bike">Bike</string>
 	<string name="bikes">Bikes</string>
-	<string name="bike_no">No Bike!</string>
-	<string name="bike_and_nb">Bike: %s</string>
-	<string name="bikes_and_nb">Bikes: %s</string>
+	<plurals name="bikes_nb">
+	    <item quantity="zero">No Bike!</item>
+        <item quantity="one">%d bike</item>
+        <item quantity="other">%d bikes</item>
+    </plurals>
 	<string name="dock">Dock</string>
 	<string name="docks">Docks</string>
-	<string name="dock_no">No Dock!</string>
-	<string name="dock_and_nb">Dock : %s</string>
-	<string name="docks_and_nb">Docks : %s</string>
+	<plurals name="docks_nb">
+	    <item quantity="zero">No Dock!</item>
+        <item quantity="one">%d dock</item>
+        <item quantity="other">%d docks</item>
+    </plurals>
 	<string name="bike_station">Bike station</string>
 	<string name="bike_stations">Bike stations</string>
 	<string name="closest_bike_stations">Closest stations</string>

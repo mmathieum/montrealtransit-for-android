@@ -1,6 +1,5 @@
 package org.montrealtransit.android.activity;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -98,8 +97,8 @@ public class FavListTab extends Activity {
 			private List<DataStore.Fav> newBusStopFavList;
 			private List<BusStop> busStopsExtendedList;
 			private List<DataStore.Fav> newSubwayFavList;
-			private Map<String, SubwayStation> stations;
-			private Map<String, List<SubwayLine>> otherLines;
+			private Map<String, SubwayStation> subwayStations;
+			private Map<String, List<SubwayLine>> otherSubwayLines;
 			private List<DataStore.Fav> newBikeFavList;
 			private Map<String, BikeStation> bikeStations;
 
@@ -109,46 +108,37 @@ public class FavListTab extends Activity {
 				// BUS STOPs
 				this.newBusStopFavList = DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
 				if (FavListTab.this.currentBusStopFavList == null || !Fav.listEquals(FavListTab.this.currentBusStopFavList, this.newBusStopFavList)) {
-					MyLog.d(TAG, "Loading bus stop favorites from DB...");
 					if (Utils.getCollectionSize(this.newBusStopFavList) > 0) {
+						MyLog.d(TAG, "Loading bus stop favorites from DB...");
 						this.busStopsExtendedList = StmManager.findBusStopsExtendedList(getContentResolver(),
 								Utils.extractBusStopIDsFromFavList(this.newBusStopFavList));
+						MyLog.d(TAG, "Loading bus stop favorites from DB... DONE");
 					}
-					MyLog.d(TAG, "Loading bus stop favorites from DB... DONE");
 				}
 				// SUBWAY STATIONs
 				this.newSubwayFavList = DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
 				if (FavListTab.this.currentSubwayStationFavList == null || !Fav.listEquals(FavListTab.this.currentSubwayStationFavList, this.newSubwayFavList)) {
 					MyLog.d(TAG, "Loading subway station favorites from DB...");
-					this.stations = new HashMap<String, SubwayStation>();
-					this.otherLines = new HashMap<String, List<SubwayLine>>();
+					this.subwayStations = new HashMap<String, SubwayStation>();
+					this.otherSubwayLines = new HashMap<String, List<SubwayLine>>();
 					for (Fav subwayFav : this.newSubwayFavList) {
 						SubwayStation station = StmManager.findSubwayStation(getContentResolver(), subwayFav.getFkId());
-						this.stations.put(subwayFav.getFkId(), station);
+						this.subwayStations.put(subwayFav.getFkId(), station);
 						if (station != null) {
-							this.otherLines.put(station.getId(), StmManager.findSubwayStationLinesList(getContentResolver(), station.getId()));
+							this.otherSubwayLines.put(station.getId(), StmManager.findSubwayStationLinesList(getContentResolver(), station.getId()));
 						}
 					}
 					MyLog.d(TAG, "Loading subway station favorites from DB... DONE");
 				}
 				// BIKE STATIONs
-				List<Fav> bikeFavList = DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BIKE_STATIONS);
-				if (FavListTab.this.currentBikeStationFavList == null || !Fav.listEquals(FavListTab.this.currentBikeStationFavList, bikeFavList)) {
-					MyLog.d(TAG, "Loading bike station favorites from DB...");
-					this.bikeStations = new HashMap<String, BikeStation>();
-					this.newBikeFavList = new ArrayList<DataStore.Fav>();
-					for (Fav bikeFav : bikeFavList) {
-						if (bikeFav.getFkId() != null) { // need check because of previous issue corrupting favorites
-    						BikeStation station = BixiManager.findBikeStation(getContentResolver(), bikeFav.getFkId());
-    						if (station != null) { // IF station found DO (maybe no loaded yet)
-    							this.bikeStations.put(bikeFav.getFkId(), station);
-    							this.newBikeFavList.add(bikeFav);
-    						}
-						}
+				this.newBikeFavList = DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BIKE_STATIONS);
+				if (FavListTab.this.currentBikeStationFavList == null || !Fav.listEquals(FavListTab.this.currentBikeStationFavList, this.newBikeFavList)) {
+					if (Utils.getCollectionSize(this.newBikeFavList) > 0) {
+						MyLog.d(TAG, "Loading bike station favorites from DB...");
+						this.bikeStations = BixiManager.findBikeStationsMap(getContentResolver(),
+								Utils.extractBikeStationTerminNamesFromFavList(this.newBikeFavList));
+						MyLog.d(TAG, "Loading bike station favorites from DB... DONE");
 					}
-					MyLog.d(TAG, "Loading bike station favorites from DB... DONE");
-				} else {
-					this.newBikeFavList = bikeFavList;
 				}
 				return null;
 			}
@@ -159,7 +149,7 @@ public class FavListTab extends Activity {
 					refreshBusStopsUI(this.newBusStopFavList, this.busStopsExtendedList);
 				}
 				if (newSubwayFavList != null) { // IF favorite subway station list was refreshed DO update the UI
-					refreshSubwayStationsUI(this.newSubwayFavList, this.stations, this.otherLines);
+					refreshSubwayStationsUI(this.newSubwayFavList, this.subwayStations, this.otherSubwayLines);
 				}
 				if (newBikeFavList != null) { // IF favorite bike station list was refreshed DO update the UI
 					refreshBikeStationsUI(this.newBikeFavList, this.bikeStations);
@@ -265,8 +255,9 @@ public class FavListTab extends Activity {
 						final View theViewToDelete = v;
 						new AlertDialog.Builder(FavListTab.this)
 								.setTitle(getString(R.string.bus_stop_and_line_short, busStop.getCode(), busStop.getLineNumber()))
-								.setItems(new CharSequence[] { getString(R.string.view_bus_stop), getString(R.string.view_bus_stop_line), getString(R.string.remove_fav) },
-										new DialogInterface.OnClickListener() {
+								.setItems(
+										new CharSequence[] { getString(R.string.view_bus_stop), getString(R.string.view_bus_stop_line),
+												getString(R.string.remove_fav) }, new DialogInterface.OnClickListener() {
 											public void onClick(DialogInterface dialog, int item) {
 												MyLog.v(TAG, "onClick(%s)", item);
 												switch (item) {

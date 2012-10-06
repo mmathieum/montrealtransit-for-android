@@ -1,9 +1,9 @@
 package org.montrealtransit.android.provider;
 
 import java.util.Arrays;
-import java.util.Locale;
 
 import org.montrealtransit.android.Constant;
+import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MyLog;
 
 import android.content.ContentProvider;
@@ -100,17 +100,25 @@ public class BixiProvider extends ContentProvider {
 			qb.setTables(BixiDbHelper.T_BIKE_STATIONS);
 			qb.appendWhere(BixiDbHelper.T_BIKE_STATIONS + "." + BixiDbHelper.T_BIKE_STATIONS_K_TERMINAL_NAME + "=" + uri.getPathSegments().get(1));
 			break;
+		case BIKE_STATION_IDS:
+			MyLog.d(TAG, "BIKE_STATION_IDS");
+			qb.setTables(BixiDbHelper.T_BIKE_STATIONS);
+			String[] terminalNames = uri.getPathSegments().get(1).split("\\+");
+			qb.appendWhere(BixiDbHelper.T_BIKE_STATIONS + "." + BixiDbHelper.T_BIKE_STATIONS_K_TERMINAL_NAME + " IN (");
+			for (int i = 0; i < terminalNames.length; i++) {
+				if (i > 0) {
+					qb.appendWhere(",");
+				}
+				qb.appendWhere("'" + terminalNames[i] + "'");
+			}
+			qb.appendWhere(")");
+			break;
 		case BIKE_STATION_LOC_LAT_LNG:
 			MyLog.d(TAG, "BIKE_STATION_LOC_LAT_LNG");
 			qb.setTables(BixiDbHelper.T_BIKE_STATIONS);
 			String[] latlng = uri.getPathSegments().get(1).split("\\+");
-			double d1 = Double.parseDouble(String.format(Locale.US, "%.4g", Double.parseDouble(latlng[0])));
-			double d2 = Double.valueOf(String.format(Locale.US, "%.4g", Double.parseDouble(latlng[1])));
-			qb.appendWhere(BixiDbHelper.T_BIKE_STATIONS + "." + BixiDbHelper.T_BIKE_STATIONS_K_LAT + " BETWEEN "
-					+ String.format(Locale.US, "%.4g", d1 - 0.01) + " AND " + String.format(Locale.US, "%.4g", d1 + 0.01));
-			qb.appendWhere(" AND ");
-			qb.appendWhere(BixiDbHelper.T_BIKE_STATIONS + "." + BixiDbHelper.T_BIKE_STATIONS_K_LNG + " BETWEEN "
-					+ String.format(Locale.US, "%.4g", d2 - 0.01) + " AND " + String.format(Locale.US, "%.4g", d2 + 0.01));
+			qb.appendWhere(LocationUtils.genAroundWhere(latlng[0], latlng[1], BixiDbHelper.T_BIKE_STATIONS + "." + BixiDbHelper.T_BIKE_STATIONS_K_LAT,
+					BixiDbHelper.T_BIKE_STATIONS + "." + BixiDbHelper.T_BIKE_STATIONS_K_LNG));
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI (query) :" + uri);

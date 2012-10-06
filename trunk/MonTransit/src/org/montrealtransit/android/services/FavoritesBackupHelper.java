@@ -210,9 +210,20 @@ public class FavoritesBackupHelper implements BackupHelper {
 	 */
 	private void writeStateFile(ParcelFileDescriptor stateFile) throws IOException {
 		MyLog.v(TAG, "writeStateFile()");
-		FileOutputStream outstream = new FileOutputStream(stateFile.getFileDescriptor());
-		DataOutputStream out = new DataOutputStream(outstream);
-		out.writeUTF(Fav.serializeFavs(this.currentFavs));
+		FileOutputStream outstream = null;
+		DataOutputStream out = null;
+		try {
+			outstream = new FileOutputStream(stateFile.getFileDescriptor());
+			out = new DataOutputStream(outstream);
+			out.writeUTF(Fav.serializeFavs(this.currentFavs));
+		} finally {
+			if (out != null) {
+				out.close();
+			}
+			if (outstream != null) {
+				outstream.close();
+			}
+		}
 	}
 
 	/**

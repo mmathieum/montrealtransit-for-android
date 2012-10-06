@@ -854,9 +854,50 @@ public class StmManager {
 	 * @return the subway stations and subway line pairs
 	 */
 	public static Cursor findSubwayStationsAndLines(ContentResolver contentResolver) {
-		Uri subwayStationsUri = StmStore.SubwayStation.CONTENT_URI;
-		Uri subwayLinesUri = Uri.withAppendedPath(subwayStationsUri, StmStore.SubwayStation.SubwayLines.CONTENT_DIRECTORY);
-		return contentResolver.query(subwayLinesUri, PROJECTION_SUBWAY_LINES_STATIONS, null, null, null);
+		return contentResolver.query(Uri.withAppendedPath(StmStore.SubwayStation.CONTENT_URI, StmStore.SubwayStation.SubwayLines.CONTENT_DIRECTORY),
+				PROJECTION_SUBWAY_LINES_STATIONS, null, null, null);
+	}
+
+	/**
+	 * @param contentResolver content resolver
+	 * @param location the location
+	 * @return all bus stops w/ location close to a location
+	 */
+	public static Cursor findAllSubwayStationsAndLinesLocation(ContentResolver contentResolver, Location location) {
+		MyLog.v(TAG, "findAllSubwayStationsAndLinesLocation()");
+		return contentResolver.query(Uri.withAppendedPath(StmStore.SubwayStation.CONTENT_URI_LOC, location.getLatitude() + "+" + location.getLongitude()),
+				PROJECTION_SUBWAY_LINES_STATIONS, null, null, null);
+	}
+
+	/**
+	 * @param contentResolver content resolver
+	 * @param location the location
+	 * @return all bus stops w/ location list close to a location
+	 */
+	public static List<Pair<SubwayLine, SubwayStation>> findAllSubwayStationsAndLinesLocationList(ContentResolver contentResolver, Location location) {
+		List<Pair<SubwayLine, SubwayStation>> result = null;
+		Cursor c = null;
+		try {
+			c = findAllSubwayStationsAndLinesLocation(contentResolver, location);
+			if (c.getCount() > 0) {
+				if (c.moveToFirst()) {
+					result = new ArrayList<Pair<SubwayLine, SubwayStation>>();
+					do {
+						SubwayStation station = StmStore.SubwayStation.fromCursor(c);
+						SubwayLine line = StmStore.SubwayLine.fromCursor(c);
+						result.add(new Pair<SubwayLine, SubwayStation>(line, station));
+					} while (c.moveToNext());
+				} else {
+					MyLog.w(TAG, "cursor is EMPTY !!!");
+				}
+			} else {
+				MyLog.w(TAG, "cursor.SIZE = 0 !!!");
+			}
+		} finally {
+			if (c != null)
+				c.close();
+		}
+		return result;
 	}
 
 	/**

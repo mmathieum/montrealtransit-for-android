@@ -898,6 +898,10 @@ public class StmStore {
 		 */
 		public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/subwaystations");
 		/**
+		 * The content URI for the location.
+		 */
+		public static final Uri CONTENT_URI_LOC = Uri.parse("content://" + AUTHORITY + "/subwaystationsloc");
+		/**
 		 * The MIME type of {@link #CONTENT_URI} providing a directory of subway stations.
 		 */
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd." + AUTHORITY + ".provider.subwaystations";
