@@ -2,6 +2,7 @@ package org.montrealtransit.android;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
 import android.app.Activity;
 import android.content.Context;
@@ -44,6 +45,14 @@ public class LocationUtils {
 	 * How long do we even consider the location? (in milliseconds)
 	 */
 	private static final long MAX_LAST_KNOW_LOCATION_TIME = 2 * 60 * 1000; // 2 minutes
+	/**
+	 * The range of the location around.
+	 */
+	public static final double AROUND_DIFF = 0.02;
+	/**
+	 * The string formatter to truncate around location.
+	 */
+	private static final String AROUND_TRUNC = "%.4g";
 
 	/**
 	 * Utility class.
@@ -292,5 +301,45 @@ public class LocationUtils {
 		}
 		// MyLog.d(TAG, "text: " + sb.toString();
 		return sb.toString();
+	}
+
+	/**
+	 * @param loc the location (latitude/longitude)
+	 * @return the truncated location
+	 */
+	public static double truncAround(String loc) {
+		// return Double.parseDouble(String.format(Locale.US, AROUND_TRUNC, Double.parseDouble(loc)));
+		return Double.parseDouble(truncAround(Double.parseDouble(loc)));
+	}
+
+	/**
+	 * @param loc the location (latitude/longitude)
+	 * @return the truncated location
+	 */
+	public static String truncAround(double loc) {
+		return String.format(Locale.US, AROUND_TRUNC, loc);
+	}
+
+	/**
+	 * @param lat latitude
+	 * @param lng longitude
+	 * @param latTableColumn latitude SQL table column
+	 * @param lngTableColumn longitude SQL table column
+	 * @return the SQL where clause
+	 */
+	public static String genAroundWhere(String lat, String lng, String latTableColumn, String lngTableColumn) {
+		StringBuilder qb = new StringBuilder();
+		// latitude
+		double latTrunc = truncAround(lat);
+		String latBefore = truncAround(latTrunc - AROUND_DIFF);
+		String latAfter = truncAround(latTrunc + AROUND_DIFF);
+		qb.append(latTableColumn).append(" BETWEEN ").append(latBefore).append(" AND ").append(latAfter);
+		qb.append(" AND ");
+		// longitude
+		double lngTrunc = truncAround(lng);
+		String lngBefore = truncAround(lngTrunc - AROUND_DIFF);
+		String lngAfter = truncAround(lngTrunc + AROUND_DIFF);
+		qb.append(lngTableColumn).append(" BETWEEN ").append(lngBefore).append(" AND ").append(lngAfter);
+		return qb.toString();
 	}
 }

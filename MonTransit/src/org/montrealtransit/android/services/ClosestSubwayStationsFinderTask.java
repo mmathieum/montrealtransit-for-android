@@ -91,8 +91,16 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 		boolean isDetailed = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
 				UserPreferences.PREFS_DISTANCE_DETAILED);
 		String distanceUnit = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
+		// try the short way with location hack
+		List<Pair<SubwayLine, SubwayStation>> subwayStationsWithLoc = StmManager.findAllSubwayStationsAndLinesLocationList(context.getContentResolver(),
+				currentLocation);
+		// MyLog.d(TAG, "1st try: " + Utils.getCollectionSize(subwayStationsWithLoc));
+		if (Utils.getCollectionSize(subwayStationsWithLoc) == 0) { // if no value return
+			// do it the hard long way
+			subwayStationsWithLoc = StmManager.findSubwayStationsAndLinesList(context.getContentResolver());
+		}
 		// FOR each subway line + station combinations DO
-		for (Pair<SubwayLine, SubwayStation> lineStation : StmManager.findSubwayStationsAndLinesList(context.getContentResolver())) {
+		for (Pair<SubwayLine, SubwayStation> lineStation : subwayStationsWithLoc) {
 			// read subway line number
 			SubwayLine subwayLine = lineStation.first;
 			// read subway station ID

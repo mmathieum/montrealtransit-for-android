@@ -45,12 +45,10 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 	 * The log tag.
 	 */
 	private static final String TAG = BixiDataReader.class.getSimpleName();
-
 	/**
 	 * The source string.
 	 */
 	public static final String SOURCE = "montreal.bixi.com";
-
 	/**
 	 * The montreal.bixi.com XML URL.
 	 */
@@ -60,43 +58,33 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 	 * The context executing the task.
 	 */
 	private Context context;
-
 	/**
 	 * The class that will handle the answer.
 	 */
 	private BixiDataReaderListener from;
-
 	/**
 	 * The new update date.
 	 */
 	private int newUpdate;
-
 	/**
 	 * The last update date.
 	 */
 	private int lastUpdate;
 
 	/**
-	 * True if enforcing full database update, false otherwise.
-	 */
-	private boolean forceDBUpdate;
-
-	/**
 	 * The default constructor.
 	 * @param context context executing the task
 	 * @param from the class that will handle the answer
 	 */
-	public BixiDataReader(Context context, BixiDataReaderListener from, boolean forceDBUpdate) {
+	public BixiDataReader(Context context, BixiDataReaderListener from) {
 		this.from = from;
 		this.context = context;
-		this.forceDBUpdate = forceDBUpdate;
 	}
 
 	@Override
 	protected List<BikeStation> doInBackground(String... bikeStationTerminalNames) {
 		MyLog.v(TAG, "doInBackground()");
-		List<BikeStation> updatedBikeStations = BixiDataReader.doInForeground(this.context, this.from, this.forceDBUpdate,
-				Arrays.asList(bikeStationTerminalNames), 0);
+		List<BikeStation> updatedBikeStations = BixiDataReader.doInForeground(this.context, this.from, Arrays.asList(bikeStationTerminalNames), 0);
 		// IF no result OR no specific bike station to return DO
 		if (updatedBikeStations == null || bikeStationTerminalNames == null || bikeStationTerminalNames.length == 0) {
 			// just return all (or none!)
@@ -126,8 +114,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 	/**
 	 * Synchronous {@link #doInBackground(String...)} for access from another {@link AsyncTask}.
 	 */
-	public static List<BikeStation> doInForeground(Context context, BixiDataReaderListener from, final boolean forceDBUpdate,
-			final List<String> forceDBUpdateTerminalNames, int tried) {
+	public static List<BikeStation> doInForeground(Context context, BixiDataReaderListener from, final List<String> forceDBUpdateTerminalNames, int tried) {
 		// MyLog.v(TAG, "doInForeground(%s,%s)", forceDBUpdate, Utils.getCollectionSize(forceDBUpdateTerminalNames));
 		try {
 			URL url = new URL(XML_SOURCE);
@@ -149,7 +136,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 				xr.parse(new InputSource(urlc.getInputStream()));
 				// MyLog.d(TAG, "Parsing data... DONE");
 				publishProgress(from, context.getString(R.string.processing));
-				updateDatabaseAll(context, handler.getBikeStations(), forceDBUpdate);
+				updateDatabaseAll(context, handler.getBikeStations());
 				// save new last update
 				UserPreferences.savePrefLcl(context, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, handler.getLastUpdate());
 				if (tried > 0) { // didn't work on 1st try but worked on retry
@@ -164,7 +151,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 				AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BIXI_DATA_LOADING_FAIL,
 						tried + httpsUrlConnection.getResponseMessage(), httpsUrlConnection.getResponseCode());
 				if (tried < MAX_RETRY) {
-					return doInForeground(context, from, forceDBUpdate, forceDBUpdateTerminalNames, ++tried);
+					return doInForeground(context, from, forceDBUpdateTerminalNames, ++tried);
 				} else {
 					return null;
 				}
@@ -174,7 +161,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 			publishProgress(from, context.getString(R.string.error_ssl_and_url, SOURCE));
 			AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BIXI_DATA_LOADING_FAIL, tried + sslhe.getMessage(), 0);
 			if (tried < MAX_RETRY) {
-				return doInForeground(context, from, forceDBUpdate, forceDBUpdateTerminalNames, ++tried);
+				return doInForeground(context, from, forceDBUpdateTerminalNames, ++tried);
 			} else {
 				return null;
 			}
@@ -196,7 +183,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 			publishProgress(from, context.getString(R.string.error));
 			AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BIXI_DATA_LOADING_FAIL, e.getMessage(), 0);
 			if (tried < MAX_RETRY) {
-				return doInForeground(context, from, forceDBUpdate, forceDBUpdateTerminalNames, ++tried);
+				return doInForeground(context, from, forceDBUpdateTerminalNames, ++tried);
 			} else {
 				return null;
 			}
@@ -241,19 +228,16 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 	 * Update the database.
 	 * @param context the context
 	 * @param newBikeStations the new bike stations to put in the database
-	 * @param forceDBUpdate true if forcing the full database to be updated
 	 * @param forceDBUpdateTerminalNames the list of bike station terminal names to be updated in the database or null
 	 * @deprecated not useful anymore. Use {@link #updateDatabaseAll(Context, List, boolean)} directly.
 	 */
 	@Deprecated
-	public static synchronized void updateDatabase(final Context context, final List<BikeStation> newBikeStations, final boolean forceDBUpdate,
-			List<String> forceDBUpdateTerminalNames) {
+	public static synchronized void updateDatabase(final Context context, final List<BikeStation> newBikeStations, List<String> forceDBUpdateTerminalNames) {
 		// MyLog.v(TAG, "updateDatabase(%s,%s,%s)", Utils.getCollectionSize(newBikeStations), forceDBUpdate, forceDBUpdateTerminalNames);
-
 		// IF no bike stations terminal names were provided DO
 		if (Utils.getCollectionSize(forceDBUpdateTerminalNames) == 0) {
 			// synchronously update all
-			updateDatabaseAll(context, newBikeStations, forceDBUpdate);
+			updateDatabaseAll(context, newBikeStations);
 		} else {
 			int updated = 0;
 			// synchronously update these bike stations
@@ -271,7 +255,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 			new AsyncTask<Void, Void, Void>() {
 				@Override
 				protected Void doInBackground(Void... params) {
-					updateDatabaseAll(context, newBikeStations, forceDBUpdate);
+					updateDatabaseAll(context, newBikeStations);
 					return null;
 				}
 			}.execute();
@@ -282,10 +266,9 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 	 * Update all the database.
 	 * @param context the context
 	 * @param newBikeStations the new bike stations
-	 * @param forceDBUpdate true if forcing database update for all bike stations (even when {@link BikeStation#equals(BikeStation, BikeStation)} returns true)
 	 */
-	public static void updateDatabaseAll(Context context, List<BikeStation> newBikeStations, boolean forceDBUpdate) {
-		MyLog.v(TAG, "updateDatabaseAll(%s, %s)", Utils.getCollectionSize(newBikeStations), forceDBUpdate);
+	public static void updateDatabaseAll(Context context, List<BikeStation> newBikeStations) {
+		MyLog.v(TAG, "updateDatabaseAll(%s)", Utils.getCollectionSize(newBikeStations));
 		// delete all existing bike stations
 		BixiManager.deleteAllBikeStations(context.getContentResolver());
 		// add all new bike stations

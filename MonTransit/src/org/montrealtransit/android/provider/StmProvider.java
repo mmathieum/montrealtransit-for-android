@@ -2,9 +2,9 @@ package org.montrealtransit.android.provider;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Locale;
 
 import org.montrealtransit.android.Constant;
+import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.activity.UserPreferences;
 import org.montrealtransit.android.provider.StmStore.BusStop;
@@ -83,6 +83,7 @@ public class StmProvider extends ContentProvider {
 	private static final int BUS_STOPS_CODE = 40;
 	private static final int BUS_STOPS_LOC = 41;
 	private static final int BUS_STOPS_LOC_LAT_LNG = 42;
+	private static final int SUBWAY_STATIONS_LOC_LAT_LNG = 43;
 
 	/**
 	 * Projection for subway station.
@@ -192,6 +193,7 @@ public class StmProvider extends ContentProvider {
 		URI_MATCHER.addURI(AUTHORITY, "subwaystations/#/buslines/#/busstops", SUBWAY_STATION_ID_BUS_LINE_ID_BUS_STOPS);
 		URI_MATCHER.addURI(AUTHORITY, "subwaystations/#/busstops", SUBWAY_STATION_ID_BUS_STOPS);
 		URI_MATCHER.addURI(AUTHORITY, "subwaystations/*", SUBWAY_STATIONS_IDS);
+		URI_MATCHER.addURI(AUTHORITY, "subwaystationsloc/*", SUBWAY_STATIONS_LOC_LAT_LNG);
 		URI_MATCHER.addURI(AUTHORITY, "subwaydirections/#/days/*/hours/*", SUBWAY_DIRECTION_ID_DAY_ID_HOUR_ID);
 		URI_MATCHER.addURI(AUTHORITY, "subwaydirections/#/hours/*", SUBWAY_DIRECTION_ID_WEEK_DAY_HOUR_ID);
 		URI_MATCHER.addURI(AUTHORITY, SearchManager.SUGGEST_URI_PATH_QUERY, SEARCH);
@@ -565,13 +567,8 @@ public class StmProvider extends ContentProvider {
 			qb.setTables(BUS_STOP_LOCATION_LINES_JOIN);
 			qb.setProjectionMap(sBusStopsExtendedWithLocationProjectionMap);
 			String[] latlng = uri.getPathSegments().get(1).split("\\+");
-			double d1 = Double.parseDouble(String.format(Locale.US, "%.4g", Double.parseDouble(latlng[0])));
-			double d2 = Double.valueOf(String.format(Locale.US, "%.4g", Double.parseDouble(latlng[1])));
-			qb.appendWhere(StmDbHelper.T_BUS_STOPS_LOC + "." + StmDbHelper.T_BUS_STOPS_LOC_K_STOP_LAT + " BETWEEN "
-					+ String.format(Locale.US, "%.4g", d1 - 0.01) + " AND " + String.format(Locale.US, "%.4g", d1 + 0.01));
-			qb.appendWhere(" AND ");
-			qb.appendWhere(StmDbHelper.T_BUS_STOPS_LOC + "." + StmDbHelper.T_BUS_STOPS_LOC_K_STOP_LNG + " BETWEEN "
-					+ String.format(Locale.US, "%.4g", d2 - 0.01) + " AND " + String.format(Locale.US, "%.4g", d2 + 0.01));
+			qb.appendWhere(LocationUtils.genAroundWhere(latlng[0], latlng[1], StmDbHelper.T_BUS_STOPS_LOC + "." + StmDbHelper.T_BUS_STOPS_LOC_K_STOP_LAT,
+					StmDbHelper.T_BUS_STOPS_LOC + "." + StmDbHelper.T_BUS_STOPS_LOC_K_STOP_LNG));
 			break;
 		case BUS_STOPS_CODE:
 			MyLog.v(TAG, "query>BUS_STOPS_CODE");
@@ -750,6 +747,15 @@ public class StmProvider extends ContentProvider {
 				qb.appendWhere(subwayStationIds[i]);
 			}
 			qb.appendWhere(")");
+			break;
+		case SUBWAY_STATIONS_LOC_LAT_LNG:
+			MyLog.v(TAG, "query>SUBWAY_STATIONS_LOC_LAT_LNG");
+			qb.setTables(SUBWAY_STATIONS_LINE_DIRECTION_JOIN);
+			qb.setProjectionMap(sSubwayLinesStationsProjectionMap);
+			latlng = uri.getPathSegments().get(1).split("\\+");
+			qb.appendWhere(LocationUtils.genAroundWhere(latlng[0], latlng[1],
+					StmDbHelper.T_SUBWAY_STATIONS + "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LAT, StmDbHelper.T_SUBWAY_STATIONS + "."
+							+ StmDbHelper.T_SUBWAY_STATIONS_K_STATION_LNG));
 			break;
 		case SUBWAY_STATION_ID:
 			MyLog.v(TAG, "query>SUBWAY_STATION_ID");
@@ -947,6 +953,7 @@ public class StmProvider extends ContentProvider {
 			case SUBWAY_LINE_ID_STATIONS_SEARCH:
 			case SUBWAY_STATION_ID_LINES_OTHER:
 			case SUBWAY_STATIONS_AND_LINES:
+			case SUBWAY_STATIONS_LOC_LAT_LNG:
 				orderBy = StmStore.SubwayStation.DEFAULT_SORT_ORDER;
 				break;
 			case SUBWAY_STATION_ID_DIRECTION_ID_DAY:
@@ -1043,6 +1050,8 @@ public class StmProvider extends ContentProvider {
 		case SUBWAY_STATIONS_IDS:
 		case SUBWAY_LINE_ID_STATIONS:
 		case SUBWAY_LINE_ID_STATIONS_SEARCH:
+		case SUBWAY_STATIONS_LOC_LAT_LNG:
+			return StmStore.SubwayStation.CONTENT_TYPE;
 		case SUBWAY_STATION_ID:
 			return StmStore.SubwayStation.CONTENT_ITEM_TYPE;
 		case SEARCH:

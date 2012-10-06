@@ -119,6 +119,77 @@ public class BixiManager {
 	}
 
 	/**
+	 * @param contentResolver the content resolver
+	 * @param terminalNames the bike stations terminal names
+	 * @return the bike stations
+	 */
+	private static Cursor findBikeStations(ContentResolver contentResolver, String terminalNames) {
+		MyLog.v(TAG, "findBikeStations(%s)", terminalNames);
+		return contentResolver.query(Uri.withAppendedPath(BixiStore.BikeStation.CONTENT_URI, terminalNames), null, null, null, null);
+	}
+
+	/**
+	 * @param contentResolver the content resolver
+	 * @param terminalNames the bike stations terminal names
+	 * @return the bike stations list
+	 */
+	public static List<BikeStation> findBikeStationsList(ContentResolver contentResolver, String terminalNames) {
+		MyLog.v(TAG, "findBikeStationsList(%s)", terminalNames);
+		List<BikeStation> result = null;
+		Cursor c = null;
+		try {
+			c = findBikeStations(contentResolver, terminalNames);
+			if (c.getCount() > 0) {
+				if (c.moveToFirst()) {
+					result = new ArrayList<BikeStation>();
+					do {
+						result.add(BixiStore.BikeStation.fromCursor(c));
+					} while (c.moveToNext());
+				} else {
+					MyLog.w(TAG, "No result found for bus stops '%s'", terminalNames);
+				}
+			} else {
+				MyLog.w(TAG, "No result found for bus stops '%s'", terminalNames);
+			}
+		} finally {
+			if (c != null)
+				c.close();
+		}
+		return result;
+	}
+	
+	/**
+	 * @param contentResolver the content resolver
+	 * @param terminalNames the bike stations terminal names
+	 * @return the bike stations list
+	 */
+	public static Map<String, BikeStation> findBikeStationsMap(ContentResolver contentResolver, String terminalNames) {
+		MyLog.v(TAG, "findBikeStationsMap(%s)", terminalNames);
+		Map<String, BikeStation> result = null;
+		Cursor c = null;
+		try {
+			c = findBikeStations(contentResolver, terminalNames);
+			if (c.getCount() > 0) {
+				if (c.moveToFirst()) {
+					result = new HashMap<String, BikeStation>();
+					do {
+						BikeStation station = BixiStore.BikeStation.fromCursor(c);
+						result.put(station.getTerminalName(), station);
+					} while (c.moveToNext());
+				} else {
+					MyLog.w(TAG, "No result found for bus stops '%s'", terminalNames);
+				}
+			} else {
+				MyLog.w(TAG, "No result found for bus stops '%s'", terminalNames);
+			}
+		} finally {
+			if (c != null)
+				c.close();
+		}
+		return result;
+	}
+
+	/**
 	 * @see {@link StmManager#findBikeStation(ContentResolver, Uri)}
 	 * @param contentResolver the content resolver
 	 * @param terminalName the bike station terminal name
@@ -204,8 +275,8 @@ public class BixiManager {
 	 */
 	public static Cursor findAllBikeStationsLocation(ContentResolver contentResolver, Location location) {
 		MyLog.v(TAG, "findAllBikeStationsLocation()");
-		return contentResolver.query(Uri.withAppendedPath(BixiStore.BikeStation.CONTENT_URI_LOC, location.getLatitude() + "+" + location.getLongitude()), null, null,
-				null, null);
+		return contentResolver.query(Uri.withAppendedPath(BixiStore.BikeStation.CONTENT_URI_LOC, location.getLatitude() + "+" + location.getLongitude()), null,
+				null, null, null);
 	}
 
 	/**

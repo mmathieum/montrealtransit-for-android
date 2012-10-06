@@ -77,6 +77,7 @@
 	<string name="bus_stop_short">Arrêt</string>
 	<string name="bus_stop_and_line_short">Arrêt %1$s (Ligne %2$s)</string>
 	<string name="bus_stop_removed">La ligne de bus %s ne passe plus à cette arrêt !</string>
+	<string name="bus_stop_descent_only">Descente seulement</string>
 	<string name="bus_stop_no_info_and_source">Aucune information sur %2$s à propos de la ligne %1$s à cet arrêt.</string>
 	<string name="waiting_for_location_fix">En attente d\'informations de localisation &#8230;</string>
 	<string name="no_location_provider_available">Aucune information de localisation n\'est disponible.\nVous devez activer la localisation par réseaux sans fil et/ou satellites GPS dans les paramètres du téléphone.</string>
@@ -93,14 +94,18 @@
     <string name="shake_closest_bike_station_selected">Closest bike station selected</string>
     <string name="bike">Vélo</string>
 	<string name="bikes">Vélos</string>
-	<string name="bike_no">Aucun vélo!</string>
-	<string name="bike_and_nb">Vélos : %s</string>
-	<string name="bikes_and_nb">Vélos : %s</string>
+	<plurals name="bikes_nb">
+	    <item quantity="zero">Aucun vélo!</item>
+        <item quantity="one">%d vélo</item>
+        <item quantity="other">%d vélos</item>
+    </plurals>
 	<string name="dock">Emplacement</string>
 	<string name="docks">Emplacements</string>
-	<string name="dock_no">Aucun emplacement!</string>
-	<string name="dock_and_nb">Emplacement : %s</string>
-	<string name="docks_and_nb">Emplacements : %s</string>
+	<plurals name="docks_nb">
+	    <item quantity="zero">Aucun emplacement!</item>
+        <item quantity="one">%d emplacement</item>
+        <item quantity="other">%d emplacements</item>
+    </plurals>
 	<string name="bike_station">Station de vélo</string>
 	<string name="bike_stations">Stations de vélo</string>
 	<string name="closest_bike_stations">Stations proches</string>
@@ -340,7 +345,7 @@
     <string name="donate_method">Méthode de paiement : </string>
     <string name="donate_select_method">Choisir la méthode de paiement</string>
     <string name="donate_method_market">Google Play Store</string>
-    <string name="donate_dev">Développeur: </string>
+    <string name="donate_dev">Développeur : </string>
     <string name="donate_select_dev">Choisir le développeur</string>
     <string name="donate_montransit_dev">MonTransit (%s)</string>
     <string name="donate_payment_completed">Donation complétée. Merci !</string>

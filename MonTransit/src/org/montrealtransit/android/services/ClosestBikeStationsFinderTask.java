@@ -88,7 +88,7 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 							+ BIKE_STATION_LIST_TOO_OLD_IN_SEC) {
 				publishProgress(this.context.getString(R.string.downloading_data_from_and_source, BixiDataReader.SOURCE));
 				// look for new data
-				BixiDataReader.doInForeground(this.context, this, true, null, 0);
+				BixiDataReader.doInForeground(this.context, this, null, 0);
 			}
 			publishProgress(this.context.getString(R.string.processing));
 			// get the closest bike station from database or NULL
@@ -106,7 +106,7 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 		MyLog.v(TAG, "getAllBikeStations()");
 		// try the short way with location hack
 		List<BikeStation> allBikeStationsWithLoc = BixiManager.findAllBikeStationsLocationList(context.getContentResolver(), currentLocation, false);
-		MyLog.d(TAG, "1st try: " + Utils.getCollectionSize(allBikeStationsWithLoc));
+		// MyLog.d(TAG, "1st try: " + Utils.getCollectionSize(allBikeStationsWithLoc));
 		if (Utils.getCollectionSize(allBikeStationsWithLoc) == 0) { // if no value return
 			// do it the hard long way
 			allBikeStationsWithLoc = BixiManager.findAllBikeStationsList(this.context.getContentResolver(), false);

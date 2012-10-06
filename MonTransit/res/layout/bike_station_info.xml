@@ -98,7 +98,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical" >
-                <!-- SCHEDULE -->
+                <!-- AVAILABILITY -->
                 <RelativeLayout
                     android:id="@+id/availability_title"
                     android:layout_width="fill_parent"
@@ -156,13 +156,17 @@
                     android:id="@+id/availability"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:padding="10dp"
+                    android:paddingTop="5dp"
+                    android:paddingBottom="5dp"
+                    android:paddingRight="10dp"
+                    android:paddingLeft="10dp"
                     android:visibility="gone" >
                     <ProgressBar
                         android:id="@+id/progress_bar"
                         style="@android:style/Widget.ProgressBar.Horizontal"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
+                        android:indeterminate="true"
                         android:layout_alignParentTop="true" />
                     <TextView
                         android:id="@+id/progress_bike"

@@ -503,6 +503,25 @@ public class Utils {
 		}
 		return sb.toString();
 	}
+	
+	/**
+	 * Extract bike stations terminal name from favorite list.
+	 * @param bikeStationFavList the bike stations favorite list
+	 * @return the bike stations terminal name
+	 */
+	public static String extractBikeStationTerminNamesFromFavList(List<Fav> bikeStationFavList) {
+		StringBuilder sb = new StringBuilder();
+		for (Fav stationFav : bikeStationFavList) {
+			if (stationFav.getFkId() == null) { // need check because of previous issue corrupting favorites
+				continue;
+			}
+			if (sb.length() > 0) {
+				sb.append("+");
+			}
+			sb.append(stationFav.getFkId());
+		}
+		return sb.toString();
+	}
 
 	/**
 	 * Show an about dialog.
