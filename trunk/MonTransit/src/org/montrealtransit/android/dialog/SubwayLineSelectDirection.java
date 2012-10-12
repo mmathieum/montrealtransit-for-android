@@ -5,6 +5,7 @@ import org.montrealtransit.android.R;
 import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.activity.SubwayLineInfo;
 import org.montrealtransit.android.activity.UserPreferences;
+import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
 
@@ -124,22 +125,20 @@ public class SubwayLineSelectDirection implements View.OnClickListener, SubwayLi
 				this.subwayLine.getNumber(), StmStore.SubwayStation.NATURAL_SORT_ORDER_DESC);
 		// MyTrace.d(TAG, "Last station: " + lastSubwayStationDirection.getName());
 
-		String[] items = new String[3];
-		this.orderPref = new String[3];
+		String[] items = new String[2];
+		this.orderPref = new String[2];
 
-		this.orderPref[0] = UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_AZ;
-		items[0] = this.context.getString(R.string.alphabetical_order);
-		this.orderPref[1] = UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL;
-		items[1] = firstSubwayStationDirection.getName();
-		this.orderPref[2] = UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL_DESC;
-		items[2] = lastSubwayStationDirection.getName();
+		this.orderPref[0] = UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL;
+		items[0] = firstSubwayStationDirection.getName();
+		this.orderPref[1] = UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL_DESC;
+		items[1] = lastSubwayStationDirection.getName();
 		return items;
 	}
 
 	@Override
 	public void showNewSubway(int subwayLineId, String orderPref) {
 		MyLog.v(TAG, "showNewSubway(%s, %s)", subwayLineId, orderPref);
-		Intent mIntent = new Intent(this.context, SubwayLineInfo.class);
+		Intent mIntent = new Intent(this.context, SupportFactory.getInstance(this.context).getSubwayLineInfoClass());
 		mIntent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, String.valueOf(subwayLineId));
 		mIntent.putExtra(SubwayLineInfo.EXTRA_ORDER_PREF, orderPref);
 		this.context.startActivity(mIntent);

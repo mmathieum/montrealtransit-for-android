@@ -8,6 +8,7 @@ import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.activity.BusLineInfo;
+import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
 import org.montrealtransit.android.provider.StmStore.BusLineDirection;
@@ -311,7 +312,7 @@ public class BusLineSelectDirection implements View.OnClickListener, BusLineSele
 	@Override
 	public void showNewLine(String lineNumber, String directionId) {
 		MyLog.v(TAG, "showNewLine(%s, %s)", lineNumber, directionId);
-		Intent mIntent = new Intent(this.context, BusLineInfo.class);
+		Intent mIntent = new Intent(this.context, SupportFactory.getInstance(this.context).getBusLineInfoClass());
 		mIntent.putExtra(BusLineInfo.EXTRA_LINE_NUMBER, lineNumber);
 		mIntent.putExtra(BusLineInfo.EXTRA_LINE_NAME, this.lineName);
 		mIntent.putExtra(BusLineInfo.EXTRA_LINE_TYPE, this.lineType);

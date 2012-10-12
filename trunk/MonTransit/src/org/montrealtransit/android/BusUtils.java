@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
+import org.montrealtransit.android.provider.StmStore.BusLineDirection;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -255,6 +256,21 @@ public class BusUtils {
 			}
 		}
 		return results;
+	}
+
+	/**
+	 * @param context the context
+	 * @param busLineDirection the bus line direction
+	 * @return the bus line direction string
+	 */
+	public static String getDirectionString(Context context, BusLineDirection busLineDirection) {
+		List<Integer> busLineDirections = BusUtils.getBusLineDirectionStringIdFromId(busLineDirection.getId());
+		StringBuilder sb = new StringBuilder();
+		sb.append(context.getString(busLineDirections.get(0)));
+		if (busLineDirections.size() >= 2) {
+			sb.append(" ").append(context.getString(busLineDirections.get(1)));
+		}
+		return sb.toString();
 	}
 
 	// /**

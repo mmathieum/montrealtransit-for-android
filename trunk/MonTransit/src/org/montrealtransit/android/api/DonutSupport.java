@@ -24,9 +24,19 @@ public class DonutSupport extends CupcakeSupport {
 	public String getBuildManufacturer() {
 		return Build.MANUFACTURER;
 	}
-	
+
 	@Override
 	public int getScreenLayoutSize(Configuration configuration) {
 		return configuration.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
+	}
+
+	@Override
+	public Class<?> getBusLineInfoClass() {
+		return org.montrealtransit.android.activity.v4.BusLineInfo.class;
+	}
+
+	@Override
+	public Class<?> getSubwayLineInfoClass() {
+		return org.montrealtransit.android.activity.v4.SubwayLineInfo.class;
 	}
 }

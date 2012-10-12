@@ -27,10 +27,10 @@ import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
 import org.montrealtransit.android.provider.StmStore.BusStop;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Typeface;
 import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
@@ -43,7 +43,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -62,6 +61,7 @@ import android.widget.Toast;
  * This activity display information about a bus line.
  * @author Mathieu Méa
  */
+@TargetApi(3)
 public class BusLineInfo extends Activity implements BusLineSelectDirectionDialogListener, LocationListener, SensorEventListener, ShakeListener,
 		CompassListener, OnScrollListener {
 
@@ -100,11 +100,6 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 */
 	private StmStore.BusLineDirection busLineDirection;
 	/**
-	 * The cursor used to display the bus line stops.
-	 */
-	private Cursor cursor;
-
-	/**
 	 * Store the device location.
 	 */
 	private Location location;
@@ -115,7 +110,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	/**
 	 * The list of bus stops.
 	 */
-	private List<ABusStop> busStops = new ArrayList<ABusStop>(); // new ABusStop[0];
+	private List<ABusStop> busStops = new ArrayList<ABusStop>();
 	/**
 	 * The bus stops list adapter.
 	 */
@@ -186,6 +181,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 */
 	public void setupList(ListView list) {
 		list.setEmptyView(findViewById(R.id.list_empty));
+		list.setOnScrollListener(this);
 		list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> l, View v, int position, long id) {
@@ -195,7 +191,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 					// IF last bus stop, show descent only
 					if (position + 1 == BusLineInfo.this.busStops.size()) {
 						Toast toast = Toast.makeText(BusLineInfo.this, R.string.bus_stop_descent_only, Toast.LENGTH_SHORT);
-						toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+						// toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
 						toast.show();
 						return;
 					}
@@ -351,8 +347,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	private long lastNotifyDataSetChanged = -1;
 
 	/**
-	 * @param force true to force notify
-	 * {@link ArrayAdapter#notifyDataSetChanged()} if necessary
+	 * @param force true to force notify {@link ArrayAdapter#notifyDataSetChanged()} if necessary
 	 */
 	public void notifyDataSetChanged(boolean force) {
 		// MyLog.v(TAG, "notifyDataSetChanged(%s)", force);
@@ -395,7 +390,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	}
 
 	/**
-	 * Show the closest subway line station (if possible).
+	 * Show the closest bus line station (if possible).
 	 */
 	private void showClosestStop() {
 		MyLog.v(TAG, "showClosestStop()");
@@ -445,6 +440,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 					return null;
 				}
 
+				@Override
 				protected void onPostExecute(Void result) {
 					refreshAll();
 				};
@@ -494,12 +490,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 				showSelectDirectionDialog(null);
 			}
 		});
-		List<Integer> busLineDirection = BusUtils.getBusLineDirectionStringIdFromId(this.busLineDirection.getId());
-		String direction = getString(busLineDirection.get(0));
-		if (busLineDirection.size() >= 2) {
-			direction += " " + getString(busLineDirection.get(1));
-		}
-		lineStopsTv.setText(getString(R.string.bus_stops_short_and_direction, direction));
+		lineStopsTv.setText(getString(R.string.bus_stops_short_and_direction, BusUtils.getDirectionString(this, this.busLineDirection)));
 	}
 
 	/**
@@ -531,7 +522,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 			protected ABusStop[] doInBackground(Void... params) {
 				List<BusStop> busStopList = StmManager.findBusLineStopsList(BusLineInfo.this.getContentResolver(), BusLineInfo.this.busLine.getNumber(),
 						BusLineInfo.this.busLineDirection.getId());
-				// creating the list of the subways stations object
+				// creating the list of the bus stops object
 				ABusStop[] busStops = new ABusStop[busStopList.size()];
 				int i = 0;
 				for (BusStop busStop : busStopList) {
@@ -559,7 +550,6 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 				refreshFavoriteStopCodesFromDB();
 				BusLineInfo.this.adapter = new ArrayAdapterWithCustomView(BusLineInfo.this, R.layout.bus_line_info_stops_list_item);
 				((ListView) findViewById(R.id.list)).setAdapter(BusLineInfo.this.adapter);
-				((ListView) findViewById(R.id.list)).setOnScrollListener(BusLineInfo.this);
 				updateDistancesWithNewLocation(); // force update all bus stop with location
 			};
 
@@ -835,14 +825,5 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 			return true;
 		}
 		return MenuUtils.handleCommonMenuActions(this, item);
-	}
-
-	@Override
-	protected void onDestroy() {
-		MyLog.v(TAG, "onDestroy()");
-		if (this.cursor != null && !this.cursor.isClosed()) {
-			this.cursor.close();
-		}
-		super.onDestroy();
 	}
 }

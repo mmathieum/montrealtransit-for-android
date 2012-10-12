@@ -8,7 +8,7 @@ import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
-import org.montrealtransit.android.dialog.BusLineSelectDirection;
+import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.StmManager;
@@ -122,7 +122,7 @@ public class BusStopCodeTab extends Activity {
 			}
 		});
 	}
-	
+
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
@@ -168,7 +168,8 @@ public class BusStopCodeTab extends Activity {
 					return DataManager.findAllHistory(BusStopCodeTab.this.getContentResolver());
 				}
 
-				@SuppressWarnings("deprecation") //TODO use {@link android.app.LoaderManager} with a {@link android.content.CursorLoader}
+				@SuppressWarnings("deprecation")
+				// TODO use {@link android.app.LoaderManager} with a {@link android.content.CursorLoader}
 				@Override
 				protected void onPostExecute(Cursor result) {
 					((ListView) findViewById(R.id.list)).setAdapter(new SimpleCursorAdapter(BusStopCodeTab.this, android.R.layout.simple_list_item_1, result,
@@ -203,7 +204,9 @@ public class BusStopCodeTab extends Activity {
 							}
 						}.execute(search);
 					}
-					new BusLineSelectDirection(this, search, null, null).showDialog();
+					Intent intent = new Intent(this, SupportFactory.getInstance(this).getBusLineInfoClass());
+					intent.putExtra(BusLineInfo.EXTRA_LINE_NUMBER, search);
+					startActivity(intent);
 				} else {
 					Utils.notifyTheUserLong(this, getString(R.string.wrong_line_number_and_number, search));
 				}

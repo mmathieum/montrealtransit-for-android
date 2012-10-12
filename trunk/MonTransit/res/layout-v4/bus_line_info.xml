@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res/org.montrealtransit.android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:baselineAligned="false"
+    android:orientation="vertical" >
+    <!-- BUS LINE INFORMATIONS -->
+    <RelativeLayout
+        android:id="@+id/banner"
+        android:layout_width="fill_parent"
+        android:layout_height="55dip"
+        android:background="@android:drawable/title_bar"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingBottom="0dip"
+        android:paddingLeft="0dip"
+        android:paddingRight="5dip"
+        android:paddingTop="0dip" >
+        <!-- BUS LINE NUMBER -->
+        <TextView
+            android:id="@+id/line_number"
+            style="@style/BusLineNumber"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="0dip"
+            android:layout_marginRight="5dip"
+            android:text="@string/default_line_number" />
+        <!-- BUS LINE NAME -->
+        <TextView
+            android:id="@+id/line_name"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/line_number"
+            android:ellipsize="end"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical|left"
+            android:singleLine="true"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/nofocustext" />
+        <!-- android:layout_toLeftOf="@id/bus_type" -->
+    </RelativeLayout>
+    <include
+        android:id="@+id/bus_line_stops_loading"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        layout="@layout/loading_small_layout"
+        android:visibility="visible" />
+    <LinearLayout
+        android:id="@+id/bus_line_stops"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical"
+        android:visibility="gone" >
+        <!-- BUS STOPS TITLE -->
+        <com.viewpagerindicator.TitlePageIndicator
+            android:id="@+id/indicator"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/dark_header_dither"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="14sp"
+            app:footerColor="#FFFFFF"
+            app:selectedColor="#FFFFFF"
+            app:footerIndicatorStyle="triangle"
+            app:linePosition="top"
+            app:selectedBold="true" />
+        <!-- BUS STOPS LIST -->
+        <android.support.v4.view.ViewPager
+            android:id="@+id/viewpager"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+</LinearLayout>

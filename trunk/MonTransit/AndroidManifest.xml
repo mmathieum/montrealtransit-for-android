@@ -59,8 +59,8 @@
 		<activity android:name=".activity.SubwayTab" android:configChanges="orientation|keyboardHidden" />
 		<activity android:name=".activity.BikeTab" />
 		<!-- BUS LINE INFO -->
-		<activity android:name=".activity.BusLineInfo"
-			android:configChanges="orientation|keyboardHidden" />
+		<activity android:name=".activity.BusLineInfo" android:configChanges="orientation|keyboardHidden" />
+		<activity android:name=".activity.v4.BusLineInfo" android:configChanges="orientation|keyboardHidden" />
 		<!-- BUS STOP INFO -->
 		<activity android:name=".activity.BusStopInfo"
 			android:configChanges="orientation|keyboardHidden"
@@ -81,8 +81,8 @@
 		<activity android:name=".activity.SubwayStationInfo"
 			android:configChanges="orientation|keyboardHidden" />
 		<!-- SUBWAY LINE INFO -->
-		<activity android:name=".activity.SubwayLineInfo"
-			android:configChanges="orientation|keyboardHidden" />
+		<activity android:name=".activity.SubwayLineInfo" android:configChanges="orientation|keyboardHidden" />
+		<activity android:name=".activity.v4.SubwayLineInfo" android:configChanges="orientation|keyboardHidden" />
 		<!-- BIKE STATÍON INFO -->
 		<activity android:name=".activity.BikeStationInfo"
 			android:configChanges="orientation|keyboardHidden" />
