@@ -471,7 +471,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 				@Override
 				public void onClick(View v) {
 					MyLog.v(TAG, "onClick(%s)", v.getId());
-					Intent intent = new Intent(SubwayStationInfo.this, SubwayLineInfo.class);
+					Intent intent = new Intent(SubwayStationInfo.this, SupportFactory.getInstance(SubwayStationInfo.this).getSubwayLineInfoClass());
 					String subwayLineNumber = String.valueOf(SubwayStationInfo.this.subwayLines.get(0).getNumber());
 					intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumber);
 					startActivity(intent);
@@ -486,7 +486,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 					@Override
 					public void onClick(View v) {
 						MyLog.v(TAG, "onClick(%s)", v.getId());
-						Intent intent = new Intent(SubwayStationInfo.this, SubwayLineInfo.class);
+						Intent intent = new Intent(SubwayStationInfo.this, SupportFactory.getInstance(SubwayStationInfo.this).getSubwayLineInfoClass());
 						String subwayLineNumber = String.valueOf(SubwayStationInfo.this.subwayLines.get(1).getNumber());
 						intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumber);
 						startActivity(intent);
@@ -501,7 +501,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 						@Override
 						public void onClick(View v) {
 							MyLog.v(TAG, "onClick(%s)", v.getId());
-							Intent intent = new Intent(SubwayStationInfo.this, SubwayLineInfo.class);
+							Intent intent = new Intent(SubwayStationInfo.this, SupportFactory.getInstance(SubwayStationInfo.this).getSubwayLineInfoClass());
 							int lineNumber = SubwayStationInfo.this.subwayLines.get(2).getNumber();
 							String subwayLineNumber = String.valueOf(lineNumber);
 							intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumber);
@@ -623,7 +623,6 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 						if (busLinesNumberDirection.contains(busStop.getLineNumber() + BusUtils.getBusLineSimpleDirection(busStop.getDirectionId()))) {
 							continue;
 						}
-						
 						// create view
 						View view = getLayoutInflater().inflate(R.layout.subway_station_info_bus_line_list_item, null);
 						// bus line number
@@ -632,7 +631,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 						((TextView) view.findViewById(R.id.line_number)).setBackgroundColor(color);
 						// bus line direction
 						int busLineDirection = BusUtils.getBusLineSimpleDirection(busStop.getDirectionId());
-						((TextView) view.findViewById(R.id.line_direction)).setText(busLineDirection);
+						((TextView) view.findViewById(R.id.line_direction)).setText(getString(busLineDirection).toUpperCase());
 						// add click listener
 						view.setOnClickListener(new View.OnClickListener() {
 							@Override
@@ -649,7 +648,8 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 						view.setOnLongClickListener(new View.OnLongClickListener() {
 							@Override
 							public boolean onLongClick(View v) {
-								new BusLineSelectDirection(SubwayStationInfo.this, busStop.getLineNumber(), busStop.getLineNameOrNull(), busStop.getLineTypeOrNull()).showDialog();
+								new BusLineSelectDirection(SubwayStationInfo.this, busStop.getLineNumber(), busStop.getLineNameOrNull(), busStop
+										.getLineTypeOrNull()).showDialog();
 								return true;
 							}
 						});

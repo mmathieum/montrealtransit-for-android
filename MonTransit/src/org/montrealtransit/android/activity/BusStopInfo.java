@@ -511,18 +511,17 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		TextView lineNumberTv = (TextView) findViewById(R.id.line_number);
 		lineNumberTv.setText(this.busLine.getNumber());
 		lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColorFromType(this.busLine.getType()));
-		((TextView) findViewById(R.id.line_direction)).setText(BusUtils.getBusLineSimpleDirection(this.busStop.getDirectionId()));
+		((TextView) findViewById(R.id.line_direction)).setText(getString(BusUtils.getBusLineSimpleDirection(this.busStop.getDirectionId())).toUpperCase());
 		// set listener
 		findViewById(R.id.line).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent mIntent = new Intent(BusStopInfo.this, BusLineInfo.class);
+				Intent mIntent = new Intent(BusStopInfo.this, SupportFactory.getInstance(BusStopInfo.this).getBusLineInfoClass());
 				mIntent.putExtra(BusLineInfo.EXTRA_LINE_NUMBER, BusStopInfo.this.busLine.getNumber());
 				mIntent.putExtra(BusLineInfo.EXTRA_LINE_NAME, BusStopInfo.this.busLine.getName());
 				mIntent.putExtra(BusLineInfo.EXTRA_LINE_TYPE, BusStopInfo.this.busLine.getType());
 				mIntent.putExtra(BusLineInfo.EXTRA_LINE_DIRECTION_ID, BusStopInfo.this.busStopDirection.getId());
 				startActivity(mIntent);
-
 			}
 		});
 	}
@@ -590,7 +589,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 
 			@Override
 			protected void onPostExecute(List<BusStop> result) {
-				MyLog.v(TAG, "onPostExecute(%s)", Utils.getCollectionSize(result));
+				// MyLog.v(TAG, "onPostExecute(%s)", Utils.getCollectionSize(result));
 				// remove all bus lines with the same line number
 				ListIterator<BusStop> it = result.listIterator();
 				Set<String> busLinesNumberDirection = new HashSet<String>();
@@ -638,7 +637,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 				// line direction
 				final String currentDirectionId = busStop.getDirectionId();
 				int busLineDirection = BusUtils.getBusLineSimpleDirection(currentDirectionId);
-				((TextView) view.findViewById(R.id.line_direction)).setText(busLineDirection);
+				((TextView) view.findViewById(R.id.line_direction)).setText(getString(busLineDirection).toUpperCase());
 				view.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {

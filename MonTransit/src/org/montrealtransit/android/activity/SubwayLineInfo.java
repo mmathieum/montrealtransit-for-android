@@ -31,6 +31,7 @@ import org.montrealtransit.android.provider.StmStore;
 import org.montrealtransit.android.provider.StmStore.SubwayLine;
 import org.montrealtransit.android.provider.StmStore.SubwayStation;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -63,6 +64,7 @@ import android.widget.Toast;
  * The subway line info activity.
  * @author Mathieu Méa
  */
+@TargetApi(3)
 public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectionDialogListener, LocationListener, SensorEventListener, ShakeListener,
 		CompassListener, OnScrollListener {
 
@@ -153,8 +155,9 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 
 		setupList((ListView) findViewById(R.id.list));
 
-		showNewSubway(Integer.valueOf(Utils.getSavedStringValue(getIntent(), savedInstanceState, SubwayLineInfo.EXTRA_LINE_NUMBER)),
-				Utils.getSavedStringValue(getIntent(), savedInstanceState, SubwayLineInfo.EXTRA_ORDER_PREF));
+		Integer lineNumber = Integer.valueOf(Utils.getSavedStringValue(getIntent(), savedInstanceState, EXTRA_LINE_NUMBER));
+		String newOrderPref = Utils.getSavedStringValue(getIntent(), savedInstanceState, EXTRA_ORDER_PREF);
+		showNewSubway(lineNumber, newOrderPref);
 	}
 
 	/**
@@ -169,6 +172,13 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 				MyLog.v(TAG, "onItemClick(%s, %s, %s, %s)", l.getId(), v.getId(), position, id);
 				if (SubwayLineInfo.this.stations != null && position < SubwayLineInfo.this.stations.size()
 						&& SubwayLineInfo.this.stations.get(position) != null) {
+					// IF last subway station, show descent only
+					if (position + 1 == SubwayLineInfo.this.stations.size()) {
+						Toast toast = Toast.makeText(SubwayLineInfo.this, R.string.subway_station_descent_only, Toast.LENGTH_SHORT);
+						// toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+						toast.show();
+						return;
+					}
 					Intent intent = new Intent(SubwayLineInfo.this, SubwayStationInfo.class);
 					String subwayStationId = SubwayLineInfo.this.stations.get(position).getId();
 					String subwayStationName = SubwayLineInfo.this.stations.get(position).getName();
@@ -386,8 +396,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	private long lastNotifyDataSetChanged = -1;
 
 	/**
-	 * @param force true to force notify
-	 * {@link ArrayAdapter#notifyDataSetChanged()} if necessary
+	 * @param force true to force notify {@link ArrayAdapter#notifyDataSetChanged()} if necessary
 	 */
 	public void notifyDataSetChanged(boolean force) {
 		MyLog.v(TAG, "notifyDataSetChanged(%s)", force);
@@ -410,7 +419,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		}
 		return this.locationDeclination;
 	}
-	
+
 	public Pair<Integer, Integer> getArrowDim() {
 		if (this.arrowDim == null) {
 			this.arrowDim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow);
@@ -578,7 +587,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		} else if (sharedPreferences.equals(UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL_DESC)) {
 			return StmStore.SubwayStation.NATURAL_SORT_ORDER_DESC;
 		} else {
-			return StmStore.SubwayStation.DEFAULT_SORT_ORDER; // DEFAULT (A-Z order)
+			return StmStore.SubwayStation.NATURAL_SORT_ORDER; // DEFAULT (ASC)
 		}
 	}
 
@@ -588,14 +597,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 */
 	private String getDirectionText(SubwayStation lastSubwayStation) {
 		MyLog.v(TAG, "getDirectionText(%s)", lastSubwayStation.getName());
-		if (this.orderPref.equals(UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL)
-				|| this.orderPref.equals(UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL_DESC)) {
-			return getString(R.string.direction_and_string, lastSubwayStation.getName());
-		} else {
-			// DEFAULT: A-Z order
-			// this.orderPref = UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_DEFAULT;
-			return getString(R.string.alphabetical_order);
-		}
+		return getString(R.string.direction_and_string, lastSubwayStation.getName());
 	}
 
 	/**
@@ -698,16 +700,12 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 				List<Integer> otherLines = station.getOtherLinesId();
 				// 1 - find the station line image
 				int subwayLineImgId = SubwayUtils.getSubwayLineImgId(station.getLineId());
-				if (SubwayLineInfo.this.getSortOrderFromOrderPref(station.getLineId()).equals(StmStore.SubwayStation.DEFAULT_SORT_ORDER)) {
-					subwayLineImgId = SubwayUtils.getSubwayLineImgListId(station.getLineId());
+				if (position == 0) {
+					subwayLineImgId = SubwayUtils.getSubwayLineImgListTopId(station.getLineId());
+				} else if (position == getCount() - 1) {
+					subwayLineImgId = SubwayUtils.getSubwayLineImgListBottomId(station.getLineId());
 				} else {
-					if (position == 0) {
-						subwayLineImgId = SubwayUtils.getSubwayLineImgListTopId(station.getLineId());
-					} else if (position == getCount() - 1) {
-						subwayLineImgId = SubwayUtils.getSubwayLineImgListBottomId(station.getLineId());
-					} else {
-						subwayLineImgId = SubwayUtils.getSubwayLineImgListMiddleId(station.getLineId());
-					}
+					subwayLineImgId = SubwayUtils.getSubwayLineImgListMiddleId(station.getLineId());
 				}
 				// 2 - set the images to the right image view
 				// color 1 (on the right, closer to the text)
@@ -764,7 +762,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 				} else {
 					compassImg.setVisibility(View.GONE);
 				}
-				// set style for closest bus stop
+				// set style for closest subway station
 				int index = -1;
 				if (!TextUtils.isEmpty(SubwayLineInfo.this.closestStationId)) {
 					index = station.getId().equals(SubwayLineInfo.this.closestStationId) ? 0 : 999;

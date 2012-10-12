@@ -17,6 +17,7 @@ import org.montrealtransit.android.SensorUtils.ShakeListener;
 import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.TwitterUtils;
 import org.montrealtransit.android.Utils;
+import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.ASubwayStation;
 import org.montrealtransit.android.data.ClosestPOI;
 import org.montrealtransit.android.data.Pair;
@@ -87,22 +88,23 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 * The tracker tag.
 	 */
 	private static final String TRACKER_TAG = "/Subways";
+	/**
+	 * The validity of the current status (in seconds).
+	 */
+	private static final int STATUS_TOO_OLD_IN_SEC = 20 * 60; // 20 minutes
 
 	/**
 	 * The cursor used to display the subway lines.
 	 */
 	private Cursor cursor;
-
 	/**
 	 * Store the device location.
 	 */
 	private Location location;
-
 	/**
 	 * Is the location updates enabled?
 	 */
 	private boolean locationUpdatesEnabled = false;
-
 	/**
 	 * The closest stations.
 	 */
@@ -115,27 +117,18 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 * The location address used to generate the closest stations.
 	 */
 	protected Address closestStationsLocationAddress;
-
 	/**
 	 * The task used to load the subway status.
 	 */
 	private StmInfoStatusApiReader statusTask;
-
 	/**
 	 * The task used to find the closest stations.
 	 */
 	private ClosestSubwayStationsFinderTask closestStationsTask;
-
 	/**
 	 * The current service status.
 	 */
 	private ServiceStatus serviceStatus = null;
-
-	/**
-	 * The validity of the current status (in seconds).
-	 */
-	private static final int STATUS_TOO_OLD_IN_SEC = 20 * 60; // 20 minutes
-
 	/**
 	 * The acceleration apart from gravity.
 	 */
@@ -425,7 +418,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 				@Override
 				public void onClick(View v) {
 					MyLog.v(TAG, "onClick(%s)", v.getId());
-					Intent intent = new Intent(SubwayTab.this, SubwayLineInfo.class);
+					Intent intent = new Intent(SubwayTab.this, SupportFactory.getInstance(SubwayTab.this).getSubwayLineInfoClass());
 					intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumberS);
 					startActivity(intent);
 				}
@@ -683,7 +676,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 
 				@Override
 				protected void onPostExecute(ServiceStatus result) {
-					MyLog.v(TAG, "onPostExecute()");
+					// MyLog.v(TAG, "onPostExecute()");
 					// get the latest service status in the local database or NULL
 					SubwayTab.this.serviceStatus = result;
 					// show latest service status

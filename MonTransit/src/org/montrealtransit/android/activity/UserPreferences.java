@@ -160,10 +160,6 @@ public class UserPreferences extends PreferenceActivity {
 	 */
 	private static final String PREFS_SUBWAY_STATIONS_ORDER = "pSubwayStationOrder";
 	/**
-	 * The preference value for A-Z order.
-	 */
-	public static final String PREFS_SUBWAY_STATIONS_ORDER_AZ = "az";
-	/**
 	 * The preference value for the natural order 1.
 	 */
 	public static final String PREFS_SUBWAY_STATIONS_ORDER_NATURAL = "asc";

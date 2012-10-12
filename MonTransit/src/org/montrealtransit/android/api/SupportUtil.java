@@ -100,4 +100,14 @@ public interface SupportUtil {
 	 * @return the screen layout size (small, normal, large, xlarge)
 	 */
 	int getScreenLayoutSize(Configuration configuration);
+
+	/**
+	 * @return the bus line info class
+	 */
+	Class<?> getBusLineInfoClass();
+
+	/**
+	 * @return the subway line info class
+	 */
+	Class<?> getSubwayLineInfoClass();
 }

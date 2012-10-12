@@ -70,6 +70,7 @@
 	<string name="closest_subway_stations_cancelled">Recherche des stations proches annulée.</string>
 	<string name="closest_subway_stations_error">Erreur pendant la recherche des stations proches.</string>
 	<string name="reload_closest_stations">Stations proches</string>
+	<string name="subway_station_descent_only">Descente seulement</string>
 	<string name="bus_stops">Arrêts de bus</string>
 	<string name="bus_stops_short">Arrêts</string>
 	<string name="bus_stops_short_and_direction">Arrêts (Direction %s)</string>

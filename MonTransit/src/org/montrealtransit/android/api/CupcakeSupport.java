@@ -107,9 +107,19 @@ public class CupcakeSupport implements SupportUtil {
 	public int getNbClosestPOIDisplay() {
 		return 10;
 	}
-	
+
 	@Override
 	public int getScreenLayoutSize(Configuration configuration) {
 		return 0x02; // Configuration.SCREENLAYOUT_SIZE_NORMAL
+	}
+
+	@Override
+	public Class<?> getBusLineInfoClass() {
+		return org.montrealtransit.android.activity.BusLineInfo.class;
+	}
+
+	@Override
+	public Class<?> getSubwayLineInfoClass() {
+		return org.montrealtransit.android.activity.SubwayLineInfo.class;
 	}
 }

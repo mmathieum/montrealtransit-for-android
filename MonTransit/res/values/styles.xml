@@ -13,7 +13,7 @@
 		<item name="android:layout_marginRight">5dip</item>
 		 -->
 		<item name="android:paddingLeft">1dip</item>
-		<item name="android:paddingRight">1dip</item>
+		<item name="android:paddingRight">2dip</item>
 		
 		<item name="android:singleLine">true</item>
 		<item name="android:gravity">center_vertical|right</item>

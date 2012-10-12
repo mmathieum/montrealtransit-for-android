@@ -12,6 +12,7 @@ import org.montrealtransit.android.R;
 import org.montrealtransit.android.SensorUtils;
 import org.montrealtransit.android.SensorUtils.CompassListener;
 import org.montrealtransit.android.Utils;
+import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.ABusStop;
 import org.montrealtransit.android.data.ClosestPOI;
 import org.montrealtransit.android.data.Pair;
@@ -421,7 +422,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 				lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColorFromType(stop.getLineTypeOrNull()));
 				// bus stop line direction
 				int busLineDirection = BusUtils.getBusLineSimpleDirection(stop.getDirectionId());
-				((TextView) convertView.findViewById(R.id.line_direction)).setText(busLineDirection);
+				((TextView) convertView.findViewById(R.id.line_direction)).setText(getString(busLineDirection).toUpperCase());
 				// distance
 				TextView distanceTv = (TextView) convertView.findViewById(R.id.distance);
 				if (!TextUtils.isEmpty(stop.getDistanceString())) {
@@ -494,8 +495,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 	}
 
 	/**
-	 * @param force true to force notify
-	 * {@link ArrayAdapter#notifyDataSetChanged()} if necessary
+	 * @param force true to force notify {@link ArrayAdapter#notifyDataSetChanged()} if necessary
 	 */
 	public void notifyDataSetChanged(boolean force) {
 		// MyLog.v(TAG, "notifyDataSetChanged(%s)", force);
@@ -686,6 +686,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 				return StmManager.findAllBusLinesList(getContentResolver());
 			}
 
+			@Override
 			protected void onPostExecute(List<BusLine> result) {
 				LinearLayout busLinesLayout = (LinearLayout) findViewById(R.id.bus_line_list);
 				for (BusLine busLine : result) {
@@ -702,17 +703,21 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 						@Override
 						public void onClick(View v) {
 							MyLog.v(TAG, "onClick()");
-							new BusLineSelectDirection(BusTab.this, lineNumber, lineName, lineType).showDialog();
+							Intent intent = new Intent(BusTab.this, SupportFactory.getInstance(BusTab.this).getBusLineInfoClass());
+							intent.putExtra(BusLineInfo.EXTRA_LINE_NUMBER, lineNumber);
+							intent.putExtra(BusLineInfo.EXTRA_LINE_NAME, lineName);
+							intent.putExtra(BusLineInfo.EXTRA_LINE_TYPE, lineType);
+							startActivity(intent);
 						}
 					});
-					// view.setOnLongClickListener(new View.OnLongClickListener() {
-					// @Override
-					// public boolean onLongClick(View v) {
-					// MyLog.v(TAG, "onLongClick()");
-					// new BusLineSelectDirection(BusTab.this, lineNumber, lineName, lineType).showDialog();
-					// return true;
-					// }
-					// });
+					view.setOnLongClickListener(new View.OnLongClickListener() {
+						@Override
+						public boolean onLongClick(View v) {
+							MyLog.v(TAG, "onLongClick()");
+							new BusLineSelectDirection(BusTab.this, lineNumber, lineName, lineType).showDialog();
+							return true;
+						}
+					});
 					busLinesLayout.addView(view);
 				}
 				findViewById(R.id.bus_lines_loading).setVisibility(View.GONE);
@@ -754,7 +759,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 		} else {
 			// get the result
 			this.closestStops = result.getPoiList();
-			// generateOrderedStationsIds();
+			// generateOrderedStopCodes();
 			refreshFavoriteUIDsFromDB();
 			// shot the result
 			showNewClosestStops();
@@ -849,7 +854,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 				stop.setDistanceString(Utils.getDistanceString(stop.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
 			}
 			// update the view
-			// generateOrderedStationsIds();
+			// generateOrderedStopCodes();
 			notifyDataSetChanged(false);
 		}
 	}
