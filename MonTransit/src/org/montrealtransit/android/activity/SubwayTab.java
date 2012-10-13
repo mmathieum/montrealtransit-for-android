@@ -751,11 +751,11 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			}
 			ListView closestStationsLayout = (ListView) findViewById(R.id.closest_stations);
 			// show stations list
-			closestStationsLayout.setVisibility(View.VISIBLE);
 			this.adapter = new ArrayAdapterWithCustomView(this, R.layout.subway_tab_closest_stations_list_item);
 			closestStationsLayout.setAdapter(this.adapter);
 			closestStationsLayout.setOnItemClickListener(this);
 			closestStationsLayout.setOnScrollListener(this);
+			closestStationsLayout.setVisibility(View.VISIBLE);
 			setClosestStationsNotLoading();
 		}
 	}
@@ -1053,7 +1053,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 				// hide the list
 				findViewById(R.id.closest_stations).setVisibility(View.GONE);
 				// clean the list (useful ?)
-				((ListView) findViewById(R.id.closest_stations)).removeAllViews();
+				// ((ListView) findViewById(R.id.closest_stations)).removeAllViews();
 			}
 			// show loading
 			if (findViewById(R.id.closest_stations_loading) == null) { // IF NOT inflated/present DO
@@ -1094,7 +1094,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			TextView cancelMsgTv = new TextView(this);
 			cancelMsgTv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 			cancelMsgTv.setText(getString(R.string.closest_subway_stations_cancelled));
-			((ListView) findViewById(R.id.closest_stations)).addView(cancelMsgTv);
+			// ((ListView) findViewById(R.id.closest_stations)).addView(cancelMsgTv);
 			// hide loading
 			findViewById(R.id.closest_stations_loading).setVisibility(View.GONE);
 			findViewById(R.id.closest_stations).setVisibility(View.VISIBLE);
@@ -1116,7 +1116,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			TextView cancelMsgTv = new TextView(this);
 			cancelMsgTv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 			cancelMsgTv.setText(getString(R.string.closest_subway_stations_error));
-			((ListView) findViewById(R.id.closest_stations)).addView(cancelMsgTv);
+			// ((ListView) findViewById(R.id.closest_stations)).addView(cancelMsgTv);
 			// hide loading
 			findViewById(R.id.closest_stations_loading).setVisibility(View.GONE);
 			findViewById(R.id.closest_stations).setVisibility(View.VISIBLE);
