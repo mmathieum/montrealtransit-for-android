@@ -75,7 +75,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	private static final String TRACKER_TAG = "/BusLine";
 
 	/**
-	 * The extra ID for the bus line number.
+	 * The extra ID for the bus line number (required).
 	 */
 	public static final String EXTRA_LINE_NUMBER = "extra_line_number";
 	/**
@@ -87,7 +87,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 */
 	public static final String EXTRA_LINE_TYPE = "extra_line_type";
 	/**
-	 * The extra ID for the bus line direction ID.
+	 * The extra ID for the bus line direction ID (required).
 	 */
 	public static final String EXTRA_LINE_DIRECTION_ID = "extra_line_direction_id";
 
@@ -436,7 +436,11 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 				@Override
 				protected Void doInBackground(Void... params) {
 					BusLineInfo.this.busLine = StmManager.findBusLine(BusLineInfo.this.getContentResolver(), newLineNumber);
-					BusLineInfo.this.busLineDirection = StmManager.findBusLineDirection(BusLineInfo.this.getContentResolver(), newDirectionId);
+					if (newDirectionId == null) { // use the 1st one
+						BusLineInfo.this.busLineDirection = StmManager.findBusLineDirections(BusLineInfo.this.getContentResolver(), newLineNumber).get(0);
+					} else {
+						BusLineInfo.this.busLineDirection = StmManager.findBusLineDirection(BusLineInfo.this.getContentResolver(), newDirectionId);
+					}
 					return null;
 				}
 
