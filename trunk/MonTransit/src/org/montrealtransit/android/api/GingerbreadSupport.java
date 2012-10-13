@@ -39,7 +39,7 @@ public class GingerbreadSupport extends FroyoSupport {
 		ThreadPolicy threadPolicy = new StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog().build();
 		// or .detectAll() for all detectable problems
 		StrictMode.setThreadPolicy(threadPolicy);
-		VmPolicy vmPolicy = new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects().detectLeakedClosableObjects().penaltyLog().penaltyDeath().build();
+		VmPolicy vmPolicy = new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects().penaltyLog().penaltyDeath().build();
 		StrictMode.setVmPolicy(vmPolicy);
 	}
 

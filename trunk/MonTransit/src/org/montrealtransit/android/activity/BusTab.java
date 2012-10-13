@@ -340,11 +340,11 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 			}
 			ListView closestStopsLayout = (ListView) findViewById(R.id.closest_stops);
 			// show stops list
-			closestStopsLayout.setVisibility(View.VISIBLE);
 			this.adapter = new ArrayAdapterWithCustomView(this, R.layout.bus_tab_closest_stops_list_item);
 			closestStopsLayout.setAdapter(this.adapter);
 			closestStopsLayout.setOnItemClickListener(this);
 			closestStopsLayout.setOnScrollListener(this);
+			closestStopsLayout.setVisibility(View.VISIBLE);
 			setClosestStopsNotLoading();
 		}
 	}
@@ -622,7 +622,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 				// hide the list
 				findViewById(R.id.closest_stops).setVisibility(View.GONE);
 				// clean the list (useful ?)
-				((LinearLayout) findViewById(R.id.closest_stops)).removeAllViews();
+				// ((ListView) findViewById(R.id.closest_stops)).removeAllViews();
 			}
 			// show loading
 			if (findViewById(R.id.closest_stops_loading) == null) { // IF NOT inflated/present DO
@@ -667,7 +667,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 			TextView cancelMsgTv = new TextView(this);
 			cancelMsgTv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 			cancelMsgTv.setText(getString(R.string.closest_bus_stops_error));
-			((LinearLayout) findViewById(R.id.closest_stops)).addView(cancelMsgTv);
+			// ((ListView) findViewById(R.id.closest_stops)).addView(cancelMsgTv);
 			// hide loading
 			findViewById(R.id.closest_stops_loading).setVisibility(View.GONE);
 			findViewById(R.id.closest_stops).setVisibility(View.VISIBLE);
