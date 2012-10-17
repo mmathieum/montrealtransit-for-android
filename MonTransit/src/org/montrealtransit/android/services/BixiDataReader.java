@@ -70,20 +70,34 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 	 * The last update date.
 	 */
 	private int lastUpdate;
+	/**
+	 * Time to wait before actually refreshing the data (in seconds)
+	 */
+	private int waitFor = 0; // 0 = no wait
 
 	/**
 	 * The default constructor.
 	 * @param context context executing the task
 	 * @param from the class that will handle the answer
+	 * @param waitFor time to wait before actually refreshing the data (in seconds)
 	 */
-	public BixiDataReader(Context context, BixiDataReaderListener from) {
+	public BixiDataReader(Context context, BixiDataReaderListener from, int waitFor) {
 		this.from = from;
 		this.context = context;
+		this.waitFor = waitFor;
 	}
 
 	@Override
 	protected List<BikeStation> doInBackground(String... bikeStationTerminalNames) {
 		MyLog.v(TAG, "doInBackground()");
+		if (this.waitFor > 0) {
+			MyLog.d(TAG, "Waiting for %s seconds before loading new Bixi data from server...", this.waitFor);
+			try { // wait for it...
+				Thread.sleep(this.waitFor * 1000);
+			} catch (InterruptedException ie) {
+				MyLog.d(TAG, "Error while waiting!", ie);
+			}
+		}
 		List<BikeStation> updatedBikeStations = BixiDataReader.doInForeground(this.context, this.from, Arrays.asList(bikeStationTerminalNames), 0);
 		// IF no result OR no specific bike station to return DO
 		if (updatedBikeStations == null || bikeStationTerminalNames == null || bikeStationTerminalNames.length == 0) {

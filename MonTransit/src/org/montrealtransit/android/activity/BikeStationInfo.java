@@ -19,9 +19,9 @@ import org.montrealtransit.android.data.ABikeStation;
 import org.montrealtransit.android.data.ClosestPOI;
 import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.provider.BixiManager;
-import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.BixiStore.BikeStation;
 import org.montrealtransit.android.provider.DataManager;
+import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.services.BixiDataReader;
 import org.montrealtransit.android.services.BixiDataReader.BixiDataReaderListener;
@@ -42,7 +42,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -485,17 +484,11 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			return;
 		}// else
 		if (this.bikeStation != null) {
+			setStatusAsLoading();
 			// check if it's not too soon
 			int waitFor = getLastUpdateTime() + CACHE_TOO_FRESH_IN_SEC - Utils.currentTimeSec();
-			if (waitFor > 0) {
-				Toast toast = Toast.makeText(this, getString(R.string.please_wait_for_and_seconds, waitFor), Toast.LENGTH_SHORT);
-				toast.setGravity(Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
-				toast.show();
-				return;
-			}
-			setStatusAsLoading();
 			// find the next bus stop
-			this.task = new BixiDataReader(this, this);
+			this.task = new BixiDataReader(this, this, waitFor > 0 ? waitFor : 0);
 			this.task.execute(this.bikeStation.getTerminalName());
 		}
 	}
