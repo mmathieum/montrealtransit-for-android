@@ -72,7 +72,7 @@ public class ClosestBusStopsFinderTask extends AsyncTask<Location, String, Close
 			// read location accuracy
 			// create a list of all stops with lines and location
 			List<ABusStop> stopsWithOtherLines = getAllStopsWithLines(currentLocation);
-			Collections.sort(stopsWithOtherLines, new BusStopDistancesComparator());
+			Collections.sort(stopsWithOtherLines, new BusStopComparator());
 			if (Utils.getCollectionSize(stopsWithOtherLines) > MAX_CLOSEST_STOPS_LIST_SIZE) {
 				result.setPoiList(stopsWithOtherLines.subList(0, MAX_CLOSEST_STOPS_LIST_SIZE));
 			} else {
@@ -80,6 +80,22 @@ public class ClosestBusStopsFinderTask extends AsyncTask<Location, String, Close
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * Sort bus stops by distance and line number.
+	 */
+	private class BusStopComparator extends BusStopDistancesComparator {
+		@Override
+		public int compare(ABusStop lhs, ABusStop rhs) {
+			// IF same bus stop code DO
+			if (lhs.getCode().equals(rhs.getCode())) {
+				// compare line number
+				return Integer.valueOf(lhs.getLineNumber()) - Integer.valueOf(rhs.getLineNumber());
+			}
+			// ELSE compare distance
+			return super.compare(lhs, rhs);
+		}
 	}
 
 	/**
