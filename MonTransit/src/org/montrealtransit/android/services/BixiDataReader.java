@@ -33,7 +33,6 @@ import org.xml.sax.XMLReader;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 
 /**
  * This task retrieve the Bixi data from montreal.bixi.com.
@@ -180,7 +179,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 				return null;
 			}
 		} catch (UnknownHostException uhe) {
-			if (MyLog.isLoggable(Log.DEBUG)) {
+			if (MyLog.isLoggable(android.util.Log.DEBUG)) {
 				MyLog.w(TAG, uhe, "No Internet Connection!");
 			} else {
 				MyLog.w(TAG, "No Internet Connection!");
