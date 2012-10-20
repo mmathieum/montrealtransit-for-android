@@ -12,7 +12,6 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.util.Log;
 
 /**
  * Location useful methods.
@@ -112,7 +111,7 @@ public class LocationUtils {
 			}
 		}
 		if (result != null) {
-			if (MyLog.isLoggable(Log.DEBUG)) {
+			if (MyLog.isLoggable(android.util.Log.DEBUG)) {
 				MyLog.d(TAG, "last know location: %s ", locationToString(result));
 			}
 		} else {
@@ -263,7 +262,7 @@ public class LocationUtils {
 				// MyLog.d(TAG, "Found address: %s", result.getAddressLine(0));
 			}
 		} catch (IOException ioe) {
-			if (MyLog.isLoggable(Log.DEBUG)) {
+			if (MyLog.isLoggable(android.util.Log.DEBUG)) {
 				MyLog.w(TAG, ioe, "Can't find the adress of the current location!");
 			} else {
 				MyLog.w(TAG, "Can't find the adress of the current location!");
