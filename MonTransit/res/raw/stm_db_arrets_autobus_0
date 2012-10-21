@@ -1,4 +1,3 @@
-CREATE TABLE arrets_autobus (_id integer, ligne_id integer, direction_id text, lieu text, station_id integer, directive text, arret_order integer);
 INSERT INTO "arrets_autobus" VALUES(53051,10,'1001N','Dorion / Sainte-Catherine (station Papineau)',28,'',0);
 INSERT INTO "arrets_autobus" VALUES(53045,10,'1001N','de Lorimier / de Maisonneuve','','',1);
 INSERT INTO "arrets_autobus" VALUES(53010,10,'1001N','de Lorimier / Logan','','',2);
