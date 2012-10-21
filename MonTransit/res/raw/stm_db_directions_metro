@@ -1,4 +1,3 @@
-CREATE TABLE directions_metro (ligne_id integer,station_id integer,station_order integer);
 INSERT INTO "directions_metro" VALUES(5,64,0);
 INSERT INTO "directions_metro" VALUES(5,63,1);
 INSERT INTO "directions_metro" VALUES(5,62,2);

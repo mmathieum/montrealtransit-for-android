@@ -8,8 +8,6 @@ import java.util.Arrays;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
-import org.montrealtransit.android.Utils;
-import org.montrealtransit.android.activity.SplashScreen.InitializationTask;
 import org.montrealtransit.android.activity.UserPreferences;
 
 import android.content.Context;
@@ -31,7 +29,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	/**
 	 * The database file name.
 	 */
-	private static String DB_NAME = "stm.db";
+	private static final String DB_NAME = "stm.db";
 
 	/**
 	 * The database version use to manage database changes.
@@ -46,7 +44,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 			R.raw.stm_db_arrets_autobus_0, R.raw.stm_db_arrets_autobus_1, R.raw.stm_db_arrets_autobus_2, R.raw.stm_db_arrets_autobus_3,
 			R.raw.stm_db_arrets_autobus_4, R.raw.stm_db_arrets_autobus_7 };
 
-	// BUS LINE
+	// BUS LINES
 	public static final String T_BUS_LINES = "lignes_autobus";
 	public static final String T_BUS_LINES_K_NUMBER = BaseColumns._ID;
 	public static final String T_BUS_LINES_K_NAME = "name";
@@ -57,13 +55,13 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	public static final String BUS_LINE_TYPE_NIGHT_SERVICE = "N";
 	public static final String BUS_LINE_TYPE_EXPRESS_SERVICE = "E";
 
-	// BUS LINE DIRECTIONS
-	public static final String T_BUS_LINE_DIRECTIONS = "directions_autobus";
-	public static final String T_BUS_LINE_DIRECTIONS_K_ID = "direction_id";
-	public static final String T_BUS_LINE_DIRECTIONS_K_LINE_ID = "ligne_id";
-	public static final String T_BUS_LINE_DIRECTIONS_K_NAME = "name";
+	// BUS LINES DIRECTIONS
+	public static final String T_BUS_LINES_DIRECTIONS = "directions_autobus";
+	public static final String T_BUS_LINES_DIRECTIONS_K_ID = "direction_id";
+	public static final String T_BUS_LINES_DIRECTIONS_K_LINE_ID = "ligne_id";
+	public static final String T_BUS_LINES_DIRECTIONS_K_NAME = "name";
 
-	// BUS STOP
+	// BUS STOPS
 	public static final String T_BUS_STOPS = "arrets_autobus";
 	public static final String T_BUS_STOPS_K_CODE = BaseColumns._ID;
 	public static final String T_BUS_STOPS_K_PLACE = "lieu";
@@ -72,17 +70,12 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	public static final String T_BUS_STOPS_K_SUBWAY_STATION_ID = "station_id";
 	public static final String T_BUS_STOPS_K_STOPS_ORDER = "arret_order";
 
-	// BUS STOP LOCATION
+	// BUS STOPS LOCATION
 	public static final String T_BUS_STOPS_LOC = "arrets_autobus_loc";
 	public static final String T_BUS_STOPS_LOC_K_CODE = BaseColumns._ID;
 	public static final String T_BUS_STOPS_LOC_K_PLACE = "lieu";
 	public static final String T_BUS_STOPS_LOC_K_STOP_LAT = "lat";
 	public static final String T_BUS_STOPS_LOC_K_STOP_LNG = "lng";
-
-	// SUBWAY LINE
-	public static final String T_SUBWAY_LINES = "lignes_metro";
-	public static final String T_SUBWAY_LINES_K_NUMBER = BaseColumns._ID;
-	public static final String T_SUBWAY_LINES_K_NAME = "name";
 
 	// SUBWAY FREQUENCES
 	public static final String T_SUBWAY_FREQUENCES = "frequences_metro";
@@ -93,16 +86,6 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	public static final String T_SUBWAY_FREQUENCES_K_DAY_WEEK = "";
 	public static final String T_SUBWAY_FREQUENCES_K_DAY_SUNDAY = "d";
 	public static final String T_SUBWAY_FREQUENCES_K_DAY_SATURDAY = "s";
-
-	// SUBWAY DIRECTIONS
-	public static final String T_SUBWAY_DIRECTIONS = "directions_metro";
-	public static final String T_SUBWAY_DIRECTIONS_K_SUBWAY_LINE_ID = "ligne_id";
-	public static final String T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ORDER = "station_order";
-	public static final String T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ID = "station_id";
-
-	public static final String SUBWAY_DIRECTION_ID = "DIRECTION_ID";
-	public static final String SUBWAY_DIRECTION_1 = "ASC";
-	public static final String SUBWAY_DIRECTION_2 = "DESC";
 
 	// SUBWAY HOURS
 	public static final String T_SUBWAY_HOUR = "horaire_metro";
@@ -117,6 +100,21 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	public static final String T_SUBWAY_HOUR_K_DAY_SUNDAY = "d";
 	public static final String T_SUBWAY_HOUR_K_DAY_SATURDAY = "s";
 
+	// SUBWAY LINES
+	public static final String T_SUBWAY_LINES = "lignes_metro";
+	public static final String T_SUBWAY_LINES_K_NUMBER = BaseColumns._ID;
+	public static final String T_SUBWAY_LINES_K_NAME = "name";
+
+	// SUBWAY LINES DIRECTIONS
+	public static final String T_SUBWAY_LINES_DIRECTIONS = "directions_metro";
+	public static final String T_SUBWAY_LINES_DIRECTIONS_K_SUBWAY_LINE_ID = "ligne_id";
+	public static final String T_SUBWAY_LINES_DIRECTIONS_K_SUBWAY_STATION_ORDER = "station_order";
+	public static final String T_SUBWAY_LINES_DIRECTIONS_K_SUBWAY_STATION_ID = "station_id";
+
+	public static final String SUBWAY_DIRECTION_ID = "DIRECTION_ID";
+	public static final String SUBWAY_DIRECTION_1 = "ASC";
+	public static final String SUBWAY_DIRECTION_2 = "DESC";
+
 	// SUBWAY STATIONS
 	public static final String T_SUBWAY_STATIONS = "stations_metro";
 	public static final String T_SUBWAY_STATIONS_K_STATION_ID = BaseColumns._ID;
@@ -124,68 +122,153 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	public static final String T_SUBWAY_STATIONS_K_STATION_LAT = "lat";
 	public static final String T_SUBWAY_STATIONS_K_STATION_LNG = "lng";
 
-	private boolean upgrade = false;
+	/**
+	 * Database creation SQL statement for the bus lines table.
+	 */
+	// TODO remove 'schedule' (no i18n)
+	private static final String DATABASE_CREATE_T_BUS_LINES = "CREATE TABLE IF NOT EXISTS " + T_BUS_LINES + " (" + T_BUS_LINES_K_NUMBER
+			+ " integer PRIMARY KEY, " + T_BUS_LINES_K_NAME + " text, " + T_BUS_LINES_K_TYPE + " text, schedule text);";
+
+	/**
+	 * Database creation SQL statement for the bus line directions table.
+	 */
+	// TODO remove 'name' (no i18n)
+	private static final String DATABASE_CREATE_T_BUS_LINES_DIRECTIONS = "CREATE TABLE IF NOT EXISTS " + T_BUS_LINES_DIRECTIONS + " ("
+			+ T_BUS_LINES_DIRECTIONS_K_LINE_ID + " integer, " + T_BUS_LINES_DIRECTIONS_K_ID + " text, " + T_BUS_LINES_DIRECTIONS_K_NAME + " text);";
+
+	/**
+	 * Database creation SQL statement for the bus stops table.
+	 */
+	// FIXME remove 'directive' (no i18n)
+	private static final String DATABASE_CREATE_T_BUS_STOPS = "CREATE TABLE IF NOT EXISTS " + T_BUS_STOPS + " (" + T_BUS_STOPS_K_CODE + " integer, "
+			+ T_BUS_STOPS_K_LINE_NUMBER + " integer, " + T_BUS_STOPS_K_DIRECTION_ID + " text, " + T_BUS_STOPS_K_PLACE + " text, "
+			+ T_BUS_STOPS_K_SUBWAY_STATION_ID + " integer, directive text, " + T_BUS_STOPS_K_STOPS_ORDER + " integer);";
+
+	/**
+	 * Database creation SQL statement for the bus stop locations table.
+	 */
+	private static final String DATABASE_CREATE_T_BUS_STOPS_LOC = "CREATE TABLE IF NOT EXISTS " + T_BUS_STOPS_LOC + " (" + T_BUS_STOPS_LOC_K_CODE
+			+ " integer PRIMARY KEY, " + T_BUS_STOPS_LOC_K_PLACE + " text, " + T_BUS_STOPS_LOC_K_STOP_LAT + " real, " + T_BUS_STOPS_LOC_K_STOP_LNG + " real);";
+
+	/**
+	 * Database creation SQL statement for the subway frequencies table.
+	 */
+	private static final String DATABASE_CREATE_T_SUBWAY_FREQUENCES = "CREATE TABLE IF NOT EXISTS " + T_SUBWAY_FREQUENCES + " ("
+			+ T_SUBWAY_FREQUENCES_K_DIRECTION + " integer, " + T_SUBWAY_FREQUENCES_K_DAY + " text, " + T_SUBWAY_FREQUENCES_K_HOUR + " real, "
+			+ T_SUBWAY_FREQUENCES_K_FREQUENCE + " integer);";
+
+	/**
+	 * Database creation SQL statement for the subway hours table.
+	 */
+	private static final String DATABASE_CREATE_T_SUBWAY_HOUR = "CREATE TABLE IF NOT EXISTS " + T_SUBWAY_HOUR + " (" + T_SUBWAY_HOUR_K_STATION_ID
+			+ " integer, " + T_SUBWAY_HOUR_K_DIRECTION_ID + " integer, " + T_SUBWAY_HOUR_K_DAY + " text, " + T_SUBWAY_HOUR_K_HOUR + " real, "
+			+ T_SUBWAY_HOUR_K_FIRST_LAST + " text);";
+
+	/**
+	 * Database creation SQL statement for the subway lines table.
+	 */
+	private static final String DATABASE_CREATE_T_SUBWAY_LINES = "CREATE TABLE IF NOT EXISTS " + T_SUBWAY_LINES + " (" + T_SUBWAY_LINES_K_NUMBER
+			+ " integer PRIMARY KEY, " + T_SUBWAY_LINES_K_NAME + " text);";
+
+	/**
+	 * Database creation SQL statement for the subway line directions table.
+	 */
+	private static final String DATABASE_CREATE_T_SUBWAY_LINES_DIRECTIONS = "CREATE TABLE IF NOT EXISTS " + T_SUBWAY_LINES_DIRECTIONS + " ("
+			+ T_SUBWAY_LINES_DIRECTIONS_K_SUBWAY_LINE_ID + " integer, " + T_SUBWAY_LINES_DIRECTIONS_K_SUBWAY_STATION_ID + " integer, "
+			+ T_SUBWAY_LINES_DIRECTIONS_K_SUBWAY_STATION_ORDER + " integer);";
+
+	/**
+	 * Database creation SQL statement for the subway stations table.
+	 */
+	private static final String DATABASE_CREATE_T_SUBWAY_STATIONS = "CREATE TABLE IF NOT EXISTS " + T_SUBWAY_STATIONS + " (" + T_SUBWAY_STATIONS_K_STATION_ID
+			+ " integer PRIMARY KEY, " + T_SUBWAY_STATIONS_K_STATION_NAME + " text, " + T_SUBWAY_STATIONS_K_STATION_LAT + " real, "
+			+ T_SUBWAY_STATIONS_K_STATION_LNG + " real);";
+
+	/**
+	 * Database drop SQL statement for the bus lines table.
+	 */
+	private static final String DATABASE_DROP_T_BUS_LINES = "DROP TABLE IF EXISTS " + T_BUS_LINES;
+	/**
+	 * Database drop SQL statement for the bus line directions table.
+	 */
+	private static final String DATABASE_DROP_T_BUS_LINES_DIRECTIONS = "DROP TABLE IF EXISTS " + T_BUS_LINES_DIRECTIONS;
+	/**
+	 * Database drop SQL statement for the bus stops table.
+	 */
+	private static final String DATABASE_DROP_T_BUS_STOPS = "DROP TABLE IF EXISTS " + T_BUS_STOPS;
+	/**
+	 * Database drop SQL statement for the bus stop locations table.
+	 */
+	private static final String DATABASE_DROP_T_BUS_STOPS_LOC = "DROP TABLE IF EXISTS " + T_BUS_STOPS_LOC;
+	/**
+	 * Database drop SQL statement for the subway frequencies table.
+	 */
+	private static final String DATABASE_DROP_T_SUBWAY_FREQUENCES = "DROP TABLE IF EXISTS " + T_SUBWAY_FREQUENCES;
+	/**
+	 * Database drop SQL statement for the subway hours table.
+	 */
+	private static final String DATABASE_DROP_T_SUBWAY_HOUR = "DROP TABLE IF EXISTS " + T_SUBWAY_HOUR;
+	/**
+	 * Database drop SQL statement for the subway lines table.
+	 */
+	private static final String DATABASE_DROP_T_SUBWAY_LINES = "DROP TABLE IF EXISTS " + T_SUBWAY_LINES;
+	/**
+	 * Database drop SQL statement for the subway lines directions table.
+	 */
+	private static final String DATABASE_DROP_T_SUBWAY_LINES_DIRECTIONS = "DROP TABLE IF EXISTS " + T_SUBWAY_LINES_DIRECTIONS;
+	/**
+	 * Database drop SQL statement for the subway stations table.
+	 */
+	private static final String DATABASE_DROP_T_SUBWAY_STATIONS = "DROP TABLE IF EXISTS " + T_SUBWAY_STATIONS;
+
+	/**
+	 * The context.
+	 */
+	private Context context;
 
 	/**
 	 * The default constructor.
 	 * @param context the context
-	 * @param task the initialization task or <b>NULL</b>
 	 */
-	public StmDbHelper(Context context, InitializationTask task) {
+	public StmDbHelper(Context context) {
 		super(context, DB_NAME, null, DB_VERSION);
 		MyLog.v(TAG, "StmDbHelper(%s, %s)", DB_NAME, DB_VERSION);
-		createDbIfNecessary(context, task);
+		this.context = context;
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		MyLog.v(TAG, "onCreate()");
-		// DO NOTHING
+		initAllDataBaseTables(db);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		MyLog.v(TAG, "onUpgrade(%s, %s)", oldVersion, newVersion);
-		this.upgrade = (oldVersion != newVersion);
-		MyLog.d(TAG, "upgrade:" + upgrade);
-	}
-
-	/**
-	 * Create the database if necessary.
-	 * @param context the context used to create the database
-	 * @param task the initialization task or <b>NULL</b>
-	 */
-	public void createDbIfNecessary(Context context, InitializationTask task) {
-		MyLog.v(TAG, "createDbIfNecessary()");
-		// IF DB doesn't exist DO
-		if (!isDbExist(context)) {
-			MyLog.d(TAG, "DB DOES NOT EXIST");
-			try {
-				MyLog.i(TAG, "Initialization of the STM database...");
-				initDataBase(context, task);
-				MyLog.i(TAG, "Initialization of the STM database... DONE");
-			} catch (IOException ioe) {
-				MyLog.e(TAG, ioe, "Error while initializating of the STM database!");
-			}
-		}
-	}
-
-	/**
-	 * Force the database reset (delete DB + {@link StmDbHelper#createDbIfNecessary(Context, InitializationTask)}.
-	 * @param context the context
-	 * @param task the initialization task (or NULL)
-	 */
-	public void forceReset(Context context, InitializationTask task) {
-		if (context.deleteDatabase(DB_NAME)) {
-			MyLog.d(TAG, "DATABASE DELETED.");
-			// copy the new one
-			createDbIfNecessary(context, task);
-			// Utils.notifyTheUser(context, context.getString(R.string.update_stm_db_ok));
-		} else {
-			MyLog.w(TAG, "Can't delete the current database.");
-			// notify the user that he need to remove and re-install the application
-			// Utils.notifyTheUserLong(context, context.getString(R.string.update_stm_db_error));
-			// Utils.notifyTheUserLong(context, context.getString(R.string.update_stm_db_error_next));
+		MyLog.d(TAG, "Upgrading database from version %s to %s.", oldVersion, newVersion);
+		switch (oldVersion) {
+		// case 17: TODO incremental
+		// MyLog.v(TAG, "add the History table");
+		// // just create the History table
+		// db.execSQL(DATABASE_CREATE_T_HISTORY);
+		// case 18:
+		// MyLog.v(TAG, "add the Twitter API table");
+		// // just create the Twitter API table
+		// db.execSQL(DATABASE_CREATE_T_TWITTER_API);
+		// break;
+		default:
+			MyLog.d(TAG, "Old data destroyed!");
+			db.execSQL(DATABASE_DROP_T_BUS_LINES);
+			db.execSQL(DATABASE_DROP_T_BUS_LINES_DIRECTIONS);
+			db.execSQL(DATABASE_DROP_T_BUS_STOPS);
+			db.execSQL(DATABASE_DROP_T_BUS_STOPS_LOC);
+			db.execSQL(DATABASE_DROP_T_SUBWAY_FREQUENCES);
+			db.execSQL(DATABASE_DROP_T_SUBWAY_HOUR);
+			db.execSQL(DATABASE_DROP_T_SUBWAY_LINES);
+			db.execSQL(DATABASE_DROP_T_SUBWAY_LINES_DIRECTIONS);
+			db.execSQL(DATABASE_DROP_T_SUBWAY_STATIONS);
+			initAllDataBaseTables(db);
+			break;
 		}
 	}
 
@@ -199,71 +282,168 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	}
 
 	/**
-	 * @return true if an update is available
+	 * @param context the context
+	 * @return true if an update is required
 	 */
-	public Boolean isUpdateAvailable() {
-		MyLog.v(TAG, "isUpdateAvailable()");
-		MyLog.d(TAG, "upgrade:" + upgrade);
-		return upgrade;
+	public static boolean isUpdateRequired(Context context) {
+		return UserPreferences.getPrefLcl(context, UserPreferences.PREFS_LCL_STM_DB_VERSION, 0) != DB_VERSION;
 	}
 
 	/**
 	 * Initialize the database from the SQL dump.
-	 * @param context the context use to open the input stream
-	 * @param task the initialize task or <b>NULL</b>
+	 * @param dataBase the writable database.
 	 */
-	private void initDataBase(Context context, InitializationTask task) throws IOException {
+	@Deprecated
+	protected boolean initDataBase(SQLiteDatabase dataBase) {
 		MyLog.v(TAG, "initDataBase()");
-		// count the number of line of the SQL dump files
-		int nbLine = 0;
-		try {
-			for (int fileId : DUMP_FILES) {
-				nbLine += Utils.countNumberOfLine(context.getResources().openRawResource(fileId));
-			}
-			if (task != null) {
-				task.initProgressBar(nbLine);
-			}
-		} catch (Exception e) {
-			MyLog.w(TAG, e, "ERROR while counting nb line!");
-		}
 		BufferedReader br = null;
-		SQLiteDatabase dataBase = null;
 		try {
-			// open the database RW
-			dataBase = this.getWritableDatabase();
 			// global settings
 			dataBase.execSQL("PRAGMA foreign_keys=OFF;");
-			dataBase.execSQL("PRAGMA synchronous=OFF;");
+			// dataBase.execSQL("PRAGMA synchronous=OFF;");
 			dataBase.execSQL("PRAGMA auto_vacuum=NONE;");
 			// starting the transaction
 			dataBase.beginTransaction();
-			int lineNumber = 0;
+			MyLog.d(TAG, "create tables");
+			// create tables
+			dataBase.execSQL(DATABASE_CREATE_T_BUS_LINES);
+			dataBase.execSQL(DATABASE_CREATE_T_BUS_LINES_DIRECTIONS);
+			dataBase.execSQL(DATABASE_CREATE_T_BUS_STOPS);
+			dataBase.execSQL(DATABASE_CREATE_T_BUS_STOPS_LOC);
+			dataBase.execSQL(DATABASE_CREATE_T_SUBWAY_FREQUENCES);
+			dataBase.execSQL(DATABASE_CREATE_T_SUBWAY_HOUR);
+			dataBase.execSQL(DATABASE_CREATE_T_SUBWAY_LINES);
+			dataBase.execSQL(DATABASE_CREATE_T_SUBWAY_LINES_DIRECTIONS);
+			dataBase.execSQL(DATABASE_CREATE_T_SUBWAY_STATIONS);
+			// deploy data
 			String line;
 			for (int fileId : DUMP_FILES) {
-				br = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(fileId), "UTF8"), 8192);
+				MyLog.d(TAG, "deploy data from " + fileId);
+				br = new BufferedReader(new InputStreamReader(this.context.getResources().openRawResource(fileId), "UTF8"), 8192);
 				while ((line = br.readLine()) != null) {
 					dataBase.execSQL(line);
-					if (nbLine > 0 && task != null) {
-						++lineNumber;
-					}
-				}
-				if (task != null) {
-					task.incrementProgressBar(lineNumber);
 				}
 			}
 			// mark the transaction as successful
 			dataBase.setTransactionSuccessful();
-			UserPreferences.savePrefLcl(context, UserPreferences.PREFS_LCL_STM_DB_VERSION, DB_VERSION);
+			UserPreferences.savePrefLcl(this.context, UserPreferences.PREFS_LCL_STM_DB_VERSION, DB_VERSION);
+			return true;
 		} catch (Exception e) {
 			MyLog.w(TAG, e, "ERROR while copying the database file!");
-			AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_DB_INIT_FAIL, e.getClass().getSimpleName(), DB_VERSION);
+			AnalyticsUtils
+					.trackEvent(this.context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_DB_INIT_FAIL, e.getClass().getSimpleName(), DB_VERSION);
 			// TODO handles no space left on the device
+			return false;
 		} finally {
 			try {
 				if (dataBase != null) {
 					// end the transaction
 					dataBase.endTransaction();
-					dataBase.close();
+					// dataBase.close();
+				}
+			} catch (Exception e) {
+				MyLog.w(TAG, e, "ERROR while closing the new database!");
+			}
+			try {
+				if (br != null) {
+					br.close();
+				}
+			} catch (Exception e) {
+				MyLog.w(TAG, e, "ERROR while closing the input stream!");
+			}
+		}
+	}
+
+	/**
+	 * Initialize all database tables to the latest version.
+	 * @param dataBase the database
+	 */
+	private void initAllDataBaseTables(SQLiteDatabase dataBase) {
+		MyLog.v(TAG, "initDataBaseTables()");
+		// global settings
+		dataBase.execSQL("PRAGMA foreign_keys=OFF;");
+		// dataBase.execSQL("PRAGMA synchronous=OFF;");
+		dataBase.execSQL("PRAGMA auto_vacuum=NONE;");
+		// buses
+		initDataBaseTableWithRetry(dataBase, DATABASE_CREATE_T_BUS_LINES, DATABASE_DROP_T_BUS_LINES, new int[] { R.raw.stm_db_lignes_autobus });
+		initDataBaseTableWithRetry(dataBase, DATABASE_CREATE_T_BUS_LINES_DIRECTIONS, DATABASE_DROP_T_BUS_LINES_DIRECTIONS,
+				new int[] { R.raw.stm_db_directions_autobus });
+		initDataBaseTableWithRetry(dataBase, DATABASE_CREATE_T_BUS_STOPS, DATABASE_DROP_T_BUS_STOPS, new int[] { R.raw.stm_db_arrets_autobus_0,
+				R.raw.stm_db_arrets_autobus_1, R.raw.stm_db_arrets_autobus_2, R.raw.stm_db_arrets_autobus_3, R.raw.stm_db_arrets_autobus_4,
+				R.raw.stm_db_arrets_autobus_7 });
+		initDataBaseTableWithRetry(dataBase, DATABASE_CREATE_T_BUS_STOPS_LOC, DATABASE_DROP_T_BUS_STOPS_LOC, new int[] { R.raw.stm_db_arrets_autobus_loc });
+		// subways
+		initDataBaseTableWithRetry(dataBase, DATABASE_CREATE_T_SUBWAY_FREQUENCES, DATABASE_DROP_T_SUBWAY_FREQUENCES,
+				new int[] { R.raw.stm_db_frequences_metro });
+		initDataBaseTableWithRetry(dataBase, DATABASE_CREATE_T_SUBWAY_HOUR, DATABASE_DROP_T_SUBWAY_HOUR, new int[] { R.raw.stm_db_horaire_metro });
+		initDataBaseTableWithRetry(dataBase, DATABASE_CREATE_T_SUBWAY_LINES, DATABASE_DROP_T_SUBWAY_LINES, new int[] { R.raw.stm_db_lignes_metro });
+		initDataBaseTableWithRetry(dataBase, DATABASE_CREATE_T_SUBWAY_LINES_DIRECTIONS, DATABASE_DROP_T_SUBWAY_LINES_DIRECTIONS,
+				new int[] { R.raw.stm_db_directions_metro });
+		initDataBaseTableWithRetry(dataBase, DATABASE_CREATE_T_SUBWAY_STATIONS, DATABASE_DROP_T_SUBWAY_STATIONS, new int[] { R.raw.stm_db_stations_metro });
+		UserPreferences.savePrefLcl(this.context, UserPreferences.PREFS_LCL_STM_DB_VERSION, DB_VERSION);
+	}
+
+	/**
+	 * Initialize the database table (retry forever).
+	 * @param dataBase the database
+	 * @param createSQL the create SQL query
+	 * @param dropSQL the drop SQL query
+	 * @param fileIds the file(s) to deploy
+	 */
+	private void initDataBaseTableWithRetry(SQLiteDatabase dataBase, String createSQL, String dropSQL, int[] fileIds) {
+		MyLog.v(TAG, "initDataBaseTableWithRetry(%s)", createSQL);
+		boolean success = false;
+		do {
+			try {
+				success = initDataBaseTable(dataBase, createSQL, dropSQL, fileIds);
+				MyLog.d(TAG, "DB deployed: " + success);
+			} catch (Exception e) {
+				MyLog.w(TAG, e, "Error while deploying DB!");
+				success = false;
+			}
+		} while (!success);
+	}
+
+	/**
+	 * Initialize the database table.
+	 * @paramdataBase the database
+	 * @param createSQL the create SQL query
+	 * @param dropSQL the drop SQL query
+	 * @param fileIds the file(s) to deploy
+	 * @return true if everything went well.
+	 */
+	private boolean initDataBaseTable(SQLiteDatabase dataBase, String createSQL, String dropSQL, int[] fileIds) {
+		MyLog.v(TAG, "initDataBaseTable(%s)", createSQL);
+		BufferedReader br = null;
+		try {
+			dataBase.beginTransaction();
+			// MyLog.d(TAG, "create tables");
+			// create tables
+			dataBase.execSQL(dropSQL); // drop if exists
+			dataBase.execSQL(createSQL); // create if not exists
+			// deploy data
+			String line;
+			for (int fileId : fileIds) {
+				// MyLog.d(TAG, "deploy data from " + fileId);
+				br = new BufferedReader(new InputStreamReader(this.context.getResources().openRawResource(fileId), "UTF8"), 8192);
+				while ((line = br.readLine()) != null) {
+					dataBase.execSQL(line);
+				}
+			}
+			// mark the transaction as successful
+			dataBase.setTransactionSuccessful();
+			return true;
+		} catch (Exception e) {
+			MyLog.w(TAG, e, "ERROR while copying the database file!");
+			AnalyticsUtils
+					.trackEvent(this.context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_DB_INIT_FAIL, e.getClass().getSimpleName(), DB_VERSION);
+			// TODO handles no space left on the device
+			return false;
+		} finally {
+			try {
+				if (dataBase != null) {
+					// end the transaction
+					dataBase.endTransaction();
 				}
 			} catch (Exception e) {
 				MyLog.w(TAG, e, "ERROR while closing the new database!");
@@ -281,7 +461,6 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	@Override
 	public synchronized void close() {
 		try {
-			// this.close();
 			super.close();
 		} catch (Exception e) {
 			MyLog.w(TAG, "Error while closing the databases!", e);

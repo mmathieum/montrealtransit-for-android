@@ -399,39 +399,50 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	/**
 	 * Refresh the subway lines.
 	 */
-	private void refreshSubwayLinesFromDB() { // not asynchronous > more consistent
-		List<SubwayLine> result = StmManager.findAllSubwayLinesList(SubwayTab.this.getContentResolver());
-		LinearLayout subwayLinesLayout = (LinearLayout) findViewById(R.id.subway_line_list);
-		int i = 0;
-		for (SubwayLine subwayLine : result) {
-			// create view
-			View view = subwayLinesLayout.getChildAt(i++);
-			// subway line type image
-			final int lineNumber = subwayLine.getNumber();
-			// subway line colors
-			int color = SubwayUtils.getSubwayLineColor(lineNumber);
-			((RelativeLayout) view.findViewById(R.id.subway_img_bg)).setBackgroundColor(color);
+	private void refreshSubwayLinesFromDB() {
+		new AsyncTask<Void, Void, List<SubwayLine>>() {
+			@Override
+			protected List<SubwayLine> doInBackground(Void... params) {
+				return StmManager.findAllSubwayLinesList(SubwayTab.this.getContentResolver());
+			}
 
-			final String subwayLineNumberS = String.valueOf(lineNumber);
-			// add click listener
-			view.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					MyLog.v(TAG, "onClick(%s)", v.getId());
-					Intent intent = new Intent(SubwayTab.this, SupportFactory.getInstance(SubwayTab.this).getSubwayLineInfoClass());
-					intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumberS);
-					startActivity(intent);
+			@Override
+			protected void onPostExecute(List<SubwayLine> result) {
+				LinearLayout subwayLinesLayout = (LinearLayout) findViewById(R.id.subway_lines);
+				int i = 0;
+				for (SubwayLine subwayLine : result) {
+					// create view
+					View view = subwayLinesLayout.getChildAt(i++);
+					// subway line type image
+					final int lineNumber = subwayLine.getNumber();
+					// subway line colors
+					int color = SubwayUtils.getSubwayLineColor(lineNumber);
+					((RelativeLayout) view.findViewById(R.id.subway_img_bg)).setBackgroundColor(color);
+
+					final String subwayLineNumberS = String.valueOf(lineNumber);
+					// add click listener
+					view.setOnClickListener(new View.OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							MyLog.v(TAG, "onClick(%s)", v.getId());
+							Intent intent = new Intent(SubwayTab.this, SupportFactory.getInstance(SubwayTab.this).getSubwayLineInfoClass());
+							intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumberS);
+							startActivity(intent);
+						}
+					});
+					view.setOnLongClickListener(new View.OnLongClickListener() {
+						@Override
+						public boolean onLongClick(View v) {
+							MyLog.v(TAG, "onLongClick(%s)", v.getId());
+							new SubwayLineSelectDirection(SubwayTab.this, lineNumber).showDialog();
+							return true;
+						}
+					});
 				}
-			});
-			view.setOnLongClickListener(new View.OnLongClickListener() {
-				@Override
-				public boolean onLongClick(View v) {
-					MyLog.v(TAG, "onLongClick(%s)", v.getId());
-					new SubwayLineSelectDirection(SubwayTab.this, lineNumber).showDialog();
-					return true;
-				}
-			});
-		}
+				findViewById(R.id.subway_lines_loading).setVisibility(View.GONE);
+				findViewById(R.id.subway_lines).setVisibility(View.VISIBLE);
+			}
+		}.execute();
 	}
 
 	/**

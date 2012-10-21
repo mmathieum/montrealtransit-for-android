@@ -1,4 +1,3 @@
-CREATE TABLE 'frequences_metro'(direction integer,day text,heure real,frequence integer);
 INSERT INTO "frequences_metro" VALUES(18,'',2451544.72916667,10);
 INSERT INTO "frequences_metro" VALUES(18,'',2451544.73611111,9);
 INSERT INTO "frequences_metro" VALUES(18,'',2451544.74861111,8);

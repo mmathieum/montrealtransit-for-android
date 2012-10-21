@@ -1,4 +1,3 @@
-CREATE TABLE arrets_autobus_loc (_id integer PRIMARY KEY, lieu text, lat real, lng real);
 INSERT INTO "arrets_autobus_loc" VALUES('50101','Louis-Hippolyte-La Fontaine / Curatteau','45.594049','-73.542570');
 INSERT INTO "arrets_autobus_loc" VALUES('50102','Saint-Jacques / No 6640','45.460519','-73.625771');
 INSERT INTO "arrets_autobus_loc" VALUES('50103','Saint-Jacques / No 6710','45.458952','-73.626956');

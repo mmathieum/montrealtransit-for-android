@@ -26,6 +26,7 @@ import org.montrealtransit.android.dialog.NoRadarInstalled;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore.Cache;
 import org.montrealtransit.android.provider.DataStore.Fav;
+import org.montrealtransit.android.provider.StmDbHelper;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
 import org.montrealtransit.android.provider.StmStore.BusLine;
@@ -177,12 +178,8 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	 * Check if an update is required since the activity can be launched directly.
 	 */
 	public void checkForUpdateRequired() {
-		if (SplashScreen.isUpdateRequired(this)) {
+		if (StmDbHelper.isUpdateRequired(this)) {
 			Toast.makeText(this, R.string.update_required, Toast.LENGTH_SHORT).show();
-			// show splash screen
-			Intent intent = new Intent(this, SplashScreen.class);
-			startActivity(intent);
-			this.finish(); // close this activity
 		}
 	}
 

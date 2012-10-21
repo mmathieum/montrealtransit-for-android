@@ -1,4 +1,3 @@
-CREATE TABLE 'horaire_metro'(station_id integer,direction_id integer,day text,heure real,premier_dernier text);
 INSERT INTO "horaire_metro" VALUES(1,65,'',2451544.72916667,'premier');
 INSERT INTO "horaire_metro" VALUES(1,65,'',2451545.52708333,'dernier');
 INSERT INTO "horaire_metro" VALUES(1,65,'s',2451544.72916667,'premier');
