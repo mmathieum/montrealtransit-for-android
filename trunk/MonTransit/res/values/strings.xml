@@ -361,8 +361,14 @@
     <string name="update_not_enough_free_space">Not enough free space!</string>
     <string name="init_dialog_title">Initialization</string>
     <string name="init_dialog_message">Please wait while initializing MonTransit&#8230;</string>
+    <string name="init_message_starting">Initialization&#8230;</string>
+    <string name="init_message_starting_and_version">Initialization&#8230; (v%s)</string>
+    <string name="init_message_done">Initialization finished.</string>
     <string name="update_dialog_title">Update</string>
     <string name="update_dialog_message">Please wait while updating MonTransit&#8230;</string>
+    <string name="update_message_starting">Update&#8230;</string>
+    <string name="update_message_starting_and_version">Update&#8230; (v%s)</string>
+    <string name="update_message_done">Update finished.</string>
     <string name="reset_dialog_title">Re-Initialization</string>
     <string name="reset_dialog_message">Please wait while re-initializing MonTransit&#8230;</string>
     

@@ -235,12 +235,12 @@ public class StmProvider extends ContentProvider {
 		sSubwayLinesStationsProjectionMap = map;
 
 		map = new HashMap<String, String>();
-		map.put(BaseColumns._ID, StmDbHelper.T_BUS_LINE_DIRECTIONS + "." + StmDbHelper.T_BUS_LINE_DIRECTIONS_K_ID + " AS " + BaseColumns._ID);
-		map.put(StmStore.BusLineDirection.DIRECTION_ID, StmDbHelper.T_BUS_LINE_DIRECTIONS + "." + StmDbHelper.T_BUS_LINE_DIRECTIONS_K_ID + " AS "
+		map.put(BaseColumns._ID, StmDbHelper.T_BUS_LINES_DIRECTIONS + "." + StmDbHelper.T_BUS_LINES_DIRECTIONS_K_ID + " AS " + BaseColumns._ID);
+		map.put(StmStore.BusLineDirection.DIRECTION_ID, StmDbHelper.T_BUS_LINES_DIRECTIONS + "." + StmDbHelper.T_BUS_LINES_DIRECTIONS_K_ID + " AS "
 				+ StmStore.BusLineDirection.DIRECTION_ID);
-		map.put(StmStore.BusLineDirection.DIRECTION_LINE_ID, StmDbHelper.T_BUS_LINE_DIRECTIONS + "." + StmDbHelper.T_BUS_LINE_DIRECTIONS_K_LINE_ID + " AS "
+		map.put(StmStore.BusLineDirection.DIRECTION_LINE_ID, StmDbHelper.T_BUS_LINES_DIRECTIONS + "." + StmDbHelper.T_BUS_LINES_DIRECTIONS_K_LINE_ID + " AS "
 				+ StmStore.BusLineDirection.DIRECTION_LINE_ID);
-		map.put(StmStore.BusLineDirection.DIRECTION_NAME, StmDbHelper.T_BUS_LINE_DIRECTIONS + "." + StmDbHelper.T_BUS_LINE_DIRECTIONS_K_NAME + " AS "
+		map.put(StmStore.BusLineDirection.DIRECTION_NAME, StmDbHelper.T_BUS_LINES_DIRECTIONS + "." + StmDbHelper.T_BUS_LINES_DIRECTIONS_K_NAME + " AS "
 				+ StmStore.BusLineDirection.DIRECTION_NAME);
 		sBusLineDirectionsProjectionMap = map;
 
@@ -391,11 +391,11 @@ public class StmProvider extends ContentProvider {
 		sSearchProjectionMap = map;
 	}
 
-	private static final String SUBWAY_LINE_STATIONS_JOIN = StmDbHelper.T_SUBWAY_LINES + " LEFT OUTER JOIN " + StmDbHelper.T_SUBWAY_DIRECTIONS + " ON "
-			+ StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + "=" + StmDbHelper.T_SUBWAY_DIRECTIONS + "."
-			+ StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_LINE_ID + " LEFT OUTER JOIN " + StmDbHelper.T_SUBWAY_STATIONS + " ON " + StmDbHelper.T_SUBWAY_DIRECTIONS
-			+ "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ID + "=" + StmDbHelper.T_SUBWAY_STATIONS + "."
-			+ StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID;
+	private static final String SUBWAY_LINE_STATIONS_JOIN = StmDbHelper.T_SUBWAY_LINES + " LEFT OUTER JOIN " + StmDbHelper.T_SUBWAY_LINES_DIRECTIONS + " ON "
+			+ StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + "=" + StmDbHelper.T_SUBWAY_LINES_DIRECTIONS + "."
+			+ StmDbHelper.T_SUBWAY_LINES_DIRECTIONS_K_SUBWAY_LINE_ID + " LEFT OUTER JOIN " + StmDbHelper.T_SUBWAY_STATIONS + " ON "
+			+ StmDbHelper.T_SUBWAY_LINES_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_LINES_DIRECTIONS_K_SUBWAY_STATION_ID + "=" + StmDbHelper.T_SUBWAY_STATIONS
+			+ "." + StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID;
 
 	private static final String BUS_STOP_LINES_JOIN = StmDbHelper.T_BUS_LINES + " JOIN " + StmDbHelper.T_BUS_STOPS + " ON " + StmDbHelper.T_BUS_LINES + "."
 			+ StmDbHelper.T_BUS_LINES_K_NUMBER + "=" + StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER;
@@ -405,14 +405,15 @@ public class StmProvider extends ContentProvider {
 			+ " LEFT OUTER JOIN " + StmDbHelper.T_BUS_STOPS_LOC + " ON " + StmDbHelper.T_BUS_STOPS_LOC + "." + StmDbHelper.T_BUS_STOPS_LOC_K_CODE + "="
 			+ StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE;
 
-	private static final String SUBWAY_STATIONS_LINE_JOIN = StmDbHelper.T_SUBWAY_LINES + " JOIN " + StmDbHelper.T_SUBWAY_DIRECTIONS + " ON "
-			+ StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + "=" + StmDbHelper.T_SUBWAY_DIRECTIONS + "."
-			+ StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_LINE_ID;
+	private static final String SUBWAY_STATIONS_LINE_JOIN = StmDbHelper.T_SUBWAY_LINES + " JOIN " + StmDbHelper.T_SUBWAY_LINES_DIRECTIONS + " ON "
+			+ StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + "=" + StmDbHelper.T_SUBWAY_LINES_DIRECTIONS + "."
+			+ StmDbHelper.T_SUBWAY_LINES_DIRECTIONS_K_SUBWAY_LINE_ID;
 
-	private static final String SUBWAY_STATIONS_LINE_DIRECTION_JOIN = StmDbHelper.T_SUBWAY_DIRECTIONS + " JOIN " + StmDbHelper.T_SUBWAY_LINES + " ON "
-			+ StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + "=" + StmDbHelper.T_SUBWAY_DIRECTIONS + "."
-			+ StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_LINE_ID + " JOIN " + StmDbHelper.T_SUBWAY_STATIONS + " ON " + StmDbHelper.T_SUBWAY_STATIONS + "."
-			+ StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID + "=" + StmDbHelper.T_SUBWAY_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ID;
+	private static final String SUBWAY_STATIONS_LINE_DIRECTION_JOIN = StmDbHelper.T_SUBWAY_LINES_DIRECTIONS + " JOIN " + StmDbHelper.T_SUBWAY_LINES + " ON "
+			+ StmDbHelper.T_SUBWAY_LINES + "." + StmDbHelper.T_SUBWAY_LINES_K_NUMBER + "=" + StmDbHelper.T_SUBWAY_LINES_DIRECTIONS + "."
+			+ StmDbHelper.T_SUBWAY_LINES_DIRECTIONS_K_SUBWAY_LINE_ID + " JOIN " + StmDbHelper.T_SUBWAY_STATIONS + " ON " + StmDbHelper.T_SUBWAY_STATIONS + "."
+			+ StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID + "=" + StmDbHelper.T_SUBWAY_LINES_DIRECTIONS + "."
+			+ StmDbHelper.T_SUBWAY_LINES_DIRECTIONS_K_SUBWAY_STATION_ID;
 
 	private static final String BUS_STOP_SUBWAY_STATION_JOIN = StmDbHelper.T_BUS_STOPS + " LEFT OUTER JOIN " + StmDbHelper.T_SUBWAY_STATIONS + " ON "
 			+ StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_SUBWAY_STATION_ID + "=" + StmDbHelper.T_SUBWAY_STATIONS + "."
@@ -432,6 +433,39 @@ public class StmProvider extends ContentProvider {
 	public boolean onCreate() {
 		MyLog.v(TAG, "onCreate()");
 		return true;
+	}
+
+	/**
+	 * The SQLite open helper object.
+	 */
+	private static StmDbHelper mOpenHelper;
+	/**
+	 * Stores the current database version.
+	 */
+	private static int currentDbVersion = 0;
+
+	/**
+	 * @return the database helper
+	 */
+	private static StmDbHelper getDBHelper(Context context) {
+		if (mOpenHelper == null) { // initialize
+			MyLog.d(TAG, "Initialize DB...");
+			mOpenHelper = new StmDbHelper(context.getApplicationContext());
+			currentDbVersion = StmDbHelper.DB_VERSION;
+		} else { // reset
+			try {
+				if (currentDbVersion != StmDbHelper.DB_VERSION) {
+					MyLog.d(TAG, "Update DB...");
+					mOpenHelper.close();
+					mOpenHelper = null;
+					return getDBHelper(context);
+				}
+			} catch (Exception e) {
+				// fail if locked, will try again later
+				MyLog.d(TAG, e, "Can't check DB version!");
+			}
+		}
+		return mOpenHelper;
 	}
 
 	/**
@@ -520,9 +554,9 @@ public class StmProvider extends ContentProvider {
 			break;
 		case BUS_LINE_ID_DIRECTIONS:
 			MyLog.v(TAG, "query>BUS_LINE_ID_DIRECTIONS");
-			qb.setTables(StmDbHelper.T_BUS_LINE_DIRECTIONS);
+			qb.setTables(StmDbHelper.T_BUS_LINES_DIRECTIONS);
 			qb.setProjectionMap(sBusLineDirectionsProjectionMap);
-			qb.appendWhere(StmDbHelper.T_BUS_LINE_DIRECTIONS + "." + StmDbHelper.T_BUS_LINE_DIRECTIONS_K_LINE_ID + "=");
+			qb.appendWhere(StmDbHelper.T_BUS_LINES_DIRECTIONS + "." + StmDbHelper.T_BUS_LINES_DIRECTIONS_K_LINE_ID + "=");
 			String busLineNumber2 = uri.getPathSegments().get(1);
 			qb.appendWhere(busLineNumber2);
 			break;
@@ -650,13 +684,13 @@ public class StmProvider extends ContentProvider {
 			break;
 		case BUS_LINE_DIRECTIONS:
 			MyLog.v(TAG, "query>BUS_LINE_DIRECTIONS");
-			qb.setTables(StmDbHelper.T_BUS_LINE_DIRECTIONS);
+			qb.setTables(StmDbHelper.T_BUS_LINES_DIRECTIONS);
 			break;
 		case BUS_LINE_DIRECTION_ID:
 			MyLog.v(TAG, "query>BUS_LINE_DIRECTION_ID");
-			qb.setTables(StmDbHelper.T_BUS_LINE_DIRECTIONS);
+			qb.setTables(StmDbHelper.T_BUS_LINES_DIRECTIONS);
 			qb.setProjectionMap(sBusLineDirectionsProjectionMap);
-			qb.appendWhere(StmDbHelper.T_BUS_LINE_DIRECTIONS + "." + StmDbHelper.T_BUS_LINE_DIRECTIONS_K_ID + "=\"" + uri.getPathSegments().get(1) + "\"");
+			qb.appendWhere(StmDbHelper.T_BUS_LINES_DIRECTIONS + "." + StmDbHelper.T_BUS_LINES_DIRECTIONS_K_ID + "=\"" + uri.getPathSegments().get(1) + "\"");
 			break;
 		case SUBWAY_LINES:
 			MyLog.v(TAG, "query>SUBWAY_LINES");
@@ -685,7 +719,8 @@ public class StmProvider extends ContentProvider {
 			MyLog.v(TAG, "query>SUBWAY_STATION_ID_LINES");
 			qb.setTables(SUBWAY_STATIONS_LINE_JOIN);
 			qb.setProjectionMap(sSubwayLinesProjectionMap);
-			qb.appendWhere(StmDbHelper.T_SUBWAY_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ID + "=" + uri.getPathSegments().get(1));
+			qb.appendWhere(StmDbHelper.T_SUBWAY_LINES_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_LINES_DIRECTIONS_K_SUBWAY_STATION_ID + "="
+					+ uri.getPathSegments().get(1));
 			break;
 		case SUBWAY_STATIONS_AND_LINES:
 			MyLog.v(TAG, "query>SUBWAY_STATIONS_AND_LINES");
@@ -696,10 +731,11 @@ public class StmProvider extends ContentProvider {
 			MyLog.v(TAG, "query>SUBWAY_STATION_ID_LINES_OTHER");
 			qb.setTables(SUBWAY_STATIONS_LINE_DIRECTION_JOIN);
 			qb.setProjectionMap(sSubwayLinesStationsProjectionMap);
-			qb.appendWhere(StmDbHelper.T_SUBWAY_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_LINE_ID + "!=" + uri.getPathSegments().get(1)
-					+ " AND " + StmDbHelper.T_SUBWAY_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ID + " IN (" + "SELECT "
-					+ StmDbHelper.T_SUBWAY_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ID + " FROM " + StmDbHelper.T_SUBWAY_DIRECTIONS
-					+ " WHERE " + StmDbHelper.T_SUBWAY_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_LINE_ID + "=" + uri.getPathSegments().get(1)
+			qb.appendWhere(StmDbHelper.T_SUBWAY_LINES_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_LINES_DIRECTIONS_K_SUBWAY_LINE_ID + "!="
+					+ uri.getPathSegments().get(1) + " AND " + StmDbHelper.T_SUBWAY_LINES_DIRECTIONS + "."
+					+ StmDbHelper.T_SUBWAY_LINES_DIRECTIONS_K_SUBWAY_STATION_ID + " IN (" + "SELECT " + StmDbHelper.T_SUBWAY_LINES_DIRECTIONS + "."
+					+ StmDbHelper.T_SUBWAY_LINES_DIRECTIONS_K_SUBWAY_STATION_ID + " FROM " + StmDbHelper.T_SUBWAY_LINES_DIRECTIONS + " WHERE "
+					+ StmDbHelper.T_SUBWAY_LINES_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_LINES_DIRECTIONS_K_SUBWAY_LINE_ID + "=" + uri.getPathSegments().get(1)
 					+ ")");
 			break;
 		case SUBWAY_LINE_ID:
@@ -976,37 +1012,6 @@ public class StmProvider extends ContentProvider {
 			c.setNotificationUri(getContext().getContentResolver(), uri);
 		}
 		return c;
-	}
-
-	/**
-	 * The SQLite open helper object.
-	 */
-	private static StmDbHelper mOpenHelper;
-	/**
-	 * Stores the current database version.
-	 */
-	private static int currentDbVersion = 0;
-
-	/**
-	 * @return the database helper
-	 */
-	private static StmDbHelper getDBHelper(Context context) {
-		if (mOpenHelper == null) { // initialize
-			mOpenHelper = new StmDbHelper(context.getApplicationContext(), null);
-			currentDbVersion = StmDbHelper.DB_VERSION;
-		} else { // reset
-			try {
-				if (currentDbVersion != StmDbHelper.DB_VERSION) {
-					mOpenHelper.close();
-					mOpenHelper = null;
-					return getDBHelper(context);
-				}
-			} catch (Exception e) {
-				// fail if locked, will try again later
-				MyLog.d(TAG, e, "Can't check DB version!");
-			}
-		}
-		return mOpenHelper;
 	}
 
 	@Override

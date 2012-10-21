@@ -18,10 +18,6 @@ public class DataDbHelper extends SQLiteOpenHelper {
 	 */
 	private static final String TAG = DataDbHelper.class.getSimpleName();
 	/**
-	 * The SQLite database.
-	 */
-	private SQLiteDatabase myDataBase;
-	/**
 	 * The database file.
 	 */
 	private static final String DATABASE_NAME = "data.db";
@@ -214,10 +210,12 @@ public class DataDbHelper extends SQLiteOpenHelper {
 	 */
 	public DataDbHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
+		MyLog.v(TAG, "DataDbHelper()");
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
+		MyLog.v(TAG, "onCreate()");
 		db.execSQL(DATABASE_CREATE_T_FAVS);
 		db.execSQL(DATABASE_CREATE_T_HISTORY);
 		db.execSQL(DATABASE_CREATE_T_TWITTER_API);
@@ -228,7 +226,7 @@ public class DataDbHelper extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		MyLog.v(TAG, "onUpgrade(%s, %s)", oldVersion, newVersion);
-		MyLog.i(TAG, "Upgrading database from version %s to %s, which may destroy all old data!", oldVersion,
+		MyLog.d(TAG, "Upgrading database from version %s to %s, which may destroy all old data!", oldVersion,
 		        newVersion);
 		switch (oldVersion) {
 		case 1:
@@ -263,9 +261,6 @@ public class DataDbHelper extends SQLiteOpenHelper {
 	@Override
 	public void close() {
 		MyLog.v(TAG, "close()");
-		if (myDataBase != null) {
-			myDataBase.close();
-		}
 		super.close();
 	}
 }

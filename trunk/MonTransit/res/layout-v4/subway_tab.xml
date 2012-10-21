@@ -20,12 +20,18 @@
             android:focusable="false"
             android:paddingLeft="5dp"
             android:text="@string/subway_lines" />
+        <include
+	        android:id="@+id/subway_lines_loading"
+	        android:layout_width="fill_parent"
+	        android:layout_height="?android:attr/listPreferredItemHeight"
+	        layout="@layout/loading_small_layout" />
         <LinearLayout
-            android:id="@+id/subway_line_list"
+            android:id="@+id/subway_lines"
             android:layout_width="fill_parent"
             android:layout_height="?android:attr/listPreferredItemHeight"
             android:orientation="horizontal"
-            android:weightSum="4" >
+            android:weightSum="4"
+            android:visibility="gone" >
             <include layout="@layout/subway_tab_subway_line_item" />
             <include layout="@layout/subway_tab_subway_line_item" />
             <include layout="@layout/subway_tab_subway_line_item" />

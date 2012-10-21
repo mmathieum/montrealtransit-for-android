@@ -18,10 +18,6 @@ public class BixiDbHelper extends SQLiteOpenHelper {
 	 */
 	private static final String TAG = BixiDbHelper.class.getSimpleName();
 	/**
-	 * The SQLite database.
-	 */
-	private SQLiteDatabase myDataBase;
-	/**
 	 * The database file.
 	 */
 	private static final String DATABASE_NAME = "bixi.db";
@@ -101,17 +97,19 @@ public class BixiDbHelper extends SQLiteOpenHelper {
 	 */
 	public BixiDbHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
+		MyLog.v(TAG, "BixiDbHelper()");
 	}
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
+		MyLog.v(TAG, "onCreate()");
 		db.execSQL(DATABASE_CREATE_T_BIKE_STATIONS);
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		MyLog.v(TAG, "onUpgrade(%s, %s)", oldVersion, newVersion);
-		MyLog.i(TAG, "Upgrading database from version %s to %s, which may destroy all old data!", oldVersion, newVersion);
+		MyLog.d(TAG, "Upgrading database from version %s to %s, which may destroy all old data!", oldVersion, newVersion);
 		switch (oldVersion) {
 		// case 1:
 		// MyLog.v(TAG, "add the X table");
@@ -133,9 +131,6 @@ public class BixiDbHelper extends SQLiteOpenHelper {
 	@Override
 	public void close() {
 		MyLog.v(TAG, "close()");
-		if (myDataBase != null) {
-			myDataBase.close();
-		}
 		super.close();
 	}
 

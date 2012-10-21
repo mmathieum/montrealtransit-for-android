@@ -1,4 +1,3 @@
-CREATE TABLE stations_metro (_id integer PRIMARY KEY, name text, lat real, lng real);
 INSERT INTO "stations_metro" VALUES(1,'Henri-Bourassa',45.554929,-73.668802);
 INSERT INTO "stations_metro" VALUES(2,'Sauvé',45.550932,-73.655927);
 INSERT INTO "stations_metro" VALUES(3,'Crémazie',45.546094,-73.638439);

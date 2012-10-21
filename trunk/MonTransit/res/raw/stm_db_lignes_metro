@@ -1,4 +1,3 @@
-CREATE TABLE lignes_metro (_id integer PRIMARY KEY, name text);
 INSERT INTO "lignes_metro" VALUES(1,'Ligne verte');
 INSERT INTO "lignes_metro" VALUES(2,'Ligne orange');
 INSERT INTO "lignes_metro" VALUES(4,'Ligne jaune');

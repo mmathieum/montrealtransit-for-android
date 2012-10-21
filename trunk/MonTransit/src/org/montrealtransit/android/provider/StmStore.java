@@ -305,9 +305,9 @@ public class StmStore {
 	 * The bus line direction columns
 	 */
 	public interface BusLineDirectionsColumns {
-		public static final String DIRECTION_ID = StmDbHelper.T_BUS_LINE_DIRECTIONS_K_ID;
-		public static final String DIRECTION_LINE_ID = StmDbHelper.T_BUS_LINE_DIRECTIONS_K_LINE_ID;
-		public static final String DIRECTION_NAME = StmDbHelper.T_BUS_LINE_DIRECTIONS_K_NAME;
+		public static final String DIRECTION_ID = StmDbHelper.T_BUS_LINES_DIRECTIONS_K_ID;
+		public static final String DIRECTION_LINE_ID = StmDbHelper.T_BUS_LINES_DIRECTIONS_K_LINE_ID;
+		public static final String DIRECTION_NAME = StmDbHelper.T_BUS_LINES_DIRECTIONS_K_NAME;
 	}
 
 	/**
@@ -916,11 +916,11 @@ public class StmStore {
 		/**
 		 * Order subway line by the real world order 1.
 		 */
-		public static final String NATURAL_SORT_ORDER = StmDbHelper.T_SUBWAY_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ORDER + " ASC";
+		public static final String NATURAL_SORT_ORDER = StmDbHelper.T_SUBWAY_LINES_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_LINES_DIRECTIONS_K_SUBWAY_STATION_ORDER + " ASC";
 		/**
 		 * Order subway line by the real world order 2.
 		 */
-		public static final String NATURAL_SORT_ORDER_DESC = StmDbHelper.T_SUBWAY_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_DIRECTIONS_K_SUBWAY_STATION_ORDER
+		public static final String NATURAL_SORT_ORDER_DESC = StmDbHelper.T_SUBWAY_LINES_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_LINES_DIRECTIONS_K_SUBWAY_STATION_ORDER
 				+ " DESC";
 		/**
 		 * The subway station ID.
