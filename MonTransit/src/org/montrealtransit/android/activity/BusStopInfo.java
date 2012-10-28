@@ -30,7 +30,6 @@ import org.montrealtransit.android.provider.StmDbHelper;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
 import org.montrealtransit.android.provider.StmStore.BusLine;
-import org.montrealtransit.android.provider.StmStore.BusLineDirection;
 import org.montrealtransit.android.provider.StmStore.BusStop;
 import org.montrealtransit.android.provider.StmStore.SubwayLine;
 import org.montrealtransit.android.provider.StmStore.SubwayStation;
@@ -118,10 +117,6 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	 * The bus stop.
 	 */
 	private StmStore.BusStop busStop;
-	/**
-	 * The bus stop direction.
-	 */
-	private BusLineDirection busStopDirection;
 	/**
 	 * The bus line.
 	 */
@@ -513,11 +508,11 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		findViewById(R.id.line).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				// MyLog.v(TAG, "onView()");
 				Intent mIntent = new Intent(BusStopInfo.this, SupportFactory.getInstance(BusStopInfo.this).getBusLineInfoClass());
 				mIntent.putExtra(BusLineInfo.EXTRA_LINE_NUMBER, BusStopInfo.this.busLine.getNumber());
 				mIntent.putExtra(BusLineInfo.EXTRA_LINE_NAME, BusStopInfo.this.busLine.getName());
 				mIntent.putExtra(BusLineInfo.EXTRA_LINE_TYPE, BusStopInfo.this.busLine.getType());
-				mIntent.putExtra(BusLineInfo.EXTRA_LINE_DIRECTION_ID, BusStopInfo.this.busStopDirection.getId());
 				startActivity(mIntent);
 			}
 		});
@@ -763,8 +758,8 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 						if (isNewBusLine) {
 							BusStopInfo.this.busLine = StmManager.findBusLine(BusStopInfo.this.getContentResolver(), BusStopInfo.this.busStop.getLineNumber());
 						}
-						BusStopInfo.this.busStopDirection = StmManager.findBusLineDirection(BusStopInfo.this.getContentResolver(),
-								BusStopInfo.this.busStop.getDirectionId());
+						// BusStopInfo.this.busStopDirection = StmManager.findBusLineDirection(BusStopInfo.this.getContentResolver(),
+						// BusStopInfo.this.busStop.getDirectionId());
 						// }
 						// BusStopInfo.this.busStopDirection = StmManager.findBusLineDirection(BusStopInfo.this.getContentResolver(),
 						// BusStopInfo.this.busStop.getDirectionId());
