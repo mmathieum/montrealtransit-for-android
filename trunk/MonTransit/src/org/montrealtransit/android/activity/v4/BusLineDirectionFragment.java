@@ -273,8 +273,10 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 				refreshFavoriteStopCodesFromDB();
 				BusLineDirectionFragment.this.adapter = new ArrayAdapterWithCustomView(BusLineDirectionFragment.this.getActivity(),
 						R.layout.bus_line_info_stops_list_item);
-				((ListView) BusLineDirectionFragment.this.getView().findViewById(R.id.list)).setAdapter(BusLineDirectionFragment.this.adapter);
-				updateDistancesWithNewLocation(); // force update all bus stop with location
+				if (BusLineDirectionFragment.this.getView() != null) { // TODO should never be null (?)
+					((ListView) BusLineDirectionFragment.this.getView().findViewById(R.id.list)).setAdapter(BusLineDirectionFragment.this.adapter);
+				}
+				updateDistancesWithNewLocation(); // force update all bus stops with location
 			};
 
 		}.execute();

@@ -340,7 +340,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 	 * Refresh the bus line number UI.
 	 */
 	public void setLineNumberAndName(String lineNumber, String lineType, String lineName) {
-		// MyLog.v(TAG, "setLineNumberAndName(%s, %s, %s)", lineNumber, lineType, lineName);
+		MyLog.v(TAG, "setLineNumberAndName(%s, %s, %s)", lineNumber, lineType, lineName);
 		((TextView) findViewById(R.id.line_number)).setText(lineNumber);
 		findViewById(R.id.line_number).setBackgroundColor(BusUtils.getBusLineTypeBgColorFromType(lineType));
 		((TextView) findViewById(R.id.line_name)).setText(lineName);
@@ -368,6 +368,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 
 	private int currentDirectionIndex() {
 		MyLog.v(TAG, "currentDirectionIndex()");
+		// MyLog.d(TAG, "this.currentBusLineDirectionId: " + this.currentBusLineDirectionId);
 		int index = 0;
 		if (this.busLineDirections != null) {
 			for (int i = 0; i < this.busLineDirections.size(); i++) {
@@ -376,6 +377,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 				}
 			}
 		}
+		// MyLog.d(TAG, "index: " + index);
 		return index;
 	}
 
@@ -389,12 +391,13 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 
 	@Override
 	public void onPageSelected(int position) {
-		// MyLog.v(TAG, "onPageSelected(%s)", position);
+		MyLog.v(TAG, "onPageSelected(%s)", position);
 		if (this.busLineDirections != null && this.busLineDirections.size() > position) {
 			this.currentBusLineDirectionId = this.busLineDirections.get(position).getId();
 		} else {
 			this.currentBusLineDirectionId = null;
 		}
+		// MyLog.d(TAG, "this.currentBusLineDirectionId: " + this.currentBusLineDirectionId);
 	}
 
 	/**
@@ -463,7 +466,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 
 	@Override
 	public void onLocationChanged(Location location) {
-		MyLog.v(TAG, "onLocationChanged()");
+		//MyLog.v(TAG, "onLocationChanged()");
 		this.setLocation(location);
 		updateDistancesWithNewLocation();
 	}
