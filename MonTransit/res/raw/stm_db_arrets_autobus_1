@@ -2043,9 +2043,8 @@ INSERT INTO "arrets_autobus" VALUES(55084,139,'139JON','Pie-IX / Charleroi','','
 INSERT INTO "arrets_autobus" VALUES(55076,139,'139JON','Pie-IX / Arthur-Champoux','','',43);
 INSERT INTO "arrets_autobus" VALUES(55075,139,'139JON','d''Amos / Saint-Julien','','',44);
 INSERT INTO "arrets_autobus" VALUES(55088,139,'139JON','d''Amos / Garon','','',45);
-INSERT INTO "arrets_autobus" VALUES(55068,139,'139JON','Garon / Henri-Bourassa','','',46);
-INSERT INTO "arrets_autobus" VALUES(55064,139,'139JON','Henri-Bourassa / Pie-IX','','Descente seulement',47);
-INSERT INTO "arrets_autobus" VALUES(55064,139,'139JOS','Henri-Bourassa / Pie-IX','','',0);
+INSERT INTO "arrets_autobus" VALUES(55068,139,'139JON','Garon / Henri-Bourassa','','Descente seulement',46);
+INSERT INTO "arrets_autobus" VALUES(55068,139,'139JOS','Garon / Henri-Bourassa','','',0);
 INSERT INTO "arrets_autobus" VALUES(55056,139,'139JOS','Gariépy / Henri-Bourassa','','',1);
 INSERT INTO "arrets_autobus" VALUES(55077,139,'139JOS','Pie-IX / Arthur-Champoux','','',2);
 INSERT INTO "arrets_autobus" VALUES(55085,139,'139JOS','Pie-IX / Charleroi','','',3);
