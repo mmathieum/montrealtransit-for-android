@@ -1,4 +1,3 @@
-CREATE TABLE 'directions_autobus'(ligne_id integer,direction_id text,name text);
 INSERT INTO "directions_autobus" VALUES(10,'1001N','');
 INSERT INTO "directions_autobus" VALUES(10,'1001S','');
 INSERT INTO "directions_autobus" VALUES(11,'1101O','');
