@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="org.montrealtransit.android" android:versionName="1.7.4"
-	android:versionCode="711" android:installLocation="auto">
+	package="org.montrealtransit.android" android:versionName="1.7.4.1"
+	android:versionCode="713" android:installLocation="auto">
 
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -23,13 +23,13 @@
 
 	<application android:icon="@drawable/ic_launcher_icon" android:label="@string/app_name"
 		android:description="@string/app_desc" android:theme="@android:style/Theme.NoTitleBar"
-		android:backupAgent=".services.BackupAgentHelper" android:hardwareAccelerated="true">
+		android:backupAgent=".services.BackupAgentHelper" android:allowBackup="true" android:hardwareAccelerated="true">
 		<meta-data android:name="android.app.default_searchable" android:value=".activity.SearchResult" />
 		<meta-data android:name="com.google.android.backup.api_key" android:value="@string/com_google_android_backup_api_key" />
 		<!-- PROVIDERs -->
-		<provider android:name="org.montrealtransit.android.provider.DataProvider" android:authorities="org.montrealtransit.android.data" />
-		<provider android:name="org.montrealtransit.android.provider.StmProvider" android:authorities="org.montrealtransit.android.stm" />
-		<provider android:name="org.montrealtransit.android.provider.BixiProvider" android:authorities="org.montrealtransit.android.bixi" />
+		<provider android:name="org.montrealtransit.android.provider.DataProvider" android:authorities="org.montrealtransit.android.data" android:exported="false" />
+		<provider android:name="org.montrealtransit.android.provider.StmProvider" android:authorities="org.montrealtransit.android.stm" android:exported="false" />
+		<provider android:name="org.montrealtransit.android.provider.BixiProvider" android:authorities="org.montrealtransit.android.bixi" android:exported="false" />
 		<!-- SPLASH SCREEN -->
 		<activity android:name=".activity.SplashScreen"
 			android:label="@string/app_name" android:icon="@drawable/ic_launcher_icon"
