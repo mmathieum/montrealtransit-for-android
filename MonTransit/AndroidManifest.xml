@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="org.montrealtransit.android" android:versionName="1.7.3"
-	android:versionCode="708" android:installLocation="auto">
+	package="org.montrealtransit.android" android:versionName="1.7.4"
+	android:versionCode="711" android:installLocation="auto">
 
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
