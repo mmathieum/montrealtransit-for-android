@@ -57,7 +57,8 @@ public class SupportFactory {
 			className += ".IceCreamSandwichSupport"; // 14 15
 			break;
 		case Build.VERSION_CODES.JELLY_BEAN:
-			className += ".JellyBeanSupport"; // 16
+		case Build.VERSION_CODES.JELLY_BEAN_MR1:
+			className += ".JellyBeanSupport"; // 16 17
 			break;
 		default:
 			MyLog.w(TAG, "Unknow API Level: %s", sdkVersion);
