@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- BUS LINE NUMBER -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/line_number"
+    style="@style/BusLineNumber"
+    android:layout_width="fill_parent"
+    android:layout_height="55dp"
+    android:text="@string/default_line_number" />
