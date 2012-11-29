@@ -201,14 +201,14 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 			return ServiceStatus.STATUS_TYPE_RED;
 		} else {
 			// try keyword detection
-			if (statusText.startsWith("No significant métro service disruptions.")
-			        || statusText.startsWith("Aucune interruption importante du service de métro.")) {
+			if (statusText.startsWith("No significant")
+			        || statusText.startsWith("Aucune interruption")) {
 				return ServiceStatus.STATUS_TYPE_GREEN;
-			} else if (statusText.startsWith("Service gradually resuming on")
-			        || statusText.startsWith("Reprise graduelle du service ligne")) {
+			} else if (statusText.startsWith("Service gradually")
+			        || statusText.startsWith("Reprise graduelle")) {
 				return ServiceStatus.STATUS_TYPE_YELLOW;
-			} else if (statusText.startsWith("Service disrupted on the")
-			        || statusText.startsWith("Arrêt de service ligne")) {
+			} else if (statusText.startsWith("Service disrupted")
+			        || statusText.startsWith("Arrêt de service")) {
 				return ServiceStatus.STATUS_TYPE_RED;
 			} else {
 				return ServiceStatus.STATUS_TYPE_DEFAULT;
