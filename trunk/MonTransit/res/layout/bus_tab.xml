@@ -74,7 +74,7 @@
         android:id="@+id/bus_lines"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:columnWidth="77dp"
+        android:columnWidth="75dp"
         android:gravity="center"
         android:horizontalSpacing="3dp"
         android:numColumns="auto_fit"
