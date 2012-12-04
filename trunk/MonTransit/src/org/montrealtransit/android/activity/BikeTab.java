@@ -443,7 +443,13 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	 * Generate the ordered subway line station IDs.
 	 */
 	public void generateOrderedStationsIds() {
-		MyLog.v(TAG, "generateOrderedStationsIds()");
+    MyLog.v(TAG, "generateOrderedStationsIds()");
+    // IF no station DO
+		if (Utils.getCollectionSize(this.closestStations) == 0) {
+			this.closestStationTerminalName = null;
+			return;
+		}
+		// ELSE IF stations DO
 		List<ABikeStation> orderedStations = new ArrayList<ABikeStation>(this.closestStations);
 		// order the stations list by distance (closest first)
 		Collections.sort(orderedStations, new Comparator<ABikeStation>() {
