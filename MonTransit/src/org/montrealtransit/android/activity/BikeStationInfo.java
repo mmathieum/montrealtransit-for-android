@@ -112,7 +112,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	/**
 	 * The task used to load the new bike station info.
 	 */
-	private BixiDataReader task;
+	private BixiDataReader bixiDataReaderTask;
 	/**
 	 * The last message from the {@link BixiDataReader}.
 	 */
@@ -476,7 +476,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	public void refreshStatus(View v) {
 		MyLog.v(TAG, "refreshStatus()");
 		// IF the task is running DO
-		if (this.task != null && this.task.getStatus().equals(AsyncTask.Status.RUNNING)) {
+		if (this.bixiDataReaderTask != null && this.bixiDataReaderTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
 			// do NOT cancel, useful
 			// stopping the task
 			// this.task.cancel(true);
@@ -488,8 +488,8 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			// check if it's not too soon
 			int waitFor = getLastUpdateTime() + CACHE_TOO_FRESH_IN_SEC - Utils.currentTimeSec();
 			// find the next bus stop
-			this.task = new BixiDataReader(this, this, waitFor > 0 ? waitFor : 0);
-			this.task.execute(this.bikeStation.getTerminalName());
+			this.bixiDataReaderTask = new BixiDataReader(this, this, waitFor > 0 ? waitFor : 0);
+			this.bixiDataReaderTask.execute(this.bikeStation.getTerminalName());
 		}
 	}
 
@@ -679,7 +679,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		MyLog.v(TAG, "setUpUI()");
 		refreshBikeStationInfo();
 		showBikeStationStatus();
-		refreshClosestBikeStations();
+		refreshClosestBikeStations(false);
 		// IF there is a valid last know location DO
 		if (LocationUtils.getBestLastKnownLocation(this) != null) {
 			// set the distance before showing the station
@@ -697,7 +697,8 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	/**
 	 * Refresh closest bike stations.
 	 */
-	private void refreshClosestBikeStations() {
+	private void refreshClosestBikeStations(boolean force) {
+		MyLog.v(TAG, "refreshClosestBikeStations(%s)", force);
 		// IF refresh required DO
 		if (Utils.getCollectionSize(this.closestBikeStations) == 0 || this.closestBikeStationTerminalName == null
 				|| !this.closestBikeStationTerminalName.equals(this.bikeStation.getTerminalName())) {
@@ -707,7 +708,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 				this.closestBikeStations = null;
 			}
 			setClosestStationsAsLoading(); // set as loading
-			this.closestBikeStationsTask = new ClosestBikeStationsFinderTask(this, this, NB_CLOSEST_BIKE_STATIONS + 1);
+			this.closestBikeStationsTask = new ClosestBikeStationsFinderTask(this, this, NB_CLOSEST_BIKE_STATIONS + 1, force);
 			this.closestBikeStationsTask.execute(this.bikeStation.getLocation());
 		}
 	}
@@ -737,7 +738,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	@Override
 	public void onClosestBikeStationsDone(ClosestPOI<ABikeStation> result) {
 		MyLog.v(TAG, "onClosestBikeStationsDone()");
-		if (result != null && result.getPoiList().size() > 0) {
+		if (result != null && result.getPoiListSize() > 0) {
 			this.closestBikeStations = result.getPoiList().subList(1, result.getPoiList().size());
 			refreshFavoriteTerminalNamesFromDB();
 			// set location
@@ -812,6 +813,12 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			view.setTag(getStationViewTag(station));
 			// bike station name
 			((TextView) view.findViewById(R.id.station_name)).setText(Utils.cleanBikeStationName(station.getName()));
+			// status (not installed, locked..)
+			if (!station.isInstalled() || station.isLocked()) {
+				((TextView) view.findViewById(R.id.station_name)).setTextColor(Utils.getTextColorSecondary(BikeStationInfo.this));
+			} else {
+				((TextView) view.findViewById(R.id.station_name)).setTextColor(Utils.getTextColorPrimary(BikeStationInfo.this));
+			}
 			// bike station distance
 			TextView distanceTv = (TextView) view.findViewById(R.id.distance);
 			if (!TextUtils.isEmpty(station.getDistanceString())) {
@@ -857,17 +864,27 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		TextView bikeTv = (TextView) view.findViewById(R.id.progress_bike);
 		int waitFor = Utils.currentTimeSec() - CACHE_NOT_USEFUL_IN_SEC - lastUpdate;
 		if (waitFor < 0) {
-			// bikes #
-			bikeTv.setText(getResources().getQuantityString(R.plurals.bikes_nb, station.getNbBikes(), station.getNbBikes()));
-			bikeTv.setTypeface(station.getNbBikes() <= 0 ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
-			// dock #
-			dockTv.setText(getResources().getQuantityString(R.plurals.docks_nb, station.getNbEmptyDocks(), station.getNbEmptyDocks()));
-			dockTv.setTypeface(station.getNbEmptyDocks() <= 0 ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
+			if (!station.isInstalled()) {
+				bikeTv.setText(R.string.bike_station_not_installed);
+				bikeTv.setTypeface(Typeface.DEFAULT_BOLD);
+				dockTv.setVisibility(View.GONE);
+			} else if (station.isLocked()) {
+				bikeTv.setText(R.string.bike_station_locked);
+				bikeTv.setTypeface(Typeface.DEFAULT_BOLD);
+				dockTv.setVisibility(View.GONE);
+			} else {
+				// bikes #
+				bikeTv.setText(getResources().getQuantityString(R.plurals.bikes_nb, station.getNbBikes(), station.getNbBikes()));
+				bikeTv.setTypeface(station.getNbBikes() <= 0 ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
+				// dock #
+				dockTv.setText(getResources().getQuantityString(R.plurals.docks_nb, station.getNbEmptyDocks(), station.getNbEmptyDocks()));
+				dockTv.setTypeface(station.getNbEmptyDocks() <= 0 ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
+			}
 			// progress bar
 			progressBar.setIndeterminate(false);
 			progressBar.setMax(station.getNbTotalDocks());
 			progressBar.setProgress(station.getNbBikes());
-		} else {
+		} else { // loading...
 			// MyLog.d(TAG, "Cache NOT useful (closest).");
 			bikeTv.setText(R.string.ellipsis);
 			bikeTv.setTypeface(Typeface.DEFAULT);
@@ -930,12 +947,22 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		int waitFor = Utils.currentTimeSec() - CACHE_NOT_USEFUL_IN_SEC - getLastUpdateTime();
 		if (waitFor < 0) {
 			// MyLog.d(TAG, "Cache useful.");
-			// bikes #
-			bikeTv.setText(getResources().getQuantityString(R.plurals.bikes_nb, this.bikeStation.getNbBikes(), this.bikeStation.getNbBikes()));
-			bikeTv.setTypeface(this.bikeStation.getNbBikes() <= 0 ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
-			// dock #
-			dockTv.setText(getResources().getQuantityString(R.plurals.docks_nb, this.bikeStation.getNbEmptyDocks(), this.bikeStation.getNbEmptyDocks()));
-			dockTv.setTypeface(this.bikeStation.getNbEmptyDocks() <= 0 ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
+			if (!this.bikeStation.isInstalled()) {
+				bikeTv.setText(R.string.bike_station_not_installed);
+				bikeTv.setTypeface(Typeface.DEFAULT_BOLD);
+				dockTv.setVisibility(View.GONE);
+			} else if (this.bikeStation.isLocked()) {
+				bikeTv.setText(R.string.bike_station_locked);
+				bikeTv.setTypeface(Typeface.DEFAULT_BOLD);
+				dockTv.setVisibility(View.GONE);
+			} else {
+				// bikes #
+				bikeTv.setText(getResources().getQuantityString(R.plurals.bikes_nb, this.bikeStation.getNbBikes(), this.bikeStation.getNbBikes()));
+				bikeTv.setTypeface(this.bikeStation.getNbBikes() <= 0 ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
+				// dock #
+				dockTv.setText(getResources().getQuantityString(R.plurals.docks_nb, this.bikeStation.getNbEmptyDocks(), this.bikeStation.getNbEmptyDocks()));
+				dockTv.setTypeface(this.bikeStation.getNbEmptyDocks() <= 0 ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
+			}
 			// progress bar
 			progressBar.setIndeterminate(false);
 			progressBar.setMax(this.bikeStation.getNbTotalDocks());
@@ -949,7 +976,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			} else {
 				((TextView) findViewById(R.id.availability_title).findViewById(R.id.availability_title_string)).setText(R.string.bike_station_status);
 			}
-		} else {
+		} else { // loading...
 			// MyLog.d(TAG, "Cache NOT useful.");
 			bikeTv.setText(R.string.ellipsis);
 			bikeTv.setTypeface(Typeface.DEFAULT);
@@ -990,9 +1017,9 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			this.closestBikeStationsTask = null;
 			this.closestBikeStations = null;
 		}
-		if (this.task != null) {
-			this.task.cancel(false);
-			this.task = null;
+		if (this.bixiDataReaderTask != null) {
+			this.bixiDataReaderTask.cancel(false);
+			this.bixiDataReaderTask = null;
 		}
 		AdsUtils.destroyAd(this);
 		super.onDestroy();

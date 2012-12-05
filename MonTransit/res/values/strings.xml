@@ -115,6 +115,8 @@
 	<string name="closest_bike_stations_cancelled">Search for closest stations cancelled.</string>
 	<string name="bike_station_status">Availability</string>
 	<string name="bike_station_status_hour">Availability (%s)</string>
+	<string name="bike_station_not_installed">Not installed!</string>
+	<string name="bike_station_locked">Locked!</string>
 	
 	<string name="beta_pref_cat_title">BETA</string>
 	<string name="bus_stop_loc_pref_title">Bus Stops Location</string>

@@ -13,7 +13,7 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- *  XML Handler for <a href="https://montreal.bixi.com/data/bikeStations.xml">https://montreal.bixi.com/data/bikeStations.xml</a>.
+ * XML Handler for <a href="https://montreal.bixi.com/data/bikeStations.xml">https://montreal.bixi.com/data/bikeStations.xml</a>.
  */
 public class BixiBikeStationsDataHandler extends DefaultHandler implements ContentHandler {
 
@@ -32,6 +32,7 @@ public class BixiBikeStationsDataHandler extends DefaultHandler implements Conte
 	private static final String ID = "id";
 	private static final String NAME = "name";
 	private static final String TERMINAL_NAME = "terminalName";
+	private static final String LAST_COMM_WITH_SERVER = "lastCommWithServer";
 	private static final String LAT = "lat";
 	private static final String LONG = "long";
 	private static final String INSTALLED = "installed";
@@ -39,6 +40,7 @@ public class BixiBikeStationsDataHandler extends DefaultHandler implements Conte
 	private static final String INSTALL_DATE = "installDate";
 	private static final String REMOVAL_DATE = "removalDate";
 	private static final String TEMPORARY = "temporary";
+	private static final String PUBLIC = "public";
 	private static final String NB_BIKES = "nbBikes";
 	private static final String NB_EMPTY_DOCKS = "nbEmptyDocks";
 	private static final String LATEST_UPDATE_TIME = "latestUpdateTime";
@@ -115,6 +117,8 @@ public class BixiBikeStationsDataHandler extends DefaultHandler implements Conte
 					this.currentBikeStation.setName(string);
 				} else if (TERMINAL_NAME.equals(this.currentLocalName)) {
 					this.currentBikeStation.setTerminalName(string);
+				} else if (LAST_COMM_WITH_SERVER.equals(this.currentLocalName)) {
+					this.currentBikeStation.setLastCommWithServer(Utils.toTimestampInSeconds(Long.valueOf(string)));
 				} else if (LAT.equals(this.currentLocalName)) {
 					this.currentBikeStation.setLat(Double.valueOf(string));
 				} else if (LONG.equals(this.currentLocalName)) {
@@ -129,6 +133,8 @@ public class BixiBikeStationsDataHandler extends DefaultHandler implements Conte
 					this.currentBikeStation.setRemovalDate(Utils.toTimestampInSeconds(Long.valueOf(string)));
 				} else if (TEMPORARY.equals(this.currentLocalName)) {
 					this.currentBikeStation.setTemporary(Boolean.valueOf(string));
+				} else if (PUBLIC.equals(this.currentLocalName)) {
+					this.currentBikeStation.setPublicStation(Boolean.valueOf(string));
 				} else if (NB_BIKES.equals(this.currentLocalName)) {
 					this.currentBikeStation.setNbBikes(Integer.valueOf(string));
 				} else if (NB_EMPTY_DOCKS.equals(this.currentLocalName)) {

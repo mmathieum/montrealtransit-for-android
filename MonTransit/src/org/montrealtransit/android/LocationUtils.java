@@ -327,17 +327,20 @@ public class LocationUtils {
 	 * @return the SQL where clause
 	 */
 	public static String genAroundWhere(String lat, String lng, String latTableColumn, String lngTableColumn) {
+		// MyLog.v(TAG, "genAroundWhere(%s, %s, %s. %s)", lat, lng, latTableColumn, lngTableColumn);
 		StringBuilder qb = new StringBuilder();
 		// latitude
 		double latTrunc = truncAround(lat);
 		String latBefore = truncAround(latTrunc - AROUND_DIFF);
 		String latAfter = truncAround(latTrunc + AROUND_DIFF);
+		// MyLog.d(TAG, "lat: " + latBefore + " - " + latAfter);
 		qb.append(latTableColumn).append(" BETWEEN ").append(latBefore).append(" AND ").append(latAfter);
 		qb.append(" AND ");
 		// longitude
 		double lngTrunc = truncAround(lng);
 		String lngBefore = truncAround(lngTrunc - AROUND_DIFF);
 		String lngAfter = truncAround(lngTrunc + AROUND_DIFF);
+		// MyLog.d(TAG, "lng: " + lngBefore + " - " + lngAfter);
 		qb.append(lngTableColumn).append(" BETWEEN ").append(lngBefore).append(" AND ").append(lngAfter);
 		return qb.toString();
 	}

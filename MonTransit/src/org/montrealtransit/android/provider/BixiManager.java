@@ -157,7 +157,7 @@ public class BixiManager {
 		}
 		return result;
 	}
-	
+
 	/**
 	 * @param contentResolver the content resolver
 	 * @param terminalNames the bike stations terminal names
@@ -282,11 +282,10 @@ public class BixiManager {
 	/**
 	 * @param contentResolver content resolver
 	 * @param location the location
-	 * @param includeNotInstalled true if including not installed bike station in the result
 	 * @return all bike stations w/ location list close to a location
 	 */
-	public static List<BikeStation> findAllBikeStationsLocationList(ContentResolver contentResolver, Location location, boolean includeNotInstalled) {
-		MyLog.v(TAG, "findAllBikeStationsLocationList(%s)", includeNotInstalled);
+	public static List<BikeStation> findAllBikeStationsLocationList(ContentResolver contentResolver, Location location) {
+		MyLog.v(TAG, "findAllBikeStationsLocationList()");
 		List<BikeStation> result = null;
 		Cursor c = null;
 		try {
@@ -295,10 +294,7 @@ public class BixiManager {
 				if (c.moveToFirst()) {
 					result = new ArrayList<BikeStation>();
 					do {
-						BikeStation fromCursor = BixiStore.BikeStation.fromCursor(c);
-						if (includeNotInstalled || fromCursor.isInstalled()) {
-							result.add(fromCursor);
-						}
+						result.add(BixiStore.BikeStation.fromCursor(c));
 					} while (c.moveToNext());
 				}
 			}
