@@ -19,6 +19,7 @@ import org.montrealtransit.android.services.BixiDataReader.BixiDataReaderListene
 import android.content.Context;
 import android.location.Location;
 import android.os.AsyncTask;
+import android.text.TextUtils;
 
 public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, ClosestPOI<ABikeStation>> implements BixiDataReaderListener {
 
@@ -26,16 +27,19 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 	 * The log tag.
 	 */
 	private static final String TAG = ClosestBikeStationsFinderTask.class.getSimpleName();
-
 	/**
 	 * True if forcing update from the web (DEBUG).
 	 */
 	private static final boolean FORCE_UPDATE_FROM_WEB = false;
-
 	/**
 	 * The validity of the current bike stations list (in seconds).
 	 */
 	private static final int BIKE_STATION_LIST_TOO_OLD_IN_SEC = 7 * 24 * 60 * 60; // 1 week
+	/**
+	 * Represents no limit in the number of returned result.
+	 */
+	public static final int NO_LIMIT = 0;
+
 	/**
 	 * The context.
 	 */
@@ -44,21 +48,18 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 	 * The class handling the result and progress.
 	 */
 	private ClosestBikeStationsFinderListener from;
-
 	/**
 	 * The last Bixi data message.
 	 */
 	private String lastBixiDataMessage;
-
 	/**
 	 * The maximum number of results (0 = no limit).
 	 */
 	private int maxResult = NO_LIMIT;
-
 	/**
-	 * Represents no limit in the number of returned result.
+	 * True if forcing update from the web (when DB empty...)
 	 */
-	public static final int NO_LIMIT = 0;
+	private boolean forceUpdateFromWeb = false;
 
 	/**
 	 * The default constructor.
@@ -66,10 +67,11 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 	 * @param context the context
 	 * @param maxResult the maximum number of result or {@link #NO_LIMIT}
 	 */
-	public ClosestBikeStationsFinderTask(ClosestBikeStationsFinderListener from, Context context, int maxResult) {
+	public ClosestBikeStationsFinderTask(ClosestBikeStationsFinderListener from, Context context, int maxResult, boolean forceUpdateFromWeb) {
 		this.from = from;
 		this.context = context;
 		this.maxResult = maxResult;
+		this.forceUpdateFromWeb = forceUpdateFromWeb;
 	}
 
 	@Override
@@ -84,6 +86,7 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 			result = new ClosestPOI<ABikeStation>();
 			// IF the local cache is too old DO
 			if (FORCE_UPDATE_FROM_WEB
+					|| forceUpdateFromWeb
 					|| Utils.currentTimeSec() >= UserPreferences.getPrefLcl(this.context, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, 0)
 							+ BIKE_STATION_LIST_TOO_OLD_IN_SEC) {
 				publishProgress(this.context.getString(R.string.downloading_data_from_and_source, BixiDataReader.SOURCE));
@@ -93,9 +96,11 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 			publishProgress(this.context.getString(R.string.processing));
 			// get the closest bike station from database or NULL
 			List<BikeStation> bikeStations = getAllBikeStations(currentLocation);
-			if (bikeStations != null) {
+			if (bikeStations != null) { // bike stations
 				result.setPoiList(getABikeStations(this.context, bikeStations, currentLocation, this.maxResult));
-			} else {
+			} else if (TextUtils.isEmpty(this.lastBixiDataMessage)) { // no bike stations
+				result.setPoiList(new ArrayList<ABikeStation>());
+			} else { // error
 				result.setErrorMessage(this.lastBixiDataMessage);
 			}
 		}
@@ -105,7 +110,7 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 	public List<BikeStation> getAllBikeStations(Location currentLocation) {
 		MyLog.v(TAG, "getAllBikeStations()");
 		// try the short way with location hack
-		List<BikeStation> allBikeStationsWithLoc = BixiManager.findAllBikeStationsLocationList(context.getContentResolver(), currentLocation, false);
+		List<BikeStation> allBikeStationsWithLoc = BixiManager.findAllBikeStationsLocationList(context.getContentResolver(), currentLocation);
 		// MyLog.d(TAG, "1st try: " + Utils.getCollectionSize(allBikeStationsWithLoc));
 		if (Utils.getCollectionSize(allBikeStationsWithLoc) == 0) { // if no value return
 			// do it the hard long way

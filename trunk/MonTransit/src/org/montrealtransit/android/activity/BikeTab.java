@@ -80,7 +80,6 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	 * Is the location updates enabled?
 	 */
 	private boolean locationUpdatesEnabled = false;
-
 	/**
 	 * The closest bike stations (with distance => ordered).
 	 */
@@ -93,12 +92,10 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	 * The location address used to generate the closest bike stations list;
 	 */
 	private Address closestBikeStationsLocationAddress;
-
 	/**
 	 * The bike stations list adapter.
 	 */
 	private ArrayAdapter<ABikeStation> adapter;
-
 	/**
 	 * The closest bike station ID by distance.
 	 */
@@ -107,7 +104,6 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	 * The task used to load the closest bike stations.
 	 */
 	private ClosestBikeStationsFinderTask closestBikeStationsTask;
-
 	/**
 	 * The acceleration apart from gravity.
 	 */
@@ -320,8 +316,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	private long lastNotifyDataSetChanged = -1;
 
 	/**
-	 * @param force true to force notify
-	 * {@link ArrayAdapter#notifyDataSetChanged()} if necessary
+	 * @param force true to force notify {@link ArrayAdapter#notifyDataSetChanged()} if necessary
 	 */
 	public void notifyDataSetChanged(boolean force) {
 		// MyLog.v(TAG, "notifyDataSetChanged(%s)", force);
@@ -384,12 +379,11 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	 * @return a bike station name or null
 	 */
 	private String findStationName(String terminalName) {
-		if (this.closestStations == null) {
-			return null;
-		}
-		for (BikeStation bikeStation : this.closestStations) {
-			if (bikeStation.getTerminalName().equals(terminalName)) {
-				return bikeStation.getName();
+		if (this.closestStations != null) {
+			for (BikeStation bikeStation : this.closestStations) {
+				if (bikeStation.getTerminalName().equals(terminalName)) {
+					return bikeStation.getName();
+				}
 			}
 		}
 		return null;
@@ -418,11 +412,11 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 		Location currentLocation = getLocation();
 		if (this.closestStations == null && currentLocation != null) {
 			// start refreshing if not running.
-			refreshClosestBikeStations();
+			refreshClosestBikeStations(false);
 			return;
 		}
 		// ELSE IF there are closest stations AND new location DO
-		if (this.closestStations != null && currentLocation != null) {
+		if (Utils.getCollectionSize(this.closestStations) > 0 && currentLocation != null) {
 			// update the list distances
 			boolean isDetailed = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
 					UserPreferences.PREFS_DISTANCE_DETAILED);
@@ -443,8 +437,8 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	 * Generate the ordered subway line station IDs.
 	 */
 	public void generateOrderedStationsIds() {
-    MyLog.v(TAG, "generateOrderedStationsIds()");
-    // IF no station DO
+		MyLog.v(TAG, "generateOrderedStationsIds()");
+		// IF no station DO
 		if (Utils.getCollectionSize(this.closestStations) == 0) {
 			this.closestStationTerminalName = null;
 			return;
@@ -486,6 +480,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	 */
 	private void showNewClosestBikeStations() {
 		MyLog.v(TAG, "showNewClosestBikeStations()");
+		// if (Utils.getCollectionSize(this.closestStations) > 0) {
 		if (this.closestStations != null) {
 			// set the closest station title
 			showNewClosestBikeStationsTitle();
@@ -494,7 +489,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			// show stations list
 			ListView list = (ListView) findViewById(R.id.closest_bike_stations_list);
 			list.setVisibility(View.VISIBLE);
-			this.adapter = new ArrayAdapterWithCustomView(this, R.layout.bike_station_tab_closest_stations_list_item/*, array*/);
+			this.adapter = new ArrayAdapterWithCustomView(this, R.layout.bike_station_tab_closest_stations_list_item);
 			list.setAdapter(this.adapter);
 			list.setOnItemClickListener(this);
 			list.setOnScrollListener(this);
@@ -520,7 +515,8 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	public void showNewClosestBikeStationsTitle() {
 		if (this.closestBikeStationsLocationAddress != null && this.closestBikeStationsLocation != null) {
 			((TextView) findViewById(R.id.closest_bike_stations_title).findViewById(R.id.closest_bike_stations_title_text)).setText(LocationUtils
-					.getLocationString(this, R.string.closest_bike_stations, this.closestBikeStationsLocationAddress, this.closestBikeStationsLocation.getAccuracy()));
+					.getLocationString(this, R.string.closest_bike_stations, this.closestBikeStationsLocationAddress,
+							this.closestBikeStationsLocation.getAccuracy()));
 		}
 	}
 
@@ -548,17 +544,17 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			this.viewId = viewId;
 			this.layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
-		
+
 		@Override
 		public int getCount() {
 			return BikeTab.this.closestStations == null ? 0 : BikeTab.this.closestStations.size();
 		}
-		
+
 		@Override
 		public int getPosition(ABikeStation item) {
 			return BikeTab.this.closestStations.indexOf(item);
 		}
-		
+
 		@Override
 		public ABikeStation getItem(int position) {
 			return BikeTab.this.closestStations.get(position);
@@ -631,16 +627,17 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	private void setClosestStationsError(String errorMessage) {
 		MyLog.v(TAG, "setClosestStationsError(%s)", errorMessage);
 		// IF there are already stations DO
-		if (this.closestStations != null) {
+		if (Utils.getCollectionSize(this.closestStations) > 0) {
 			// notify the user but keep showing the old stations
 			Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
 		} else {
 			// show the error message
 			View loadingLayout = findViewById(R.id.closest_bike_stations_list_loading);
 			TextView mainMsgTv = (TextView) loadingLayout.findViewById(R.id.main_msg);
-			mainMsgTv.setText(errorMessage);
-			mainMsgTv.setVisibility(View.VISIBLE);
-			((TextView) loadingLayout.findViewById(R.id.detail_msg)).setVisibility(View.GONE);
+			TextView detailMsgTv = (TextView) loadingLayout.findViewById(R.id.detail_msg);
+			mainMsgTv.setText(R.string.error);
+			detailMsgTv.setText(errorMessage);
+			detailMsgTv.setVisibility(View.VISIBLE);
 		}
 		setClosestStationsNotLoading();
 	}
@@ -651,7 +648,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	private void setClosestStationsLoading(String detailMsg) {
 		MyLog.v(TAG, "setClosestStationsLoading(%s)", detailMsg);
 		View closestStationsTitle = findViewById(R.id.closest_bike_stations_title);
-		if (this.closestStations == null) {
+		if (Utils.getCollectionSize(this.closestStations) == 0) {
 			// set the loading message
 			// remove last location from the list divider
 			((TextView) closestStationsTitle.findViewById(R.id.closest_bike_stations_title_text)).setText(R.string.closest_bike_stations);
@@ -660,13 +657,16 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 				findViewById(R.id.closest_bike_stations_list).setVisibility(View.GONE);
 			}
 			// show loading
-			findViewById(R.id.closest_bike_stations_list_loading).setVisibility(View.VISIBLE);
-			TextView detailMsgTv = (TextView) findViewById(R.id.closest_bike_stations_list_loading).findViewById(R.id.detail_msg);
-			detailMsgTv.setVisibility(View.VISIBLE);
+			View loadingLayout = findViewById(R.id.closest_bike_stations_list_loading);
+			TextView mainMsgTv = (TextView) loadingLayout.findViewById(R.id.main_msg);
+			TextView detailMsgTv = (TextView) loadingLayout.findViewById(R.id.detail_msg);
+			mainMsgTv.setText(R.string.please_wait);
 			if (detailMsg == null) { // show waiting for location
 				detailMsg = getString(R.string.waiting_for_location_fix);
 			}
 			detailMsgTv.setText(detailMsg);
+			detailMsgTv.setVisibility(View.VISIBLE);
+			loadingLayout.setVisibility(View.VISIBLE);
 			// } else { just notify the user ?
 		}
 		// show stop icon instead of refresh
@@ -688,16 +688,16 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			this.locationUpdatesEnabled = true;
 		}
 		// IF there is no closest bike stations DO
-		if (this.closestStations == null) {
+		if (Utils.getCollectionSize(this.closestStations) == 0) {
 			// generate the closest bike stations list
-			refreshClosestBikeStations();
+			refreshClosestBikeStations(false);
 		} else {
 			// show the closest stations
 			showNewClosestBikeStations();
 			// IF the latest location is too old DO
 			if (LocationUtils.isTooOld(this.closestBikeStationsLocation)) {
 				// start refreshing
-				refreshClosestBikeStations();
+				refreshClosestBikeStations(true);
 			}
 		}
 	}
@@ -708,14 +708,19 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	 */
 	public void refreshOrStopRefreshClosestStations(View v) {
 		MyLog.v(TAG, "refreshOrStopRefreshClosestStations()");
-		refreshClosestBikeStations();
+		refreshClosestBikeStations(true);
 	}
 
 	/**
 	 * Refresh the closest bike stations list.
 	 */
-	private void refreshClosestBikeStations() {
-		MyLog.v(TAG, "refreshClosestStations()");
+	private void refreshClosestBikeStations(boolean force) {
+		MyLog.v(TAG, "refreshClosestBikeStations(%s)", force);
+		// cancel current if forcing
+		if (force && this.closestBikeStationsTask != null) {
+			this.closestBikeStationsTask.cancel(true);
+			this.closestBikeStationsTask = null;
+		}
 		// IF the task is NOT already running DO
 		if (this.closestBikeStationsTask == null || !this.closestBikeStationsTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
 			setClosestStationsLoading(null);
@@ -723,7 +728,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			Location locationUsed = getLocation();
 			if (locationUsed != null) {
 				// find the closest stations
-				this.closestBikeStationsTask = new ClosestBikeStationsFinderTask(this, this, SupportFactory.getInstance(this).getNbClosestPOIDisplay());
+				this.closestBikeStationsTask = new ClosestBikeStationsFinderTask(this, this, SupportFactory.getInstance(this).getNbClosestPOIDisplay(), force);
 				this.closestBikeStationsTask.execute(locationUsed);
 				this.closestBikeStationsLocation = locationUsed;
 				new AsyncTask<Location, Void, Address>() {
@@ -756,18 +761,25 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 
 	@Override
 	public void onClosestBikeStationsDone(ClosestPOI<ABikeStation> result) {
-		// MyLog.v(TAG, "onClosestBikeStationsDone(%s)", Utils.getCollectionSize(result.getPoiListOrNull()));
+		// MyLog.v(TAG, "onClosestBikeStationsDone()");
 		if (result == null || result.getPoiListOrNull() == null) {
 			// show the error
 			setClosestStationsError(result == null ? null : result.getErrorMessage());
 		} else {
-			// get the result
-			this.closestStations = result.getPoiList();
-			generateOrderedStationsIds();
-			refreshFavoriteTerminalNamesFromDB();
-			// shot the result
-			showNewClosestBikeStations();
-			setClosestStationsNotLoading();
+			// IF first refresh and no POI DO
+			if (this.closestStations == null && result.getPoiListSize() == 0) {
+				// get the result
+				this.closestStations = new ArrayList<ABikeStation>(); // important for only forcing refresh once
+				// force refresh from server
+				refreshClosestBikeStations(true);
+			} else { // ELSE
+				// get the result
+				this.closestStations = result.getPoiList();
+				generateOrderedStationsIds();
+				refreshFavoriteTerminalNamesFromDB();
+				// shot the result
+				showNewClosestBikeStations();
+			}
 		}
 	}
 

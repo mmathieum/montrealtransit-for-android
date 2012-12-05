@@ -86,9 +86,17 @@ public class BixiStore {
 		 */
 		private int removalDate;
 		/**
+		 * The bike station last communication with server.
+		 */
+		private int lastCommWithServer;
+		/**
 		 * True if the bike station is temporary.
 		 */
 		private boolean temporary;
+		/**
+		 * True if the bike station is public.
+		 */
+		private boolean publicStation;
 		/**
 		 * The bike stations number of available bike.
 		 */
@@ -122,7 +130,9 @@ public class BixiStore {
 			bikeStation.locked = c.getInt(c.getColumnIndexOrThrow(BikeStationColumns.LOCKED)) > 0;
 			bikeStation.installDate = c.getInt(c.getColumnIndexOrThrow(BikeStationColumns.INSTALL_DATE));
 			bikeStation.removalDate = c.getInt(c.getColumnIndexOrThrow(BikeStationColumns.REMOVAL_DATE));
+			bikeStation.lastCommWithServer = c.getInt(c.getColumnIndexOrThrow(BikeStationColumns.LAST_COMM_WITH_SERVER));
 			bikeStation.temporary = c.getInt(c.getColumnIndexOrThrow(BikeStationColumns.TEMPORARY)) > 0;
+			bikeStation.publicStation = c.getInt(c.getColumnIndexOrThrow(BikeStationColumns.PUBLIC)) > 0;
 			bikeStation.nbBikes = c.getInt(c.getColumnIndexOrThrow(BikeStationColumns.NB_BIKES));
 			bikeStation.nbEmptyDocks = c.getInt(c.getColumnIndexOrThrow(BikeStationColumns.NB_EMPTY_DOCKS));
 			bikeStation.latestUpdateTime = c.getInt(c.getColumnIndexOrThrow(BikeStationColumns.LATEST_UPDATE_TIME));
@@ -256,6 +266,20 @@ public class BixiStore {
 		}
 
 		/**
+		 * @return the last communication with server
+		 */
+		public int getLastCommWithServer() {
+			return lastCommWithServer;
+		}
+
+		/**
+		 * @param lastCommWithServer the new last communication with server
+		 */
+		public void setLastCommWithServer(int lastCommWithServer) {
+			this.lastCommWithServer = lastCommWithServer;
+		}
+
+		/**
 		 * @return true if temporary
 		 */
 		public boolean isTemporary() {
@@ -267,6 +291,20 @@ public class BixiStore {
 		 */
 		public void setTemporary(boolean temporary) {
 			this.temporary = temporary;
+		}
+
+		/**
+		 * @return true if public
+		 */
+		public boolean isPublicStation() {
+			return publicStation;
+		}
+
+		/**
+		 * @param publicStation true if public
+		 */
+		public void setPublicStation(boolean publicStation) {
+			this.publicStation = publicStation;
 		}
 
 		/**
@@ -296,7 +334,7 @@ public class BixiStore {
 		public void setNbEmptyDocks(int nbEmptyDocks) {
 			this.nbEmptyDocks = nbEmptyDocks;
 		}
-		
+
 		/**
 		 * @return the total number of docks
 		 * @see {@link #getNbEmptyDocks()}
@@ -326,18 +364,20 @@ public class BixiStore {
 		public ContentValues getContentValues() {
 			final ContentValues values = new ContentValues();
 			// values.put(BikeStationColumns.ID, getId()); // auto-increment
-			values.put(BikeStationColumns.NAME, getName());
-			values.put(BikeStationColumns.TERMINAL_NAME, getTerminalName());
-			values.put(BikeStationColumns.LAT, getLat());
-			values.put(BikeStationColumns.LNG, getLng());
-			values.put(BikeStationColumns.INSTALLED, isInstalled()); // TODO boolean?
-			values.put(BikeStationColumns.LOCKED, isLocked()); // TODO boolean?
-			values.put(BikeStationColumns.INSTALL_DATE, getInstallDate());
-			values.put(BikeStationColumns.REMOVAL_DATE, getRemovalDate());
-			values.put(BikeStationColumns.TEMPORARY, isTemporary()); // TODO boolean?
-			values.put(BikeStationColumns.NB_BIKES, getNbBikes());
-			values.put(BikeStationColumns.NB_EMPTY_DOCKS, getNbEmptyDocks());
-			values.put(BikeStationColumns.LATEST_UPDATE_TIME, getLatestUpdateTime());
+			values.put(BikeStationColumns.NAME, this.name);
+			values.put(BikeStationColumns.TERMINAL_NAME, this.terminalName);
+			values.put(BikeStationColumns.LAT, this.lat);
+			values.put(BikeStationColumns.LNG, this.lng);
+			values.put(BikeStationColumns.INSTALLED, this.installed); // TODO boolean?
+			values.put(BikeStationColumns.LOCKED, this.locked); // TODO boolean?
+			values.put(BikeStationColumns.INSTALL_DATE, this.installDate);
+			values.put(BikeStationColumns.REMOVAL_DATE, this.removalDate);
+			values.put(BikeStationColumns.LAST_COMM_WITH_SERVER, this.lastCommWithServer);
+			values.put(BikeStationColumns.TEMPORARY, this.temporary); // TODO boolean?
+			values.put(BikeStationColumns.PUBLIC, this.publicStation); // TODO boolean?
+			values.put(BikeStationColumns.NB_BIKES, this.nbBikes);
+			values.put(BikeStationColumns.NB_EMPTY_DOCKS, this.nbEmptyDocks);
+			values.put(BikeStationColumns.LATEST_UPDATE_TIME, this.latestUpdateTime);
 			return values;
 		}
 
@@ -384,6 +424,7 @@ public class BixiStore {
 			}
 			return this.location;
 		}
+
 	}
 
 	/**
@@ -399,7 +440,9 @@ public class BixiStore {
 		public static final String LOCKED = BixiDbHelper.T_BIKE_STATIONS_K_LOCKED;
 		public static final String INSTALL_DATE = BixiDbHelper.T_BIKE_STATIONS_K_INSTALL_DATE;
 		public static final String REMOVAL_DATE = BixiDbHelper.T_BIKE_STATIONS_K_REMOVE_DATE;
+		public static final String LAST_COMM_WITH_SERVER = BixiDbHelper.T_BIKE_STATIONS_K_LAST_COMM_WITH_SERVER;
 		public static final String TEMPORARY = BixiDbHelper.T_BIKE_STATIONS_K_TEMPORARY;
+		public static final String PUBLIC = BixiDbHelper.T_BIKE_STATIONS_K_PUBLIC;
 		public static final String NB_BIKES = BixiDbHelper.T_BIKE_STATIONS_K_NB_BIKES;
 		public static final String NB_EMPTY_DOCKS = BixiDbHelper.T_BIKE_STATIONS_K_NB_EMPTY_DOCKS;
 		public static final String LATEST_UPDATE_TIME = BixiDbHelper.T_BIKE_STATIONS_K_LATEST_UPDATE_TIME;

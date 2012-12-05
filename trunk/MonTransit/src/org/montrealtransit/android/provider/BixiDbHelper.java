@@ -1,6 +1,7 @@
 package org.montrealtransit.android.provider;
 
 import org.montrealtransit.android.MyLog;
+import org.montrealtransit.android.activity.UserPreferences;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -24,8 +25,7 @@ public class BixiDbHelper extends SQLiteOpenHelper {
 	/**
 	 * The database version use to manage database changes.
 	 */
-	public static final int DATABASE_VERSION = 1;
-
+	public static final int DATABASE_VERSION = 2;
 	/**
 	 * The bike stations table.
 	 */
@@ -67,9 +67,17 @@ public class BixiDbHelper extends SQLiteOpenHelper {
 	 */
 	public static final String T_BIKE_STATIONS_K_REMOVE_DATE = "removal_date";
 	/**
+	 * The bike stations last communication with server.
+	 */
+	public static final String T_BIKE_STATIONS_K_LAST_COMM_WITH_SERVER = "last_comm_with_server";
+	/**
 	 * The bike stations temporary field (0 = false).
 	 */
 	public static final String T_BIKE_STATIONS_K_TEMPORARY = "temporary";
+	/**
+	 * The bike stations public field (0 = false)
+	 */
+	public static final String T_BIKE_STATIONS_K_PUBLIC = "public";
 	/**
 	 * The bike stations number of available bike.
 	 */
@@ -89,14 +97,21 @@ public class BixiDbHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_CREATE_T_BIKE_STATIONS = "create table " + T_BIKE_STATIONS + " (" + T_BIKE_STATIONS_K_ID
 			+ " integer primary key autoincrement, " + T_BIKE_STATIONS_K_NAME + " text, " + T_BIKE_STATIONS_K_TERMINAL_NAME + " text, " + T_BIKE_STATIONS_K_LAT
 			+ " real, " + T_BIKE_STATIONS_K_LNG + " real, " + T_BIKE_STATIONS_K_INSTALLED + " integer, " + T_BIKE_STATIONS_K_LOCKED + " integer, "
-			+ T_BIKE_STATIONS_K_INSTALL_DATE + " integer, " + T_BIKE_STATIONS_K_REMOVE_DATE + " integer, " + T_BIKE_STATIONS_K_TEMPORARY + " integer, "
-			+ T_BIKE_STATIONS_K_NB_BIKES + " integer, " + T_BIKE_STATIONS_K_NB_EMPTY_DOCKS + " integer, " + T_BIKE_STATIONS_K_LATEST_UPDATE_TIME + " integer);";
+			+ T_BIKE_STATIONS_K_INSTALL_DATE + " integer, " + T_BIKE_STATIONS_K_REMOVE_DATE + " integer, " + T_BIKE_STATIONS_K_LAST_COMM_WITH_SERVER
+			+ " integer, " + T_BIKE_STATIONS_K_TEMPORARY + " integer, " + T_BIKE_STATIONS_K_PUBLIC + " integer, " + T_BIKE_STATIONS_K_NB_BIKES + " integer, "
+			+ T_BIKE_STATIONS_K_NB_EMPTY_DOCKS + " integer, " + T_BIKE_STATIONS_K_LATEST_UPDATE_TIME + " integer);";
+
+	/**
+	 * Context.
+	 */
+	private Context context;
 
 	/**
 	 * Default constructor.
 	 */
 	public BixiDbHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
+		this.context = context;
 		MyLog.v(TAG, "BixiDbHelper()");
 	}
 
@@ -109,7 +124,7 @@ public class BixiDbHelper extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		MyLog.v(TAG, "onUpgrade(%s, %s)", oldVersion, newVersion);
-		MyLog.d(TAG, "Upgrading database from version %s to %s, which may destroy all old data!", oldVersion, newVersion);
+		MyLog.d(TAG, "Upgrading database from version %s to %s.", oldVersion, newVersion);
 		switch (oldVersion) {
 		// case 1:
 		// MyLog.v(TAG, "add the X table");
@@ -123,6 +138,7 @@ public class BixiDbHelper extends SQLiteOpenHelper {
 		default:
 			MyLog.w(TAG, "Old user data destroyed!");
 			db.execSQL("DROP TABLE IF EXISTS " + T_BIKE_STATIONS);
+			UserPreferences.savePrefLcl(this.context, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, 0);
 			onCreate(db);
 			break;
 		}
