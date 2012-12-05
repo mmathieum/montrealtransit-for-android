@@ -173,13 +173,13 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 			return ServiceStatus.STATUS_LANG_FRENCH;
 		} else {
 			// try keyword detection
-			if (statusText.startsWith("No significant métro service disruptions.")
-			        || statusText.startsWith("Service gradually resuming on")
-			        || statusText.startsWith("Service disrupted on the")) {
+			if (statusText.startsWith("No significant")
+			        || statusText.startsWith("Service gradually")
+			        || statusText.startsWith("Service disrupt")) {
 				return ServiceStatus.STATUS_LANG_ENGLISH;
-			} else if (statusText.startsWith("Aucune interruption importante du service de métro.")
-			        || statusText.startsWith("Reprise graduelle du service ligne")
-			        || statusText.startsWith("Arrêt de service ligne")) {
+			} else if (statusText.startsWith("Aucune interruption")
+			        || statusText.startsWith("Reprise graduelle")
+			        || statusText.startsWith("Arrêt de service")) {
 				return ServiceStatus.STATUS_LANG_FRENCH;
 			} else {
 				return ServiceStatus.STATUS_LANG_UNKNOWN;
@@ -207,7 +207,7 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 			} else if (statusText.startsWith("Service gradually")
 			        || statusText.startsWith("Reprise graduelle")) {
 				return ServiceStatus.STATUS_TYPE_YELLOW;
-			} else if (statusText.startsWith("Service disrupted")
+			} else if (statusText.startsWith("Service disrupt")
 			        || statusText.startsWith("Arrêt de service")) {
 				return ServiceStatus.STATUS_TYPE_RED;
 			} else {
