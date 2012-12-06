@@ -47,6 +47,11 @@ public class BusStopCodeTab extends Activity {
 	 */
 	private static final String TRACKER_TAG = "/BusStopCode";
 
+	/**
+	 * The cursor used to store the history.
+	 */
+	private Cursor historyCursor;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
@@ -172,7 +177,8 @@ public class BusStopCodeTab extends Activity {
 				// TODO use {@link android.app.LoaderManager} with a {@link android.content.CursorLoader}
 				@Override
 				protected void onPostExecute(Cursor result) {
-					((ListView) findViewById(R.id.list)).setAdapter(new SimpleCursorAdapter(BusStopCodeTab.this, android.R.layout.simple_list_item_1, result,
+					BusStopCodeTab.this.historyCursor = result;
+					((ListView) findViewById(R.id.list)).setAdapter(new SimpleCursorAdapter(BusStopCodeTab.this, android.R.layout.simple_list_item_1, BusStopCodeTab.this.historyCursor,
 							new String[] { DataStore.History.VALUE }, new int[] { android.R.id.text1 }));
 
 				}
@@ -261,5 +267,13 @@ public class BusStopCodeTab extends Activity {
 			return true;
 		}
 		return MenuUtils.handleCommonMenuActions(this, item);
+	}
+	
+	@Override
+	protected void onDestroy() {
+		if (this.historyCursor != null && !this.historyCursor.isClosed()) {
+			this.historyCursor.close();
+		}
+		super.onDestroy();
 	}
 }
