@@ -1,32 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent" android:layout_height="wrap_content">
-
-	<!-- OK BUTTON  -->
-	<ImageButton android:id="@+id/ok"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:layout_alignParentRight="true" android:layout_alignParentTop="true"
-		android:layout_marginLeft="0dip"
-		android:src="@drawable/ic_btn_search" />
-	<!-- SEARCH FIELD -->
-	<AutoCompleteTextView android:id="@+id/field"
-		android:layout_width="fill_parent" android:layout_height="wrap_content"
-		android:layout_alignParentTop="true" android:layout_alignParentLeft="true"
-		android:layout_toLeftOf="@id/ok" android:inputType="number"
-		android:numeric="integer" android:digits="0123456789" android:hint="@string/stop_code_hint"
-		android:textStyle="bold" android:lines="1" android:ellipsize="end"
-		android:marqueeRepeatLimit="1" android:singleLine="true"
-		android:maxLines="1" android:maxLength="5" android:imeOptions="actionSearch"
-		android:focusable="true" android:focusableInTouchMode="true"
-		android:nextFocusRight="@id/ok" />
-
-	<!-- HISTORY LIST -->
-	<ListView android:id="@+id/list" android:layout_width="fill_parent"
-		android:layout_height="fill_parent" android:layout_below="@id/field"
-		android:layout_alignParentLeft="true" android:layout_alignParentRight="true" />
-	<TextView android:id="@+id/list_empty" android:layout_width="wrap_content"
-		android:layout_height="wrap_content" android:text="@string/no_history"
-		android:layout_below="@id/field" android:layout_alignParentLeft="true"
-		android:layout_alignParentRight="true" />
-
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content" >
+    <!-- OK BUTTON -->
+    <ImageButton
+        android:id="@+id/ok"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="0dip"
+        android:src="@drawable/ic_btn_search" />
+    <!-- SEARCH FIELD -->
+    <AutoCompleteTextView
+        android:id="@+id/field"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@id/ok"
+        android:digits="0123456789"
+        android:ellipsize="end"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:hint="@string/stop_code_hint"
+        android:imeOptions="actionSearch"
+        android:inputType="number"
+        android:lines="1"
+        android:marqueeRepeatLimit="1"
+        android:maxLength="5"
+        android:maxLines="1"
+        android:nextFocusRight="@id/ok"
+        android:singleLine="true"
+        android:textStyle="bold" />
+    <!-- HISTORY LIST -->
+    <ListView
+        android:id="@+id/list"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/field" />
+    <TextView
+        android:id="@+id/list_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/field"
+        android:text="@string/no_history" />
 </RelativeLayout>
