@@ -10,7 +10,8 @@
         android:id="@+id/subway_img_bg"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_centerInParent="true" >
+        android:layout_centerInParent="true"
+        android:background="@android:color/black">
         <!-- SUBWAY IMG -->
         <ImageView
             android:id="@+id/subway_img"
