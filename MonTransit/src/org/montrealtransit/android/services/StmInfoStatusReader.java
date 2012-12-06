@@ -73,10 +73,8 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 				TwitterApi twitterUserAccount = twitterApis.get(0);
 				String consumerKey = TwitterUtils.getConsumerKey(this.context);
 				String consumerSecret = TwitterUtils.getConsumerSecret(this.context);
-				AccessToken accessToken = new AccessToken(twitterUserAccount.getToken(),
-				        twitterUserAccount.getTokenSecret());
-				Configuration config = new ConfigurationBuilder().setOAuthConsumerKey(consumerKey)
-				        .setOAuthConsumerSecret(consumerSecret).build();
+				AccessToken accessToken = new AccessToken(twitterUserAccount.getToken(), twitterUserAccount.getTokenSecret());
+				Configuration config = new ConfigurationBuilder().setOAuthConsumerKey(consumerKey).setOAuthConsumerSecret(consumerSecret).build();
 				twitter = new TwitterFactory(config).getInstance(accessToken);
 			} else {
 				MyLog.d(TAG, "Connecting to Twitter anonymously...");
@@ -173,13 +171,9 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 			return ServiceStatus.STATUS_LANG_FRENCH;
 		} else {
 			// try keyword detection
-			if (statusText.startsWith("No significant")
-			        || statusText.startsWith("Service gradually")
-			        || statusText.startsWith("Service disrupt")) {
+			if (statusText.startsWith("No significant") || statusText.startsWith("Service gradually") || statusText.startsWith("Service disrupt")) {
 				return ServiceStatus.STATUS_LANG_ENGLISH;
-			} else if (statusText.startsWith("Aucune interruption")
-			        || statusText.startsWith("Reprise graduelle")
-			        || statusText.startsWith("Arrêt de service")) {
+			} else if (statusText.startsWith("Aucune interruption") || statusText.startsWith("Reprise graduelle") || statusText.startsWith("Arrêt de service")) {
 				return ServiceStatus.STATUS_LANG_FRENCH;
 			} else {
 				return ServiceStatus.STATUS_LANG_UNKNOWN;
@@ -201,14 +195,11 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 			return ServiceStatus.STATUS_TYPE_RED;
 		} else {
 			// try keyword detection
-			if (statusText.startsWith("No significant")
-			        || statusText.startsWith("Aucune interruption")) {
+			if (statusText.startsWith("No significant") || statusText.startsWith("Aucune interruption")) {
 				return ServiceStatus.STATUS_TYPE_GREEN;
-			} else if (statusText.startsWith("Service gradually")
-			        || statusText.startsWith("Reprise graduelle")) {
+			} else if (statusText.startsWith("Service gradually") || statusText.startsWith("Reprise graduelle")) {
 				return ServiceStatus.STATUS_TYPE_YELLOW;
-			} else if (statusText.startsWith("Service disrupt")
-			        || statusText.startsWith("Arrêt de service")) {
+			} else if (statusText.startsWith("Service disrupt") || statusText.startsWith("Arrêt de service")) {
 				return ServiceStatus.STATUS_TYPE_RED;
 			} else {
 				return ServiceStatus.STATUS_TYPE_DEFAULT;
@@ -227,13 +218,11 @@ public class StmInfoStatusReader extends AsyncTask<String, String, String> {
 		if (e.getRateLimitStatus() != null) {
 			CharSequence readTime = Utils.formatSameDayDate(e.getRateLimitStatus().getResetTime());
 			if (isConnected) {
-				String message = context
-				        .getString(R.string.twitter_error_http_400_auth_and_time, readTime, loginString);
+				String message = context.getString(R.string.twitter_error_http_400_auth_and_time, readTime);
 				publishProgress(message);
 				return message;
 			} else {
-				String message = context.getString(R.string.twitter_error_http_400_anonymous_and_time, readTime,
-				        loginString);
+				String message = context.getString(R.string.twitter_error_http_400_anonymous_and_time, readTime, loginString);
 				publishProgress(message);
 				return message;
 			}
