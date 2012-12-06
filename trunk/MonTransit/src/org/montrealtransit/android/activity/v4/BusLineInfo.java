@@ -1,6 +1,7 @@
 package org.montrealtransit.android.activity.v4;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
@@ -466,7 +467,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 
 	@Override
 	public void onLocationChanged(Location location) {
-		//MyLog.v(TAG, "onLocationChanged()");
+		// MyLog.v(TAG, "onLocationChanged()");
 		this.setLocation(location);
 		updateDistancesWithNewLocation();
 	}
@@ -530,7 +531,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 		@Override
 		public CharSequence getPageTitle(int position) {
 			// MyLog.v(TAG, "getPageTitle(%s)", position);
-			return BusUtils.getDirectionString(BusLineInfo.this, BusLineInfo.this.busLineDirections.get(position)).toUpperCase();
+			return BusUtils.getDirectionString(BusLineInfo.this, BusLineInfo.this.busLineDirections.get(position)).toUpperCase(Locale.getDefault());
 		}
 
 		@Override

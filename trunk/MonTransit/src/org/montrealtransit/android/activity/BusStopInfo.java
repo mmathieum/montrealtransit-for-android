@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -503,7 +504,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		TextView lineNumberTv = (TextView) findViewById(R.id.line_number);
 		lineNumberTv.setText(this.busLine.getNumber());
 		lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColorFromType(this.busLine.getType()));
-		((TextView) findViewById(R.id.line_direction)).setText(getString(BusUtils.getBusLineSimpleDirection(this.busStop.getDirectionId())).toUpperCase());
+		((TextView) findViewById(R.id.line_direction)).setText(getString(BusUtils.getBusLineSimpleDirection(this.busStop.getDirectionId())).toUpperCase(Locale.getDefault()));
 		// set listener
 		findViewById(R.id.line).setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -629,7 +630,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 				// line direction
 				final String currentDirectionId = busStop.getDirectionId();
 				int busLineDirection = BusUtils.getBusLineSimpleDirection(currentDirectionId);
-				((TextView) view.findViewById(R.id.line_direction)).setText(getString(busLineDirection).toUpperCase());
+				((TextView) view.findViewById(R.id.line_direction)).setText(getString(busLineDirection).toUpperCase(Locale.getDefault()));
 				view.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {

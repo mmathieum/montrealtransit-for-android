@@ -68,7 +68,7 @@ public class Utils {
 	/**
 	 * The date formatter use to parse HH:mm into Date.
 	 */
-	private static final SimpleDateFormat simpleDateFormatter = new SimpleDateFormat("HH:mm");
+	private static final SimpleDateFormat simpleDateFormatter = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
 	/**
 	 * Read the input stream and write the stream to the output stream file.
