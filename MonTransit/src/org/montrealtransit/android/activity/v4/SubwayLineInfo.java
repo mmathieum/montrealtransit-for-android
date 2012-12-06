@@ -1,5 +1,7 @@
 package org.montrealtransit.android.activity.v4;
 
+import java.util.Locale;
+
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MenuUtils;
@@ -545,7 +547,7 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 		public CharSequence getPageTitle(int position) {
 			// MyLog.v(TAG, "getPageTitle(%s)", position);
 			if (subwayLineDirectionsStations != null && position < subwayLineDirectionsStations.length && subwayLineDirectionsStations[position] != null) {
-				return subwayLineDirectionsStations[position].getName().toUpperCase();
+				return subwayLineDirectionsStations[position].getName().toUpperCase(Locale.getDefault());
 			}
 			return getString(R.string.ellipsis);
 		}

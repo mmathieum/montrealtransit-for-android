@@ -3,6 +3,7 @@ package org.montrealtransit.android.activity;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import org.montrealtransit.android.AnalyticsUtils;
@@ -631,7 +632,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 						((TextView) view.findViewById(R.id.line_number)).setBackgroundColor(color);
 						// bus line direction
 						int busLineDirection = BusUtils.getBusLineSimpleDirection(busStop.getDirectionId());
-						((TextView) view.findViewById(R.id.line_direction)).setText(getString(busLineDirection).toUpperCase());
+						((TextView) view.findViewById(R.id.line_direction)).setText(getString(busLineDirection).toUpperCase(Locale.getDefault()));
 						// add click listener
 						view.setOnClickListener(new View.OnClickListener() {
 							@Override

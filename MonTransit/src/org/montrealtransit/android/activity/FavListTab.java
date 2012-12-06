@@ -3,6 +3,7 @@ package org.montrealtransit.android.activity;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.montrealtransit.android.AnalyticsUtils;
@@ -233,7 +234,7 @@ public class FavListTab extends Activity {
 					lineNumberTv.setBackgroundColor(color);
 					// bus stop line direction
 					int busLineDirection = BusUtils.getBusLineSimpleDirection(busStop.getDirectionId());
-					((TextView) view.findViewById(R.id.line_direction)).setText(getString(busLineDirection).toUpperCase());
+					((TextView) view.findViewById(R.id.line_direction)).setText(getString(busLineDirection).toUpperCase(Locale.getDefault()));
 					// add click listener
 					view.setOnClickListener(new View.OnClickListener() {
 						@Override

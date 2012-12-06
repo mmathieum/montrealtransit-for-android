@@ -2,6 +2,7 @@ package org.montrealtransit.android.activity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
@@ -503,7 +504,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 				lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColorFromType(stop.getLineTypeOrNull()));
 				// bus stop line direction
 				int busLineDirection = BusUtils.getBusLineSimpleDirection(stop.getDirectionId());
-				((TextView) convertView.findViewById(R.id.line_direction)).setText(getString(busLineDirection).toUpperCase());
+				((TextView) convertView.findViewById(R.id.line_direction)).setText(getString(busLineDirection).toUpperCase(Locale.getDefault()));
 				// distance
 				TextView distanceTv = (TextView) convertView.findViewById(R.id.distance);
 				if (!TextUtils.isEmpty(stop.getDistanceString())) {
