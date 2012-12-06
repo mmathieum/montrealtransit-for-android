@@ -12,6 +12,7 @@ import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore.TwitterApi;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -167,6 +168,7 @@ public class TwitterUtils {
 			}
 		}
 
+		@SuppressLint("CommitPrefEdits")
 		@Override
 		protected void onPostExecute(String result) {
 			if (!TextUtils.isEmpty(result)) {
