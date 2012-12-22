@@ -116,7 +116,7 @@ public class StmManager {
 		Cursor cursor = null;
 		try {
 			cursor = contentResolver.query(uri, null, null, null, null);
-			if (cursor.getCount() > 0) {
+			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					subwayStation = StmStore.SubwayStation.fromCursor(cursor);
 				}
@@ -151,7 +151,7 @@ public class StmManager {
 		Cursor cursor = null;
 		try {
 			cursor = contentResolver.query(uri, null, null, null, null);
-			if (cursor.getCount() > 0) {
+			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					busStop = StmStore.BusStop.fromCursor(cursor);
 				}
@@ -193,20 +193,20 @@ public class StmManager {
 	public static List<StmStore.BusStop> findBusStopsWithLineInfoList(ContentResolver contentResolver, String busStopCode) {
 		MyLog.v(TAG, "findBusStopsWithLineInfoList(%s)", busStopCode);
 		List<StmStore.BusStop> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findBusStopsWithLineInfo(contentResolver, busStopCode);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findBusStopsWithLineInfo(contentResolver, busStopCode);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<StmStore.BusStop>();
 					do {
-						result.add(StmStore.BusStop.fromCursor(c));
-					} while (c.moveToNext());
+						result.add(StmStore.BusStop.fromCursor(cursor));
+					} while (cursor.moveToNext());
 				}
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -253,7 +253,7 @@ public class StmManager {
 		Cursor cursor = null;
 		try {
 			cursor = contentResolver.query(uri, PROJECTION_BUS_STOP_W_LOC_AND_SUBWAY_STATION, null, null, null);
-			if (cursor.getCount() > 0) {
+			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					return StmStore.BusStop.fromCursor(cursor);
 				}
@@ -291,7 +291,7 @@ public class StmManager {
 		Cursor cursor = null;
 		try {
 			cursor = contentResolver.query(uri, PROJECTION_BUS_STOP_EXTENDED, null, null, null);
-			if (cursor.getCount() > 0) {
+			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					return StmStore.BusStop.fromCursor(cursor);
 				}
@@ -315,7 +315,7 @@ public class StmManager {
 		Cursor cursor = null;
 		try {
 			cursor = contentResolver.query(uri, null, null, null, null);
-			if (cursor.getCount() > 0) {
+			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					subwayLine = StmStore.SubwayLine.fromCursor(cursor);
 				}
@@ -339,7 +339,7 @@ public class StmManager {
 		Cursor cursor = null;
 		try {
 			cursor = contentResolver.query(uri, null, null, null, null);
-			if (cursor.getCount() > 0) {
+			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					busLine = StmStore.BusLine.fromCursor(cursor);
 				}
@@ -363,7 +363,7 @@ public class StmManager {
 		Cursor cursor = null;
 		try {
 			cursor = contentResolver.query(uri, PROJECTION_BUS_LINE_DIRECTION, null, null, null);
-			if (cursor.getCount() > 0) {
+			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					busLine = StmStore.BusLineDirection.fromCursor(cursor);
 				}
@@ -439,15 +439,15 @@ public class StmManager {
 	public static List<StmStore.BusStop> findBusStopsList(ContentResolver contentResolver, String busStopIdsString) {
 		MyLog.v(TAG, "findBusStopsList(%s)", busStopIdsString);
 		List<StmStore.BusStop> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findBusStops(contentResolver, busStopIdsString);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findBusStops(contentResolver, busStopIdsString);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<StmStore.BusStop>();
 					do {
-						result.add(StmStore.BusStop.fromCursor(c));
-					} while (c.moveToNext());
+						result.add(StmStore.BusStop.fromCursor(cursor));
+					} while (cursor.moveToNext());
 				} else {
 					MyLog.w(TAG, "No result found for bus stops '%s'", busStopIdsString);
 				}
@@ -455,8 +455,8 @@ public class StmManager {
 				MyLog.w(TAG, "No result found for bus stops '%s'", busStopIdsString);
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -482,20 +482,20 @@ public class StmManager {
 	public static List<StmStore.BusStop> findBusStopsExtendedList(ContentResolver contentResolver, String busStopUIDsString) {
 		MyLog.v(TAG, "findBusStopsExtendedList(%s)", busStopUIDsString);
 		List<StmStore.BusStop> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findBusStopsExtended(contentResolver, busStopUIDsString);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findBusStopsExtended(contentResolver, busStopUIDsString);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<StmStore.BusStop>();
 					Set<String> uids = new HashSet<String>();
 					do {
-						BusStop newBusStop = StmStore.BusStop.fromCursor(c);
+						BusStop newBusStop = StmStore.BusStop.fromCursor(cursor);
 						if (!uids.contains(newBusStop.getUID())) {
 							result.add(newBusStop);
 							uids.add(newBusStop.getUID());
 						}
-					} while (c.moveToNext());
+					} while (cursor.moveToNext());
 				} else {
 					MyLog.w(TAG, "No result found for bus stops '%s'", busStopUIDsString);
 				}
@@ -503,8 +503,9 @@ public class StmManager {
 				MyLog.w(TAG, "No result found for bus stops '%s'", busStopUIDsString);
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null) {
+				cursor.close();
+			}
 		}
 		return result;
 	}
@@ -547,16 +548,16 @@ public class StmManager {
 	public static List<StmStore.BusLineDirection> findBusLineDirections(ContentResolver contentResolver, String busLineNumber) {
 		MyLog.v(TAG, "findBusLineDirections(%s)", busLineNumber);
 		List<StmStore.BusLineDirection> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = contentResolver.query(Uri.withAppendedPath(Uri.withAppendedPath(StmStore.BusLine.CONTENT_URI, busLineNumber),
+			cursor = contentResolver.query(Uri.withAppendedPath(Uri.withAppendedPath(StmStore.BusLine.CONTENT_URI, busLineNumber),
 					StmStore.BusLine.BusLineDirections.CONTENT_DIRECTORY), PROJECTION_BUS_LINE_DIRECTION, null, null, StmStore.BusLine.DEFAULT_SORT_ORDER);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<StmStore.BusLineDirection>();
 					do {
-						result.add(StmStore.BusLineDirection.fromCursor(c));
-					} while (c.moveToNext());
+						result.add(StmStore.BusLineDirection.fromCursor(cursor));
+					} while (cursor.moveToNext());
 				} else {
 					MyLog.w(TAG, "Bus Line Directions is EMPTY !!!");
 				}
@@ -564,8 +565,8 @@ public class StmManager {
 				MyLog.w(TAG, "Bus Line Directions is EMPTY !!!");
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -580,21 +581,21 @@ public class StmManager {
 	public static StmStore.SubwayStation findSubwayLineFirstSubwayStation(ContentResolver contentResolver, String subwayLineId, String sortOrder) {
 		MyLog.v(TAG, "findSubwayLineFirstSubwayStation(%s)", subwayLineId);
 		StmStore.SubwayStation subwayStation = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
 			Uri subwayLinesUri = StmStore.SubwayLine.CONTENT_URI;
 			Uri subwayLineUri = Uri.withAppendedPath(subwayLinesUri, subwayLineId);
 			Uri subwayLineStationsUri = Uri.withAppendedPath(subwayLineUri, StmStore.SubwayLine.SubwayStations.CONTENT_DIRECTORY);
 			// MyLog.v(TAG, "subwayLineStationUri>" + subwayLineStationsUri.getPath());
-			c = contentResolver.query(subwayLineStationsUri, PROJECTION_SUBWAY_STATION, null, null, sortOrder);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
-					subwayStation = StmStore.SubwayStation.fromCursor(c);
+			cursor = contentResolver.query(subwayLineStationsUri, PROJECTION_SUBWAY_STATION, null, null, sortOrder);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
+					subwayStation = StmStore.SubwayStation.fromCursor(cursor);
 				}
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return subwayStation;
 	}
@@ -609,21 +610,21 @@ public class StmManager {
 	public static StmStore.SubwayStation findSubwayLineLastSubwayStation(ContentResolver contentResolver, int subwayLineId, String sortOrder) {
 		MyLog.v(TAG, "findSubwayLineLastSubwayStation(%s)", subwayLineId);
 		StmStore.SubwayStation subwayStation = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
 			Uri subwayLinesUri = StmStore.SubwayLine.CONTENT_URI;
 			Uri subwayLineUri = ContentUris.withAppendedId(subwayLinesUri, subwayLineId);
 			Uri subwayLineStationsUri = Uri.withAppendedPath(subwayLineUri, StmStore.SubwayLine.SubwayStations.CONTENT_DIRECTORY);
 			// MyLog.v(TAG, "subwayLineStationUri>" + subwayLineStationsUri.getPath());
-			c = contentResolver.query(subwayLineStationsUri, PROJECTION_SUBWAY_STATION, null, null, sortOrder);
-			if (c.getCount() > 0) {
-				if (c.moveToLast()) {
-					subwayStation = StmStore.SubwayStation.fromCursor(c);
+			cursor = contentResolver.query(subwayLineStationsUri, PROJECTION_SUBWAY_STATION, null, null, sortOrder);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToLast()) {
+					subwayStation = StmStore.SubwayStation.fromCursor(cursor);
 				}
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return subwayStation;
 	}
@@ -645,20 +646,20 @@ public class StmManager {
 	public static List<StmStore.SubwayLine> findAllSubwayLinesList(ContentResolver contentResolver) {
 		MyLog.v(TAG, "findAllSubwayLinesList()");
 		List<StmStore.SubwayLine> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findAllSubwayLines(contentResolver);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findAllSubwayLines(contentResolver);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<StmStore.SubwayLine>();
 					do {
-						result.add(StmStore.SubwayLine.fromCursor(c));
-					} while (c.moveToNext());
+						result.add(StmStore.SubwayLine.fromCursor(cursor));
+					} while (cursor.moveToNext());
 				}
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -680,20 +681,20 @@ public class StmManager {
 	public static List<StmStore.SubwayStation> findAllSubwayStationsList(ContentResolver contentResolver) {
 		MyLog.v(TAG, "findAllSubwayStationsList()");
 		List<StmStore.SubwayStation> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findAllSubwayStations(contentResolver);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findAllSubwayStations(contentResolver);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<StmStore.SubwayStation>();
 					do {
-						result.add(StmStore.SubwayStation.fromCursor(c));
-					} while (c.moveToNext());
+						result.add(StmStore.SubwayStation.fromCursor(cursor));
+					} while (cursor.moveToNext());
 				}
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -749,15 +750,15 @@ public class StmManager {
 	public static List<StmStore.BusLine> findBusStopLinesList(ContentResolver contentResolver, String stopCode) {
 		MyLog.v(TAG, "findBusStopLinesList(%s)", stopCode);
 		List<StmStore.BusLine> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findBusStopLines(contentResolver, stopCode);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findBusStopLines(contentResolver, stopCode);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<StmStore.BusLine>();
 					do {
-						result.add(StmStore.BusLine.fromCursor(c));
-					} while (c.moveToNext());
+						result.add(StmStore.BusLine.fromCursor(cursor));
+					} while (cursor.moveToNext());
 				} else {
 					MyLog.w(TAG, "No bus lines found for bus stop '%s'", stopCode);
 				}
@@ -765,8 +766,8 @@ public class StmManager {
 				MyLog.w(TAG, "No bus lines found for bus stop '%s'", stopCode);
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -780,15 +781,15 @@ public class StmManager {
 	public static List<StmStore.SubwayLine> findSubwayStationLinesList(ContentResolver contentResolver, String stationId) {
 		MyLog.v(TAG, "findSubwayStationLinesList(%s)", stationId);
 		List<StmStore.SubwayLine> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findSubwayStationLines(contentResolver, stationId);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findSubwayStationLines(contentResolver, stationId);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<StmStore.SubwayLine>();
 					do {
-						result.add(StmStore.SubwayLine.fromCursor(c));
-					} while (c.moveToNext());
+						result.add(StmStore.SubwayLine.fromCursor(cursor));
+					} while (cursor.moveToNext());
 				} else {
 					MyLog.w(TAG, "SubwayLines is EMPTY !!!");
 				}
@@ -796,8 +797,8 @@ public class StmManager {
 				MyLog.w(TAG, "SubwayLines.SIZE = 0 !!!");
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -824,17 +825,17 @@ public class StmManager {
 	public static List<Pair<SubwayLine, SubwayStation>> findSubwayStationsAndLinesList(ContentResolver contentResolver) {
 		MyLog.v(TAG, "findSubwayStationsAndLinesList()");
 		List<Pair<SubwayLine, SubwayStation>> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findSubwayStationsAndLines(contentResolver);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findSubwayStationsAndLines(contentResolver);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<Pair<SubwayLine, SubwayStation>>();
 					do {
-						SubwayStation station = StmStore.SubwayStation.fromCursor(c);
-						SubwayLine line = StmStore.SubwayLine.fromCursor(c);
+						SubwayStation station = StmStore.SubwayStation.fromCursor(cursor);
+						SubwayLine line = StmStore.SubwayLine.fromCursor(cursor);
 						result.add(new Pair<SubwayLine, SubwayStation>(line, station));
-					} while (c.moveToNext());
+					} while (cursor.moveToNext());
 				} else {
 					MyLog.w(TAG, "cursor is EMPTY !!!");
 				}
@@ -842,8 +843,8 @@ public class StmManager {
 				MyLog.w(TAG, "cursor.SIZE = 0 !!!");
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -876,17 +877,17 @@ public class StmManager {
 	 */
 	public static List<Pair<SubwayLine, SubwayStation>> findAllSubwayStationsAndLinesLocationList(ContentResolver contentResolver, Location location) {
 		List<Pair<SubwayLine, SubwayStation>> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findAllSubwayStationsAndLinesLocation(contentResolver, location);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findAllSubwayStationsAndLinesLocation(contentResolver, location);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<Pair<SubwayLine, SubwayStation>>();
 					do {
-						SubwayStation station = StmStore.SubwayStation.fromCursor(c);
-						SubwayLine line = StmStore.SubwayLine.fromCursor(c);
+						SubwayStation station = StmStore.SubwayStation.fromCursor(cursor);
+						SubwayLine line = StmStore.SubwayLine.fromCursor(cursor);
 						result.add(new Pair<SubwayLine, SubwayStation>(line, station));
-					} while (c.moveToNext());
+					} while (cursor.moveToNext());
 				} else {
 					MyLog.w(TAG, "cursor is EMPTY !!!");
 				}
@@ -894,8 +895,8 @@ public class StmManager {
 				MyLog.w(TAG, "cursor.SIZE = 0 !!!");
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -909,17 +910,17 @@ public class StmManager {
 	public static List<Pair<SubwayLine, SubwayStation>> findSubwayLineStationsWithOtherLinesList(ContentResolver contentResolver, int subwayLineId) {
 		MyLog.v(TAG, "findSubwayStationLinesList(%s)", subwayLineId);
 		List<Pair<SubwayLine, SubwayStation>> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findSubwayLineStationsWithOtherLines(contentResolver, subwayLineId);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findSubwayLineStationsWithOtherLines(contentResolver, subwayLineId);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<Pair<SubwayLine, SubwayStation>>();
 					do {
-						SubwayStation station = StmStore.SubwayStation.fromCursor(c);
-						SubwayLine line = StmStore.SubwayLine.fromCursor(c);
+						SubwayStation station = StmStore.SubwayStation.fromCursor(cursor);
+						SubwayLine line = StmStore.SubwayLine.fromCursor(cursor);
 						result.add(new Pair<SubwayLine, SubwayStation>(line, station));
-					} while (c.moveToNext());
+					} while (cursor.moveToNext());
 				} else {
 					MyLog.w(TAG, "cursor is EMPTY !!!");
 				}
@@ -927,8 +928,8 @@ public class StmManager {
 				MyLog.w(TAG, "cursor.SIZE = 0 !!!");
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -992,20 +993,20 @@ public class StmManager {
 	 */
 	public static List<StmStore.SubwayStation> findSubwayLineStationsList(ContentResolver contentResolver, int subwayLineNumber, String order) {
 		List<StmStore.SubwayStation> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findSubwayLineStations(contentResolver, subwayLineNumber, order);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findSubwayLineStations(contentResolver, subwayLineNumber, order);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<StmStore.SubwayStation>();
 					do {
-						result.add(StmStore.SubwayStation.fromCursor(c));
-					} while (c.moveToNext());
+						result.add(StmStore.SubwayStation.fromCursor(cursor));
+					} while (cursor.moveToNext());
 				}
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -1054,20 +1055,20 @@ public class StmManager {
 	 */
 	public static List<StmStore.BusStop> findBusLineStopsList(ContentResolver contentResolver, String busLineNumber, String directionId) {
 		List<StmStore.BusStop> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findBusLineStops(contentResolver, busLineNumber, directionId);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findBusLineStops(contentResolver, busLineNumber, directionId);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<StmStore.BusStop>();
 					do {
-						result.add(StmStore.BusStop.fromCursor(c));
-					} while (c.moveToNext());
+						result.add(StmStore.BusStop.fromCursor(cursor));
+					} while (cursor.moveToNext());
 				}
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -1089,19 +1090,19 @@ public class StmManager {
 	 */
 	public static List<String> findAllBusStopCodeList(ContentResolver contentResolver) {
 		List<String> result = new ArrayList<String>();
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findAllBusStopCode(contentResolver);
-			if (c != null && c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findAllBusStopCode(contentResolver);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					do {
-						result.add(c.getString(c.getColumnIndexOrThrow(StmStore.BusStop.STOP_CODE)));
-					} while (c.moveToNext());
+						result.add(cursor.getString(cursor.getColumnIndexOrThrow(StmStore.BusStop.STOP_CODE)));
+					} while (cursor.moveToNext());
 				}
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -1123,20 +1124,19 @@ public class StmManager {
 	 */
 	public static List<String> findAllBusLinesNumbersList(ContentResolver contentResolver) {
 		List<String> result = new ArrayList<String>();
-		;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findAllBusLinesNumbers(contentResolver);
-			if (c != null && c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findAllBusLinesNumbers(contentResolver);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					do {
-						result.add(c.getString(c.getColumnIndexOrThrow(StmStore.BusLine.LINE_NUMBER)));
-					} while (c.moveToNext());
+						result.add(cursor.getString(cursor.getColumnIndexOrThrow(StmStore.BusLine.LINE_NUMBER)));
+					} while (cursor.moveToNext());
 				}
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -1184,20 +1184,20 @@ public class StmManager {
 	 */
 	public static List<StmStore.BusLine> findSubwayStationBusLinesList(ContentResolver contentResolver, String subwayStationId) {
 		List<StmStore.BusLine> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findSubwayStationBusLines(contentResolver, subwayStationId);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findSubwayStationBusLines(contentResolver, subwayStationId);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<StmStore.BusLine>();
 					do {
-						result.add(StmStore.BusLine.fromCursor(c));
-					} while (c.moveToNext());
+						result.add(StmStore.BusLine.fromCursor(cursor));
+					} while (cursor.moveToNext());
 				}
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -1212,20 +1212,20 @@ public class StmManager {
 	public static List<StmStore.BusStop> findSubwayStationBusStopsWithLineList(ContentResolver contentResolver, String subwayStationId) {
 		MyLog.v(TAG, "findSubwayStationBusStopsWithLineList(%s)", subwayStationId);
 		List<StmStore.BusStop> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findSubwayStationBusStopsWithLine(contentResolver, subwayStationId);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findSubwayStationBusStopsWithLine(contentResolver, subwayStationId);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<StmStore.BusStop>();
 					do {
-						result.add(StmStore.BusStop.fromCursor(c));
-					} while (c.moveToNext());
+						result.add(StmStore.BusStop.fromCursor(cursor));
+					} while (cursor.moveToNext());
 				}
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -1251,20 +1251,20 @@ public class StmManager {
 	 */
 	public static List<StmStore.BusStop> findSubwayStationBusStopsExtendedList(ContentResolver contentResolver, String subwayStationId) {
 		List<StmStore.BusStop> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findSubwayStationBusStopsExtended(contentResolver, subwayStationId);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findSubwayStationBusStopsExtended(contentResolver, subwayStationId);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<StmStore.BusStop>();
 					do {
-						result.add(StmStore.BusStop.fromCursor(c));
-					} while (c.moveToNext());
+						result.add(StmStore.BusStop.fromCursor(cursor));
+					} while (cursor.moveToNext());
 				}
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -1295,14 +1295,14 @@ public class StmManager {
 	 */
 	public static List<StmStore.BusStop> findSubwayStationBusLineStopsList(ContentResolver contentResolver, String subwayStationId, String busLineNumber) {
 		List<StmStore.BusStop> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findSubwayStationBusLineStops(contentResolver, subwayStationId, busLineNumber);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findSubwayStationBusLineStops(contentResolver, subwayStationId, busLineNumber);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<StmStore.BusStop>();
 					do {
-						BusStop newBusStop = StmStore.BusStop.fromCursor(c);
+						BusStop newBusStop = StmStore.BusStop.fromCursor(cursor);
 						boolean alreadyInTheList = false;
 						for (BusStop busStop : result) {
 							if (busStop.getCode().equals(newBusStop.getCode()) && busStop.getLineNumber().equals(newBusStop.getLineNumber())) {
@@ -1312,12 +1312,12 @@ public class StmManager {
 						if (!alreadyInTheList) {
 							result.add(newBusStop);
 						}
-					} while (c.moveToNext());
+					} while (cursor.moveToNext());
 				}
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -1355,20 +1355,20 @@ public class StmManager {
 	 */
 	public static List<StmStore.BusLine> findAllBusLinesList(ContentResolver contentResolver) {
 		List<StmStore.BusLine> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findAllBusLines(contentResolver);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findAllBusLines(contentResolver);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<StmStore.BusLine>();
 					do {
-						result.add(StmStore.BusLine.fromCursor(c));
-					} while (c.moveToNext());
+						result.add(StmStore.BusLine.fromCursor(cursor));
+					} while (cursor.moveToNext());
 				}
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -1409,31 +1409,31 @@ public class StmManager {
 			String dayOfTheWeek) {
 		MyLog.v(TAG, "findSubwayStationDepartures(%s, %s, %s)", subwayStationId, directionId, dayOfTheWeek);
 		Pair<String, String> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
 			Uri subwayStation = Uri.withAppendedPath(StmStore.SubwayStation.CONTENT_URI, subwayStationId);
 			Uri subwayStationDirections = Uri.withAppendedPath(subwayStation, StmStore.DIRECTION_URI);
 			Uri subwayStationDirectionId = Uri.withAppendedPath(subwayStationDirections, directionId);
 			Uri subwayStationDirectionDay = Uri.withAppendedPath(subwayStationDirectionId, dayOfTheWeek);
-			c = contentResolver.query(subwayStationDirectionDay, null, null, null, null);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = contentResolver.query(subwayStationDirectionDay, null, null, null, null);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					String first = "";
 					String last = "";
 					do {
-						String first_last = c.getString(c.getColumnIndexOrThrow(StmStore.FIRST_LAST));
+						String first_last = cursor.getString(cursor.getColumnIndexOrThrow(StmStore.FIRST_LAST));
 						if (first_last.equals(StmDbHelper.T_SUBWAY_HOUR_K_FIRST)) {
-							first = c.getString(c.getColumnIndexOrThrow(StmStore.HOUR));
+							first = cursor.getString(cursor.getColumnIndexOrThrow(StmStore.HOUR));
 						} else {
-							last = c.getString(c.getColumnIndexOrThrow(StmStore.HOUR));
+							last = cursor.getString(cursor.getColumnIndexOrThrow(StmStore.HOUR));
 						}
-					} while (c.moveToNext());
+					} while (cursor.moveToNext());
 					result = new Pair<String, String>(first, last);
 				}
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -1449,7 +1449,7 @@ public class StmManager {
 	public static String findSubwayDirectionFrequency(ContentResolver contentResolver, String directionId, String dayOfTheWeek, String hourOfTheDay) {
 		MyLog.v(TAG, "findSubwayDirectionFrequency(%s, %s, %s)", directionId, dayOfTheWeek, hourOfTheDay);
 		String result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
 			Uri subwayDirection = ContentUris.withAppendedId(StmStore.SUBWAY_DIRECTION_URI, Integer.valueOf(directionId));
 			if (dayOfTheWeek.length() > 0) {
@@ -1459,15 +1459,15 @@ public class StmManager {
 			Uri subwayDirDayHours = Uri.withAppendedPath(subwayDirection, StmStore.HOUR_URI);
 			Uri subwayDirDayHour = Uri.withAppendedPath(subwayDirDayHours, hourOfTheDay);
 
-			c = contentResolver.query(subwayDirDayHour, null, null, null, null);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
-					result = c.getString(c.getColumnIndexOrThrow(StmStore.FREQUENCY));
+			cursor = contentResolver.query(subwayDirDayHour, null, null, null, null);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
+					result = cursor.getString(cursor.getColumnIndexOrThrow(StmStore.FREQUENCY));
 				}
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -1487,20 +1487,20 @@ public class StmManager {
 	 */
 	public static List<StmStore.BusStop> findAllBusStopLocationList(ContentResolver contentResolver) {
 		List<StmStore.BusStop> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findAllBusStopLocation(contentResolver);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findAllBusStopLocation(contentResolver);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<StmStore.BusStop>();
 					do {
-						result.add(StmStore.BusStop.fromCursor(c));
-					} while (c.moveToNext());
+						result.add(StmStore.BusStop.fromCursor(cursor));
+					} while (cursor.moveToNext());
 				}
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -1523,20 +1523,20 @@ public class StmManager {
 	 */
 	public static List<StmStore.BusStop> findAllBusStopLocationList(ContentResolver contentResolver, Location location) {
 		List<StmStore.BusStop> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findAllBusStopLocation(contentResolver, location);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findAllBusStopLocation(contentResolver, location);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<StmStore.BusStop>();
 					do {
-						result.add(StmStore.BusStop.fromCursor(c));
-					} while (c.moveToNext());
+						result.add(StmStore.BusStop.fromCursor(cursor));
+					} while (cursor.moveToNext());
 				}
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}

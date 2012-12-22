@@ -106,7 +106,7 @@ public class BixiManager {
 		Cursor cursor = null;
 		try {
 			cursor = contentResolver.query(uri, null, null, null, null);
-			if (cursor.getCount() > 0) {
+			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					bikeStation = BixiStore.BikeStation.fromCursor(cursor);
 				}
@@ -136,15 +136,15 @@ public class BixiManager {
 	public static List<BikeStation> findBikeStationsList(ContentResolver contentResolver, String terminalNames) {
 		MyLog.v(TAG, "findBikeStationsList(%s)", terminalNames);
 		List<BikeStation> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findBikeStations(contentResolver, terminalNames);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findBikeStations(contentResolver, terminalNames);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<BikeStation>();
 					do {
-						result.add(BixiStore.BikeStation.fromCursor(c));
-					} while (c.moveToNext());
+						result.add(BixiStore.BikeStation.fromCursor(cursor));
+					} while (cursor.moveToNext());
 				} else {
 					MyLog.w(TAG, "No result found for bus stops '%s'", terminalNames);
 				}
@@ -152,8 +152,8 @@ public class BixiManager {
 				MyLog.w(TAG, "No result found for bus stops '%s'", terminalNames);
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -166,16 +166,16 @@ public class BixiManager {
 	public static Map<String, BikeStation> findBikeStationsMap(ContentResolver contentResolver, String terminalNames) {
 		MyLog.v(TAG, "findBikeStationsMap(%s)", terminalNames);
 		Map<String, BikeStation> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findBikeStations(contentResolver, terminalNames);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findBikeStations(contentResolver, terminalNames);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new HashMap<String, BikeStation>();
 					do {
-						BikeStation station = BixiStore.BikeStation.fromCursor(c);
+						BikeStation station = BixiStore.BikeStation.fromCursor(cursor);
 						result.put(station.getTerminalName(), station);
-					} while (c.moveToNext());
+					} while (cursor.moveToNext());
 				} else {
 					MyLog.w(TAG, "No result found for bus stops '%s'", terminalNames);
 				}
@@ -183,8 +183,8 @@ public class BixiManager {
 				MyLog.w(TAG, "No result found for bus stops '%s'", terminalNames);
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}
@@ -220,7 +220,7 @@ public class BixiManager {
 		Cursor cursor = null;
 		try {
 			cursor = findAllBikeStations(contentResolver);
-			if (cursor.getCount() > 0) {
+			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					result = new ArrayList<BikeStation>();
 					do {
@@ -250,7 +250,7 @@ public class BixiManager {
 		Cursor cursor = null;
 		try {
 			cursor = findAllBikeStations(contentResolver);
-			if (cursor.getCount() > 0) {
+			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					result = new HashMap<String, BikeStation>();
 					do {
@@ -287,20 +287,20 @@ public class BixiManager {
 	public static List<BikeStation> findAllBikeStationsLocationList(ContentResolver contentResolver, Location location) {
 		MyLog.v(TAG, "findAllBikeStationsLocationList()");
 		List<BikeStation> result = null;
-		Cursor c = null;
+		Cursor cursor = null;
 		try {
-			c = findAllBikeStationsLocation(contentResolver, location);
-			if (c.getCount() > 0) {
-				if (c.moveToFirst()) {
+			cursor = findAllBikeStationsLocation(contentResolver, location);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
 					result = new ArrayList<BikeStation>();
 					do {
-						result.add(BixiStore.BikeStation.fromCursor(c));
-					} while (c.moveToNext());
+						result.add(BixiStore.BikeStation.fromCursor(cursor));
+					} while (cursor.moveToNext());
 				}
 			}
 		} finally {
-			if (c != null)
-				c.close();
+			if (cursor != null)
+				cursor.close();
 		}
 		return result;
 	}

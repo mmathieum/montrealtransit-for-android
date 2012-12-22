@@ -140,9 +140,11 @@ public class BixiProvider extends ContentProvider {
 			orderBy = sortOrder;
 		}
 		SQLiteDatabase db = getDBHelper(getContext()).getReadableDatabase();
-		Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy);
-		c.setNotificationUri(getContext().getContentResolver(), uri);
-		return c;
+		Cursor cursor = qb.query(db, projection, selection, selectionArgs, null, null, orderBy);
+		if (cursor != null) {
+			cursor.setNotificationUri(getContext().getContentResolver(), uri);
+		}
+		return cursor;
 	}
 
 	@Override

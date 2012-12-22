@@ -1,6 +1,7 @@
 package org.montrealtransit.android.provider;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,6 +13,7 @@ import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.DataStore.History;
 import org.montrealtransit.android.provider.DataStore.ServiceStatus;
 import org.montrealtransit.android.provider.DataStore.TwitterApi;
+import org.montrealtransit.android.services.StmInfoStatusApiReader.ServiceStatusTypeComparator;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -32,14 +34,13 @@ public class DataManager {
 	/**
 	 * Represents the fields the content provider will return for a favorite entry.
 	 */
-	private static final String[] PROJECTION_FAVS = new String[] { DataStore.Fav._ID, DataStore.Fav.FAV_FK_ID,
-	        DataStore.Fav.FAV_FK_ID2, DataStore.Fav.FAV_TYPE };
+	private static final String[] PROJECTION_FAVS = new String[] { DataStore.Fav._ID, DataStore.Fav.FAV_FK_ID, DataStore.Fav.FAV_FK_ID2, DataStore.Fav.FAV_TYPE };
 
 	/**
 	 * Represents the fields the content provider will return for a Twitter API entry.
 	 */
-	private static final String[] PROJECTION_TWITTER_APIS = new String[] { DataStore.TwitterApi._ID,
-	        DataStore.TwitterApi.TOKEN, DataStore.TwitterApi.TOKEN_SECRET };
+	private static final String[] PROJECTION_TWITTER_APIS = new String[] { DataStore.TwitterApi._ID, DataStore.TwitterApi.TOKEN,
+			DataStore.TwitterApi.TOKEN_SECRET };
 
 	/**
 	 * Represents the fields the content provider will return for an history entry.
@@ -53,8 +54,7 @@ public class DataManager {
 	 * @return true if one (or more) favorite have been deleted.
 	 */
 	public static boolean deleteFav(ContentResolver contentResolver, int favId) {
-		int count = contentResolver.delete(Uri.withAppendedPath(DataStore.Fav.CONTENT_URI, String.valueOf(favId)),
-		        null, null);
+		int count = contentResolver.delete(Uri.withAppendedPath(DataStore.Fav.CONTENT_URI, String.valueOf(favId)), null, null);
 		return count > 0;
 	}
 
@@ -122,7 +122,7 @@ public class DataManager {
 		Cursor cursor = null;
 		try {
 			cursor = findAllHistory(contentResolver);
-			if (cursor.getCount() > 0) {
+			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					result = new ArrayList<String>();
 					do {
@@ -147,7 +147,7 @@ public class DataManager {
 		Cursor cursor = null;
 		try {
 			cursor = findAllFavs(contentResolver);
-			if (cursor.getCount() > 0) {
+			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					result = new ArrayList<DataStore.Fav>();
 					do {
@@ -172,7 +172,7 @@ public class DataManager {
 		Cursor cursor = null;
 		try {
 			cursor = findAllTwitterApis(contentResolver);
-			if (cursor.getCount() > 0) {
+			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					result = new ArrayList<DataStore.TwitterApi>();
 					do {
@@ -198,7 +198,7 @@ public class DataManager {
 		Cursor cursor = null;
 		try {
 			cursor = contentResolver.query(uri, null, null, null, null);
-			if (cursor.getCount() > 0) {
+			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					fav = DataStore.Fav.fromCursor(cursor);
 				}
@@ -221,7 +221,7 @@ public class DataManager {
 		Cursor cursor = null;
 		try {
 			cursor = contentResolver.query(uri, null, null, null, null);
-			if (cursor.getCount() > 0) {
+			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					history = DataStore.History.fromCursor(cursor);
 				}
@@ -244,7 +244,7 @@ public class DataManager {
 		Cursor cursor = null;
 		try {
 			cursor = contentResolver.query(uri, null, null, null, null);
-			if (cursor.getCount() > 0) {
+			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					twitterApi = DataStore.TwitterApi.fromCursor(cursor);
 				}
@@ -267,7 +267,7 @@ public class DataManager {
 		Cursor cursor = null;
 		try {
 			cursor = contentResolver.query(uri, null, null, null, null);
-			if (cursor.getCount() > 0) {
+			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					serviceStatus = DataStore.ServiceStatus.fromCursor(cursor);
 				}
@@ -293,7 +293,7 @@ public class DataManager {
 		try {
 			Uri uri = Uri.withAppendedPath(DataStore.Fav.CONTENT_URI, fkId + "+" + fkId2 + "+" + type);
 			cursor = contentResolver.query(uri, null, null, null, null);
-			if (cursor.getCount() > 0) {
+			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					fav = DataStore.Fav.fromCursor(cursor);
 				}
@@ -318,11 +318,20 @@ public class DataManager {
 		try {
 			Uri uri = DataStore.ServiceStatus.CONTENT_URI;
 			String selection = DataDbHelper.T_SERVICE_STATUS_K_LANGUAGE + "='" + lang + "'";
-			cursor = contentResolver
-			        .query(uri, null, selection, null, DataStore.ServiceStatus.ORDER_BY_LATEST_PUB_DATE);
-			if (cursor.getCount() > 0) {
+			cursor = contentResolver.query(uri, null, selection, null, DataStore.ServiceStatus.ORDER_BY_LATEST_PUB_DATE);
+			if (cursor != null && cursor.getCount() > 0) {
+				// load all statuses
+				List<ServiceStatus> userLanguageStatuses = new ArrayList<ServiceStatus>();
 				if (cursor.moveToFirst()) {
-					serviceStatus = DataStore.ServiceStatus.fromCursor(cursor);
+					do {
+						userLanguageStatuses.add(DataStore.ServiceStatus.fromCursor(cursor));
+					} while (cursor.moveToNext());
+				}
+				if (userLanguageStatuses.size() > 0) {
+					// sort by status type
+					Collections.sort(userLanguageStatuses, new ServiceStatusTypeComparator());
+					// return the most important status
+					return userLanguageStatuses.get(0);
 				}
 			}
 		} finally {
@@ -347,7 +356,7 @@ public class DataManager {
 			Uri uri = Uri.withAppendedPath(favTypeUri, DataStore.Fav.URI_TYPE);
 
 			cursor = contentResolver.query(uri, PROJECTION_FAVS, null, null, null);
-			if (cursor.getCount() > 0) {
+			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					do {
 						result.add(DataStore.Fav.fromCursor(cursor));
@@ -413,10 +422,8 @@ public class DataManager {
 	 * @param newServiceStatus the new service status entry
 	 * @return the added service status entry or <b>NULL</b>
 	 */
-	public static DataStore.ServiceStatus addServiceStatus(ContentResolver contentResolver,
-	        ServiceStatus newServiceStatus) {
-		final Uri uri = contentResolver
-		        .insert(DataStore.ServiceStatus.CONTENT_URI, newServiceStatus.getContentValues());
+	public static DataStore.ServiceStatus addServiceStatus(ContentResolver contentResolver, ServiceStatus newServiceStatus) {
+		final Uri uri = contentResolver.insert(DataStore.ServiceStatus.CONTENT_URI, newServiceStatus.getContentValues());
 		if (uri != null) {
 			return findServiceStatus(contentResolver, uri);
 		} else {
@@ -458,7 +465,7 @@ public class DataManager {
 		Cursor cursor = null;
 		try {
 			cursor = findAllCache(contentResolver);
-			if (cursor.getCount() > 0) {
+			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					result = new ArrayList<Cache>();
 					do {
@@ -485,7 +492,7 @@ public class DataManager {
 		Cursor cursor = null;
 		try {
 			cursor = contentResolver.query(uri, null, null, null, null);
-			if (cursor.getCount() > 0) {
+			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					cache = Cache.fromCursor(cursor);
 				}
@@ -511,7 +518,7 @@ public class DataManager {
 		try {
 			Uri uri = Uri.withAppendedPath(Cache.CONTENT_URI, fkId + "+" + type);
 			cursor = contentResolver.query(uri, null, null, null, null);
-			if (cursor.getCount() > 0) {
+			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					cache = Cache.fromCursor(cursor);
 				}
@@ -538,7 +545,7 @@ public class DataManager {
 		try {
 			// find all values
 			cursor = contentResolver.query(Cache.CONTENT_URI, null, null, null, null);
-			if (cursor.getCount() > 0) {
+			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					do {
 						cache = Cache.fromCursor(cursor);

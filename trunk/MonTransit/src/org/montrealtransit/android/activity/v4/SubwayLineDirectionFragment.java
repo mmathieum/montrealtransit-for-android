@@ -28,6 +28,7 @@ import org.montrealtransit.android.provider.StmStore.SubwayStation;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -190,7 +191,7 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 	public void onResumeWithFocus() {
 		MyLog.v(TAG, "onResumeWithFocus()");
 		updateDistancesWithNewLocation();
-		refreshFavoriteStationIdsFromDB();
+		refreshFavoriteStationIdsFromDB(getActivity().getContentResolver());
 	}
 
 	@Override
@@ -244,12 +245,11 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 			protected List<ASubwayStation> doInBackground(Integer... params) {
 				int lineNumber = params[0];
 				String orderId = getSortOrderFromOrderPref(SubwayLineDirectionFragment.this.subwayLineDirectionId);
-				List<SubwayStation> subwayStationsList = StmManager.findSubwayLineStationsList(SubwayLineDirectionFragment.this.getActivity()
-						.getContentResolver(), lineNumber, orderId);
+				List<SubwayStation> subwayStationsList = StmManager.findSubwayLineStationsList(getActivity().getContentResolver(), lineNumber, orderId);
 				// preparing other stations lines data
 				Map<String, Set<Integer>> stationsWithOtherLines = new HashMap<String, Set<Integer>>();
-				for (Pair<SubwayLine, SubwayStation> lineStation : StmManager.findSubwayLineStationsWithOtherLinesList(SubwayLineDirectionFragment.this
-						.getActivity().getContentResolver(), lineNumber)) {
+				for (Pair<SubwayLine, SubwayStation> lineStation : StmManager.findSubwayLineStationsWithOtherLinesList(getActivity().getContentResolver(),
+						lineNumber)) {
 					int subwayLineNumber = lineStation.first.getNumber();
 					String subwayStationId = lineStation.second.getId();
 					if (stationsWithOtherLines.get(subwayStationId) == null) {
@@ -275,7 +275,7 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 			protected void onPostExecute(List<ASubwayStation> result) {
 				SubwayLineDirectionFragment.this.stations = result;
 				generateOrderedStationsIds();
-				refreshFavoriteStationIdsFromDB();
+				refreshFavoriteStationIdsFromDB(getActivity().getContentResolver());
 				SubwayLineDirectionFragment.this.adapter = new ArrayAdapterWithCustomView(SubwayLineDirectionFragment.this.getActivity(),
 						R.layout.subway_line_info_stations_list_item);
 				updateDistancesWithNewLocation();
@@ -310,9 +310,9 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 		Location currentLocation = getSubwayLineInfoActivity().getLocation();
 		if (currentLocation != null) {
 			float accuracyInMeters = currentLocation.getAccuracy();
-			boolean isDetailed = UserPreferences.getPrefDefault(this.getActivity(), UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT)
+			boolean isDetailed = UserPreferences.getPrefDefault(getActivity(), UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT)
 					.equals(UserPreferences.PREFS_DISTANCE_DETAILED);
-			String distanceUnit = UserPreferences.getPrefDefault(this.getActivity(), UserPreferences.PREFS_DISTANCE_UNIT,
+			String distanceUnit = UserPreferences.getPrefDefault(getActivity(), UserPreferences.PREFS_DISTANCE_UNIT,
 					UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
 			for (ASubwayStation station : this.stations) {
 				// IF the subway station location is known DO
@@ -339,8 +339,8 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 	protected boolean showClosestStation() {
 		MyLog.v(TAG, "showClosestStation()");
 		if (!TextUtils.isEmpty(this.closestStationId)) {
-			Toast.makeText(this.getActivity(), R.string.shake_closest_subway_line_station_selected, Toast.LENGTH_SHORT).show();
-			Intent intent = new Intent(this.getActivity(), SubwayStationInfo.class);
+			Toast.makeText(getActivity(), R.string.shake_closest_subway_line_station_selected, Toast.LENGTH_SHORT).show();
+			Intent intent = new Intent(getActivity(), SubwayStationInfo.class);
 			intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, this.closestStationId);
 			intent.putExtra(SubwayStationInfo.EXTRA_STATION_NAME, findStationName(this.closestStationId));
 			startActivity(intent);
@@ -386,7 +386,7 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 					for (ASubwayStation station : this.stations) {
 						station.getCompassMatrix().reset();
 						station.getCompassMatrix().postRotate(
-								SensorUtils.getCompassRotationInDegree(this.getActivity(), currentLocation, station.getLocation(), orientation,
+								SensorUtils.getCompassRotationInDegree(getActivity(), currentLocation, station.getLocation(), orientation,
 										getLocationDeclination()), getArrowDim().first / 2, getArrowDim().second / 2);
 					}
 					// update the view
@@ -410,7 +410,7 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 
 	public Pair<Integer, Integer> getArrowDim() {
 		if (this.arrowDim == null) {
-			this.arrowDim = SensorUtils.getResourceDimension(this.getActivity(), R.drawable.heading_arrow);
+			this.arrowDim = SensorUtils.getResourceDimension(getActivity(), R.drawable.heading_arrow);
 		}
 		return this.arrowDim;
 	}
@@ -444,12 +444,12 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 	/**
 	 * Find favorites subway station IDs.
 	 */
-	private void refreshFavoriteStationIdsFromDB() {
+	private void refreshFavoriteStationIdsFromDB(final ContentResolver contentResolver) {
 		this.favStationsIds = new ArrayList<String>(); // clear list
 		new AsyncTask<Void, Void, List<Fav>>() {
 			@Override
 			protected List<Fav> doInBackground(Void... params) {
-				return DataManager.findFavsByTypeList(getActivity().getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
+				return DataManager.findFavsByTypeList(contentResolver, DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
 			}
 
 			@Override
