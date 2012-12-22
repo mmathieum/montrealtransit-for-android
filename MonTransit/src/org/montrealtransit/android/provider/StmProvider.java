@@ -1007,11 +1007,11 @@ public class StmProvider extends ContentProvider {
 		}
 
 		SQLiteDatabase db = getDBHelper(getContext()).getReadableDatabase();
-		Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy, limit);
-		if (c != null) {
-			c.setNotificationUri(getContext().getContentResolver(), uri);
+		Cursor cursor = qb.query(db, projection, selection, selectionArgs, null, null, orderBy, limit);
+		if (cursor != null) {
+			cursor.setNotificationUri(getContext().getContentResolver(), uri);
 		}
-		return c;
+		return cursor;
 	}
 
 	@Override

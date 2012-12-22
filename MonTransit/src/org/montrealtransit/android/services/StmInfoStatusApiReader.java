@@ -96,7 +96,7 @@ public class StmInfoStatusApiReader extends AsyncTask<String, String, String> {
 				List<ServiceStatus> allServiceStatus = handler.getServiceStatus();
 				// delete existing status
 				DataManager.deleteAllServiceStatus(this.context.getContentResolver());
-				// add new status
+				// add new status (all language & all status type)
 				for (ServiceStatus serviceStatus : allServiceStatus) {
 					DataManager.addServiceStatus(this.context.getContentResolver(), serviceStatus);
 				}
@@ -167,12 +167,7 @@ public class StmInfoStatusApiReader extends AsyncTask<String, String, String> {
 		 * @return the orderer service statuses
 		 */
 		public List<ServiceStatus> getServiceStatus() {
-			Collections.sort(status, new Comparator<ServiceStatus>() {
-				@Override
-				public int compare(ServiceStatus lhs, ServiceStatus rhs) {
-					return (lhs.getType() > rhs.getType() ? -1 : (lhs.getType() == rhs.getType() ? 0 : 1));
-				}
-			});
+			Collections.sort(status, new ServiceStatusTypeComparator());
 			return status;
 		}
 
@@ -239,6 +234,13 @@ public class StmInfoStatusApiReader extends AsyncTask<String, String, String> {
 			exception.printStackTrace();
 		}
 
+	}
+
+	public static class ServiceStatusTypeComparator implements Comparator<ServiceStatus> {
+		@Override
+		public int compare(ServiceStatus lhs, ServiceStatus rhs) {
+			return (lhs.getType() > rhs.getType() ? -1 : (lhs.getType() == rhs.getType() ? 0 : 1));
+		}
 	}
 
 }
