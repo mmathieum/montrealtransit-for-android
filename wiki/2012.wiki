@@ -1,15 +1,16 @@
 #summary 2012 year in review
 
-21k downloads +109%
-7k new active users +30%
+=2012: Year in Review=
 
-28k users +80%
-735k visits +131%
-6M screens displayed +152%
+ * 21k downloads _*+109%*_
+ * 7k new active users _*+30%*_
 
-1.1M ads displayed +235%
-9k ads click +238%
+ * 28k users _*+80%*_
+ * 735k visits _*+131%*_
+ * 6M screens displayed _*+152%*_
 
-70 donations -11%
+ * 1.1M ads displayed _*+235%*_
+ * 9k ads click _*+238%*_
 
-Total net revenues $815.16 +144%
+ * 70 donations _-11%_
+ * revenues: $815.16 _*+144%*_
