@@ -10,7 +10,7 @@
  * 6M screens displayed _*+152%*_
 
  * 1.1M ads displayed _*+235%*_
- * 9k ads click _*+238%*_
+ * 9k ads clicked _*+238%*_
 
  * 70 donations _-11%_
  * [Revenu revenues] : $815.16 _*+144%*_
