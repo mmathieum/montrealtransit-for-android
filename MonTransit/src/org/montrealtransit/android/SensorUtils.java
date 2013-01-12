@@ -55,6 +55,7 @@ public final class SensorUtils {
 	 * @see #registerCompassListener(Context, SensorEventListener)
 	 */
 	public static void registerShakeAndCompassListener(Context context, SensorEventListener listener) {
+		MyLog.v(TAG, "registerShakeAndCompassListener()");
 		SensorManager mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
 		mSensorManager.registerListener(listener, getAccelerometerSensor(mSensorManager), SensorManager.SENSOR_DELAY_UI);
 		mSensorManager.registerListener(listener, getMagneticFieldSensor(mSensorManager), SensorManager.SENSOR_DELAY_UI);
@@ -66,6 +67,7 @@ public final class SensorUtils {
 	 * @param listener the listener
 	 */
 	public static void registerShakeListener(Context context, SensorEventListener listener) {
+		MyLog.v(TAG, "registerShakeListener()");
 		SensorManager mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
 		mSensorManager.registerListener(listener, getAccelerometerSensor(mSensorManager), SensorManager.SENSOR_DELAY_UI);
 	}
@@ -124,6 +126,7 @@ public final class SensorUtils {
 	 * @param listener the listener
 	 */
 	public static void registerCompassListener(Context context, SensorEventListener listener) {
+		MyLog.v(TAG, "registerCompassListener()");
 		SensorManager mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
 		mSensorManager.registerListener(listener, getAccelerometerSensor(mSensorManager), SensorManager.SENSOR_DELAY_UI);
 		mSensorManager.registerListener(listener, getMagneticFieldSensor(mSensorManager), SensorManager.SENSOR_DELAY_UI);
@@ -293,11 +296,13 @@ public final class SensorUtils {
 	 * @param listener the listener
 	 */
 	public static void unregisterSensorListener(Context context, SensorEventListener listener) {
+		MyLog.v(TAG, "unregisterSensorListener()");
 		((SensorManager) context.getSystemService(Context.SENSOR_SERVICE)).unregisterListener(listener);
 	}
 
 	@Deprecated
 	public static void registerOrientationListener(Context context, SensorEventListener listener) {
+		MyLog.v(TAG, "registerOrientationListener()");
 		SensorManager mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
 		mSensorManager.registerListener(listener, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_GAME);
 	}
