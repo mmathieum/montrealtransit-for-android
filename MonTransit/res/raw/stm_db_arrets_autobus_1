@@ -70,7 +70,7 @@ INSERT INTO "arrets_autobus" VALUES(55954,100,'100JOO','Côte-de-Liesse / No 774
 INSERT INTO "arrets_autobus" VALUES(55856,100,'100JOO','Côte-de-Liesse / No 7875','','',31);
 INSERT INTO "arrets_autobus" VALUES(55479,100,'100JOO','Montée de Liesse / Côte-de-liesse','','',32);
 INSERT INTO "arrets_autobus" VALUES(55857,100,'100JOO','Montée de Liesse / No 180','','',33);
-INSERT INTO "arrets_autobus" VALUES(55515,100,'100JOO','Montée de Liesse / Bourg','','',34);
+INSERT INTO "arrets_autobus" VALUES(61238,100,'100JOO','Montée de Liesse / Bourg','','',34);
 INSERT INTO "arrets_autobus" VALUES(55858,100,'100JOO','Montée de Liesse / No 110','','',35);
 INSERT INTO "arrets_autobus" VALUES(55539,100,'100JOO','Montée de Liesse / Hickmore','','',36);
 INSERT INTO "arrets_autobus" VALUES(55538,100,'100JOO','Hickmore / No 4500','','',37);
@@ -3535,7 +3535,6 @@ INSERT INTO "arrets_autobus" VALUES(50348,180,'180JOE','Fleury / d''Auteuil','',
 INSERT INTO "arrets_autobus" VALUES(50359,180,'180JOE','Fleury / Berri','','',26);
 INSERT INTO "arrets_autobus" VALUES(50394,180,'180JOE','Berri / Sauriol','','',27);
 INSERT INTO "arrets_autobus" VALUES(50437,180,'180JOE','Berri / Sauvé',2,'Descente seulement',28);
-INSERT INTO "arrets_autobus" VALUES(54088,180,'180JOE','Sauvé / Saint-Denis',2,'Descente seulement',29);
 INSERT INTO "arrets_autobus" VALUES(54088,180,'180JOO','Sauvé / Saint-Denis',2,'',0);
 INSERT INTO "arrets_autobus" VALUES(50402,180,'180JOO','Lajeunesse / Sauriol','','',1);
 INSERT INTO "arrets_autobus" VALUES(54089,180,'180JOO','Fleury / Berri','','',2);
@@ -4761,7 +4760,7 @@ INSERT INTO "arrets_autobus" VALUES(55848,196,'19601S','Montée de Liesse / Reve
 INSERT INTO "arrets_autobus" VALUES(55845,196,'19601S','Montée de Liesse / No 360','','',11);
 INSERT INTO "arrets_autobus" VALUES(55479,196,'19601S','Montée de Liesse / Côte-de-liesse','','',12);
 INSERT INTO "arrets_autobus" VALUES(55857,196,'19601S','Montée de Liesse / No 180','','',13);
-INSERT INTO "arrets_autobus" VALUES(55515,196,'19601S','Montée de Liesse / Bourg','','',14);
+INSERT INTO "arrets_autobus" VALUES(61238,196,'19601S','Montée de Liesse / Bourg','','',14);
 INSERT INTO "arrets_autobus" VALUES(55858,196,'19601S','Montée de Liesse / No 110','','',15);
 INSERT INTO "arrets_autobus" VALUES(55539,196,'19601S','Montée de Liesse / Hickmore','','',16);
 INSERT INTO "arrets_autobus" VALUES(55859,196,'19601S','Hickmore / No 4675','','',17);
