@@ -3,7 +3,6 @@ package org.montrealtransit.android.activity;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
-import org.montrealtransit.android.TwitterUtils;
 
 import android.app.ActivityGroup;
 import android.content.Intent;
@@ -107,12 +106,12 @@ public class MainScreen extends ActivityGroup {
 		super.onResume();
 	}
 
-	@Override
-	protected void onNewIntent(Intent intent) {
-		MyLog.v(TAG, "onNewIntent()");
-		if (TwitterUtils.isTwitterCallback(intent)) {
-			TwitterUtils.getInstance().login(this, intent.getData());
-		}
-		super.onNewIntent(intent);
-	}
+	// @Override
+	// protected void onNewIntent(Intent intent) {
+	// MyLog.v(TAG, "onNewIntent()");
+	// if (TwitterUtils.isTwitterCallback(intent)) {
+	// TwitterUtils.getInstance().login(this, intent.getData());
+	// }
+	// super.onNewIntent(intent);
+	// }
 }

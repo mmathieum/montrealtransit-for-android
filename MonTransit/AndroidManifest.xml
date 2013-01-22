@@ -45,12 +45,12 @@
 			android:label="@string/app_name" android:icon="@drawable/ic_launcher_icon"
 			android:configChanges="orientation|keyboardHidden"
 			android:launchMode="singleTask">
-			<intent-filter>
+			<!-- <intent-filter>
 				<action android:name="android.intent.action.VIEW" />
 				<category android:name="android.intent.category.DEFAULT" />
 				<category android:name="android.intent.category.BROWSABLE" />
 				<data android:scheme="montransit" android:host="twitt" />
-			</intent-filter>
+			</intent-filter> -->
 		</activity>
 		<!-- 4 TABs -->
 		<activity android:name=".activity.FavListTab" />
