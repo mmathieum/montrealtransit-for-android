@@ -15,7 +15,6 @@ import org.montrealtransit.android.SensorUtils;
 import org.montrealtransit.android.SensorUtils.CompassListener;
 import org.montrealtransit.android.SensorUtils.ShakeListener;
 import org.montrealtransit.android.SubwayUtils;
-import org.montrealtransit.android.TwitterUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.ASubwayStation;
@@ -554,7 +553,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		// IF the task is NOT already running DO
 		if (this.statusTask == null || !this.statusTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
 			setStatusLoading();
-			// read the subway status from http://twitter.com/stminfo
+			// read the subway status
 			this.statusTask = new StmInfoStatusApiReader(this, this);
 			this.statusTask.execute();
 		}
@@ -1323,20 +1322,20 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		MyLog.v(TAG, "onStatusChanged(%s, %s)", provider, status);
 	}
 
-	/**
-	 * Login or Logout from Twitter.
-	 * @param v the view (not used)
-	 */
-	public void twitterLoginOrLogout(View v) {
-		MyLog.v(TAG, "twitterLoginOrLogout()");
-		if (TwitterUtils.isConnected(this)) {
-			// disconnect
-			TwitterUtils.logout(this);
-		} else {
-			// try to connect
-			TwitterUtils.getInstance().startLoginProcess(this);
-		}
-	}
+	// /**
+	// * Login or Logout from Twitter.
+	// * @param v the view (not used)
+	// */
+	// public void twitterLoginOrLogout(View v) {
+	// MyLog.v(TAG, "twitterLoginOrLogout()");
+	// if (TwitterUtils.isConnected(this)) {
+	// // disconnect
+	// TwitterUtils.logout(this);
+	// } else {
+	// // try to connect
+	// TwitterUtils.getInstance().startLoginProcess(this);
+	// }
+	// }
 
 	/**
 	 * Show the STM subway map.
