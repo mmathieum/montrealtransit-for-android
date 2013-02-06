@@ -301,7 +301,9 @@ public class FavListTab extends Activity {
 														Fav findFav = DataManager.findFav(FavListTab.this.getContentResolver(),
 																DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP, busStop.getCode(), busStop.getLineNumber());
 														// delete the favorite
-														DataManager.deleteFav(FavListTab.this.getContentResolver(), findFav.getId());
+														if (findFav != null) {
+															DataManager.deleteFav(FavListTab.this.getContentResolver(), findFav.getId());
+														}
 														SupportFactory.getInstance(FavListTab.this).backupManagerDataChanged();
 														break;
 													default:
@@ -420,7 +422,9 @@ public class FavListTab extends Activity {
 														Fav findFav = DataManager.findFav(FavListTab.this.getContentResolver(),
 																DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION, station.getId(), null);
 														// delete the favorite
-														DataManager.deleteFav(FavListTab.this.getContentResolver(), findFav.getId());
+														if (findFav != null) {
+															DataManager.deleteFav(FavListTab.this.getContentResolver(), findFav.getId());
+														}
 														SupportFactory.getInstance(FavListTab.this).backupManagerDataChanged();
 														break;
 													default:
@@ -516,7 +520,9 @@ public class FavListTab extends Activity {
 														Fav findFav = DataManager.findFav(FavListTab.this.getContentResolver(),
 																DataStore.Fav.KEY_TYPE_VALUE_BIKE_STATIONS, bikeStation.getTerminalName(), null);
 														// delete the favorite
-														DataManager.deleteFav(FavListTab.this.getContentResolver(), findFav.getId());
+														if (findFav != null) {
+															DataManager.deleteFav(FavListTab.this.getContentResolver(), findFav.getId());
+														}
 														SupportFactory.getInstance(FavListTab.this).backupManagerDataChanged();
 														break;
 													default:
