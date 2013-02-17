@@ -3129,7 +3129,7 @@ INSERT INTO "arrets_autobus" VALUES(52817,57,'5701O','Wellington / Charlevoix','
 INSERT INTO "arrets_autobus" VALUES(52739,57,'5701O','Charlevoix / Coleraine','','',14);
 INSERT INTO "arrets_autobus" VALUES(52689,57,'5701O','Charlevoix / Knox','','',15);
 INSERT INTO "arrets_autobus" VALUES(52598,57,'5701O','Charlevoix / Grand Trunk','','',16);
-INSERT INTO "arrets_autobus" VALUES(54018,57,'5701O','Station Charlevoix',37,'',17);
+INSERT INTO "arrets_autobus" VALUES(54018,57,'5701O','Station Charlevoix / voie des bus',37,'',17);
 INSERT INTO "arrets_autobus" VALUES(52624,57,'5701O','Centre / Ropery','','',18);
 INSERT INTO "arrets_autobus" VALUES(52717,57,'5701O','Centre / Island','','',19);
 INSERT INTO "arrets_autobus" VALUES(52799,57,'5701O','Shearer / Centre','','',20);
@@ -4083,7 +4083,7 @@ INSERT INTO "arrets_autobus" VALUES(52829,71,'7101N','Centre / de la Sucrerie','
 INSERT INTO "arrets_autobus" VALUES(52796,71,'7101N','Centre / Shearer','','',20);
 INSERT INTO "arrets_autobus" VALUES(52716,71,'7101N','Centre / Island','','',21);
 INSERT INTO "arrets_autobus" VALUES(52623,71,'7101N','Centre / Ropery','','',22);
-INSERT INTO "arrets_autobus" VALUES(61205,71,'7101N','Station Charlevoix (Centre / Charlevoix)',37,'',23);
+INSERT INTO "arrets_autobus" VALUES(54018,71,'7101N','Station Charlevoix / voie des bus',37,'',23);
 INSERT INTO "arrets_autobus" VALUES(52473,71,'7101N','Charlevoix / Augustin-Cantin','','',24);
 INSERT INTO "arrets_autobus" VALUES(61209,71,'7101N','Charlevoix / Rufus-Rockhead','','',25);
 INSERT INTO "arrets_autobus" VALUES(61210,71,'7101N','Charlevoix / Notre-Dame','','',26);
