@@ -132,6 +132,32 @@ public class StmInfoStatusApiReader extends AsyncTask<String, String, String> {
 	}
 
 	/**
+	 * Extract the service status from the Twitter status.
+	 * @param statusText the Twitter status
+	 * @return the service status
+	 */
+	public static int extractServiceStatus(String statusText) {
+		if (statusText.contains(" VE ") || statusText.contains(" VF ")) {
+			return ServiceStatus.STATUS_TYPE_GREEN;
+		} else if (statusText.contains(" JE ") || statusText.contains(" JF ")) {
+			return ServiceStatus.STATUS_TYPE_YELLOW;
+		} else if (statusText.contains(" RE ") || statusText.contains(" RF ")) {
+			return ServiceStatus.STATUS_TYPE_RED;
+		} else {
+			// try keyword detection
+			if (statusText.startsWith("No significant") || statusText.startsWith("Aucune interruption")) {
+				return ServiceStatus.STATUS_TYPE_GREEN;
+			} else if (statusText.startsWith("Service gradually") || statusText.startsWith("Reprise graduelle")) {
+				return ServiceStatus.STATUS_TYPE_YELLOW;
+			} else if (statusText.startsWith("Service disrupt") || statusText.startsWith("Arrêt de service")) {
+				return ServiceStatus.STATUS_TYPE_RED;
+			} else {
+				return ServiceStatus.STATUS_TYPE_DEFAULT;
+			}
+		}
+	}
+
+	/**
 	 * XML Handler.
 	 */
 	private class StmInfoStatusApiHandler extends DefaultHandler implements ContentHandler {
@@ -188,7 +214,7 @@ public class StmInfoStatusApiReader extends AsyncTask<String, String, String> {
 			// MyLog.v(TAG, "characters(%s)", new String(ch, start, length));
 			if (isMsg) {
 				String string = new String(ch, start, length).trim();
-				int type = StmInfoStatusReader.extractServiceStatus(string);
+				int type = extractServiceStatus(string);
 				ServiceStatus serviceStatus = new ServiceStatus();
 				serviceStatus.setLanguage(currentLocalName.equals(MSGFRANCAIS) ? ServiceStatus.STATUS_LANG_FRENCH : ServiceStatus.STATUS_LANG_ENGLISH);
 				serviceStatus.setMessage(string);

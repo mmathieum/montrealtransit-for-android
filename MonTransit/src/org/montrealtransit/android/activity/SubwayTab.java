@@ -790,7 +790,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	}
 
 	private void adaptToScreenSize(Configuration configuration) {
-		if (Utils.isScreenHeightSmall(this, configuration)) {
+		if (SupportFactory.getInstance(this).isScreenHeightSmall(configuration)) {
 			// HIDE AD
 			if (findViewById(R.id.ad_layout) != null) {
 				findViewById(R.id.ad_layout).setVisibility(View.GONE); // not enough space on phone

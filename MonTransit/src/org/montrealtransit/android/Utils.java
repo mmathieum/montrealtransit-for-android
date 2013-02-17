@@ -34,7 +34,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
-import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -885,16 +884,4 @@ public class Utils {
 
 		return result;
 	}
-
-	/**
-	 * @param context context
-	 * @param configuration configuration
-	 * @return true if the screen is small (hide ad, hide non-necessary stuff...)
-	 */
-	public static boolean isScreenHeightSmall(Context context, Configuration configuration) {
-		final int sizeMask = SupportFactory.getInstance(context).getScreenLayoutSize(configuration);
-		final boolean smallScreen = sizeMask == Configuration.SCREENLAYOUT_SIZE_SMALL || sizeMask == Configuration.SCREENLAYOUT_SIZE_NORMAL;
-		return configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && smallScreen;
-	}
-
 }
