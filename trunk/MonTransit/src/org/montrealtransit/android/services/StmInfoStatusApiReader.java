@@ -158,6 +158,29 @@ public class StmInfoStatusApiReader extends AsyncTask<String, String, String> {
 	}
 
 	/**
+	 * Extract the message language from the Twitter status.
+	 * @param statusText the Twitter status
+	 * @return the message language
+	 */
+	@Deprecated
+	public static String extractMessageLanguage(String statusText) {
+		if (statusText.contains(" VE ") || statusText.contains(" JE ") || statusText.contains(" RE ")) {
+			return ServiceStatus.STATUS_LANG_ENGLISH;
+		} else if (statusText.contains(" VF ") || statusText.contains(" JF ") || statusText.contains(" RF ")) {
+			return ServiceStatus.STATUS_LANG_FRENCH;
+		} else {
+			// try keyword detection
+			if (statusText.startsWith("No significant") || statusText.startsWith("Service gradually") || statusText.startsWith("Service disrupt")) {
+				return ServiceStatus.STATUS_LANG_ENGLISH;
+			} else if (statusText.startsWith("Aucune interruption") || statusText.startsWith("Reprise graduelle") || statusText.startsWith("Arrêt de service")) {
+				return ServiceStatus.STATUS_LANG_FRENCH;
+			} else {
+				return ServiceStatus.STATUS_LANG_UNKNOWN;
+			}
+		}
+	}
+
+	/**
 	 * XML Handler.
 	 */
 	private class StmInfoStatusApiHandler extends DefaultHandler implements ContentHandler {
