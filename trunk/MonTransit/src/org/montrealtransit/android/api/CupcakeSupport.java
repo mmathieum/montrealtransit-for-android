@@ -114,6 +114,11 @@ public class CupcakeSupport implements SupportUtil {
 	}
 
 	@Override
+	public boolean isScreenHeightSmall(Configuration configuration) {
+		return true; // old device anyway
+	}
+
+	@Override
 	public Class<?> getBusLineInfoClass() {
 		return org.montrealtransit.android.activity.BusLineInfo.class;
 	}

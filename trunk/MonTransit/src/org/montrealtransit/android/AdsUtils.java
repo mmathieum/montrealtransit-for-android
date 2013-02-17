@@ -55,7 +55,7 @@ public class AdsUtils {
 	 * Ads keywords.
 	 */
 	private static final Set<String> KEYWORDS = new HashSet<String>(Arrays.asList(new String[] { "montreal", "transit", "STM", "bus", "subway", "metro",
-			"taxi", "quebec", "canada" }));
+			"taxi", "quebec", "canada", "bixi", "bike", "sharing", "velo" }));
 
 	/**
 	 * The donate application package name.

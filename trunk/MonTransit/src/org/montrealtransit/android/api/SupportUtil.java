@@ -102,6 +102,12 @@ public interface SupportUtil {
 	int getScreenLayoutSize(Configuration configuration);
 
 	/**
+	 * @param configuration the configuration
+	 * @return true if the screen is small (hide ad, hide non-necessary stuff...)
+	 */
+	boolean isScreenHeightSmall(Configuration configuration);
+
+	/**
 	 * @return the bus line info class
 	 */
 	Class<?> getBusLineInfoClass();
