@@ -1,6 +1,7 @@
 package org.montrealtransit.android;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.montrealtransit.android.provider.StmManager;
@@ -294,26 +295,52 @@ public class BusUtils {
 	// }
 	// }
 
+	private static final List<Integer> ROUTES_10MIN = Arrays.asList(new Integer[] { //
+			18, 24, 32, 33, 44, 45, 48, 49, 51, 55, 64, 67, 69, 80, 90, 97, // 0
+					103, 105, 106, 121, 136, 139, 141, 161, 165, 171, 187, 193, // 1
+					211, // 2
+					406, 470 }); // 4
+
 	/**
-	 * @param type the bus line type
-	 * @return the color ID matching the bus line type
+	 * @param type the bus line number
+	 * @return the color ID matching the bus line number
 	 */
-	public static int getBusLineTypeBgColorFromType(String type) {
-		// MyLog.v(TAG, "getBusLineTypeBgColorFromType(%s)", type);
-		// TODO use R.colors!!
-		if (StmStore.BusLine.LINE_TYPE_REGULAR_SERVICE.equalsIgnoreCase(type)) {
-			return Color.rgb(0, 96, 170); // BLUE;
-		} else if (StmStore.BusLine.LINE_TYPE_RUSH_HOUR_SERVICE.equalsIgnoreCase(type)) {
-			return Color.RED;
-		} else if (StmStore.BusLine.LINE_TYPE_NIGHT_SERVICE.equalsIgnoreCase(type)) {
-			return Color.BLACK;
-		} else if (StmStore.BusLine.LINE_TYPE_EXPRESS_SERVICE.equalsIgnoreCase(type)) {
-			return Color.rgb(0, 115, 57); // GREEN
-		} else {
-			MyLog.w(TAG, "Unknown bus line type '%s'!", type);
-			return Color.TRANSPARENT;
+	public static int getBusLineTypeBgColorFromLineNumber(String lineNumber) {
+		// MyLog.v(TAG, "getBusLineTypeBgColorFromLineNumber(%s)", lineNumber);
+		int routeId = Integer.valueOf(lineNumber);
+		if (routeId >= 700) { // SHUTTLE
+			return Color.rgb(120, 27, 125); // 781b7d
+		} else if (routeId >= 400) { // EXPRESS
+			return Color.rgb(228, 54, 138); // e4368a
+		} else if (routeId >= 300) { // NIGHT
+			return Color.rgb(100, 101, 103); // 646567
+		} else if (ROUTES_10MIN.contains(routeId)) { // 10MIN
+			return Color.rgb(151, 190, 13); // 97be0d
+		} else { // LOCAL
+			return Color.rgb(0, 158, 224); // 009ee0
 		}
 	}
+
+	// /**
+	// * @param type the bus line type
+	// * @return the color ID matching the bus line type
+	// */
+	// public static int getBusLineTypeBgColorFromType(String type) {
+	// // MyLog.v(TAG, "getBusLineTypeBgColorFromType(%s)", type);
+	// // TODO use R.colors!!
+	// if (StmStore.BusLine.LINE_TYPE_REGULAR_SERVICE.equalsIgnoreCase(type)) {
+	// return Color.rgb(0, 96, 170); // BLUE;
+	// } else if (StmStore.BusLine.LINE_TYPE_RUSH_HOUR_SERVICE.equalsIgnoreCase(type)) {
+	// return Color.RED;
+	// } else if (StmStore.BusLine.LINE_TYPE_NIGHT_SERVICE.equalsIgnoreCase(type)) {
+	// return Color.BLACK;
+	// } else if (StmStore.BusLine.LINE_TYPE_EXPRESS_SERVICE.equalsIgnoreCase(type)) {
+	// return Color.rgb(0, 115, 57); // GREEN
+	// } else {
+	// MyLog.w(TAG, "Unknown bus line type '%s'!", type);
+	// return Color.TRANSPARENT;
+	// }
+	// }
 
 	/**
 	 * Return the bus line type string ID from the bus line type code.

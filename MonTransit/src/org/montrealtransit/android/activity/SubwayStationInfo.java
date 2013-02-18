@@ -628,7 +628,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 						View view = getLayoutInflater().inflate(R.layout.subway_station_info_bus_line_list_item, null);
 						// bus line number
 						((TextView) view.findViewById(R.id.line_number)).setText(busStop.getLineNumber());
-						int color = BusUtils.getBusLineTypeBgColorFromType(busStop.getLineTypeOrNull());
+						int color = BusUtils.getBusLineTypeBgColorFromLineNumber(busStop.getLineNumber());
 						((TextView) view.findViewById(R.id.line_number)).setBackgroundColor(color);
 						// bus line direction
 						int busLineDirection = BusUtils.getBusLineSimpleDirection(busStop.getDirectionId());
