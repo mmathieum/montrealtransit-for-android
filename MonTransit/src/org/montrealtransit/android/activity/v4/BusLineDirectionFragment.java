@@ -31,6 +31,7 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -433,11 +434,17 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 	 * Find favorites bus stop codes.
 	 */
 	private void refreshFavoriteStopCodesFromDB() {
+		MyLog.v(TAG, "refreshFavoriteStopCodesFromDB()");
 		new AsyncTask<Void, Void, List<Fav>>() {
 			@Override
 			protected List<Fav> doInBackground(Void... params) {
 				// TODO filter by fkid2 (bus line number)
-				return DataManager.findFavsByTypeList(getActivity().getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
+				FragmentActivity activity = getActivity();
+				if (activity == null) {
+					// MyLog.d(TAG, "refreshFavoriteStopCodesFromDB() > activity is null!");
+					return null;
+				}
+				return DataManager.findFavsByTypeList(activity.getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
 			}
 
 			@Override
