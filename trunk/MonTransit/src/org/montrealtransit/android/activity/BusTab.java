@@ -374,7 +374,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 			((ImageView) findViewById(R.id.title_switcher)).setImageResource(R.drawable.ic_btn_grid);
 			findViewById(R.id.title_progress_bar).setVisibility(View.INVISIBLE);
 			findViewById(R.id.title_refresh).setVisibility(View.VISIBLE);
-			((TextView) findViewById(R.id.title_text)).setText(R.string.closest_bike_stations);
+			((TextView) findViewById(R.id.title_text)).setText(R.string.closest_bus_stops);
 		}
 	}
 
@@ -501,7 +501,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 				// bus stop line number
 				TextView lineNumberTv = (TextView) convertView.findViewById(R.id.line_number);
 				lineNumberTv.setText(stop.getLineNumber());
-				lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColorFromType(stop.getLineTypeOrNull()));
+				lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColorFromLineNumber(stop.getLineNumber()));
 				// bus stop line direction
 				int busLineDirection = BusUtils.getBusLineSimpleDirection(stop.getDirectionId());
 				((TextView) convertView.findViewById(R.id.line_direction)).setText(getString(busLineDirection).toUpperCase(Locale.getDefault()));
@@ -602,7 +602,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 				// bus line number
 				lineNumberTv.setText(busLine.getNumber());
 				// bus line color
-				lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColorFromType(busLine.getType()));
+				lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColorFromLineNumber(busLine.getNumber()));
 			}
 			return convertView;
 		}

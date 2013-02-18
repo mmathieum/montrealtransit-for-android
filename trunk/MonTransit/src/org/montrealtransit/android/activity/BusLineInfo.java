@@ -503,7 +503,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	public void setLineNumberAndName(String lineNumber, String lineType, String lineName) {
 		// MyLog.v(TAG, "setLineNumberAndName(%s, %s, %s)", lineNumber, lineType, lineName);
 		((TextView) findViewById(R.id.line_number)).setText(lineNumber);
-		findViewById(R.id.line_number).setBackgroundColor(BusUtils.getBusLineTypeBgColorFromType(lineType));
+		findViewById(R.id.line_number).setBackgroundColor(BusUtils.getBusLineTypeBgColorFromLineNumber(lineNumber));
 		((TextView) findViewById(R.id.line_name)).setText(lineName);
 		findViewById(R.id.line_name).requestFocus();
 	}

@@ -503,7 +503,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		// set bus line number & direction
 		TextView lineNumberTv = (TextView) findViewById(R.id.line_number);
 		lineNumberTv.setText(this.busLine.getNumber());
-		lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColorFromType(this.busLine.getType()));
+		lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColorFromLineNumber(this.busLine.getNumber()));
 		((TextView) findViewById(R.id.line_direction)).setText(getString(BusUtils.getBusLineSimpleDirection(this.busStop.getDirectionId())).toUpperCase(Locale.getDefault()));
 		// set listener
 		findViewById(R.id.line).setOnClickListener(new View.OnClickListener() {
@@ -626,7 +626,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 				final String lineName = busStop.getLineNameOrNull();
 				final String lineType = busStop.getLineTypeOrNull();
 				lineNumberTv.setText(lineNumber);
-				int color = BusUtils.getBusLineTypeBgColorFromType(busStop.getLineTypeOrNull());
+				int color = BusUtils.getBusLineTypeBgColorFromLineNumber(busStop.getLineNumber());
 				lineNumberTv.setBackgroundColor(color);
 				// line direction
 				final String currentDirectionId = busStop.getDirectionId();
@@ -672,10 +672,10 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		}
 		TextView busLineNumberTv = (TextView) findViewById(R.id.line_number);
 		busLineNumberTv.setText(newLineNumber);
-		if (!TextUtils.isEmpty(newLineType)) {
-			int color = BusUtils.getBusLineTypeBgColorFromType(newLineType);
+//		if (!TextUtils.isEmpty(newLineType)) {
+			int color = BusUtils.getBusLineTypeBgColorFromLineNumber(newLineNumber);
 			busLineNumberTv.setBackgroundColor(color);
-		}
+//		}
 		// hide other bus lines
 		findViewById(R.id.other_bus_line_list).setVisibility(View.INVISIBLE);
 		findViewById(R.id.star).setVisibility(View.INVISIBLE);
