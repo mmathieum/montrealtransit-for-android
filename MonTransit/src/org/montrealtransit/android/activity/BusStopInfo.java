@@ -514,6 +514,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 				mIntent.putExtra(BusLineInfo.EXTRA_LINE_NUMBER, BusStopInfo.this.busLine.getNumber());
 				mIntent.putExtra(BusLineInfo.EXTRA_LINE_NAME, BusStopInfo.this.busLine.getName());
 				mIntent.putExtra(BusLineInfo.EXTRA_LINE_TYPE, BusStopInfo.this.busLine.getType());
+				mIntent.putExtra(BusLineInfo.EXTRA_LINE_DIRECTION_ID, BusStopInfo.this.busStop.getDirectionId());
 				startActivity(mIntent);
 			}
 		});
