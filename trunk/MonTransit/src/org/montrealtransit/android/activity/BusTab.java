@@ -150,10 +150,22 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 				refreshOrStopRefreshClosestStops(v);
 			}
 		});
-		findViewById(R.id.title_switcher).setOnClickListener(new View.OnClickListener() {
+		// findViewById(R.id.title_switcher).setOnClickListener(new View.OnClickListener() {
+		// @Override
+		// public void onClick(View v) {
+		// switchView(v);
+		// }
+		// });
+		findViewById(R.id.title_show_closest).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				switchView(v);
+				showClosest(v);
+			}
+		});
+		findViewById(R.id.title_show_grid).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				showGrid(v);
 			}
 		});
 	}
@@ -306,28 +318,47 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 		super.onPause();
 	}
 
+	// /**
+	// * Switch between bus lines and closest bus stops.
+	// */
+	// public void switchView(View v) {
+	// MyLog.v(TAG, "switchView()");
+	// showingBusLines = !showingBusLines; // switch
+	// showAll();
+	// }
+
 	/**
-	 * Switch between bus lines and closest bus stops.
+	 * Show closest bus stops.
 	 */
-	public void switchView(View v) {
-		MyLog.v(TAG, "switchView()");
-		showingBusLines = !showingBusLines; // switch
+	public void showClosest(View v) {
+		MyLog.v(TAG, "showClosest()");
+		showingBusLines = false;
+		showAll();
+	}
+
+	/**
+	 * Show bus lines.
+	 */
+	public void showGrid(View v) {
+		MyLog.v(TAG, "showGrid()");
+		showingBusLines = true;
 		showAll();
 	}
 
 	public void showAll() {
 		MyLog.v(TAG, "showAll()");
-		// update title
-		updateTitle();
 		// show data
 		if (showingBusLines) {
 			// hide closest stops
+			findViewById(R.id.closest_stops_title).setVisibility(View.GONE); // hide
 			if (findViewById(R.id.closest_stops_loading) != null) { // IF inflated/present DO
 				findViewById(R.id.closest_stops_loading).setVisibility(View.GONE); // hide
 			}
 			if (findViewById(R.id.closest_stops) != null) { // IF present/inflated DO
 				findViewById(R.id.closest_stops).setVisibility(View.GONE); // hide
 			}
+			// show bus lines grid
+			findViewById(R.id.bus_lines_title).setVisibility(View.VISIBLE);
 			if (this.busLines == null) {
 				refreshBusLinesFromDB();
 			} else {
@@ -335,12 +366,15 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 			}
 		} else {
 			// hide bus lines grid
+			findViewById(R.id.bus_lines_title).setVisibility(View.GONE); // hide
 			if (findViewById(R.id.bus_lines_loading) != null) { // IF inflated/present DO
 				findViewById(R.id.bus_lines_loading).setVisibility(View.GONE); // hide
 			}
 			if (findViewById(R.id.bus_lines) != null) { // IF NOT present/inflated DO
 				findViewById(R.id.bus_lines).setVisibility(View.GONE); // hide
 			}
+			// show closest stops
+			findViewById(R.id.closest_stops_title).setVisibility(View.VISIBLE);
 			if (this.closestStops == null) {
 				showClosestStops();
 			} else {
@@ -354,27 +388,6 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 					this.locationUpdatesEnabled = true;
 				}
 			}
-		}
-	}
-
-	/**
-	 * Update the title bar.
-	 */
-	private void updateTitle() {
-		if (showingBusLines) {
-			// update title
-			((ImageView) findViewById(R.id.title_logo)).setImageResource(R.drawable.ic_btn_grid);
-			((ImageView) findViewById(R.id.title_switcher)).setImageResource(R.drawable.ic_btn_location);
-			findViewById(R.id.title_progress_bar).setVisibility(View.INVISIBLE);
-			findViewById(R.id.title_refresh).setVisibility(View.GONE);
-			((TextView) findViewById(R.id.title_text)).setText(R.string.lines);
-		} else {
-			// update title
-			((ImageView) findViewById(R.id.title_logo)).setImageResource(R.drawable.ic_btn_location);
-			((ImageView) findViewById(R.id.title_switcher)).setImageResource(R.drawable.ic_btn_grid);
-			findViewById(R.id.title_progress_bar).setVisibility(View.INVISIBLE);
-			findViewById(R.id.title_refresh).setVisibility(View.VISIBLE);
-			((TextView) findViewById(R.id.title_text)).setText(R.string.closest_bus_stops);
 		}
 	}
 
@@ -694,7 +707,8 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 		if (this.closestStopsLocationAddress != null && this.closestStopsLocation != null) {
 			String text = LocationUtils.getLocationString(this, R.string.closest_bus_stops, this.closestStopsLocationAddress,
 					this.closestStopsLocation.getAccuracy());
-			((TextView) findViewById(R.id.title_text)).setText(text);
+			View closestStopsLayout = findViewById(R.id.closest_stops_layout);
+			((TextView) closestStopsLayout.findViewById(R.id.title_text)).setText(text);
 		}
 	}
 
@@ -748,10 +762,11 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 	 */
 	private void setClosestStopsLoading() {
 		MyLog.v(TAG, "setClosestStationsLoading()");
+		View closestStopsLayout = findViewById(R.id.closest_stops_layout);
 		if (this.closestStops == null) {
 			// set the BIG loading message
 			// remove last location from the list divider
-			((TextView) findViewById(R.id.title_text)).setText(R.string.closest_bus_stops);
+			((TextView) closestStopsLayout.findViewById(R.id.title_text)).setText(R.string.closest_bus_stops);
 			if (findViewById(R.id.closest_stops) != null) { // IF inflated/present DO
 				// hide the list
 				findViewById(R.id.closest_stops).setVisibility(View.GONE);
@@ -770,9 +785,9 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 			// } else { just notify the user ?
 		}
 		// show stop icon instead of refresh
-		findViewById(R.id.title_refresh).setVisibility(View.GONE);
+		closestStopsLayout.findViewById(R.id.title_refresh).setVisibility(View.GONE);
 		// show progress bar
-		findViewById(R.id.title_progress_bar).setVisibility(View.VISIBLE);
+		closestStopsLayout.findViewById(R.id.title_progress_bar).setVisibility(View.VISIBLE);
 	}
 
 	/**
@@ -780,10 +795,11 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 	 */
 	private void setClosestStopsNotLoading() {
 		MyLog.v(TAG, "setClosestStopsNotLoading()");
+		View closestStopsLayout = findViewById(R.id.closest_stops_layout);
 		// show refresh icon instead of loading
-		findViewById(R.id.title_refresh).setVisibility(View.VISIBLE);
+		closestStopsLayout.findViewById(R.id.title_refresh).setVisibility(View.VISIBLE);
 		// hide progress bar
-		findViewById(R.id.title_progress_bar).setVisibility(View.INVISIBLE);
+		closestStopsLayout.findViewById(R.id.title_progress_bar).setVisibility(View.INVISIBLE);
 	}
 
 	/**
@@ -823,7 +839,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 			protected void onPostExecute(List<BusLine> result) {
 				BusTab.this.busLines = result;
 				GridView busLinesGrid = (GridView) findViewById(R.id.bus_lines);
-				busLinesGrid.setAdapter(new BusLineArrayAdapter(BusTab.this, R.layout.bus_tab_bus_line_grid_item));
+				busLinesGrid.setAdapter(new BusLineArrayAdapter(BusTab.this, R.layout.bus_tab_bus_lines_grid_item));
 				busLinesGrid.setOnItemClickListener(new OnItemClickListener() {
 					@Override
 					public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
