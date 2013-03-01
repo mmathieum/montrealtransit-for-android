@@ -351,6 +351,11 @@ public class StmStore {
 		 */
 		public static final String ORDER_BY_LINE_CODE = StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + ", " + StmDbHelper.T_BUS_STOPS_K_CODE + " ASC";
 		/**
+		 * The order by bus line number, bus stop code & bus stop order.
+		 */
+		public static final String ORDER_BY_LINE_CODE_AND_STOP_ORDER = StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + ", " + StmDbHelper.T_BUS_STOPS_K_CODE
+				+ ", " + StmDbHelper.T_BUS_STOPS_K_STOPS_ORDER + " ASC";
+		/**
 		 * The order by bus stop code.
 		 */
 		public static final String ORDER_BY_CODE = StmDbHelper.T_BUS_STOPS_K_CODE + " ASC";

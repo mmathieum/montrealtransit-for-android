@@ -470,7 +470,7 @@ public class StmManager {
 	private static Cursor findBusStopsExtended(ContentResolver contentResolver, String busStopUIDsString) {
 		MyLog.v(TAG, "findBusStopsExtended(%s)", busStopUIDsString);
 		return contentResolver.query(Uri.withAppendedPath(StmStore.BusStop.CONTENT_URI, busStopUIDsString), PROJECTION_BUS_STOP_EXTENDED, null, null,
-				StmStore.BusStop.ORDER_BY_LINE_CODE);
+				StmStore.BusStop.ORDER_BY_LINE_CODE_AND_STOP_ORDER);
 	}
 
 	/**
