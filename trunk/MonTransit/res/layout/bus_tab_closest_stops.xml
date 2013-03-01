@@ -3,14 +3,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/closest_stops_layout"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical" >
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
 	<!-- TITLE -->
     <RelativeLayout
         android:id="@+id/closest_stops_title"
         android:layout_width="fill_parent"
         android:layout_height="25dip"
-        android:background="@drawable/dark_header_dither" >
+        android:background="@drawable/dark_header_dither"
+        android:layout_marginBottom="5dp" >
         <ImageView
             android:id="@+id/title_logo"
             android:layout_width="wrap_content"
@@ -36,7 +37,6 @@
             android:layout_toLeftOf="@id/title_show_grid"
             android:background="@android:drawable/list_selector_background"
             android:focusable="true"
-            android:onClick="refreshOrStopRefreshClosestStops"
             android:src="@drawable/ic_btn_refresh"
             android:visibility="visible" />
         <ProgressBar

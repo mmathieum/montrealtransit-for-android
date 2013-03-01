@@ -198,7 +198,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	public void onResumeWithFocus() {
 		MyLog.v(TAG, "onResumeWithFocus()");
 		// IF location updates should be enabled DO
-		if (this.locationUpdatesEnabled) {
+		if (!this.locationUpdatesEnabled) {
 			new AsyncTask<Void, Void, Location>() {
 				@Override
 				protected Location doInBackground(Void... params) {
@@ -215,6 +215,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 					}
 					// re-enable
 					LocationUtils.enableLocationUpdates(BikeTab.this, BikeTab.this);
+					BikeTab.this.locationUpdatesEnabled = true;
 				};
 
 			}.execute();
@@ -228,6 +229,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	protected void onPause() {
 		MyLog.v(TAG, "onPause()");
 		LocationUtils.disableLocationUpdates(this, this);
+		this.locationUpdatesEnabled = false;
 		SensorUtils.unregisterSensorListener(this, this);
 		super.onPause();
 	}

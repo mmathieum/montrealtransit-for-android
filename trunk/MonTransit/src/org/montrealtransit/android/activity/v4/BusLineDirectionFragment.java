@@ -126,12 +126,28 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreateView()");
-		String lineNumber = getArguments().getString(BusLineInfo.EXTRA_LINE_NUMBER);
-		String lineDirectionId = getArguments().getString(BusLineInfo.EXTRA_LINE_DIRECTION_ID);
-		showBusLineDirectionStops(lineNumber, lineDirectionId);
 		View v = inflater.inflate(R.layout.bus_line_info_stops_list, container, false);
 		setupList((ListView) v.findViewById(R.id.list), v.findViewById(R.id.list_empty));
 		return v;
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		MyLog.v(TAG, "onActivityCreated()");
+		super.onActivityCreated(savedInstanceState);
+		String lineNumber = getArguments().getString(BusLineInfo.EXTRA_LINE_NUMBER);
+		String lineDirectionId = getArguments().getString(BusLineInfo.EXTRA_LINE_DIRECTION_ID);
+		this.busLineNumber = lineNumber;
+		this.busLineDirectionId = lineDirectionId;
+		this.busStops = null;
+		this.adapter = null;
+		refreshBusStopListFromDB();
+	}
+
+	@Override
+	public void onStart() {
+		MyLog.v(TAG, "onStart()");
+		super.onStart();
 	}
 
 	/**
@@ -173,18 +189,6 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 	}
 
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		MyLog.v(TAG, "onActivityCreated()");
-		super.onActivityCreated(savedInstanceState);
-	}
-
-	@Override
-	public void onStart() {
-		MyLog.v(TAG, "onStart()");
-		super.onStart();
-	}
-
-	@Override
 	public void onResume() {
 		MyLog.v(TAG, "onResume()");
 		super.onResume();
@@ -218,23 +222,6 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 	public void onDetach() {
 		MyLog.v(TAG, "onDetach()");
 		super.onDetach();
-	}
-
-	/**
-	 * Show new bus line direction stops.
-	 * @param newBusLineNumber new bus line number
-	 * @param newBusLineDirectionId new bus line direction ID
-	 */
-	private void showBusLineDirectionStops(String newBusLineNumber, String newBusLineDirectionId) {
-		MyLog.v(TAG, "showBusLineDirectionStops(%s,%s)", newBusLineNumber, newBusLineDirectionId);
-		// if ((this.busLineNumber == null || this.busLineDirectionId == null)
-		// || (!this.busLineNumber.equals(newBusLineNumber) || !this.busLineDirectionId.equals(newBusLineDirectionId))) {
-		this.busLineNumber = newBusLineNumber;
-		this.busLineDirectionId = newBusLineDirectionId;
-		this.busStops = null;
-		this.adapter = null;
-		refreshBusStopListFromDB();
-		// }
 	}
 
 	/**

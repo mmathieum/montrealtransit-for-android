@@ -144,7 +144,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 	 */
 	private void onCreatePreDonut() {
 		// since 'android:onClick' requires API Level 4
-		findViewById(R.id.closest_bus_stops_refresh).setOnClickListener(new View.OnClickListener() {
+		findViewById(R.id.title_refresh).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				refreshOrStopRefreshClosestStops(v);
@@ -201,7 +201,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 	public void onResumeWithFocus() {
 		MyLog.v(TAG, "onResumeWithFocus()");
 		// IF location updates should be enabled DO
-		if (!this.showingBusLines && this.locationUpdatesEnabled) {
+		if (!this.showingBusLines && !this.locationUpdatesEnabled) {
 			new AsyncTask<Void, Void, Location>() {
 				@Override
 				protected Location doInBackground(Void... params) {
@@ -218,6 +218,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 					}
 					// re-enable
 					LocationUtils.enableLocationUpdates(BusTab.this, BusTab.this);
+					BusTab.this.locationUpdatesEnabled = true;
 				};
 
 			}.execute();
@@ -514,7 +515,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 				// bus stop line number
 				TextView lineNumberTv = (TextView) convertView.findViewById(R.id.line_number);
 				lineNumberTv.setText(stop.getLineNumber());
-				lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColorFromLineNumber(stop.getLineNumber()));
+				lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColor(stop.getLineTypeOrNull(), stop.getLineNumber()));
 				// bus stop line direction
 				int busLineDirection = BusUtils.getBusLineSimpleDirection(stop.getDirectionId());
 				((TextView) convertView.findViewById(R.id.line_direction)).setText(getString(busLineDirection).toUpperCase(Locale.getDefault()));
@@ -615,7 +616,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 				// bus line number
 				lineNumberTv.setText(busLine.getNumber());
 				// bus line color
-				lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColorFromLineNumber(busLine.getNumber()));
+				lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColor(busLine.getType(), busLine.getNumber()));
 			}
 			return convertView;
 		}

@@ -239,7 +239,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		MyLog.v(TAG, "onCreate()");
-		initAllDataBaseTables(db);
+		initAllDbTables(db);
 	}
 
 	@Override
@@ -267,7 +267,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 			db.execSQL(DATABASE_DROP_T_SUBWAY_LINES);
 			db.execSQL(DATABASE_DROP_T_SUBWAY_LINES_DIRECTIONS);
 			db.execSQL(DATABASE_DROP_T_SUBWAY_STATIONS);
-			initAllDataBaseTables(db);
+			initAllDbTables(db);
 			break;
 		}
 	}
@@ -358,28 +358,28 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	 * Initialize all database tables to the latest version.
 	 * @param dataBase the database
 	 */
-	private void initAllDataBaseTables(SQLiteDatabase dataBase) {
-		MyLog.v(TAG, "initDataBaseTables()");
+	private void initAllDbTables(SQLiteDatabase dataBase) {
+		MyLog.v(TAG, "initAllDbTables()");
 		// global settings
 		dataBase.execSQL("PRAGMA foreign_keys=OFF;");
 		// dataBase.execSQL("PRAGMA synchronous=OFF;");
 		dataBase.execSQL("PRAGMA auto_vacuum=NONE;");
 		// buses
-		initDataBaseTableWithRetry(dataBase, DATABASE_CREATE_T_BUS_LINES, DATABASE_DROP_T_BUS_LINES, new int[] { R.raw.stm_db_lignes_autobus });
-		initDataBaseTableWithRetry(dataBase, DATABASE_CREATE_T_BUS_LINES_DIRECTIONS, DATABASE_DROP_T_BUS_LINES_DIRECTIONS,
+		initDbTableWithRetry(dataBase, DATABASE_CREATE_T_BUS_LINES, DATABASE_DROP_T_BUS_LINES, new int[] { R.raw.stm_db_lignes_autobus });
+		initDbTableWithRetry(dataBase, DATABASE_CREATE_T_BUS_LINES_DIRECTIONS, DATABASE_DROP_T_BUS_LINES_DIRECTIONS,
 				new int[] { R.raw.stm_db_directions_autobus });
-		initDataBaseTableWithRetry(dataBase, DATABASE_CREATE_T_BUS_STOPS, DATABASE_DROP_T_BUS_STOPS, new int[] { R.raw.stm_db_arrets_autobus_0,
+		initDbTableWithRetry(dataBase, DATABASE_CREATE_T_BUS_STOPS, DATABASE_DROP_T_BUS_STOPS, new int[] { R.raw.stm_db_arrets_autobus_0,
 				R.raw.stm_db_arrets_autobus_1, R.raw.stm_db_arrets_autobus_2, R.raw.stm_db_arrets_autobus_3, R.raw.stm_db_arrets_autobus_4,
 				R.raw.stm_db_arrets_autobus_7 });
-		initDataBaseTableWithRetry(dataBase, DATABASE_CREATE_T_BUS_STOPS_LOC, DATABASE_DROP_T_BUS_STOPS_LOC, new int[] { R.raw.stm_db_arrets_autobus_loc });
+		initDbTableWithRetry(dataBase, DATABASE_CREATE_T_BUS_STOPS_LOC, DATABASE_DROP_T_BUS_STOPS_LOC, new int[] { R.raw.stm_db_arrets_autobus_loc });
 		// subways
-		initDataBaseTableWithRetry(dataBase, DATABASE_CREATE_T_SUBWAY_FREQUENCES, DATABASE_DROP_T_SUBWAY_FREQUENCES,
+		initDbTableWithRetry(dataBase, DATABASE_CREATE_T_SUBWAY_FREQUENCES, DATABASE_DROP_T_SUBWAY_FREQUENCES,
 				new int[] { R.raw.stm_db_frequences_metro });
-		initDataBaseTableWithRetry(dataBase, DATABASE_CREATE_T_SUBWAY_HOUR, DATABASE_DROP_T_SUBWAY_HOUR, new int[] { R.raw.stm_db_horaire_metro });
-		initDataBaseTableWithRetry(dataBase, DATABASE_CREATE_T_SUBWAY_LINES, DATABASE_DROP_T_SUBWAY_LINES, new int[] { R.raw.stm_db_lignes_metro });
-		initDataBaseTableWithRetry(dataBase, DATABASE_CREATE_T_SUBWAY_LINES_DIRECTIONS, DATABASE_DROP_T_SUBWAY_LINES_DIRECTIONS,
+		initDbTableWithRetry(dataBase, DATABASE_CREATE_T_SUBWAY_HOUR, DATABASE_DROP_T_SUBWAY_HOUR, new int[] { R.raw.stm_db_horaire_metro });
+		initDbTableWithRetry(dataBase, DATABASE_CREATE_T_SUBWAY_LINES, DATABASE_DROP_T_SUBWAY_LINES, new int[] { R.raw.stm_db_lignes_metro });
+		initDbTableWithRetry(dataBase, DATABASE_CREATE_T_SUBWAY_LINES_DIRECTIONS, DATABASE_DROP_T_SUBWAY_LINES_DIRECTIONS,
 				new int[] { R.raw.stm_db_directions_metro });
-		initDataBaseTableWithRetry(dataBase, DATABASE_CREATE_T_SUBWAY_STATIONS, DATABASE_DROP_T_SUBWAY_STATIONS, new int[] { R.raw.stm_db_stations_metro });
+		initDbTableWithRetry(dataBase, DATABASE_CREATE_T_SUBWAY_STATIONS, DATABASE_DROP_T_SUBWAY_STATIONS, new int[] { R.raw.stm_db_stations_metro });
 		UserPreferences.savePrefLcl(this.context, UserPreferences.PREFS_LCL_STM_DB_VERSION, DB_VERSION);
 	}
 
@@ -390,12 +390,12 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	 * @param dropSQL the drop SQL query
 	 * @param fileIds the file(s) to deploy
 	 */
-	private void initDataBaseTableWithRetry(SQLiteDatabase dataBase, String createSQL, String dropSQL, int[] fileIds) {
-		MyLog.v(TAG, "initDataBaseTableWithRetry(%s)", createSQL);
+	private void initDbTableWithRetry(SQLiteDatabase dataBase, String createSQL, String dropSQL, int[] fileIds) {
+		MyLog.v(TAG, "initDbTableWithRetry(%s)", createSQL);
 		boolean success = false;
 		do {
 			try {
-				success = initDataBaseTable(dataBase, createSQL, dropSQL, fileIds);
+				success = initDbTable(dataBase, createSQL, dropSQL, fileIds);
 				MyLog.d(TAG, "DB deployed: " + success);
 			} catch (Exception e) {
 				MyLog.w(TAG, e, "Error while deploying DB!");
@@ -412,8 +412,8 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	 * @param fileIds the file(s) to deploy
 	 * @return true if everything went well.
 	 */
-	private boolean initDataBaseTable(SQLiteDatabase dataBase, String createSQL, String dropSQL, int[] fileIds) {
-		MyLog.v(TAG, "initDataBaseTable(%s)", createSQL);
+	private boolean initDbTable(SQLiteDatabase dataBase, String createSQL, String dropSQL, int[] fileIds) {
+		MyLog.v(TAG, "initDbTable(%s)", createSQL);
 		BufferedReader br = null;
 		try {
 			dataBase.beginTransaction();

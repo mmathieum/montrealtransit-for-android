@@ -127,4 +127,9 @@ public class CupcakeSupport implements SupportUtil {
 	public Class<?> getSubwayLineInfoClass() {
 		return org.montrealtransit.android.activity.SubwayLineInfo.class;
 	}
+
+	@Override
+	public Class<?> getBusTabClass() {
+		return org.montrealtransit.android.activity.BusTab.class;
+	}
 }

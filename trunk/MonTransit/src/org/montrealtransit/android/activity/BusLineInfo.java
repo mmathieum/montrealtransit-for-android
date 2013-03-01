@@ -240,7 +240,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	public void onResumeWithFocus() {
 		MyLog.v(TAG, "onResumeWithFocus()");
 		// IF location updates should be enabled DO
-		if (this.locationUpdatesEnabled) {
+		if (!this.locationUpdatesEnabled) {
 			// IF there is a valid last know location DO
 			if (LocationUtils.getBestLastKnownLocation(this) != null) {
 				// set the new distance
@@ -249,6 +249,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 			}
 			// re-enable
 			LocationUtils.enableLocationUpdates(this, this);
+			this.locationUpdatesEnabled = true;
 		}
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		// refresh favorites
@@ -259,6 +260,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	protected void onPause() {
 		MyLog.v(TAG, "onPause()");
 		LocationUtils.disableLocationUpdates(this, this);
+		this.locationUpdatesEnabled = false;
 		SensorUtils.unregisterSensorListener(this, this);
 		super.onPause();
 	}
@@ -503,7 +505,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	public void setLineNumberAndName(String lineNumber, String lineType, String lineName) {
 		// MyLog.v(TAG, "setLineNumberAndName(%s, %s, %s)", lineNumber, lineType, lineName);
 		((TextView) findViewById(R.id.line_number)).setText(lineNumber);
-		findViewById(R.id.line_number).setBackgroundColor(BusUtils.getBusLineTypeBgColorFromLineNumber(lineNumber));
+		findViewById(R.id.line_number).setBackgroundColor(BusUtils.getBusLineTypeBgColor(lineType, lineNumber));
 		((TextView) findViewById(R.id.line_name)).setText(lineName);
 		findViewById(R.id.line_name).requestFocus();
 	}
