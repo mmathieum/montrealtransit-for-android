@@ -114,7 +114,8 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 		// MyLog.d(TAG, "1st try: " + Utils.getCollectionSize(allBikeStationsWithLoc));
 		if (Utils.getCollectionSize(allBikeStationsWithLoc) == 0) { // if no value return
 			// do it the hard long way
-			allBikeStationsWithLoc = BixiManager.findAllBikeStationsList(this.context.getContentResolver(), false);
+			allBikeStationsWithLoc = BixiManager.findAllBikeStationsList(this.context.getContentResolver(), true);
+			// MyLog.d(TAG, "2nd try: " + Utils.getCollectionSize(allBikeStationsWithLoc));
 		}
 		return allBikeStationsWithLoc;
 	}

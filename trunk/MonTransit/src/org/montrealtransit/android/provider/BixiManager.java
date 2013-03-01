@@ -241,7 +241,7 @@ public class BixiManager {
 	/**
 	 * Find all bike stations (Terminal Name => Bike Station).
 	 * @param contentResolver the content resolver
-	 * @param includeNotInstalled true if including not installed bike station in the result
+	 * @param includeNotInstalled true if including {@link BikeStation#isInstalled()}
 	 * @return all bike stations (Terminal Name => Bike Station)
 	 */
 	public static Map<String, BikeStation> findAllBikeStationsMap(ContentResolver contentResolver, boolean includeNotInstalled) {
