@@ -256,7 +256,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	public void onResumeWithFocus() {
 		MyLog.v(TAG, "onResumeWithFocus()");
 		// IF location updates should be enabled DO
-		if (this.locationUpdatesEnabled) {
+		if (!this.locationUpdatesEnabled) {
 			// IF there is a valid last know location DO
 			if (LocationUtils.getBestLastKnownLocation(this) != null) {
 				// set the new distance
@@ -265,6 +265,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 			}
 			// re-enable
 			LocationUtils.enableLocationUpdates(this, this);
+			this.locationUpdatesEnabled = true;
 		}
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		// refresh favorites
@@ -275,6 +276,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	protected void onPause() {
 		MyLog.v(TAG, "onPause()");
 		LocationUtils.disableLocationUpdates(this, this);
+		this.locationUpdatesEnabled = false;
 		SensorUtils.unregisterSensorListener(this, this);
 		super.onPause();
 	}

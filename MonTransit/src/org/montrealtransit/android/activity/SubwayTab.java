@@ -230,7 +230,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	public void onResumeWithFocus() {
 		MyLog.v(TAG, "onResumeWithFocus()");
 		// IF location updates should be enabled DO
-		if (this.locationUpdatesEnabled) {
+		if (!this.locationUpdatesEnabled) {
 			new AsyncTask<Void, Void, Location>() {
 				@Override
 				protected Location doInBackground(Void... params) {
@@ -247,6 +247,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 					}
 					// re-enable
 					LocationUtils.enableLocationUpdates(SubwayTab.this, SubwayTab.this);
+					SubwayTab.this.locationUpdatesEnabled = true;
 				};
 
 			}.execute();
@@ -382,6 +383,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	protected void onPause() {
 		MyLog.v(TAG, "onPause()");
 		LocationUtils.disableLocationUpdates(this, this);
+		this.locationUpdatesEnabled = false;
 		SensorUtils.unregisterSensorListener(this, this);
 		super.onPause();
 	}

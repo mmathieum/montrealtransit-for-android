@@ -205,7 +205,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	 */
 	public void onResumeWithFocus() {
 		MyLog.v(TAG, "onResumeWithFocus()");
-		if (this.locationUpdatesEnabled) {
+		if (!this.locationUpdatesEnabled) {
 			// IF there is a valid last know location DO
 			if (LocationUtils.getBestLastKnownLocation(this) != null) {
 				// set the new distance
@@ -214,6 +214,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			}
 			// re-enable
 			LocationUtils.enableLocationUpdates(this, this);
+			this.locationUpdatesEnabled = true;
 		}
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		AdsUtils.setupAd(this);
@@ -225,6 +226,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	protected void onPause() {
 		MyLog.v(TAG, "onResume()");
 		LocationUtils.disableLocationUpdates(this, this);
+		this.locationUpdatesEnabled = false;
 		SensorUtils.unregisterSensorListener(this, this);
 		super.onPause();
 	}

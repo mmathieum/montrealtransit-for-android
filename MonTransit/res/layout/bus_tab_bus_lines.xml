@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bus_lines_layout"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical" >
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
     <!-- TITLE -->
     <RelativeLayout
         android:id="@+id/bus_lines_title"
@@ -28,32 +29,11 @@
             android:onClick="showClosest"
             android:src="@drawable/ic_btn_location"
             android:visibility="visible" />
-        <ImageView
-            android:id="@+id/title_refresh"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:layout_toLeftOf="@id/title_show_closest"
-            android:background="@android:drawable/list_selector_background"
-            android:focusable="true"
-            android:onClick="refreshOrStopRefreshClosestStops"
-            android:src="@drawable/ic_btn_refresh"
-            android:visibility="gone" />
-        <ProgressBar
-            android:id="@+id/title_progress_bar"
-            style="?android:attr/android:progressBarStyleSmall"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="5dip"
-            android:layout_marginRight="7dip"
-            android:layout_toLeftOf="@id/title_show_closest"
-            android:indeterminate="true"
-            android:visibility="invisible" />
         <TextView
             android:id="@+id/title_text"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
-            android:layout_toLeftOf="@id/title_progress_bar"
+            android:layout_toLeftOf="@id/title_show_closest"
             android:layout_toRightOf="@id/title_logo"
             android:ellipsize="middle"
             android:gravity="center_vertical"

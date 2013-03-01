@@ -116,4 +116,9 @@ public interface SupportUtil {
 	 * @return the subway line info class
 	 */
 	Class<?> getSubwayLineInfoClass();
+
+	/**
+	 * @return the bus tab class
+	 */
+	Class<?> getBusTabClass();
 }

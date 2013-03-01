@@ -3,6 +3,7 @@ package org.montrealtransit.android.activity;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
+import org.montrealtransit.android.api.SupportFactory;
 
 import android.app.ActivityGroup;
 import android.content.Intent;
@@ -72,7 +73,7 @@ public class MainScreen extends ActivityGroup {
 		// the bus lines list
 		TabSpec busTab = tabHost.newTabSpec(TAB_BUS);
 		busTab.setIndicator(getString(R.string.bus), getResources().getDrawable(R.drawable.ic_tab_bus));
-		busTab.setContent(new Intent(this, BusTab.class));
+		busTab.setContent(new Intent(this, SupportFactory.getInstance(this).getBusTabClass()));
 		tabHost.addTab(busTab);
 		// the subway lines list
 		TabSpec subwayLinesListTab = tabHost.newTabSpec(TAB_SUBWAY);

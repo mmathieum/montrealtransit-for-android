@@ -159,7 +159,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 	public void onResumeWithFocus() {
 		MyLog.v(TAG, "onResumeWithFocus()");
 		// IF location updates should be enabled DO
-		if (this.locationUpdatesEnabled) {
+		if (!this.locationUpdatesEnabled) {
 			// IF there is a valid last know location DO
 			if (LocationUtils.getBestLastKnownLocation(this) != null) {
 				// set the new distance
@@ -168,6 +168,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 			}
 			// re-enable
 			LocationUtils.enableLocationUpdates(this, this);
+			this.locationUpdatesEnabled = true;
 		}
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 	}
@@ -176,6 +177,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 	protected void onPause() {
 		MyLog.v(TAG, "onPause()");
 		LocationUtils.disableLocationUpdates(this, this);
+		this.locationUpdatesEnabled = false;
 		SensorUtils.unregisterSensorListener(this, this);
 		super.onPause();
 	}
@@ -628,7 +630,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 						View view = getLayoutInflater().inflate(R.layout.subway_station_info_bus_line_list_item, null);
 						// bus line number
 						((TextView) view.findViewById(R.id.line_number)).setText(busStop.getLineNumber());
-						int color = BusUtils.getBusLineTypeBgColorFromLineNumber(busStop.getLineNumber());
+						int color = BusUtils.getBusLineTypeBgColor(busStop.getLineTypeOrNull(), busStop.getLineNumber());
 						((TextView) view.findViewById(R.id.line_number)).setBackgroundColor(color);
 						// bus line direction
 						int busLineDirection = BusUtils.getBusLineSimpleDirection(busStop.getDirectionId());

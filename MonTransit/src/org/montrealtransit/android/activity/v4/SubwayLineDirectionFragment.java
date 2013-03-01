@@ -129,12 +129,28 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreateView()");
-		int lineNumber = Integer.valueOf(getArguments().getString(SubwayLineInfo.EXTRA_LINE_NUMBER)).intValue();
-		String lineDirectionId = getArguments().getString(SubwayLineInfo.EXTRA_ORDER_PREF);
-		showSubwayLineDirectionStations(lineNumber, lineDirectionId);
 		View v = inflater.inflate(R.layout.subway_line_info_stations_list, container, false);
 		setupList((ListView) v.findViewById(R.id.list), v.findViewById(R.id.list_empty));
 		return v;
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		MyLog.v(TAG, "onActivityCreated()");
+		super.onActivityCreated(savedInstanceState);
+		int lineNumber = Integer.valueOf(getArguments().getString(SubwayLineInfo.EXTRA_LINE_NUMBER)).intValue();
+		String lineDirectionId = getArguments().getString(SubwayLineInfo.EXTRA_ORDER_PREF);
+		this.subwayLineNumber = lineNumber;
+		this.subwayLineDirectionId = lineDirectionId;
+		this.stations = null;
+		this.adapter = null;
+		refreshSubwayStationListFromDB();
+	}
+
+	@Override
+	public void onStart() {
+		MyLog.v(TAG, "onStart()");
+		super.onStart();
 	}
 
 	/**
@@ -171,18 +187,6 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 	}
 
 	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		MyLog.v(TAG, "onActivityCreated()");
-		super.onActivityCreated(savedInstanceState);
-	}
-
-	@Override
-	public void onStart() {
-		MyLog.v(TAG, "onStart()");
-		super.onStart();
-	}
-
-	@Override
 	public void onResume() {
 		MyLog.v(TAG, "onResume()");
 		super.onResume();
@@ -216,23 +220,6 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 	public void onDetach() {
 		MyLog.v(TAG, "onDetach()");
 		super.onDetach();
-	}
-
-	/**
-	 * Show new subway line direction stations.
-	 * @param newSubwayLineNumber new subway line number
-	 * @param newSubwayLineDirectionId new subway line direction ID
-	 */
-	private void showSubwayLineDirectionStations(int newSubwayLineNumber, String newSubwayLineDirectionId) {
-		MyLog.v(TAG, "showSubwayLineDirectionStations(%s,%s)", newSubwayLineNumber, newSubwayLineDirectionId);
-		// if ((this.subwayLineDirectionId == null)
-		// || (this.subwayLineNumber != newSubwayLineNumber || !this.subwayLineDirectionId.equals(newSubwayLineDirectionId))) {
-		this.subwayLineNumber = newSubwayLineNumber;
-		this.subwayLineDirectionId = newSubwayLineDirectionId;
-		this.stations = null;
-		this.adapter = null;
-		refreshSubwayStationListFromDB();
-		// }
 	}
 
 	/**

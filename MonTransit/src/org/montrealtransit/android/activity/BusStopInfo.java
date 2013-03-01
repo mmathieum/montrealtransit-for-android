@@ -253,7 +253,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	public void onResumeWithFocus() {
 		MyLog.v(TAG, "onResumeWithFocus()");
 		// IF location updates should be enabled DO
-		if (this.locationUpdatesEnabled) {
+		if (!this.locationUpdatesEnabled) {
 			// IF there is a valid last know location DO
 			if (LocationUtils.getBestLastKnownLocation(this) != null) {
 				// set the new distance
@@ -262,6 +262,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 			}
 			// re-enable
 			LocationUtils.enableLocationUpdates(this, this);
+			this.locationUpdatesEnabled = true;
 		}
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		AdsUtils.setupAd(this);
@@ -275,6 +276,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		MyLog.v(TAG, "onPause()");
 		SupportFactory.getInstance(this).disableNfcForegroundDispatch(this);
 		LocationUtils.disableLocationUpdates(this, this);
+		this.locationUpdatesEnabled = false;
 		SensorUtils.unregisterSensorListener(this, this);
 		super.onPause();
 	}
@@ -503,7 +505,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		// set bus line number & direction
 		TextView lineNumberTv = (TextView) findViewById(R.id.line_number);
 		lineNumberTv.setText(this.busLine.getNumber());
-		lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColorFromLineNumber(this.busLine.getNumber()));
+		lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColor(this.busLine.getType(), this.busLine.getNumber()));
 		((TextView) findViewById(R.id.line_direction)).setText(getString(BusUtils.getBusLineSimpleDirection(this.busStop.getDirectionId())).toUpperCase(Locale.getDefault()));
 		// set listener
 		findViewById(R.id.line).setOnClickListener(new View.OnClickListener() {
@@ -626,7 +628,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 				final String lineName = busStop.getLineNameOrNull();
 				final String lineType = busStop.getLineTypeOrNull();
 				lineNumberTv.setText(lineNumber);
-				int color = BusUtils.getBusLineTypeBgColorFromLineNumber(busStop.getLineNumber());
+				int color = BusUtils.getBusLineTypeBgColor(lineType, lineNumber);
 				lineNumberTv.setBackgroundColor(color);
 				// line direction
 				final String currentDirectionId = busStop.getDirectionId();
@@ -672,10 +674,10 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		}
 		TextView busLineNumberTv = (TextView) findViewById(R.id.line_number);
 		busLineNumberTv.setText(newLineNumber);
-//		if (!TextUtils.isEmpty(newLineType)) {
-			int color = BusUtils.getBusLineTypeBgColorFromLineNumber(newLineNumber);
-			busLineNumberTv.setBackgroundColor(color);
-//		}
+		// if (!TextUtils.isEmpty(newLineType)) {
+		int color = BusUtils.getBusLineTypeBgColor(newLineType, newLineNumber);
+		busLineNumberTv.setBackgroundColor(color);
+		// }
 		// hide other bus lines
 		findViewById(R.id.other_bus_line_list).setVisibility(View.INVISIBLE);
 		findViewById(R.id.star).setVisibility(View.INVISIBLE);

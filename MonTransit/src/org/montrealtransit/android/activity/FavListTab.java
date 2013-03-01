@@ -230,7 +230,7 @@ public class FavListTab extends Activity {
 					// bus stop line number
 					TextView lineNumberTv = (TextView) view.findViewById(R.id.line_number);
 					lineNumberTv.setText(busStop.getLineNumber());
-					int color = BusUtils.getBusLineTypeBgColorFromLineNumber(busStop.getLineNumber());
+					int color = BusUtils.getBusLineTypeBgColor(busStop.getLineTypeOrNull(), busStop.getLineNumber());
 					lineNumberTv.setBackgroundColor(color);
 					// bus stop line direction
 					int busLineDirection = BusUtils.getBusLineSimpleDirection(busStop.getDirectionId());
