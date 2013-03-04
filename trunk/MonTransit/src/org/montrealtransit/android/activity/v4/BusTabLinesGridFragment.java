@@ -5,6 +5,7 @@ import java.util.List;
 import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
+import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.activity.BusLineInfo;
 import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.dialog.BusLineSelectDirection;
@@ -89,7 +90,10 @@ public class BusTabLinesGridFragment extends Fragment {
 			@Override
 			protected void onPostExecute(List<BusLine> result) {
 				BusTabLinesGridFragment.this.busLines = result;
-				GridView busLinesGrid = (GridView) getView().findViewById(R.id.bus_lines);
+				if (BusTabLinesGridFragment.this.getView() == null) { // should never happen
+					Utils.sleep(1); // wait 1 second and retry
+				}
+				GridView busLinesGrid = (GridView) BusTabLinesGridFragment.this.getView().findViewById(R.id.bus_lines);
 				busLinesGrid.setAdapter(new BusLineArrayAdapter(BusTabLinesGridFragment.this.getActivity(), R.layout.bus_tab_bus_lines_grid_item));
 				busLinesGrid.setOnItemClickListener(new OnItemClickListener() {
 					@Override
@@ -122,7 +126,7 @@ public class BusTabLinesGridFragment extends Fragment {
 					}
 				});
 				busLinesGrid.setVisibility(View.VISIBLE);
-				getView().findViewById(R.id.bus_lines_loading).setVisibility(View.GONE);
+				BusTabLinesGridFragment.this.getView().findViewById(R.id.bus_lines_loading).setVisibility(View.GONE);
 			}
 
 		}.execute();

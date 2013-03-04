@@ -884,4 +884,15 @@ public class Utils {
 
 		return result;
 	}
+
+	/**
+	 * Sleep for x seconds.
+	 * @param timeInSec the number of seconds to sleep.
+	 */
+	public static void sleep(int timeInSec) {
+		try {
+			Thread.sleep(timeInSec*1000);
+		} catch (InterruptedException e) {
+		}
+	}
 }
