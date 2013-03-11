@@ -279,8 +279,9 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 	 * Show new closest stops title.
 	 */
 	public void showNewClosestStopsTitle() {
-		if (this.closestStopsLocationAddress != null && this.closestStopsLocation != null) {
-			String text = LocationUtils.getLocationString(getActivity(), R.string.closest_bus_stops, this.closestStopsLocationAddress,
+		Context context = getActivity();
+		if (this.closestStopsLocationAddress != null && this.closestStopsLocation != null && context != null) {
+			String text = LocationUtils.getLocationString(context, R.string.closest_bus_stops, this.closestStopsLocationAddress,
 					this.closestStopsLocation.getAccuracy());
 			View closestStopsLayout = getView().findViewById(R.id.closest_stops_layout);
 			((TextView) closestStopsLayout.findViewById(R.id.title_text)).setText(text);
