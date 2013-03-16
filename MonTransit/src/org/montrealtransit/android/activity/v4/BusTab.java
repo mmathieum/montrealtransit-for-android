@@ -75,7 +75,7 @@ public class BusTab extends FragmentActivity {
 		Fragment f = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.viewpager + ":" + FRAGMENT_CLOSEST_STOPS_INDEX);
 		if (f != null) {
 			BusTabClosestStopsFragment df = (BusTabClosestStopsFragment) f;
-			df.onResumeWithFocus();
+			df.onResumeWithFocus(this);
 		}
 	}
 

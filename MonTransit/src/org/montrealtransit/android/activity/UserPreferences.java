@@ -459,6 +459,10 @@ public class UserPreferences extends PreferenceActivity {
 	 * @return the {@link String} {@link SharedPreferences} from {@link UserPreferences#DEFAULT_PREF_NAME}
 	 */
 	public static String getPrefDefault(Context context, String prefKey, String defaultValue) {
+		if (context == null) {
+			MyLog.d(TAG, "Context null, using default value '%s' for preference '%s'!", defaultValue, prefKey);
+			return defaultValue;
+		}
 		return getPref(PreferenceManager.getDefaultSharedPreferences(context), prefKey, defaultValue);
 	}
 
