@@ -622,7 +622,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 			otherBusLinesLayout.setVisibility(View.VISIBLE);
 			for (StmStore.BusStop busStop : this.otherBusStopLines) {
 				// the view
-				View view = getLayoutInflater().inflate(R.layout.bus_stop_info_bus_line_list_item, null);
+				View view = getLayoutInflater().inflate(R.layout.bus_stop_info_bus_line_list_item, otherBusLinesLayout, false);
 				TextView lineNumberTv = (TextView) view.findViewById(R.id.line_number);
 				final String lineNumber = busStop.getLineNumber();
 				final String lineName = busStop.getLineNameOrNull();
