@@ -17,8 +17,7 @@ public class BixiStore {
 	/**
 	 * The log tag
 	 */
-	@SuppressWarnings("unused")
-	private static final String TAG = BixiStore.class.getSimpleName();
+	public static final String TAG = BixiStore.class.getSimpleName();
 	/**
 	 * The provider authority.
 	 */
