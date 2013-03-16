@@ -57,8 +57,9 @@ public class MainScreen extends ActivityGroup {
 		// set the UI.
 		setContentView(R.layout.main_screen);
 
+		RelativeLayout main = (RelativeLayout) findViewById(R.id.main);
 		// add the tab host
-		TabHost tabHost = (TabHost) getLayoutInflater().inflate(R.layout.main_screen_tab_host, null);
+		TabHost tabHost = (TabHost) getLayoutInflater().inflate(R.layout.main_screen_tab_host, main, false);
 		tabHost.setup(this.getLocalActivityManager());
 		// the favorites list
 		TabSpec favListTab = tabHost.newTabSpec(TAB_FAV);
@@ -97,7 +98,7 @@ public class MainScreen extends ActivityGroup {
 		}
 		RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT,
 				RelativeLayout.LayoutParams.FILL_PARENT);
-		((RelativeLayout) findViewById(R.id.main)).addView(tabHost, layoutParams);
+		main.addView(tabHost, layoutParams);
 	}
 
 	@Override

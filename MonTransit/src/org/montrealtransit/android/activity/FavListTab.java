@@ -218,10 +218,10 @@ public class FavListTab extends Activity {
 				for (final BusStop busStop : busStopsExtendedList) {
 					// list view divider
 					if (busStopsLayout.getChildCount() > 0) {
-						busStopsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+						busStopsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, busStopsLayout, false));
 					}
 					// create view
-					View view = getLayoutInflater().inflate(R.layout.fav_list_tab_bus_stop_item, null);
+					View view = getLayoutInflater().inflate(R.layout.fav_list_tab_bus_stop_item, busStopsLayout, false);
 					// bus stop code
 					((TextView) view.findViewById(R.id.stop_code)).setText(busStop.getCode());
 					// bus stop place
@@ -344,10 +344,10 @@ public class FavListTab extends Activity {
 					List<SubwayLine> otherLinesId = otherLines.get(station.getId());
 					// list view divider
 					if (subwayStationsLayout.getChildCount() > 0) {
-						subwayStationsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+						subwayStationsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, subwayStationsLayout, false));
 					}
 					// create view
-					View view = getLayoutInflater().inflate(R.layout.fav_list_tab_subway_station_item, null);
+					View view = getLayoutInflater().inflate(R.layout.fav_list_tab_subway_station_item, subwayStationsLayout, false);
 					// subway station name
 					((TextView) view.findViewById(R.id.station_name)).setText(station.getName());
 					// station lines color
@@ -464,10 +464,10 @@ public class FavListTab extends Activity {
 				for (final BikeStation bikeStation : bikeStations.values()) {
 					// list view divider
 					if (bikeStationsLayout.getChildCount() > 0) {
-						bikeStationsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+						bikeStationsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, bikeStationsLayout, false));
 					}
 					// create view
-					View view = getLayoutInflater().inflate(R.layout.fav_list_tab_bike_station_item, null);
+					View view = getLayoutInflater().inflate(R.layout.fav_list_tab_bike_station_item, bikeStationsLayout, false);
 					// subway station name
 					((TextView) view.findViewById(R.id.station_name)).setText(Utils.cleanBikeStationName(bikeStation.getName()));
 					// add click listener

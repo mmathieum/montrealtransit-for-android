@@ -396,20 +396,20 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 					if (!SubwayStationInfo.this.subwayStation.getId().equals(firstSubwayStationDirections.get(subwayLine.getNumber()).getId())) {
 						// list divider
 						if (hoursListLayout.getChildCount() > 0) {
-							hoursListLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+							hoursListLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, hoursListLayout, false));
 						}
 						// list view
-						hoursListLayout.addView(getDirectionView(subwayLine, firstSubwayStationDirections.get(subwayLine.getNumber())));
+						hoursListLayout.addView(getDirectionView(subwayLine, firstSubwayStationDirections.get(subwayLine.getNumber()), hoursListLayout));
 					}
 					// SECOND direction
 					// IF the direction is not the subway station DO
 					if (!SubwayStationInfo.this.subwayStation.getId().equals(lastSubwayStationDirections.get(subwayLine.getNumber()).getId())) {
 						// list divider
 						if (hoursListLayout.getChildCount() > 0) {
-							hoursListLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+							hoursListLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, hoursListLayout, false));
 						}
 						// list view
-						hoursListLayout.addView(getDirectionView(subwayLine, lastSubwayStationDirections.get(subwayLine.getNumber())));
+						hoursListLayout.addView(getDirectionView(subwayLine, lastSubwayStationDirections.get(subwayLine.getNumber()), hoursListLayout));
 					}
 				}
 				findViewById(R.id.hours_loading).setVisibility(View.GONE);
@@ -421,7 +421,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 			 * @param subwayStationDir the direction
 			 * @return the direction view for the subway line and the direction
 			 */
-			private View getDirectionView(SubwayLine subwayLine, SubwayStation subwayStationDir) {
+			private View getDirectionView(SubwayLine subwayLine, SubwayStation subwayStationDir, LinearLayout root) {
 				// MyLog.v(TAG, "getDirectionView(" + subwayLine.getNumber() + ", " + subwayStationDir.getId() + ")");
 				// find day and hour (minus 2 hours)
 				Calendar now = Calendar.getInstance();
@@ -429,7 +429,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 				String dayOfTheWeek = Utils.getDayOfTheWeek(now);
 				String time = Utils.getTimeOfTheDay(now);
 				// create view
-				View dView = getLayoutInflater().inflate(R.layout.subway_station_info_line_schedule_direction, null);
+				View dView = getLayoutInflater().inflate(R.layout.subway_station_info_line_schedule_direction, root, false);
 				// SUBWAY LINE color
 				int subwayLineImgId = SubwayUtils.getSubwayLineImgId(subwayLine.getNumber());
 				((ImageView) dView.findViewById(R.id.subway_img)).setImageResource(subwayLineImgId);
@@ -627,7 +627,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 							continue;
 						}
 						// create view
-						View view = getLayoutInflater().inflate(R.layout.subway_station_info_bus_line_list_item, null);
+						View view = getLayoutInflater().inflate(R.layout.subway_station_info_bus_line_list_item, busLinesLayout, false);
 						// bus line number
 						((TextView) view.findViewById(R.id.line_number)).setText(busStop.getLineNumber());
 						int color = BusUtils.getBusLineTypeBgColor(busStop.getLineTypeOrNull(), busStop.getLineNumber());

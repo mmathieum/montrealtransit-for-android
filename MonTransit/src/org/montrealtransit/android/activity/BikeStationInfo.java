@@ -808,10 +808,10 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		for (ABikeStation station : this.closestBikeStations) {
 			// list view divider
 			if (closestStationsLayout.getChildCount() > 0) {
-				closestStationsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, null));
+				closestStationsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, closestStationsLayout, false));
 			}
 			// create view
-			View view = getLayoutInflater().inflate(R.layout.bike_station_info_closest_stations_list_item, null);
+			View view = getLayoutInflater().inflate(R.layout.bike_station_info_closest_stations_list_item, closestStationsLayout, false);
 			view.setTag(getStationViewTag(station));
 			// bike station name
 			((TextView) view.findViewById(R.id.station_name)).setText(Utils.cleanBikeStationName(station.getName()));
