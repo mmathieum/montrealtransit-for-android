@@ -37,7 +37,7 @@ public class MyLog {
 	 * @param msg the message
 	 */
 	public static void v(String tag, String msg) {
-		if (DEBUG || Log.isLoggable(MAIN_TAG, Log.VERBOSE)) {
+		if (isLoggable(Log.VERBOSE)) {
 			Log.v(MAIN_TAG, String.format("%s>%s", tag, msg));
 		}
 	}
@@ -49,7 +49,7 @@ public class MyLog {
 	 * @param args the message arguments
 	 */
 	public static void v(String tag, String msg, Object... args) {
-		if (DEBUG || Log.isLoggable(MAIN_TAG, Log.VERBOSE)) {
+		if (isLoggable(Log.VERBOSE)) {
 			Log.v(MAIN_TAG, String.format("%s>%s", tag, String.format(msg, args)));
 		}
 	}
@@ -60,7 +60,7 @@ public class MyLog {
 	 * @param msg the message
 	 */
 	public static void d(String tag, String msg) {
-		if (DEBUG || Log.isLoggable(MAIN_TAG, Log.DEBUG)) {
+		if (isLoggable(Log.DEBUG)) {
 			Log.d(MAIN_TAG, String.format("%s>%s", tag, msg));
 		}
 	}
@@ -72,7 +72,7 @@ public class MyLog {
 	 * @param args the message arguments
 	 */
 	public static void d(String tag, String msg, Object... args) {
-		if (DEBUG || Log.isLoggable(MAIN_TAG, Log.DEBUG)) {
+		if (isLoggable(Log.DEBUG)) {
 			Log.d(MAIN_TAG, String.format("%s>%s", tag, String.format(msg, args)));
 		}
 	}
@@ -85,7 +85,7 @@ public class MyLog {
 	 * @param args the message arguments
 	 */
 	public static void d(String tag, Throwable t, String msg, Object... args) {
-		if (DEBUG || Log.isLoggable(MAIN_TAG, Log.DEBUG)) {
+		if (isLoggable(Log.DEBUG)) {
 			Log.d(MAIN_TAG, String.format("%s>%s", tag, String.format(msg, args)), t);
 		}
 	}
@@ -96,7 +96,7 @@ public class MyLog {
 	 * @param msg the message
 	 */
 	public static void i(String tag, String msg) {
-		if (DEBUG || Log.isLoggable(MAIN_TAG, Log.INFO)) {
+		if (isLoggable(Log.INFO)) {
 			Log.i(MAIN_TAG, String.format("%s>%s", tag, msg));
 		}
 	}
@@ -108,7 +108,7 @@ public class MyLog {
 	 * @param args the message arguments
 	 */
 	public static void i(String tag, String msg, Object... args) {
-		if (DEBUG || Log.isLoggable(MAIN_TAG, Log.INFO)) {
+		if (isLoggable(Log.INFO)) {
 			Log.i(MAIN_TAG, String.format("%s>%s", tag, String.format(msg, args)));
 		}
 	}
@@ -120,7 +120,7 @@ public class MyLog {
 	 * @param args the message arguments
 	 */
 	public static void w(String tag, String msg, Object... args) {
-		if (DEBUG || Log.isLoggable(MAIN_TAG, Log.WARN)) {
+		if (isLoggable(Log.WARN)) {
 			Log.w(MAIN_TAG, String.format("%s>%s", tag, String.format(msg, args)));
 		}
 	}
@@ -133,7 +133,7 @@ public class MyLog {
 	 * @param args the message arguments
 	 */
 	public static void w(String tag, Throwable t, String msg, Object... args) {
-		if (DEBUG || Log.isLoggable(MAIN_TAG, Log.WARN)) {
+		if (isLoggable(Log.WARN)) {
 			Log.w(MAIN_TAG, String.format("%s>%s", tag, String.format(msg, args)), t);
 		}
 	}
@@ -145,7 +145,7 @@ public class MyLog {
 	 * @param msg the message
 	 */
 	public static void e(String tag, Throwable t, String msg) {
-		if (DEBUG || Log.isLoggable(MAIN_TAG, Log.ERROR)) {
+		if (isLoggable(Log.ERROR)) {
 			Log.e(MAIN_TAG, String.format("%s>%s", tag, msg), t);
 		}
 	}
