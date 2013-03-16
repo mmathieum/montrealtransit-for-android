@@ -118,6 +118,17 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 	public void onAttach(Activity activity) {
 		MyLog.v(TAG, "onAttach()");
 		super.onAttach(activity);
+		this.lastActivity = activity;
+	}
+
+	private Activity lastActivity;
+
+	private Activity getLastActivity() {
+		Activity newActivity = getActivity();
+		if (newActivity != null) {
+			this.lastActivity = newActivity;
+		}
+		return this.lastActivity;
 	}
 
 	@Override
@@ -131,13 +142,28 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 		MyLog.v(TAG, "onCreateView()");
 		View v = inflater.inflate(R.layout.subway_line_info_stations_list, container, false);
 		setupList((ListView) v.findViewById(R.id.list), v.findViewById(R.id.list_empty));
+		this.lastView = v;
 		return v;
+	}
+
+	private View lastView;
+
+	private View getLastView() {
+		View newView = getView();
+		if (newView != null) {
+			this.lastView = newView;
+		}
+		return this.lastView;
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onActivityCreated()");
 		super.onActivityCreated(savedInstanceState);
+		showAll();
+	}
+
+	private void showAll() {
 		int lineNumber = Integer.valueOf(getArguments().getString(SubwayLineInfo.EXTRA_LINE_NUMBER)).intValue();
 		String lineDirectionId = getArguments().getString(SubwayLineInfo.EXTRA_ORDER_PREF);
 		this.subwayLineNumber = lineNumber;
@@ -166,16 +192,17 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 			@Override
 			public void onItemClick(AdapterView<?> l, View v, int position, long id) {
 				MyLog.v(TAG, "onItemClick(%s,%s)", position, id);
+				Activity activity = SubwayLineDirectionFragment.this.getLastActivity();
 				if (SubwayLineDirectionFragment.this.stations != null && position < SubwayLineDirectionFragment.this.stations.size()
-						&& SubwayLineDirectionFragment.this.stations.get(position) != null) {
+						&& SubwayLineDirectionFragment.this.stations.get(position) != null && activity != null) {
 					// IF last subway station, show descent only
 					if (position + 1 == SubwayLineDirectionFragment.this.stations.size()) {
-						Toast toast = Toast.makeText(SubwayLineDirectionFragment.this.getActivity(), R.string.subway_station_descent_only, Toast.LENGTH_SHORT);
+						Toast toast = Toast.makeText(activity, R.string.subway_station_descent_only, Toast.LENGTH_SHORT);
 						// toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
 						toast.show();
 						return;
 					}
-					Intent intent = new Intent(SubwayLineDirectionFragment.this.getActivity(), SubwayStationInfo.class);
+					Intent intent = new Intent(activity, SubwayStationInfo.class);
 					String subwayStationId = SubwayLineDirectionFragment.this.stations.get(position).getId();
 					String subwayStationName = SubwayLineDirectionFragment.this.stations.get(position).getName();
 					intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, subwayStationId);
@@ -192,10 +219,10 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 		super.onResume();
 	}
 
-	public void onResumeWithFocus() {
+	public void onResumeWithFocus(SubwayLineInfo activity) {
 		MyLog.v(TAG, "onResumeWithFocus()");
-		updateDistancesWithNewLocation();
-		refreshFavoriteStationIdsFromDB(getActivity().getContentResolver());
+		updateDistancesWithNewLocation(activity);
+		refreshFavoriteStationIdsFromDB(activity.getContentResolver());
 	}
 
 	@Override
@@ -232,10 +259,11 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 			protected List<ASubwayStation> doInBackground(Integer... params) {
 				int lineNumber = params[0];
 				String orderId = getSortOrderFromOrderPref(SubwayLineDirectionFragment.this.subwayLineDirectionId);
-				List<SubwayStation> subwayStationsList = StmManager.findSubwayLineStationsList(getActivity().getContentResolver(), lineNumber, orderId);
+				Activity activity = getLastActivity();
+				List<SubwayStation> subwayStationsList = StmManager.findSubwayLineStationsList(activity.getContentResolver(), lineNumber, orderId);
 				// preparing other stations lines data
 				Map<String, Set<Integer>> stationsWithOtherLines = new HashMap<String, Set<Integer>>();
-				for (Pair<SubwayLine, SubwayStation> lineStation : StmManager.findSubwayLineStationsWithOtherLinesList(getActivity().getContentResolver(),
+				for (Pair<SubwayLine, SubwayStation> lineStation : StmManager.findSubwayLineStationsWithOtherLinesList(activity.getContentResolver(),
 						lineNumber)) {
 					int subwayLineNumber = lineStation.first.getNumber();
 					String subwayStationId = lineStation.second.getId();
@@ -260,13 +288,17 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 
 			@Override
 			protected void onPostExecute(List<ASubwayStation> result) {
+				SubwayLineInfo activity = SubwayLineDirectionFragment.this.getSubwayLineInfoActivity();
+				View view = SubwayLineDirectionFragment.this.getLastView();
+				if (activity == null || view == null) {
+					return;
+				}
 				SubwayLineDirectionFragment.this.stations = result;
 				generateOrderedStationsIds();
-				refreshFavoriteStationIdsFromDB(getActivity().getContentResolver());
-				SubwayLineDirectionFragment.this.adapter = new ArrayAdapterWithCustomView(SubwayLineDirectionFragment.this.getActivity(),
-						R.layout.subway_line_info_stations_list_item);
-				updateDistancesWithNewLocation();
-				((ListView) SubwayLineDirectionFragment.this.getView().findViewById(R.id.list)).setAdapter(SubwayLineDirectionFragment.this.adapter);
+				refreshFavoriteStationIdsFromDB(activity.getContentResolver());
+				SubwayLineDirectionFragment.this.adapter = new ArrayAdapterWithCustomView(activity, R.layout.subway_line_info_stations_list_item);
+				updateDistancesWithNewLocation(activity);
+				((ListView) view.findViewById(R.id.list)).setAdapter(SubwayLineDirectionFragment.this.adapter);
 			};
 
 		}.execute(this.subwayLineNumber);
@@ -289,18 +321,17 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 	/**
 	 * Update the distances with the latest device location.
 	 */
-	protected void updateDistancesWithNewLocation() {
+	protected void updateDistancesWithNewLocation(SubwayLineInfo activity) {
 		// MyLog.v(TAG, "updateDistancesWithNewLocation()");
-		if (this.stations == null || getSubwayLineInfoActivity() == null) {
+		if (this.stations == null || activity == null) {
 			return;
 		}
-		Location currentLocation = getSubwayLineInfoActivity().getLocation();
+		Location currentLocation = activity.getLocation();
 		if (currentLocation != null) {
 			float accuracyInMeters = currentLocation.getAccuracy();
-			boolean isDetailed = UserPreferences.getPrefDefault(getActivity(), UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT)
-					.equals(UserPreferences.PREFS_DISTANCE_DETAILED);
-			String distanceUnit = UserPreferences.getPrefDefault(getActivity(), UserPreferences.PREFS_DISTANCE_UNIT,
-					UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
+			boolean isDetailed = UserPreferences.getPrefDefault(activity, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
+					UserPreferences.PREFS_DISTANCE_DETAILED);
+			String distanceUnit = UserPreferences.getPrefDefault(activity, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
 			for (ASubwayStation station : this.stations) {
 				// IF the subway station location is known DO
 				station.setDistance(currentLocation.distanceTo(station.getLocation()));
@@ -313,10 +344,10 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 	}
 
 	/**
-	 * @return see {@link #getActivity()}
+	 * @return see {@link #getLastActivity()}
 	 */
 	private SubwayLineInfo getSubwayLineInfoActivity() {
-		return (SubwayLineInfo) getActivity();
+		return (SubwayLineInfo) getLastActivity();
 	}
 
 	/**
@@ -325,9 +356,10 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 	 */
 	protected boolean showClosestStation() {
 		MyLog.v(TAG, "showClosestStation()");
-		if (!TextUtils.isEmpty(this.closestStationId)) {
-			Toast.makeText(getActivity(), R.string.shake_closest_subway_line_station_selected, Toast.LENGTH_SHORT).show();
-			Intent intent = new Intent(getActivity(), SubwayStationInfo.class);
+		Activity activity = getLastActivity();
+		if (activity != null && !TextUtils.isEmpty(this.closestStationId)) {
+			Toast.makeText(activity, R.string.shake_closest_subway_line_station_selected, Toast.LENGTH_SHORT).show();
+			Intent intent = new Intent(activity, SubwayStationInfo.class);
 			intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, this.closestStationId);
 			intent.putExtra(SubwayStationInfo.EXTRA_STATION_NAME, findStationName(this.closestStationId));
 			startActivity(intent);
@@ -373,7 +405,7 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 					for (ASubwayStation station : this.stations) {
 						station.getCompassMatrix().reset();
 						station.getCompassMatrix().postRotate(
-								SensorUtils.getCompassRotationInDegree(getActivity(), currentLocation, station.getLocation(), orientation,
+								SensorUtils.getCompassRotationInDegree(getLastActivity(), currentLocation, station.getLocation(), orientation,
 										getLocationDeclination()), getArrowDim().first / 2, getArrowDim().second / 2);
 					}
 					// update the view
@@ -397,7 +429,7 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 
 	public Pair<Integer, Integer> getArrowDim() {
 		if (this.arrowDim == null) {
-			this.arrowDim = SensorUtils.getResourceDimension(getActivity(), R.drawable.heading_arrow);
+			this.arrowDim = SensorUtils.getResourceDimension(getLastActivity(), R.drawable.heading_arrow);
 		}
 		return this.arrowDim;
 	}
@@ -483,7 +515,8 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 
 	@Override
 	public void onScrollStateChanged(AbsListView view, int scrollState) {
-		if (view == getView().findViewById(R.id.list)) {
+		View v = getLastView();
+		if (v != null && view == v.findViewById(R.id.list)) {
 			this.scrollState = scrollState;// == OnScrollListener.SCROLL_STATE_FLING);
 		}
 	}

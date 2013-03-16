@@ -49,6 +49,17 @@ public class BusTabLinesGridFragment extends Fragment {
 	public void onAttach(Activity activity) {
 		MyLog.v(TAG, "onAttach()");
 		super.onAttach(activity);
+		this.lastActivity = activity;
+	}
+
+	private Activity lastActivity;
+
+	private Activity getLastActivity() {
+		Activity newActivity = getActivity();
+		if (newActivity != null) {
+			this.lastActivity = newActivity;
+		}
+		return this.lastActivity;
 	}
 
 	@Override
@@ -60,7 +71,26 @@ public class BusTabLinesGridFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreateView()");
-		return inflater.inflate(R.layout.bus_tab_bus_lines, container, false);
+		View v = inflater.inflate(R.layout.bus_tab_bus_lines, container, false);
+		this.lastView = v;
+		return v;
+	}
+	
+	private View lastView;
+
+	private View getLastView() {
+		View newView = getView();
+		if (newView != null) {
+			this.lastView = newView;
+		}
+		return this.lastView;
+	}
+	
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		MyLog.v(TAG, "onActivityCreated()");
+		super.onActivityCreated(savedInstanceState);
+		showAll();
 	}
 
 	/**
@@ -72,7 +102,7 @@ public class BusTabLinesGridFragment extends Fragment {
 		if (this.busLines == null) {
 			refreshBusLinesFromDB();
 		} else {
-			getView().findViewById(R.id.bus_lines).setVisibility(View.VISIBLE);
+			getLastView().findViewById(R.id.bus_lines).setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -84,17 +114,19 @@ public class BusTabLinesGridFragment extends Fragment {
 		new AsyncTask<Void, Void, List<BusLine>>() {
 			@Override
 			protected List<BusLine> doInBackground(Void... params) {
-				return StmManager.findAllBusLinesList(getActivity().getContentResolver());
+				return StmManager.findAllBusLinesList(getLastActivity().getContentResolver());
 			}
 
 			@Override
 			protected void onPostExecute(List<BusLine> result) {
 				BusTabLinesGridFragment.this.busLines = result;
-				if (BusTabLinesGridFragment.this.getView() == null) { // should never happen
+				View view = BusTabLinesGridFragment.this.getLastView();
+				if (view == null) { // should never happen
 					Utils.sleep(1); // wait 1 second and retry
+					view = BusTabLinesGridFragment.this.getLastView();
 				}
-				GridView busLinesGrid = (GridView) BusTabLinesGridFragment.this.getView().findViewById(R.id.bus_lines);
-				busLinesGrid.setAdapter(new BusLineArrayAdapter(BusTabLinesGridFragment.this.getActivity(), R.layout.bus_tab_bus_lines_grid_item));
+				GridView busLinesGrid = (GridView) view.findViewById(R.id.bus_lines);
+				busLinesGrid.setAdapter(new BusLineArrayAdapter(BusTabLinesGridFragment.this.getLastActivity(), R.layout.bus_tab_bus_lines_grid_item));
 				busLinesGrid.setOnItemClickListener(new OnItemClickListener() {
 					@Override
 					public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -102,8 +134,8 @@ public class BusTabLinesGridFragment extends Fragment {
 						if (BusTabLinesGridFragment.this.busLines != null && position < BusTabLinesGridFragment.this.busLines.size()
 								&& BusTabLinesGridFragment.this.busLines.get(position) != null) {
 							BusLine selectedLine = BusTabLinesGridFragment.this.busLines.get(position);
-							Intent intent = new Intent(BusTabLinesGridFragment.this.getActivity(), SupportFactory.getInstance(
-									BusTabLinesGridFragment.this.getActivity()).getBusLineInfoClass());
+							Intent intent = new Intent(BusTabLinesGridFragment.this.getLastActivity(), SupportFactory.getInstance(
+									BusTabLinesGridFragment.this.getLastActivity()).getBusLineInfoClass());
 							intent.putExtra(BusLineInfo.EXTRA_LINE_NUMBER, selectedLine.getNumber());
 							intent.putExtra(BusLineInfo.EXTRA_LINE_NAME, selectedLine.getName());
 							intent.putExtra(BusLineInfo.EXTRA_LINE_TYPE, selectedLine.getType());
@@ -118,7 +150,7 @@ public class BusTabLinesGridFragment extends Fragment {
 						if (BusTabLinesGridFragment.this.busLines != null && position < BusTabLinesGridFragment.this.busLines.size()
 								&& BusTabLinesGridFragment.this.busLines.get(position) != null) {
 							BusLine selectedLine = BusTabLinesGridFragment.this.busLines.get(position);
-							new BusLineSelectDirection(BusTabLinesGridFragment.this.getActivity(), selectedLine.getNumber(), selectedLine.getName(),
+							new BusLineSelectDirection(BusTabLinesGridFragment.this.getLastActivity(), selectedLine.getNumber(), selectedLine.getName(),
 									selectedLine.getType()).showDialog();
 							return true;
 						}
@@ -126,7 +158,7 @@ public class BusTabLinesGridFragment extends Fragment {
 					}
 				});
 				busLinesGrid.setVisibility(View.VISIBLE);
-				BusTabLinesGridFragment.this.getView().findViewById(R.id.bus_lines_loading).setVisibility(View.GONE);
+				view.findViewById(R.id.bus_lines_loading).setVisibility(View.GONE);
 			}
 
 		}.execute();
@@ -188,13 +220,6 @@ public class BusTabLinesGridFragment extends Fragment {
 			}
 			return convertView;
 		}
-	}
-
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		MyLog.v(TAG, "onActivityCreated()");
-		super.onActivityCreated(savedInstanceState);
-		showAll();
 	}
 
 	@Override

@@ -186,7 +186,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 				Fragment f = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.viewpager + ":" + i);
 				if (f != null) {
 					BusLineDirectionFragment df = (BusLineDirectionFragment) f;
-					df.onResumeWithFocus();
+					df.onResumeWithFocus(this);
 				}
 			}
 		}
@@ -454,7 +454,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 				Fragment f = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.viewpager + ":" + i);
 				if (f != null) {
 					BusLineDirectionFragment df = (BusLineDirectionFragment) f;
-					df.updateDistancesWithNewLocation();
+					df.updateDistancesWithNewLocation(this);
 				}
 			}
 		}

@@ -23,6 +23,7 @@ import org.montrealtransit.android.provider.StmStore.BusStop;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -92,7 +93,7 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 	/**
 	 * The scroll state of the list.
 	 */
-	private int scrollState = SCROLL_STATE_IDLE;
+	private int scrollState = OnScrollListener.SCROLL_STATE_IDLE;
 
 	/**
 	 * @param busLineNumber bus line number
@@ -115,6 +116,17 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 	public void onAttach(Activity activity) {
 		MyLog.v(TAG, "onAttach()");
 		super.onAttach(activity);
+		this.lastActivity = activity;
+	}
+
+	private Activity lastActivity;
+
+	private Activity getLastActivity() {
+		FragmentActivity newActivity = getActivity();
+		if (newActivity != null) {
+			this.lastActivity = newActivity;
+		}
+		return this.lastActivity;
 	}
 
 	@Override
@@ -128,13 +140,28 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 		MyLog.v(TAG, "onCreateView()");
 		View v = inflater.inflate(R.layout.bus_line_info_stops_list, container, false);
 		setupList((ListView) v.findViewById(R.id.list), v.findViewById(R.id.list_empty));
+		this.lastView = v;
 		return v;
+	}
+
+	private View lastView;
+
+	private View getLastView() {
+		View newView = getView();
+		if (newView != null) {
+			this.lastView = newView;
+		}
+		return this.lastView;
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onActivityCreated()");
 		super.onActivityCreated(savedInstanceState);
+		showAll();
+	}
+
+	private void showAll() {
 		String lineNumber = getArguments().getString(BusLineInfo.EXTRA_LINE_NUMBER);
 		String lineDirectionId = getArguments().getString(BusLineInfo.EXTRA_LINE_DIRECTION_ID);
 		this.busLineNumber = lineNumber;
@@ -168,13 +195,13 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 						&& !TextUtils.isEmpty(BusLineDirectionFragment.this.busStops.get(position).getCode())) {
 					// IF last bus stop, show descent only
 					if (position + 1 == BusLineDirectionFragment.this.busStops.size()) {
-						Toast toast = Toast.makeText(BusLineDirectionFragment.this.getActivity(), R.string.bus_stop_descent_only, Toast.LENGTH_SHORT);
+						Toast toast = Toast.makeText(BusLineDirectionFragment.this.getLastActivity(), R.string.bus_stop_descent_only, Toast.LENGTH_SHORT);
 						// toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
 						toast.show();
 						return;
 					}
 					ABusStop selectedBusStop = BusLineDirectionFragment.this.busStops.get(position);
-					Intent intent = new Intent(BusLineDirectionFragment.this.getActivity(), BusStopInfo.class);
+					Intent intent = new Intent(BusLineDirectionFragment.this.getLastActivity(), BusStopInfo.class);
 					intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, selectedBusStop.getCode());
 					intent.putExtra(BusStopInfo.EXTRA_STOP_PLACE, selectedBusStop.getPlace());
 					intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, BusLineDirectionFragment.this.busLineNumber);
@@ -194,10 +221,10 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 		super.onResume();
 	}
 
-	public void onResumeWithFocus() {
+	public void onResumeWithFocus(BusLineInfo activity) {
 		MyLog.v(TAG, "onResumeWithFocus()");
-		updateDistancesWithNewLocation();
-		refreshFavoriteStopCodesFromDB();
+		updateDistancesWithNewLocation(activity);
+		refreshFavoriteStopCodesFromDB(activity.getContentResolver());
 	}
 
 	@Override
@@ -231,7 +258,7 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 		new AsyncTask<Void, Void, ABusStop[]>() {
 			@Override
 			protected ABusStop[] doInBackground(Void... params) {
-				List<BusStop> busStopList = StmManager.findBusLineStopsList(BusLineDirectionFragment.this.getActivity().getContentResolver(),
+				List<BusStop> busStopList = StmManager.findBusLineStopsList(BusLineDirectionFragment.this.getLastActivity().getContentResolver(),
 						BusLineDirectionFragment.this.busLineNumber, BusLineDirectionFragment.this.busLineDirectionId);
 				// creating the list of the subways stations object
 				ABusStop[] busStops = new ABusStop[busStopList.size()];
@@ -256,15 +283,17 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 
 			@Override
 			protected void onPostExecute(ABusStop[] result) {
+				BusLineInfo activity = BusLineDirectionFragment.this.getBusLineInfoActivity();
+				View view = BusLineDirectionFragment.this.getLastView();
+				if (activity == null || view == null) {
+					return; // too late, the parent activity is gone
+				}
 				BusLineDirectionFragment.this.busStops = Arrays.asList(result);
 				generateOrderedStopCodes();
-				refreshFavoriteStopCodesFromDB();
-				BusLineDirectionFragment.this.adapter = new ArrayAdapterWithCustomView(BusLineDirectionFragment.this.getActivity(),
-						R.layout.bus_line_info_stops_list_item);
-				if (BusLineDirectionFragment.this.getView() != null) { // TODO should never be null (?)
-					((ListView) BusLineDirectionFragment.this.getView().findViewById(R.id.list)).setAdapter(BusLineDirectionFragment.this.adapter);
-				}
-				updateDistancesWithNewLocation(); // force update all bus stops with location
+				refreshFavoriteStopCodesFromDB(activity.getContentResolver());
+				BusLineDirectionFragment.this.adapter = new ArrayAdapterWithCustomView(activity, R.layout.bus_line_info_stops_list_item);
+				((ListView) view.findViewById(R.id.list)).setAdapter(BusLineDirectionFragment.this.adapter);
+				updateDistancesWithNewLocation(activity); // force update all bus stops with location
 			};
 
 		}.execute();
@@ -273,18 +302,18 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 	/**
 	 * Update the distances with the latest device location.
 	 */
-	protected void updateDistancesWithNewLocation() {
+	protected void updateDistancesWithNewLocation(BusLineInfo activity) {
 		// MyLog.v(TAG, "updateDistancesWithNewLocation()");
-		if (this.busStops == null || getBusLineInfoActivity() == null) {
+		// BusLineInfo activity = getBusLineInfoActivity();
+		if (this.busStops == null || activity == null) {
 			return;
 		}
-		Location currentLocation = getBusLineInfoActivity().getLocation();
+		Location currentLocation = activity.getLocation();
 		if (currentLocation != null) {
 			float accuracyInMeters = currentLocation.getAccuracy();
-			boolean isDetailed = UserPreferences.getPrefDefault(this.getActivity(), UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT)
-					.equals(UserPreferences.PREFS_DISTANCE_DETAILED);
-			String distanceUnit = UserPreferences.getPrefDefault(this.getActivity(), UserPreferences.PREFS_DISTANCE_UNIT,
-					UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
+			boolean isDetailed = UserPreferences.getPrefDefault(activity, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
+					UserPreferences.PREFS_DISTANCE_DETAILED);
+			String distanceUnit = UserPreferences.getPrefDefault(activity, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
 			for (ABusStop busStop : this.busStops) {
 				// IF the bus stop location is known DO
 				busStop.setDistance(currentLocation.distanceTo(busStop.getLocation()));
@@ -297,10 +326,10 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 	}
 
 	/**
-	 * @return see {@link #getActivity()}
+	 * @return see {@link #getLastActivity()}
 	 */
 	private BusLineInfo getBusLineInfoActivity() {
-		return (BusLineInfo) getActivity();
+		return (BusLineInfo) getLastActivity();
 	}
 
 	/**
@@ -310,8 +339,8 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 	protected boolean showClosestStop() {
 		MyLog.v(TAG, "showClosestStop()");
 		if (!TextUtils.isEmpty(this.closestStopCode)) {
-			Toast.makeText(this.getActivity(), R.string.shake_closest_bus_line_stop_selected, Toast.LENGTH_SHORT).show();
-			Intent intent = new Intent(this.getActivity(), BusStopInfo.class);
+			Toast.makeText(getLastActivity(), R.string.shake_closest_bus_line_stop_selected, Toast.LENGTH_SHORT).show();
+			Intent intent = new Intent(getLastActivity(), BusStopInfo.class);
 			intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, this.closestStopCode);
 			intent.putExtra(BusStopInfo.EXTRA_STOP_PLACE, findStopPlace(this.closestStopCode));
 			intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, this.busLineNumber);
@@ -362,7 +391,7 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 					for (ABusStop busStop : this.busStops) {
 						busStop.getCompassMatrix().reset();
 						busStop.getCompassMatrix().postRotate(
-								SensorUtils.getCompassRotationInDegree(this.getActivity(), currentLocation, busStop.getLocation(), orientation,
+								SensorUtils.getCompassRotationInDegree(getLastActivity(), currentLocation, busStop.getLocation(), orientation,
 										getLocationDeclination()), getArrowDim().first / 2, getArrowDim().second / 2);
 					}
 					// update the view
@@ -386,7 +415,7 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 
 	public Pair<Integer, Integer> getArrowDim() {
 		if (this.arrowDim == null) {
-			this.arrowDim = SensorUtils.getResourceDimension(this.getActivity(), R.drawable.heading_arrow);
+			this.arrowDim = SensorUtils.getResourceDimension(getLastActivity(), R.drawable.heading_arrow);
 		}
 		return this.arrowDim;
 	}
@@ -420,18 +449,18 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 	/**
 	 * Find favorites bus stop codes.
 	 */
-	private void refreshFavoriteStopCodesFromDB() {
+	private void refreshFavoriteStopCodesFromDB(final ContentResolver contentResolver) {
 		MyLog.v(TAG, "refreshFavoriteStopCodesFromDB()");
 		new AsyncTask<Void, Void, List<Fav>>() {
 			@Override
 			protected List<Fav> doInBackground(Void... params) {
 				// TODO filter by fkid2 (bus line number)
-				FragmentActivity activity = getActivity();
-				if (activity == null) {
-					// MyLog.d(TAG, "refreshFavoriteStopCodesFromDB() > activity is null!");
-					return null;
-				}
-				return DataManager.findFavsByTypeList(activity.getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
+				// Activity activity = getLastActivity();
+				// if (activity == null) {
+				// // MyLog.d(TAG, "refreshFavoriteStopCodesFromDB() > activity is null!");
+				// return null;
+				// }
+				return DataManager.findFavsByTypeList(contentResolver, DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
 			}
 
 			@Override
@@ -479,7 +508,8 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 
 	@Override
 	public void onScrollStateChanged(AbsListView view, int scrollState) {
-		if (view == getView().findViewById(R.id.list)) {
+		View v = getLastView();
+		if (v != null && view == v.findViewById(R.id.list)) {
 			this.scrollState = scrollState;// == OnScrollListener.SCROLL_STATE_FLING);
 		}
 	}

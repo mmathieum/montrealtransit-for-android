@@ -280,6 +280,9 @@ public class LocationUtils {
 	public static String getLocationString(Context context, int stringId, Address locationAddress, Float accuracy) {
 		MyLog.v(TAG, "getLocationString()");
 		StringBuilder sb = new StringBuilder();
+		if (context == null) {
+			return sb.toString();
+		}
 		sb.append(context.getString(stringId));
 		if (locationAddress != null) {
 			sb.append(" (");

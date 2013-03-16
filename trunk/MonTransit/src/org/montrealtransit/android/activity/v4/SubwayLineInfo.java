@@ -228,7 +228,7 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 				Fragment f = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.viewpager + ":" + i);
 				if (f != null) {
 					SubwayLineDirectionFragment df = (SubwayLineDirectionFragment) f;
-					df.onResumeWithFocus();
+					df.onResumeWithFocus(this);
 				}
 			}
 		}
@@ -456,7 +456,7 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 				Fragment f = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.viewpager + ":" + i);
 				if (f != null) {
 					SubwayLineDirectionFragment df = (SubwayLineDirectionFragment) f;
-					df.updateDistancesWithNewLocation();
+					df.updateDistancesWithNewLocation(this);
 				}
 			}
 		}
