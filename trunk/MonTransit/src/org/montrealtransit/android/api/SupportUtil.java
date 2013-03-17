@@ -8,8 +8,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.view.Surface;
+import android.widget.SimpleCursorAdapter;
 
 /**
  * The methods that all platforms version need to implement.
@@ -121,4 +123,6 @@ public interface SupportUtil {
 	 * @return the bus tab class
 	 */
 	Class<?> getBusTabClass();
+
+	SimpleCursorAdapter newSimpleCursorAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags);
 }
