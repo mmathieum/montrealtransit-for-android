@@ -5,6 +5,7 @@ import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
+import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
 import org.montrealtransit.android.provider.StmStore.BusStop;
@@ -130,7 +131,7 @@ public class SearchResult extends ListActivity {
 		String[] from = new String[] { StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE, StmStore.BusStop.STOP_LINE_NUMBER, StmStore.BusStop.LINE_NAME,
 				StmStore.BusStop.STOP_DIRECTION_ID };
 		int[] to = new int[] { R.id.stop_code, R.id.label, R.id.line_number, R.id.line_name, R.id.line_direction };
-		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.search_result_bus_stop_item, cursor, from, to, 0);
+		SimpleCursorAdapter adapter = SupportFactory.getInstance(this).newSimpleCursorAdapter(this, R.layout.search_result_bus_stop_item, cursor, from, to, 0);
 		adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
 			@Override
 			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {

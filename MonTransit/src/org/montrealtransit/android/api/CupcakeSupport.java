@@ -8,7 +8,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.view.Surface;
+import android.widget.SimpleCursorAdapter;
 
 /**
  * Features available for Android 1.5 Cupcake (API Level 3) and higher.
@@ -131,5 +133,11 @@ public class CupcakeSupport implements SupportUtil {
 	@Override
 	public Class<?> getBusTabClass() {
 		return org.montrealtransit.android.activity.BusTab.class;
+	}
+
+	@SuppressWarnings("deprecation")
+	@Override
+	public SimpleCursorAdapter newSimpleCursorAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags) {
+		return new SimpleCursorAdapter(context, layout, c, from, to);
 	}
 }

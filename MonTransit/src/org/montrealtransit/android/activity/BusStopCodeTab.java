@@ -28,7 +28,6 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 /**
@@ -176,9 +175,9 @@ public class BusStopCodeTab extends Activity {
 				@Override
 				protected void onPostExecute(Cursor result) {
 					BusStopCodeTab.this.historyCursor = result;
-					((ListView) findViewById(R.id.list)).setAdapter(new SimpleCursorAdapter(BusStopCodeTab.this, android.R.layout.simple_list_item_1, BusStopCodeTab.this.historyCursor,
-							new String[] { DataStore.History.VALUE }, new int[] { android.R.id.text1 }, 0));
-
+					((ListView) findViewById(R.id.list)).setAdapter(SupportFactory.getInstance(BusStopCodeTab.this).newSimpleCursorAdapter(BusStopCodeTab.this,
+							android.R.layout.simple_list_item_1, BusStopCodeTab.this.historyCursor, new String[] { DataStore.History.VALUE },
+							new int[] { android.R.id.text1 }, 0));
 				}
 			}.execute();
 		}

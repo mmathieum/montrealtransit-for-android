@@ -2,9 +2,11 @@ package org.montrealtransit.android.api;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.database.Cursor;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
 import android.os.StrictMode.VmPolicy;
+import android.widget.SimpleCursorAdapter;
 
 /**
  * Features available for Android 3.0 Honeycomb (API Level 11) and higher.
@@ -28,5 +30,10 @@ public class HoneycombSupport extends GingerbreadSupport {
 		StrictMode.setThreadPolicy(threadPolicy);
 		VmPolicy vmPolicy = new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects().detectLeakedClosableObjects().penaltyLog().penaltyDeath().build();
 		StrictMode.setVmPolicy(vmPolicy);
+	}
+
+	@Override
+	public SimpleCursorAdapter newSimpleCursorAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags) {
+		return new SimpleCursorAdapter(context, layout, c, from, to, flags);
 	}
 }
