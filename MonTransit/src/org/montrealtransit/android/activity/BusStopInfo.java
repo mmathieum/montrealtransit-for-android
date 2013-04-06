@@ -618,7 +618,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		LinearLayout otherBusLinesLayout = (LinearLayout) findViewById(R.id.other_bus_line_list);
 		otherBusLinesLayout.removeAllViews();
 		if (this.otherBusStopLines.size() > 0) {
-			findViewById(R.id.other_bus_line).setVisibility(View.VISIBLE);
+			findViewById(R.id.other_bus_line_title).setVisibility(View.VISIBLE);
 			otherBusLinesLayout.setVisibility(View.VISIBLE);
 			for (StmStore.BusStop busStop : this.otherBusStopLines) {
 				// the view
@@ -651,7 +651,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 				otherBusLinesLayout.addView(view);
 			}
 		} else {
-			findViewById(R.id.other_bus_line).setVisibility(View.GONE);
+			findViewById(R.id.other_bus_line_title).setVisibility(View.GONE);
 			otherBusLinesLayout.setVisibility(View.GONE);
 		}
 	};
