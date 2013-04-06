@@ -238,7 +238,7 @@
                     android:visibility="gone" />
                 <!-- OTHER BUS LINEs -->
                 <RelativeLayout
-                    android:id="@+id/other_bus_line"
+                    android:id="@+id/other_bus_line_title"
                     android:layout_width="fill_parent"
                     android:layout_height="25dip"
                     android:background="@drawable/dark_header_dither"
