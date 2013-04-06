@@ -9370,3 +9370,8 @@ INSERT INTO "arrets_autobus_loc" VALUES('61269','de la Commune / McGill','45.498
 INSERT INTO "arrets_autobus_loc" VALUES('61270','de Granby / Stationnement centre du Domaine','45.580968','-73.543051');
 INSERT INTO "arrets_autobus_loc" VALUES('61272','Saint-Denis / Roy','45.519270','-73.572414');
 INSERT INTO "arrets_autobus_loc" VALUES('61273','Rolland-Jeanneau / 89e Avenue','45.655629','-73.535075');
+INSERT INTO "arrets_autobus_loc" VALUES('61280','Thimens / Samson','45.506001','-73.701831');
+INSERT INTO "arrets_autobus_loc" VALUES('61299','Saint-Hubert / Laurier','45.529022','-73.587641');
+INSERT INTO "arrets_autobus_loc" VALUES('61300','Saint-Grégoire / Christophe-Colomb','45.532199','-73.590516');
+INSERT INTO "arrets_autobus_loc" VALUES('61301','Saint-Hubert / Saint-Grégoire','45.530797','-73.591782');
+INSERT INTO "arrets_autobus_loc" VALUES('61302','Saint-Grégoire / Chambord','45.534681','-73.588183');

@@ -211,7 +211,7 @@ INSERT INTO "lignes_autobus" VALUES(491,'Express Lachine','E',' ');
 INSERT INTO "lignes_autobus" VALUES(495,'Express Lachine / Lasalle','E',' ');
 INSERT INTO "lignes_autobus" VALUES(496,'Express Victoria','E',' ');
 INSERT INTO "lignes_autobus" VALUES(715,'Vieux-Montréal / Vieux-Port','E',' ');
-INSERT INTO "lignes_autobus" VALUES(747,'Aéroport P-E-Trudeau/Centre-Ville','E',' ');
+INSERT INTO "lignes_autobus" VALUES(747,'Aéroport P-E-Trudeau/Centre-Ville','J',' ');
 INSERT INTO "lignes_autobus" VALUES(767,'La Ronde / La Plage','E',' ');
 INSERT INTO "lignes_autobus" VALUES(769,'La Ronde','E',' ');
 INSERT INTO "lignes_autobus" VALUES(777,'Le Casino','E',' ');
