@@ -116,7 +116,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 		super.onActivityCreated(savedInstanceState);
 		showAll();
 	}
-	
+
 	private void setupView(View v) {
 		v.findViewById(R.id.title_refresh).setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -125,7 +125,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 			}
 		});
 	}
-	
+
 	/**
 	 * The closest stops.
 	 */
@@ -355,8 +355,6 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 	 */
 	private void showNewClosestStops(View view, Context activity) {
 		MyLog.v(TAG, "showNewClosestStops()");
-//		View view = getLastView();
-//		Activity activity = getLastActivity();
 		if (this.closestStops != null && view != null && activity != null) {
 			// set the closest stop title
 			showNewClosestStopsTitle(view, activity);
@@ -526,8 +524,6 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 	private void setClosestStopsError(View view, Context activity) {
 		MyLog.v(TAG, "setClosestStopsError()");
 		// IF there are already stations DO
-//		View view = getLastView();
-//		Activity activity = getLastActivity();
 		if (this.closestStops != null) {
 			// notify the user but keep showing the old stations
 			Utils.notifyTheUser(activity, getString(R.string.closest_bus_stops_error));
