@@ -164,6 +164,10 @@ public class BusTabLinesGridFragment extends Fragment {
 		}.execute();
 	}
 
+	static class ViewHolder {
+		TextView lineNumberTv;
+	}
+
 	/**
 	 * A custom array adapter with custom {@link BusLineArrayAdapter#getView(int, View, ViewGroup)}
 	 */
@@ -207,16 +211,21 @@ public class BusTabLinesGridFragment extends Fragment {
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			// MyLog.v(TAG, "getView(%s)", position);
+			ViewHolder holder;
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(this.viewId, parent, false);
+				holder = new ViewHolder();
+				holder.lineNumberTv = (TextView) convertView.findViewById(R.id.line_number);
+				convertView.setTag(holder);
+			} else {
+				holder = (ViewHolder) convertView.getTag();
 			}
 			BusLine busLine = getItem(position);
 			if (busLine != null) {
-				TextView lineNumberTv = (TextView) convertView.findViewById(R.id.line_number);
 				// bus line number
-				lineNumberTv.setText(busLine.getNumber());
+				holder.lineNumberTv.setText(busLine.getNumber());
 				// bus line color
-				lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColor(busLine.getType(), busLine.getNumber()));
+				holder.lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColor(busLine.getType(), busLine.getNumber()));
 			}
 			return convertView;
 		}

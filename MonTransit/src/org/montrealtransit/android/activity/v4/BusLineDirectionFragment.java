@@ -514,6 +514,16 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 		}
 	}
 
+	static class ViewHolder {
+		TextView stopCodeTv;
+		TextView placeTv;
+		TextView stationNameTv;
+		TextView distanceTv;
+		ImageView subwayImg;
+		ImageView favImg;
+		ImageView compassImg;
+	}
+
 	/**
 	 * A custom array adapter with custom {@link ArrayAdapterWithCustomView#getView(int, View, ViewGroup)}
 	 */
@@ -557,47 +567,55 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			// MyLog.v(TAG, "getView(%s)", position);
+			ViewHolder holder;
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(this.viewId, parent, false);
+				holder = new ViewHolder();
+				holder.stopCodeTv = (TextView) convertView.findViewById(R.id.stop_code);
+				holder.placeTv = (TextView) convertView.findViewById(R.id.place);
+				holder.stationNameTv = (TextView) convertView.findViewById(R.id.station_name);
+				holder.subwayImg = (ImageView) convertView.findViewById(R.id.subway_img);
+				holder.favImg = (ImageView) convertView.findViewById(R.id.fav_img);
+				holder.distanceTv = (TextView) convertView.findViewById(R.id.distance);
+				holder.compassImg = (ImageView) convertView.findViewById(R.id.compass);
+				convertView.setTag(holder);
+			} else {
+				holder = (ViewHolder) convertView.getTag();
 			}
 			ABusStop busStop = getItem(position);
 			if (busStop != null) {
 				// bus stop code
-				((TextView) convertView.findViewById(R.id.stop_code)).setText(busStop.getCode());
+				holder.stopCodeTv.setText(busStop.getCode());
 				// bus stop place
-				TextView placeTv = (TextView) convertView.findViewById(R.id.place);
-				placeTv.setText(busStop.getPlace());
+				holder.placeTv.setText(busStop.getPlace());
 				// bus stop subway station
-				TextView stationNameTv = (TextView) convertView.findViewById(R.id.station_name);
 				if (!TextUtils.isEmpty(busStop.getSubwayStationId()) && !TextUtils.isEmpty(busStop.getSubwayStationNameOrNull())) {
-					convertView.findViewById(R.id.subway_img).setVisibility(View.VISIBLE);
-					stationNameTv.setText(busStop.getSubwayStationNameOrNull());
-					stationNameTv.setVisibility(View.VISIBLE);
+					holder.subwayImg.setVisibility(View.VISIBLE);
+					holder.stationNameTv.setText(busStop.getSubwayStationNameOrNull());
+					holder.stationNameTv.setVisibility(View.VISIBLE);
 				} else {
-					convertView.findViewById(R.id.subway_img).setVisibility(View.GONE);
-					stationNameTv.setVisibility(View.GONE);
+					holder.subwayImg.setVisibility(View.GONE);
+					holder.stationNameTv.setVisibility(View.GONE);
 				}
 				// favorite
 				if (BusLineDirectionFragment.this.favStopCodes != null && BusLineDirectionFragment.this.favStopCodes.contains(busStop.getCode())) {
-					convertView.findViewById(R.id.fav_img).setVisibility(View.VISIBLE);
+					holder.favImg.setVisibility(View.VISIBLE);
 				} else {
-					convertView.findViewById(R.id.fav_img).setVisibility(View.GONE);
+					holder.favImg.setVisibility(View.GONE);
 				}
 				// bus stop distance
-				TextView distanceTv = (TextView) convertView.findViewById(R.id.distance);
 				if (!TextUtils.isEmpty(busStop.getDistanceString())) {
-					distanceTv.setText(busStop.getDistanceString());
-					distanceTv.setVisibility(View.VISIBLE);
+					holder.distanceTv.setText(busStop.getDistanceString());
+					holder.distanceTv.setVisibility(View.VISIBLE);
 				} else {
-					distanceTv.setVisibility(View.GONE);
+					holder.distanceTv.setVisibility(View.GONE);
 				}
 				// bus stop compass
-				ImageView compassTv = (ImageView) convertView.findViewById(R.id.compass);
 				if (busStop.getCompassMatrixOrNull() != null) {
-					compassTv.setImageMatrix(busStop.getCompassMatrix());
-					compassTv.setVisibility(View.VISIBLE);
+					holder.compassImg.setImageMatrix(busStop.getCompassMatrix());
+					holder.compassImg.setVisibility(View.VISIBLE);
 				} else {
-					compassTv.setVisibility(View.GONE);
+					holder.compassImg.setVisibility(View.GONE);
 				}
 				// set style for closest bus stop
 				int index = -1;
@@ -606,14 +624,14 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 				}
 				switch (index) {
 				case 0:
-					placeTv.setTypeface(Typeface.DEFAULT_BOLD);
-					distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
-					distanceTv.setTextColor(Utils.getTextColorPrimary(getContext()));
+					holder.placeTv.setTypeface(Typeface.DEFAULT_BOLD);
+					holder.distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
+					holder.distanceTv.setTextColor(Utils.getTextColorPrimary(getContext()));
 					break;
 				default:
-					placeTv.setTypeface(Typeface.DEFAULT);
-					distanceTv.setTypeface(Typeface.DEFAULT);
-					distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
+					holder.placeTv.setTypeface(Typeface.DEFAULT);
+					holder.distanceTv.setTypeface(Typeface.DEFAULT);
+					holder.distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
 					break;
 				}
 			}

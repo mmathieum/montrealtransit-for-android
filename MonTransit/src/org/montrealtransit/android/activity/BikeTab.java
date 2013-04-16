@@ -522,6 +522,15 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 		}
 	}
 
+	static class ViewHolder {
+		TextView placeTv;
+		TextView stationNameTv;
+		TextView distanceTv;
+		ImageView subwayImg;
+		ImageView favImg;
+		ImageView compassImg;
+	}
+
 	/**
 	 * A custom array adapter with custom {@link ArrayAdapterWithCustomView#getView(int, View, ViewGroup)}
 	 */
@@ -565,41 +574,50 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			// MyLog.v(TAG, "getView(%s)", position);
+			ViewHolder holder;
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(this.viewId, parent, false);
+				holder = new ViewHolder();
+				holder.placeTv = (TextView) convertView.findViewById(R.id.place);
+				holder.stationNameTv = (TextView) convertView.findViewById(R.id.station_name);
+				holder.subwayImg = (ImageView) convertView.findViewById(R.id.subway_img);
+				holder.favImg = (ImageView) convertView.findViewById(R.id.fav_img);
+				holder.distanceTv = (TextView) convertView.findViewById(R.id.distance);
+				holder.compassImg = (ImageView) convertView.findViewById(R.id.compass);
+				convertView.setTag(holder);
+			} else {
+				holder = (ViewHolder) convertView.getTag();
 			}
 			ABikeStation bikeStation = getItem(position);
 			if (bikeStation != null) {
 				// bike station name
-				((TextView) convertView.findViewById(R.id.station_name)).setText(Utils.cleanBikeStationName(bikeStation.getName()));
+				holder.stationNameTv.setText(Utils.cleanBikeStationName(bikeStation.getName()));
 				// favorite
 				if (BikeTab.this.favTerminalNames != null && BikeTab.this.favTerminalNames.contains(bikeStation.getTerminalName())) {
-					convertView.findViewById(R.id.fav_img).setVisibility(View.VISIBLE);
+					holder.favImg.setVisibility(View.VISIBLE);
 				} else {
-					convertView.findViewById(R.id.fav_img).setVisibility(View.GONE);
+					holder.favImg.setVisibility(View.GONE);
 				}
 				// status (not installed, locked..)
 				if (!bikeStation.isInstalled() || bikeStation.isLocked()) {
-					((TextView) convertView.findViewById(R.id.station_name)).setTextColor(Utils.getTextColorSecondary(getContext()));
+					holder.stationNameTv.setTextColor(Utils.getTextColorSecondary(getContext()));
 				} else {
-					((TextView) convertView.findViewById(R.id.station_name)).setTextColor(Utils.getTextColorPrimary(getContext()));
+					holder.stationNameTv.setTextColor(Utils.getTextColorPrimary(getContext()));
 				}
 				// distance
-				TextView distanceTv = (TextView) convertView.findViewById(R.id.distance);
 				if (!TextUtils.isEmpty(bikeStation.getDistanceString())) {
-					distanceTv.setText(bikeStation.getDistanceString());
-					distanceTv.setVisibility(View.VISIBLE);
+					holder.distanceTv.setText(bikeStation.getDistanceString());
+					holder.distanceTv.setVisibility(View.VISIBLE);
 				} else {
-					distanceTv.setVisibility(View.GONE);
-					distanceTv.setText(null);
+					holder.distanceTv.setVisibility(View.GONE);
+					holder.distanceTv.setText(null);
 				}
 				// compass
-				ImageView compassImg = (ImageView) convertView.findViewById(R.id.compass);
 				if (bikeStation.getCompassMatrixOrNull() != null) {
-					compassImg.setImageMatrix(bikeStation.getCompassMatrix());
-					compassImg.setVisibility(View.VISIBLE);
+					holder.compassImg.setImageMatrix(bikeStation.getCompassMatrix());
+					holder.compassImg.setVisibility(View.VISIBLE);
 				} else {
-					compassImg.setVisibility(View.GONE);
+					holder.compassImg.setVisibility(View.GONE);
 				}
 				// closest bike station
 				int index = -1;
@@ -608,14 +626,14 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 				}
 				switch (index) {
 				case 0:
-					((TextView) convertView.findViewById(R.id.station_name)).setTypeface(Typeface.DEFAULT_BOLD);
-					distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
-					distanceTv.setTextColor(Utils.getTextColorPrimary(getContext()));
+					holder.stationNameTv.setTypeface(Typeface.DEFAULT_BOLD);
+					holder.distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
+					holder.distanceTv.setTextColor(Utils.getTextColorPrimary(getContext()));
 					break;
 				default:
-					((TextView) convertView.findViewById(R.id.station_name)).setTypeface(Typeface.DEFAULT);
-					distanceTv.setTypeface(Typeface.DEFAULT);
-					distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
+					holder.stationNameTv.setTypeface(Typeface.DEFAULT);
+					holder.distanceTv.setTypeface(Typeface.DEFAULT);
+					holder.distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
 					break;
 				}
 			}

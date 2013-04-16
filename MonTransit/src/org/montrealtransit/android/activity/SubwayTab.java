@@ -819,6 +819,17 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		}
 	}
 
+	static class ViewHolder {
+		TextView placeTv;
+		TextView stationNameTv;
+		TextView distanceTv;
+		ImageView subwayImg1;
+		ImageView subwayImg2;
+		ImageView subwayImg3;
+		ImageView favImg;
+		ImageView compassImg;
+	}
+
 	/**
 	 * A custom array adapter with custom {@link ArrayAdapterWithCustomView#getView(int, View, ViewGroup)}
 	 */
@@ -863,64 +874,71 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			// MyLog.v(TAG, "getView(%s)", position);
+			ViewHolder holder;
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(this.viewId, parent, false);
+				holder = new ViewHolder();
+				holder.placeTv = (TextView) convertView.findViewById(R.id.place);
+				holder.stationNameTv = (TextView) convertView.findViewById(R.id.station_name);
+				holder.subwayImg1 = (ImageView) convertView.findViewById(R.id.subway_img_1);
+				holder.subwayImg2 = (ImageView) convertView.findViewById(R.id.subway_img_2);
+				holder.subwayImg3 = (ImageView) convertView.findViewById(R.id.subway_img_3);
+				holder.favImg = (ImageView) convertView.findViewById(R.id.fav_img);
+				holder.distanceTv = (TextView) convertView.findViewById(R.id.distance);
+				holder.compassImg = (ImageView) convertView.findViewById(R.id.compass);
+				convertView.setTag(holder);
+			} else {
+				holder = (ViewHolder) convertView.getTag();
 			}
 			ASubwayStation station = getItem(position);
 			if (station != null) {
 				// subway station name
-				final TextView nameTv = (TextView) convertView.findViewById(R.id.station_name);
-				nameTv.setText(station.getName());
-				ImageView subwayImg1 = (ImageView) convertView.findViewById(R.id.subway_img_1);
-				ImageView subwayImg2 = (ImageView) convertView.findViewById(R.id.subway_img_2);
-				ImageView subwayImg3 = (ImageView) convertView.findViewById(R.id.subway_img_3);
+				holder.stationNameTv.setText(station.getName());
 				// station lines color
 				if (station.getOtherLinesId() != null && station.getOtherLinesId().size() > 0) {
 					int subwayLineImg1 = SubwayUtils.getSubwayLineImgId(station.getOtherLinesId().get(0));
-					subwayImg1.setVisibility(View.VISIBLE);
-					subwayImg1.setImageResource(subwayLineImg1);
+					holder.subwayImg1.setVisibility(View.VISIBLE);
+					holder.subwayImg1.setImageResource(subwayLineImg1);
 					if (station.getOtherLinesId().size() > 1) {
 						int subwayLineImg2 = SubwayUtils.getSubwayLineImgId(station.getOtherLinesId().get(1));
-						subwayImg2.setVisibility(View.VISIBLE);
-						subwayImg2.setImageResource(subwayLineImg2);
+						holder.subwayImg2.setVisibility(View.VISIBLE);
+						holder.subwayImg2.setImageResource(subwayLineImg2);
 						if (station.getOtherLinesId().size() > 2) {
 							int subwayLineImg3 = SubwayUtils.getSubwayLineImgId(station.getOtherLinesId().get(2));
-							subwayImg3.setVisibility(View.VISIBLE);
-							subwayImg3.setImageResource(subwayLineImg3);
+							holder.subwayImg3.setVisibility(View.VISIBLE);
+							holder.subwayImg3.setImageResource(subwayLineImg3);
 						} else {
-							subwayImg3.setVisibility(View.GONE);
+							holder.subwayImg3.setVisibility(View.GONE);
 						}
 					} else {
-						subwayImg2.setVisibility(View.GONE);
-						subwayImg3.setVisibility(View.GONE);
+						holder.subwayImg2.setVisibility(View.GONE);
+						holder.subwayImg3.setVisibility(View.GONE);
 					}
 				} else {
-					subwayImg1.setVisibility(View.GONE);
-					subwayImg2.setVisibility(View.GONE);
-					subwayImg3.setVisibility(View.GONE);
+					holder.subwayImg1.setVisibility(View.GONE);
+					holder.subwayImg2.setVisibility(View.GONE);
+					holder.subwayImg3.setVisibility(View.GONE);
 				}
 				// distance
-				TextView distanceTv = (TextView) convertView.findViewById(R.id.distance);
 				if (!TextUtils.isEmpty(station.getDistanceString())) {
-					distanceTv.setText(station.getDistanceString());
-					distanceTv.setVisibility(View.VISIBLE);
+					holder.distanceTv.setText(station.getDistanceString());
+					holder.distanceTv.setVisibility(View.VISIBLE);
 				} else {
-					distanceTv.setVisibility(View.GONE);
-					distanceTv.setText(null);
+					holder.distanceTv.setVisibility(View.GONE);
+					holder.distanceTv.setText(null);
 				}
 				// compass
-				ImageView compassImg = (ImageView) convertView.findViewById(R.id.compass);
 				if (station.getCompassMatrixOrNull() != null) {
-					compassImg.setImageMatrix(station.getCompassMatrix());
-					compassImg.setVisibility(View.VISIBLE);
+					holder.compassImg.setImageMatrix(station.getCompassMatrix());
+					holder.compassImg.setVisibility(View.VISIBLE);
 				} else {
-					compassImg.setVisibility(View.GONE);
+					holder.compassImg.setVisibility(View.GONE);
 				}
 				// favorite
 				if (SubwayTab.this.favStationIds != null && SubwayTab.this.favStationIds.contains(station.getId())) {
-					convertView.findViewById(R.id.fav_img).setVisibility(View.VISIBLE);
+					holder.favImg.setVisibility(View.VISIBLE);
 				} else {
-					convertView.findViewById(R.id.fav_img).setVisibility(View.GONE);
+					holder.favImg.setVisibility(View.GONE);
 				}
 				// closest bike station
 				int index = -1;
@@ -929,14 +947,14 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 				}
 				switch (index) {
 				case 0:
-					nameTv.setTypeface(Typeface.DEFAULT_BOLD);
-					distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
-					distanceTv.setTextColor(Utils.getTextColorPrimary(getContext()));
+					holder.stationNameTv.setTypeface(Typeface.DEFAULT_BOLD);
+					holder.distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
+					holder.distanceTv.setTextColor(Utils.getTextColorPrimary(getContext()));
 					break;
 				default:
-					nameTv.setTypeface(Typeface.DEFAULT);
-					distanceTv.setTypeface(Typeface.DEFAULT);
-					distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
+					holder.stationNameTv.setTypeface(Typeface.DEFAULT);
+					holder.distanceTv.setTypeface(Typeface.DEFAULT);
+					holder.distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
 					break;
 				}
 			}
