@@ -644,6 +644,17 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		this.closestStationId = orderedStations.get(0).getId();
 	}
 
+	static class ViewHolder {
+		TextView placeTv;
+		TextView stationNameTv;
+		TextView distanceTv;
+		ImageView subwayImg1;
+		ImageView subwayImg2;
+		ImageView subwayImg3;
+		ImageView favImg;
+		ImageView compassImg;
+	}
+
 	/**
 	 * A custom array adapter with custom {@link ArrayAdapterWithCustomView#getView(int, View, ViewGroup)}
 	 */
@@ -687,17 +698,26 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			// MyLog.v(TAG, "getView(" + position + ")");
-			View view;
+			ViewHolder holder;
 			if (convertView == null) {
-				view = this.layoutInflater.inflate(viewId, parent, false);
+				convertView = this.layoutInflater.inflate(viewId, parent, false);
+				holder = new ViewHolder();
+				holder.placeTv = (TextView) convertView.findViewById(R.id.place);
+				holder.stationNameTv = (TextView) convertView.findViewById(R.id.station_name);
+				holder.subwayImg1 = (ImageView) convertView.findViewById(R.id.subway_img_1);
+				holder.subwayImg2 = (ImageView) convertView.findViewById(R.id.subway_img_2);
+				holder.subwayImg3 = (ImageView) convertView.findViewById(R.id.subway_img_3);
+				holder.favImg = (ImageView) convertView.findViewById(R.id.fav_img);
+				holder.distanceTv = (TextView) convertView.findViewById(R.id.distance);
+				holder.compassImg = (ImageView) convertView.findViewById(R.id.compass);
+				convertView.setTag(holder);
 			} else {
-				view = convertView;
+				holder = (ViewHolder) convertView.getTag();
 			}
 			ASubwayStation station = getItem(position);
 			if (station != null) {
 				// station name
-				final TextView nameTv = (TextView) view.findViewById(R.id.station_name);
-				nameTv.setText(station.getName());
+				holder.stationNameTv.setText(station.getName());
 				// station lines color
 				List<Integer> otherLines = station.getOtherLinesId();
 				// 1 - find the station line image
@@ -712,57 +732,55 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 				// 2 - set the images to the right image view
 				// color 1 (on the right, closer to the text)
 				if (otherLines.size() == 0) {
-					((ImageView) view.findViewById(R.id.subway_img_1)).setImageResource(subwayLineImgId);
+					holder.subwayImg1.setImageResource(subwayLineImgId);
 				} else {
 					int lastIndex = otherLines.size() - 1;
 					int otherLineImg = SubwayUtils.getSubwayLineImgListId(otherLines.get(lastIndex));
-					((ImageView) view.findViewById(R.id.subway_img_1)).setImageResource(otherLineImg);
+					holder.subwayImg1.setImageResource(otherLineImg);
 				}
 				// color 2 (on the middle)
 				if (otherLines.size() < 1) {
-					view.findViewById(R.id.subway_img_2).setVisibility(View.GONE);
+					holder.subwayImg2.setVisibility(View.GONE);
 				} else {
-					view.findViewById(R.id.subway_img_2).setVisibility(View.VISIBLE);
+					holder.subwayImg2.setVisibility(View.VISIBLE);
 					if (otherLines.size() == 1) {
-						((ImageView) view.findViewById(R.id.subway_img_2)).setImageResource(subwayLineImgId);
+						holder.subwayImg2.setImageResource(subwayLineImgId);
 					} else {
 						int otherLineImg = SubwayUtils.getSubwayLineImgListId(otherLines.get(0));
-						((ImageView) view.findViewById(R.id.subway_img_2)).setImageResource(otherLineImg);
+						holder.subwayImg2.setImageResource(otherLineImg);
 					}
 				}
 				// color 3 (on the left, closer to the border)
 				if (otherLines.size() < 2) {
-					view.findViewById(R.id.subway_img_3).setVisibility(View.GONE);
+					holder.subwayImg3.setVisibility(View.GONE);
 				} else {
-					view.findViewById(R.id.subway_img_3).setVisibility(View.VISIBLE);
+					holder.subwayImg3.setVisibility(View.VISIBLE);
 					if (otherLines.size() == 2) {
-						((ImageView) view.findViewById(R.id.subway_img_3)).setImageResource(subwayLineImgId);
+						holder.subwayImg3.setImageResource(subwayLineImgId);
 					} else {
 						int otherLineImg = SubwayUtils.getSubwayLineImgListId(otherLines.get(1));
-						((ImageView) view.findViewById(R.id.subway_img_3)).setImageResource(otherLineImg);
+						holder.subwayImg3.setImageResource(otherLineImg);
 					}
 				}
 				// favorite
 				if (SubwayLineInfo.this.favStationsIds != null && SubwayLineInfo.this.favStationsIds.contains(station.getId())) {
-					view.findViewById(R.id.fav_img).setVisibility(View.VISIBLE);
+					holder.favImg.setVisibility(View.VISIBLE);
 				} else {
-					view.findViewById(R.id.fav_img).setVisibility(View.GONE);
+					holder.favImg.setVisibility(View.GONE);
 				}
 				// station distance
-				TextView distanceTv = (TextView) view.findViewById(R.id.distance);
 				if (!TextUtils.isEmpty(station.getDistanceString())) {
-					distanceTv.setText(station.getDistanceString());
-					distanceTv.setVisibility(View.VISIBLE);
+					holder.distanceTv.setText(station.getDistanceString());
+					holder.distanceTv.setVisibility(View.VISIBLE);
 				} else {
-					distanceTv.setVisibility(View.GONE);
+					holder.distanceTv.setVisibility(View.GONE);
 				}
 				// station compass
-				ImageView compassImg = (ImageView) view.findViewById(R.id.compass);
 				if (station.getCompassMatrixOrNull() != null) {
-					compassImg.setImageMatrix(station.getCompassMatrix());
-					compassImg.setVisibility(View.VISIBLE);
+					holder.compassImg.setImageMatrix(station.getCompassMatrix());
+					holder.compassImg.setVisibility(View.VISIBLE);
 				} else {
-					compassImg.setVisibility(View.GONE);
+					holder.compassImg.setVisibility(View.GONE);
 				}
 				// set style for closest subway station
 				int index = -1;
@@ -771,18 +789,18 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 				}
 				switch (index) {
 				case 0:
-					nameTv.setTypeface(Typeface.DEFAULT_BOLD);
-					distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
-					distanceTv.setTextColor(Utils.getTextColorPrimary(getContext()));
+					holder.stationNameTv.setTypeface(Typeface.DEFAULT_BOLD);
+					holder.distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
+					holder.distanceTv.setTextColor(Utils.getTextColorPrimary(getContext()));
 					break;
 				default:
-					nameTv.setTypeface(Typeface.DEFAULT);
-					distanceTv.setTypeface(Typeface.DEFAULT);
-					distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
+					holder.stationNameTv.setTypeface(Typeface.DEFAULT);
+					holder.distanceTv.setTypeface(Typeface.DEFAULT);
+					holder.distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
 					break;
 				}
 			}
-			return view;
+			return convertView;
 		}
 	}
 

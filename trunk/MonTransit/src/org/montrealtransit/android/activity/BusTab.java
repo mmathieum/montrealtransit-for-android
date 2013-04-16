@@ -460,6 +460,16 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 		}
 	}
 
+	static class ViewHolder {
+		TextView stopCodeTv;
+		TextView labelTv;
+		TextView lineNumberTv;
+		TextView lineDirectionTv;
+		TextView distanceTv;
+		ImageView favImg;
+		ImageView compassImg;
+	}
+
 	/**
 	 * A custom array adapter with custom {@link BusStopArrayAdapter#getView(int, View, ViewGroup)}
 	 */
@@ -503,44 +513,53 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			// MyLog.v(TAG, "getView(%s)", position);
+			ViewHolder holder;
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(this.viewId, parent, false);
+				holder = new ViewHolder();
+				holder.stopCodeTv = (TextView) convertView.findViewById(R.id.stop_code);
+				holder.labelTv = (TextView) convertView.findViewById(R.id.label);
+				holder.lineNumberTv = (TextView) convertView.findViewById(R.id.line_number);
+				holder.lineDirectionTv = (TextView) convertView.findViewById(R.id.line_direction);
+				holder.favImg = (ImageView) convertView.findViewById(R.id.fav_img);
+				holder.distanceTv = (TextView) convertView.findViewById(R.id.distance);
+				holder.compassImg = (ImageView) convertView.findViewById(R.id.compass);
+				convertView.setTag(holder);
+			} else {
+				holder = (ViewHolder) convertView.getTag();
 			}
 			ABusStop stop = getItem(position);
 			if (stop != null) {
 				// bus stop code
-				((TextView) convertView.findViewById(R.id.stop_code)).setText(stop.getCode());
+				holder.stopCodeTv.setText(stop.getCode());
 				// bus stop place
-				((TextView) convertView.findViewById(R.id.label)).setText(BusUtils.cleanBusStopPlace(stop.getPlace()));
+				holder.labelTv.setText(BusUtils.cleanBusStopPlace(stop.getPlace()));
 				// bus stop line number
-				TextView lineNumberTv = (TextView) convertView.findViewById(R.id.line_number);
-				lineNumberTv.setText(stop.getLineNumber());
-				lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColor(stop.getLineTypeOrNull(), stop.getLineNumber()));
+				holder.lineNumberTv.setText(stop.getLineNumber());
+				holder.lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColor(stop.getLineTypeOrNull(), stop.getLineNumber()));
 				// bus stop line direction
 				int busLineDirection = BusUtils.getBusLineSimpleDirection(stop.getDirectionId());
-				((TextView) convertView.findViewById(R.id.line_direction)).setText(getString(busLineDirection).toUpperCase(Locale.getDefault()));
+				holder.lineDirectionTv.setText(getString(busLineDirection).toUpperCase(Locale.getDefault()));
 				// distance
-				TextView distanceTv = (TextView) convertView.findViewById(R.id.distance);
 				if (!TextUtils.isEmpty(stop.getDistanceString())) {
-					distanceTv.setText(stop.getDistanceString());
-					distanceTv.setVisibility(View.VISIBLE);
+					holder.distanceTv.setText(stop.getDistanceString());
+					holder.distanceTv.setVisibility(View.VISIBLE);
 				} else {
-					distanceTv.setVisibility(View.GONE);
-					distanceTv.setText(null);
+					holder.distanceTv.setVisibility(View.GONE);
+					holder.distanceTv.setText(null);
 				}
 				// compass
-				ImageView compassImg = (ImageView) convertView.findViewById(R.id.compass);
 				if (stop.getCompassMatrixOrNull() != null) {
-					compassImg.setImageMatrix(stop.getCompassMatrix());
-					compassImg.setVisibility(View.VISIBLE);
+					holder.compassImg.setImageMatrix(stop.getCompassMatrix());
+					holder.compassImg.setVisibility(View.VISIBLE);
 				} else {
-					compassImg.setVisibility(View.GONE);
+					holder.compassImg.setVisibility(View.GONE);
 				}
 				// favorite
 				if (BusTab.this.favUIDs != null && BusTab.this.favUIDs.contains(stop.getUID())) {
-					convertView.findViewById(R.id.fav_img).setVisibility(View.VISIBLE);
+					holder.favImg.setVisibility(View.VISIBLE);
 				} else {
-					convertView.findViewById(R.id.fav_img).setVisibility(View.GONE);
+					holder.favImg.setVisibility(View.GONE);
 				}
 				// // closest bike station
 				// int index = -1;
@@ -563,6 +582,8 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 			return convertView;
 		}
 	}
+	
+	
 
 	/**
 	 * A custom array adapter with custom {@link BusLineArrayAdapter#getView(int, View, ViewGroup)}
@@ -607,16 +628,21 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			// MyLog.v(TAG, "getView(%s)", position);
+			ViewHolder holder;
 			if (convertView == null) {
 				convertView = this.layoutInflater.inflate(this.viewId, parent, false);
+				holder = new ViewHolder();
+				holder.lineNumberTv = (TextView) convertView.findViewById(R.id.line_number);
+				convertView.setTag(holder);
+			} else {
+				holder = (ViewHolder) convertView.getTag();
 			}
 			BusLine busLine = getItem(position);
 			if (busLine != null) {
-				TextView lineNumberTv = (TextView) convertView.findViewById(R.id.line_number);
 				// bus line number
-				lineNumberTv.setText(busLine.getNumber());
+				holder.lineNumberTv.setText(busLine.getNumber());
 				// bus line color
-				lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColor(busLine.getType(), busLine.getNumber()));
+				holder.lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColor(busLine.getType(), busLine.getNumber()));
 			}
 			return convertView;
 		}
