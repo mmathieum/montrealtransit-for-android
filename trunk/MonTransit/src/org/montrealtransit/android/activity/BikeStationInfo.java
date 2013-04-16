@@ -643,16 +643,22 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 
 				@Override
 				protected BikeStation doInBackground(String... params) {
-					try {
-						return BixiManager.findBikeStation(getContentResolver(), params[0]);
-					} catch (Exception e) {
-						MyLog.d(TAG, "Error the 1st try... wait 3 seconds and retry", e);
-						try {
-							Thread.sleep(3 * 1000);
-						} catch (InterruptedException ie) {
-						}
-						return BixiManager.findBikeStation(getContentResolver(), params[0]);
-					}
+					BikeStation result = null;
+					boolean success = false;
+					do {
+    					try {
+    						result = BixiManager.findBikeStation(getContentResolver(), params[0]);
+    						success = true;
+    					} catch (Exception e) {
+    						success = false;
+    						MyLog.d(TAG, "Error... wait 3 seconds and retry", e);
+    						try {
+    							Thread.sleep(3 * 1000);
+    						} catch (InterruptedException ie) {
+    						}
+    					}
+					} while (!success);
+					return result;
 				}
 
 				@Override
@@ -878,9 +884,11 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 				// bikes #
 				bikeTv.setText(getResources().getQuantityString(R.plurals.bikes_nb, station.getNbBikes(), station.getNbBikes()));
 				bikeTv.setTypeface(station.getNbBikes() <= 0 ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
+				bikeTv.setVisibility(View.VISIBLE);
 				// dock #
 				dockTv.setText(getResources().getQuantityString(R.plurals.docks_nb, station.getNbEmptyDocks(), station.getNbEmptyDocks()));
 				dockTv.setTypeface(station.getNbEmptyDocks() <= 0 ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
+				dockTv.setVisibility(View.VISIBLE);
 			}
 			// progress bar
 			progressBar.setIndeterminate(false);
@@ -961,9 +969,11 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 				// bikes #
 				bikeTv.setText(getResources().getQuantityString(R.plurals.bikes_nb, this.bikeStation.getNbBikes(), this.bikeStation.getNbBikes()));
 				bikeTv.setTypeface(this.bikeStation.getNbBikes() <= 0 ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
+				bikeTv.setVisibility(View.VISIBLE);
 				// dock #
 				dockTv.setText(getResources().getQuantityString(R.plurals.docks_nb, this.bikeStation.getNbEmptyDocks(), this.bikeStation.getNbEmptyDocks()));
 				dockTv.setTypeface(this.bikeStation.getNbEmptyDocks() <= 0 ? Typeface.DEFAULT_BOLD : Typeface.DEFAULT);
+				dockTv.setVisibility(View.VISIBLE);
 			}
 			// progress bar
 			progressBar.setIndeterminate(false);
