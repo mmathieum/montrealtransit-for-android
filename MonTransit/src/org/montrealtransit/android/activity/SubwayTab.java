@@ -68,7 +68,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -418,7 +417,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 					final int lineNumber = subwayLine.getNumber();
 					// subway line colors
 					int color = SubwayUtils.getSubwayLineColor(lineNumber);
-					((RelativeLayout) view.findViewById(R.id.subway_img_bg)).setBackgroundColor(color);
+					view.findViewById(R.id.subway_img_bg).setBackgroundColor(color);
 
 					final String subwayLineNumberS = String.valueOf(lineNumber);
 					// add click listener
