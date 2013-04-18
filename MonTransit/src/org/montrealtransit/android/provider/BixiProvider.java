@@ -86,7 +86,7 @@ public class BixiProvider extends ContentProvider {
 	}
 
 	@Override
-	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+	public synchronized Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		MyLog.v(TAG, "query(%s, %s, %s, %s, %s)", uri.getPath(), Arrays.toString(projection), selection, Arrays.toString(selectionArgs), sortOrder);
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 		MyLog.i(TAG, "[%s]", uri);
@@ -163,7 +163,7 @@ public class BixiProvider extends ContentProvider {
 	}
 
 	@Override
-	public Uri insert(Uri uri, ContentValues values) {
+	public synchronized Uri insert(Uri uri, ContentValues values) {
 		MyLog.v(TAG, "insert(%s, %s)", uri, values.size());
 		SQLiteDatabase db = getDBHelper(getContext()).getWritableDatabase();
 		Uri insertUri = null;
@@ -187,7 +187,7 @@ public class BixiProvider extends ContentProvider {
 	}
 
 	@Override
-	public int bulkInsert(Uri uri, ContentValues[] values) {
+	public synchronized int bulkInsert(Uri uri, ContentValues[] values) {
 		MyLog.v(TAG, "bulkInsert(%s)", values.length);
 		int count = 0;
 		switch (URI_MATCHER.match(uri)) {
@@ -227,7 +227,7 @@ public class BixiProvider extends ContentProvider {
 	}
 
 	@Override
-	public int delete(Uri uri, String selection, String[] selectionArgs) {
+	public synchronized int delete(Uri uri, String selection, String[] selectionArgs) {
 		MyLog.v(TAG, "delete(%s, %s, %s)", uri.getPath(), selection, Arrays.toString(selectionArgs));
 		SQLiteDatabase db = getDBHelper(getContext()).getWritableDatabase();
 		int count = 0;
@@ -249,7 +249,7 @@ public class BixiProvider extends ContentProvider {
 	}
 
 	@Override
-	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+	public synchronized int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 		MyLog.v(TAG, "update(%s, %s, %s)", uri.getPath(), selection, Arrays.toString(selectionArgs));
 		SQLiteDatabase db = getDBHelper(getContext()).getWritableDatabase();
 		int count = 0;
