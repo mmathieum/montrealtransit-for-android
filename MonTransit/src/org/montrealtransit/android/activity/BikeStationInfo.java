@@ -524,6 +524,9 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		}
 		// load new closest stations data
 		Map<String, BikeStation> newStations = BixiManager.findBikeStationsMap(getContentResolver(), getTerminalNames(this.closestBikeStations));
+		if (newStations == null) {
+			return;
+		}
 		LinearLayout closestStationsLayout = (LinearLayout) findViewById(R.id.closest_stations);
 		int timestamp = UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, 0);
 		ListIterator<ABikeStation> it = this.closestBikeStations.listIterator();
