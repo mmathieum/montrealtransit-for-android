@@ -6,6 +6,7 @@
     android:clipChildren="false"
     android:focusable="true"
     android:paddingRight="5dip" >
+    <!-- BUS LINE -->
     <LinearLayout
         android:id="@+id/line"
         android:layout_width="wrap_content"
@@ -36,6 +37,32 @@
             android:textColor="#FFFFFF"
             android:textStyle="bold" />
     </LinearLayout>
+    <!-- DISTANCE -->
+    <TextView
+        android:id="@+id/distance"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentRight="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_centerVertical="true"
+        android:gravity="center_vertical"
+        android:paddingRight="5dip"
+        android:text="@string/ellipsis"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:visibility="gone" />
+    <!-- COMPASS -->
+    <ImageView
+        android:id="@+id/compass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+        android:layout_marginTop="3dp"
+        android:layout_toLeftOf="@id/distance"
+        android:scaleType="matrix"
+        android:src="@drawable/heading_arrow"
+        android:visibility="gone" />
     <!-- BUS STOP PLACE -->
     <TextView
         android:id="@+id/label"
@@ -43,6 +70,7 @@
         android:layout_height="wrap_content"
         android:layout_alignWithParentIfMissing="true"
         android:layout_marginTop="1dip"
+        android:layout_toLeftOf="@id/compass"
         android:layout_toRightOf="@+id/line"
         android:ellipsize="marquee"
         android:paddingLeft="0dip"

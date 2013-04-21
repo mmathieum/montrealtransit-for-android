@@ -5,17 +5,46 @@
     android:background="@android:drawable/list_selector_background"
     android:focusable="true"
     android:padding="5dip" >
+    <!-- DISTANCE -->
+    <TextView
+        android:id="@+id/distance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:gravity="center_vertical"
+        android:paddingRight="5dip"
+        android:text="@string/ellipsis"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:visibility="gone" />
+    <!-- COMPASS -->
+    <ImageView
+        android:id="@+id/compass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+        android:layout_marginTop="3dp"
+        android:layout_toLeftOf="@id/distance"
+        android:scaleType="matrix"
+        android:src="@drawable/heading_arrow"
+        android:visibility="gone" />
     <!-- BUS STOP PLACE -->
     <TextView
         android:id="@+id/label"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@id/compass"
         android:ellipsize="marquee"
         android:gravity="center_vertical"
         android:singleLine="true"
+        android:text="@string/ellipsis"
         android:textAppearance="?android:attr/textAppearanceLarge" />
     <!-- BUS LINE NUMBER -->
     <TextView
@@ -26,30 +55,8 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@id/label"
         android:layout_marginRight="3dip"
+        android:text="@string/default_line_number"
         android:textSize="20sp"
-        android:textStyle="bold" />
-    <!-- BUS LINE NAME -->
-    <TextView
-        android:id="@+id/line_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@id/line_number"
-        android:layout_marginRight="5dip"
-        android:layout_toRightOf="@id/line_number"
-        android:ellipsize="marquee"
-        android:gravity="center_vertical|left"
-        android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textStyle="bold" />
-    <!-- BUS STOP CODE -->
-    <TextView
-        android:id="@+id/stop_code"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@id/line_number"
-        android:layout_alignParentRight="true"
-        android:text="@string/default_bus_stop_code"
-        android:textAppearance="?android:attr/textAppearanceSmall"
         android:textStyle="bold" />
     <!-- BUS LINE DIRECTION -->
     <TextView
@@ -57,8 +64,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@id/line_number"
-        android:layout_toLeftOf="@id/stop_code"
-        android:layout_toRightOf="@id/line_name"
+        android:layout_marginRight="3dip"
+        android:layout_toRightOf="@id/line_number"
         android:singleLine="true"
+        android:text="@string/ellipsis"
         android:textAppearance="?android:attr/textAppearanceSmall" />
+    <!-- BUS STOP CODE -->
+    <TextView
+        android:id="@+id/stop_code"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@id/line_number"
+        android:layout_toRightOf="@id/line_direction"
+        android:text="@string/default_bus_stop_code"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textStyle="bold" />
 </RelativeLayout>

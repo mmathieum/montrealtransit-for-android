@@ -13,6 +13,7 @@ import org.montrealtransit.android.SensorUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.activity.BusStopInfo;
 import org.montrealtransit.android.activity.UserPreferences;
+import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.ABusStop;
 import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.provider.DataManager;
@@ -71,6 +72,10 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 	 */
 	private String closestStopCode;
 	/**
+	 * The selected bus stop code
+	 */
+	private String currentStopCode;
+	/**
 	 * The list of bus stops.
 	 */
 	private List<ABusStop> busStops = new ArrayList<ABusStop>();
@@ -82,10 +87,6 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 	 * The bus line number.
 	 */
 	private String busLineNumber;
-	/**
-	 * The bus line direction ID.
-	 */
-	private String busLineDirectionId;
 	/**
 	 * The last {@link ArrayAdapter#notifyDataSetChanged() time-stamp in milliseconds.
 	 */
@@ -100,13 +101,14 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 	 * @param directionId direction ID
 	 * @return the fragment
 	 */
-	public static Fragment newInstance(String busLineNumber, String directionId) {
-		MyLog.v(TAG, "newInstance(%s,%s)", busLineNumber, directionId);
+	public static Fragment newInstance(String busLineNumber, String directionId, String stopCode) {
+		MyLog.v(TAG, "newInstance(%s,%s,%s)", busLineNumber, directionId, stopCode);
 		BusLineDirectionFragment f = new BusLineDirectionFragment();
 
 		Bundle args = new Bundle();
 		args.putString(BusLineInfo.EXTRA_LINE_NUMBER, busLineNumber);
 		args.putString(BusLineInfo.EXTRA_LINE_DIRECTION_ID, directionId);
+		args.putString(BusLineInfo.EXTRA_LINE_STOP_CODE, stopCode);
 		f.setArguments(args);
 
 		return f;
@@ -164,11 +166,11 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 	private void showAll() {
 		String lineNumber = getArguments().getString(BusLineInfo.EXTRA_LINE_NUMBER);
 		String lineDirectionId = getArguments().getString(BusLineInfo.EXTRA_LINE_DIRECTION_ID);
+		String stopCode = getArguments().getString(BusLineInfo.EXTRA_LINE_STOP_CODE);
 		this.busLineNumber = lineNumber;
-		this.busLineDirectionId = lineDirectionId;
 		this.busStops = null;
 		this.adapter = null;
-		refreshBusStopListFromDB();
+		refreshBusStopListFromDB(stopCode, lineDirectionId);
 	}
 
 	@Override
@@ -254,27 +256,22 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 	/**
 	 * Refresh the bus stops list UI.
 	 */
-	private void refreshBusStopListFromDB() { // TODO extract?
-		new AsyncTask<Void, Void, ABusStop[]>() {
+	private void refreshBusStopListFromDB(String stopCode, String lineDirectionId) { // TODO extract?
+		new AsyncTask<String, Void, ABusStop[]>() {
 			@Override
-			protected ABusStop[] doInBackground(Void... params) {
+			protected ABusStop[] doInBackground(String... params) {
+				String stopCode = params[0], lineDirectionId = params[1];
 				List<BusStop> busStopList = StmManager.findBusLineStopsList(BusLineDirectionFragment.this.getLastActivity().getContentResolver(),
-						BusLineDirectionFragment.this.busLineNumber, BusLineDirectionFragment.this.busLineDirectionId);
+						BusLineDirectionFragment.this.busLineNumber, lineDirectionId);
 				// creating the list of the subways stations object
 				ABusStop[] busStops = new ABusStop[busStopList.size()];
 				int i = 0;
 				for (BusStop busStop : busStopList) {
-					ABusStop aBusStop = new ABusStop();
-					aBusStop.setCode(busStop.getCode());
-					aBusStop.setDirectionId(busStop.getDirectionId());
+					ABusStop aBusStop = new ABusStop(busStop);
 					aBusStop.setPlace(BusUtils.cleanBusStopPlace(busStop.getPlace()));
-					aBusStop.setSubwayStationId(busStop.getSubwayStationId());
-					aBusStop.setSubwayStationName(busStop.getSubwayStationNameOrNull());
-					aBusStop.setLineNumber(busStop.getLineNumber());
-					aBusStop.setLineNumber(busStop.getLineNameOrNull());
-					aBusStop.setLineType(busStop.getLineTypeOrNull());
-					aBusStop.setLat(busStop.getLat());
-					aBusStop.setLng(busStop.getLng());
+					if (aBusStop.getCode().equals(stopCode)) {
+						BusLineDirectionFragment.this.currentStopCode = aBusStop.getCode();
+					}
 					busStops[i] = aBusStop;
 					i++;
 				}
@@ -292,11 +289,38 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 				generateOrderedStopCodes();
 				refreshFavoriteStopCodesFromDB(activity.getContentResolver());
 				BusLineDirectionFragment.this.adapter = new ArrayAdapterWithCustomView(activity, R.layout.bus_line_info_stops_list_item);
-				((ListView) view.findViewById(R.id.list)).setAdapter(BusLineDirectionFragment.this.adapter);
+				ListView listView = (ListView) view.findViewById(R.id.list);
+				listView.setAdapter(BusLineDirectionFragment.this.adapter);
 				updateDistancesWithNewLocation(activity); // force update all bus stops with location
+				int index = selectedStopIndex();
+				if (index > 0) {
+					index--; // show one more stop on top
+				}
+				SupportFactory.getInstance(activity).listViewScrollTo(listView, index, 50);
 			};
 
-		}.execute();
+		}.execute(stopCode, lineDirectionId);
+	}
+
+	/**
+	 * @return the current stop index
+	 */
+	private int selectedStopIndex() {
+		// MyLog.v(TAG, "selectedStopIndex()");
+		if (this.busStops != null) {
+			for (int i = 0; i < this.busStops.size(); i++) {
+				if (this.currentStopCode != null) {
+					if (this.busStops.get(i).getCode().equals(this.currentStopCode)) {
+						return i;
+					}
+				} else if (this.closestStopCode != null) {
+					if (this.busStops.get(i).getCode().equals(this.closestStopCode)) {
+						return i;
+					}
+				}
+			}
+		}
+		return 0;
 	}
 
 	/**

@@ -11,6 +11,7 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.view.Surface;
+import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
 /**
@@ -125,4 +126,12 @@ public interface SupportUtil {
 	Class<?> getBusTabClass();
 
 	SimpleCursorAdapter newSimpleCursorAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags);
+
+	/**
+	 * Scroll list view to a position with offset.
+	 * @param listView the list view
+	 * @param position the position
+	 * @param offset the offset
+	 */
+	void listViewScrollTo(ListView listView, int position, int offset);
 }

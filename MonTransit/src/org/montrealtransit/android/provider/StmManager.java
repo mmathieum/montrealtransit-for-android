@@ -55,7 +55,7 @@ public class StmManager {
 			StmStore.BusStop.STOP_PLACE, StmStore.BusStop.STOP_DIRECTION_ID, StmStore.BusStop.STOP_LINE_NUMBER, StmStore.BusStop.LINE_NAME,
 			StmStore.BusStop.LINE_TYPE, StmStore.BusStop.STOP_SUBWAY_STATION_ID };
 
-	private static final String[] PROJECTION_BUS_STOP_EXTENDED_W_LOC = new String[] { StmStore.BusStop._ID, StmStore.BusStop.STOP_CODE,
+	private static final String[] PROJECTION_BUS_STOP_EXTENDED_W_LOC = new String[] { "uid", StmStore.BusStop._ID, StmStore.BusStop.STOP_CODE,
 			StmStore.BusStop.STOP_PLACE, StmStore.BusStop.STOP_DIRECTION_ID, StmStore.BusStop.STOP_LINE_NUMBER, StmStore.BusStop.LINE_NAME,
 			StmStore.BusStop.LINE_TYPE, StmStore.BusStop.STOP_SUBWAY_STATION_ID, StmStore.BusStop.STOP_LOCATION_LAT, StmStore.BusStop.STOP_LOCATION_LNG };
 
@@ -469,7 +469,7 @@ public class StmManager {
 	 */
 	private static Cursor findBusStopsExtended(ContentResolver contentResolver, String busStopUIDsString) {
 		MyLog.v(TAG, "findBusStopsExtended(%s)", busStopUIDsString);
-		return contentResolver.query(Uri.withAppendedPath(StmStore.BusStop.CONTENT_URI, busStopUIDsString), PROJECTION_BUS_STOP_EXTENDED, null, null,
+		return contentResolver.query(Uri.withAppendedPath(StmStore.BusStop.CONTENT_URI, busStopUIDsString), PROJECTION_BUS_STOP_EXTENDED_W_LOC, null, null,
 				StmStore.BusStop.ORDER_BY_LINE_CODE_AND_STOP_ORDER);
 	}
 

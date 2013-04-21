@@ -339,8 +339,8 @@ public class StmProvider extends ContentProvider {
 		sBusStopsExtendedProjectionMap = map;
 
 		map = new HashMap<String, String>();
-		// map.put("uid", StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "||'-'||" + StmDbHelper.T_BUS_STOPS + "."
-		// + StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS uid");
+		map.put("uid", StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + "||'-'||" + StmDbHelper.T_BUS_STOPS + "."
+				+ StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + " AS uid");
 		map.put(BaseColumns._ID, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS " + BaseColumns._ID);
 		map.put(StmStore.BusStop.STOP_CODE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_CODE + " AS " + StmStore.BusStop.STOP_CODE);
 		map.put(StmStore.BusStop.STOP_PLACE, StmDbHelper.T_BUS_STOPS + "." + StmDbHelper.T_BUS_STOPS_K_PLACE + " AS " + StmStore.BusStop.STOP_PLACE);
@@ -612,8 +612,8 @@ public class StmProvider extends ContentProvider {
 			break;
 		case BUS_STOPS_UIDS:
 			MyLog.v(TAG, "query>BUS_STOPS_IDS");
-			qb.setTables(BUS_STOP_LINES_JOIN);
-			qb.setProjectionMap(sBusStopsExtendedProjectionMap);
+			qb.setTables(BUS_STOP_LOCATION_LINES_JOIN);
+			qb.setProjectionMap(sBusStopsExtendedWithLocationProjectionMap);
 			String[] favIds = uri.getPathSegments().get(1).split("\\+");
 			qb.appendWhere("uid IN (");
 			for (int i = 0; i < favIds.length; i++) {

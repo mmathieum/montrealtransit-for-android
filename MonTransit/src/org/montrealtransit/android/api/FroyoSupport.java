@@ -6,9 +6,9 @@ import android.annotation.TargetApi;
 import android.app.backup.BackupManager;
 import android.content.Context;
 import android.content.SharedPreferences.Editor;
-import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
+import android.widget.ListView;
 
 /**
  * Features available for Android 2.2 Froyo (API Level 8) and higher.
@@ -44,8 +44,7 @@ public class FroyoSupport extends EclairSupport {
 
 	@Override
 	public float getDisplayRotation(Context context) {
-		Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-		switch (display.getRotation()) {
+		switch (((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation()) {
 		case Surface.ROTATION_90:
 			return -90f;
 		case Surface.ROTATION_180:
@@ -60,12 +59,25 @@ public class FroyoSupport extends EclairSupport {
 
 	@Override
 	public int getSurfaceRotation(Context context) {
-		Display display = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-		return display.getRotation();
+		return ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay().getRotation();
 	}
 
 	@Override
 	public int getNbClosestPOIDisplay() {
 		return 50;
+	}
+
+	@Override
+	public void listViewScrollTo(ListView listView, int position, int offset) {
+		// int firstVisible = listView.getFirstVisiblePosition();
+		// int lastVisible = listView.getLastVisiblePosition();
+		// if (position < firstVisible) {
+		// listView.smoothScrollToPosition(position);
+		// } else {
+		// listView.smoothScrollToPosition(position + lastVisible - firstVisible
+		// - 2);
+		// }
+		// listView.smoothScrollToPosition(0);
+		super.listViewScrollTo(listView, position, offset);
 	}
 }

@@ -16,6 +16,7 @@ import org.montrealtransit.android.SensorUtils;
 import org.montrealtransit.android.SensorUtils.CompassListener;
 import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.Utils;
+import org.montrealtransit.android.activity.v4.SubwayLineInfo;
 import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.dialog.BusLineSelectDirection;
@@ -477,6 +478,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 					Intent intent = new Intent(SubwayStationInfo.this, SupportFactory.getInstance(SubwayStationInfo.this).getSubwayLineInfoClass());
 					String subwayLineNumber = String.valueOf(SubwayStationInfo.this.subwayLines.get(0).getNumber());
 					intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumber);
+					intent.putExtra(SubwayLineInfo.EXTRA_STATION_ID, SubwayStationInfo.this.subwayStation.getId());
 					startActivity(intent);
 				}
 			});
@@ -492,6 +494,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 						Intent intent = new Intent(SubwayStationInfo.this, SupportFactory.getInstance(SubwayStationInfo.this).getSubwayLineInfoClass());
 						String subwayLineNumber = String.valueOf(SubwayStationInfo.this.subwayLines.get(1).getNumber());
 						intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumber);
+						intent.putExtra(SubwayLineInfo.EXTRA_STATION_ID, SubwayStationInfo.this.subwayStation.getId());
 						startActivity(intent);
 					}
 				});
@@ -508,6 +511,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 							int lineNumber = SubwayStationInfo.this.subwayLines.get(2).getNumber();
 							String subwayLineNumber = String.valueOf(lineNumber);
 							intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumber);
+							intent.putExtra(SubwayLineInfo.EXTRA_STATION_ID, SubwayStationInfo.this.subwayStation.getId());
 							startActivity(intent);
 						}
 					});
