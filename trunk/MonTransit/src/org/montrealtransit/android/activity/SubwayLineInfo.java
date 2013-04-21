@@ -86,6 +86,10 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 */
 	public static final String EXTRA_ORDER_PREF = "extra_order_pref";
 	/**
+	 * The extra for the subway station ID (optional)
+	 */
+	public static final String EXTRA_STATION_ID = "extra_station_id";
+	/**
 	 * The subway line.
 	 */
 	private StmStore.SubwayLine subwayLine;

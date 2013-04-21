@@ -3,12 +3,13 @@
     android:layout_width="fill_parent"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:background="@android:drawable/list_selector_background"
-    android:clipChildren="false" >
-    <!-- SUBWAY LINEs IMG -->
+    android:focusable="true"
+    android:padding="5dip" >
+    <!-- SUBWAY IMG -->
     <ImageView
         android:id="@+id/subway_img_3"
         android:layout_width="wrap_content"
-        android:layout_height="?android:attr/listPreferredItemHeight"
+        android:layout_height="fill_parent"
         android:layout_alignParentLeft="true"
         android:layout_alignWithParentIfMissing="true"
         android:layout_centerVertical="true"
@@ -17,7 +18,7 @@
     <ImageView
         android:id="@+id/subway_img_2"
         android:layout_width="wrap_content"
-        android:layout_height="?android:attr/listPreferredItemHeight"
+        android:layout_height="fill_parent"
         android:layout_alignWithParentIfMissing="true"
         android:layout_centerVertical="true"
         android:layout_marginRight="3dip"
@@ -26,22 +27,47 @@
     <ImageView
         android:id="@+id/subway_img_1"
         android:layout_width="wrap_content"
-        android:layout_height="?android:attr/listPreferredItemHeight"
+        android:layout_height="fill_parent"
         android:layout_alignWithParentIfMissing="true"
         android:layout_centerVertical="true"
         android:layout_marginRight="3dip"
         android:layout_toRightOf="@id/subway_img_2"
         android:gravity="center_horizontal" />
-    <!-- PLACE -->
+    <!-- DISTANCE -->
+    <TextView
+        android:id="@+id/distance"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentRight="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_centerVertical="true"
+        android:gravity="center_vertical"
+        android:paddingRight="5dip"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:visibility="gone" />
+    <!-- COMPASS -->
+    <ImageView
+        android:id="@+id/compass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+        android:layout_marginTop="3dp"
+        android:layout_toLeftOf="@id/distance"
+        android:scaleType="matrix"
+        android:src="@drawable/heading_arrow"
+        android:visibility="gone" />
+    <!-- STATION NAME -->
     <TextView
         android:id="@+id/station_name"
         android:layout_width="fill_parent"
-        android:layout_height="?android:attr/listPreferredItemHeight"
+        android:layout_height="fill_parent"
         android:layout_alignParentBottom="true"
         android:layout_alignParentTop="true"
         android:layout_marginLeft="2dip"
         android:layout_marginRight="3dip"
-        android:layout_alignParentRight="true"
+        android:layout_toLeftOf="@id/compass"
         android:layout_toRightOf="@id/subway_img_1"
         android:ellipsize="marquee"
         android:gravity="center_vertical"

@@ -10,6 +10,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.view.Surface;
+import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
 /**
@@ -139,5 +140,10 @@ public class CupcakeSupport implements SupportUtil {
 	@Override
 	public SimpleCursorAdapter newSimpleCursorAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags) {
 		return new SimpleCursorAdapter(context, layout, c, from, to);
+	}
+
+	@Override
+	public void listViewScrollTo(ListView listView, int position, int offset) {
+		listView.setSelectionFromTop(position, offset);
 	}
 }

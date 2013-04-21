@@ -87,9 +87,13 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 */
 	public static final String EXTRA_LINE_TYPE = "extra_line_type";
 	/**
-	 * The extra ID for the bus line direction ID (required).
+	 * The extra ID for the bus line direction ID (optional).
 	 */
 	public static final String EXTRA_LINE_DIRECTION_ID = "extra_line_direction_id";
+	/**
+	 * The extra ID for the bus stop code (optional)
+	 */
+	public static final String EXTRA_LINE_STOP_CODE = "extra_line_stop_code";
 
 	/**
 	 * The current bus line.

@@ -68,7 +68,11 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 	/**
 	 * The extra ID for the bus line direction ID.
 	 */
-	public static final String EXTRA_LINE_DIRECTION_ID = "extra_line_direction_id";
+	public static final String EXTRA_LINE_DIRECTION_ID = org.montrealtransit.android.activity.BusLineInfo.EXTRA_LINE_DIRECTION_ID;
+	/**
+	 * The extra ID for the bus stop code (optional)
+	 */
+	public static final String EXTRA_LINE_STOP_CODE = org.montrealtransit.android.activity.BusLineInfo.EXTRA_LINE_STOP_CODE;
 
 	/**
 	 * The current bus line.
@@ -118,6 +122,10 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 	 * The {@link Sensor#TYPE_MAGNETIC_FIELD} values.
 	 */
 	private float[] magneticFieldValues;
+	/**
+	 * The selected stop code (or null).
+	 */
+	private String currentStopCode;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -131,6 +139,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 		String lineType = Utils.getSavedStringValue(getIntent(), savedInstanceState, BusLineInfo.EXTRA_LINE_TYPE);
 		String lineName = Utils.getSavedStringValue(getIntent(), savedInstanceState, BusLineInfo.EXTRA_LINE_NAME);
 		String lineDirectionId = Utils.getSavedStringValue(getIntent(), savedInstanceState, BusLineInfo.EXTRA_LINE_DIRECTION_ID);
+		this.currentStopCode = Utils.getSavedStringValue(getIntent(), savedInstanceState, BusLineInfo.EXTRA_LINE_STOP_CODE);
 		// temporary show the line name & number
 		setLineNumberAndName(lineNumber, lineType, lineName);
 		// show bus line
@@ -546,7 +555,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 		public Fragment getItem(int position) {
 			// MyLog.v(TAG, "getItem(%s)", position);
 			return BusLineDirectionFragment.newInstance(BusLineInfo.this.busLineDirections.get(position).getLineId(),
-					BusLineInfo.this.busLineDirections.get(position).getId());
+					BusLineInfo.this.busLineDirections.get(position).getId(), BusLineInfo.this.currentStopCode);
 		}
 
 	}

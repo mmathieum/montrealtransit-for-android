@@ -1,5 +1,6 @@
 package org.montrealtransit.android.activity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -8,12 +9,19 @@ import java.util.Map;
 
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
+import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
+import org.montrealtransit.android.SensorUtils;
+import org.montrealtransit.android.SensorUtils.CompassListener;
 import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.api.SupportFactory;
+import org.montrealtransit.android.data.ABikeStation;
+import org.montrealtransit.android.data.ABusStop;
+import org.montrealtransit.android.data.ASubwayStation;
+import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.provider.BixiManager;
 import org.montrealtransit.android.provider.BixiStore.BikeStation;
 import org.montrealtransit.android.provider.DataManager;
@@ -28,8 +36,15 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.hardware.GeomagneticField;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.location.Location;
+import android.location.LocationListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,7 +56,7 @@ import android.widget.TextView;
  * This activity list the favorite bus stops.
  * @author Mathieu Méa
  */
-public class FavListTab extends Activity {
+public class FavListTab extends Activity implements LocationListener, SensorEventListener, CompassListener {
 
 	/**
 	 * The log tag.
@@ -56,16 +71,46 @@ public class FavListTab extends Activity {
 	 * The favorite bike station list.
 	 */
 	private List<DataStore.Fav> currentBikeStationFavList;
-
+	/**
+	 * The bike stations.
+	 */
+	private List<ABikeStation> bikeStations;
 	/**
 	 * The favorite subway stations list.
 	 */
 	private List<DataStore.Fav> currentSubwayStationFavList;
-
+	/**
+	 * The subway stations.
+	 */
+	private List<ASubwayStation> subwayStations;
 	/**
 	 * The favorite bus stops list.
 	 */
 	private List<DataStore.Fav> currentBusStopFavList;
+	/**
+	 * The bus stops.
+	 */
+	private List<ABusStop> busStops;
+	/**
+	 * Store the device location.
+	 */
+	private Location location;
+	/**
+	 * Is the location updates enabled?
+	 */
+	private boolean locationUpdatesEnabled = false;
+	/**
+	 * The {@link Sensor#TYPE_ACCELEROMETER} values.
+	 */
+	private float[] accelerometerValues;
+	/**
+	 * The {@link Sensor#TYPE_MAGNETIC_FIELD} values.
+	 */
+	private float[] magneticFieldValues;
+	/**
+	 * The last compass value.
+	 */
+	private int lastCompassInDegree = -1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -75,12 +120,200 @@ public class FavListTab extends Activity {
 		setContentView(R.layout.fav_list_tab);
 	}
 
+	/**
+	 * True if the activity has the focus, false otherwise.
+	 */
+	private boolean hasFocus = true;
+
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		MyLog.v(TAG, "onWindowFocusChanged(%s)", hasFocus);
+		// IF the activity just regained the focus DO
+		if (!this.hasFocus && hasFocus) {
+			onResumeWithFocus();
+		}
+		this.hasFocus = hasFocus;
+	}
+
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
+		// IF the activity has the focus DO
+		if (this.hasFocus) {
+			onResumeWithFocus();
+		}
+		super.onResume();
+	}
+
+	/**
+	 * {@link #onResume()} when activity has the focus
+	 */
+	public void onResumeWithFocus() {
+		MyLog.v(TAG, "onResumeWithFocus()");
+		// IF location updates should be enabled DO
+		if (!this.locationUpdatesEnabled) {
+			new AsyncTask<Void, Void, Location>() {
+				@Override
+				protected Location doInBackground(Void... params) {
+					return LocationUtils.getBestLastKnownLocation(FavListTab.this);
+				}
+
+				@Override
+				protected void onPostExecute(Location result) {
+					// IF there is a valid last know location DO
+					if (result != null) {
+						// set the new distance
+						setLocation(result);
+						updateDistancesWithNewLocation();
+					}
+					// re-enable
+					LocationUtils.enableLocationUpdates(FavListTab.this, FavListTab.this);
+					FavListTab.this.locationUpdatesEnabled = true;
+				};
+
+			}.execute();
+		}
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		setUpUI();
-		super.onResume();
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent se) {
+		// MyLog.v(TAG, "onSensorChanged()");
+		checkForCompass(se, this);
+	}
+
+	/**
+	 * @see SensorUtils#checkForCompass(SensorEvent, float[], float[], CompassListener)
+	 */
+	public void checkForCompass(SensorEvent event, CompassListener listener) {
+		switch (event.sensor.getType()) {
+		case Sensor.TYPE_ACCELEROMETER:
+			accelerometerValues = event.values;
+			if (magneticFieldValues != null) {
+				listener.onCompass();
+			}
+			break;
+		case Sensor.TYPE_MAGNETIC_FIELD:
+			magneticFieldValues = event.values;
+			if (accelerometerValues != null) {
+				listener.onCompass();
+			}
+			break;
+		}
+	}
+
+	@Override
+	public void onCompass() {
+		// MyLog.v(TAG, "onCompass()");
+		if (this.accelerometerValues != null && this.magneticFieldValues != null) {
+			updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues));
+		}
+	}
+
+	/**
+	 * Update the compass image(s).
+	 * @param orientation the new orientation
+	 */
+	private void updateCompass(float[] orientation) {
+		// MyLog.v(TAG, "updateCompass(%s)", orientation);
+		Location currentLocation = getLocation();
+		if (currentLocation != null) {
+			int io = (int) orientation[0];
+			if (io != 0 && Math.abs(this.lastCompassInDegree - io) > SensorUtils.LIST_VIEW_COMPASS_DEGREE_UPDATE_THRESOLD) {
+				this.lastCompassInDegree = io;
+				// update bus stops compass
+				if (this.busStops != null) {
+					View busStopsLayout = findViewById(R.id.bus_stops_list);
+					for (ABusStop busStop : this.busStops) {
+						if (busStop.getLocation() == null) {
+							continue;
+						}
+						// update value
+						busStop.getCompassMatrix().reset();
+						busStop.getCompassMatrix().postRotate(
+								SensorUtils.getCompassRotationInDegree(this, currentLocation, busStop.getLocation(), orientation, getLocationDeclination()),
+								getArrowDim().first / 2, getArrowDim().second / 2);
+						// update view
+						View stopView = busStopsLayout.findViewWithTag(getBusStopViewTag(busStop));
+						if (stopView != null && !TextUtils.isEmpty(busStop.getDistanceString())) {
+							ImageView compassImg = (ImageView) stopView.findViewById(R.id.compass);
+							compassImg.setImageMatrix(busStop.getCompassMatrix());
+							compassImg.setVisibility(View.VISIBLE);
+						}
+					}
+				}
+				// update subway station compass
+				if (this.subwayStations != null) {
+					View subwayStationsLayout = findViewById(R.id.subway_stations_list);
+					for (ASubwayStation subwayStation : this.subwayStations) {
+						// update value
+						subwayStation.getCompassMatrix().reset();
+						subwayStation.getCompassMatrix().postRotate(
+								SensorUtils.getCompassRotationInDegree(this, currentLocation, subwayStation.getLocation(), orientation,
+										getLocationDeclination()), getArrowDim().first / 2, getArrowDim().second / 2);
+						// update view
+						View stationView = subwayStationsLayout.findViewWithTag(getSubwayStationViewTag(subwayStation));
+						if (stationView != null && !TextUtils.isEmpty(subwayStation.getDistanceString())) {
+							ImageView compassImg = (ImageView) stationView.findViewById(R.id.compass);
+							compassImg.setImageMatrix(subwayStation.getCompassMatrix());
+							compassImg.setVisibility(View.VISIBLE);
+						}
+					}
+				}
+				// update bike stations compass
+				if (this.bikeStations != null) {
+					View bikeStationsLayout = findViewById(R.id.bike_stations_list);
+					for (ABikeStation bikeStation : this.bikeStations) {
+						// update value
+						bikeStation.getCompassMatrix().reset();
+						bikeStation.getCompassMatrix()
+								.postRotate(
+										SensorUtils.getCompassRotationInDegree(this, currentLocation, bikeStation.getLocation(), orientation,
+												getLocationDeclination()), getArrowDim().first / 2, getArrowDim().second / 2);
+						// update view
+						View stationView = bikeStationsLayout.findViewWithTag(getBikeStationViewTag(bikeStation));
+						if (stationView != null && !TextUtils.isEmpty(bikeStation.getDistanceString())) {
+							ImageView compassImg = (ImageView) stationView.findViewById(R.id.compass);
+							compassImg.setImageMatrix(bikeStation.getCompassMatrix());
+							compassImg.setVisibility(View.VISIBLE);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	private Pair<Integer, Integer> arrowDim;
+	private Float locationDeclination;
+
+	private float getLocationDeclination() {
+		if (this.locationDeclination == null && this.location != null) {
+			this.locationDeclination = new GeomagneticField((float) this.location.getLatitude(), (float) this.location.getLongitude(),
+					(float) this.location.getAltitude(), this.location.getTime()).getDeclination();
+		}
+		return this.locationDeclination;
+	}
+
+	public Pair<Integer, Integer> getArrowDim() {
+		if (this.arrowDim == null) {
+			this.arrowDim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow);
+		}
+		return this.arrowDim;
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		// MyLog.v(TAG, "onAccuracyChanged()");
+	}
+
+	@Override
+	protected void onPause() {
+		MyLog.v(TAG, "onPause()");
+		LocationUtils.disableLocationUpdates(this, this);
+		this.locationUpdatesEnabled = false;
+		SensorUtils.unregisterSensorListener(this, this);
+		super.onPause();
 	}
 
 	/**
@@ -210,11 +443,12 @@ public class FavListTab extends Activity {
 			busStopsLayout.removeAllViews();
 			// use new favorite bus stops
 			this.currentBusStopFavList = newBusStopFavList;
+			this.busStops = new ArrayList<ABusStop>();
 			findViewById(R.id.lists).setVisibility(View.VISIBLE);
 			findViewById(R.id.fav_bus_stops).setVisibility(View.VISIBLE);
 			busStopsLayout.setVisibility(View.VISIBLE);
 			// FOR EACH bus stop DO
-			if (busStopsExtendedList != null) {
+			if (this.busStops != null) {
 				for (final BusStop busStop : busStopsExtendedList) {
 					// list view divider
 					if (busStopsLayout.getChildCount() > 0) {
@@ -222,6 +456,7 @@ public class FavListTab extends Activity {
 					}
 					// create view
 					View view = getLayoutInflater().inflate(R.layout.fav_list_tab_bus_stop_item, busStopsLayout, false);
+					view.setTag(getBusStopViewTag(busStop));
 					// bus stop code
 					((TextView) view.findViewById(R.id.stop_code)).setText(busStop.getCode());
 					// bus stop place
@@ -235,6 +470,12 @@ public class FavListTab extends Activity {
 					// bus stop line direction
 					int busLineDirection = BusUtils.getBusLineSimpleDirection(busStop.getDirectionId());
 					((TextView) view.findViewById(R.id.line_direction)).setText(getString(busLineDirection).toUpperCase(Locale.getDefault()));
+					// bus station distance
+					TextView distanceTv = (TextView) view.findViewById(R.id.distance);
+					distanceTv.setVisibility(View.GONE);
+					distanceTv.setText(null);
+					// compass
+					view.findViewById(R.id.compass).setVisibility(View.GONE);
 					// add click listener
 					view.setOnClickListener(new View.OnClickListener() {
 						@Override
@@ -314,10 +555,15 @@ public class FavListTab extends Activity {
 							return true;
 						}
 					});
+					this.busStops.add(new ABusStop(busStop));
 					busStopsLayout.addView(view);
 				}
 			}
 		}
+	}
+
+	private String getBusStopViewTag(BusStop busStop) {
+		return "busStop" + busStop.getUID();
 	}
 
 	/**
@@ -334,22 +580,24 @@ public class FavListTab extends Activity {
 			subwayStationsLayout.removeAllViews();
 			// use new favorite subway station
 			this.currentSubwayStationFavList = newSubwayFavList;
+			this.subwayStations = new ArrayList<ASubwayStation>();
 			findViewById(R.id.lists).setVisibility(View.VISIBLE);
 			findViewById(R.id.fav_subway_stations).setVisibility(View.VISIBLE);
 			subwayStationsLayout.setVisibility(View.VISIBLE);
 			// FOR EACH favorite subway DO
 			for (Fav subwayFav : this.currentSubwayStationFavList) {
-				final SubwayStation station = stations == null ? null : stations.get(subwayFav.getFkId());
-				if (station != null) {
-					List<SubwayLine> otherLinesId = otherLines.get(station.getId());
+				final SubwayStation subwayStation = stations == null ? null : stations.get(subwayFav.getFkId());
+				if (subwayStation != null) {
+					List<SubwayLine> otherLinesId = otherLines.get(subwayStation.getId());
 					// list view divider
 					if (subwayStationsLayout.getChildCount() > 0) {
 						subwayStationsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, subwayStationsLayout, false));
 					}
 					// create view
 					View view = getLayoutInflater().inflate(R.layout.fav_list_tab_subway_station_item, subwayStationsLayout, false);
+					view.setTag(getSubwayStationViewTag(subwayStation));
 					// subway station name
-					((TextView) view.findViewById(R.id.station_name)).setText(station.getName());
+					((TextView) view.findViewById(R.id.station_name)).setText(subwayStation.getName());
 					// station lines color
 					if (otherLinesId != null && otherLinesId.size() > 0) {
 						int subwayLineImg1 = SubwayUtils.getSubwayLineImgId(otherLinesId.get(0).getNumber());
@@ -372,14 +620,20 @@ public class FavListTab extends Activity {
 						view.findViewById(R.id.subway_img_2).setVisibility(View.GONE);
 						view.findViewById(R.id.subway_img_3).setVisibility(View.GONE);
 					}
+					// subway station distance
+					TextView distanceTv = (TextView) view.findViewById(R.id.distance);
+					distanceTv.setVisibility(View.GONE);
+					distanceTv.setText(null);
+					// compass
+					view.findViewById(R.id.compass).setVisibility(View.GONE);
 					// add click listener
 					view.setOnClickListener(new View.OnClickListener() {
 						@Override
 						public void onClick(View v) {
 							MyLog.v(TAG, "onClick(%s)", v.getId());
 							Intent intent = new Intent(FavListTab.this, SubwayStationInfo.class);
-							intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, station.getId());
-							intent.putExtra(SubwayStationInfo.EXTRA_STATION_NAME, station.getName());
+							intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, subwayStation.getId());
+							intent.putExtra(SubwayStationInfo.EXTRA_STATION_NAME, subwayStation.getName());
 							startActivity(intent);
 						}
 					});
@@ -390,7 +644,7 @@ public class FavListTab extends Activity {
 							MyLog.v(TAG, "onLongClick(%s)", v.getId());
 							final View theViewToDelete = v;
 							new AlertDialog.Builder(FavListTab.this)
-									.setTitle(getString(R.string.subway_station_with_name_short, station.getName()))
+									.setTitle(getString(R.string.subway_station_with_name_short, subwayStation.getName()))
 									.setItems(new CharSequence[] { getString(R.string.view_subway_station), getString(R.string.remove_fav) },
 											new DialogInterface.OnClickListener() {
 												public void onClick(DialogInterface dialog, int item) {
@@ -398,8 +652,8 @@ public class FavListTab extends Activity {
 													switch (item) {
 													case 0:
 														Intent intent = new Intent(FavListTab.this, SubwayStationInfo.class);
-														intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, station.getId());
-														intent.putExtra(SubwayStationInfo.EXTRA_STATION_NAME, station.getName());
+														intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, subwayStation.getId());
+														intent.putExtra(SubwayStationInfo.EXTRA_STATION_NAME, subwayStation.getName());
 														startActivity(intent);
 														break;
 													case 1:
@@ -409,7 +663,7 @@ public class FavListTab extends Activity {
 														Iterator<Fav> it = FavListTab.this.currentSubwayStationFavList.iterator();
 														while (it.hasNext()) {
 															DataStore.Fav fav = (DataStore.Fav) it.next();
-															if (fav.getFkId().equals(station.getId())) {
+															if (fav.getFkId().equals(subwayStation.getId())) {
 																it.remove();
 																break;
 															}
@@ -420,7 +674,7 @@ public class FavListTab extends Activity {
 																isThereAtLeastOneFavorite());
 														// delete the favorite
 														Fav findFav = DataManager.findFav(FavListTab.this.getContentResolver(),
-																DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION, station.getId(), null);
+																DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION, subwayStation.getId(), null);
 														// delete the favorite
 														if (findFav != null) {
 															DataManager.deleteFav(FavListTab.this.getContentResolver(), findFav.getId());
@@ -435,12 +689,17 @@ public class FavListTab extends Activity {
 							return true;
 						}
 					});
+					this.subwayStations.add(new ASubwayStation(subwayStation));
 					subwayStationsLayout.addView(view);
 				} else {
 					MyLog.w(TAG, "Can't find the favorite subway station (ID:%s)", subwayFav.getFkId());
 				}
 			}
 		}
+	}
+
+	private String getSubwayStationViewTag(SubwayStation subwayStation) {
+		return "subwayStation" + subwayStation.getId();
 	}
 
 	/**
@@ -456,6 +715,7 @@ public class FavListTab extends Activity {
 			bikeStationsLayout.removeAllViews();
 			// use new favorite bike station
 			this.currentBikeStationFavList = newBikeFavList;
+			this.bikeStations = new ArrayList<ABikeStation>();
 			findViewById(R.id.lists).setVisibility(View.VISIBLE);
 			findViewById(R.id.fav_bike_stations).setVisibility(View.VISIBLE);
 			bikeStationsLayout.setVisibility(View.VISIBLE);
@@ -468,8 +728,15 @@ public class FavListTab extends Activity {
 					}
 					// create view
 					View view = getLayoutInflater().inflate(R.layout.fav_list_tab_bike_station_item, bikeStationsLayout, false);
+					view.setTag(getBikeStationViewTag(bikeStation));
 					// subway station name
 					((TextView) view.findViewById(R.id.station_name)).setText(Utils.cleanBikeStationName(bikeStation.getName()));
+					// bike station distance
+					TextView distanceTv = (TextView) view.findViewById(R.id.distance);
+					distanceTv.setVisibility(View.GONE);
+					distanceTv.setText(null);
+					// compass
+					view.findViewById(R.id.compass).setVisibility(View.GONE);
 					// add click listener
 					view.setOnClickListener(new View.OnClickListener() {
 						@Override
@@ -533,10 +800,146 @@ public class FavListTab extends Activity {
 							return true;
 						}
 					});
+					this.bikeStations.add(new ABikeStation(bikeStation));
 					bikeStationsLayout.addView(view);
 				}
 			}
 		}
+	}
+
+	private String getBikeStationViewTag(BikeStation bikeStation) {
+		return "bikeStation" + bikeStation.getTerminalName();
+	}
+
+	/**
+	 * Update the distance with the latest device location.
+	 */
+	private void updateDistancesWithNewLocation() {
+		Location currentLocation = getLocation();
+		MyLog.v(TAG, "updateDistancesWithNewLocation(%s)", currentLocation);
+		if (currentLocation == null) {
+			return;
+		}
+		boolean isDetailed = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
+				UserPreferences.PREFS_DISTANCE_DETAILED);
+		String distanceUnit = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
+		float accuracyInMeters = currentLocation.getAccuracy();
+		// update bus stops
+		if (this.busStops != null) {
+			View busStopsLayout = findViewById(R.id.bus_stops_list);
+			for (ABusStop busStop : this.busStops) {
+				if (busStop.getLocation() == null) {
+					continue;
+				}
+				// update value
+				busStop.setDistance(currentLocation.distanceTo(busStop.getLocation()));
+				busStop.setDistanceString(Utils.getDistanceString(busStop.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
+				// update view
+				View stopView = busStopsLayout.findViewWithTag(getBusStopViewTag(busStop));
+				if (stopView != null && !TextUtils.isEmpty(busStop.getDistanceString())) {
+					TextView distanceTv = (TextView) stopView.findViewById(R.id.distance);
+					distanceTv.setText(busStop.getDistanceString());
+					distanceTv.setVisibility(View.VISIBLE);
+				}
+			}
+		}
+		// update subway stations
+		if (this.subwayStations != null) {
+			View subwayStationsLayout = findViewById(R.id.subway_stations_list);
+			for (ASubwayStation subwayStation : this.subwayStations) {
+				// update value
+				subwayStation.setDistance(currentLocation.distanceTo(subwayStation.getLocation()));
+				subwayStation.setDistanceString(Utils.getDistanceString(subwayStation.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
+				// update view
+				View stationView = subwayStationsLayout.findViewWithTag(getSubwayStationViewTag(subwayStation));
+				if (stationView != null && !TextUtils.isEmpty(subwayStation.getDistanceString())) {
+					TextView distanceTv = (TextView) stationView.findViewById(R.id.distance);
+					distanceTv.setText(subwayStation.getDistanceString());
+					distanceTv.setVisibility(View.VISIBLE);
+				}
+			}
+		}
+		// update bike stations
+		if (this.bikeStations != null) {
+			View bikeStationsLayout = findViewById(R.id.bike_stations_list);
+			for (ABikeStation bikeStation : this.bikeStations) {
+				// update value
+				bikeStation.setDistance(currentLocation.distanceTo(bikeStation.getLocation()));
+				bikeStation.setDistanceString(Utils.getDistanceString(bikeStation.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
+				// update view
+				View stationView = bikeStationsLayout.findViewWithTag(getBikeStationViewTag(bikeStation));
+				if (stationView != null && !TextUtils.isEmpty(bikeStation.getDistanceString())) {
+					TextView distanceTv = (TextView) stationView.findViewById(R.id.distance);
+					distanceTv.setText(bikeStation.getDistanceString());
+					distanceTv.setVisibility(View.VISIBLE);
+				}
+			}
+		}
+	}
+
+	/**
+	 * @param newLocation the new location
+	 */
+	private void setLocation(Location newLocation) {
+		if (newLocation != null) {
+			// MyLog.d(TAG, "new location: %s.", LocationUtils.locationToString(newLocation));
+			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
+				this.location = newLocation;
+				SensorUtils.registerCompassListener(this, this);
+			}
+		}
+	}
+
+	/**
+	 * @return the location
+	 */
+	public Location getLocation() {
+		if (this.location == null) {
+			new AsyncTask<Void, Void, Location>() {
+				@Override
+				protected Location doInBackground(Void... params) {
+					// MyLog.v(TAG, "doInBackground()");
+					return LocationUtils.getBestLastKnownLocation(FavListTab.this);
+				}
+
+				@Override
+				protected void onPostExecute(Location result) {
+					// MyLog.v(TAG, "onPostExecute()");
+					if (result != null) {
+						FavListTab.this.setLocation(result);
+					}
+					// enable location updates if necessary
+					if (!FavListTab.this.locationUpdatesEnabled) {
+						LocationUtils.enableLocationUpdates(FavListTab.this, FavListTab.this);
+						FavListTab.this.locationUpdatesEnabled = true;
+					}
+				}
+
+			}.execute();
+		}
+		return this.location;
+	}
+
+	@Override
+	public void onLocationChanged(Location location) {
+		MyLog.v(TAG, "onLocationChanged()");
+		this.setLocation(location);
+		updateDistancesWithNewLocation();
+	}
+
+	@Override
+	public void onProviderEnabled(String provider) {
+		MyLog.v(TAG, "onProviderEnabled(%s)", provider);
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+		MyLog.v(TAG, "onProviderDisabled(%s)", provider);
+	}
+
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		MyLog.v(TAG, "onStatusChanged(%s, %s)", provider, status);
 	}
 
 	@Override

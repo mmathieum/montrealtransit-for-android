@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
 import android.os.StrictMode.VmPolicy;
+import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
 /**
@@ -22,7 +23,7 @@ public class HoneycombSupport extends GingerbreadSupport {
 	public HoneycombSupport(Context context) {
 		super(context);
 	}
-	
+
 	@Override
 	public void enableStrictMode() {
 		ThreadPolicy threadPolicy = new StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog().build();
@@ -35,5 +36,11 @@ public class HoneycombSupport extends GingerbreadSupport {
 	@Override
 	public SimpleCursorAdapter newSimpleCursorAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags) {
 		return new SimpleCursorAdapter(context, layout, c, from, to, flags);
+	}
+
+	@Override
+	public void listViewScrollTo(ListView listView, int position, int offset) {
+		// listView.smoothScrollToPositionFromTop(position, offset);
+		super.listViewScrollTo(listView, position, offset);
 	}
 }

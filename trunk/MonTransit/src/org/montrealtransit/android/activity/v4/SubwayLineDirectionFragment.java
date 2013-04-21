@@ -16,6 +16,7 @@ import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.activity.SubwayStationInfo;
 import org.montrealtransit.android.activity.UserPreferences;
+import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.ASubwayStation;
 import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.provider.DataManager;
@@ -75,6 +76,10 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 	 */
 	private String closestStationId;
 	/**
+	 * The current station ID (or null).
+	 */
+	private String currentStationId;
+	/**
 	 * The list of subway stations.
 	 */
 	private List<ASubwayStation> stations;
@@ -82,10 +87,6 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 	 * The favorite subway line stations IDs.
 	 */
 	private List<String> favStationsIds;
-	/**
-	 * The subway line number.
-	 */
-	private int subwayLineNumber;
 	/**
 	 * The subway line direction ID.
 	 */
@@ -104,12 +105,13 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 	 * @param directionId direction ID
 	 * @return the fragment
 	 */
-	public static Fragment newInstance(int subwayLineNumber, String directionId) {
-		MyLog.v(TAG, "newInstance(%s,%s)", subwayLineNumber, directionId);
+	public static Fragment newInstance(int subwayLineNumber, String directionId, String stationId) {
+		MyLog.v(TAG, "newInstance(%s,%s,%s)", subwayLineNumber, directionId, stationId);
 		SubwayLineDirectionFragment f = new SubwayLineDirectionFragment();
 		Bundle args = new Bundle();
 		args.putString(SubwayLineInfo.EXTRA_LINE_NUMBER, String.valueOf(subwayLineNumber));
 		args.putString(SubwayLineInfo.EXTRA_ORDER_PREF, directionId);
+		args.putString(SubwayLineInfo.EXTRA_STATION_ID, stationId);
 		f.setArguments(args);
 		return f;
 	}
@@ -164,13 +166,13 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 	}
 
 	private void showAll() {
-		int lineNumber = Integer.valueOf(getArguments().getString(SubwayLineInfo.EXTRA_LINE_NUMBER)).intValue();
+		String lineNumber = getArguments().getString(SubwayLineInfo.EXTRA_LINE_NUMBER);
 		String lineDirectionId = getArguments().getString(SubwayLineInfo.EXTRA_ORDER_PREF);
-		this.subwayLineNumber = lineNumber;
+		String stationId = getArguments().getString(SubwayLineInfo.EXTRA_STATION_ID);
 		this.subwayLineDirectionId = lineDirectionId;
 		this.stations = null;
 		this.adapter = null;
-		refreshSubwayStationListFromDB();
+		refreshSubwayStationListFromDB(lineNumber, stationId);
 	}
 
 	@Override
@@ -252,12 +254,13 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 	/**
 	 * Refresh the subway station list UI.
 	 */
-	private void refreshSubwayStationListFromDB() { // TODO extract?
+	private void refreshSubwayStationListFromDB(String lineNumber, String stationId) { // TODO extract?
 		MyLog.v(TAG, "refreshSubwayStationListFromDB()");
-		new AsyncTask<Integer, Void, List<ASubwayStation>>() {
+		new AsyncTask<String, Void, List<ASubwayStation>>() {
 			@Override
-			protected List<ASubwayStation> doInBackground(Integer... params) {
-				int lineNumber = params[0];
+			protected List<ASubwayStation> doInBackground(String... params) {
+				int lineNumber = Integer.valueOf(params[0]);
+				String stationId = params[1];
 				String orderId = getSortOrderFromOrderPref(SubwayLineDirectionFragment.this.subwayLineDirectionId);
 				Activity activity = getLastActivity();
 				List<SubwayStation> subwayStationsList = StmManager.findSubwayLineStationsList(activity.getContentResolver(), lineNumber, orderId);
@@ -281,6 +284,9 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 					if (stationsWithOtherLines.containsKey(aStation.getId())) {
 						aStation.addOtherLinesId(stationsWithOtherLines.get(aStation.getId()));
 					}
+					if (aStation.getId().equals(stationId)) {
+						SubwayLineDirectionFragment.this.currentStationId = aStation.getId();
+					}
 					stations.add(aStation);
 				}
 				return stations;
@@ -297,11 +303,38 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 				generateOrderedStationsIds();
 				refreshFavoriteStationIdsFromDB(activity.getContentResolver());
 				SubwayLineDirectionFragment.this.adapter = new ArrayAdapterWithCustomView(activity, R.layout.subway_line_info_stations_list_item);
+				ListView listView = (ListView) view.findViewById(R.id.list);
+				listView.setAdapter(SubwayLineDirectionFragment.this.adapter);
 				updateDistancesWithNewLocation(activity);
-				((ListView) view.findViewById(R.id.list)).setAdapter(SubwayLineDirectionFragment.this.adapter);
+				int index = selectedStationIndex();
+				if (index > 0) {
+					index--; // show one more stop on top
+				}
+				SupportFactory.getInstance(activity).listViewScrollTo(listView, index, 50);
 			};
 
-		}.execute(this.subwayLineNumber);
+		}.execute(lineNumber, stationId);
+	}
+
+	/**
+	 * @return the current station index
+	 */
+	private int selectedStationIndex() {
+		// MyLog.v(TAG, "selectedStationIndex()");
+		if (this.stations != null) {
+			for (int i = 0; i < this.stations.size(); i++) {
+				if (this.currentStationId != null) {
+					if (this.stations.get(i).getId().equals(this.currentStationId)) {
+						return i;
+					}
+				} else if (this.closestStationId != null) {
+					if (this.stations.get(i).getId().equals(this.closestStationId)) {
+						return i;
+					}
+				}
+			}
+		}
+		return 0;
 	}
 
 	/**

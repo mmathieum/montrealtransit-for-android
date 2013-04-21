@@ -353,15 +353,15 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			// update the list distances
 			setClosestStationsDistances(currentLocation);
 			// update the view
-			refreshClosestSubwayStationsDistancesList();
+			refreshClosestStationsDistancesList();
 		}
 	}
 
 	/**
-	 * Refresh the closest subway stations <b>distances</b> ONLY in the list.
+	 * Refresh the closest stations <b>distances</b> ONLY in the list.
 	 */
-	private void refreshClosestSubwayStationsDistancesList() {
-		MyLog.v(TAG, "refreshClosestSubwayStationsDistancesList()");
+	private void refreshClosestStationsDistancesList() {
+		MyLog.v(TAG, "refreshClosestStationsDistancesList()");
 		findViewById(R.id.closest_stations).setVisibility(View.VISIBLE);
 		for (ABikeStation station : this.closestBikeStations) {
 			View stationView = findViewById(R.id.closest_stations).findViewWithTag(getStationViewTag(station));
@@ -823,12 +823,13 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			View view = getLayoutInflater().inflate(R.layout.bike_station_info_closest_stations_list_item, closestStationsLayout, false);
 			view.setTag(getStationViewTag(station));
 			// bike station name
-			((TextView) view.findViewById(R.id.station_name)).setText(Utils.cleanBikeStationName(station.getName()));
+			TextView stationNameTv = (TextView) view.findViewById(R.id.station_name);
+			stationNameTv.setText(Utils.cleanBikeStationName(station.getName()));
 			// status (not installed, locked..)
 			if (!station.isInstalled() || station.isLocked()) {
-				((TextView) view.findViewById(R.id.station_name)).setTextColor(Utils.getTextColorSecondary(BikeStationInfo.this));
+				stationNameTv.setTextColor(Utils.getTextColorSecondary(BikeStationInfo.this));
 			} else {
-				((TextView) view.findViewById(R.id.station_name)).setTextColor(Utils.getTextColorPrimary(BikeStationInfo.this));
+				stationNameTv.setTextColor(Utils.getTextColorPrimary(BikeStationInfo.this));
 			}
 			// bike station distance
 			TextView distanceTv = (TextView) view.findViewById(R.id.distance);

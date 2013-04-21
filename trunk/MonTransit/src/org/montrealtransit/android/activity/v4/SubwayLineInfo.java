@@ -66,6 +66,10 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 	 */
 	public static final String EXTRA_ORDER_PREF = org.montrealtransit.android.activity.SubwayLineInfo.EXTRA_ORDER_PREF;
 	/**
+	 * The extra for the subway station ID (optional)
+	 */
+	public static final String EXTRA_STATION_ID = org.montrealtransit.android.activity.SubwayLineInfo.EXTRA_STATION_ID;
+	/**
 	 * The subway line directions.
 	 */
 	private static final String[] subwayLineDirections = new String[] { UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_NATURAL,
@@ -112,7 +116,11 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 	 * The {@link Sensor#TYPE_MAGNETIC_FIELD} values.
 	 */
 	private float[] magneticFieldValues;
-
+	/**
+	 * The selected station ID (or null) 
+	 */
+	public String currentStationId;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
@@ -122,6 +130,7 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 
 		int lineNumber = Integer.valueOf(Utils.getSavedStringValue(getIntent(), savedInstanceState, SubwayLineInfo.EXTRA_LINE_NUMBER)).intValue();
 		String newOrderPref = Utils.getSavedStringValue(getIntent(), savedInstanceState, SubwayLineInfo.EXTRA_ORDER_PREF);
+		this.currentStationId = Utils.getSavedStringValue(getIntent(), savedInstanceState, SubwayLineInfo.EXTRA_STATION_ID);
 		showNewSubway(lineNumber, newOrderPref);
 	}
 
@@ -563,7 +572,7 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 		@Override
 		public Fragment getItem(int position) {
 			// MyLog.v(TAG, "getItem(%s)", position);
-			return SubwayLineDirectionFragment.newInstance(SubwayLineInfo.this.subwayLine.getNumber(), subwayLineDirections[position]);
+			return SubwayLineDirectionFragment.newInstance(SubwayLineInfo.this.subwayLine.getNumber(), subwayLineDirections[position], SubwayLineInfo.this.currentStationId);
 		}
 
 	}

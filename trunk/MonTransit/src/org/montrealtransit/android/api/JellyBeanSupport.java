@@ -13,7 +13,7 @@ public class JellyBeanSupport extends IceCreamSandwichSupport {
 	/**
 	 * The log tag.
 	 */
-	// private static final String TAG = JellyBeanSupport.class.getSimpleName();
+	public static final String TAG = JellyBeanSupport.class.getSimpleName();
 
 	/**
 	 * The default constructor.
