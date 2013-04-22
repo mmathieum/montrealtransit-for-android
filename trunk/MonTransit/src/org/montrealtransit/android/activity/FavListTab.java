@@ -448,7 +448,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 			findViewById(R.id.fav_bus_stops).setVisibility(View.VISIBLE);
 			busStopsLayout.setVisibility(View.VISIBLE);
 			// FOR EACH bus stop DO
-			if (this.busStops != null) {
+			if (busStopsExtendedList != null) {
 				for (final BusStop busStop : busStopsExtendedList) {
 					// list view divider
 					if (busStopsLayout.getChildCount() > 0) {
