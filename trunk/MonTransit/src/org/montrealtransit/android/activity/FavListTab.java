@@ -388,6 +388,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 				if (newBikeFavList != null) { // IF favorite bike station list was refreshed DO update the UI
 					refreshBikeStationsUI(this.newBikeFavList, this.bikeStations);
 				}
+				updateDistancesWithNewLocation(); // show distance if location found
 				showEmptyFav();
 				UserPreferences.savePrefLcl(FavListTab.this, UserPreferences.PREFS_LCL_IS_FAV, isThereAtLeastOneFavorite());
 			}
@@ -895,6 +896,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 	 */
 	public Location getLocation() {
 		if (this.location == null) {
+			MyLog.d(TAG, "getLocation() > this.location == null");
 			new AsyncTask<Void, Void, Location>() {
 				@Override
 				protected Location doInBackground(Void... params) {
