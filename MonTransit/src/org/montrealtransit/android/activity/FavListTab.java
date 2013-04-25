@@ -896,7 +896,6 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 	 */
 	public Location getLocation() {
 		if (this.location == null) {
-			MyLog.d(TAG, "getLocation() > this.location == null");
 			new AsyncTask<Void, Void, Location>() {
 				@Override
 				protected Location doInBackground(Void... params) {
