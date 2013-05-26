@@ -57,7 +57,6 @@ import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
-import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -760,7 +759,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		messageTv.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 		messageTv.setPadding(15, 15, 15, 15); // TODO custom dialog
 		messageTv.setText(getString(R.string.subway_status_message));
-		Linkify.addLinks(messageTv, Linkify.WEB_URLS);
+		// Linkify.addLinks(messageTv, Linkify.WEB_URLS);
 		new AlertDialog.Builder(this).setTitle(getString(R.string.subway_status)).setIcon(R.drawable.ic_btn_info_details).setView(messageTv)
 				.setPositiveButton(getString(android.R.string.ok), null).setCancelable(true).create().show();
 	}
