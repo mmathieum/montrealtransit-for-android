@@ -1,22 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/closest_bike_stations_layout"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
-    <!-- CLOSEST BIKE STATIONs TITLE -->
+    android:layout_height="fill_parent" >
+    <!-- ADs -->
     <include
-        android:id="@+id/closest_bike_stations_title"
-        layout="@layout/bike_station_tab_closest_stations_title" />
-    <!-- CLOSEST BIKE STATIONS LIST -->
-    <include
-        android:id="@+id/closest_bike_stations_list_loading"
-        layout="@layout/loading_layout"
-        android:visibility="gone" />
-    <ListView
-        android:id="@+id/closest_bike_stations_list"
+        android:id="@id/ad_layout"
+        layout="@layout/ad_layout" />
+    <LinearLayout
+        android:id="@+id/closest_bike_stations_layout"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:textFilterEnabled="true"
-        android:visibility="visible" />
-</LinearLayout>
+        android:layout_above="@+id/ad_layout"
+        android:orientation="vertical" >
+        <!-- CLOSEST BIKE STATIONs TITLE -->
+        <include
+            android:id="@+id/closest_bike_stations_title"
+            layout="@layout/bike_station_tab_closest_stations_title" />
+        <!-- CLOSEST BIKE STATIONS LIST -->
+        <include
+            android:id="@+id/closest_bike_stations_list_loading"
+            layout="@layout/loading_layout"
+            android:visibility="visible" />
+        <ListView
+            android:id="@+id/closest_bike_stations_list"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:textFilterEnabled="true"
+            android:visibility="gone" />
+    </LinearLayout>
+</RelativeLayout>

@@ -59,12 +59,18 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.text.style.RelativeSizeSpan;
+import android.text.style.StyleSpan;
+import android.text.style.TextAppearanceSpan;
 import android.text.util.Linkify;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -154,6 +160,22 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	 * The last compass degree.
 	 */
 	private int lastCompassInDegree = -1;
+	/**
+	 * The last {@link #updateCompass(float[])} time-stamp in milliseconds.
+	 */
+	private long lastCompassChanged = -1;
+	/**
+	 * Store the device location.
+	 */
+	private Location location;
+	/**
+	 * Is the location updates enabled?
+	 */
+	private boolean locationUpdatesEnabled = false;
+	/**
+	 * Is the location updates enabled?
+	 */
+	private boolean compassUpdatesEnabled = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -278,6 +300,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		LocationUtils.disableLocationUpdates(this, this);
 		this.locationUpdatesEnabled = false;
 		SensorUtils.unregisterSensorListener(this, this);
+		this.compassUpdatesEnabled = false;
 		super.onPause();
 	}
 
@@ -330,10 +353,13 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		Location currentLocation = getLocation();
 		if (currentLocation != null) {
 			int io = (int) orientation[0];
-			if (io != 0 && Math.abs(this.lastCompassInDegree - io) > SensorUtils.LIST_VIEW_COMPASS_DEGREE_UPDATE_THRESOLD) {
-				this.lastCompassInDegree = io;
+			long now = System.currentTimeMillis();
+			if (io != 0 && (now - this.lastCompassChanged) > SensorUtils.COMPASS_UPDATE_THRESOLD
+					&& Math.abs(this.lastCompassInDegree - io) > SensorUtils.COMPASS_DEGREE_UPDATE_THRESOLD) {
 				// update bike station compass
 				if (this.busStop != null) {
+					this.lastCompassInDegree = io;
+					this.lastCompassChanged = now;
 					Matrix matrix = new Matrix();
 					matrix.postRotate(
 							SensorUtils.getCompassRotationInDegree(this, currentLocation, this.busStop.getLocation(), orientation, getLocationDeclination()),
@@ -506,7 +532,8 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		TextView lineNumberTv = (TextView) findViewById(R.id.line_number);
 		lineNumberTv.setText(this.busLine.getNumber());
 		lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColor(this.busLine.getType(), this.busLine.getNumber()));
-		((TextView) findViewById(R.id.line_direction)).setText(getString(BusUtils.getBusLineSimpleDirection(this.busStop.getDirectionId())).toUpperCase(Locale.getDefault()));
+		String lineDirection = getString(BusUtils.getBusLineSimpleDirection(this.busStop.getDirectionId())).toUpperCase(Locale.getDefault());
+		((TextView) findViewById(R.id.line_direction)).setText(lineDirection);
 		// set listener
 		findViewById(R.id.line).setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -590,6 +617,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 				// remove all bus lines with the same line number
 				ListIterator<BusStop> it = result.listIterator();
 				Set<String> busLinesNumberDirection = new HashSet<String>();
+				Set<String> busLinesNumber = new HashSet<String>();
 				while (it.hasNext()) {
 					BusStop busStop = it.next();
 					// IF same bus stop and bus line DO
@@ -602,6 +630,12 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 						it.remove();
 						continue;
 					}
+					// check if the bus line is not already in the list
+					if (busLinesNumber.contains(busStop.getLineNumber())) {
+						it.remove();
+						continue;
+					}
+					busLinesNumber.add(busStop.getLineNumber());
 					// keep trace of processed bus lines number & directions
 					busLinesNumberDirection.add(busStop.getLineNumber() + BusUtils.getBusLineSimpleDirection(busStop.getDirectionId()));
 				}
@@ -633,8 +667,8 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 				lineNumberTv.setBackgroundColor(color);
 				// line direction
 				final String currentDirectionId = busStop.getDirectionId();
-				int busLineDirection = BusUtils.getBusLineSimpleDirection(currentDirectionId);
-				((TextView) view.findViewById(R.id.line_direction)).setText(getString(busLineDirection).toUpperCase(Locale.getDefault()));
+				String lineDirection = getString(BusUtils.getBusLineSimpleDirection(currentDirectionId)).toUpperCase(Locale.getDefault());
+				((TextView) view.findViewById(R.id.line_direction)).setText(lineDirection);
 				view.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
@@ -921,29 +955,65 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 				message1Tv.setVisibility(View.GONE);
 				message2Tv.setVisibility(View.GONE);
 				// show next bus stop group
-				findViewById(R.id.next_stops_group).setVisibility(View.VISIBLE);
+				HorizontalScrollView stopsHScrollv = (HorizontalScrollView) findViewById(R.id.next_stops_group);
+				stopsHScrollv.smoothScrollTo(0, 0); // reset scroll
+				stopsHScrollv.setVisibility(View.VISIBLE);
 				List<String> fHours = this.hours.getFormattedHours(this);
-				// clear the last values
-				TextView theSecondNextStopTv = (TextView) findViewById(R.id.the_second_next_stop);
-				theSecondNextStopTv.setText(null);
-				TextView otherNextStopsTv = (TextView) findViewById(R.id.other_stops);
-				otherNextStopsTv.setText(null);
 				// show the next bus stops
-				((TextView) findViewById(R.id.the_next_stop)).setText(fHours.get(0));
+				SpannableStringBuilder nextStopsSb = new SpannableStringBuilder();
+				// 1st stop
+				int startFirstStop = nextStopsSb.length();
+				nextStopsSb.append(fHours.get(0));
+				int endFirstStop = startFirstStop + fHours.get(0).length();
+				int startSecondStop = 0, endSecondStop = 0, startOtherStops = 0, endOtherStops = 0;
 				if (fHours.size() > 1) {
-					theSecondNextStopTv.setText(fHours.get(1));
+					// 2nd stops
+					nextStopsSb.append(' ').append(' ').append(' ');
+					startSecondStop = nextStopsSb.length();
+					nextStopsSb.append(fHours.get(1));
+					endSecondStop = startSecondStop + fHours.get(1).length();
 					if (fHours.size() > 2) {
-						String hoursS = "";
+						// other stops
+						startOtherStops = nextStopsSb.length();
+						endOtherStops = startOtherStops;
 						for (int i = 2; i < fHours.size(); i++) {
-							if (hoursS.length() > 0) {
-								hoursS += " ";
+							if (nextStopsSb.length() > 0) {
+								nextStopsSb.append(' ');
+								endOtherStops += 1;
 							}
-							hoursS += fHours.get(i);
+							nextStopsSb.append(fHours.get(i));
+							endOtherStops += fHours.get(i).length();
 						}
-						otherNextStopsTv.setText(hoursS);
 					}
 				}
-				// show messages
+				if (startFirstStop != endFirstStop) {
+					nextStopsSb.setSpan(new TextAppearanceSpan(this, android.R.style.TextAppearance_Large), startFirstStop, endFirstStop,
+							Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+					nextStopsSb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startFirstStop, endFirstStop, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+					nextStopsSb.setSpan(new RelativeSizeSpan(2.0f), startFirstStop, endFirstStop, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+				}
+				if (startSecondStop != endSecondStop) {
+					nextStopsSb.setSpan(new TextAppearanceSpan(this, android.R.style.TextAppearance_Medium), startSecondStop, endSecondStop,
+							Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+					nextStopsSb.setSpan(new RelativeSizeSpan(2.0f), startSecondStop, endSecondStop, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+				}
+				if (startOtherStops != endOtherStops) {
+					nextStopsSb.setSpan(new TextAppearanceSpan(this, android.R.style.TextAppearance_Small), startOtherStops, endOtherStops,
+							Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+					nextStopsSb.setSpan(new RelativeSizeSpan(2.0f), startOtherStops, endOtherStops, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+				}
+				String word = nextStopsSb.toString().toLowerCase(Locale.ENGLISH);
+				for (int index = word.indexOf("am"); index >= 0; index = word.indexOf("am", index + 1)) {
+					nextStopsSb.setSpan(new RelativeSizeSpan(0.1f), index - 1, index, Spannable.SPAN_INCLUSIVE_INCLUSIVE); // remove space hack
+					nextStopsSb.setSpan(new RelativeSizeSpan(0.25f), index, index + 2, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+					index += 2;
+				}
+				for (int index = word.indexOf("pm"); index >= 0; index = word.indexOf("pm", index + 1)) {
+					nextStopsSb.setSpan(new RelativeSizeSpan(0.1f), index - 1, index, Spannable.SPAN_INCLUSIVE_INCLUSIVE); // remove space hack
+					nextStopsSb.setSpan(new RelativeSizeSpan(0.25f), index, index + 2, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+				}
+				((TextView) findViewById(R.id.next_stops)).setText(nextStopsSb);
+				// // show messages
 				if (!TextUtils.isEmpty(this.hours.getMessage())) {
 					message1Tv.setVisibility(View.VISIBLE);
 					message1Tv.setText(this.hours.getMessage());
@@ -1202,15 +1272,6 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	}
 
 	/**
-	 * Store the device location.
-	 */
-	private Location location;
-	/**
-	 * Is the location updates enabled?
-	 */
-	private boolean locationUpdatesEnabled = false;
-
-	/**
 	 * Initialize the location updates if necessary.
 	 * @return the location or <B>NULL</b>
 	 */
@@ -1236,7 +1297,10 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		if (newLocation != null) {
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
-				SensorUtils.registerCompassListener(this, this);
+				if (!this.compassUpdatesEnabled) {
+					SensorUtils.registerCompassListener(this, this);
+					this.compassUpdatesEnabled = true;
+				}
 			}
 		}
 	}

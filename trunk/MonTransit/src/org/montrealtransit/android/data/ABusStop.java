@@ -17,7 +17,7 @@ public class ABusStop extends BusStop {
 	/**
 	 * The distance in meter.
 	 */
-	private float distance;
+	private float distance = -1;
 
 	/**
 	 * The compass rotation matrix.

@@ -108,9 +108,13 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 */
 	private Location location;
 	/**
-	 * Is the location updates should be enabled?
+	 * Is the location updates enabled?
 	 */
 	private boolean locationUpdatesEnabled = false;
+	/**
+	 * Is the compass updates enabled?
+	 */
+	private boolean compassUpdatesEnabled = false;
 	/**
 	 * The list of bus stops.
 	 */
@@ -155,6 +159,10 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 * The last compass (in degree).
 	 */
 	private int lastCompassInDegree = -1;
+	/**
+	 * The last {@link #updateCompass(float[])} time-stamp in milliseconds.
+	 */
+	private long lastCompassChanged = -1;
 	/**
 	 * The scroll state of the list.
 	 */
@@ -211,6 +219,8 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 				}
 			}
 		});
+		this.adapter = new ArrayAdapterWithCustomView(BusLineInfo.this, R.layout.bus_line_info_stops_list_item);
+		list.setAdapter(this.adapter);
 	}
 
 	/**
@@ -266,6 +276,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		LocationUtils.disableLocationUpdates(this, this);
 		this.locationUpdatesEnabled = false;
 		SensorUtils.unregisterSensorListener(this, this);
+		this.compassUpdatesEnabled = false;
 		super.onPause();
 	}
 
@@ -325,10 +336,13 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		Location currentLocation = getLocation();
 		if (currentLocation != null) {
 			int io = (int) orientation[0];
-			if (io != 0 && Math.abs(this.lastCompassInDegree - io) > SensorUtils.LIST_VIEW_COMPASS_DEGREE_UPDATE_THRESOLD) {
-				this.lastCompassInDegree = io;
+			long now = System.currentTimeMillis();
+			if (io != 0 && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE && (now - this.lastCompassChanged) > SensorUtils.COMPASS_UPDATE_THRESOLD
+					&& Math.abs(this.lastCompassInDegree - io) > SensorUtils.COMPASS_DEGREE_UPDATE_THRESOLD) {
 				// update closest bike stations compass
 				if (this.busStops != null) {
+					this.lastCompassInDegree = io;
+					this.lastCompassChanged = now;
 					for (ABusStop busStop : this.busStops) {
 						busStop.getCompassMatrix().reset();
 						busStop.getCompassMatrix().postRotate(
@@ -437,7 +451,8 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		if ((this.busLine == null || this.busLineDirection == null)
 				|| (!this.busLine.getNumber().equals(newLineNumber) || !this.busLineDirection.getId().equals(newDirectionId))) {
 			// show loading layout
-			((ListView) findViewById(R.id.list)).setAdapter(null);
+			this.busStops = null;
+			notifyDataSetChanged(true);
 			new AsyncTask<Void, Void, Void>() {
 				@Override
 				protected Void doInBackground(Void... params) {
@@ -558,8 +573,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 				BusLineInfo.this.busStops = Arrays.asList(result);
 				generateOrderedStopCodes();
 				refreshFavoriteStopCodesFromDB();
-				BusLineInfo.this.adapter = new ArrayAdapterWithCustomView(BusLineInfo.this, R.layout.bus_line_info_stops_list_item);
-				((ListView) findViewById(R.id.list)).setAdapter(BusLineInfo.this.adapter);
+				notifyDataSetChanged(true);
 				updateDistancesWithNewLocation(); // force update all bus stop with location
 			};
 
@@ -695,14 +709,14 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 					holder.distanceTv.setText(busStop.getDistanceString());
 					holder.distanceTv.setVisibility(View.VISIBLE);
 				} else {
-					holder.distanceTv.setVisibility(View.GONE);
+					holder.distanceTv.setVisibility(View.INVISIBLE);
 				}
 				// bus stop compass
 				if (busStop.getCompassMatrixOrNull() != null) {
 					holder.compassImg.setImageMatrix(busStop.getCompassMatrix());
 					holder.compassImg.setVisibility(View.VISIBLE);
 				} else {
-					holder.compassImg.setVisibility(View.GONE);
+					holder.compassImg.setVisibility(View.INVISIBLE);
 				}
 				// set style for closest bus stop
 				int index = -1;
@@ -714,11 +728,13 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 					holder.placeTv.setTypeface(Typeface.DEFAULT_BOLD);
 					holder.distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
 					holder.distanceTv.setTextColor(Utils.getTextColorPrimary(getContext()));
+					holder.compassImg.setImageResource(R.drawable.heading_arrow_light);
 					break;
 				default:
 					holder.placeTv.setTypeface(Typeface.DEFAULT);
 					holder.distanceTv.setTypeface(Typeface.DEFAULT);
 					holder.distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
+					holder.compassImg.setImageResource(R.drawable.heading_arrow);
 					break;
 				}
 			}
@@ -742,8 +758,11 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		if (newLocation != null) {
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
-				SensorUtils.registerShakeAndCompassListener(this, this);
-				this.shakeHandled = false;
+				if (!this.compassUpdatesEnabled) {
+					SensorUtils.registerShakeAndCompassListener(this, this);
+					this.compassUpdatesEnabled = true;
+					this.shakeHandled = false;
+				}
 			}
 		}
 	}
@@ -793,7 +812,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 * Generate the ordered bus line stops codes.
 	 */
 	public void generateOrderedStopCodes() {
-		if (this.busStops.size() == 0) {
+		if (this.busStops == null || this.busStops.size() == 0) {
 			return;
 		}
 		List<ABusStop> orderedStops = new ArrayList<ABusStop>(this.busStops);
@@ -812,7 +831,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 				}
 			}
 		});
-		this.closestStopCode = orderedStops.get(0).getCode();
+		this.closestStopCode = orderedStops.get(0).getDistance() > 0 ? orderedStops.get(0).getCode() : null;
 	}
 
 	@Override

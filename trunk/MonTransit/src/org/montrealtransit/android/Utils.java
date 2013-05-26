@@ -502,7 +502,23 @@ public class Utils {
 		}
 		return sb.toString();
 	}
-	
+
+	/**
+	 * Extract the subway station IDs from the favorite subway station list
+	 * @param subwayStationFavList the favorite subway station list
+	 * @return the subway station IDs string
+	 */
+	public static String extractSubwayStationIDsFromFavList(List<Fav> subwayStationFavList) {
+		StringBuilder sb = new StringBuilder();
+		for (Fav subwayStationpFav : subwayStationFavList) {
+			if (sb.length() > 0) {
+				sb.append("+");
+			}
+			sb.append(subwayStationpFav.getFkId());
+		}
+		return sb.toString();
+	}
+
 	/**
 	 * Extract bike stations terminal name from favorite list.
 	 * @param bikeStationFavList the bike stations favorite list
@@ -891,7 +907,7 @@ public class Utils {
 	 */
 	public static void sleep(int timeInSec) {
 		try {
-			Thread.sleep(timeInSec*1000);
+			Thread.sleep(timeInSec * 1000);
 		} catch (InterruptedException e) {
 		}
 	}

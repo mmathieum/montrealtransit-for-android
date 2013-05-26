@@ -89,9 +89,13 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 	 */
 	private String currentSubwayLineDirectionId;
 	/**
-	 * Is the location updates should be enabled?
+	 * Is the location updates enabled?
 	 */
 	private boolean locationUpdatesEnabled = false;
+	/**
+	 * Is the compass updates enabled?
+	 */
+	private boolean compassUpdatesEnabled = false;
 	/**
 	 * The acceleration apart from gravity.
 	 */
@@ -117,10 +121,10 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 	 */
 	private float[] magneticFieldValues;
 	/**
-	 * The selected station ID (or null) 
+	 * The selected station ID (or null)
 	 */
 	public String currentStationId;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
@@ -249,6 +253,7 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 		LocationUtils.disableLocationUpdates(this, this);
 		this.locationUpdatesEnabled = false;
 		SensorUtils.unregisterSensorListener(this, this);
+		this.compassUpdatesEnabled = false;
 		super.onPause();
 	}
 
@@ -360,14 +365,11 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 		// instantiate view pager...
 		ViewPager viewpager = (ViewPager) findViewById(R.id.viewpager);
 		TitlePageIndicator indicator = (TitlePageIndicator) findViewById(R.id.indicator);
-
 		this.adapter = new SubwayLineDirectionAdapter(getSupportFragmentManager());
 		viewpager.setAdapter(this.adapter);
 		indicator.setViewPager(viewpager);
-
 		indicator.setCurrentItem(currentDirectionIndex());
 		indicator.setOnPageChangeListener(this);
-
 		hideLoading();
 	}
 
@@ -502,8 +504,11 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 		if (newLocation != null) {
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
-				SensorUtils.registerShakeAndCompassListener(this, this);
-				this.shakeHandled = false;
+				if (!this.compassUpdatesEnabled) {
+					SensorUtils.registerShakeAndCompassListener(this, this);
+					this.compassUpdatesEnabled = true;
+					this.shakeHandled = false;
+				}
 			}
 		}
 	}
@@ -572,7 +577,8 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 		@Override
 		public Fragment getItem(int position) {
 			// MyLog.v(TAG, "getItem(%s)", position);
-			return SubwayLineDirectionFragment.newInstance(SubwayLineInfo.this.subwayLine.getNumber(), subwayLineDirections[position], SubwayLineInfo.this.currentStationId);
+			return SubwayLineDirectionFragment.newInstance(SubwayLineInfo.this.subwayLine.getNumber(), subwayLineDirections[position],
+					SubwayLineInfo.this.currentStationId);
 		}
 
 	}

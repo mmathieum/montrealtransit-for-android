@@ -98,7 +98,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 			}
 		}
 		List<BikeStation> updatedBikeStations = BixiDataReader.doInForeground(this.context, this.from, Arrays.asList(bikeStationTerminalNames), 0);
-		// IF no result OR no specific bike station to return DO
+		// IF no result OR no specific bike stations to return DO
 		if (updatedBikeStations == null || bikeStationTerminalNames == null || bikeStationTerminalNames.length == 0) {
 			// just return all (or none!)
 			return updatedBikeStations;

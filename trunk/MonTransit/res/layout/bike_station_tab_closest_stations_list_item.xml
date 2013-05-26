@@ -36,6 +36,7 @@
         android:id="@+id/compass"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignWithParentIfMissing="true"
         android:layout_centerVertical="true"
         android:layout_marginLeft="3dp"
         android:layout_marginRight="3dp"
@@ -48,17 +49,52 @@
     <TextView
         android:id="@+id/station_name"
         android:layout_width="fill_parent"
-        android:layout_height="?android:attr/listPreferredItemHeight"
+        android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_alignWithParentIfMissing="true"
         android:layout_marginLeft="5dip"
         android:layout_marginRight="5dip"
+        android:layout_marginTop="4dip"
         android:layout_toLeftOf="@id/compass"
         android:ellipsize="marquee"
         android:gravity="center_vertical"
         android:singleLine="true"
         android:text="@string/ellipsis"
         android:textAppearance="?android:attr/textAppearanceLarge" />
-    <!-- android:layout_marginRight="3dip" -->
+    <RelativeLayout
+        android:id="@+id/availability"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/station_name"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_marginTop="-2dip"
+        android:layout_toLeftOf="@id/compass"
+        android:padding="0dip">
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="2dip"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="5dip"
+            android:layout_marginRight="5dip"
+            android:indeterminate="true" />
+        <TextView
+            android:id="@+id/progress_bike"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@id/progress_bar"
+            android:layout_below="@id/progress_bar"
+            android:text="@string/ellipsis"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+        <TextView
+            android:id="@+id/progress_dock"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignRight="@id/progress_bar"
+            android:layout_below="@id/progress_bar"
+            android:text="@string/ellipsis"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </RelativeLayout>
 </RelativeLayout>

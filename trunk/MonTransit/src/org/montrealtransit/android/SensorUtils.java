@@ -42,7 +42,11 @@ public final class SensorUtils {
 	/**
 	 * The minimum degree change for a list view to be updated.
 	 */
-	public static final int LIST_VIEW_COMPASS_DEGREE_UPDATE_THRESOLD = 9;
+	public static final int COMPASS_DEGREE_UPDATE_THRESOLD = 18;
+	/**
+	 * The minimum between 2 {@link #updateCompass(float[])} in milliseconds.
+	 */
+	public static final int COMPASS_UPDATE_THRESOLD = 150; // 0.15 seconds
 
 	/**
 	 * Utility class.

@@ -29,7 +29,7 @@ public class ASubwayStation extends SubwayStation {
 	/**
 	 * The distance in meter.
 	 */
-	private float distance;
+	private float distance = -1;
 	/**
 	 * The compass rotation matrix.
 	 */

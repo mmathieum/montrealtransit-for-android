@@ -99,6 +99,38 @@ public class BusTabLinesGridFragment extends Fragment {
 	protected List<BusLine> busLines;
 
 	private void showAll() {
+		GridView busLinesGrid = (GridView) getLastView().findViewById(R.id.bus_lines);
+		busLinesGrid.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				MyLog.v(TAG, "onItemClick(%s, %s,%s,%s)", parent.getId(), view.getId(), position, id);
+				if (BusTabLinesGridFragment.this.busLines != null && position < BusTabLinesGridFragment.this.busLines.size()
+						&& BusTabLinesGridFragment.this.busLines.get(position) != null) {
+					BusLine selectedLine = BusTabLinesGridFragment.this.busLines.get(position);
+					Intent intent = new Intent(BusTabLinesGridFragment.this.getLastActivity(), SupportFactory.getInstance(
+							BusTabLinesGridFragment.this.getLastActivity()).getBusLineInfoClass());
+					intent.putExtra(BusLineInfo.EXTRA_LINE_NUMBER, selectedLine.getNumber());
+					intent.putExtra(BusLineInfo.EXTRA_LINE_NAME, selectedLine.getName());
+					intent.putExtra(BusLineInfo.EXTRA_LINE_TYPE, selectedLine.getType());
+					startActivity(intent);
+				}
+			}
+		});
+		busLinesGrid.setOnItemLongClickListener(new OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+				MyLog.v(TAG, "onItemClick(%s, %s,%s,%s)", parent.getId(), view.getId(), position, id);
+				if (BusTabLinesGridFragment.this.busLines != null && position < BusTabLinesGridFragment.this.busLines.size()
+						&& BusTabLinesGridFragment.this.busLines.get(position) != null) {
+					BusLine selectedLine = BusTabLinesGridFragment.this.busLines.get(position);
+					new BusLineSelectDirection(BusTabLinesGridFragment.this.getLastActivity(), selectedLine.getNumber(), selectedLine.getName(),
+							selectedLine.getType()).showDialog();
+					return true;
+				}
+				return false;
+			}
+		});
+		busLinesGrid.setAdapter(new BusLineArrayAdapter(BusTabLinesGridFragment.this.getLastActivity(), R.layout.bus_tab_bus_lines_grid_item));
 		if (this.busLines == null) {
 			refreshBusLinesFromDB();
 		} else {
@@ -125,39 +157,7 @@ public class BusTabLinesGridFragment extends Fragment {
 					Utils.sleep(1); // wait 1 second and retry
 					view = BusTabLinesGridFragment.this.getLastView();
 				}
-				GridView busLinesGrid = (GridView) view.findViewById(R.id.bus_lines);
-				busLinesGrid.setAdapter(new BusLineArrayAdapter(BusTabLinesGridFragment.this.getLastActivity(), R.layout.bus_tab_bus_lines_grid_item));
-				busLinesGrid.setOnItemClickListener(new OnItemClickListener() {
-					@Override
-					public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-						MyLog.v(TAG, "onItemClick(%s, %s,%s,%s)", parent.getId(), view.getId(), position, id);
-						if (BusTabLinesGridFragment.this.busLines != null && position < BusTabLinesGridFragment.this.busLines.size()
-								&& BusTabLinesGridFragment.this.busLines.get(position) != null) {
-							BusLine selectedLine = BusTabLinesGridFragment.this.busLines.get(position);
-							Intent intent = new Intent(BusTabLinesGridFragment.this.getLastActivity(), SupportFactory.getInstance(
-									BusTabLinesGridFragment.this.getLastActivity()).getBusLineInfoClass());
-							intent.putExtra(BusLineInfo.EXTRA_LINE_NUMBER, selectedLine.getNumber());
-							intent.putExtra(BusLineInfo.EXTRA_LINE_NAME, selectedLine.getName());
-							intent.putExtra(BusLineInfo.EXTRA_LINE_TYPE, selectedLine.getType());
-							startActivity(intent);
-						}
-					}
-				});
-				busLinesGrid.setOnItemLongClickListener(new OnItemLongClickListener() {
-					@Override
-					public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-						MyLog.v(TAG, "onItemClick(%s, %s,%s,%s)", parent.getId(), view.getId(), position, id);
-						if (BusTabLinesGridFragment.this.busLines != null && position < BusTabLinesGridFragment.this.busLines.size()
-								&& BusTabLinesGridFragment.this.busLines.get(position) != null) {
-							BusLine selectedLine = BusTabLinesGridFragment.this.busLines.get(position);
-							new BusLineSelectDirection(BusTabLinesGridFragment.this.getLastActivity(), selectedLine.getNumber(), selectedLine.getName(),
-									selectedLine.getType()).showDialog();
-							return true;
-						}
-						return false;
-					}
-				});
-				busLinesGrid.setVisibility(View.VISIBLE);
+				view.findViewById(R.id.bus_lines).setVisibility(View.VISIBLE);
 				view.findViewById(R.id.bus_lines_loading).setVisibility(View.GONE);
 			}
 

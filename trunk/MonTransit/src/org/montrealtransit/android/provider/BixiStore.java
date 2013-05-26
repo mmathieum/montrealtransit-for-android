@@ -47,6 +47,10 @@ public class BixiStore {
 		 * The default sort order for bike stations.
 		 */
 		public static final String DEFAULT_SORT_ORDER = BixiDbHelper.T_BIKE_STATIONS_K_TERMINAL_NAME + " ASC";
+		/**
+		 * Sort by bike station name.
+		 */
+		public static final String SORT_BY_NAME = BixiDbHelper.T_BIKE_STATIONS_K_NAME + " ASC";
 
 		/**
 		 * The bike station ID.

@@ -125,7 +125,8 @@ public class BixiManager {
 	 */
 	private static Cursor findBikeStations(ContentResolver contentResolver, String terminalNames) {
 		MyLog.v(TAG, "findBikeStations(%s)", terminalNames);
-		return contentResolver.query(Uri.withAppendedPath(BixiStore.BikeStation.CONTENT_URI, terminalNames), null, null, null, null);
+		return contentResolver.query(Uri.withAppendedPath(BixiStore.BikeStation.CONTENT_URI, terminalNames), null, null, null,
+				BixiStore.BikeStation.SORT_BY_NAME);
 	}
 
 	/**

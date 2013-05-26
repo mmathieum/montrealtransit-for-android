@@ -341,6 +341,34 @@ public class DataManager {
 		return serviceStatus;
 	}
 
+	public static List<DataStore.ServiceStatus> findLatestServiceStatuses(ContentResolver contentResolver, String lang) {
+		MyLog.v(TAG, "findLatestServiceStatuses(%s)", lang);
+		List<DataStore.ServiceStatus> serviceStatuses = null;
+		Cursor cursor = null;
+		try {
+			Uri uri = DataStore.ServiceStatus.CONTENT_URI;
+			String selection = DataDbHelper.T_SERVICE_STATUS_K_LANGUAGE + "='" + lang + "'";
+			cursor = contentResolver.query(uri, null, selection, null, DataStore.ServiceStatus.ORDER_BY_LATEST_PUB_DATE);
+			if (cursor != null && cursor.getCount() > 0) {
+				// load all statuses
+				serviceStatuses = new ArrayList<ServiceStatus>();
+				if (cursor.moveToFirst()) {
+					do {
+						serviceStatuses.add(DataStore.ServiceStatus.fromCursor(cursor));
+					} while (cursor.moveToNext());
+				}
+				if (serviceStatuses.size() > 0) {
+					// sort by status type
+					Collections.sort(serviceStatuses, new ServiceStatusTypeComparator());
+				}
+			}
+		} finally {
+			if (cursor != null)
+				cursor.close();
+		}
+		return serviceStatuses;
+	}
+
 	/**
 	 * Find the favorite for given favorite type.
 	 * @param contentResolver the content resolver
@@ -354,7 +382,6 @@ public class DataManager {
 		try {
 			Uri favTypeUri = ContentUris.withAppendedId(DataStore.Fav.CONTENT_URI, type);
 			Uri uri = Uri.withAppendedPath(favTypeUri, DataStore.Fav.URI_TYPE);
-
 			cursor = contentResolver.query(uri, PROJECTION_FAVS, null, null, null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {

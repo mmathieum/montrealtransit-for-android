@@ -89,6 +89,41 @@ public class SubwayUtils {
 		}
 	}
 
+	public static int findSubwayLineNumberFromName(Context context, String name) {
+		// MyLog.v(TAG, "findSubwayLineNumberFromName(%s)", name);
+		name = name.toLowerCase(Locale.ENGLISH);
+		if (name.equals(context.getString(R.string.green_line_short).toLowerCase(Locale.ENGLISH))) {
+			return StmStore.SubwayLine.GREEN_LINE_NUMBER;
+		}
+		if (name.equals(context.getString(R.string.orange_line_short).toLowerCase(Locale.ENGLISH))) {
+			return StmStore.SubwayLine.ORANGE_LINE_NUMBER;
+		}
+		if (name.equals(context.getString(R.string.yellow_line_short).toLowerCase(Locale.ENGLISH))) {
+			return StmStore.SubwayLine.YELLOW_LINE_NUMBER;
+		}
+		if (name.equals(context.getString(R.string.blue_line_short).toLowerCase(Locale.ENGLISH))) {
+			return StmStore.SubwayLine.BLUE_LINE_NUMBER;
+		}
+		return -1;
+	}
+
+	public static int findSubwayLineNumberFromShortName(int nameResId) {
+		// MyLog.v(TAG, "findSubwayLineNumberFromShortName(%s)", nameResId);
+		switch (nameResId) {
+		case R.string.green_line_short:
+			return StmStore.SubwayLine.GREEN_LINE_NUMBER;
+		case R.string.orange_line_short:
+			return StmStore.SubwayLine.ORANGE_LINE_NUMBER;
+		case R.string.yellow_line_short:
+			return StmStore.SubwayLine.YELLOW_LINE_NUMBER;
+		case R.string.blue_line_short:
+			return StmStore.SubwayLine.BLUE_LINE_NUMBER;
+		default:
+			MyLog.w(TAG, "Unknown subway line short name resource ID '%s'.", nameResId);
+			return -1;
+		}
+	}
+
 	/**
 	 * Return the subway line image ID for the subway line number
 	 * @param number the subway line number

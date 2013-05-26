@@ -114,9 +114,13 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 */
 	private String orderPref;
 	/**
-	 * Is the location updates should be enabled?
+	 * Is the location updates enabled?
 	 */
 	private boolean locationUpdatesEnabled = false;
+	/**
+	 * Is the compass updates enabled?
+	 */
+	private boolean compassUpdatesEnabled = false;
 	/**
 	 * The acceleration apart from gravity.
 	 */
@@ -145,6 +149,10 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 * The last compass value.
 	 */
 	private int lastCompassInDegree = -1;
+	/**
+	 * The last {@link #updateCompass(float[])} time-stamp in milliseconds.
+	 */
+	private long lastCompassChanged = -1;
 	/**
 	 * The list scroll state.
 	 */
@@ -193,6 +201,8 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 			}
 		});
 		list.setOnScrollListener(this);
+		this.adapter = new ArrayAdapterWithCustomView(SubwayLineInfo.this, R.layout.subway_line_info_stations_list_item);
+		list.setAdapter(this.adapter);
 	}
 
 	@Override
@@ -203,7 +213,8 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 			((TextView) findViewById(R.id.line_name)).setText(SubwayUtils.getSubwayLineName(newLineNumber));
 			((ImageView) findViewById(R.id.subway_img)).setImageResource(SubwayUtils.getSubwayLineImgId(newLineNumber));
 			// show loading layout
-			((ListView) findViewById(R.id.list)).setAdapter(null);
+			this.stations = null;
+			notifyDataSetChanged(true);
 			new AsyncTask<Integer, Void, SubwayLine>() {
 				@Override
 				protected SubwayLine doInBackground(Integer... params) {
@@ -282,6 +293,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		LocationUtils.disableLocationUpdates(this, this);
 		this.locationUpdatesEnabled = false;
 		SensorUtils.unregisterSensorListener(this, this);
+		this.compassUpdatesEnabled = false;
 		super.onPause();
 	}
 
@@ -374,10 +386,13 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		Location currentLocation = getLocation();
 		if (currentLocation != null) {
 			int io = (int) orientation[0];
-			if (io != 0 && Math.abs(this.lastCompassInDegree - io) > SensorUtils.LIST_VIEW_COMPASS_DEGREE_UPDATE_THRESOLD) {
-				this.lastCompassInDegree = io;
+			long now = System.currentTimeMillis();
+			if (io != 0 && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE && (now - this.lastCompassChanged) > SensorUtils.COMPASS_UPDATE_THRESOLD
+					&& Math.abs(this.lastCompassInDegree - io) > SensorUtils.COMPASS_DEGREE_UPDATE_THRESOLD) {
 				// update closest bike stations compass
 				if (this.stations != null) {
+					this.lastCompassInDegree = io;
+					this.lastCompassChanged = now;
 					for (ASubwayStation subwayStation : this.stations) {
 						subwayStation.getCompassMatrix().reset();
 						subwayStation.getCompassMatrix().postRotate(
@@ -504,9 +519,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 				SubwayLineInfo.this.stations = result;
 				generateOrderedStationsIds();
 				refreshFavoriteStationIdsFromDB();
-				SubwayLineInfo.this.adapter = new ArrayAdapterWithCustomView(SubwayLineInfo.this, R.layout.subway_line_info_stations_list_item);
 				updateDistancesWithNewLocation();
-				((ListView) findViewById(R.id.list)).setAdapter(SubwayLineInfo.this.adapter);
 			};
 		}.execute(this.subwayLine.getNumber());
 	}
@@ -645,7 +658,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 				}
 			}
 		});
-		this.closestStationId = orderedStations.get(0).getId();
+		this.closestStationId = orderedStations.get(0).getDistance() > 0 ? orderedStations.get(0).getId() : null;
 	}
 
 	static class ViewHolder {
@@ -777,14 +790,14 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 					holder.distanceTv.setText(station.getDistanceString());
 					holder.distanceTv.setVisibility(View.VISIBLE);
 				} else {
-					holder.distanceTv.setVisibility(View.GONE);
+					holder.distanceTv.setVisibility(View.INVISIBLE);
 				}
 				// station compass
 				if (station.getCompassMatrixOrNull() != null) {
 					holder.compassImg.setImageMatrix(station.getCompassMatrix());
 					holder.compassImg.setVisibility(View.VISIBLE);
 				} else {
-					holder.compassImg.setVisibility(View.GONE);
+					holder.compassImg.setVisibility(View.INVISIBLE);
 				}
 				// set style for closest subway station
 				int index = -1;
@@ -796,11 +809,13 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 					holder.stationNameTv.setTypeface(Typeface.DEFAULT_BOLD);
 					holder.distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
 					holder.distanceTv.setTextColor(Utils.getTextColorPrimary(getContext()));
+					holder.compassImg.setImageResource(R.drawable.heading_arrow_light);
 					break;
 				default:
 					holder.stationNameTv.setTypeface(Typeface.DEFAULT);
 					holder.distanceTv.setTypeface(Typeface.DEFAULT);
 					holder.distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
+					holder.compassImg.setImageResource(R.drawable.heading_arrow);
 					break;
 				}
 			}
@@ -848,8 +863,11 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		if (newLocation != null) {
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
-				SensorUtils.registerShakeAndCompassListener(this, this);
-				this.shakeHandled = false;
+				if (!this.compassUpdatesEnabled) {
+					SensorUtils.registerShakeAndCompassListener(this, this);
+					this.compassUpdatesEnabled = true;
+					this.shakeHandled = false;
+				}
 			}
 		}
 	}

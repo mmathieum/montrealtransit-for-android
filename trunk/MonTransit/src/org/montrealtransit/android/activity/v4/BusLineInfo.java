@@ -95,9 +95,13 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 	 */
 	private Location location;
 	/**
-	 * Is the location updates should be enabled?
+	 * Is the location updates enabled?
 	 */
 	private boolean locationUpdatesEnabled = false;
+	/**
+	 * Is the compass updates enabled?
+	 */
+	private boolean compassUpdatesEnabled = false;
 	/**
 	 * The acceleration apart from gravity.
 	 */
@@ -207,6 +211,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 		LocationUtils.disableLocationUpdates(this, this);
 		this.locationUpdatesEnabled = false;
 		SensorUtils.unregisterSensorListener(this, this);
+		this.compassUpdatesEnabled = false;
 		super.onPause();
 	}
 
@@ -269,7 +274,6 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 			// updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues));
 			for (int i = 0; i < this.adapter.getCount(); i++) {
 				Fragment f = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.viewpager + ":" + i);
-				// Fragment f = this.adapter.getItem(i);
 				if (f != null) {
 					BusLineDirectionFragment df = (BusLineDirectionFragment) f;
 					df.updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues));
@@ -367,14 +371,11 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 		// instantiate view pager...
 		ViewPager viewpager = (ViewPager) findViewById(R.id.viewpager);
 		TitlePageIndicator indicator = (TitlePageIndicator) findViewById(R.id.indicator);
-
 		this.adapter = new BusLineDirectionAdapter(getSupportFragmentManager());
 		viewpager.setAdapter(this.adapter);
 		indicator.setViewPager(viewpager);
-
 		indicator.setCurrentItem(currentDirectionIndex());
 		indicator.setOnPageChangeListener(this);
-
 		hideLoading();
 	}
 
@@ -428,8 +429,11 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 		if (newLocation != null) {
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
-				SensorUtils.registerShakeAndCompassListener(this, this);
-				this.shakeHandled = false;
+				if (!this.compassUpdatesEnabled) {
+					SensorUtils.registerShakeAndCompassListener(this, this);
+					this.compassUpdatesEnabled = true;
+					this.shakeHandled = false;
+				}
 			}
 		}
 	}

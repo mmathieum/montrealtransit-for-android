@@ -125,6 +125,6 @@ public class IceCreamSandwichSupport extends HoneycombSupport {
 
 	@Override
 	public int getNbClosestPOIDisplay() {
-		return 0; // ClosestBikeStationsFinderTask.NO_LIMIT;
+		return super.getNbClosestPOIDisplay(); // 0; // ClosestBikeStationsFinderTask.NO_LIMIT;
 	}
 }
