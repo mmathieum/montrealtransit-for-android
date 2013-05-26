@@ -65,7 +65,6 @@ import android.text.TextUtils;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TextAppearanceSpan;
-import android.text.util.Linkify;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -1013,16 +1012,16 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 					nextStopsSb.setSpan(new RelativeSizeSpan(0.25f), index, index + 2, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
 				}
 				((TextView) findViewById(R.id.next_stops)).setText(nextStopsSb);
-				// // show messages
+				// show messages
 				if (!TextUtils.isEmpty(this.hours.getMessage())) {
 					message1Tv.setVisibility(View.VISIBLE);
 					message1Tv.setText(this.hours.getMessage());
-					Linkify.addLinks(message1Tv, Linkify.ALL);
+					// Linkify.addLinks(message1Tv, Linkify.ALL);
 				}
 				if (!TextUtils.isEmpty(this.hours.getMessage2())) {
 					message2Tv.setVisibility(View.VISIBLE);
 					message2Tv.setText(this.hours.getMessage2());
-					Linkify.addLinks(message2Tv, Linkify.ALL);
+					// Linkify.addLinks(message2Tv, Linkify.ALL);
 				}
 			}
 		}
@@ -1170,17 +1169,17 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 				// IF there is a secondary message from the STM DO
 				if (hours != null && !TextUtils.isEmpty(hours.getMessage2())) {
 					message1Tv.setText(hours.getMessage2());
-					Linkify.addLinks(message1Tv, Linkify.ALL);
+					// Linkify.addLinks(message1Tv, Linkify.ALL);
 					// IF there is also an error message from the STM DO
 					if (hours != null && !TextUtils.isEmpty(hours.getMessage())) {
 						message2Tv.setVisibility(View.VISIBLE);
 						message2Tv.setText(hours.getMessage());
-						Linkify.addLinks(message2Tv, Linkify.ALL);
+						// Linkify.addLinks(message2Tv, Linkify.ALL);
 					}
 					// ELSE IF there is only an error message from the STM DO
 				} else if (hours != null && !TextUtils.isEmpty(hours.getMessage())) {
 					message1Tv.setText(hours.getMessage());
-					Linkify.addLinks(message1Tv, Linkify.ALL);
+					// Linkify.addLinks(message1Tv, Linkify.ALL);
 					// ELSE
 				} else {
 					MyLog.w(TAG, "no next stop or message or error for %s %s!", busStop.getCode(), busLine.getNumber());
