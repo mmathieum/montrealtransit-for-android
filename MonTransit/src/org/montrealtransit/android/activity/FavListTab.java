@@ -100,6 +100,10 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 	 */
 	private boolean locationUpdatesEnabled = false;
 	/**
+	 * Is the compass updates enabled?
+	 */
+	private boolean compassUpdatesEnabled = false;
+	/**
 	 * The {@link Sensor#TYPE_ACCELEROMETER} values.
 	 */
 	private float[] accelerometerValues;
@@ -111,6 +115,10 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 	 * The last compass value.
 	 */
 	private int lastCompassInDegree = -1;
+	/**
+	 * The last {@link #updateCompass(float[])} time-stamp in milliseconds.
+	 */
+	private long lastCompassChanged = -1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -220,10 +228,13 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 		Location currentLocation = getLocation();
 		if (currentLocation != null) {
 			int io = (int) orientation[0];
-			if (io != 0 && Math.abs(this.lastCompassInDegree - io) > SensorUtils.LIST_VIEW_COMPASS_DEGREE_UPDATE_THRESOLD) {
-				this.lastCompassInDegree = io;
+			long now = System.currentTimeMillis();
+			if (io != 0 && (now - this.lastCompassChanged) > SensorUtils.COMPASS_UPDATE_THRESOLD
+					&& Math.abs(this.lastCompassInDegree - io) > SensorUtils.COMPASS_DEGREE_UPDATE_THRESOLD) {
 				// update bus stops compass
 				if (this.busStops != null) {
+					this.lastCompassInDegree = io;
+					this.lastCompassChanged = now;
 					View busStopsLayout = findViewById(R.id.bus_stops_list);
 					for (ABusStop busStop : this.busStops) {
 						if (busStop.getLocation() == null) {
@@ -245,6 +256,8 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 				}
 				// update subway station compass
 				if (this.subwayStations != null) {
+					this.lastCompassInDegree = io;
+					this.lastCompassChanged = now;
 					View subwayStationsLayout = findViewById(R.id.subway_stations_list);
 					for (ASubwayStation subwayStation : this.subwayStations) {
 						// update value
@@ -263,6 +276,8 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 				}
 				// update bike stations compass
 				if (this.bikeStations != null) {
+					this.lastCompassInDegree = io;
+					this.lastCompassChanged = now;
 					View bikeStationsLayout = findViewById(R.id.bike_stations_list);
 					for (ABikeStation bikeStation : this.bikeStations) {
 						// update value
@@ -313,6 +328,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 		LocationUtils.disableLocationUpdates(this, this);
 		this.locationUpdatesEnabled = false;
 		SensorUtils.unregisterSensorListener(this, this);
+		this.compassUpdatesEnabled = false;
 		super.onPause();
 	}
 
@@ -331,7 +347,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 			private List<DataStore.Fav> newBusStopFavList;
 			private List<BusStop> busStopsExtendedList;
 			private List<DataStore.Fav> newSubwayFavList;
-			private Map<String, SubwayStation> subwayStations;
+			private List<SubwayStation> subwayStations;
 			private Map<String, List<SubwayLine>> otherSubwayLines;
 			private List<DataStore.Fav> newBikeFavList;
 			private Map<String, BikeStation> bikeStations;
@@ -353,11 +369,10 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 				this.newSubwayFavList = DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
 				if (FavListTab.this.currentSubwayStationFavList == null || !Fav.listEquals(FavListTab.this.currentSubwayStationFavList, this.newSubwayFavList)) {
 					MyLog.d(TAG, "Loading subway station favorites from DB...");
-					this.subwayStations = new HashMap<String, SubwayStation>();
+					this.subwayStations = StmManager.findSubwayStationsList(getContentResolver(),
+							Utils.extractSubwayStationIDsFromFavList(this.newSubwayFavList));
 					this.otherSubwayLines = new HashMap<String, List<SubwayLine>>();
-					for (Fav subwayFav : this.newSubwayFavList) {
-						SubwayStation station = StmManager.findSubwayStation(getContentResolver(), subwayFav.getFkId());
-						this.subwayStations.put(subwayFav.getFkId(), station);
+					for (SubwayStation station : this.subwayStations) {
 						if (station != null) {
 							this.otherSubwayLines.put(station.getId(), StmManager.findSubwayStationLinesList(getContentResolver(), station.getId()));
 						}
@@ -471,12 +486,6 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 					// bus stop line direction
 					int busLineDirection = BusUtils.getBusLineSimpleDirection(busStop.getDirectionId());
 					((TextView) view.findViewById(R.id.line_direction)).setText(getString(busLineDirection).toUpperCase(Locale.getDefault()));
-					// bus station distance
-					TextView distanceTv = (TextView) view.findViewById(R.id.distance);
-					distanceTv.setVisibility(View.GONE);
-					distanceTv.setText(null);
-					// compass
-					view.findViewById(R.id.compass).setVisibility(View.GONE);
 					// add click listener
 					view.setOnClickListener(new View.OnClickListener() {
 						@Override
@@ -573,7 +582,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 	 * @param stations the new favorite subway stations
 	 * @param otherLines the new favorite subway stations "other lines"
 	 */
-	private void refreshSubwayStationsUI(List<DataStore.Fav> newSubwayFavList, Map<String, SubwayStation> stations, Map<String, List<SubwayLine>> otherLines) {
+	private void refreshSubwayStationsUI(List<DataStore.Fav> newSubwayFavList, List<SubwayStation> stations, Map<String, List<SubwayLine>> otherLines) {
 		// MyLog.v(TAG, "refreshSubwayStationsUI()", Utils.getCollectionSize(newSubwayFavList), Utils.getMapSize(stations), Utils.getMapSize(otherLines));
 		if (this.currentSubwayStationFavList == null || this.currentSubwayStationFavList.size() != newSubwayFavList.size()) {
 			LinearLayout subwayStationsLayout = (LinearLayout) findViewById(R.id.subway_stations_list);
@@ -586,9 +595,8 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 			findViewById(R.id.fav_subway_stations).setVisibility(View.VISIBLE);
 			subwayStationsLayout.setVisibility(View.VISIBLE);
 			// FOR EACH favorite subway DO
-			for (Fav subwayFav : this.currentSubwayStationFavList) {
-				final SubwayStation subwayStation = stations == null ? null : stations.get(subwayFav.getFkId());
-				if (subwayStation != null) {
+			if (stations != null) {
+				for (final SubwayStation subwayStation : stations) {
 					List<SubwayLine> otherLinesId = otherLines.get(subwayStation.getId());
 					// list view divider
 					if (subwayStationsLayout.getChildCount() > 0) {
@@ -621,12 +629,6 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 						view.findViewById(R.id.subway_img_2).setVisibility(View.GONE);
 						view.findViewById(R.id.subway_img_3).setVisibility(View.GONE);
 					}
-					// subway station distance
-					TextView distanceTv = (TextView) view.findViewById(R.id.distance);
-					distanceTv.setVisibility(View.GONE);
-					distanceTv.setText(null);
-					// compass
-					view.findViewById(R.id.compass).setVisibility(View.GONE);
 					// add click listener
 					view.setOnClickListener(new View.OnClickListener() {
 						@Override
@@ -692,8 +694,6 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 					});
 					this.subwayStations.add(new ASubwayStation(subwayStation));
 					subwayStationsLayout.addView(view);
-				} else {
-					MyLog.w(TAG, "Can't find the favorite subway station (ID:%s)", subwayFav.getFkId());
 				}
 			}
 		}
@@ -732,12 +732,6 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 					view.setTag(getBikeStationViewTag(bikeStation));
 					// subway station name
 					((TextView) view.findViewById(R.id.station_name)).setText(Utils.cleanBikeStationName(bikeStation.getName()));
-					// bike station distance
-					TextView distanceTv = (TextView) view.findViewById(R.id.distance);
-					distanceTv.setVisibility(View.GONE);
-					distanceTv.setText(null);
-					// compass
-					view.findViewById(R.id.compass).setVisibility(View.GONE);
 					// add click listener
 					view.setOnClickListener(new View.OnClickListener() {
 						@Override
@@ -886,7 +880,10 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 			// MyLog.d(TAG, "new location: %s.", LocationUtils.locationToString(newLocation));
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
-				SensorUtils.registerCompassListener(this, this);
+				if (!this.compassUpdatesEnabled) {
+					SensorUtils.registerCompassListener(this, this);
+					this.compassUpdatesEnabled = true;
+				}
 			}
 		}
 	}

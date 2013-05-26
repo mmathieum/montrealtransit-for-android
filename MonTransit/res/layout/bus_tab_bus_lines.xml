@@ -4,7 +4,7 @@
     android:id="@+id/bus_lines_layout"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical">
+    android:orientation="vertical" >
     <!-- TITLE -->
     <RelativeLayout
         android:id="@+id/bus_lines_title"
@@ -19,15 +19,23 @@
             android:focusable="false"
             android:gravity="center_vertical"
             android:src="@drawable/ic_btn_grid" />
-        <ImageView
+        <TextView
             android:id="@+id/title_show_closest"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:layout_alignParentRight="true"
             android:background="@android:drawable/list_selector_background"
+            android:clickable="true"
+            android:drawableRight="@drawable/ic_btn_location"
+            android:ellipsize="middle"
             android:focusable="true"
+            android:gravity="center_vertical"
             android:onClick="showClosest"
-            android:src="@drawable/ic_btn_location"
+            android:singleLine="true"
+            android:text="@string/closest_bus_stops"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="14sp"
+            android:textStyle="bold"
             android:visibility="visible" />
         <TextView
             android:id="@+id/title_text"

@@ -80,6 +80,10 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 	 */
 	private boolean locationUpdatesEnabled = false;
 	/**
+	 * Is the compass updates enabled?
+	 */
+	private boolean compassUpdatesEnabled = false;
+	/**
 	 * The location used to generate the closest stops.
 	 */
 	private Location closestStopsLocation;
@@ -111,6 +115,10 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 	 * The last compass value.
 	 */
 	private int lastCompassInDegree = -1;
+	/**
+	 * The last {@link #updateCompass(float[])} time-stamp in milliseconds.
+	 */
+	private long lastCompassChanged = -1;
 	/**
 	 * The favorites bus stops UIDs.
 	 */
@@ -270,10 +278,13 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 		Location currentLocation = getLocation();
 		if (currentLocation != null) {
 			int io = (int) orientation[0];
-			if (io != 0 && Math.abs(this.lastCompassInDegree - io) > SensorUtils.LIST_VIEW_COMPASS_DEGREE_UPDATE_THRESOLD) {
-				this.lastCompassInDegree = io;
+			long now = System.currentTimeMillis();
+			if (io != 0 && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE && (now - this.lastCompassChanged) > SensorUtils.COMPASS_UPDATE_THRESOLD
+					&& Math.abs(this.lastCompassInDegree - io) > SensorUtils.COMPASS_DEGREE_UPDATE_THRESOLD) {
 				// update closest bike stations compass
 				if (this.closestStops != null) {
+					this.lastCompassInDegree = io;
+					this.lastCompassChanged = now;
 					for (ABusStop stop : this.closestStops) {
 						stop.getCompassMatrix().reset();
 						stop.getCompassMatrix().postRotate(
@@ -316,6 +327,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 		LocationUtils.disableLocationUpdates(this, this);
 		this.locationUpdatesEnabled = false;
 		SensorUtils.unregisterSensorListener(this, this);
+		this.compassUpdatesEnabled = false;
 		super.onPause();
 	}
 
@@ -348,6 +360,14 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 
 	public void showAll() {
 		MyLog.v(TAG, "showAll()");
+		if (findViewById(R.id.closest_stops) == null) { // IF NOT present/inflated DO
+			((ViewStub) findViewById(R.id.closest_stops_stub)).inflate(); // inflate
+		}
+		ListView closestStopsListView = (ListView) findViewById(R.id.closest_stops);
+		closestStopsListView.setOnItemClickListener(this);
+		closestStopsListView.setOnScrollListener(this);
+		this.closestStopsAdapter = new BusStopArrayAdapter(this, R.layout.bus_tab_closest_stops_list_item);
+		closestStopsListView.setAdapter(this.closestStopsAdapter);
 		// show data
 		if (showingBusLines) {
 			// hide closest stops
@@ -434,13 +454,8 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 			if (findViewById(R.id.closest_stops) == null) { // IF NOT present/inflated DO
 				((ViewStub) findViewById(R.id.closest_stops_stub)).inflate(); // inflate
 			}
-			ListView closestStopsLayout = (ListView) findViewById(R.id.closest_stops);
 			// show stops list
-			this.closestStopsAdapter = new BusStopArrayAdapter(this, R.layout.bus_tab_closest_stops_list_item);
-			closestStopsLayout.setAdapter(this.closestStopsAdapter);
-			closestStopsLayout.setOnItemClickListener(this);
-			closestStopsLayout.setOnScrollListener(this);
-			closestStopsLayout.setVisibility(View.VISIBLE);
+			findViewById(R.id.closest_stops).setVisibility(View.VISIBLE);
 			setClosestStopsNotLoading();
 		}
 	}
@@ -545,7 +560,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 					holder.distanceTv.setText(stop.getDistanceString());
 					holder.distanceTv.setVisibility(View.VISIBLE);
 				} else {
-					holder.distanceTv.setVisibility(View.GONE);
+					holder.distanceTv.setVisibility(View.INVISIBLE);
 					holder.distanceTv.setText(null);
 				}
 				// compass
@@ -553,7 +568,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 					holder.compassImg.setImageMatrix(stop.getCompassMatrix());
 					holder.compassImg.setVisibility(View.VISIBLE);
 				} else {
-					holder.compassImg.setVisibility(View.GONE);
+					holder.compassImg.setVisibility(View.INVISIBLE);
 				}
 				// favorite
 				if (BusTab.this.favUIDs != null && BusTab.this.favUIDs.contains(stop.getUID())) {
@@ -571,19 +586,19 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 				// ((TextView) convertView.findViewById(R.id.station_name)).setTypeface(Typeface.DEFAULT_BOLD);
 				// distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
 				// distanceTv.setTextColor(Utils.getTextColorPrimary(getContext()));
+				// holder.compassImg.setImageResource(R.drawable.heading_arrow_light);
 				// break;
 				// default:
 				// ((TextView) convertView.findViewById(R.id.station_name)).setTypeface(Typeface.DEFAULT);
 				// distanceTv.setTypeface(Typeface.DEFAULT);
 				// distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
+				// holder.compassImg.setImageResource(R.drawable.heading_arrow);
 				// break;
 				// }
 			}
 			return convertView;
 		}
 	}
-	
-	
 
 	/**
 	 * A custom array adapter with custom {@link BusLineArrayAdapter#getView(int, View, ViewGroup)}
@@ -777,9 +792,12 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 			// MyLog.d(TAG, "new location: %s.", LocationUtils.locationToString(newLocation));
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
-				SensorUtils.registerShakeAndCompassListener(this, this);
-				// SensorUtils.registerCompassListener(this, this);
-				// this.shakeHandled = false;
+				if (!this.compassUpdatesEnabled) {
+					SensorUtils.registerShakeAndCompassListener(this, this);
+					this.compassUpdatesEnabled = true;
+					// SensorUtils.registerCompassListener(this, this);
+					// this.shakeHandled = false;
+				}
 			}
 		}
 	}

@@ -169,7 +169,9 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 		String stopCode = getArguments().getString(BusLineInfo.EXTRA_LINE_STOP_CODE);
 		this.busLineNumber = lineNumber;
 		this.busStops = null;
-		this.adapter = null;
+		ListView listView = (ListView) getLastView().findViewById(R.id.list);
+		this.adapter = new ArrayAdapterWithCustomView(getLastActivity(), R.layout.bus_line_info_stops_list_item);
+		listView.setAdapter(this.adapter);
 		refreshBusStopListFromDB(stopCode, lineDirectionId);
 	}
 
@@ -288,9 +290,8 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 				BusLineDirectionFragment.this.busStops = Arrays.asList(result);
 				generateOrderedStopCodes();
 				refreshFavoriteStopCodesFromDB(activity.getContentResolver());
-				BusLineDirectionFragment.this.adapter = new ArrayAdapterWithCustomView(activity, R.layout.bus_line_info_stops_list_item);
 				ListView listView = (ListView) view.findViewById(R.id.list);
-				listView.setAdapter(BusLineDirectionFragment.this.adapter);
+				notifyDataSetChanged(true);
 				updateDistancesWithNewLocation(activity); // force update all bus stops with location
 				int index = selectedStopIndex();
 				if (index > 0) {
@@ -398,6 +399,10 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 	 * The last compass (in degree).
 	 */
 	private int lastCompassInDegree = -1;
+	/**
+	 * The last {@link #updateCompass(float[])} time-stamp in milliseconds.
+	 */
+	private long lastCompassChanged = -1;
 
 	/**
 	 * Update the compass image(s).
@@ -408,10 +413,13 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 		Location currentLocation = getBusLineInfoActivity() == null ? null : getBusLineInfoActivity().getLocation();
 		if (currentLocation != null) {
 			int io = (int) orientation[0];
-			if (io != 0 && Math.abs(this.lastCompassInDegree - io) > SensorUtils.LIST_VIEW_COMPASS_DEGREE_UPDATE_THRESOLD) {
-				this.lastCompassInDegree = io;
+			long now = System.currentTimeMillis();
+			if (io != 0 && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE && (now - this.lastCompassChanged) > SensorUtils.COMPASS_UPDATE_THRESOLD
+					&& Math.abs(this.lastCompassInDegree - io) > SensorUtils.COMPASS_DEGREE_UPDATE_THRESOLD) {
 				// update closest bus stops compass
 				if (this.busStops != null) {
+					this.lastCompassInDegree = io;
+					this.lastCompassChanged = now;
 					for (ABusStop busStop : this.busStops) {
 						busStop.getCompassMatrix().reset();
 						busStop.getCompassMatrix().postRotate(
@@ -467,7 +475,7 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 				}
 			}
 		});
-		this.closestStopCode = orderedStops.get(0).getCode();
+		this.closestStopCode = orderedStops.get(0).getDistance() > 0 ? orderedStops.get(0).getCode() : null;
 	}
 
 	/**
@@ -632,14 +640,14 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 					holder.distanceTv.setText(busStop.getDistanceString());
 					holder.distanceTv.setVisibility(View.VISIBLE);
 				} else {
-					holder.distanceTv.setVisibility(View.GONE);
+					holder.distanceTv.setVisibility(View.INVISIBLE);
 				}
 				// bus stop compass
 				if (busStop.getCompassMatrixOrNull() != null) {
 					holder.compassImg.setImageMatrix(busStop.getCompassMatrix());
 					holder.compassImg.setVisibility(View.VISIBLE);
 				} else {
-					holder.compassImg.setVisibility(View.GONE);
+					holder.compassImg.setVisibility(View.INVISIBLE);
 				}
 				// set style for closest bus stop
 				int index = -1;
@@ -651,11 +659,13 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 					holder.placeTv.setTypeface(Typeface.DEFAULT_BOLD);
 					holder.distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
 					holder.distanceTv.setTextColor(Utils.getTextColorPrimary(getContext()));
+					holder.compassImg.setImageResource(R.drawable.heading_arrow_light);
 					break;
 				default:
 					holder.placeTv.setTypeface(Typeface.DEFAULT);
 					holder.distanceTv.setTypeface(Typeface.DEFAULT);
 					holder.distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
+					holder.compassImg.setImageResource(R.drawable.heading_arrow);
 					break;
 				}
 			}

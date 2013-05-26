@@ -88,6 +88,10 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 	 */
 	private boolean locationUpdatesEnabled = false;
 	/**
+	 * Is the location updates enabled?
+	 */
+	private boolean compassUpdatesEnabled = false;
+	/**
 	 * The {@link Sensor#TYPE_ACCELEROMETER} values.
 	 */
 	private float[] accelerometerValues;
@@ -99,6 +103,10 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 	 * The last compass value.
 	 */
 	private int lastCompassInDegree = -1;
+	/**
+	 * The last {@link #updateCompass(float[])} time-stamp in milliseconds.
+	 */
+	private long lastCompassChanged = -1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -180,6 +188,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 		LocationUtils.disableLocationUpdates(this, this);
 		this.locationUpdatesEnabled = false;
 		SensorUtils.unregisterSensorListener(this, this);
+		this.compassUpdatesEnabled = false;
 		super.onPause();
 	}
 
@@ -232,10 +241,13 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 		Location currentLocation = getLocation();
 		if (currentLocation != null) {
 			int io = (int) orientation[0];
-			if (io != 0 && Math.abs(this.lastCompassInDegree - io) > SensorUtils.LIST_VIEW_COMPASS_DEGREE_UPDATE_THRESOLD) {
-				this.lastCompassInDegree = io;
+			long now = System.currentTimeMillis();
+			if (io != 0 && (now - this.lastCompassChanged) > SensorUtils.COMPASS_UPDATE_THRESOLD
+					&& Math.abs(this.lastCompassInDegree - io) > SensorUtils.COMPASS_DEGREE_UPDATE_THRESOLD) {
 				// update bike station compass
 				if (this.subwayStation != null) {
+					this.lastCompassInDegree = io;
+					this.lastCompassChanged = now;
 					Matrix matrix = new Matrix();
 					matrix.postRotate(SensorUtils.getCompassRotationInDegree(this, currentLocation, this.subwayStation.getLocation(), orientation,
 							getLocationDeclination()), getArrowDimLight().first / 2, getArrowDimLight().second / 2);
@@ -567,7 +579,10 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 			// MyLog.d(TAG, "new location: '%s'.", LocationUtils.locationToString(newLocation));
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
-				SensorUtils.registerCompassListener(this, this);
+				if (!this.compassUpdatesEnabled) {
+					SensorUtils.registerCompassListener(this, this);
+					this.compassUpdatesEnabled = true;
+				}
 			}
 		}
 	}

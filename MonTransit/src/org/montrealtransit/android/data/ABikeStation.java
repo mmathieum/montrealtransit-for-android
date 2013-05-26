@@ -17,7 +17,7 @@ public class ABikeStation extends BikeStation {
 	/**
 	 * The distance in meter.
 	 */
-	private Float distance;
+	private float distance = -1;
 
 	/**
 	 * The compass rotation matrix or null.
@@ -67,14 +67,14 @@ public class ABikeStation extends BikeStation {
 	/**
 	 * @param distance the new distance
 	 */
-	public void setDistance(Float distance) {
+	public void setDistance(float distance) {
 		this.distance = distance;
 	}
 
 	/**
 	 * @return the distance or null
 	 */
-	public Float getDistance() {
+	public float getDistance() {
 		return distance;
 	}
 

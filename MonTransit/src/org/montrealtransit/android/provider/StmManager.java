@@ -182,7 +182,7 @@ public class StmManager {
 	public static Cursor findBusStopsWithLineInfo(ContentResolver contentResolver, String busStopCode) {
 		MyLog.v(TAG, "findBusStopsWithLineInfo(%s)", busStopCode);
 		Uri uri = Uri.withAppendedPath(StmStore.BusStop.CONTENT_URI, busStopCode);
-		return contentResolver.query(uri, PROJECTION_BUS_STOP_EXTENDED, null, null, BusStop.ORDER_BY_LINE_CODE);
+		return contentResolver.query(uri, PROJECTION_BUS_STOP_EXTENDED, null, null, BusStop.ORDER_BY_LINE_STOP_ORDER); // sort order required to hide last stops
 	}
 
 	/**
@@ -849,6 +849,32 @@ public class StmManager {
 		return result;
 	}
 
+	public static List<SubwayStation> findSubwayStationsList(ContentResolver contentResolver, String subwayStationsIds) {
+		MyLog.v(TAG, "findSubwayStationsList(%s)", subwayStationsIds);
+		List<SubwayStation> result = null;
+		Cursor cursor = null;
+		try {
+			cursor = findSubwayStations(contentResolver, subwayStationsIds);
+			if (cursor != null && cursor.getCount() > 0) {
+				if (cursor.moveToFirst()) {
+					result = new ArrayList<SubwayStation>();
+					do {
+						SubwayStation station = StmStore.SubwayStation.fromCursor(cursor);
+						result.add(station);
+					} while (cursor.moveToNext());
+				} else {
+					MyLog.w(TAG, "cursor is EMPTY !!!");
+				}
+			} else {
+				MyLog.w(TAG, "cursor.SIZE = 0 !!!");
+			}
+		} finally {
+			if (cursor != null)
+				cursor.close();
+		}
+		return result;
+	}
+
 	/**
 	 * Find subway stations and subway lines pairs.
 	 * @param contentResolver the content resolver
@@ -1026,7 +1052,12 @@ public class StmManager {
 			}
 			subwayStationIdsS += subwayStationId;
 		}
-		Uri uri = Uri.withAppendedPath(StmStore.SubwayStation.CONTENT_URI, subwayStationIdsS);
+		return findSubwayStations(contentResolver, subwayStationIdsS);
+	}
+
+	public static Cursor findSubwayStations(ContentResolver contentResolver, String subwayStationIds) {
+		MyLog.v(TAG, "findSubwayStations(%s)", subwayStationIds);
+		Uri uri = Uri.withAppendedPath(StmStore.SubwayStation.CONTENT_URI, subwayStationIds);
 		return contentResolver.query(uri, PROJECTION_SUBWAY_STATION, null, null, null);
 	}
 

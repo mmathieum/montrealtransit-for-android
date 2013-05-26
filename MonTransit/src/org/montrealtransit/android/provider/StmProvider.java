@@ -774,6 +774,7 @@ public class StmProvider extends ContentProvider {
 		case SUBWAY_STATIONS_IDS:
 			MyLog.v(TAG, "query>SUBWAY_STATIONS_IDS");
 			qb.setTables(StmDbHelper.T_SUBWAY_STATIONS);
+			qb.setProjectionMap(sSubwayStationsProjectionMap);
 			String[] subwayStationIds = uri.getPathSegments().get(1).split("\\+");
 			qb.appendWhere(StmDbHelper.T_SUBWAY_STATIONS_K_STATION_ID + " IN (");
 			for (int i = 0; i < subwayStationIds.length; i++) {
@@ -990,6 +991,7 @@ public class StmProvider extends ContentProvider {
 			case SUBWAY_STATION_ID_LINES_OTHER:
 			case SUBWAY_STATIONS_AND_LINES:
 			case SUBWAY_STATIONS_LOC_LAT_LNG:
+			case SUBWAY_STATIONS_IDS:
 				orderBy = StmStore.SubwayStation.DEFAULT_SORT_ORDER;
 				break;
 			case SUBWAY_STATION_ID_DIRECTION_ID_DAY:
