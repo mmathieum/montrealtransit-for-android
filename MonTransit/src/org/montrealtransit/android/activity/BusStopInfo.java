@@ -1003,12 +1003,16 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 				}
 				String word = nextStopsSb.toString().toLowerCase(Locale.ENGLISH);
 				for (int index = word.indexOf("am"); index >= 0; index = word.indexOf("am", index + 1)) {
-					nextStopsSb.setSpan(new RelativeSizeSpan(0.1f), index - 1, index, Spannable.SPAN_INCLUSIVE_INCLUSIVE); // remove space hack
+					if (index > 0) {
+						nextStopsSb.setSpan(new RelativeSizeSpan(0.1f), index - 1, index, Spannable.SPAN_INCLUSIVE_INCLUSIVE); // remove space hack
+					}
 					nextStopsSb.setSpan(new RelativeSizeSpan(0.25f), index, index + 2, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
 					index += 2;
 				}
 				for (int index = word.indexOf("pm"); index >= 0; index = word.indexOf("pm", index + 1)) {
-					nextStopsSb.setSpan(new RelativeSizeSpan(0.1f), index - 1, index, Spannable.SPAN_INCLUSIVE_INCLUSIVE); // remove space hack
+					if (index > 0) {
+						nextStopsSb.setSpan(new RelativeSizeSpan(0.1f), index - 1, index, Spannable.SPAN_INCLUSIVE_INCLUSIVE); // remove space hack
+					}
 					nextStopsSb.setSpan(new RelativeSizeSpan(0.25f), index, index + 2, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
 				}
 				((TextView) findViewById(R.id.next_stops)).setText(nextStopsSb);
