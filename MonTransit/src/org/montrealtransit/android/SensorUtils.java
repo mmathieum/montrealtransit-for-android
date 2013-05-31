@@ -32,7 +32,7 @@ public final class SensorUtils {
 	/**
 	 * The shake threshold acceleration.
 	 */
-	public static final float SHAKE_THRESHOLD_ACCELERATION = 10.00f;
+	public static final float SHAKE_THRESHOLD_ACCELERATION = 11.00f;
 
 	/**
 	 * The shake threshold minimum duration between 2 checks (in milliseconds).
