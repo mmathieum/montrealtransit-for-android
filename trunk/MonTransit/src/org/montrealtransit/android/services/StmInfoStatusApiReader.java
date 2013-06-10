@@ -131,30 +131,39 @@ public class StmInfoStatusApiReader extends AsyncTask<String, String, String> {
 		super.onPostExecute(errorMessage);
 	}
 
+	private static final String STATUS_GREEN_FR = "Service normal";
+	private static final String STATUS_GREEN_EN = "Normal m";
+
+	private static final String STATUS_YELLOW_FR = "Reprise";
+	private static final String STATUS_YELLOW_EN = "Service gradually";
+
+	private static final String STATUS_RED_FR = "Arrêt";
+	private static final String STATUS_RED_EN = "Service disrupt";
+
 	/**
 	 * Extract the service status from the Twitter status.
 	 * @param statusText the Twitter status
 	 * @return the service status
 	 */
 	public static int extractServiceStatus(String statusText) {
-		if (statusText.contains(" VE ") || statusText.contains(" VF ")) {
+		// if (statusText.contains(" VE ") || statusText.contains(" VF ")) {
+		// return ServiceStatus.STATUS_TYPE_GREEN;
+		// } else if (statusText.contains(" JE ") || statusText.contains(" JF ")) {
+		// return ServiceStatus.STATUS_TYPE_YELLOW;
+		// } else if (statusText.contains(" RE ") || statusText.contains(" RF ")) {
+		// return ServiceStatus.STATUS_TYPE_RED;
+		// } else {
+		// try keyword detection
+		if (statusText.startsWith(STATUS_GREEN_EN) || statusText.startsWith(STATUS_GREEN_FR)) {
 			return ServiceStatus.STATUS_TYPE_GREEN;
-		} else if (statusText.contains(" JE ") || statusText.contains(" JF ")) {
+		} else if (statusText.startsWith(STATUS_YELLOW_EN) || statusText.startsWith(STATUS_YELLOW_FR)) {
 			return ServiceStatus.STATUS_TYPE_YELLOW;
-		} else if (statusText.contains(" RE ") || statusText.contains(" RF ")) {
+		} else if (statusText.startsWith(STATUS_RED_EN) || statusText.startsWith(STATUS_RED_FR)) {
 			return ServiceStatus.STATUS_TYPE_RED;
 		} else {
-			// try keyword detection
-			if (statusText.startsWith("No significant") || statusText.startsWith("Aucune interruption")) {
-				return ServiceStatus.STATUS_TYPE_GREEN;
-			} else if (statusText.startsWith("Service gradually") || statusText.startsWith("Reprise graduelle")) {
-				return ServiceStatus.STATUS_TYPE_YELLOW;
-			} else if (statusText.startsWith("Service disrupt") || statusText.startsWith("Arrêt de service")) {
-				return ServiceStatus.STATUS_TYPE_RED;
-			} else {
-				return ServiceStatus.STATUS_TYPE_DEFAULT;
-			}
+			return ServiceStatus.STATUS_TYPE_DEFAULT;
 		}
+		// }
 	}
 
 	/**
@@ -164,20 +173,20 @@ public class StmInfoStatusApiReader extends AsyncTask<String, String, String> {
 	 */
 	@Deprecated
 	public static String extractMessageLanguage(String statusText) {
-		if (statusText.contains(" VE ") || statusText.contains(" JE ") || statusText.contains(" RE ")) {
+		// if (statusText.contains(" VE ") || statusText.contains(" JE ") || statusText.contains(" RE ")) {
+		// return ServiceStatus.STATUS_LANG_ENGLISH;
+		// } else if (statusText.contains(" VF ") || statusText.contains(" JF ") || statusText.contains(" RF ")) {
+		// return ServiceStatus.STATUS_LANG_FRENCH;
+		// } else {
+		// try keyword detection
+		if (statusText.startsWith(STATUS_GREEN_EN) || statusText.startsWith(STATUS_YELLOW_EN) || statusText.startsWith(STATUS_RED_EN)) {
 			return ServiceStatus.STATUS_LANG_ENGLISH;
-		} else if (statusText.contains(" VF ") || statusText.contains(" JF ") || statusText.contains(" RF ")) {
+		} else if (statusText.startsWith(STATUS_GREEN_FR) || statusText.startsWith(STATUS_YELLOW_FR) || statusText.startsWith(STATUS_RED_FR)) {
 			return ServiceStatus.STATUS_LANG_FRENCH;
 		} else {
-			// try keyword detection
-			if (statusText.startsWith("No significant") || statusText.startsWith("Service gradually") || statusText.startsWith("Service disrupt")) {
-				return ServiceStatus.STATUS_LANG_ENGLISH;
-			} else if (statusText.startsWith("Aucune interruption") || statusText.startsWith("Reprise graduelle") || statusText.startsWith("Arrêt de service")) {
-				return ServiceStatus.STATUS_LANG_FRENCH;
-			} else {
-				return ServiceStatus.STATUS_LANG_UNKNOWN;
-			}
+			return ServiceStatus.STATUS_LANG_UNKNOWN;
 		}
+		// }
 	}
 
 	/**
