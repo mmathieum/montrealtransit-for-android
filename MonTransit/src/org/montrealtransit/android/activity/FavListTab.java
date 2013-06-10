@@ -372,9 +372,11 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 					this.subwayStations = StmManager.findSubwayStationsList(getContentResolver(),
 							Utils.extractSubwayStationIDsFromFavList(this.newSubwayFavList));
 					this.otherSubwayLines = new HashMap<String, List<SubwayLine>>();
-					for (SubwayStation station : this.subwayStations) {
-						if (station != null) {
-							this.otherSubwayLines.put(station.getId(), StmManager.findSubwayStationLinesList(getContentResolver(), station.getId()));
+					if (Utils.getCollectionSize(this.subwayStations) > 0) {
+						for (SubwayStation station : this.subwayStations) {
+							if (station != null) {
+								this.otherSubwayLines.put(station.getId(), StmManager.findSubwayStationLinesList(getContentResolver(), station.getId()));
+							}
 						}
 					}
 					MyLog.d(TAG, "Loading subway station favorites from DB... DONE");
