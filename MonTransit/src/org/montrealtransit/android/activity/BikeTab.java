@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import org.montrealtransit.android.AdsUtils;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BikeUtils;
+import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
@@ -44,6 +45,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -155,7 +157,11 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	/**
 	 * The time-stamp of the last data refresh from www.
 	 */
-	private int lastRefreshTimestamp = 0;
+	private int lastSuccessfulRefresh = 0;
+	/**
+	 * Last try (device time).
+	 */
+	private int lastForcedRefresh = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -515,7 +521,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			// hide loading
 			findViewById(R.id.closest_bike_stations_list_loading).setVisibility(View.GONE); // hide
 			// show stations list
-			this.lastRefreshTimestamp = UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, 0);
+			this.lastSuccessfulRefresh = UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, 0);
 			notifyDataSetChanged(true);
 			findViewById(R.id.closest_bike_stations_list).setVisibility(View.VISIBLE);
 			setClosestStationsNotLoading();
@@ -525,20 +531,21 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 
 	private void refreshDataIfTooOld() {
 		MyLog.v(TAG, "refreshDataIfTooOld()");
-		this.lastRefreshTimestamp = UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, 0);
 		if (Utils.currentTimeSec() - BikeUtils.CACHE_TOO_OLD_IN_SEC - getLastUpdateTime() > 0) {
-			// refresh from www
-			if (this.closestBikeStationsTask == null || !this.closestBikeStationsTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
-				startClosestStationsTask(true);
-			} else {
-				// wait for 1 seconds
-				try {
+			// IF last try too recent DO
+			if (Utils.currentTimeSec() - BikeUtils.CACHE_TOO_OLD_IN_SEC - this.lastForcedRefresh < 0) {
+				MyLog.d(TAG, "refreshDataIfTooOld() > last refresh too recent, not refreshing");
+				return; // skip refresh
+			}
+			// ELSE refresh from www
+			if (this.closestBikeStationsTask != null && this.closestBikeStationsTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
+				try { // wait for 1 seconds
 					this.closestBikeStationsTask.get(1, TimeUnit.SECONDS);
-					startClosestStationsTask(true);
 				} catch (Exception e) {
 					MyLog.w(TAG, e, "Error while waiting to task to complete!");
 				}
 			}
+			startClosestStationsTask(true);
 		}
 	}
 
@@ -547,7 +554,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	 */
 	public int getLastUpdateTime() {
 		int timestamp = 0;
-		timestamp = this.lastRefreshTimestamp;
+		timestamp = this.lastSuccessfulRefresh;
 		// if (timestamp == 0 && this.bikeStation != null) {
 		// timestamp = this.bikeStation.getLatestUpdateTime();
 		// }
@@ -669,7 +676,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 					holder.stationNameTv.setTextColor(Utils.getTextColorPrimary(getContext()));
 				}
 				// availability
-				final int lastUpdate = BikeTab.this.lastRefreshTimestamp != 0 ? BikeTab.this.lastRefreshTimestamp : bikeStation.getLatestUpdateTime();
+				final int lastUpdate = BikeTab.this.lastSuccessfulRefresh != 0 ? BikeTab.this.lastSuccessfulRefresh : bikeStation.getLatestUpdateTime();
 				int waitFor = Utils.currentTimeSec() - BikeUtils.CACHE_NOT_USEFUL_IN_SEC - lastUpdate;
 				if (waitFor < 0) {
 					if (!bikeStation.isInstalled()) {
@@ -749,7 +756,9 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 		// IF there are already stations DO
 		if (Utils.getCollectionSize(this.closestStations) > 0) {
 			// notify the user but keep showing the old stations
-			Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show();
+			Toast toast = Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT);
+			toast.setGravity(Gravity.TOP, 0, Constant.TOAST_Y_OFFSET);
+			toast.show();
 		} else {
 			// show the error message
 			View loadingLayout = findViewById(R.id.closest_bike_stations_list_loading);
@@ -866,13 +875,17 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 					}
 
 				}.execute(this.closestBikeStationsLocation);
+			} else { // ELSE wait for location...
+				setClosestStationsLoading(null);
 			}
-			// ELSE wait for location...
 		}
 	}
 
 	private void startClosestStationsTask(boolean force) {
 		// MyLog.v(TAG, "startClosestStationsTask(%s)", force);
+		if (force) {
+			this.lastForcedRefresh = Utils.currentTimeSec();
+		}
 		setClosestStationsLoading(null);
 		this.closestBikeStationsTask = new ClosestBikeStationsFinderTask(this, this, SupportFactory.getInstance(this).getNbClosestPOIDisplay(), force);
 		this.closestBikeStationsTask.execute(this.closestBikeStationsLocation);
@@ -887,6 +900,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	@Override
 	public void onClosestBikeStationsDone(ClosestPOI<ABikeStation> result) {
 		// MyLog.v(TAG, "onClosestBikeStationsDone()");
+		// MyLog.d(TAG, "Error: " + (result == null ? null : result.getErrorMessage()));
 		if (result == null || result.getPoiListOrNull() == null) {
 			// show the error
 			setClosestStationsError(result == null ? null : result.getErrorMessage());
@@ -904,6 +918,10 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 				refreshFavoriteTerminalNamesFromDB();
 				// shot the result
 				showNewClosestBikeStations();
+			}
+			// notify the error message
+			if (!TextUtils.isEmpty(result.getErrorMessage())) {
+				setClosestStationsError(result.getErrorMessage());
 			}
 		}
 	}

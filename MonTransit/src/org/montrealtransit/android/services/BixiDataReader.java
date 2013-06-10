@@ -156,6 +156,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 					AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BIXI_DATA_LOADING_FAIL, "Success after X retry.",
 							tried);
 				}
+				publishProgress(from, new String[] { null }); // clear error message
 				return handler.getBikeStations();
 			default:
 				MyLog.w(TAG, "ERROR: HTTP URL-Connection Response Code %s (Message: %s)", httpsUrlConnection.getResponseCode(),
@@ -294,6 +295,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 	 * @param values the progress messages
 	 */
 	private static void publishProgress(BixiDataReaderListener from, String... values) {
+		// MyLog.v(TAG, "publishProgress()");
 		if (from != null) {
 			from.onBixiDataProgress(values[0]);
 		}

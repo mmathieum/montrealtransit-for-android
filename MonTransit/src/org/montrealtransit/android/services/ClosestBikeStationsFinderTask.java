@@ -96,12 +96,13 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 			publishProgress(this.context.getString(R.string.processing));
 			// get the closest bike station from database or NULL
 			List<BikeStation> bikeStations = getAllBikeStations(currentLocation);
+			if (!TextUtils.isEmpty(this.lastBixiDataMessage)) {
+				result.setErrorMessage(this.lastBixiDataMessage);
+			}
 			if (bikeStations != null) { // bike stations
 				result.setPoiList(getABikeStations(this.context, bikeStations, currentLocation, this.maxResult));
 			} else if (TextUtils.isEmpty(this.lastBixiDataMessage)) { // no bike stations
 				result.setPoiList(new ArrayList<ABikeStation>());
-			} else { // error
-				result.setErrorMessage(this.lastBixiDataMessage);
 			}
 		}
 		return result;

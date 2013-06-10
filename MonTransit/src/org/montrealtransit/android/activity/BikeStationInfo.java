@@ -8,6 +8,7 @@ import java.util.Map;
 import org.montrealtransit.android.AdsUtils;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BikeUtils;
+import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
@@ -43,6 +44,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -572,7 +574,9 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		if (!TextUtils.isEmpty(this.lastBixiDataMessage)) {
 			errorMsg = this.lastBixiDataMessage;
 		}
-		Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show();
+		Toast toast = Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT);
+		toast.setGravity(Gravity.TOP, 0, Constant.TOAST_Y_OFFSET);
+		toast.show();
 	}
 
 	/**
