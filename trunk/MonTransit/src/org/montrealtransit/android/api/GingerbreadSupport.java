@@ -31,7 +31,6 @@ public class GingerbreadSupport extends FroyoSupport {
 	@Override
 	public void applySharedPreferencesEditor(Editor editor) {
 		editor.apply();
-		backupManagerDataChanged();
 	}
 
 	@Override

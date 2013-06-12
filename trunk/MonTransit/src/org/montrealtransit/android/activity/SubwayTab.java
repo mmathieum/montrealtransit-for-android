@@ -228,6 +228,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			onResumeWithFocus();
 		}
 		super.onResume();
+		UserPreferences.savePrefLcl(this, UserPreferences.PREFS_LCL_TAB, 3);
 	}
 
 	/**

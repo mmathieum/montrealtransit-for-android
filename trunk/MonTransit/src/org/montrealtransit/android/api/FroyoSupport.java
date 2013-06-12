@@ -32,7 +32,6 @@ public class FroyoSupport extends EclairSupport {
 
 	@Override
 	public void applySharedPreferencesEditor(Editor editor) {
-		backupManagerDataChanged();
 		super.applySharedPreferencesEditor(editor);
 	}
 

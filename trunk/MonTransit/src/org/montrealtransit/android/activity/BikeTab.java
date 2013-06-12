@@ -215,6 +215,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			onResumeWithFocus();
 		}
 		super.onResume();
+		UserPreferences.savePrefLcl(this, UserPreferences.PREFS_LCL_TAB, 4);
 	}
 
 	/**

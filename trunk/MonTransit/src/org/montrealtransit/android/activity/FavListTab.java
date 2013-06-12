@@ -151,8 +151,9 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 			onResumeWithFocus();
 		}
 		super.onResume();
+		UserPreferences.savePrefLcl(this, UserPreferences.PREFS_LCL_TAB, 0);
 	}
-
+	
 	/**
 	 * {@link #onResume()} when activity has the focus
 	 */
