@@ -87,12 +87,7 @@ public class MainScreen extends ActivityGroup {
 		bikeStationsListTab.setContent(new Intent(this, BikeTab.class));
 		tabHost.addTab(bikeStationsListTab);
 		try {
-			// IF there is one or more favorites DO
-			if (UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_IS_FAV, UserPreferences.PREFS_LCL_IS_FAV_DEFAULT)) {
-				tabHost.setCurrentTab(0); // show favorite tab
-			} else {
-				tabHost.setCurrentTab(1); // show bus stop code search tab
-			}
+			tabHost.setCurrentTab(UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_TAB, UserPreferences.PREFS_LCL_TAB_DEFAULT));
 		} catch (Exception e) {
 			MyLog.w(TAG, "Error while determining the select tab", e);
 		}

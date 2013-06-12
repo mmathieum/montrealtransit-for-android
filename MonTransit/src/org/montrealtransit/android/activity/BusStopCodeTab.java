@@ -135,6 +135,7 @@ public class BusStopCodeTab extends Activity {
 		setSearchAutoCompleteAdapterFromDB();
 		setHistoryAdapterFromDB();
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
+		UserPreferences.savePrefLcl(this, UserPreferences.PREFS_LCL_TAB, 1);
 	}
 
 	/**

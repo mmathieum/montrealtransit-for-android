@@ -201,6 +201,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 			onResumeWithFocus();
 		}
 		super.onResume();
+		UserPreferences.savePrefLcl(this, UserPreferences.PREFS_LCL_TAB, 2);
 	}
 
 	/**

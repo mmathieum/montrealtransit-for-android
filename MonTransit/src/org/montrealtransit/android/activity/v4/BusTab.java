@@ -3,6 +3,7 @@ package org.montrealtransit.android.activity.v4;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
+import org.montrealtransit.android.activity.UserPreferences;
 
 import android.annotation.TargetApi;
 import android.os.Bundle;
@@ -63,6 +64,7 @@ public class BusTab extends FragmentActivity {
 			onResumeWithFocus();
 		}
 		super.onResume();
+		UserPreferences.savePrefLcl(this, UserPreferences.PREFS_LCL_TAB, 2);
 	}
 
 	/**
@@ -82,8 +84,15 @@ public class BusTab extends FragmentActivity {
 	private void showAll() {
 		MyLog.v(TAG, "showAll()");
 		this.viewPager = (ViewPager) findViewById(R.id.viewpager);
-		BusTabFragmentAdapter adapter = new BusTabFragmentAdapter(getSupportFragmentManager());
-		this.viewPager.setAdapter(adapter);
+		this.viewPager.setAdapter(new BusTabFragmentAdapter(getSupportFragmentManager()));
+		this.viewPager.setCurrentItem(UserPreferences.getPrefLcl(BusTab.this, UserPreferences.PREFS_LCL_BUS_TAB, UserPreferences.PREFS_LCL_BUS_TAB_DEFAULT));
+		this.viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+			
+			@Override
+			public void onPageSelected(int position) {
+				UserPreferences.savePrefLcl(BusTab.this, UserPreferences.PREFS_LCL_BUS_TAB, position);
+			}
+		});
 	}
 
 	/**

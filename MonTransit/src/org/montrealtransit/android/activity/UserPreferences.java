@@ -173,6 +173,23 @@ public class UserPreferences extends PreferenceActivity {
 	public static final String PREFS_SUBWAY_STATIONS_ORDER_DEFAULT = PREFS_SUBWAY_STATIONS_ORDER_NATURAL;
 
 	/**
+	 * The preference key for pre-fetching.
+	 */
+	public static final String PREFS_PREFETCHING = "pPrefetching";
+	/**
+	 * The default value for the pre-fetching.
+	 */
+	public static final boolean PREFS_PREFETCHING_DEFAULT = true;
+	/**
+	 * The preference key for pre-fetching over WiFi only.
+	 */
+	public static final String PREFS_PREFETCHING_WIFI_ONLY = "pPrefetchingWifiOnly";
+	/**
+	 * The default value for the pre-fetching over WiFi only.
+	 */
+	public static final boolean PREFS_PREFETCHING_WIFI_ONLY_DEFAULT = true;
+
+	/**
 	 * The preference key for ads.
 	 */
 	public static final String PREFS_ADS = "pAds";
@@ -185,11 +202,28 @@ public class UserPreferences extends PreferenceActivity {
 	 * The preference key for the presence of favorite.
 	 */
 	public static final String PREFS_LCL_IS_FAV = "pFav";
-
 	/**
 	 * Default value for favorite.
 	 */
 	public static final boolean PREFS_LCL_IS_FAV_DEFAULT = false;
+
+	/**
+	 * The preference key for the opening tab.
+	 */
+	public static final String PREFS_LCL_TAB = "pTab";
+	/**
+	 * Default value for the opening tab (stop code).
+	 */
+	public static final int PREFS_LCL_TAB_DEFAULT = 1;
+
+	/**
+	 * The preference key for the opening bus tab.
+	 */
+	public static final String PREFS_LCL_BUS_TAB = "pBusTab";
+	/**
+	 * Default value for the opening bus tab (stop code).
+	 */
+	public static final int PREFS_LCL_BUS_TAB_DEFAULT = 0;
 
 	/**
 	 * The latest version of the STM DB successfully deployed.
@@ -206,6 +240,10 @@ public class UserPreferences extends PreferenceActivity {
 	 */
 	private CheckBoxPreference adsCheckBox;
 
+	private CheckBoxPreference prefetchCb;
+
+	private CheckBoxPreference prefetchWiFiOnlyCb;
+
 	/**
 	 * The number of click on the version.
 	 */
@@ -218,6 +256,33 @@ public class UserPreferences extends PreferenceActivity {
 		MyLog.v(TAG, "onCreate()");
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.userpreferences);
+
+		// // prefetch
+		// this.prefetchCb = (CheckBoxPreference) findPreference(PREFS_PREFETCHING);
+		// this.prefetchWiFiOnlyCb = (CheckBoxPreference) findPreference(PREFS_PREFETCHING_WIFI_ONLY);
+		// this.prefetchCb.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+		//
+		// @Override
+		// public boolean onPreferenceClick(Preference preference) {
+		// Toast.makeText(UserPreferences.this, "prefetching changed " + UserPreferences.this.prefetchCb.isChecked(), Toast.LENGTH_SHORT).show();
+		// // boolean isNowChecked = UserPreferences.getPrefLcl(UserPreferences.this, PREFS_PREFETCHING, PREFS_PREFETCHING_DEFAULT);
+		// UserPreferences.savePrefLcl(UserPreferences.this, PREFS_PREFETCHING_WIFI_ONLY, UserPreferences.this.prefetchCb.isChecked());
+		// UserPreferences.this.prefetchWiFiOnlyCb.setEnabled(UserPreferences.this.prefetchCb.isChecked());
+		// PrefetchingUtils.setPrefetching(null); // force value refresh
+		// return true;
+		// }
+		// });
+		// this.prefetchWiFiOnlyCb.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+		//
+		// @Override
+		// public boolean onPreferenceClick(Preference preference) {
+		// Toast.makeText(UserPreferences.this, "prefetching wifi only changed " + UserPreferences.this.prefetchWiFiOnlyCb.isChecked(), Toast.LENGTH_SHORT)
+		// .show();
+		// UserPreferences.savePrefLcl(UserPreferences.this, PREFS_PREFETCHING_WIFI_ONLY, UserPreferences.this.prefetchWiFiOnlyCb.isChecked());
+		// PrefetchingUtils.setPrefetchingWiFiOnly(null); // force value refresh
+		// return true;
+		// }
+		// });
 
 		// ads dialog
 		this.adsCheckBox = (CheckBoxPreference) findPreference("pAds");
@@ -241,9 +306,7 @@ public class UserPreferences extends PreferenceActivity {
 					Uri appMarketURI = Uri.parse("market://search?q=pub:\"Mathieu Méa\"");
 					Intent appMarketIntent = new Intent(Intent.ACTION_VIEW).setData(appMarketURI);
 					UserPreferences.this.startActivity(appMarketIntent);
-
-					AdsUtils.setGenerousUser(null);// reset generous user
-
+					AdsUtils.setGenerousUser(null); // reset generous user
 					return true;
 				} else {
 					AdsUtils.setShowingAds(isNowChecked);
@@ -356,7 +419,9 @@ public class UserPreferences extends PreferenceActivity {
 	 * @param newValue the new value
 	 */
 	public static void savePrefDefault(Context context, String prefKey, String newValue) {
+		MyLog.v(TAG, "savePrefDefault(%s,%s)", prefKey, newValue);
 		savePref(context, PreferenceManager.getDefaultSharedPreferences(context), prefKey, newValue);
+		SupportFactory.getInstance(context).backupManagerDataChanged();
 	}
 
 	/**
@@ -390,7 +455,9 @@ public class UserPreferences extends PreferenceActivity {
 	 * @param newValue the new value
 	 */
 	public static void savePrefDefault(Context context, String prefKey, boolean newValue) {
+		MyLog.v(TAG, "savePrefDefault(%s,%s)", prefKey, newValue);
 		savePref(context, PreferenceManager.getDefaultSharedPreferences(context), prefKey, newValue);
+		SupportFactory.getInstance(context).backupManagerDataChanged();
 	}
 
 	/**
@@ -425,7 +492,9 @@ public class UserPreferences extends PreferenceActivity {
 	 * @param newValue the new value.
 	 */
 	public static void savePrefDefault(Context context, String prefKey, int newValue) {
+		MyLog.v(TAG, "savePrefDefault(%s,%s)", prefKey, newValue);
 		savePref(context, PreferenceManager.getDefaultSharedPreferences(context), prefKey, newValue);
+		SupportFactory.getInstance(context).backupManagerDataChanged();
 	}
 
 	/**
