@@ -395,7 +395,7 @@ INSERT INTO "arrets_autobus_loc" VALUES('50496','Fleury / De Lorimier','45.57128
 INSERT INTO "arrets_autobus_loc" VALUES('50497','Fleury / De Lorimier','45.571031','-73.651276');
 INSERT INTO "arrets_autobus_loc" VALUES('50498','Meilleur / No 9200','45.5370','-73.653188');
 INSERT INTO "arrets_autobus_loc" VALUES('50499','Meilleur / Legendre','45.536860','-73.6520');
-INSERT INTO "arrets_autobus_loc" VALUES('50500','Mountain Sights / Buchan','45.496859','-73.652952');
+INSERT INTO "arrets_autobus_loc" VALUES('50500','Mountain Sights / Jean-Talon','45.496859','-73.652952');
 INSERT INTO "arrets_autobus_loc" VALUES('50501','Berri / de Louvain','45.549575','-73.651801');
 INSERT INTO "arrets_autobus_loc" VALUES('50502','Christophe-Colomb / Sauvé','45.559358','-73.650975');
 INSERT INTO "arrets_autobus_loc" VALUES('50503','Sauvé / Christophe-Colomb','45.559472','-73.651213');
@@ -421,7 +421,7 @@ INSERT INTO "arrets_autobus_loc" VALUES('50522','Fleury / Parthenais','45.572311
 INSERT INTO "arrets_autobus_loc" VALUES('50523','Legendre / Jeanne-Mance','45.538678','-73.650876');
 INSERT INTO "arrets_autobus_loc" VALUES('50524','Legendre / Jeanne-Mance','45.538479','-73.650804');
 INSERT INTO "arrets_autobus_loc" VALUES('50525','West Broadway / Chester','45.461460','-73.652623');
-INSERT INTO "arrets_autobus_loc" VALUES('50526','West Broadway / Chester','45.461231','-73.652848');
+INSERT INTO "arrets_autobus_loc" VALUES('50526','Chester / West Broadway','45.461231','-73.652848');
 INSERT INTO "arrets_autobus_loc" VALUES('50527','Sauvé / Curotte','45.561556','-73.650107');
 INSERT INTO "arrets_autobus_loc" VALUES('50528','Sauvé / Curotte','45.561278','-73.649962');
 INSERT INTO "arrets_autobus_loc" VALUES('50529','Legendre / Meunier','45.539812','-73.650168');
@@ -4208,7 +4208,7 @@ INSERT INTO "arrets_autobus_loc" VALUES('54331','Station  Jean-Drapeau','45.5121
 INSERT INTO "arrets_autobus_loc" VALUES('54332','Gilles-Villeneuve / Plage Île Notre-Dame','45.499030','-73.522704');
 INSERT INTO "arrets_autobus_loc" VALUES('54333','Gilles-Villeneuve / Théâtre des Îles','45.502517','-73.527992');
 INSERT INTO "arrets_autobus_loc" VALUES('54334','Gilles-Villeneuve / Jardin Floral','45.503893','-73.529765');
-INSERT INTO "arrets_autobus_loc" VALUES('54335','Station  Jean-Drapeau','45.511983','-73.532428');
+INSERT INTO "arrets_autobus_loc" VALUES('54335','Station Jean-Drapeau','45.511983','-73.532428');
 INSERT INTO "arrets_autobus_loc" VALUES('54336','Bassin olympique / Quartiers des athlètes','45.516354','-73.527560');
 INSERT INTO "arrets_autobus_loc" VALUES('54337','Notre-Dame / 93e Avenue','45.697310','-73.484981');
 INSERT INTO "arrets_autobus_loc" VALUES('54338','Meilleur / Meilleur','45.540442','-73.666491');
@@ -9370,8 +9370,16 @@ INSERT INTO "arrets_autobus_loc" VALUES('61269','de la Commune / McGill','45.498
 INSERT INTO "arrets_autobus_loc" VALUES('61270','de Granby / Stationnement centre du Domaine','45.580968','-73.543051');
 INSERT INTO "arrets_autobus_loc" VALUES('61272','Saint-Denis / Roy','45.519270','-73.572414');
 INSERT INTO "arrets_autobus_loc" VALUES('61273','Rolland-Jeanneau / 89e Avenue','45.655629','-73.535075');
+INSERT INTO "arrets_autobus_loc" VALUES('61274','Stationnement Incitatif Saint-Martin','45.611598','-73.6635');
 INSERT INTO "arrets_autobus_loc" VALUES('61280','Thimens / Samson','45.506001','-73.701831');
 INSERT INTO "arrets_autobus_loc" VALUES('61299','Saint-Hubert / Laurier','45.529022','-73.587641');
 INSERT INTO "arrets_autobus_loc" VALUES('61300','Saint-Grégoire / Christophe-Colomb','45.532199','-73.590516');
 INSERT INTO "arrets_autobus_loc" VALUES('61301','Saint-Hubert / Saint-Grégoire','45.530797','-73.591782');
 INSERT INTO "arrets_autobus_loc" VALUES('61302','Saint-Grégoire / Chambord','45.534681','-73.588183');
+INSERT INTO "arrets_autobus_loc" VALUES('61309','Saint-Jean / Brunswick','45.467659','-73.829506');
+INSERT INTO "arrets_autobus_loc" VALUES('61311','Sherbrooke / Stationnement Incitatif','45.668331','-73.505531');
+INSERT INTO "arrets_autobus_loc" VALUES('61312','Pierrefonds / Winnie-Wakefield','45.459099','-73.893692');
+INSERT INTO "arrets_autobus_loc" VALUES('61315','Rosemont / Marquette','45.540329','-73.591782');
+INSERT INTO "arrets_autobus_loc" VALUES('61321','Pierrefonds / Winnie-Wakefield','45.458802','-73.894322');
+INSERT INTO "arrets_autobus_loc" VALUES('61322','Sherbrooke / Côte-Saint-Antoine','45.486637','-73.594543');
+INSERT INTO "arrets_autobus_loc" VALUES('61323','Décarie / Édouard-Laurin','45.514221','-73.682617');
