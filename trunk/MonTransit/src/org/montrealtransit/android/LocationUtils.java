@@ -3,15 +3,20 @@ package org.montrealtransit.android;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+
+import org.montrealtransit.android.activity.UserPreferences;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Matrix;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 
 /**
  * Location useful methods.
@@ -143,12 +148,22 @@ public class LocationUtils {
 	 * @param activity the activity
 	 * @param listener the listener
 	 */
-	public static void enableLocationUpdates(Activity activity, LocationListener listener) {
-		MyLog.v(TAG, "enableLocationUpdates()");
+	private static void enableLocationUpdates(Activity activity, LocationListener listener) {
+		// MyLog.v(TAG, "enableLocationUpdates()");
 		// enable location updates
 		for (String provider : getProviders(activity)) {
 			getLocationManager(activity).requestLocationUpdates(provider, MIN_TIME, MIN_DISTANCE, listener);
 		}
+	}
+
+	public static boolean enableLocationUpdatesIfNecessary(Activity activity, LocationListener listener, boolean updatesEnabled, boolean paused) {
+		// MyLog.v(TAG, "enableLocationUpdatesIfNecessary(%s,%s)", updatesEnabled, paused);
+		if (!updatesEnabled && !paused) {
+			enableLocationUpdates(activity, listener);
+			MyLog.d(TAG, "Location updates ENABLED.");
+			updatesEnabled = true;
+		}
+		return updatesEnabled;
 	}
 
 	/**
@@ -156,9 +171,19 @@ public class LocationUtils {
 	 * @param activity the activity
 	 * @param listener the listener
 	 */
-	public static void disableLocationUpdates(Activity activity, LocationListener listener) {
-		MyLog.v(TAG, "disableLocationUpdates()");
+	private static void disableLocationUpdates(Activity activity, LocationListener listener) {
+		// MyLog.v(TAG, "disableLocationUpdates()");
 		getLocationManager(activity).removeUpdates(listener);
+	}
+
+	public static boolean disableLocationUpdatesIfNecessary(Activity activity, LocationListener listener, boolean updatesEnabled) {
+		MyLog.v(TAG, "disableLocationUpdatesIfNecessary(%s)", updatesEnabled);
+		if (updatesEnabled) {
+			disableLocationUpdates(activity, listener);
+			MyLog.d(TAG, "Location updates DISABLED.");
+			updatesEnabled = false;
+		}
+		return updatesEnabled;
 	}
 
 	/**
@@ -166,11 +191,26 @@ public class LocationUtils {
 	 * @param lng the longitude
 	 * @return the new location object
 	 */
+	@Deprecated
 	public static Location getNewLocation(double lat, double lng) {
 		Location newLocation = new Location("MonTransit");
 		newLocation.setLatitude(lat);
 		newLocation.setLongitude(lng);
 		return newLocation;
+	}
+
+	public static float bearTo(double startLatitude, double startLongitude, double endLatitude, double endLongitude) {
+		float[] results = new float[2];
+		Location.distanceBetween(startLatitude, startLongitude, endLatitude, endLongitude, results);
+		float bearTo = results[1];
+		return bearTo;
+	}
+
+	public static float distanceTo(double startLatitude, double startLongitude, double endLatitude, double endLongitude) {
+		float[] results = new float[2];
+		Location.distanceBetween(startLatitude, startLongitude, endLatitude, endLongitude, results);
+		float bearTo = results[0];
+		return bearTo;
 	}
 
 	/**
@@ -347,4 +387,135 @@ public class LocationUtils {
 		qb.append(lngTableColumn).append(" BETWEEN ").append(lngBefore).append(" AND ").append(lngAfter);
 		return qb.toString();
 	}
+
+	public static void updateDistance(Context context, Map<?, ? extends POI> pois, Location currentLocation) {
+		if (pois == null || currentLocation == null) {
+			return;
+		}
+		boolean isDetailed = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
+				UserPreferences.PREFS_DISTANCE_DETAILED);
+		String distanceUnit = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
+		float accuracyInMeters = currentLocation.getAccuracy();
+		// update bus stops
+		for (POI poi : pois.values()) {
+			if (!poi.hasLocation()) {
+				continue;
+			}
+			// update value
+			poi.setDistance(LocationUtils.distanceTo(currentLocation.getLatitude(), currentLocation.getLongitude(), poi.getLat(), poi.getLng()));
+			poi.setDistanceString(Utils.getDistanceString(poi.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
+		}
+	}
+
+	public static void updateDistance(final Context context, final List<? extends POI> pois, final Location currentLocation,
+			final LocationTaskCompleted callback) {
+		if (pois == null || currentLocation == null) {
+			callback.onLocationTaskCompleted();
+			return;
+		}
+		new AsyncTask<Void, Void, Void>() {
+
+			@Override
+			protected Void doInBackground(Void... params) {
+				updateDistance(context, pois, currentLocation);
+				return null;
+			}
+
+			@Override
+			protected void onPostExecute(Void result) {
+				callback.onLocationTaskCompleted();
+			}
+		}.execute();
+	}
+
+	public static void updateDistance(Context context, List<? extends POI> pois, Location currentLocation) {
+		if (pois == null || currentLocation == null) {
+			return;
+		}
+		boolean isDetailed = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
+				UserPreferences.PREFS_DISTANCE_DETAILED);
+		String distanceUnit = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
+		float accuracyInMeters = currentLocation.getAccuracy();
+		// update bus stops
+		for (POI poi : pois) {
+			if (!poi.hasLocation()) {
+				continue;
+			}
+			// update value
+			poi.setDistance(LocationUtils.distanceTo(currentLocation.getLatitude(), currentLocation.getLongitude(), poi.getLat(), poi.getLng()));
+			poi.setDistanceString(Utils.getDistanceString(poi.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
+		}
+	}
+
+	public static void updateDistance(final Context context, final POI poi, final Location currentLocation, final LocationTaskCompleted callback) {
+		if (poi == null || currentLocation == null) {
+			callback.onLocationTaskCompleted();
+			return;
+		}
+		new AsyncTask<Void, Void, Void>() {
+
+			@Override
+			protected Void doInBackground(Void... params) {
+				updateDistance(context, poi, currentLocation);
+				return null;
+			}
+
+			@Override
+			protected void onPostExecute(Void result) {
+				callback.onLocationTaskCompleted();
+			}
+		}.execute();
+	}
+
+	public static void updateDistance(Context context, POI poi, Location currentLocation) {
+		if (poi == null || currentLocation == null) {
+			return;
+		}
+		boolean isDetailed = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
+				UserPreferences.PREFS_DISTANCE_DETAILED);
+		String distanceUnit = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
+		float accuracyInMeters = currentLocation.getAccuracy();
+		// update bus stops
+		if (!poi.hasLocation()) {
+			return;
+		}
+		// update value
+		poi.setDistance(LocationUtils.distanceTo(currentLocation.getLatitude(), currentLocation.getLongitude(), poi.getLat(), poi.getLng()));
+		poi.setDistanceString(Utils.getDistanceString(poi.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
+	}
+
+	public interface LocationTaskCompleted {
+		void onLocationTaskCompleted();
+	}
+
+	public interface POI {
+		/**
+		 * @param distanceString the new distance string
+		 */
+		public void setDistanceString(String distanceString);
+
+		public Double getLat();
+
+		public Double getLng();
+
+		public boolean hasLocation();
+
+		/**
+		 * @return the distance string
+		 */
+		public String getDistanceString();
+
+		/**
+		 * @param distance the new distance
+		 */
+		public void setDistance(float distance);
+
+		/**
+		 * @return the distance
+		 */
+		public float getDistance();
+
+		public Matrix getCompassMatrix();
+	}
+
 }

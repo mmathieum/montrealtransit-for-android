@@ -75,7 +75,7 @@ public class BusTabLinesGridFragment extends Fragment {
 		this.lastView = v;
 		return v;
 	}
-	
+
 	private View lastView;
 
 	private View getLastView() {
@@ -85,7 +85,7 @@ public class BusTabLinesGridFragment extends Fragment {
 		}
 		return this.lastView;
 	}
-	
+
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onActivityCreated()");
@@ -107,8 +107,7 @@ public class BusTabLinesGridFragment extends Fragment {
 				if (BusTabLinesGridFragment.this.busLines != null && position < BusTabLinesGridFragment.this.busLines.size()
 						&& BusTabLinesGridFragment.this.busLines.get(position) != null) {
 					BusLine selectedLine = BusTabLinesGridFragment.this.busLines.get(position);
-					Intent intent = new Intent(BusTabLinesGridFragment.this.getLastActivity(), SupportFactory.getInstance(
-							BusTabLinesGridFragment.this.getLastActivity()).getBusLineInfoClass());
+					Intent intent = new Intent(BusTabLinesGridFragment.this.getLastActivity(), SupportFactory.get().getBusLineInfoClass());
 					intent.putExtra(BusLineInfo.EXTRA_LINE_NUMBER, selectedLine.getNumber());
 					intent.putExtra(BusLineInfo.EXTRA_LINE_NAME, selectedLine.getName());
 					intent.putExtra(BusLineInfo.EXTRA_LINE_TYPE, selectedLine.getType());
@@ -123,8 +122,8 @@ public class BusTabLinesGridFragment extends Fragment {
 				if (BusTabLinesGridFragment.this.busLines != null && position < BusTabLinesGridFragment.this.busLines.size()
 						&& BusTabLinesGridFragment.this.busLines.get(position) != null) {
 					BusLine selectedLine = BusTabLinesGridFragment.this.busLines.get(position);
-					new BusLineSelectDirection(BusTabLinesGridFragment.this.getLastActivity(), selectedLine.getNumber(), selectedLine.getName(),
-							selectedLine.getType()).showDialog();
+					new BusLineSelectDirection(BusTabLinesGridFragment.this.getLastActivity(), selectedLine.getNumber(), selectedLine.getName(), selectedLine
+							.getType()).showDialog();
 					return true;
 				}
 				return false;

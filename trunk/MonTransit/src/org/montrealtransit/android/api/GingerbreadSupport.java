@@ -1,7 +1,9 @@
 package org.montrealtransit.android.api;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
+
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.content.SharedPreferences.Editor;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
@@ -22,10 +24,8 @@ public class GingerbreadSupport extends FroyoSupport {
 
 	/**
 	 * The default constructor.
-	 * @param context the context
 	 */
-	public GingerbreadSupport(Context context) {
-		super(context);
+	public GingerbreadSupport() {
 	}
 
 	@Override
@@ -35,15 +35,20 @@ public class GingerbreadSupport extends FroyoSupport {
 
 	@Override
 	public void enableStrictMode() {
-		ThreadPolicy threadPolicy = new StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog().build();
+		ThreadPolicy threadPolicy = new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build();
 		// or .detectAll() for all detectable problems
 		StrictMode.setThreadPolicy(threadPolicy);
-		VmPolicy vmPolicy = new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects().penaltyLog().penaltyDeath().build();
+		VmPolicy vmPolicy = new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build();
 		StrictMode.setVmPolicy(vmPolicy);
 	}
 
 	@Override
 	public int getNbClosestPOIDisplay() {
 		return 100;
+	}
+
+	@Override
+	public BlockingQueue<Runnable> getNewBlockingQueue() {
+		return new LinkedBlockingDeque<Runnable>(7);
 	}
 }

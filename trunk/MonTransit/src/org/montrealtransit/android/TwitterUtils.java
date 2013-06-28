@@ -296,4 +296,4 @@ package org.montrealtransit.android;
 //		// Twitter Status Link: http://twitter.com/<username>/statuses/<id>
 //		return String.format("http://twitter.com/%s/statuses/%s", username, id);
 //	}
-//}
+// }

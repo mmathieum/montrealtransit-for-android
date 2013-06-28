@@ -6,10 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
-import org.montrealtransit.android.activity.UserPreferences;
 import org.montrealtransit.android.data.ABusStop;
 import org.montrealtransit.android.data.BusStopDistancesComparator;
 import org.montrealtransit.android.data.ClosestPOI;
@@ -40,6 +40,10 @@ public class ClosestBusStopsFinderTask extends AsyncTask<Location, String, Close
 	 */
 	private static final int MAX_CLOSEST_STOPS_LIST_SIZE = 100;
 	/**
+	 * The maximum number of results (0 = no limit).
+	 */
+	private int maxResult = MAX_CLOSEST_STOPS_LIST_SIZE;
+	/**
 	 * The context.
 	 */
 	private Context context;
@@ -53,9 +57,10 @@ public class ClosestBusStopsFinderTask extends AsyncTask<Location, String, Close
 	 * @param from the class handling the result and progress
 	 * @param context the context
 	 */
-	public ClosestBusStopsFinderTask(ClosestBusStopsFinderListener from, Context context) {
+	public ClosestBusStopsFinderTask(ClosestBusStopsFinderListener from, Context context, int maxResult) {
 		this.from = from;
 		this.context = context;
+		this.maxResult = maxResult;
 	}
 
 	@Override
@@ -73,8 +78,8 @@ public class ClosestBusStopsFinderTask extends AsyncTask<Location, String, Close
 			// create a list of all stops with lines and location
 			List<ABusStop> stopsWithOtherLines = getAllStopsWithLines(currentLocation);
 			Collections.sort(stopsWithOtherLines, new BusStopComparator());
-			if (Utils.getCollectionSize(stopsWithOtherLines) > MAX_CLOSEST_STOPS_LIST_SIZE) {
-				result.setPoiList(stopsWithOtherLines.subList(0, MAX_CLOSEST_STOPS_LIST_SIZE));
+			if (Utils.getCollectionSize(stopsWithOtherLines) > maxResult) {
+				result.setPoiList(stopsWithOtherLines.subList(0, maxResult));
 			} else {
 				result.setPoiList(stopsWithOtherLines);
 			}
@@ -106,10 +111,6 @@ public class ClosestBusStopsFinderTask extends AsyncTask<Location, String, Close
 	private List<ABusStop> getAllStopsWithLines(Location currentLocation) {
 		MyLog.v(TAG, "getAllStopsWithLines()");
 		Map<String, ABusStop> aresult = new HashMap<String, ABusStop>();
-		float accuracy = currentLocation.getAccuracy();
-		boolean isDetailed = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
-				UserPreferences.PREFS_DISTANCE_DETAILED);
-		String distanceUnit = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
 		// try the short way with location hack
 		List<BusStop> allBusStopsWithLoc = StmManager.findAllBusStopLocationList(context.getContentResolver(), currentLocation);
 		// MyLog.d(TAG, "1st try: " + Utils.getCollectionSize(allBusStopsWithLoc));
@@ -122,11 +123,9 @@ public class ClosestBusStopsFinderTask extends AsyncTask<Location, String, Close
 				continue;
 			}
 			ABusStop stop = new ABusStop(busStop);
-			// location
-			stop.setDistance(currentLocation.distanceTo(busStop.getLocation()));
-			stop.setDistanceString(Utils.getDistanceString(stop.getDistance(), accuracy, isDetailed, distanceUnit));
 			aresult.put(busStop.getUID(), stop); // filters on UID
 		}
+		LocationUtils.updateDistance(context, aresult, currentLocation);
 		return new ArrayList<ABusStop>(aresult.values());
 	}
 

@@ -193,7 +193,8 @@
                     android:id="@+id/next_stops_group"
                     android:layout_width="fill_parent"
                     android:layout_height="?android:attr/listPreferredItemHeight"
-                    android:gravity="bottom" >
+                    android:gravity="bottom"
+                    android:visibility="gone">
                     <TextView
                         android:id="@+id/next_stops"
                         android:layout_width="wrap_content"

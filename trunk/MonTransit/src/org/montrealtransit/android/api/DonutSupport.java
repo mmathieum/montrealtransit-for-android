@@ -1,7 +1,6 @@
 package org.montrealtransit.android.api;
 
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Build;
 
@@ -14,10 +13,8 @@ public class DonutSupport extends CupcakeSupport {
 
 	/**
 	 * The default constructor.
-	 * @param context the context
 	 */
-	public DonutSupport(Context context) {
-		super(context);
+	public DonutSupport() {
 	}
 
 	@Override

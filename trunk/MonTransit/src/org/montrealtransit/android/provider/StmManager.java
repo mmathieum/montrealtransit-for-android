@@ -1489,7 +1489,6 @@ public class StmManager {
 			}
 			Uri subwayDirDayHours = Uri.withAppendedPath(subwayDirection, StmStore.HOUR_URI);
 			Uri subwayDirDayHour = Uri.withAppendedPath(subwayDirDayHours, hourOfTheDay);
-
 			cursor = contentResolver.query(subwayDirDayHour, null, null, null, null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {

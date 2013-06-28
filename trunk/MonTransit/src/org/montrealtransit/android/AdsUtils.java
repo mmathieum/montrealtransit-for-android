@@ -123,7 +123,7 @@ public class AdsUtils {
 									}
 								});
 							}
-							adView.loadAd(adRequest);
+							adView.loadAd(adRequest); // StrictModeDiskReadViolation
 						}
 					}
 				} else {

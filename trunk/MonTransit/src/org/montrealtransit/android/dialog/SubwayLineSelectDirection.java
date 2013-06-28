@@ -138,7 +138,7 @@ public class SubwayLineSelectDirection implements View.OnClickListener, SubwayLi
 	@Override
 	public void showNewSubway(int subwayLineId, String orderPref) {
 		MyLog.v(TAG, "showNewSubway(%s, %s)", subwayLineId, orderPref);
-		Intent mIntent = new Intent(this.context, SupportFactory.getInstance(this.context).getSubwayLineInfoClass());
+		Intent mIntent = new Intent(this.context, SupportFactory.get().getSubwayLineInfoClass());
 		mIntent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, String.valueOf(subwayLineId));
 		mIntent.putExtra(SubwayLineInfo.EXTRA_ORDER_PREF, orderPref);
 		this.context.startActivity(mIntent);

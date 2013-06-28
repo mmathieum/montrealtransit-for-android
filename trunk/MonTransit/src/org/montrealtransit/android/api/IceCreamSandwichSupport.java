@@ -11,7 +11,6 @@ import org.montrealtransit.android.services.NfcListener;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
@@ -36,10 +35,9 @@ public class IceCreamSandwichSupport extends HoneycombSupport {
 
 	/**
 	 * The default constructor.
-	 * @param context the context
 	 */
-	public IceCreamSandwichSupport(Context context) {
-		super(context);
+	public IceCreamSandwichSupport() {
+		super();
 	}
 
 	@Override

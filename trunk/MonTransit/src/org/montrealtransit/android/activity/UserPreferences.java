@@ -4,6 +4,7 @@ import org.montrealtransit.android.AdsUtils;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
+import org.montrealtransit.android.PrefetchingUtils;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.api.SupportFactory;
@@ -18,6 +19,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -93,6 +95,10 @@ public class UserPreferences extends PreferenceActivity {
 	 * The preference value for the next stop provider m.stm.info.
 	 */
 	public static final String PREFS_NEXT_STOP_PROVIDER_STM_MOBILE = "stmmobile";
+	/**
+	 * The preference value for the next stop provider beta.stm.info.
+	 */
+	public static final String PREFS_NEXT_STOP_PROVIDER_BETA_STM_INFO = "betastminfo";
 	/**
 	 * The default value for the bus lines display.
 	 */
@@ -179,7 +185,7 @@ public class UserPreferences extends PreferenceActivity {
 	/**
 	 * The default value for the pre-fetching.
 	 */
-	public static final boolean PREFS_PREFETCHING_DEFAULT = true;
+	public static final boolean PREFS_PREFETCHING_DEFAULT = false; // TODO enable by default true;
 	/**
 	 * The preference key for pre-fetching over WiFi only.
 	 */
@@ -257,32 +263,32 @@ public class UserPreferences extends PreferenceActivity {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.userpreferences);
 
-		// // prefetch
-		// this.prefetchCb = (CheckBoxPreference) findPreference(PREFS_PREFETCHING);
-		// this.prefetchWiFiOnlyCb = (CheckBoxPreference) findPreference(PREFS_PREFETCHING_WIFI_ONLY);
-		// this.prefetchCb.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-		//
-		// @Override
-		// public boolean onPreferenceClick(Preference preference) {
-		// Toast.makeText(UserPreferences.this, "prefetching changed " + UserPreferences.this.prefetchCb.isChecked(), Toast.LENGTH_SHORT).show();
-		// // boolean isNowChecked = UserPreferences.getPrefLcl(UserPreferences.this, PREFS_PREFETCHING, PREFS_PREFETCHING_DEFAULT);
-		// UserPreferences.savePrefLcl(UserPreferences.this, PREFS_PREFETCHING_WIFI_ONLY, UserPreferences.this.prefetchCb.isChecked());
-		// UserPreferences.this.prefetchWiFiOnlyCb.setEnabled(UserPreferences.this.prefetchCb.isChecked());
-		// PrefetchingUtils.setPrefetching(null); // force value refresh
-		// return true;
-		// }
-		// });
-		// this.prefetchWiFiOnlyCb.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-		//
-		// @Override
-		// public boolean onPreferenceClick(Preference preference) {
-		// Toast.makeText(UserPreferences.this, "prefetching wifi only changed " + UserPreferences.this.prefetchWiFiOnlyCb.isChecked(), Toast.LENGTH_SHORT)
-		// .show();
-		// UserPreferences.savePrefLcl(UserPreferences.this, PREFS_PREFETCHING_WIFI_ONLY, UserPreferences.this.prefetchWiFiOnlyCb.isChecked());
-		// PrefetchingUtils.setPrefetchingWiFiOnly(null); // force value refresh
-		// return true;
-		// }
-		// });
+		// prefetch
+		this.prefetchCb = (CheckBoxPreference) findPreference(PREFS_PREFETCHING);
+		this.prefetchCb.setChecked(UserPreferences.getPrefLcl(this, UserPreferences.PREFS_PREFETCHING, UserPreferences.PREFS_PREFETCHING_DEFAULT));
+		this.prefetchCb.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				UserPreferences.savePrefLcl(UserPreferences.this, PREFS_PREFETCHING, UserPreferences.this.prefetchCb.isChecked());
+				UserPreferences.this.prefetchWiFiOnlyCb.setEnabled(UserPreferences.this.prefetchCb.isChecked());
+				PrefetchingUtils.setPrefetching(null); // force value refresh
+				return true;
+			}
+		});
+		this.prefetchWiFiOnlyCb = (CheckBoxPreference) findPreference(PREFS_PREFETCHING_WIFI_ONLY);
+		this.prefetchWiFiOnlyCb.setEnabled(this.prefetchCb.isChecked());
+		this.prefetchWiFiOnlyCb.setChecked(UserPreferences.getPrefLcl(this, UserPreferences.PREFS_PREFETCHING_WIFI_ONLY,
+				UserPreferences.PREFS_PREFETCHING_WIFI_ONLY_DEFAULT));
+		this.prefetchWiFiOnlyCb.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				UserPreferences.savePrefLcl(UserPreferences.this, PREFS_PREFETCHING_WIFI_ONLY, UserPreferences.this.prefetchWiFiOnlyCb.isChecked());
+				PrefetchingUtils.setPrefetchingWiFiOnly(null); // force value refresh
+				return true;
+			}
+		});
 
 		// ads dialog
 		this.adsCheckBox = (CheckBoxPreference) findPreference("pAds");
@@ -418,10 +424,17 @@ public class UserPreferences extends PreferenceActivity {
 	 * @param prefKey the preference key
 	 * @param newValue the new value
 	 */
-	public static void savePrefDefault(Context context, String prefKey, String newValue) {
+	public static void savePrefDefault(final Context context, final String prefKey, final String newValue) {
 		MyLog.v(TAG, "savePrefDefault(%s,%s)", prefKey, newValue);
-		savePref(context, PreferenceManager.getDefaultSharedPreferences(context), prefKey, newValue);
-		SupportFactory.getInstance(context).backupManagerDataChanged();
+		new AsyncTask<Void, Void, Void>() {
+			@Override
+			protected Void doInBackground(Void... params) {
+				savePref(context, PreferenceManager.getDefaultSharedPreferences(context), prefKey, newValue);
+				SupportFactory.get().backupManagerDataChanged(context);
+				return null;
+			}
+
+		}.execute();
 	}
 
 	/**
@@ -430,8 +443,15 @@ public class UserPreferences extends PreferenceActivity {
 	 * @param prefKey the preference key
 	 * @param newValue the new value
 	 */
-	public static void savePrefLcl(Context context, String prefKey, String newValue) {
-		savePref(context, context.getSharedPreferences(LCL_PREF_NAME, Context.MODE_PRIVATE), prefKey, newValue);
+	public static void savePrefLcl(final Context context, final String prefKey, final String newValue) {
+		new AsyncTask<Void, Void, Void>() {
+			@Override
+			protected Void doInBackground(Void... params) {
+				savePref(context, context.getSharedPreferences(LCL_PREF_NAME, Context.MODE_PRIVATE), prefKey, newValue);
+				return null;
+			}
+
+		}.execute();
 	}
 
 	/**
@@ -445,7 +465,7 @@ public class UserPreferences extends PreferenceActivity {
 		// MyLog.v(TAG, "savePref(%s, %s)", prefKey, newValue);
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 		editor.putString(prefKey, newValue);
-		SupportFactory.getInstance(context).applySharedPreferencesEditor(editor);
+		SupportFactory.get().applySharedPreferencesEditor(editor);
 	}
 
 	/**
@@ -454,10 +474,17 @@ public class UserPreferences extends PreferenceActivity {
 	 * @param prefKey the preference key
 	 * @param newValue the new value
 	 */
-	public static void savePrefDefault(Context context, String prefKey, boolean newValue) {
+	public static void savePrefDefault(final Context context, final String prefKey, final boolean newValue) {
 		MyLog.v(TAG, "savePrefDefault(%s,%s)", prefKey, newValue);
-		savePref(context, PreferenceManager.getDefaultSharedPreferences(context), prefKey, newValue);
-		SupportFactory.getInstance(context).backupManagerDataChanged();
+		new AsyncTask<Void, Void, Void>() {
+			@Override
+			protected Void doInBackground(Void... params) {
+				savePref(context, PreferenceManager.getDefaultSharedPreferences(context), prefKey, newValue);
+				SupportFactory.get().backupManagerDataChanged(context);
+				return null;
+			}
+
+		}.execute();
 	}
 
 	/**
@@ -466,8 +493,15 @@ public class UserPreferences extends PreferenceActivity {
 	 * @param prefKey the preference key
 	 * @param newValue the new value
 	 */
-	public static void savePrefLcl(Context context, String prefKey, boolean newValue) {
-		savePref(context, context.getSharedPreferences(LCL_PREF_NAME, Context.MODE_PRIVATE), prefKey, newValue);
+	public static void savePrefLcl(final Context context, final String prefKey, final boolean newValue) {
+		new AsyncTask<Void, Void, Void>() {
+			@Override
+			protected Void doInBackground(Void... params) {
+				savePref(context, context.getSharedPreferences(LCL_PREF_NAME, Context.MODE_PRIVATE), prefKey, newValue);
+				return null;
+			}
+
+		}.execute();
 	}
 
 	/**
@@ -481,7 +515,7 @@ public class UserPreferences extends PreferenceActivity {
 		// MyLog.v(TAG, "savePref(%s, %s)", prefKey, newValue);
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 		editor.putBoolean(prefKey, newValue);
-		SupportFactory.getInstance(context).applySharedPreferencesEditor(editor);
+		SupportFactory.get().applySharedPreferencesEditor(editor);
 	}
 
 	/**
@@ -491,10 +525,17 @@ public class UserPreferences extends PreferenceActivity {
 	 * @param prefKey the preference key
 	 * @param newValue the new value.
 	 */
-	public static void savePrefDefault(Context context, String prefKey, int newValue) {
+	public static void savePrefDefault(final Context context, final String prefKey, final int newValue) {
 		MyLog.v(TAG, "savePrefDefault(%s,%s)", prefKey, newValue);
-		savePref(context, PreferenceManager.getDefaultSharedPreferences(context), prefKey, newValue);
-		SupportFactory.getInstance(context).backupManagerDataChanged();
+		new AsyncTask<Void, Void, Void>() {
+			@Override
+			protected Void doInBackground(Void... params) {
+				savePref(context, PreferenceManager.getDefaultSharedPreferences(context), prefKey, newValue);
+				SupportFactory.get().backupManagerDataChanged(context);
+				return null;
+			}
+
+		}.execute();
 	}
 
 	/**
@@ -503,8 +544,15 @@ public class UserPreferences extends PreferenceActivity {
 	 * @param prefKey the preference key
 	 * @param newValue the new value
 	 */
-	public static void savePrefLcl(Context context, String prefKey, int newValue) {
-		savePref(context, context.getSharedPreferences(LCL_PREF_NAME, Context.MODE_PRIVATE), prefKey, newValue);
+	public static void savePrefLcl(final Context context, final String prefKey, final int newValue) {
+		new AsyncTask<Void, Void, Void>() {
+			@Override
+			protected Void doInBackground(Void... params) {
+				savePref(context, context.getSharedPreferences(LCL_PREF_NAME, Context.MODE_PRIVATE), prefKey, newValue);
+				return null;
+			}
+
+		}.execute();
 	}
 
 	/**
@@ -514,11 +562,11 @@ public class UserPreferences extends PreferenceActivity {
 	 * @param newValue the new preference value
 	 */
 	@SuppressLint("CommitPrefEdits")
-	private static void savePref(Context context, SharedPreferences sharedPreferences, String prefKey, int newValue) {
+	private static void savePref(Context context, final SharedPreferences sharedPreferences, String prefKey, int newValue) {
 		// MyLog.v(TAG, "savePref(%s, %s)", prefKey, newValue);
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 		editor.putInt(prefKey, newValue);
-		SupportFactory.getInstance(context).applySharedPreferencesEditor(editor);
+		SupportFactory.get().applySharedPreferencesEditor(editor);
 	}
 
 	/**

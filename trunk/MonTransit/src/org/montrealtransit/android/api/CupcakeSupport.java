@@ -1,5 +1,10 @@
 package org.montrealtransit.android.api;
 
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+
+import org.montrealtransit.android.services.LoadNextBusStopIntoCacheTask;
 import org.montrealtransit.android.services.NfcListener;
 
 import android.annotation.TargetApi;
@@ -21,16 +26,9 @@ import android.widget.SimpleCursorAdapter;
 public class CupcakeSupport implements SupportUtil {
 
 	/**
-	 * The context.
-	 */
-	protected Context context;
-
-	/**
 	 * The default constructor.
-	 * @param context the context
 	 */
-	public CupcakeSupport(Context context) {
-		this.context = context;
+	public CupcakeSupport() {
 	}
 
 	@Override
@@ -49,7 +47,7 @@ public class CupcakeSupport implements SupportUtil {
 	}
 
 	@Override
-	public void backupManagerDataChanged() {
+	public void backupManagerDataChanged(Context context) {
 		// not supported until Froyo (API Level 8)
 	}
 
@@ -145,5 +143,15 @@ public class CupcakeSupport implements SupportUtil {
 	@Override
 	public void listViewScrollTo(ListView listView, int position, int offset) {
 		listView.setSelectionFromTop(position, offset);
+	}
+
+	@Override
+	public void executeOnExecutor(LoadNextBusStopIntoCacheTask task, Executor executor) {
+		task.execute();
+	}
+
+	@Override
+	public BlockingQueue<Runnable> getNewBlockingQueue() {
+		return new ArrayBlockingQueue<Runnable>(5);
 	}
 }

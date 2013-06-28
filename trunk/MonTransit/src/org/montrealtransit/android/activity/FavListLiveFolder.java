@@ -20,7 +20,8 @@ import android.provider.LiveFolders;
  * This class manage the favorite live folder.
  * @author Mathieu Méa
  */
-@SuppressWarnings("deprecation") //TODO use App Widgets (Android 3.0+)
+@SuppressWarnings("deprecation")
+// TODO use App Widgets (Android 3.0+)
 public class FavListLiveFolder extends Activity {
 
 	@Override
@@ -30,14 +31,12 @@ public class FavListLiveFolder extends Activity {
 		final Intent intent = getIntent();
 		final String action = intent.getAction();
 		if (LiveFolders.ACTION_CREATE_LIVE_FOLDER.equals(action)) {
-			List<DataStore.Fav> favList = DataManager.findFavsByTypeList(getContentResolver(),
-			        DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
+			List<DataStore.Fav> favList = DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
 			if (Utils.getCollectionSize(favList) > 0) {
 				setResult(
-				        RESULT_OK,
-				        createLiveFolder(this, StmManager.getBusStopsFavUri(favList),
-				                getString(R.string.favorite_bus_stop_live_folder_name),
-				                R.drawable.ic_launcher_folder_live_favorites));
+						RESULT_OK,
+						createLiveFolder(this, StmManager.getBusStopsFavUri(favList), getString(R.string.favorite_bus_stop_live_folder_name),
+								R.drawable.ic_launcher_folder_live_favorites));
 			} else {
 				Utils.notifyTheUser(this, getString(R.string.favorite_bus_stop_live_folder_need_to_add_fav));
 				setResult(RESULT_CANCELED);
@@ -62,8 +61,7 @@ public class FavListLiveFolder extends Activity {
 		intent.putExtra(LiveFolders.EXTRA_LIVE_FOLDER_NAME, name);
 		intent.putExtra(LiveFolders.EXTRA_LIVE_FOLDER_ICON, Intent.ShortcutIconResource.fromContext(context, icon));
 		intent.putExtra(LiveFolders.EXTRA_LIVE_FOLDER_DISPLAY_MODE, LiveFolders.DISPLAY_MODE_LIST);
-		intent.putExtra(LiveFolders.EXTRA_LIVE_FOLDER_BASE_INTENT, new Intent(Intent.ACTION_VIEW,
-		        StmStore.BusStop.CONTENT_URI_FAV));
+		intent.putExtra(LiveFolders.EXTRA_LIVE_FOLDER_BASE_INTENT, new Intent(Intent.ACTION_VIEW, StmStore.BusStop.CONTENT_URI_FAV));
 		return intent;
 	}
 }

@@ -24,10 +24,8 @@ public class FroyoSupport extends EclairSupport {
 
 	/**
 	 * The default constructor.
-	 * @param context the context
 	 */
-	public FroyoSupport(Context context) {
-		super(context);
+	public FroyoSupport() {
 	}
 
 	@Override
@@ -36,7 +34,7 @@ public class FroyoSupport extends EclairSupport {
 	}
 
 	@Override
-	public void backupManagerDataChanged() {
+	public void backupManagerDataChanged(Context context) {
 		new BackupManager(context).dataChanged();
 		MyLog.d(TAG, "SharedPreferences changed. BackupManager.dataChanged() fired.");
 	}

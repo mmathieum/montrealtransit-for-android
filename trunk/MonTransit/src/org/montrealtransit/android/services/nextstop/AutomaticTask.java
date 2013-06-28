@@ -3,6 +3,7 @@ package org.montrealtransit.android.services.nextstop;
 import java.util.Map;
 
 import org.montrealtransit.android.MyLog;
+import org.montrealtransit.android.activity.UserPreferences;
 import org.montrealtransit.android.data.BusStopHours;
 import org.montrealtransit.android.provider.StmStore.BusStop;
 
@@ -32,39 +33,47 @@ public class AutomaticTask extends AbstractNextStopProvider implements NextStopL
 	 */
 	private StmInfoTask taskStmInfo;
 	/**
-	 * The bus stop.
+	 * The {@link BetaStmInfoTask}.
 	 */
-	private BusStop busStop;
+	private BetaStmInfoTask taskBetaStmInfo;
 
 	/**
 	 * @see AbstractNextStopProvider#AbstractNextStopProvider(NextStopListener, Context)
 	 */
-	public AutomaticTask(NextStopListener from, Context context) {
-		super(from, context);
+	public AutomaticTask(NextStopListener from, Context context, BusStop busStop) {
+		super(context, from, busStop);
 	}
 
 	@Override
-	protected Map<String, BusStopHours> doInBackground(BusStop... busStops) {
+	protected Map<String, BusStopHours> doInBackground(Void... params) {
 		MyLog.v(TAG, "doInBackground()");
 		// TODO ask the most reliable 1st and after 5 seconds, if no response, ask the other one(s)
-		this.busStop = busStops[0];
 		if (this.busStop == null) {
 			return null;
 		}
 
-		this.taskStmMobile = new StmMobileTask(this, context);
-		this.taskStmMobile.execute(this.busStop);
+		if (UserPreferences.getPrefDefault(context, UserPreferences.PREFS_NEXT_STOP_PROVIDER, UserPreferences.PREFS_NEXT_STOP_PROVIDER_DEFAULT).equals(
+				UserPreferences.PREFS_NEXT_STOP_PROVIDER_BETA_STM_INFO)) {
+			this.taskBetaStmInfo = new BetaStmInfoTask(context, this, this.busStop);
+			this.taskBetaStmInfo.execute();
+			return null; // only beta
+		}
 
-		this.taskStmInfo = new StmInfoTask(this, context);
-		this.taskStmInfo.execute(this.busStop);
+		this.taskStmMobile = new StmMobileTask(context, this, this.busStop);
+		this.taskStmMobile.execute();
+
+		this.taskStmInfo = new StmInfoTask(context, this, this.busStop);
+		this.taskStmInfo.execute();
 
 		return null;
 	}
 
 	@Override
 	public void onNextStopsProgress(String progress) {
-		MyLog.v(getTag(), "onNextStopsProgress(%s)", progress);
-		this.from.onNextStopsProgress(progress);
+		MyLog.v(TAG, "onNextStopsProgress(%s)", progress);
+		if (this.from != null) {
+			this.from.onNextStopsProgress(progress);
+		}
 	}
 
 	@Override
@@ -77,7 +86,7 @@ public class AutomaticTask extends AbstractNextStopProvider implements NextStopL
 			stopAllTasks();
 		}
 		// IF valid result or the last result DO
-		if (containResult || countRunningTask() <= 1) {
+		if (containResult || countRunningTask() <= 1 && this.from != null) {
 			this.from.onNextStopsLoaded(results);
 		}
 	}

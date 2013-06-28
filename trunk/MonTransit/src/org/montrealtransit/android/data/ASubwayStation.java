@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.montrealtransit.android.LocationUtils.POI;
 import org.montrealtransit.android.provider.StmStore.SubwayStation;
 
 import android.graphics.Matrix;
@@ -12,7 +13,7 @@ import android.graphics.Matrix;
  * Represents a localized subway station.
  * @author Mathieu Méa
  */
-public class ASubwayStation extends SubwayStation {
+public class ASubwayStation extends SubwayStation implements POI {
 
 	/**
 	 * The current main subway line ID.

@@ -7,20 +7,22 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.montrealtransit.android.BusUtils;
+import org.montrealtransit.android.LocationUtils;
+import org.montrealtransit.android.LocationUtils.LocationTaskCompleted;
 import org.montrealtransit.android.MyLog;
+import org.montrealtransit.android.PrefetchingUtils;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.SensorUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.activity.BusStopInfo;
-import org.montrealtransit.android.activity.UserPreferences;
 import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.ABusStop;
-import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore.BusStop;
+import org.montrealtransit.android.services.LoadNextBusStopIntoCacheTask;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -28,7 +30,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
-import android.hardware.GeomagneticField;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -78,7 +79,7 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 	/**
 	 * The list of bus stops.
 	 */
-	private List<ABusStop> busStops = new ArrayList<ABusStop>();
+	private List<ABusStop> busStops = null;
 	/**
 	 * The favorite bus stops codes.
 	 */
@@ -259,48 +260,71 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 	 * Refresh the bus stops list UI.
 	 */
 	private void refreshBusStopListFromDB(String stopCode, String lineDirectionId) { // TODO extract?
-		new AsyncTask<String, Void, ABusStop[]>() {
+		MyLog.v(TAG, "refreshBusStopListFromDB(%s,%s)", stopCode, lineDirectionId);
+		new AsyncTask<String, Void, Void>() {
 			@Override
-			protected ABusStop[] doInBackground(String... params) {
+			protected Void doInBackground(String... params) {
 				String stopCode = params[0], lineDirectionId = params[1];
-				List<BusStop> busStopList = StmManager.findBusLineStopsList(BusLineDirectionFragment.this.getLastActivity().getContentResolver(),
-						BusLineDirectionFragment.this.busLineNumber, lineDirectionId);
-				// creating the list of the subways stations object
-				ABusStop[] busStops = new ABusStop[busStopList.size()];
-				int i = 0;
-				for (BusStop busStop : busStopList) {
-					ABusStop aBusStop = new ABusStop(busStop);
-					aBusStop.setPlace(BusUtils.cleanBusStopPlace(busStop.getPlace()));
-					if (aBusStop.getCode().equals(stopCode)) {
-						BusLineDirectionFragment.this.currentStopCode = aBusStop.getCode();
+				BusLineInfo activity = BusLineDirectionFragment.this.getBusLineInfoActivity();
+				List<BusStop> busStopList = StmManager.findBusLineStopsList(activity.getContentResolver(), BusLineDirectionFragment.this.busLineNumber,
+						lineDirectionId);
+				if (busStopList != null) {
+					// creating the list of the subways stations object
+					ABusStop[] busStops = new ABusStop[busStopList.size()];
+					int i = 0;
+					for (BusStop busStop : busStopList) {
+						ABusStop aBusStop = new ABusStop(busStop);
+						aBusStop.setPlace(BusUtils.cleanBusStopPlace(busStop.getPlace()));
+						if (aBusStop.getCode().equals(stopCode)) {
+							BusLineDirectionFragment.this.currentStopCode = aBusStop.getCode();
+						}
+						busStops[i] = aBusStop;
+						i++;
 					}
-					busStops[i] = aBusStop;
-					i++;
+					BusLineDirectionFragment.this.busStops = Arrays.asList(busStops);
+				} else {
+					BusLineDirectionFragment.this.busStops = new ArrayList<ABusStop>();
 				}
-				return busStops;
+				// force update all bus stops with location
+				LocationUtils.updateDistance(activity, BusLineDirectionFragment.this.busStops, activity.getLocation());
+				return null;
 			}
 
 			@Override
-			protected void onPostExecute(ABusStop[] result) {
+			protected void onPostExecute(Void result) {
+				MyLog.d(TAG, "refreshBusStopListFromDB() > onPostExecute()");
 				BusLineInfo activity = BusLineDirectionFragment.this.getBusLineInfoActivity();
 				View view = BusLineDirectionFragment.this.getLastView();
 				if (activity == null || view == null) {
 					return; // too late, the parent activity is gone
 				}
-				BusLineDirectionFragment.this.busStops = Arrays.asList(result);
 				generateOrderedStopCodes();
 				refreshFavoriteStopCodesFromDB(activity.getContentResolver());
+				prefetchFavoriteStops();
 				ListView listView = (ListView) view.findViewById(R.id.list);
 				notifyDataSetChanged(true);
-				updateDistancesWithNewLocation(activity); // force update all bus stops with location
 				int index = selectedStopIndex();
+				// MyLog.d(TAG, "refreshBusStopListFromDB() > index: " + index);
 				if (index > 0) {
 					index--; // show one more stop on top
 				}
-				SupportFactory.getInstance(activity).listViewScrollTo(listView, index, 50);
-			};
+				SupportFactory.get().listViewScrollTo(listView, index, 50);
+			}
 
 		}.execute(stopCode, lineDirectionId);
+	}
+
+	private void prefetchFavoriteStops() {
+		if (this.favStopCodes == null) {
+			return;
+		}
+		for (String code : this.favStopCodes) {
+			BusStop busStop = new BusStop();
+			busStop.setCode(code);
+			busStop.setLineNumber(this.busLineNumber);
+			SupportFactory.get().executeOnExecutor(new LoadNextBusStopIntoCacheTask(getLastActivity(), busStop, null, true, false),
+					PrefetchingUtils.getExecutor());
+		}
 	}
 
 	/**
@@ -329,24 +353,49 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 	 */
 	protected void updateDistancesWithNewLocation(BusLineInfo activity) {
 		// MyLog.v(TAG, "updateDistancesWithNewLocation()");
-		// BusLineInfo activity = getBusLineInfoActivity();
 		if (this.busStops == null || activity == null) {
 			return;
 		}
 		Location currentLocation = activity.getLocation();
 		if (currentLocation != null) {
-			float accuracyInMeters = currentLocation.getAccuracy();
-			boolean isDetailed = UserPreferences.getPrefDefault(activity, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
-					UserPreferences.PREFS_DISTANCE_DETAILED);
-			String distanceUnit = UserPreferences.getPrefDefault(activity, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
-			for (ABusStop busStop : this.busStops) {
-				// IF the bus stop location is known DO
-				busStop.setDistance(currentLocation.distanceTo(busStop.getLocation()));
-				busStop.setDistanceString(Utils.getDistanceString(busStop.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
+			LocationUtils.updateDistance(activity, this.busStops, currentLocation, new LocationTaskCompleted() {
+
+				@Override
+				public void onLocationTaskCompleted() {
+					String previousClosest = BusLineDirectionFragment.this.closestStopCode;
+					generateOrderedStopCodes();
+					notifyDataSetChanged(BusLineDirectionFragment.this.closestStopCode == null ? false : BusLineDirectionFragment.this.closestStopCode
+							.equals(previousClosest));
+					prefetchClosestStops();
+				}
+			});
+		}
+	}
+
+	private void prefetchClosestStops() {
+		if (this.busStops == null || this.busStops.size() == 0) {
+			return;
+		}
+		List<ABusStop> orderedStops = new ArrayList<ABusStop>(this.busStops);
+		// order the stations list by distance (closest first)
+		Collections.sort(orderedStops, new Comparator<ABusStop>() {
+			@Override
+			public int compare(ABusStop lhs, ABusStop rhs) {
+				float d1 = lhs.getDistance();
+				float d2 = rhs.getDistance();
+				if (d1 > d2) {
+					return +1;
+				} else if (d1 < d2) {
+					return -1;
+				} else {
+					return 0;
+				}
 			}
-			String previousClosest = this.closestStopCode;
-			generateOrderedStopCodes();
-			notifyDataSetChanged(this.closestStopCode == null ? false : this.closestStopCode.equals(previousClosest));
+		});
+		for (int i = 0; i < orderedStops.size() && i < 3; i++) {
+			BusStop busStop = orderedStops.get(i);
+			SupportFactory.get().executeOnExecutor(new LoadNextBusStopIntoCacheTask(getLastActivity(), busStop, null, true, false),
+					PrefetchingUtils.getExecutor());
 		}
 	}
 
@@ -408,55 +457,35 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 	 * Update the compass image(s).
 	 * @param orientation the new orientation
 	 */
-	protected void updateCompass(float[] orientation) {
+	protected void updateCompass(final float orientation, boolean force) {
 		// MyLog.v(TAG, "updateCompass(%s)", orientation);
 		Location currentLocation = getBusLineInfoActivity() == null ? null : getBusLineInfoActivity().getLocation();
-		if (currentLocation != null) {
-			int io = (int) orientation[0];
-			long now = System.currentTimeMillis();
-			if (io != 0 && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE && (now - this.lastCompassChanged) > SensorUtils.COMPASS_UPDATE_THRESOLD
-					&& Math.abs(this.lastCompassInDegree - io) > SensorUtils.COMPASS_DEGREE_UPDATE_THRESOLD) {
-				// update closest bus stops compass
-				if (this.busStops != null) {
-					this.lastCompassInDegree = io;
-					this.lastCompassChanged = now;
-					for (ABusStop busStop : this.busStops) {
-						busStop.getCompassMatrix().reset();
-						busStop.getCompassMatrix().postRotate(
-								SensorUtils.getCompassRotationInDegree(getLastActivity(), currentLocation, busStop.getLocation(), orientation,
-										getLocationDeclination()), getArrowDim().first / 2, getArrowDim().second / 2);
+		if (currentLocation == null || orientation == 0 || this.busStops == null) {
+			// MyLog.d(TAG, "updateCompass() > no location or no POI");
+			return;
+		}
+		final long now = System.currentTimeMillis();
+		SensorUtils.updateCompass(getLastActivity(), this.busStops, force, currentLocation, orientation, now, this.scrollState, this.lastCompassChanged,
+				this.lastCompassInDegree, R.drawable.heading_arrow, new SensorUtils.SensorTaskCompleted() {
+
+					@Override
+					public void onSensorTaskCompleted(boolean result) {
+						if (result) {
+							BusLineDirectionFragment.this.lastCompassInDegree = (int) orientation;
+							BusLineDirectionFragment.this.lastCompassChanged = now;
+							// update the view
+							notifyDataSetChanged(false);
+						}
+
 					}
-					// update the view
-					notifyDataSetChanged(false);
-				}
-			}
-		}
-	}
-
-	private Pair<Integer, Integer> arrowDim;
-	private Float locationDeclination;
-
-	private float getLocationDeclination() {
-		Location currentLocation = getBusLineInfoActivity() == null ? null : getBusLineInfoActivity().getLocation();
-		if (this.locationDeclination == null && currentLocation != null) {
-			this.locationDeclination = new GeomagneticField((float) currentLocation.getLatitude(), (float) currentLocation.getLongitude(),
-					(float) currentLocation.getAltitude(), currentLocation.getTime()).getDeclination();
-		}
-		return this.locationDeclination;
-	}
-
-	public Pair<Integer, Integer> getArrowDim() {
-		if (this.arrowDim == null) {
-			this.arrowDim = SensorUtils.getResourceDimension(getLastActivity(), R.drawable.heading_arrow);
-		}
-		return this.arrowDim;
+				});
 	}
 
 	/**
 	 * Generate the ordered bus line stops codes.
 	 */
 	public void generateOrderedStopCodes() {
-		if (this.busStops.size() == 0) {
+		if (this.busStops == null || this.busStops.size() == 0) {
 			return;
 		}
 		List<ABusStop> orderedStops = new ArrayList<ABusStop>(this.busStops);

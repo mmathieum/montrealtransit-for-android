@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.LocationUtils;
+import org.montrealtransit.android.LocationUtils.LocationTaskCompleted;
 import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
@@ -36,7 +37,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
-import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -244,6 +244,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 * True if the activity has the focus, false otherwise.
 	 */
 	private boolean hasFocus = true;
+	private boolean paused = false;
 
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
@@ -258,6 +259,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
+		this.paused = true;
 		// IF the activity has the focus DO
 		if (this.hasFocus) {
 			onResumeWithFocus();
@@ -279,8 +281,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 				updateDistancesWithNewLocation();
 			}
 			// re-enable
-			LocationUtils.enableLocationUpdates(this, this);
-			this.locationUpdatesEnabled = true;
+			this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled, this.paused);
 		}
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		// refresh favorites
@@ -290,8 +291,8 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	@Override
 	protected void onPause() {
 		MyLog.v(TAG, "onPause()");
-		LocationUtils.disableLocationUpdates(this, this);
-		this.locationUpdatesEnabled = false;
+		this.paused = true;
+		this.locationUpdatesEnabled = LocationUtils.disableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled);
 		SensorUtils.unregisterSensorListener(this, this);
 		this.compassUpdatesEnabled = false;
 		super.onPause();
@@ -373,7 +374,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	public void onCompass() {
 		// MyLog.v(TAG, "onCompass()");
 		if (this.accelerometerValues != null && this.magneticFieldValues != null) {
-			updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues));
+			updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues), false);
 		}
 	}
 
@@ -381,29 +382,27 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 * Update the compass image(s).
 	 * @param orientation the new orientation
 	 */
-	private void updateCompass(float[] orientation) {
-		// MyLog.v(TAG, "updateCompass(%s)", orientation);
+	private void updateCompass(final float orientation, boolean force) {
+		// MyLog.v(TAG, "updateCompass(%s)", orientation[0]);
 		Location currentLocation = getLocation();
-		if (currentLocation != null) {
-			int io = (int) orientation[0];
-			long now = System.currentTimeMillis();
-			if (io != 0 && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE && (now - this.lastCompassChanged) > SensorUtils.COMPASS_UPDATE_THRESOLD
-					&& Math.abs(this.lastCompassInDegree - io) > SensorUtils.COMPASS_DEGREE_UPDATE_THRESOLD) {
-				// update closest bike stations compass
-				if (this.stations != null) {
-					this.lastCompassInDegree = io;
-					this.lastCompassChanged = now;
-					for (ASubwayStation subwayStation : this.stations) {
-						subwayStation.getCompassMatrix().reset();
-						subwayStation.getCompassMatrix().postRotate(
-								SensorUtils.getCompassRotationInDegree(this, currentLocation, subwayStation.getLocation(), orientation,
-										getLocationDeclination()), getArrowDim().first / 2, getArrowDim().second / 2);
-					}
-					// update the view
-					notifyDataSetChanged(false);
-				}
-			}
+		if (currentLocation == null || orientation == 0 || this.stations == null) {
+			// MyLog.d(TAG, "updateCompass() > no location or no POI");
+			return;
 		}
+		final long now = System.currentTimeMillis();
+		SensorUtils.updateCompass(this, this.stations, force, currentLocation, orientation, now, this.scrollState, this.lastCompassChanged,
+				this.lastCompassInDegree, R.drawable.heading_arrow, new SensorUtils.SensorTaskCompleted() {
+
+					@Override
+					public void onSensorTaskCompleted(boolean result) {
+						if (result) {
+							SubwayLineInfo.this.lastCompassInDegree = (int) orientation;
+							SubwayLineInfo.this.lastCompassChanged = now;
+							// update the view
+							notifyDataSetChanged(false);
+						}
+					}
+				});
 	}
 
 	/**
@@ -430,24 +429,6 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		}
 	}
 
-	private Pair<Integer, Integer> arrowDim;
-	private Float locationDeclination;
-
-	private float getLocationDeclination() {
-		if (this.locationDeclination == null && this.location != null) {
-			this.locationDeclination = new GeomagneticField((float) this.location.getLatitude(), (float) this.location.getLongitude(),
-					(float) this.location.getAltitude(), this.location.getTime()).getDeclination();
-		}
-		return this.locationDeclination;
-	}
-
-	public Pair<Integer, Integer> getArrowDim() {
-		if (this.arrowDim == null) {
-			this.arrowDim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow);
-		}
-		return this.arrowDim;
-	}
-
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 	}
@@ -472,11 +453,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 			updateDistancesWithNewLocation();
 		}
 		// IF location updates are not already enabled DO
-		if (!this.locationUpdatesEnabled) {
-			// enable
-			LocationUtils.enableLocationUpdates(this, this);
-			this.locationUpdatesEnabled = true;
-		}
+		this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled, this.paused);
 	}
 
 	/**
@@ -623,18 +600,17 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 * Update the distances with the latest device location.
 	 */
 	private void updateDistancesWithNewLocation() {
-		if (getLocation() != null && this.stations != null) {
-			float accuracyInMeters = getLocation().getAccuracy();
-			boolean isDetailed = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
-					UserPreferences.PREFS_DISTANCE_DETAILED);
-			String distanceUnit = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
-			for (ASubwayStation station : this.stations) {
-				station.setDistance(getLocation().distanceTo(station.getLocation()));
-				station.setDistanceString(Utils.getDistanceString(station.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
-			}
-			String previousClosest = this.closestStationId;
-			generateOrderedStationsIds();
-			notifyDataSetChanged(this.closestStationId == null ? false : this.closestStationId.equals(previousClosest));
+		Location currentLocation = getLocation();
+		if (currentLocation != null && this.stations != null) {
+			LocationUtils.updateDistance(this, this.stations, currentLocation, new LocationTaskCompleted() {
+
+				@Override
+				public void onLocationTaskCompleted() {
+					String previousClosest = SubwayLineInfo.this.closestStationId;
+					generateOrderedStationsIds();
+					notifyDataSetChanged(SubwayLineInfo.this.closestStationId == null ? false : SubwayLineInfo.this.closestStationId.equals(previousClosest));
+				}
+			});
 		}
 	}
 
@@ -848,10 +824,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 				this.setLocation(bestLastKnownLocationOrNull);
 			}
 			// enable location updates if necessary
-			if (!this.locationUpdatesEnabled) {
-				LocationUtils.enableLocationUpdates(this, this);
-				this.locationUpdatesEnabled = true;
-			}
+			this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled, this.paused);
 		}
 		return this.location;
 	}

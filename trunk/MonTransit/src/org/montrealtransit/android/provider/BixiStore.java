@@ -194,7 +194,7 @@ public class BixiStore {
 		/**
 		 * @return the latitude
 		 */
-		public double getLat() {
+		public Double getLat() {
 			return lat;
 		}
 
@@ -208,7 +208,7 @@ public class BixiStore {
 		/**
 		 * @return the longitude
 		 */
-		public double getLng() {
+		public Double getLng() {
 			return lng;
 		}
 
@@ -421,11 +421,16 @@ public class BixiStore {
 		/**
 		 * @return the location (not null)
 		 */
+		@Deprecated
 		public Location getLocation() {
 			if (this.location == null) {
 				this.location = LocationUtils.getNewLocation(this.lat, this.lng);
 			}
 			return this.location;
+		}
+
+		public boolean hasLocation() {
+			return true;
 		}
 
 	}

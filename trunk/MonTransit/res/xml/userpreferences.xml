@@ -7,11 +7,19 @@
 		android:entries="@array/distance_unit_pref_entries" android:entryValues="@array/distance_unit_pref_values"
 		android:dialogTitle="@string/distance_unit_pref_dialog_title"
 		android:defaultValue="meter" />
+	<!-- PRE-FETCHING -->
+	<PreferenceCategory android:title="@string/prefetching_pref_cat_title" />
+	<CheckBoxPreference android:key="pPrefetching"
+		android:title="@string/prefetching_pref_title" android:summary="@string/prefetching_pref_summary"
+		android:defaultValue="false" />
+	<CheckBoxPreference android:key="pPrefetchingWifiOnly"
+		android:title="@string/prefetching_wifi_only_pref_title" android:summary="@string/prefetching_wifi_only_pref_summary"
+		android:defaultValue="true" />
 	<!-- DATA -->
 	<PreferenceCategory android:title="@string/data_pref_cat_title" />
 	<ListPreference android:key="pNextStopProvider2"
 		android:title="@string/next_stop_pref_title" android:summary="@string/next_stop_pref_summary"
-		android:entries="@array/next_stop_pref_entries" android:entryValues="@array/next_stop_pref_values"
+		android:entries="@array/next_stop_pref_entries_with_beta" android:entryValues="@array/next_stop_pref_values_with_beta"
 		android:dialogTitle="@string/next_stop_pref_dialog_title"
 		android:defaultValue="auto" />
 	<!-- ADVANCED -->

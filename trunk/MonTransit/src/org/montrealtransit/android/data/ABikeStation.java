@@ -1,5 +1,6 @@
 package org.montrealtransit.android.data;
 
+import org.montrealtransit.android.LocationUtils.POI;
 import org.montrealtransit.android.provider.BixiStore.BikeStation;
 
 import android.graphics.Matrix;
@@ -8,7 +9,7 @@ import android.graphics.Matrix;
  * A {@link BikeStation} with a distance.
  * @author Mathieu Méa
  */
-public class ABikeStation extends BikeStation {
+public class ABikeStation extends BikeStation implements POI {
 
 	/**
 	 * The distance string.
@@ -89,7 +90,7 @@ public class ABikeStation extends BikeStation {
 	 * @return the compass rotation matrix (not null)
 	 */
 	public Matrix getCompassMatrix() {
-		if (this.compassMatrix == null) {
+		if (compassMatrix == null) {
 			this.compassMatrix = new Matrix();
 		}
 		return compassMatrix;

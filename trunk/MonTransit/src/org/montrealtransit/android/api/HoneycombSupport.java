@@ -1,5 +1,9 @@
 package org.montrealtransit.android.api;
 
+import java.util.concurrent.Executor;
+
+import org.montrealtransit.android.services.LoadNextBusStopIntoCacheTask;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.database.Cursor;
@@ -18,18 +22,16 @@ public class HoneycombSupport extends GingerbreadSupport {
 
 	/**
 	 * The default constructor.
-	 * @param context the context
 	 */
-	public HoneycombSupport(Context context) {
-		super(context);
+	public HoneycombSupport() {
 	}
 
 	@Override
 	public void enableStrictMode() {
-		ThreadPolicy threadPolicy = new StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog().build();
+		ThreadPolicy threadPolicy = new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().penaltyFlashScreen().build();
 		// or .detectAll() for all detectable problems
 		StrictMode.setThreadPolicy(threadPolicy);
-		VmPolicy vmPolicy = new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects().detectLeakedClosableObjects().penaltyLog().penaltyDeath().build();
+		VmPolicy vmPolicy = new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build();
 		StrictMode.setVmPolicy(vmPolicy);
 	}
 
@@ -42,5 +44,10 @@ public class HoneycombSupport extends GingerbreadSupport {
 	public void listViewScrollTo(ListView listView, int position, int offset) {
 		// listView.smoothScrollToPositionFromTop(position, offset);
 		super.listViewScrollTo(listView, position, offset);
+	}
+
+	@Override
+	public void executeOnExecutor(LoadNextBusStopIntoCacheTask task, Executor executor) {
+		task.executeOnExecutor(executor);
 	}
 }

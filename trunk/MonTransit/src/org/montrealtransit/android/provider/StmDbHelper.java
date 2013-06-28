@@ -13,7 +13,10 @@ import org.montrealtransit.android.activity.UserPreferences;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
 import android.provider.BaseColumns;
+import android.view.Gravity;
+import android.widget.Toast;
 
 /**
  * This SQLite database helper is used to access the STM database.
@@ -34,7 +37,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	/**
 	 * The database version use to manage database changes.
 	 */
-	public static final int DB_VERSION = 21;
+	public static final int DB_VERSION = 21; // TODO 22
 
 	/**
 	 * The list of SQL dump files.
@@ -289,6 +292,25 @@ public class StmDbHelper extends SQLiteOpenHelper {
 		return UserPreferences.getPrefLcl(context, UserPreferences.PREFS_LCL_STM_DB_VERSION, 0) != DB_VERSION;
 	}
 
+	public static void showUpdateRequiredIfNecessary(final Context context) {
+		new AsyncTask<Void, Void, Boolean>() {
+			@Override
+			protected Boolean doInBackground(Void... params) {
+				return isUpdateRequired(context);
+			}
+
+			@Override
+			protected void onPostExecute(Boolean result) {
+				if (result) {
+					int messageId = StmDbHelper.isDbExist(context) ? R.string.update_message_starting : R.string.init_message_starting;
+					Toast toast = Toast.makeText(context, messageId, Toast.LENGTH_LONG);
+					toast.setGravity(Gravity.CENTER, 0, 0);
+					toast.show();
+				}
+			};
+		}.execute();
+	}
+
 	/**
 	 * Initialize the database from the SQL dump.
 	 * @param dataBase the writable database.
@@ -373,8 +395,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 				R.raw.stm_db_arrets_autobus_7 });
 		initDbTableWithRetry(dataBase, DATABASE_CREATE_T_BUS_STOPS_LOC, DATABASE_DROP_T_BUS_STOPS_LOC, new int[] { R.raw.stm_db_arrets_autobus_loc });
 		// subways
-		initDbTableWithRetry(dataBase, DATABASE_CREATE_T_SUBWAY_FREQUENCES, DATABASE_DROP_T_SUBWAY_FREQUENCES,
-				new int[] { R.raw.stm_db_frequences_metro });
+		initDbTableWithRetry(dataBase, DATABASE_CREATE_T_SUBWAY_FREQUENCES, DATABASE_DROP_T_SUBWAY_FREQUENCES, new int[] { R.raw.stm_db_frequences_metro });
 		initDbTableWithRetry(dataBase, DATABASE_CREATE_T_SUBWAY_HOUR, DATABASE_DROP_T_SUBWAY_HOUR, new int[] { R.raw.stm_db_horaire_metro });
 		initDbTableWithRetry(dataBase, DATABASE_CREATE_T_SUBWAY_LINES, DATABASE_DROP_T_SUBWAY_LINES, new int[] { R.raw.stm_db_lignes_metro });
 		initDbTableWithRetry(dataBase, DATABASE_CREATE_T_SUBWAY_LINES_DIRECTIONS, DATABASE_DROP_T_SUBWAY_LINES_DIRECTIONS,
@@ -415,6 +436,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	private boolean initDbTable(SQLiteDatabase dataBase, String createSQL, String dropSQL, int[] fileIds) {
 		MyLog.v(TAG, "initDbTable(%s)", createSQL);
 		BufferedReader br = null;
+		String line = null;
 		try {
 			dataBase.beginTransaction();
 			// MyLog.d(TAG, "create tables");
@@ -422,7 +444,6 @@ public class StmDbHelper extends SQLiteOpenHelper {
 			dataBase.execSQL(dropSQL); // drop if exists
 			dataBase.execSQL(createSQL); // create if not exists
 			// deploy data
-			String line;
 			for (int fileId : fileIds) {
 				// MyLog.d(TAG, "deploy data from " + fileId);
 				br = new BufferedReader(new InputStreamReader(this.context.getResources().openRawResource(fileId), "UTF8"), 8192);
@@ -434,7 +455,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 			dataBase.setTransactionSuccessful();
 			return true;
 		} catch (Exception e) {
-			MyLog.w(TAG, e, "ERROR while copying the database file!");
+			MyLog.w(TAG, e, "ERROR while copying the database file! (line:%s)", line);
 			AnalyticsUtils
 					.trackEvent(this.context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_DB_INIT_FAIL, e.getClass().getSimpleName(), DB_VERSION);
 			// TODO handles no space left on the device

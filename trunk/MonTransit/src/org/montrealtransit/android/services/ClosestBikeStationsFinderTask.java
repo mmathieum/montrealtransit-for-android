@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
@@ -17,11 +18,10 @@ import org.montrealtransit.android.provider.BixiStore.BikeStation;
 import org.montrealtransit.android.services.BixiDataReader.BixiDataReaderListener;
 
 import android.content.Context;
-import android.location.Location;
 import android.os.AsyncTask;
 import android.text.TextUtils;
 
-public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, ClosestPOI<ABikeStation>> implements BixiDataReaderListener {
+public class ClosestBikeStationsFinderTask extends AsyncTask<Double, String, ClosestPOI<ABikeStation>> implements BixiDataReaderListener {
 
 	/**
 	 * The log tag.
@@ -75,14 +75,11 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 	}
 
 	@Override
-	protected ClosestPOI<ABikeStation> doInBackground(Location... params) {
+	protected ClosestPOI<ABikeStation> doInBackground(Double... params) {
 		MyLog.v(TAG, "doInBackground()");
 		ClosestPOI<ABikeStation> result = null;
-		// read last (not too old) location
-		Location currentLocation = params[0];
-		// MyLog.d(TAG, "currentLocation:" + currentLocation);
 		// IF location available DO
-		if (currentLocation != null) {
+		if (params.length == 2 && params[0] != null && params[1] != null) {
 			result = new ClosestPOI<ABikeStation>();
 			// IF the local cache is too old DO
 			if (FORCE_UPDATE_FROM_WEB
@@ -95,12 +92,12 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 			}
 			publishProgress(this.context.getString(R.string.processing));
 			// get the closest bike station from database or NULL
-			List<BikeStation> bikeStations = getAllBikeStations(currentLocation);
+			List<BikeStation> bikeStations = getAllBikeStations(params[0], params[1]);
 			if (!TextUtils.isEmpty(this.lastBixiDataMessage)) {
 				result.setErrorMessage(this.lastBixiDataMessage);
 			}
 			if (bikeStations != null) { // bike stations
-				result.setPoiList(getABikeStations(this.context, bikeStations, currentLocation, this.maxResult));
+				result.setPoiList(getABikeStations(bikeStations, params[0], params[1], this.maxResult));
 			} else if (TextUtils.isEmpty(this.lastBixiDataMessage)) { // no bike stations
 				result.setPoiList(new ArrayList<ABikeStation>());
 			}
@@ -108,10 +105,10 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 		return result;
 	}
 
-	public List<BikeStation> getAllBikeStations(Location currentLocation) {
+	public List<BikeStation> getAllBikeStations(double lat, double lng) {
 		MyLog.v(TAG, "getAllBikeStations()");
 		// try the short way with location hack
-		List<BikeStation> allBikeStationsWithLoc = BixiManager.findAllBikeStationsLocationList(context.getContentResolver(), currentLocation);
+		List<BikeStation> allBikeStationsWithLoc = BixiManager.findAllBikeStationsLocationList(context.getContentResolver(), lat, lng);
 		// MyLog.d(TAG, "1st try: " + Utils.getCollectionSize(allBikeStationsWithLoc));
 		if (Utils.getCollectionSize(allBikeStationsWithLoc) == 0) { // if no value return
 			// do it the hard long way
@@ -139,22 +136,17 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 
 	/**
 	 * Converts {@link BikeStation} list to {@link ABikeStation} list and add distance, sort by distance and set distance string.
-	 * @param context the context
 	 * @param bikeStations the {@link BikeStation} list
 	 * @param maxResult the maximum number of result or {@link #NO_LIMIT}
 	 * @return the {@link ABikeStation} list
 	 */
-	private static List<ABikeStation> getABikeStations(Context context, List<BikeStation> bikeStations, Location currentLocation, int maxResult) {
+	private static List<ABikeStation> getABikeStations(List<BikeStation> bikeStations, double lat, double lng, int maxResult) {
 		// MyLog.v(TAG, "getABikeStations(%s, %s)", Utils.getCollectionSize(bikeStations), currentLocation);
 		List<ABikeStation> aresult = new ArrayList<ABikeStation>();
-		float accuracy = currentLocation.getAccuracy();
-		boolean isDetailed = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
-				UserPreferences.PREFS_DISTANCE_DETAILED);
-		String distanceUnit = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
 		for (BikeStation bikeStation : bikeStations) {
 			ABikeStation astation = new ABikeStation(bikeStation);
 			// add location => distance
-			astation.setDistance(currentLocation.distanceTo(bikeStation.getLocation()));
+			astation.setDistance(LocationUtils.distanceTo(lat, lng, bikeStation.getLat(), bikeStation.getLng()));
 			aresult.add(astation);
 		}
 		// sort the bike stations
@@ -162,10 +154,6 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Location, String, C
 		if (maxResult > 0) {
 			maxResult = aresult.size() < maxResult ? aresult.size() : maxResult; // use size if max result too big
 			aresult = aresult.subList(0, maxResult);
-		}
-		// set distance string for the displayed station only
-		for (ABikeStation astation : aresult) {
-			astation.setDistanceString(Utils.getDistanceString(astation.getDistance(), accuracy, isDetailed, distanceUnit));
 		}
 		return aresult;
 	}

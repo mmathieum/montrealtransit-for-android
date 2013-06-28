@@ -6,10 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
-import org.montrealtransit.android.activity.UserPreferences;
 import org.montrealtransit.android.data.ASubwayStation;
 import org.montrealtransit.android.data.ClosestPOI;
 import org.montrealtransit.android.data.Pair;
@@ -50,14 +50,17 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 	 */
 	private ClosestSubwayStationsFinderListener from;
 
+	private int maxResult = 10;
+
 	/**
 	 * The default constructor.
 	 * @param from the class handling the result and progress
 	 * @param context the context
 	 */
-	public ClosestSubwayStationsFinderTask(ClosestSubwayStationsFinderListener from, Context context) {
+	public ClosestSubwayStationsFinderTask(ClosestSubwayStationsFinderListener from, Context context, int maxResult) {
 		this.from = from;
 		this.context = context;
+		this.maxResult = maxResult;
 	}
 
 	@Override
@@ -72,7 +75,7 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 			publishProgress(this.context.getString(R.string.processing));
 			result = new ClosestPOI<ASubwayStation>();
 			// create a list of all stations with lines and location
-			List<ASubwayStation> stationsWithOtherLines = getAllStationsWithLines(currentLocation);
+			List<ASubwayStation> stationsWithOtherLines = getAllStationsWithLines(currentLocation, maxResult);
 			// order the stations list by distance (closest first)
 			Collections.sort(stationsWithOtherLines, new SubwayStationDistancesComparator());
 			result.setPoiList(stationsWithOtherLines);
@@ -85,12 +88,8 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 	 * @param currentLocation the location
 	 * @return the list of localized stations
 	 */
-	private List<ASubwayStation> getAllStationsWithLines(Location currentLocation) {
+	private List<ASubwayStation> getAllStationsWithLines(Location currentLocation, int maxResult) {
 		Map<String, ASubwayStation> aresult = new HashMap<String, ASubwayStation>();
-		float accuracy = currentLocation.getAccuracy();
-		boolean isDetailed = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
-				UserPreferences.PREFS_DISTANCE_DETAILED);
-		String distanceUnit = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
 		// try the short way with location hack
 		List<Pair<SubwayLine, SubwayStation>> subwayStationsWithLoc = StmManager.findAllSubwayStationsAndLinesLocationList(context.getContentResolver(),
 				currentLocation);
@@ -108,15 +107,18 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 			// IF this is the 1st line of the station DO
 			if (!aresult.containsKey(subwayStation.getId())) {
 				ASubwayStation station = new ASubwayStation(subwayStation);
-				// location
-				station.setDistance(currentLocation.distanceTo(subwayStation.getLocation()));
-				station.setDistanceString(Utils.getDistanceString(station.getDistance(), accuracy, isDetailed, distanceUnit));
 				aresult.put(subwayStation.getId(), station);
 			}
 			// add the subway line number
 			aresult.get(subwayStation.getId()).addOtherLineId(subwayLine.getNumber());
 		}
-		return new ArrayList<ASubwayStation>(aresult.values());
+		List<ASubwayStation> lresult = new ArrayList<ASubwayStation>(aresult.values());
+		if (maxResult > 0) {
+			maxResult = aresult.size() < maxResult ? aresult.size() : maxResult; // use size if max result too big
+			lresult = lresult.subList(0, maxResult);
+		}
+		LocationUtils.updateDistance(context, lresult, currentLocation);
+		return lresult;
 	}
 
 	@Override

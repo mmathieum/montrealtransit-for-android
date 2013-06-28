@@ -174,36 +174,32 @@ public class DataDbHelper extends SQLiteOpenHelper {
 	/**
 	 * Database creation SQL statement for the favorite table.
 	 */
-	private static final String DATABASE_CREATE_T_FAVS = "create table " + T_FAVS + " (" + T_FAVS_K_ID
-	        + " integer primary key autoincrement, " + T_FAVS_K_TYPE + " integer, " + T_FAVS_K_FK_ID + " text, "
-	        + T_FAVS_K_FK_ID_2 + " text, " + T_FAVS_K_TITLE + " text);";
+	private static final String DATABASE_CREATE_T_FAVS = "create table " + T_FAVS + " (" + T_FAVS_K_ID + " integer primary key autoincrement, " + T_FAVS_K_TYPE
+			+ " integer, " + T_FAVS_K_FK_ID + " text, " + T_FAVS_K_FK_ID_2 + " text, " + T_FAVS_K_TITLE + " text);";
 	/**
 	 * Database creation SQL statement for the history table.
 	 */
-	private static final String DATABASE_CREATE_T_HISTORY = "create table " + T_HISTORY + " (" + T_HISTORY_K_ID
-	        + " integer primary key autoincrement, " + T_HISTORY_K_VALUE + " text);";
+	private static final String DATABASE_CREATE_T_HISTORY = "create table " + T_HISTORY + " (" + T_HISTORY_K_ID + " integer primary key autoincrement, "
+			+ T_HISTORY_K_VALUE + " text);";
 
 	/**
 	 * Database creation SQL statement for the Twitter API table.
 	 */
-	private static final String DATABASE_CREATE_T_TWITTER_API = "create table " + T_TWITTER_API + " ("
-	        + T_TWITTER_API_K_ID + " integer primary key autoincrement, " + T_TWITTER_API_K_TOKEN + " text, "
-	        + T_TWITTER_API_K_TOKEN_SECRET + " text);";
+	private static final String DATABASE_CREATE_T_TWITTER_API = "create table " + T_TWITTER_API + " (" + T_TWITTER_API_K_ID
+			+ " integer primary key autoincrement, " + T_TWITTER_API_K_TOKEN + " text, " + T_TWITTER_API_K_TOKEN_SECRET + " text);";
 	/**
 	 * Database creation SQL statement for the service status table.
 	 */
-	private static final String DATABASE_CREATE_T_SERVICE_STATUS = "create table " + T_SERVICE_STATUS + " ("
-	        + T_SERVICE_STATUS_K_ID + " integer primary key autoincrement, " + T_SERVICE_STATUS_K_MESSAGE + " text, "
-	        + T_SERVICE_STATUS_K_PUB_DATE + " integer, " + T_SERVICE_STATUS_K_READ_DATE + " integer, "
-	        + T_SERVICE_STATUS_K_TYPE + " integer, " + T_SERVICE_STATUS_K_LANGUAGE + " text, "
-	        + T_SERVICE_STATUS_K_SOURCE + " text, " + T_SERVICE_STATUS_K_LINK + " text);";
+	private static final String DATABASE_CREATE_T_SERVICE_STATUS = "create table " + T_SERVICE_STATUS + " (" + T_SERVICE_STATUS_K_ID
+			+ " integer primary key autoincrement, " + T_SERVICE_STATUS_K_MESSAGE + " text, " + T_SERVICE_STATUS_K_PUB_DATE + " integer, "
+			+ T_SERVICE_STATUS_K_READ_DATE + " integer, " + T_SERVICE_STATUS_K_TYPE + " integer, " + T_SERVICE_STATUS_K_LANGUAGE + " text, "
+			+ T_SERVICE_STATUS_K_SOURCE + " text, " + T_SERVICE_STATUS_K_LINK + " text);";
 
 	/**
 	 * Database creation SQL statement for the Cache table.
 	 */
-	private static final String DATABASE_CREATE_T_CACHE = "create table " + T_CACHE + " (" + T_CACHE_K_ID
-	        + " integer primary key autoincrement, " + T_CACHE_K_DATE + " integer, " + T_CACHE_K_TYPE + " integer, "
-	        + T_CACHE_K_FK_ID + " text," + T_CACHE_K_OBJECT + " text);";
+	private static final String DATABASE_CREATE_T_CACHE = "create table " + T_CACHE + " (" + T_CACHE_K_ID + " integer primary key autoincrement, "
+			+ T_CACHE_K_DATE + " integer, " + T_CACHE_K_TYPE + " integer, " + T_CACHE_K_FK_ID + " text," + T_CACHE_K_OBJECT + " text);";
 
 	/**
 	 * Default constructor.
@@ -226,8 +222,7 @@ public class DataDbHelper extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		MyLog.v(TAG, "onUpgrade(%s, %s)", oldVersion, newVersion);
-		MyLog.d(TAG, "Upgrading database from version %s to %s, which may destroy all old data!", oldVersion,
-		        newVersion);
+		MyLog.d(TAG, "Upgrading database from version %s to %s, which may destroy all old data!", oldVersion, newVersion);
 		switch (oldVersion) {
 		case 1:
 			MyLog.v(TAG, "add the History table");

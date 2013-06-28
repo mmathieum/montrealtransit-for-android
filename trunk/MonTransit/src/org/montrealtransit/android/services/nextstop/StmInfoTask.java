@@ -21,7 +21,7 @@ import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.BusStopHours;
-import org.montrealtransit.android.provider.StmStore;
+import org.montrealtransit.android.provider.StmStore.BusStop;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -35,8 +35,8 @@ public class StmInfoTask extends AbstractNextStopProvider {
 	/**
 	 * @see AbstractNextStopProvider#AbstractNextStopProvider(NextStopListener, Context)
 	 */
-	public StmInfoTask(NextStopListener from, Context context) {
-		super(from, context);
+	public StmInfoTask(Context context, NextStopListener from, BusStop busStop) {
+		super(context, from, busStop);
 	}
 
 	/**
@@ -54,19 +54,17 @@ public class StmInfoTask extends AbstractNextStopProvider {
 	private static final String TAG = StmInfoTask.class.getSimpleName();
 
 	@Override
-	protected Map<String, BusStopHours> doInBackground(StmStore.BusStop... busStops) {
+	protected Map<String, BusStopHours> doInBackground(Void... params) {
 		MyLog.v(TAG, "doInBackground()");
 		Utils.logAppVersion(this.context);
-		String errorMessage = this.context.getString(R.string.error); // set the default error message
-		Map<String, BusStopHours> hours = new HashMap<String, BusStopHours>();
-		if (busStops == null || busStops.length == 0) {
+		if (this.busStop == null) {
 			return null;
 		}
-		String stopCode = busStops[0].getCode();
-		String lineNumber = busStops[0].getLineNumber();
+		String errorMessage = this.context.getString(R.string.error); // set the default error message
+		Map<String, BusStopHours> hours = new HashMap<String, BusStopHours>();
 		try {
-			publishProgress(context.getString(R.string.downloading_data_from_and_source, StmInfoTask.SOURCE_NAME));
-			URL url = new URL(getUrlString(stopCode));
+			publishProgress(context.getString(R.string.downloading_data_from_and_source, SOURCE_NAME));
+			URL url = new URL(getUrlString());
 			URLConnection urlc = url.openConnection();
 			// MyLog.d(TAG, "URL created: '%s'", url.toString());
 			HttpURLConnection httpUrlConnection = (HttpURLConnection) urlc;
@@ -80,14 +78,14 @@ public class StmInfoTask extends AbstractNextStopProvider {
 					hours.put(line, getBusStopHoursFromString(html, line));
 				}
 				// IF the targeted bus line was there DO
-				if (hours.keySet().contains(lineNumber)) {
+				if (hours.keySet().contains(this.busStop.getLineNumber())) {
 					publishProgress(this.context.getResources().getString(R.string.done));
 				} else {
 					// no information
-					errorMessage = this.context.getString(R.string.bus_stop_no_info_and_source, lineNumber, SOURCE_NAME);
+					errorMessage = this.context.getString(R.string.bus_stop_no_info_and_source, this.busStop.getLineNumber(), SOURCE_NAME);
 					publishProgress(errorMessage);
-					hours.put(lineNumber, new BusStopHours(SOURCE_NAME, errorMessage));
-					AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BUS_STOP_REMOVED, busStops[0].getUID(), context
+					hours.put(this.busStop.getLineNumber(), new BusStopHours(SOURCE_NAME, errorMessage));
+					AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BUS_STOP_REMOVED, this.busStop.getUID(), context
 							.getPackageManager().getPackageInfo(Constant.PKG, 0).versionCode);
 				}
 				return hours;
@@ -96,23 +94,23 @@ public class StmInfoTask extends AbstractNextStopProvider {
 			default:
 				MyLog.w(TAG, "ERROR: HTTP URL-Connection Response Code %s (Message: %s)", httpUrlConnection.getResponseCode(),
 						httpUrlConnection.getResponseMessage());
-				hours.put(lineNumber, new BusStopHours(SOURCE_NAME, errorMessage));
+				hours.put(this.busStop.getLineNumber(), new BusStopHours(SOURCE_NAME, errorMessage));
 				return hours;
 			}
 		} catch (UnknownHostException uhe) {
 			MyLog.w(TAG, uhe, "No Internet Connection!");
 			publishProgress(this.context.getString(R.string.no_internet));
-			hours.put(lineNumber, new BusStopHours(SOURCE_NAME, this.context.getString(R.string.no_internet)));
+			hours.put(this.busStop.getLineNumber(), new BusStopHours(SOURCE_NAME, this.context.getString(R.string.no_internet)));
 			return hours;
 		} catch (SocketException se) {
 			MyLog.w(TAG, se, "No Internet Connection!");
 			publishProgress(this.context.getString(R.string.no_internet));
-			hours.put(lineNumber, new BusStopHours(SOURCE_NAME, this.context.getString(R.string.no_internet)));
+			hours.put(this.busStop.getLineNumber(), new BusStopHours(SOURCE_NAME, this.context.getString(R.string.no_internet)));
 			return hours;
 		} catch (Exception e) {
 			MyLog.e(TAG, e, "INTERNAL ERROR: Unknown Exception");
 			publishProgress(errorMessage);
-			hours.put(lineNumber, new BusStopHours(SOURCE_NAME, this.context.getString(R.string.error)));
+			hours.put(this.busStop.getLineNumber(), new BusStopHours(SOURCE_NAME, this.context.getString(R.string.error)));
 			return hours;
 		}
 	}
@@ -121,9 +119,9 @@ public class StmInfoTask extends AbstractNextStopProvider {
 	 * @param stopCode the bus stop code
 	 * @return the URL of the bus stop page on m.stm.info
 	 */
-	public String getUrlString(String stopCode) {
+	public String getUrlString() {
 		return new StringBuilder().append(URL_PART_1_BEFORE_LANG).append(Utils.getSupportedUserLocale().equals(Locale.FRENCH.toString()) ? "fr" : "en")
-				.append(URL_PART_2_BEFORE_BUS_STOP).append(stopCode).toString();
+				.append(URL_PART_2_BEFORE_BUS_STOP).append(this.busStop.getCode()).toString();
 	}
 
 	/**

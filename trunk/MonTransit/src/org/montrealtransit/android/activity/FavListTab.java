@@ -10,8 +10,10 @@ import java.util.Map;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.LocationUtils;
+import org.montrealtransit.android.LocationUtils.LocationTaskCompleted;
 import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
+import org.montrealtransit.android.PrefetchingUtils;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.SensorUtils;
 import org.montrealtransit.android.SensorUtils.CompassListener;
@@ -21,7 +23,6 @@ import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.ABikeStation;
 import org.montrealtransit.android.data.ABusStop;
 import org.montrealtransit.android.data.ASubwayStation;
-import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.provider.BixiManager;
 import org.montrealtransit.android.provider.BixiStore.BikeStation;
 import org.montrealtransit.android.provider.DataManager;
@@ -31,12 +32,12 @@ import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore.BusStop;
 import org.montrealtransit.android.provider.StmStore.SubwayLine;
 import org.montrealtransit.android.provider.StmStore.SubwayStation;
+import org.montrealtransit.android.services.LoadNextBusStopIntoCacheTask;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -146,6 +147,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
+		this.paused = false;
 		// IF the activity has the focus DO
 		if (this.hasFocus) {
 			onResumeWithFocus();
@@ -153,7 +155,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 		super.onResume();
 		UserPreferences.savePrefLcl(this, UserPreferences.PREFS_LCL_TAB, 0);
 	}
-	
+
 	/**
 	 * {@link #onResume()} when activity has the focus
 	 */
@@ -176,8 +178,8 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 						updateDistancesWithNewLocation();
 					}
 					// re-enable
-					LocationUtils.enableLocationUpdates(FavListTab.this, FavListTab.this);
-					FavListTab.this.locationUpdatesEnabled = true;
+					FavListTab.this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(FavListTab.this, FavListTab.this,
+							FavListTab.this.locationUpdatesEnabled, FavListTab.this.paused);
 				};
 
 			}.execute();
@@ -216,7 +218,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 	public void onCompass() {
 		// MyLog.v(TAG, "onCompass()");
 		if (this.accelerometerValues != null && this.magneticFieldValues != null) {
-			updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues));
+			updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues), false);
 		}
 	}
 
@@ -224,99 +226,99 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 	 * Update the compass image(s).
 	 * @param orientation the new orientation
 	 */
-	private void updateCompass(float[] orientation) {
+	private void updateCompass(final float orientation, boolean force) {
 		// MyLog.v(TAG, "updateCompass(%s)", orientation);
 		Location currentLocation = getLocation();
-		if (currentLocation != null) {
-			int io = (int) orientation[0];
-			long now = System.currentTimeMillis();
-			if (io != 0 && (now - this.lastCompassChanged) > SensorUtils.COMPASS_UPDATE_THRESOLD
-					&& Math.abs(this.lastCompassInDegree - io) > SensorUtils.COMPASS_DEGREE_UPDATE_THRESOLD) {
-				// update bus stops compass
-				if (this.busStops != null) {
-					this.lastCompassInDegree = io;
-					this.lastCompassChanged = now;
-					View busStopsLayout = findViewById(R.id.bus_stops_list);
-					for (ABusStop busStop : this.busStops) {
-						if (busStop.getLocation() == null) {
-							continue;
+		if (currentLocation == null || orientation == 0) {
+			return;
+		}
+		final long now = System.currentTimeMillis();
+		if (this.busStops != null) {
+			SensorUtils.updateCompass(this, this.busStops, force, currentLocation, orientation, now, -1, this.lastCompassChanged, this.lastCompassInDegree,
+					R.drawable.heading_arrow, new SensorUtils.SensorTaskCompleted() {
+
+						@Override
+						public void onSensorTaskCompleted(boolean result) {
+							if (result) {
+								FavListTab.this.lastCompassInDegree = (int) orientation;
+								FavListTab.this.lastCompassChanged = now;
+								// update the view
+								View busStopsLayout = findViewById(R.id.bus_stops_list);
+								for (ABusStop busStop : FavListTab.this.busStops) {
+									if (busStop == null) {
+										continue;
+									}
+									View stopView = busStopsLayout.findViewWithTag(getBusStopViewTag(busStop));
+									if (stopView == null) { // || TextUtils.isEmpty(busStop.getDistanceString())) {
+										continue;
+									}
+									ImageView compassImg = (ImageView) stopView.findViewById(R.id.compass);
+									compassImg.setImageMatrix(busStop.getCompassMatrix());
+									compassImg.setVisibility(View.VISIBLE);
+								}
+							}
 						}
-						// update value
-						busStop.getCompassMatrix().reset();
-						busStop.getCompassMatrix().postRotate(
-								SensorUtils.getCompassRotationInDegree(this, currentLocation, busStop.getLocation(), orientation, getLocationDeclination()),
-								getArrowDim().first / 2, getArrowDim().second / 2);
-						// update view
-						View stopView = busStopsLayout.findViewWithTag(getBusStopViewTag(busStop));
-						if (stopView != null && !TextUtils.isEmpty(busStop.getDistanceString())) {
-							ImageView compassImg = (ImageView) stopView.findViewById(R.id.compass);
-							compassImg.setImageMatrix(busStop.getCompassMatrix());
-							compassImg.setVisibility(View.VISIBLE);
+					});
+		}
+		// update subway station compass
+		if (this.subwayStations != null) {
+			SensorUtils.updateCompass(this, this.subwayStations, force, currentLocation, orientation, now, -1, this.lastCompassChanged,
+					this.lastCompassInDegree, R.drawable.heading_arrow, new SensorUtils.SensorTaskCompleted() {
+
+						@Override
+						public void onSensorTaskCompleted(boolean result) {
+							if (result) {
+								FavListTab.this.lastCompassInDegree = (int) orientation;
+								FavListTab.this.lastCompassChanged = now;
+								// update the view
+								View subwayStationsLayout = findViewById(R.id.subway_stations_list);
+								for (ASubwayStation subwayStation : FavListTab.this.subwayStations) {
+									if (subwayStation == null) {
+										continue;
+									}
+									View stationView = subwayStationsLayout.findViewWithTag(getSubwayStationViewTag(subwayStation));
+									if (stationView == null) { // || TextUtils.isEmpty(subwayStation.getDistanceString())) {
+										continue;
+									}
+									ImageView compassImg = (ImageView) stationView.findViewById(R.id.compass);
+									compassImg.setImageMatrix(subwayStation.getCompassMatrix());
+									compassImg.setVisibility(View.VISIBLE);
+								}
+							}
 						}
-					}
-				}
-				// update subway station compass
-				if (this.subwayStations != null) {
-					this.lastCompassInDegree = io;
-					this.lastCompassChanged = now;
-					View subwayStationsLayout = findViewById(R.id.subway_stations_list);
-					for (ASubwayStation subwayStation : this.subwayStations) {
-						// update value
-						subwayStation.getCompassMatrix().reset();
-						subwayStation.getCompassMatrix().postRotate(
-								SensorUtils.getCompassRotationInDegree(this, currentLocation, subwayStation.getLocation(), orientation,
-										getLocationDeclination()), getArrowDim().first / 2, getArrowDim().second / 2);
-						// update view
-						View stationView = subwayStationsLayout.findViewWithTag(getSubwayStationViewTag(subwayStation));
-						if (stationView != null && !TextUtils.isEmpty(subwayStation.getDistanceString())) {
-							ImageView compassImg = (ImageView) stationView.findViewById(R.id.compass);
-							compassImg.setImageMatrix(subwayStation.getCompassMatrix());
-							compassImg.setVisibility(View.VISIBLE);
+					});
+		}
+		// update bike stations compass
+		if (this.bikeStations != null) {
+			SensorUtils.updateCompass(this, this.bikeStations, force, currentLocation, orientation, now, -1, this.lastCompassChanged, this.lastCompassInDegree,
+					R.drawable.heading_arrow, new SensorUtils.SensorTaskCompleted() {
+
+						@Override
+						public void onSensorTaskCompleted(boolean result) {
+							if (result) {
+								FavListTab.this.lastCompassInDegree = (int) orientation;
+								FavListTab.this.lastCompassChanged = now;
+								// update the view
+								View bikeStationsLayout = findViewById(R.id.bike_stations_list);
+								for (ABikeStation bikeStation : FavListTab.this.bikeStations) {
+									if (bikeStation == null) {
+										continue;
+									}
+									View stationView = bikeStationsLayout.findViewWithTag(getBikeStationViewTag(bikeStation));
+									if (stationView == null) { // || TextUtils.isEmpty(bikeStation.getDistanceString())) {
+										continue;
+									}
+									ImageView compassImg = (ImageView) stationView.findViewById(R.id.compass);
+									compassImg.setImageMatrix(bikeStation.getCompassMatrix());
+									compassImg.setVisibility(View.VISIBLE);
+								}
+							}
 						}
-					}
-				}
-				// update bike stations compass
-				if (this.bikeStations != null) {
-					this.lastCompassInDegree = io;
-					this.lastCompassChanged = now;
-					View bikeStationsLayout = findViewById(R.id.bike_stations_list);
-					for (ABikeStation bikeStation : this.bikeStations) {
-						// update value
-						bikeStation.getCompassMatrix().reset();
-						bikeStation.getCompassMatrix()
-								.postRotate(
-										SensorUtils.getCompassRotationInDegree(this, currentLocation, bikeStation.getLocation(), orientation,
-												getLocationDeclination()), getArrowDim().first / 2, getArrowDim().second / 2);
-						// update view
-						View stationView = bikeStationsLayout.findViewWithTag(getBikeStationViewTag(bikeStation));
-						if (stationView != null && !TextUtils.isEmpty(bikeStation.getDistanceString())) {
-							ImageView compassImg = (ImageView) stationView.findViewById(R.id.compass);
-							compassImg.setImageMatrix(bikeStation.getCompassMatrix());
-							compassImg.setVisibility(View.VISIBLE);
-						}
-					}
-				}
-			}
+					});
 		}
 	}
 
-	private Pair<Integer, Integer> arrowDim;
-	private Float locationDeclination;
-
-	private float getLocationDeclination() {
-		if (this.locationDeclination == null && this.location != null) {
-			this.locationDeclination = new GeomagneticField((float) this.location.getLatitude(), (float) this.location.getLongitude(),
-					(float) this.location.getAltitude(), this.location.getTime()).getDeclination();
-		}
-		return this.locationDeclination;
-	}
-
-	public Pair<Integer, Integer> getArrowDim() {
-		if (this.arrowDim == null) {
-			this.arrowDim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow);
-		}
-		return this.arrowDim;
-	}
+	private boolean paused = false;
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -324,12 +326,20 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 	}
 
 	@Override
+	protected void onStart() {
+		MyLog.v(TAG, "onStart()");
+		super.onStart();
+	}
+
+	@Override
 	protected void onPause() {
 		MyLog.v(TAG, "onPause()");
-		LocationUtils.disableLocationUpdates(this, this);
-		this.locationUpdatesEnabled = false;
-		SensorUtils.unregisterSensorListener(this, this);
-		this.compassUpdatesEnabled = false;
+		this.paused = true;
+		this.locationUpdatesEnabled = LocationUtils.disableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled);
+		if (this.compassUpdatesEnabled) {
+			SensorUtils.unregisterSensorListener(this, this);
+			this.compassUpdatesEnabled = false;
+		}
 		super.onPause();
 	}
 
@@ -355,7 +365,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 
 			@Override
 			protected Void doInBackground(Void... params) {
-				// MyLog.v(TAG, "doInBackground()");
+				MyLog.v(TAG, "loadFavoritesFromDB() > doInBackground()");
 				// BUS STOPs
 				this.newBusStopFavList = DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
 				if (FavListTab.this.currentBusStopFavList == null || !Fav.listEquals(FavListTab.this.currentBusStopFavList, this.newBusStopFavList)) {
@@ -397,6 +407,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 
 			@Override
 			protected void onPostExecute(Void result) {
+				MyLog.v(TAG, "loadFavoritesFromDB() > onPostExecute()");
 				if (newBusStopFavList != null) { // IF favorite bus stop list was refreshed DO update the UI
 					refreshBusStopsUI(this.newBusStopFavList, this.busStopsExtendedList);
 				}
@@ -407,6 +418,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 					refreshBikeStationsUI(this.newBikeFavList, this.bikeStations);
 				}
 				updateDistancesWithNewLocation(); // show distance if location found
+				updateCompass(FavListTab.this.lastCompassInDegree, true); // show compass if available
 				showEmptyFav();
 				UserPreferences.savePrefLcl(FavListTab.this, UserPreferences.PREFS_LCL_IS_FAV, isThereAtLeastOneFavorite());
 			}
@@ -527,8 +539,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 														startActivity(intent);
 														break;
 													case 1:
-														Intent intent2 = new Intent(FavListTab.this, SupportFactory.getInstance(FavListTab.this)
-																.getBusLineInfoClass());
+														Intent intent2 = new Intent(FavListTab.this, SupportFactory.get().getBusLineInfoClass());
 														intent2.putExtra(BusLineInfo.EXTRA_LINE_NUMBER, busStop.getLineNumber());
 														intent2.putExtra(BusLineInfo.EXTRA_LINE_NAME, busStop.getLineNameOrNull());
 														intent2.putExtra(BusLineInfo.EXTRA_LINE_TYPE, busStop.getLineTypeOrNull());
@@ -558,7 +569,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 														if (findFav != null) {
 															DataManager.deleteFav(FavListTab.this.getContentResolver(), findFav.getId());
 														}
-														SupportFactory.getInstance(FavListTab.this).backupManagerDataChanged();
+														SupportFactory.get().backupManagerDataChanged(FavListTab.this);
 														break;
 													default:
 														break;
@@ -570,10 +581,14 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 					});
 					this.busStops.add(new ABusStop(busStop));
 					busStopsLayout.addView(view);
+					SupportFactory.get().executeOnExecutor(new LoadNextBusStopIntoCacheTask(FavListTab.this, busStop, null, true, false),
+							PrefetchingUtils.getExecutor());
 				}
 			}
 		}
 	}
+
+	// private Executor executor = new ;
 
 	private String getBusStopViewTag(BusStop busStop) {
 		return "busStop" + busStop.getUID();
@@ -685,7 +700,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 														if (findFav != null) {
 															DataManager.deleteFav(FavListTab.this.getContentResolver(), findFav.getId());
 														}
-														SupportFactory.getInstance(FavListTab.this).backupManagerDataChanged();
+														SupportFactory.get().backupManagerDataChanged(FavListTab.this);
 														break;
 													default:
 														break;
@@ -788,7 +803,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 														if (findFav != null) {
 															DataManager.deleteFav(FavListTab.this.getContentResolver(), findFav.getId());
 														}
-														SupportFactory.getInstance(FavListTab.this).backupManagerDataChanged();
+														SupportFactory.get().backupManagerDataChanged(FavListTab.this);
 														break;
 													default:
 														break;
@@ -813,66 +828,71 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 	 * Update the distance with the latest device location.
 	 */
 	private void updateDistancesWithNewLocation() {
-		Location currentLocation = getLocation();
+		final Location currentLocation = getLocation();
 		MyLog.v(TAG, "updateDistancesWithNewLocation(%s)", currentLocation);
 		if (currentLocation == null) {
 			return;
 		}
-		boolean isDetailed = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
-				UserPreferences.PREFS_DISTANCE_DETAILED);
-		String distanceUnit = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
-		float accuracyInMeters = currentLocation.getAccuracy();
 		// update bus stops
-		if (this.busStops != null) {
-			View busStopsLayout = findViewById(R.id.bus_stops_list);
-			for (ABusStop busStop : this.busStops) {
-				if (busStop.getLocation() == null) {
-					continue;
-				}
-				// update value
-				busStop.setDistance(currentLocation.distanceTo(busStop.getLocation()));
-				busStop.setDistanceString(Utils.getDistanceString(busStop.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
-				// update view
-				View stopView = busStopsLayout.findViewWithTag(getBusStopViewTag(busStop));
-				if (stopView != null && !TextUtils.isEmpty(busStop.getDistanceString())) {
-					TextView distanceTv = (TextView) stopView.findViewById(R.id.distance);
-					distanceTv.setText(busStop.getDistanceString());
-					distanceTv.setVisibility(View.VISIBLE);
+		LocationUtils.updateDistance(FavListTab.this, FavListTab.this.busStops, currentLocation, new LocationTaskCompleted() {
+
+			@Override
+			public void onLocationTaskCompleted() {
+				if (FavListTab.this.busStops != null) {
+					View busStopsLayout = findViewById(R.id.bus_stops_list);
+					for (ABusStop busStop : FavListTab.this.busStops) {
+						if (!busStop.hasLocation()) {
+							continue;
+						}
+						// update view
+						View stopView = busStopsLayout.findViewWithTag(getBusStopViewTag(busStop));
+						if (stopView != null && !TextUtils.isEmpty(busStop.getDistanceString())) {
+							TextView distanceTv = (TextView) stopView.findViewById(R.id.distance);
+							distanceTv.setText(busStop.getDistanceString());
+							distanceTv.setVisibility(View.VISIBLE);
+						}
+					}
 				}
 			}
-		}
+		});
 		// update subway stations
-		if (this.subwayStations != null) {
-			View subwayStationsLayout = findViewById(R.id.subway_stations_list);
-			for (ASubwayStation subwayStation : this.subwayStations) {
-				// update value
-				subwayStation.setDistance(currentLocation.distanceTo(subwayStation.getLocation()));
-				subwayStation.setDistanceString(Utils.getDistanceString(subwayStation.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
-				// update view
-				View stationView = subwayStationsLayout.findViewWithTag(getSubwayStationViewTag(subwayStation));
-				if (stationView != null && !TextUtils.isEmpty(subwayStation.getDistanceString())) {
-					TextView distanceTv = (TextView) stationView.findViewById(R.id.distance);
-					distanceTv.setText(subwayStation.getDistanceString());
-					distanceTv.setVisibility(View.VISIBLE);
+		LocationUtils.updateDistance(FavListTab.this, FavListTab.this.subwayStations, currentLocation, new LocationTaskCompleted() {
+
+			@Override
+			public void onLocationTaskCompleted() {
+				if (FavListTab.this.subwayStations != null) {
+					View subwayStationsLayout = findViewById(R.id.subway_stations_list);
+					for (ASubwayStation subwayStation : FavListTab.this.subwayStations) {
+						// update view
+						View stationView = subwayStationsLayout.findViewWithTag(getSubwayStationViewTag(subwayStation));
+						if (stationView != null && !TextUtils.isEmpty(subwayStation.getDistanceString())) {
+							TextView distanceTv = (TextView) stationView.findViewById(R.id.distance);
+							distanceTv.setText(subwayStation.getDistanceString());
+							distanceTv.setVisibility(View.VISIBLE);
+						}
+					}
 				}
 			}
-		}
+		});
 		// update bike stations
-		if (this.bikeStations != null) {
-			View bikeStationsLayout = findViewById(R.id.bike_stations_list);
-			for (ABikeStation bikeStation : this.bikeStations) {
-				// update value
-				bikeStation.setDistance(currentLocation.distanceTo(bikeStation.getLocation()));
-				bikeStation.setDistanceString(Utils.getDistanceString(bikeStation.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
-				// update view
-				View stationView = bikeStationsLayout.findViewWithTag(getBikeStationViewTag(bikeStation));
-				if (stationView != null && !TextUtils.isEmpty(bikeStation.getDistanceString())) {
-					TextView distanceTv = (TextView) stationView.findViewById(R.id.distance);
-					distanceTv.setText(bikeStation.getDistanceString());
-					distanceTv.setVisibility(View.VISIBLE);
+		LocationUtils.updateDistance(FavListTab.this, FavListTab.this.bikeStations, currentLocation, new LocationTaskCompleted() {
+
+			@Override
+			public void onLocationTaskCompleted() {
+				if (FavListTab.this.bikeStations != null) {
+					View bikeStationsLayout = findViewById(R.id.bike_stations_list);
+					for (ABikeStation bikeStation : FavListTab.this.bikeStations) {
+						// update view
+						View stationView = bikeStationsLayout.findViewWithTag(getBikeStationViewTag(bikeStation));
+						if (stationView != null && !TextUtils.isEmpty(bikeStation.getDistanceString())) {
+							TextView distanceTv = (TextView) stationView.findViewById(R.id.distance);
+							distanceTv.setText(bikeStation.getDistanceString());
+							distanceTv.setVisibility(View.VISIBLE);
+						}
+					}
 				}
 			}
-		}
+		});
 	}
 
 	/**
@@ -895,25 +915,24 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 	 * @return the location
 	 */
 	public Location getLocation() {
+		// MyLog.v(TAG, "getLocation()");
 		if (this.location == null) {
 			new AsyncTask<Void, Void, Location>() {
 				@Override
 				protected Location doInBackground(Void... params) {
-					// MyLog.v(TAG, "doInBackground()");
+					// MyLog.v(TAG, "getLocation() > doInBackground()");
 					return LocationUtils.getBestLastKnownLocation(FavListTab.this);
 				}
 
 				@Override
 				protected void onPostExecute(Location result) {
-					// MyLog.v(TAG, "onPostExecute()");
+					// MyLog.v(TAG, "getLocation() > onPostExecute()");
 					if (result != null) {
 						FavListTab.this.setLocation(result);
 					}
 					// enable location updates if necessary
-					if (!FavListTab.this.locationUpdatesEnabled) {
-						LocationUtils.enableLocationUpdates(FavListTab.this, FavListTab.this);
-						FavListTab.this.locationUpdatesEnabled = true;
-					}
+					FavListTab.this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(FavListTab.this, FavListTab.this,
+							FavListTab.this.locationUpdatesEnabled, FavListTab.this.paused);
 				}
 
 			}.execute();

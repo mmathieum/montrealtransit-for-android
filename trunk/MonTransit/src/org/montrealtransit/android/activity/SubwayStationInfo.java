@@ -9,8 +9,10 @@ import java.util.Set;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.LocationUtils;
+import org.montrealtransit.android.LocationUtils.LocationTaskCompleted;
 import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
+import org.montrealtransit.android.PrefetchingUtils;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.SensorUtils;
 import org.montrealtransit.android.SensorUtils.CompassListener;
@@ -18,6 +20,7 @@ import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.activity.v4.SubwayLineInfo;
 import org.montrealtransit.android.api.SupportFactory;
+import org.montrealtransit.android.data.ASubwayStation;
 import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.dialog.BusLineSelectDirection;
 import org.montrealtransit.android.dialog.NoRadarInstalled;
@@ -28,12 +31,11 @@ import org.montrealtransit.android.provider.StmStore;
 import org.montrealtransit.android.provider.StmStore.BusStop;
 import org.montrealtransit.android.provider.StmStore.SubwayLine;
 import org.montrealtransit.android.provider.StmStore.SubwayStation;
+import org.montrealtransit.android.services.LoadNextBusStopIntoCacheTask;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
-import android.graphics.Matrix;
-import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -78,7 +80,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 	/**
 	 * The subway station.
 	 */
-	private StmStore.SubwayStation subwayStation;
+	private ASubwayStation subwayStation;
 	/**
 	 * The subway lines.
 	 */
@@ -141,6 +143,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 	 * True if the activity has the focus, false otherwise.
 	 */
 	private boolean hasFocus = true;
+	private boolean paused = false;
 
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
@@ -155,6 +158,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
+		this.paused = false;
 		// IF the activity has the focus DO
 		if (this.hasFocus) {
 			onResumeWithFocus();
@@ -176,8 +180,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 				updateDistanceWithNewLocation();
 			}
 			// re-enable
-			LocationUtils.enableLocationUpdates(this, this);
-			this.locationUpdatesEnabled = true;
+			this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled, this.paused);
 		}
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 	}
@@ -185,8 +188,8 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 	@Override
 	protected void onPause() {
 		MyLog.v(TAG, "onPause()");
-		LocationUtils.disableLocationUpdates(this, this);
-		this.locationUpdatesEnabled = false;
+		this.paused = true;
+		this.locationUpdatesEnabled = LocationUtils.disableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled);
 		SensorUtils.unregisterSensorListener(this, this);
 		this.compassUpdatesEnabled = false;
 		super.onPause();
@@ -228,7 +231,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 	public void onCompass() {
 		// MyLog.v(TAG, "onCompass()");
 		if (this.accelerometerValues != null && this.magneticFieldValues != null) {
-			updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues));
+			updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues), false);
 		}
 	}
 
@@ -236,46 +239,28 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 	 * Update the compass image(s).
 	 * @param orientation the new orientation
 	 */
-	private void updateCompass(float[] orientation) {
+	private void updateCompass(final float orientation, boolean force) {
 		// MyLog.v(TAG, "updateCompass(%s)", orientation);
 		Location currentLocation = getLocation();
-		if (currentLocation != null) {
-			int io = (int) orientation[0];
-			long now = System.currentTimeMillis();
-			if (io != 0 && (now - this.lastCompassChanged) > SensorUtils.COMPASS_UPDATE_THRESOLD
-					&& Math.abs(this.lastCompassInDegree - io) > SensorUtils.COMPASS_DEGREE_UPDATE_THRESOLD) {
-				// update bike station compass
-				if (this.subwayStation != null) {
-					this.lastCompassInDegree = io;
-					this.lastCompassChanged = now;
-					Matrix matrix = new Matrix();
-					matrix.postRotate(SensorUtils.getCompassRotationInDegree(this, currentLocation, this.subwayStation.getLocation(), orientation,
-							getLocationDeclination()), getArrowDimLight().first / 2, getArrowDimLight().second / 2);
-					ImageView compassImg = (ImageView) findViewById(R.id.compass);
-					compassImg.setImageMatrix(matrix);
-					compassImg.setVisibility(View.VISIBLE);
-				}
-			}
+		if (currentLocation == null || orientation == 0 || this.subwayStation == null) {
+			return;
 		}
-	}
+		final long now = System.currentTimeMillis();
+		SensorUtils.updateCompass(this, this.subwayStation, force, currentLocation, orientation, now, -1, this.lastCompassChanged, this.lastCompassInDegree,
+				R.drawable.heading_arrow_light, new SensorUtils.SensorTaskCompleted() {
 
-	private Float locationDeclination;
-
-	private float getLocationDeclination() {
-		if (this.locationDeclination == null && this.location != null) {
-			this.locationDeclination = new GeomagneticField((float) this.location.getLatitude(), (float) this.location.getLongitude(),
-					(float) this.location.getAltitude(), this.location.getTime()).getDeclination();
-		}
-		return this.locationDeclination;
-	}
-
-	private Pair<Integer, Integer> arrowDimLight;
-
-	public Pair<Integer, Integer> getArrowDimLight() {
-		if (this.arrowDimLight == null) {
-			this.arrowDimLight = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow_light);
-		}
-		return this.arrowDimLight;
+					@Override
+					public void onSensorTaskCompleted(boolean result) {
+						if (result) {
+							SubwayStationInfo.this.lastCompassInDegree = (int) orientation;
+							SubwayStationInfo.this.lastCompassChanged = now;
+							// update the view
+							ImageView compassImg = (ImageView) findViewById(R.id.compass);
+							compassImg.setImageMatrix(SubwayStationInfo.this.subwayStation.getCompassMatrix());
+							compassImg.setVisibility(View.VISIBLE);
+						}
+					}
+				});
 	}
 
 	/**
@@ -292,7 +277,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 				if (findFav != null) {
 					// delete the favorite
 					DataManager.deleteFav(SubwayStationInfo.this.getContentResolver(), findFav.getId());
-					SupportFactory.getInstance(SubwayStationInfo.this).backupManagerDataChanged();
+					SupportFactory.get().backupManagerDataChanged(SubwayStationInfo.this);
 					return false;
 				} else {
 					// add the favorite
@@ -302,7 +287,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 					newFav.setFkId2(null);
 					DataManager.addFav(SubwayStationInfo.this.getContentResolver(), newFav);
 					UserPreferences.savePrefLcl(SubwayStationInfo.this, UserPreferences.PREFS_LCL_IS_FAV, true);
-					SupportFactory.getInstance(SubwayStationInfo.this).backupManagerDataChanged();
+					SupportFactory.get().backupManagerDataChanged(SubwayStationInfo.this);
 					return true;
 				}
 			}
@@ -340,7 +325,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 
 				@Override
 				protected void onPostExecute(Pair<SubwayStation, List<SubwayLine>> result) {
-					SubwayStationInfo.this.subwayStation = result.first;
+					SubwayStationInfo.this.subwayStation = new ASubwayStation(result.first);
 					SubwayStationInfo.this.subwayLines = result.second;
 					refreshAll();
 				};
@@ -362,11 +347,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 			updateDistanceWithNewLocation();
 		}
 		// IF location updates are not already enabled DO
-		if (!this.locationUpdatesEnabled) {
-			// enable
-			LocationUtils.enableLocationUpdates(this, this);
-			this.locationUpdatesEnabled = true;
-		}
+		this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled, this.paused);
 	}
 
 	/**
@@ -377,24 +358,46 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 		findViewById(R.id.hours_list).setVisibility(View.GONE);
 		new AsyncTask<String, Void, Void>() {
 			private List<StmStore.SubwayLine> subwayLines;
-			private SparseArray<SubwayStation> firstSubwayStationDirections;
-			private SparseArray<SubwayStation> lastSubwayStationDirections;
+			private SparseArray<SubwayStation> firstStationDirectionss;
+			private SparseArray<String> firstStationDirFreq;
+			private SparseArray<Pair<String, String>> firstStationDirDeps;
+			private SparseArray<SubwayStation> lastStationDirections;
+			private SparseArray<String> lastStationDirFreq;
+			private SparseArray<Pair<String, String>> lastStationDirDeps;
 
 			@Override
 			protected Void doInBackground(String... params) {
 				subwayLines = StmManager.findSubwayStationLinesList(SubwayStationInfo.this.getContentResolver(), params[0]);
-				firstSubwayStationDirections = new SparseArray<SubwayStation>();
-				lastSubwayStationDirections = new SparseArray<SubwayStation>();
+				firstStationDirectionss = new SparseArray<SubwayStation>();
+				firstStationDirFreq = new SparseArray<String>();
+				firstStationDirDeps = new SparseArray<Pair<String, String>>();
+				lastStationDirections = new SparseArray<SubwayStation>();
+				lastStationDirFreq = new SparseArray<String>();
+				lastStationDirDeps = new SparseArray<Pair<String, String>>();
+
+				// find day and hour (minus 2 hours)
+				Calendar now = Calendar.getInstance();
+				now.add(Calendar.HOUR, -2);
+				String dayOfTheWeek = Utils.getDayOfTheWeek(now);
+				String time = Utils.getTimeOfTheDay(now);
 				// FOR EACH subway line DO
 				for (StmStore.SubwayLine subwayLine : subwayLines) {
 					// FIRST direction
 					StmStore.SubwayStation firstSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(getContentResolver(),
 							subwayLine.getNumber(), StmStore.SubwayStation.NATURAL_SORT_ORDER);
-					firstSubwayStationDirections.put(subwayLine.getNumber(), firstSubwayStationDirection);
+					firstStationDirectionss.put(subwayLine.getNumber(), firstSubwayStationDirection);
+					firstStationDirFreq.put(subwayLine.getNumber(),
+							StmManager.findSubwayDirectionFrequency(getContentResolver(), firstSubwayStationDirection.getId(), dayOfTheWeek, time));
+					firstStationDirDeps.put(subwayLine.getNumber(), StmManager.findSubwayStationDepartures(getContentResolver(),
+							SubwayStationInfo.this.subwayStation.getId(), firstSubwayStationDirection.getId(), dayOfTheWeek));
 					// SECOND direction
 					StmStore.SubwayStation lastSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(getContentResolver(),
 							subwayLine.getNumber(), StmStore.SubwayStation.NATURAL_SORT_ORDER_DESC);
-					lastSubwayStationDirections.put(subwayLine.getNumber(), lastSubwayStationDirection);
+					lastStationDirections.put(subwayLine.getNumber(), lastSubwayStationDirection);
+					lastStationDirFreq.put(subwayLine.getNumber(),
+							StmManager.findSubwayDirectionFrequency(getContentResolver(), lastSubwayStationDirection.getId(), dayOfTheWeek, time));
+					lastStationDirDeps.put(subwayLine.getNumber(), StmManager.findSubwayStationDepartures(getContentResolver(),
+							SubwayStationInfo.this.subwayStation.getId(), lastSubwayStationDirection.getId(), dayOfTheWeek));
 				}
 				return null;
 			}
@@ -406,23 +409,25 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 					LinearLayout hoursListLayout = (LinearLayout) findViewById(R.id.hours_list);
 					// FIRST direction
 					// IF the direction is not the subway station DO
-					if (!SubwayStationInfo.this.subwayStation.getId().equals(firstSubwayStationDirections.get(subwayLine.getNumber()).getId())) {
+					if (!SubwayStationInfo.this.subwayStation.getId().equals(firstStationDirectionss.get(subwayLine.getNumber()).getId())) {
 						// list divider
 						if (hoursListLayout.getChildCount() > 0) {
 							hoursListLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, hoursListLayout, false));
 						}
 						// list view
-						hoursListLayout.addView(getDirectionView(subwayLine, firstSubwayStationDirections.get(subwayLine.getNumber()), hoursListLayout));
+						hoursListLayout.addView(getDirectionView(subwayLine, firstStationDirectionss.get(subwayLine.getNumber()), hoursListLayout,
+								firstStationDirFreq.get(subwayLine.getNumber()), firstStationDirDeps.get(subwayLine.getNumber())));
 					}
 					// SECOND direction
 					// IF the direction is not the subway station DO
-					if (!SubwayStationInfo.this.subwayStation.getId().equals(lastSubwayStationDirections.get(subwayLine.getNumber()).getId())) {
+					if (!SubwayStationInfo.this.subwayStation.getId().equals(lastStationDirections.get(subwayLine.getNumber()).getId())) {
 						// list divider
 						if (hoursListLayout.getChildCount() > 0) {
 							hoursListLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, hoursListLayout, false));
 						}
 						// list view
-						hoursListLayout.addView(getDirectionView(subwayLine, lastSubwayStationDirections.get(subwayLine.getNumber()), hoursListLayout));
+						hoursListLayout.addView(getDirectionView(subwayLine, lastStationDirections.get(subwayLine.getNumber()), hoursListLayout,
+								lastStationDirFreq.get(subwayLine.getNumber()), lastStationDirDeps.get(subwayLine.getNumber())));
 					}
 				}
 				findViewById(R.id.hours_loading).setVisibility(View.GONE);
@@ -434,13 +439,8 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 			 * @param subwayStationDir the direction
 			 * @return the direction view for the subway line and the direction
 			 */
-			private View getDirectionView(SubwayLine subwayLine, SubwayStation subwayStationDir, LinearLayout root) {
+			private View getDirectionView(SubwayLine subwayLine, SubwayStation subwayStationDir, LinearLayout root, String frequency, Pair<String, String> deps) {
 				// MyLog.v(TAG, "getDirectionView(" + subwayLine.getNumber() + ", " + subwayStationDir.getId() + ")");
-				// find day and hour (minus 2 hours)
-				Calendar now = Calendar.getInstance();
-				now.add(Calendar.HOUR, -2);
-				String dayOfTheWeek = Utils.getDayOfTheWeek(now);
-				String time = Utils.getTimeOfTheDay(now);
 				// create view
 				View dView = getLayoutInflater().inflate(R.layout.subway_station_info_line_schedule_direction, root, false);
 				// SUBWAY LINE color
@@ -449,16 +449,12 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 				// DIRECTION - SUBWAY STATION name
 				((TextView) dView.findViewById(R.id.direction_station)).setText(subwayStationDir.getName());
 				// FIRST LAST DEPARTURE
-				Pair<String, String> deps = StmManager.findSubwayStationDepartures(getContentResolver(), SubwayStationInfo.this.subwayStation.getId(),
-						subwayStationDir.getId(), dayOfTheWeek);
 				String firstCleanDep = Utils.formatHours(SubwayStationInfo.this, deps.first);
 				String secondCleanDep = Utils.formatHours(SubwayStationInfo.this, deps.second);
 				((TextView) dView.findViewById(R.id.direction_hours)).setText(firstCleanDep + " - " + secondCleanDep);
 				// FREQUENCY
-				String frequency = StmManager.findSubwayDirectionFrequency(getContentResolver(), subwayStationDir.getId(), dayOfTheWeek, time);
 				if (frequency != null) {
-					String dirFreq = getString(R.string.minutes_and_minutes, frequency);
-					((TextView) dView.findViewById(R.id.direction_frequency)).setText(dirFreq);
+					((TextView) dView.findViewById(R.id.direction_frequency)).setText(getString(R.string.minutes_and_minutes, frequency));
 				} else {
 					((TextView) dView.findViewById(R.id.direction_frequency)).setText(R.string.no_service);
 				}
@@ -487,7 +483,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 				@Override
 				public void onClick(View v) {
 					MyLog.v(TAG, "onClick(%s)", v.getId());
-					Intent intent = new Intent(SubwayStationInfo.this, SupportFactory.getInstance(SubwayStationInfo.this).getSubwayLineInfoClass());
+					Intent intent = new Intent(SubwayStationInfo.this, SupportFactory.get().getSubwayLineInfoClass());
 					String subwayLineNumber = String.valueOf(SubwayStationInfo.this.subwayLines.get(0).getNumber());
 					intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumber);
 					intent.putExtra(SubwayLineInfo.EXTRA_STATION_ID, SubwayStationInfo.this.subwayStation.getId());
@@ -503,7 +499,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 					@Override
 					public void onClick(View v) {
 						MyLog.v(TAG, "onClick(%s)", v.getId());
-						Intent intent = new Intent(SubwayStationInfo.this, SupportFactory.getInstance(SubwayStationInfo.this).getSubwayLineInfoClass());
+						Intent intent = new Intent(SubwayStationInfo.this, SupportFactory.get().getSubwayLineInfoClass());
 						String subwayLineNumber = String.valueOf(SubwayStationInfo.this.subwayLines.get(1).getNumber());
 						intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumber);
 						intent.putExtra(SubwayLineInfo.EXTRA_STATION_ID, SubwayStationInfo.this.subwayStation.getId());
@@ -519,7 +515,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 						@Override
 						public void onClick(View v) {
 							MyLog.v(TAG, "onClick(%s)", v.getId());
-							Intent intent = new Intent(SubwayStationInfo.this, SupportFactory.getInstance(SubwayStationInfo.this).getSubwayLineInfoClass());
+							Intent intent = new Intent(SubwayStationInfo.this, SupportFactory.get().getSubwayLineInfoClass());
 							int lineNumber = SubwayStationInfo.this.subwayLines.get(2).getNumber();
 							String subwayLineNumber = String.valueOf(lineNumber);
 							intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumber);
@@ -540,10 +536,15 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 		MyLog.v(TAG, "updateDistanceWithNewLocation(%s)", currentLocation);
 		if (currentLocation != null && this.subwayStation != null) {
 			// distance & accuracy
-			TextView distanceTv = (TextView) findViewById(R.id.distance);
-			distanceTv.setText(Utils.getDistanceStringUsingPref(this, currentLocation.distanceTo(this.subwayStation.getLocation()),
-					currentLocation.getAccuracy()));
-			distanceTv.setVisibility(View.VISIBLE);
+			LocationUtils.updateDistance(this, this.subwayStation, currentLocation, new LocationTaskCompleted() {
+
+				@Override
+				public void onLocationTaskCompleted() {
+					TextView distanceTv = (TextView) findViewById(R.id.distance);
+					distanceTv.setText(SubwayStationInfo.this.subwayStation.getDistanceString());
+					distanceTv.setVisibility(View.VISIBLE);
+				}
+			});
 		}
 	}
 
@@ -563,10 +564,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 				this.setLocation(bestLastKnownLocationOrNull);
 			}
 			// enable location updates if necessary
-			if (!this.locationUpdatesEnabled) {
-				LocationUtils.enableLocationUpdates(this, this);
-				this.locationUpdatesEnabled = true;
-			}
+			this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled, this.paused);
 		}
 		return this.location;
 	}
@@ -615,8 +613,17 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 	private void setTheStar() {
 		MyLog.v(TAG, "setTheStar()");
 		// try to find the existing favorite
-		Fav findFav = DataManager.findFav(getContentResolver(), Fav.KEY_TYPE_VALUE_SUBWAY_STATION, this.subwayStation.getId(), null);
-		((CheckBox) findViewById(R.id.star)).setChecked(findFav != null);
+		new AsyncTask<Void, Void, Fav>() {
+			@Override
+			protected Fav doInBackground(Void... params) {
+				return DataManager.findFav(SubwayStationInfo.this.getContentResolver(), Fav.KEY_TYPE_VALUE_SUBWAY_STATION,
+						SubwayStationInfo.this.subwayStation.getId(), null);
+			}
+
+			protected void onPostExecute(Fav result) {
+				((CheckBox) findViewById(R.id.star)).setChecked(result != null);
+			};
+		}.execute();
 	}
 
 	/**
@@ -677,6 +684,8 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 						});
 						busLinesLayout.addView(view);
 						busLinesNumberDirection.add(busStop.getLineNumber() + BusUtils.getBusLineSimpleDirection(busStop.getDirectionId()));
+						SupportFactory.get().executeOnExecutor(new LoadNextBusStopIntoCacheTask(SubwayStationInfo.this, busStop, null, true, false),
+								PrefetchingUtils.getExecutor());
 					}
 				} else {
 					findViewById(R.id.bus_line).setVisibility(View.GONE);
@@ -698,8 +707,8 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 		} else {
 			// Launch the radar activity
 			Intent intent = new Intent("com.google.android.radar.SHOW_RADAR");
-			intent.putExtra("latitude", (float) this.subwayStation.getLat());
-			intent.putExtra("longitude", (float) this.subwayStation.getLng());
+			intent.putExtra("latitude", (double) this.subwayStation.getLat());
+			intent.putExtra("longitude", (double) this.subwayStation.getLng());
 			try {
 				startActivity(intent);
 			} catch (ActivityNotFoundException ex) {

@@ -1,7 +1,9 @@
 package org.montrealtransit.android.activity.v4;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BusUtils;
@@ -83,6 +85,10 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 	 */
 	private List<BusLineDirection> busLineDirections;
 	/**
+	 * The bus line directions title.
+	 */
+	private Map<String, String> busLineDirectionsString;
+	/**
 	 * The current direction ID.
 	 */
 	private String currentBusLineDirectionId;
@@ -154,6 +160,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 	 * True if the activity has the focus, false otherwise.
 	 */
 	private boolean hasFocus = true;
+	private boolean paused = false;
 
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
@@ -168,6 +175,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
+		this.paused = false;
 		// IF the activity has the focus DO
 		if (this.hasFocus) {
 			onResumeWithFocus();
@@ -189,8 +197,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 				updateDistancesWithNewLocation();
 			}
 			// re-enable
-			LocationUtils.enableLocationUpdates(this, this);
-			this.locationUpdatesEnabled = true;
+			this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled, this.paused);
 		}
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		// resume fragments
@@ -208,8 +215,8 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 	@Override
 	protected void onPause() {
 		MyLog.v(TAG, "onPause()");
-		LocationUtils.disableLocationUpdates(this, this);
-		this.locationUpdatesEnabled = false;
+		this.paused = true;
+		this.locationUpdatesEnabled = LocationUtils.disableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled);
 		SensorUtils.unregisterSensorListener(this, this);
 		this.compassUpdatesEnabled = false;
 		super.onPause();
@@ -276,7 +283,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 				Fragment f = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.viewpager + ":" + i);
 				if (f != null) {
 					BusLineDirectionFragment df = (BusLineDirectionFragment) f;
-					df.updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues));
+					df.updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues), false);
 				}
 			}
 		}
@@ -296,6 +303,11 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 				protected Void doInBackground(Void... params) {
 					BusLineInfo.this.busLine = StmManager.findBusLine(BusLineInfo.this.getContentResolver(), newLineNumber);
 					BusLineInfo.this.busLineDirections = StmManager.findBusLineDirections(BusLineInfo.this.getContentResolver(), newLineNumber);
+					BusLineInfo.this.busLineDirectionsString = new HashMap<String, String>();
+					for (BusLineDirection direction : BusLineInfo.this.busLineDirections) {
+						BusLineInfo.this.busLineDirectionsString.put(direction.getId(),
+								BusUtils.getDirectionString(BusLineInfo.this, direction).toUpperCase(Locale.getDefault()));
+					}
 					return null;
 				}
 
@@ -337,11 +349,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 			updateDistancesWithNewLocation();
 		}
 		// IF location updates are not already enabled DO
-		if (!this.locationUpdatesEnabled) {
-			// enable
-			LocationUtils.enableLocationUpdates(this, BusLineInfo.this);
-			this.locationUpdatesEnabled = true;
-		}
+		this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled, this.paused);
 	}
 
 	/**
@@ -449,10 +457,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 				this.setLocation(bestLastKnownLocationOrNull);
 			}
 			// enable location updates if necessary
-			if (!this.locationUpdatesEnabled) {
-				LocationUtils.enableLocationUpdates(this, this);
-				this.locationUpdatesEnabled = true;
-			}
+			this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled, this.paused);
 		}
 		return this.location;
 	}
@@ -546,7 +551,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 		@Override
 		public CharSequence getPageTitle(int position) {
 			// MyLog.v(TAG, "getPageTitle(%s)", position);
-			return BusUtils.getDirectionString(BusLineInfo.this, BusLineInfo.this.busLineDirections.get(position)).toUpperCase(Locale.getDefault());
+			return BusLineInfo.this.busLineDirectionsString.get(BusLineInfo.this.busLineDirections.get(position).getId());
 		}
 
 		@Override
