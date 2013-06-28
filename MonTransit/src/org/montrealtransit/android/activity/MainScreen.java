@@ -74,7 +74,7 @@ public class MainScreen extends ActivityGroup {
 		// the bus lines list
 		TabSpec busTab = tabHost.newTabSpec(TAB_BUS);
 		busTab.setIndicator(getString(R.string.bus), getResources().getDrawable(R.drawable.ic_tab_bus));
-		busTab.setContent(new Intent(this, SupportFactory.getInstance(this).getBusTabClass()));
+		busTab.setContent(new Intent(this, SupportFactory.get().getBusTabClass()));
 		tabHost.addTab(busTab);
 		// the subway lines list
 		TabSpec subwayLinesListTab = tabHost.newTabSpec(TAB_SUBWAY);
@@ -89,7 +89,7 @@ public class MainScreen extends ActivityGroup {
 		try {
 			tabHost.setCurrentTab(UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_TAB, UserPreferences.PREFS_LCL_TAB_DEFAULT));
 		} catch (Exception e) {
-			MyLog.w(TAG, "Error while determining the select tab", e);
+			MyLog.w(TAG, "Error while determining the select tab!", e);
 		}
 		RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT,
 				RelativeLayout.LayoutParams.FILL_PARENT);

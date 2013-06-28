@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.montrealtransit.android.LocationUtils;
+import org.montrealtransit.android.LocationUtils.LocationTaskCompleted;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.SensorUtils;
@@ -33,7 +35,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
-import android.hardware.GeomagneticField;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -258,13 +259,13 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 	 */
 	private void refreshSubwayStationListFromDB(String lineNumber, String stationId) { // TODO extract?
 		MyLog.v(TAG, "refreshSubwayStationListFromDB()");
-		new AsyncTask<String, Void, List<ASubwayStation>>() {
+		new AsyncTask<String, Void, Void>() {
 			@Override
-			protected List<ASubwayStation> doInBackground(String... params) {
+			protected Void doInBackground(String... params) {
 				int lineNumber = Integer.valueOf(params[0]);
 				String stationId = params[1];
 				String orderId = getSortOrderFromOrderPref(SubwayLineDirectionFragment.this.subwayLineDirectionId);
-				Activity activity = getLastActivity();
+				SubwayLineInfo activity = SubwayLineDirectionFragment.this.getSubwayLineInfoActivity();
 				List<SubwayStation> subwayStationsList = StmManager.findSubwayLineStationsList(activity.getContentResolver(), lineNumber, orderId);
 				// preparing other stations lines data
 				Map<String, Set<Integer>> stationsWithOtherLines = new HashMap<String, Set<Integer>>();
@@ -291,27 +292,29 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 					}
 					stations.add(aStation);
 				}
-				return stations;
+				SubwayLineDirectionFragment.this.stations = stations;
+				// force update all subway stations with location
+				LocationUtils.updateDistance(activity, SubwayLineDirectionFragment.this.stations, activity.getLocation());
+				return null;
 			}
 
 			@Override
-			protected void onPostExecute(List<ASubwayStation> result) {
+			protected void onPostExecute(Void result) {
+				MyLog.v(TAG, "refreshSubwayStationListFromDB() > onPostExecute()");
 				SubwayLineInfo activity = SubwayLineDirectionFragment.this.getSubwayLineInfoActivity();
 				View view = SubwayLineDirectionFragment.this.getLastView();
 				if (activity == null || view == null) {
 					return;
 				}
-				SubwayLineDirectionFragment.this.stations = result;
 				generateOrderedStationsIds();
 				refreshFavoriteStationIdsFromDB(activity.getContentResolver());
-				ListView listView = (ListView) view.findViewById(R.id.list);
 				notifyDataSetChanged(true);
-				updateDistancesWithNewLocation(activity);
 				int index = selectedStationIndex();
+				MyLog.d(TAG, "refreshSubwayStationListFromDB() > index: " + index);
 				if (index > 0) {
 					index--; // show one more stop on top
 				}
-				SupportFactory.getInstance(activity).listViewScrollTo(listView, index, 50);
+				SupportFactory.get().listViewScrollTo((ListView) view.findViewById(R.id.list), index, 50);
 			};
 
 		}.execute(lineNumber, stationId);
@@ -361,20 +364,19 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 			return;
 		}
 		Location currentLocation = activity.getLocation();
-		if (currentLocation != null) {
-			float accuracyInMeters = currentLocation.getAccuracy();
-			boolean isDetailed = UserPreferences.getPrefDefault(activity, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
-					UserPreferences.PREFS_DISTANCE_DETAILED);
-			String distanceUnit = UserPreferences.getPrefDefault(activity, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
-			for (ASubwayStation station : this.stations) {
-				// IF the subway station location is known DO
-				station.setDistance(currentLocation.distanceTo(station.getLocation()));
-				station.setDistanceString(Utils.getDistanceString(station.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
-			}
-			String previousClosest = this.closestStationId;
-			generateOrderedStationsIds();
-			notifyDataSetChanged(this.closestStationId == null ? false : this.closestStationId.equals(previousClosest));
+		if (currentLocation == null) {
+			return;
 		}
+		LocationUtils.updateDistance(activity, this.stations, currentLocation, new LocationTaskCompleted() {
+
+			@Override
+			public void onLocationTaskCompleted() {
+				String previousClosest = SubwayLineDirectionFragment.this.closestStationId;
+				generateOrderedStationsIds();
+				notifyDataSetChanged(SubwayLineDirectionFragment.this.closestStationId == null ? false : SubwayLineDirectionFragment.this.closestStationId
+						.equals(previousClosest));
+			}
+		});
 	}
 
 	/**
@@ -431,48 +433,29 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 	 * Update the compass image(s).
 	 * @param orientation the new orientation
 	 */
-	protected void updateCompass(float[] orientation) {
+	protected void updateCompass(final float orientation, boolean force) {
 		// MyLog.v(TAG, "updateCompass(%s)", orientation);
 		Location currentLocation = getSubwayLineInfoActivity() == null ? null : getSubwayLineInfoActivity().getLocation();
-		if (currentLocation != null) {
-			int io = (int) orientation[0];
-			long now = System.currentTimeMillis();
-			if (io != 0 && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE && (now - this.lastCompassChanged) > SensorUtils.COMPASS_UPDATE_THRESOLD
-					&& Math.abs(this.lastCompassInDegree - io) > SensorUtils.COMPASS_DEGREE_UPDATE_THRESOLD) {
-				// update closest subway stations compass
-				if (this.stations != null) {
-					this.lastCompassInDegree = io;
-					this.lastCompassChanged = now;
-					for (ASubwayStation station : this.stations) {
-						station.getCompassMatrix().reset();
-						station.getCompassMatrix().postRotate(
-								SensorUtils.getCompassRotationInDegree(getLastActivity(), currentLocation, station.getLocation(), orientation,
-										getLocationDeclination()), getArrowDim().first / 2, getArrowDim().second / 2);
+		if (currentLocation == null || orientation == 0 || this.stations == null) {
+			// MyLog.d(TAG, "updateCompass() > no location or no POI");
+			return;
+		}
+		final long now = System.currentTimeMillis();
+		SensorUtils.updateCompass(getLastActivity(), this.stations, force, currentLocation, orientation, now, this.scrollState, this.lastCompassChanged,
+				this.lastCompassInDegree, R.drawable.heading_arrow, new SensorUtils.SensorTaskCompleted() {
+
+					@Override
+					public void onSensorTaskCompleted(boolean result) {
+						if (result) {
+							SubwayLineDirectionFragment.this.lastCompassInDegree = (int) orientation;
+							SubwayLineDirectionFragment.this.lastCompassChanged = now;
+							// update the view
+							notifyDataSetChanged(false);
+						}
+
 					}
-					// update the view
-					notifyDataSetChanged(false);
-				}
-			}
-		}
-	}
+				});
 
-	private Pair<Integer, Integer> arrowDim;
-	private Float locationDeclination;
-
-	private float getLocationDeclination() {
-		Location currentLocation = getSubwayLineInfoActivity() == null ? null : getSubwayLineInfoActivity().getLocation();
-		if (this.locationDeclination == null && currentLocation != null) {
-			this.locationDeclination = new GeomagneticField((float) currentLocation.getLatitude(), (float) currentLocation.getLongitude(),
-					(float) currentLocation.getAltitude(), currentLocation.getTime()).getDeclination();
-		}
-		return this.locationDeclination;
-	}
-
-	public Pair<Integer, Integer> getArrowDim() {
-		if (this.arrowDim == null) {
-			this.arrowDim = SensorUtils.getResourceDimension(getLastActivity(), R.drawable.heading_arrow);
-		}
-		return this.arrowDim;
 	}
 
 	/**

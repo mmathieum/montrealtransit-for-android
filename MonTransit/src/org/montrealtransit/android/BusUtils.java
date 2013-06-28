@@ -3,13 +3,23 @@ package org.montrealtransit.android;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
+import org.montrealtransit.android.activity.UserPreferences;
+import org.montrealtransit.android.data.BusStopHours;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
 import org.montrealtransit.android.provider.StmStore.BusLineDirection;
+import org.montrealtransit.android.provider.StmStore.BusStop;
+import org.montrealtransit.android.services.nextstop.AutomaticTask;
+import org.montrealtransit.android.services.nextstop.BetaStmInfoTask;
+import org.montrealtransit.android.services.nextstop.NextStopListener;
+import org.montrealtransit.android.services.nextstop.StmInfoTask;
+import org.montrealtransit.android.services.nextstop.StmMobileTask;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.os.AsyncTask;
 
 /**
  * Some useful method for buses.
@@ -21,6 +31,11 @@ public class BusUtils {
 	 * The log tag.
 	 */
 	private static final String TAG = BusUtils.class.getSimpleName();
+	
+	/**
+	 * The validity of the cache (in seconds).
+	 */
+	public static final int CACHE_TOO_OLD_IN_SEC = 60 * 60; // 60 minutes
 
 	/**
 	 * Return 1 R.string.<ID> for the bus line simple/main direction string.
@@ -40,6 +55,22 @@ public class BusUtils {
 		} else {
 			MyLog.w(TAG, "INTERNAL ERROR: unknow simple direction for '%s'!", directionId);
 			return 0;
+		}
+	}
+
+	public static String getBusLineSimpleDirectionChar(String directionId) {
+		// MyLog.v(TAG, "getBusLineSimpleDirection(%s)", directionId);
+		if (directionId.endsWith("N")) {
+			return "N";
+		} else if (directionId.endsWith("S")) {
+			return "S";
+		} else if (directionId.endsWith("E")) {
+			return "E";
+		} else if (directionId.endsWith("O")) {
+			return "W";
+		} else {
+			MyLog.w(TAG, "INTERNAL ERROR: unknow simple direction for '%s'!", directionId);
+			return "";
 		}
 	}
 
@@ -445,6 +476,22 @@ public class BusUtils {
 	 */
 	public static boolean isBusLineNumberValid(Context context, String lineNumber) {
 		return StmManager.findBusLine(context.getContentResolver(), lineNumber) != null;
+	}
+
+	public static AsyncTask<Void, String, Map<String, BusStopHours>> getNextStopTask(NextStopListener from, Context context, BusStop busStop) {
+		String provider = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_NEXT_STOP_PROVIDER, UserPreferences.PREFS_NEXT_STOP_PROVIDER_DEFAULT);
+		if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_INFO)) {
+			return new StmInfoTask(context, from, busStop);
+		} else if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_BETA_STM_INFO)) {
+			return new BetaStmInfoTask(context, from, busStop);
+		} else if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_MOBILE)) {
+			return new StmMobileTask(context, from, busStop);
+		} else if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_AUTO)) {
+			return new AutomaticTask(from, context, busStop);
+		} else {
+			MyLog.w(TAG, "Unknow next stop provider '%s'", provider);
+			return new AutomaticTask(from, context, busStop); // default Auto
+		}
 	}
 
 }

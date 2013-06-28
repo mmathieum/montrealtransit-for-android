@@ -2,15 +2,12 @@ package org.montrealtransit.android.activity;
 
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.MyLog;
-import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.provider.StmDbHelper;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Gravity;
-import android.widget.Toast;
 
 /**
  * This class is the 1st screen [not] displayed by the application.
@@ -29,16 +26,14 @@ public class SplashScreen extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		// if (org.montrealtransit.android.BuildConfig.DEBUG) {
+		// org.montrealtransit.android.api.SupportFactory.getInstance().enableStrictMode();
+		// }
 		Utils.logAppVersion(this);
 		MyLog.v(TAG, "onCreate()");
 		super.onCreate(savedInstanceState);
 		// check if update required => show toast
-		if (StmDbHelper.isUpdateRequired(this)) {
-			int messageId = StmDbHelper.isDbExist(this) ? R.string.update_message_starting : R.string.init_message_starting;
-			Toast toast = Toast.makeText(this, messageId, Toast.LENGTH_LONG);
-			toast.setGravity(Gravity.CENTER, 0, 0);
-			toast.show();
-		}
+		StmDbHelper.showUpdateRequiredIfNecessary(this);
 		showMainScreen();
 	}
 

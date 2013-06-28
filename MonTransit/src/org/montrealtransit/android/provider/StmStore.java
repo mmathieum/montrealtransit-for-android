@@ -357,8 +357,8 @@ public class StmStore {
 		/**
 		 * The order by bus line number, bus stop code & bus stop order.
 		 */
-		public static final String ORDER_BY_LINE_CODE_AND_STOP_ORDER = StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + ", " + StmDbHelper.T_BUS_STOPS_K_CODE
-				+ ", " + StmDbHelper.T_BUS_STOPS_K_STOPS_ORDER + " ASC";
+		public static final String ORDER_BY_LINE_CODE_AND_STOP_ORDER = StmDbHelper.T_BUS_STOPS_K_LINE_NUMBER + ", " + StmDbHelper.T_BUS_STOPS_K_CODE + ", "
+				+ StmDbHelper.T_BUS_STOPS_K_STOPS_ORDER + " ASC";
 		/**
 		 * The order by bus stop code.
 		 */
@@ -677,11 +677,16 @@ public class StmStore {
 		/**
 		 * @return the bus stop location or null if no location
 		 */
+		@Deprecated
 		public Location getLocation() {
 			if (this.location == null && this.lat != null && this.lng != null) {
 				this.location = LocationUtils.getNewLocation(this.lat, this.lng);
 			}
 			return this.location;
+		}
+
+		public boolean hasLocation() {
+			return this.lat != null && this.lng != null;
 		}
 
 		/**
@@ -925,12 +930,13 @@ public class StmStore {
 		/**
 		 * Order subway line by the real world order 1.
 		 */
-		public static final String NATURAL_SORT_ORDER = StmDbHelper.T_SUBWAY_LINES_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_LINES_DIRECTIONS_K_SUBWAY_STATION_ORDER + " ASC";
+		public static final String NATURAL_SORT_ORDER = StmDbHelper.T_SUBWAY_LINES_DIRECTIONS + "."
+				+ StmDbHelper.T_SUBWAY_LINES_DIRECTIONS_K_SUBWAY_STATION_ORDER + " ASC";
 		/**
 		 * Order subway line by the real world order 2.
 		 */
-		public static final String NATURAL_SORT_ORDER_DESC = StmDbHelper.T_SUBWAY_LINES_DIRECTIONS + "." + StmDbHelper.T_SUBWAY_LINES_DIRECTIONS_K_SUBWAY_STATION_ORDER
-				+ " DESC";
+		public static final String NATURAL_SORT_ORDER_DESC = StmDbHelper.T_SUBWAY_LINES_DIRECTIONS + "."
+				+ StmDbHelper.T_SUBWAY_LINES_DIRECTIONS_K_SUBWAY_STATION_ORDER + " DESC";
 		/**
 		 * The subway station ID.
 		 */
@@ -996,7 +1002,7 @@ public class StmStore {
 		/**
 		 * @return the subway station GPS latitude
 		 */
-		public double getLat() {
+		public Double getLat() {
 			return lat;
 		}
 
@@ -1010,7 +1016,7 @@ public class StmStore {
 		/**
 		 * @return the subway station GPS longitude
 		 */
-		public double getLng() {
+		public Double getLng() {
 			return lng;
 		}
 
@@ -1024,11 +1030,16 @@ public class StmStore {
 		/**
 		 * @return the subway station location (not null)
 		 */
+		@Deprecated
 		public Location getLocation() {
 			if (this.location == null) {
 				this.location = LocationUtils.getNewLocation(this.lat, this.lng);
 			}
 			return this.location;
+		}
+
+		public boolean hasLocation() {
+			return true;
 		}
 
 		/**

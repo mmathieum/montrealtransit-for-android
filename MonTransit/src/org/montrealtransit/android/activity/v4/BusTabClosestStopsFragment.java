@@ -6,28 +6,29 @@ import java.util.Locale;
 
 import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.LocationUtils;
+import org.montrealtransit.android.LocationUtils.LocationTaskCompleted;
 import org.montrealtransit.android.MyLog;
+import org.montrealtransit.android.PrefetchingUtils;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.SensorUtils;
 import org.montrealtransit.android.SensorUtils.CompassListener;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.activity.BusStopInfo;
-import org.montrealtransit.android.activity.UserPreferences;
+import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.ABusStop;
 import org.montrealtransit.android.data.ClosestPOI;
-import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.StmStore.BusStop;
 import org.montrealtransit.android.services.ClosestBusStopsFinderTask;
 import org.montrealtransit.android.services.ClosestBusStopsFinderTask.ClosestBusStopsFinderListener;
+import org.montrealtransit.android.services.LoadNextBusStopIntoCacheTask;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -163,13 +164,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 			view.findViewById(R.id.closest_stops).setVisibility(View.VISIBLE); // show
 		}
 		// IF location updates are not already enabled DO
-		// MyLog.d(TAG, "showAll() > this.locationUpdatesEnabled == %s", this.locationUpdatesEnabled);
-		if (!this.locationUpdatesEnabled) {
-			// enable
-			LocationUtils.enableLocationUpdates(activity, this);
-			// MyLog.d(TAG, "showAll() > this.locationUpdatesEnabled = true;");
-			this.locationUpdatesEnabled = true;
-		}
+		this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(activity, this, this.locationUpdatesEnabled, this.paused);
 	}
 
 	/**
@@ -178,11 +173,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 	public void showClosestStops(View view, Activity activity) {
 		MyLog.v(TAG, "showClosestStops()");
 		// IF location updates are not already enabled DO
-		if (!this.locationUpdatesEnabled) {
-			// enable location updates
-			LocationUtils.enableLocationUpdates(activity, this);
-			this.locationUpdatesEnabled = true;
-		}
+		this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(activity, this, this.locationUpdatesEnabled, this.paused);
 		// IF there is no closest stops DO
 		if (this.closestStops == null) {
 			// look for the closest stops
@@ -219,20 +210,13 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 		}
 		// ELSE IF there are closest stations AND new location DO
 		if (this.closestStops != null && currentLocation != null) {
-			// update the list distances
-			boolean isDetailed = UserPreferences.getPrefDefault(getLastActivity(), UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT)
-					.equals(UserPreferences.PREFS_DISTANCE_DETAILED);
-			String distanceUnit = UserPreferences.getPrefDefault(getLastActivity(), UserPreferences.PREFS_DISTANCE_UNIT,
-					UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
-			float accuracyInMeters = currentLocation.getAccuracy();
-			for (ABusStop stop : this.closestStops) {
-				// distance
-				stop.setDistance(currentLocation.distanceTo(stop.getLocation()));
-				stop.setDistanceString(Utils.getDistanceString(stop.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
-			}
-			// update the view
-			// generateOrderedStopCodes();
-			notifyDataSetChanged(false);
+			LocationUtils.updateDistance(getLastActivity(), BusTabClosestStopsFragment.this.closestStops, currentLocation, new LocationTaskCompleted() {
+
+				@Override
+				public void onLocationTaskCompleted() {
+					notifyDataSetChanged(false);
+				};
+			});
 		}
 	}
 
@@ -280,7 +264,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 	/**
 	 * The location address used to generate the closest stops.
 	 */
-	protected Address closestStopsLocationAddress;
+	protected String closestStopsLocationAddress;
 
 	/**
 	 * Start the refresh closest stops tasks if necessary.
@@ -297,18 +281,23 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 				return;
 			}
 			// find the closest stations
-			this.closestStopsTask = new ClosestBusStopsFinderTask(this, getLastActivity());
+			this.closestStopsTask = new ClosestBusStopsFinderTask(this, getLastActivity(), SupportFactory.get().getNbClosestPOIDisplay());
 			this.closestStopsTask.execute(currentLocation);
 			this.closestStopsLocation = currentLocation;
-			new AsyncTask<Location, Void, Address>() {
+			new AsyncTask<Location, Void, String>() {
 
 				@Override
-				protected Address doInBackground(Location... locations) {
-					return LocationUtils.getLocationAddress(BusTabClosestStopsFragment.this.getLastActivity(), locations[0]);
+				protected String doInBackground(Location... locations) {
+					Address address = LocationUtils.getLocationAddress(BusTabClosestStopsFragment.this.getLastActivity(), locations[0]);
+					if (address == null || BusTabClosestStopsFragment.this.closestStopsLocation == null) {
+						return null;
+					}
+					return LocationUtils.getLocationString(BusTabClosestStopsFragment.this.getLastActivity(), R.string.closest_bus_stops, address,
+							BusTabClosestStopsFragment.this.closestStopsLocation.getAccuracy());
 				}
 
 				@Override
-				protected void onPostExecute(Address result) {
+				protected void onPostExecute(String result) {
 					boolean refreshRequired = BusTabClosestStopsFragment.this.closestStopsLocationAddress == null;
 					BusTabClosestStopsFragment.this.closestStopsLocationAddress = result;
 					if (refreshRequired) {
@@ -326,10 +315,8 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 	 */
 	public void showNewClosestStopsTitle(View view, Context context) {
 		if (this.closestStopsLocationAddress != null && this.closestStopsLocation != null && context != null && view != null) {
-			String text = LocationUtils.getLocationString(context, R.string.closest_bus_stops, this.closestStopsLocationAddress,
-					this.closestStopsLocation.getAccuracy());
 			View closestStopsLayout = view.findViewById(R.id.closest_stops_layout);
-			((TextView) closestStopsLayout.findViewById(R.id.title_text)).setText(text);
+			((TextView) closestStopsLayout.findViewById(R.id.title_text)).setText(this.closestStopsLocationAddress);
 		}
 	}
 
@@ -354,10 +341,22 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 			// get the result
 			this.closestStops = result.getPoiList();
 			// generateOrderedStopCodes();
+			prefetchClosestStops();
 			refreshFavoriteUIDsFromDB();
 			// show the result
 			showNewClosestStops(view, activity);
 			setClosestStopsNotLoading(view);
+		}
+	}
+
+	private void prefetchClosestStops() {
+		if (this.closestStops == null) {
+			return;
+		}
+		for (int i = 0; i < this.closestStops.size() && i < 10; i++) {
+			BusStop busStop = this.closestStops.get(i);
+			SupportFactory.get().executeOnExecutor(new LoadNextBusStopIntoCacheTask(getLastActivity(), busStop, null, true, false),
+					PrefetchingUtils.getExecutor());
 		}
 	}
 
@@ -425,12 +424,12 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 
 		@Override
 		public int getPosition(ABusStop item) {
-			return BusTabClosestStopsFragment.this.closestStops.indexOf(item);
+			return BusTabClosestStopsFragment.this.closestStops == null ? 0 : BusTabClosestStopsFragment.this.closestStops.indexOf(item);
 		}
 
 		@Override
 		public ABusStop getItem(int position) {
-			return BusTabClosestStopsFragment.this.closestStops.get(position);
+			return BusTabClosestStopsFragment.this.closestStops == null ? null : BusTabClosestStopsFragment.this.closestStops.get(position);
 		}
 
 		@Override
@@ -633,10 +632,9 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 						BusTabClosestStopsFragment.this.setLocation(result);
 					}
 					// enable location updates if necessary
-					if (!BusTabClosestStopsFragment.this.locationUpdatesEnabled) {
-						LocationUtils.enableLocationUpdates(BusTabClosestStopsFragment.this.getLastActivity(), BusTabClosestStopsFragment.this);
-						BusTabClosestStopsFragment.this.locationUpdatesEnabled = true;
-					}
+					BusTabClosestStopsFragment.this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(
+							BusTabClosestStopsFragment.this.getLastActivity(), BusTabClosestStopsFragment.this,
+							BusTabClosestStopsFragment.this.locationUpdatesEnabled, BusTabClosestStopsFragment.this.paused);
 				}
 
 			}.execute();
@@ -701,7 +699,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 	public void onCompass() {
 		// MyLog.v(TAG, "onCompass()");
 		if (this.accelerometerValues != null && this.magneticFieldValues != null) {
-			updateCompass(SensorUtils.calculateOrientation(getLastActivity(), this.accelerometerValues, this.magneticFieldValues));
+			updateCompass(SensorUtils.calculateOrientation(getLastActivity(), this.accelerometerValues, this.magneticFieldValues), false);
 		}
 	}
 
@@ -718,48 +716,30 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 	 * Update the compass image(s).
 	 * @param orientation the new orientation
 	 */
-	private void updateCompass(float[] orientation) {
+	private void updateCompass(final float orientation, boolean force) {
 		// MyLog.v(TAG, "updateCompass(%s)", orientation);
 		Location currentLocation = getLocation();
-		if (currentLocation != null) {
-			int io = (int) orientation[0];
-			long now = System.currentTimeMillis();
-			if (io != 0 && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE && (now - this.lastCompassChanged) > SensorUtils.COMPASS_UPDATE_THRESOLD
-					&& Math.abs(this.lastCompassInDegree - io) > SensorUtils.COMPASS_DEGREE_UPDATE_THRESOLD) {
-				// update closest bike stations compass
-				if (this.closestStops != null) {
-					this.lastCompassInDegree = io;
-					this.lastCompassChanged = now;
-					for (ABusStop stop : this.closestStops) {
-						stop.getCompassMatrix().reset();
-						stop.getCompassMatrix().postRotate(
-								SensorUtils.getCompassRotationInDegree(getLastActivity(), currentLocation, stop.getLocation(), orientation,
-										getLocationDeclination()), getArrowDim().first / 2, getArrowDim().second / 2);
+		if (currentLocation == null || orientation == 0 || this.closestStops == null) {
+			// MyLog.d(TAG, "updateCompass() > no location or no POI");
+			return;
+		}
+		final long now = System.currentTimeMillis();
+		SensorUtils.updateCompass(getLastActivity(), this.closestStops, force, currentLocation, orientation, now, this.scrollState, this.lastCompassChanged,
+				this.lastCompassInDegree, R.drawable.heading_arrow, new SensorUtils.SensorTaskCompleted() {
+
+					@Override
+					public void onSensorTaskCompleted(boolean result) {
+						if (result) {
+							BusTabClosestStopsFragment.this.lastCompassInDegree = (int) orientation;
+							BusTabClosestStopsFragment.this.lastCompassChanged = now;
+							// update the view
+							notifyDataSetChanged(false);
+						}
 					}
-					// update the view
-					notifyDataSetChanged(false);
-				}
-			}
-		}
+				});
 	}
 
-	private Pair<Integer, Integer> arrowDim;
-	private Float locationDeclination;
-
-	private float getLocationDeclination() {
-		if (this.locationDeclination == null && this.location != null) {
-			this.locationDeclination = new GeomagneticField((float) this.location.getLatitude(), (float) this.location.getLongitude(),
-					(float) this.location.getAltitude(), this.location.getTime()).getDeclination();
-		}
-		return this.locationDeclination;
-	}
-
-	public Pair<Integer, Integer> getArrowDim() {
-		if (this.arrowDim == null) {
-			this.arrowDim = SensorUtils.getResourceDimension(getLastActivity(), R.drawable.heading_arrow);
-		}
-		return this.arrowDim;
-	}
+	private boolean paused = false;
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -816,8 +796,8 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 	@Override
 	public void onPause() {
 		MyLog.v(TAG, "onPause()");
-		LocationUtils.disableLocationUpdates(getLastActivity(), this);
-		this.locationUpdatesEnabled = false;
+		this.paused = true;
+		this.locationUpdatesEnabled = LocationUtils.disableLocationUpdatesIfNecessary(getLastActivity(), this, this.locationUpdatesEnabled);
 		SensorUtils.unregisterSensorListener(getLastActivity(), this);
 		this.compassUpdatesEnabled = false;
 		super.onPause();
@@ -826,6 +806,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 	@Override
 	public void onResume() {
 		MyLog.v(TAG, "onResume()");
+		this.paused = false;
 		super.onResume();
 	}
 
@@ -851,8 +832,9 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 						updateDistancesWithNewLocation();
 					}
 					// re-enable
-					LocationUtils.enableLocationUpdates(BusTabClosestStopsFragment.this.getLastActivity(), BusTabClosestStopsFragment.this);
-					BusTabClosestStopsFragment.this.locationUpdatesEnabled = true;
+					BusTabClosestStopsFragment.this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(
+							BusTabClosestStopsFragment.this.getLastActivity(), BusTabClosestStopsFragment.this,
+							BusTabClosestStopsFragment.this.locationUpdatesEnabled, BusTabClosestStopsFragment.this.paused);
 				};
 
 			}.execute();

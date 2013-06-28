@@ -6,7 +6,7 @@
     <!-- Indeterminate progress bar -->
     <ProgressBar
         android:id="@+id/progress_bar"
-        style="?android:attr/android:progressBarStyleSmall"
+        style="?android:attr/android:progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"

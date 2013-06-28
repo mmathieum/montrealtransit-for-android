@@ -8,7 +8,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:textFilterEnabled="false"
-        tools:listitem="@layout/subway_line_info_stations_list_item" /> <!-- TODO enable filter -->
+        tools:listitem="@layout/subway_line_info_stations_list_item" />
     <include
         android:id="@+id/list_empty"
         layout="@layout/loading_small_layout" />

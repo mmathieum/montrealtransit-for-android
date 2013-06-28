@@ -54,7 +54,7 @@
     <include
         android:id="@+id/bus_lines_loading"
         android:layout_width="fill_parent"
-        android:layout_height="?android:attr/listPreferredItemHeight"
+        android:layout_height="fill_parent"
         layout="@layout/loading_small_layout"
         android:visibility="visible" />
     <GridView

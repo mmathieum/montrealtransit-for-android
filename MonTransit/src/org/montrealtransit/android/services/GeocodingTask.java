@@ -65,9 +65,8 @@ public class GeocodingTask extends AsyncTask<String, String, List<Address>> {
 			String locationName = params[0];
 			publishProgress(this.context.getString(R.string.geocoding_and_location, locationName));
 			// MyLog.v(TAG, "Geocode: " + locationName + ".");
-			return new Geocoder(this.context).getFromLocationName(locationName, this.maxResults,
-			        Constant.STM_LOWER_LEFT_LAT, Constant.STM_LOWER_LEFT_LNG, Constant.STM_UPPER_RIGHT_LAT,
-			        Constant.STM_UPPER_RIGHT_LNG);
+			return new Geocoder(this.context).getFromLocationName(locationName, this.maxResults, Constant.STM_LOWER_LEFT_LAT, Constant.STM_LOWER_LEFT_LNG,
+					Constant.STM_UPPER_RIGHT_LAT, Constant.STM_UPPER_RIGHT_LNG);
 		} catch (IOException ioe) {
 			MyLog.w(TAG, ioe, "INTERNAL ERROR: the network is unavailable or any other I/O problem occurs");
 		} catch (Exception e) {

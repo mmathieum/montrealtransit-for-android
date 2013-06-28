@@ -153,7 +153,7 @@ public class AnalyticsUtils {
 		// 4 - Device
 		String device = "";
 		if (Integer.parseInt(sdk) >= Build.VERSION_CODES.DONUT) {
-			device += SupportFactory.getInstance(context).getBuildManufacturer() + " ";
+			device += SupportFactory.get().getBuildManufacturer() + " ";
 		}
 		device += Build.MODEL;
 		// MyLog.d(TAG, "device: '%s'.", device);

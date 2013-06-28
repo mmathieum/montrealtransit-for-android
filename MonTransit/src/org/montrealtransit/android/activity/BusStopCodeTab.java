@@ -176,7 +176,7 @@ public class BusStopCodeTab extends Activity {
 				@Override
 				protected void onPostExecute(Cursor result) {
 					BusStopCodeTab.this.historyCursor = result;
-					((ListView) findViewById(R.id.list)).setAdapter(SupportFactory.getInstance(BusStopCodeTab.this).newSimpleCursorAdapter(BusStopCodeTab.this,
+					((ListView) findViewById(R.id.list)).setAdapter(SupportFactory.get().newSimpleCursorAdapter(BusStopCodeTab.this,
 							android.R.layout.simple_list_item_1, BusStopCodeTab.this.historyCursor, new String[] { DataStore.History.VALUE },
 							new int[] { android.R.id.text1 }, 0));
 				}
@@ -208,7 +208,7 @@ public class BusStopCodeTab extends Activity {
 							}
 						}.execute(search);
 					}
-					Intent intent = new Intent(this, SupportFactory.getInstance(this).getBusLineInfoClass());
+					Intent intent = new Intent(this, SupportFactory.get().getBusLineInfoClass());
 					intent.putExtra(BusLineInfo.EXTRA_LINE_NUMBER, search);
 					startActivity(intent);
 				} else {
@@ -266,7 +266,7 @@ public class BusStopCodeTab extends Activity {
 		}
 		return MenuUtils.handleCommonMenuActions(this, item);
 	}
-	
+
 	@Override
 	protected void onDestroy() {
 		if (this.historyCursor != null && !this.historyCursor.isClosed()) {

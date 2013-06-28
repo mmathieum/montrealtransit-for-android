@@ -135,7 +135,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 			HttpsURLConnection httpsUrlConnection = (HttpsURLConnection) urlc;
 			switch (httpsUrlConnection.getResponseCode()) {
 			case HttpURLConnection.HTTP_OK:
-				publishProgress(from, context.getString(R.string.downloading_data_from_and_source, BixiDataReader.SOURCE));
+				publishProgress(from, context.getString(R.string.downloading_data_from_and_source, SOURCE));
 				AnalyticsUtils.dispatch(context); // while we are connected, send the analytics data
 				// Get a SAX Parser from the SAX Parser Factory
 				SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -304,13 +304,17 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 	@Override
 	protected void onPostExecute(List<BikeStation> newBikeStations) {
 		// MyLog.v(TAG, "onPostExecute(%s)", Utils.getCollectionSize(newBikeStations));
-		this.from.onBixiDataLoaded(newBikeStations, (newUpdate > lastUpdate));
+		if (this.from != null) {
+			this.from.onBixiDataLoaded(newBikeStations, (newUpdate > lastUpdate));
+		}
 	}
 
 	@Override
 	protected void onProgressUpdate(String... values) {
 		MyLog.v(TAG, "onProgressUpdate(%s)", values[0]);
-		this.from.onBixiDataProgress(values[0]);
+		if (this.from != null) {
+			this.from.onBixiDataProgress(values[0]);
+		}
 	}
 
 	/**

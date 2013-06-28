@@ -94,10 +94,12 @@ public class StmInfoStatusApiReader extends AsyncTask<String, String, String> {
 				// MyLog.d(TAG, "Parsing data... DONE");
 				publishProgress(this.context.getString(R.string.done));
 				List<ServiceStatus> allServiceStatus = handler.getServiceStatus();
+				// MyLog.d(TAG, "new service statuses :" + (allServiceStatus == null ? null : allServiceStatus.size()));
 				// delete existing status
 				DataManager.deleteAllServiceStatus(this.context.getContentResolver());
 				// add new status (all language & all status type)
 				for (ServiceStatus serviceStatus : allServiceStatus) {
+					// MyLog.d(TAG, "new service status (" + serviceStatus.getReadDate() + "):" + serviceStatus.getMessage());
 					DataManager.addServiceStatus(this.context.getContentResolver(), serviceStatus);
 				}
 				return null;
@@ -127,7 +129,9 @@ public class StmInfoStatusApiReader extends AsyncTask<String, String, String> {
 	@Override
 	protected void onPostExecute(String errorMessage) {
 		MyLog.v(TAG, "onPostExecute(%s)", errorMessage);
-		this.from.onStmInfoStatusesLoaded(errorMessage);
+		if (this.from != null) {
+			this.from.onStmInfoStatusesLoaded(errorMessage);
+		}
 		super.onPostExecute(errorMessage);
 	}
 
@@ -137,7 +141,7 @@ public class StmInfoStatusApiReader extends AsyncTask<String, String, String> {
 	private static final String STATUS_YELLOW_FR = "Reprise";
 	private static final String STATUS_YELLOW_EN = "Service gradually";
 
-	private static final String STATUS_RED_FR = "Arrêt";
+	private static final String STATUS_RED_FR = "Interruption de service";
 	private static final String STATUS_RED_EN = "Service disrupt";
 
 	/**

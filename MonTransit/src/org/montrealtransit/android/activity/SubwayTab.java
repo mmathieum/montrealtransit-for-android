@@ -9,6 +9,7 @@ import java.util.Locale;
 import org.montrealtransit.android.AdsUtils;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.LocationUtils;
+import org.montrealtransit.android.LocationUtils.LocationTaskCompleted;
 import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
@@ -20,7 +21,6 @@ import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.ASubwayStation;
 import org.montrealtransit.android.data.ClosestPOI;
-import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.dialog.SubwayLineSelectDirection;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore;
@@ -41,7 +41,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Typeface;
-import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -122,7 +121,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	/**
 	 * The location address used to generate the closest stations.
 	 */
-	protected Address closestStationsLocationAddress;
+	protected String closestStationsLocationAddress;
 	/**
 	 * The task used to load the subway status.
 	 */
@@ -134,7 +133,6 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	/**
 	 * The current service status.
 	 */
-	// private ServiceStatus serviceStatus = null;
 	private List<ServiceStatus> serviceStatuses = null;
 	/**
 	 * The acceleration apart from gravity.
@@ -209,6 +207,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 * True if the activity has the focus, false otherwise.
 	 */
 	private boolean hasFocus = true;
+	private boolean paused = false;
 
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
@@ -223,6 +222,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
+		this.paused = false;
 		// IF the activity has the focus DO
 		if (this.hasFocus) {
 			onResumeWithFocus();
@@ -253,8 +253,8 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 						updateDistancesWithNewLocation();
 					}
 					// re-enable
-					LocationUtils.enableLocationUpdates(SubwayTab.this, SubwayTab.this);
-					SubwayTab.this.locationUpdatesEnabled = true;
+					SubwayTab.this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(SubwayTab.this, SubwayTab.this,
+							SubwayTab.this.locationUpdatesEnabled, SubwayTab.this.paused);
 				};
 
 			}.execute();
@@ -296,7 +296,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	public void onCompass() {
 		// MyLog.v(TAG, "onCompass()");
 		if (this.accelerometerValues != null && this.magneticFieldValues != null) {
-			updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues));
+			updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues), false);
 		}
 	}
 
@@ -304,47 +304,27 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 * Update the compass image(s).
 	 * @param orientation the new orientation
 	 */
-	private void updateCompass(float[] orientation) {
-		// MyLog.v(TAG, "updateCompass(%s)", orientation);
+	private void updateCompass(final float orientation, boolean force) {
+		// MyLog.v(TAG, "updateCompass(%s)", orientation[0]);
 		Location currentLocation = getLocation();
-		if (currentLocation != null) {
-			int io = (int) orientation[0];
-			long now = System.currentTimeMillis();
-			if (io != 0 && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE && (now - this.lastCompassChanged) > SensorUtils.COMPASS_UPDATE_THRESOLD
-					&& Math.abs(this.lastCompassInDegree - io) > SensorUtils.COMPASS_DEGREE_UPDATE_THRESOLD) {
-				// update closest bike stations compass
-				if (this.closestStations != null) {
-					this.lastCompassInDegree = io;
-					this.lastCompassChanged = now;
-					for (ASubwayStation station : this.closestStations) {
-						station.getCompassMatrix().reset();
-						station.getCompassMatrix().postRotate(
-								SensorUtils.getCompassRotationInDegree(this, currentLocation, station.getLocation(), orientation, getLocationDeclination()),
-								getArrowDim().first / 2, getArrowDim().second / 2);
+		if (currentLocation == null || orientation == 0 || this.closestStations == null) {
+			// MyLog.d(TAG, "updateCompass() > no location or no POI");
+			return;
+		}
+		final long now = System.currentTimeMillis();
+		SensorUtils.updateCompass(this, this.closestStations, force, currentLocation, orientation, now, this.scrollState, this.lastCompassChanged,
+				this.lastCompassInDegree, R.drawable.heading_arrow, new SensorUtils.SensorTaskCompleted() {
+
+					@Override
+					public void onSensorTaskCompleted(boolean result) {
+						if (result) {
+							SubwayTab.this.lastCompassInDegree = (int) orientation;
+							SubwayTab.this.lastCompassChanged = now;
+							// update the view
+							notifyDataSetChanged(false);
+						}
 					}
-					// update the view
-					notifyDataSetChanged(false);
-				}
-			}
-		}
-	}
-
-	private Pair<Integer, Integer> arrowDim;
-	private Float locationDeclination;
-
-	private float getLocationDeclination() {
-		if (this.locationDeclination == null && this.location != null) {
-			this.locationDeclination = new GeomagneticField((float) this.location.getLatitude(), (float) this.location.getLongitude(),
-					(float) this.location.getAltitude(), this.location.getTime()).getDeclination();
-		}
-		return this.locationDeclination;
-	}
-
-	public Pair<Integer, Integer> getArrowDim() {
-		if (this.arrowDim == null) {
-			this.arrowDim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow);
-		}
-		return this.arrowDim;
+				});
 	}
 
 	@Override
@@ -392,10 +372,12 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	@Override
 	protected void onPause() {
 		MyLog.v(TAG, "onPause()");
-		LocationUtils.disableLocationUpdates(this, this);
-		this.locationUpdatesEnabled = false;
-		SensorUtils.unregisterSensorListener(this, this);
-		this.compassUpdatesEnabled = false;
+		this.paused = true;
+		this.locationUpdatesEnabled = LocationUtils.disableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled);
+		if (this.compassUpdatesEnabled) {
+			SensorUtils.unregisterSensorListener(this, this);
+			this.compassUpdatesEnabled = false;
+		}
 		super.onPause();
 	}
 
@@ -445,7 +427,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 						@Override
 						public void onClick(View v) {
 							MyLog.v(TAG, "onClick(%s)", v.getId());
-							Intent intent = new Intent(SubwayTab.this, SupportFactory.getInstance(SubwayTab.this).getSubwayLineInfoClass());
+							Intent intent = new Intent(SubwayTab.this, SupportFactory.get().getSubwayLineInfoClass());
 							intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumberS);
 							startActivity(intent);
 						}
@@ -537,7 +519,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 					if (sb.length() > 0) {
 						sb.append("\n");
 					}
-					sb.append(status.getMessage());
+					sb.append(status.getMessage().replaceAll("\\.\\ ", ".\n"));
 				}
 				if (status.getType() == ServiceStatus.STATUS_TYPE_GREEN) {
 					break; // only 1 green
@@ -771,12 +753,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	public void showClosestStations() {
 		MyLog.v(TAG, "showClosestStations()");
 		// enable location updates
-		// IF location updates are not already enabled DO
-		if (!this.locationUpdatesEnabled) {
-			// enable
-			LocationUtils.enableLocationUpdates(this, this);
-			this.locationUpdatesEnabled = true;
-		}
+		this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled, this.paused);
 		// IF there is no closest stations DO
 		if (this.closestStations == null) {
 			// look for the closest stations
@@ -839,7 +816,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	}
 
 	private void adaptToScreenSize(Configuration configuration) {
-		if (SupportFactory.getInstance(this).isScreenHeightSmall(configuration)) {
+		if (SupportFactory.get().isScreenHeightSmall(configuration)) {
 			// HIDE AD
 			if (findViewById(R.id.ad_layout) != null) {
 				findViewById(R.id.ad_layout).setVisibility(View.GONE); // not enough space on phone
@@ -1058,9 +1035,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 */
 	public void showNewClosestStationsTitle() {
 		if (this.closestStationsLocationAddress != null && this.closestStationsLocation != null) {
-			String text = LocationUtils.getLocationString(this, R.string.closest_subway_stations, this.closestStationsLocationAddress,
-					this.closestStationsLocation.getAccuracy());
-			((TextView) findViewById(R.id.closest_stations_title).findViewById(R.id.closest_subway_stations)).setText(text);
+			((TextView) findViewById(R.id.closest_stations_title).findViewById(R.id.closest_subway_stations)).setText(this.closestStationsLocationAddress);
 		}
 	}
 
@@ -1076,18 +1051,23 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			Location currentLocation = getLocation();
 			if (currentLocation != null) {
 				// find the closest stations
-				this.closestStationsTask = new ClosestSubwayStationsFinderTask(this, this);
+				this.closestStationsTask = new ClosestSubwayStationsFinderTask(this, this, SupportFactory.get().getNbClosestPOIDisplay());
 				this.closestStationsTask.execute(currentLocation);
 				this.closestStationsLocation = currentLocation;
-				new AsyncTask<Location, Void, Address>() {
+				new AsyncTask<Location, Void, String>() {
 
 					@Override
-					protected Address doInBackground(Location... locations) {
-						return LocationUtils.getLocationAddress(SubwayTab.this, locations[0]);
+					protected String doInBackground(Location... locations) {
+						Address address = LocationUtils.getLocationAddress(SubwayTab.this, locations[0]);
+						if (address == null || SubwayTab.this.closestStationsLocation == null) {
+							return null;
+						}
+						return LocationUtils.getLocationString(SubwayTab.this, R.string.closest_subway_stations, address,
+								SubwayTab.this.closestStationsLocation.getAccuracy());
 					}
 
 					@Override
-					protected void onPostExecute(Address result) {
+					protected void onPostExecute(String result) {
 						boolean refreshRequired = SubwayTab.this.closestStationsLocationAddress == null;
 						SubwayTab.this.closestStationsLocationAddress = result;
 						if (refreshRequired) {
@@ -1226,6 +1206,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		} else {
 			// get the result
 			this.closestStations = result.getPoiList();
+			updateCompass(this.lastCompassInDegree, true);
 			generateOrderedStationsIds();
 			refreshFavoriteIDsFromDB();
 			// shot the result
@@ -1272,28 +1253,28 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	private void updateDistancesWithNewLocation() {
 		MyLog.v(TAG, "updateDistancesWithNewLocation()");
 		Location currentLocation = getLocation();
+		if (currentLocation == null) {
+			return;
+		}
 		// IF no closest stations AND new location DO
-		if (this.closestStations == null && currentLocation != null) {
+		if (this.closestStations == null) {
 			// start refreshing if not running.
 			refreshClosestStations();
 			return;
 		}
 		// ELSE IF there are closest stations AND new location DO
-		if (this.closestStations != null && currentLocation != null) {
+		if (this.closestStations != null) {
 			// update the list distances
-			boolean isDetailed = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
-					UserPreferences.PREFS_DISTANCE_DETAILED);
-			String distanceUnit = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
-			float accuracyInMeters = currentLocation.getAccuracy();
-			for (ASubwayStation station : this.closestStations) {
-				// distance
-				station.setDistance(currentLocation.distanceTo(station.getLocation()));
-				station.setDistanceString(Utils.getDistanceString(station.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
-			}
-			// update the view
-			String previousClosest = this.closestStationId;
-			generateOrderedStationsIds();
-			notifyDataSetChanged(this.closestStationId == null ? false : this.closestStationId.equals(previousClosest));
+			LocationUtils.updateDistance(this, this.closestStations, currentLocation, new LocationTaskCompleted() {
+
+				@Override
+				public void onLocationTaskCompleted() {
+					// update the view
+					String previousClosest = SubwayTab.this.closestStationId;
+					generateOrderedStationsIds();
+					notifyDataSetChanged(SubwayTab.this.closestStationId == null ? false : SubwayTab.this.closestStationId.equals(previousClosest));
+				}
+			});
 		}
 	}
 
@@ -1362,10 +1343,8 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 						SubwayTab.this.setLocation(result);
 					}
 					// enable location updates if necessary
-					if (!SubwayTab.this.locationUpdatesEnabled) {
-						LocationUtils.enableLocationUpdates(SubwayTab.this, SubwayTab.this);
-						SubwayTab.this.locationUpdatesEnabled = true;
-					}
+					SubwayTab.this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(SubwayTab.this, SubwayTab.this,
+							SubwayTab.this.locationUpdatesEnabled, SubwayTab.this.paused);
 				}
 
 			}.execute();

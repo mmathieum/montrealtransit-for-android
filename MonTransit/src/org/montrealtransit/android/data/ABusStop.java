@@ -1,5 +1,6 @@
 package org.montrealtransit.android.data;
 
+import org.montrealtransit.android.LocationUtils.POI;
 import org.montrealtransit.android.provider.StmStore.BusStop;
 
 import android.graphics.Matrix;
@@ -8,7 +9,7 @@ import android.graphics.Matrix;
  * A {@link BusStop} with a distance.
  * @author Mathieu Méa
  */
-public class ABusStop extends BusStop {
+public class ABusStop extends BusStop implements POI {
 
 	/**
 	 * The distance string.
@@ -49,30 +50,22 @@ public class ABusStop extends BusStop {
 		setLng(busStop.getLng());
 	}
 
-	/**
-	 * @param distanceString the new distance string
-	 */
+	@Override
 	public void setDistanceString(String distanceString) {
 		this.distanceString = distanceString;
 	}
 
-	/**
-	 * @return the distance string
-	 */
+	@Override
 	public String getDistanceString() {
 		return distanceString;
 	}
 
-	/**
-	 * @param distance the new distance
-	 */
+	@Override
 	public void setDistance(float distance) {
 		this.distance = distance;
 	}
 
-	/**
-	 * @return the distance
-	 */
+	@Override
 	public float getDistance() {
 		return distance;
 	}

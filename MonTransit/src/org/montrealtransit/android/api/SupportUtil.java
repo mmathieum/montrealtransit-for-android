@@ -1,5 +1,9 @@
 package org.montrealtransit.android.api;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+
+import org.montrealtransit.android.services.LoadNextBusStopIntoCacheTask;
 import org.montrealtransit.android.services.NfcListener;
 
 import android.app.Activity;
@@ -39,7 +43,7 @@ public interface SupportUtil {
 	/**
 	 * Notify the {@link BackupManager} that the data has changed.
 	 */
-	void backupManagerDataChanged();
+	void backupManagerDataChanged(Context context);
 
 	/**
 	 * @param activity the activity
@@ -134,4 +138,8 @@ public interface SupportUtil {
 	 * @param offset the offset
 	 */
 	void listViewScrollTo(ListView listView, int position, int offset);
+
+	void executeOnExecutor(LoadNextBusStopIntoCacheTask task, Executor executor);
+
+	BlockingQueue<Runnable> getNewBlockingQueue();
 }

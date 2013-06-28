@@ -19,7 +19,7 @@ import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.BusStopHours;
 import org.montrealtransit.android.data.Pair;
-import org.montrealtransit.android.provider.StmStore;
+import org.montrealtransit.android.provider.StmStore.BusStop;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -38,8 +38,8 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	/**
 	 * @see AbstractNextStopProvider#AbstractNextStopProvider(NextStopListener, Context)
 	 */
-	public StmMobileTask(NextStopListener from, Context context) {
-		super(from, context);
+	public StmMobileTask(Context context, NextStopListener from, BusStop busStop) {
+		super(context, from, busStop);
 	}
 
 	/**
@@ -57,18 +57,18 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	private static final String URL_PART_2_BEFORE_LANG = "?lang=";
 
 	@Override
-	protected Map<String, BusStopHours> doInBackground(StmStore.BusStop... busStops) {
+	protected Map<String, BusStopHours> doInBackground(Void... params) {
 		MyLog.v(TAG, "doInBackground()");
 		Map<String, BusStopHours> hours = new HashMap<String, BusStopHours>();
 		String errorMessage = this.context.getString(R.string.error); // set the default error message
-		if (busStops == null || busStops.length == 0 || busStops[0] == null) {
+		if (this.busStop == null) {
 			return null; // TODO return error message?
 		}
-		String stopCode = busStops[0].getCode();
-		String lineNumber = busStops[0].getLineNumber();
+		String stopCode = this.busStop.getCode();
+		String lineNumber = this.busStop.getLineNumber();
 		String urlString = getUrlString(stopCode);
 		try {
-			publishProgress(context.getString(R.string.downloading_data_from_and_source, StmMobileTask.SOURCE_NAME));
+			publishProgress(context.getString(R.string.downloading_data_from_and_source, SOURCE_NAME));
 			URL url = new URL(urlString);
 			URLConnection urlc = url.openConnection();
 			// MyLog.d(TAG, "URL created: '%s'", url.toString());
@@ -103,10 +103,10 @@ public class StmMobileTask extends AbstractNextStopProvider {
 						errorMessage = this.context.getString(R.string.bus_stop_no_info_and_source, lineNumber, SOURCE_NAME);
 						publishProgress(errorMessage);
 						hours.put(lineNumber, new BusStopHours(SOURCE_NAME, errorMessage));
-						AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BUS_STOP_REMOVED, busStops[0].getUID(), context
-								.getPackageManager().getPackageInfo(Constant.PKG, 0).versionCode);
+						AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BUS_STOP_REMOVED, this.busStop.getUID(),
+								context.getPackageManager().getPackageInfo(Constant.PKG, 0).versionCode);
 					}
-					AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BUS_STOP_NO_INFO, busStops[0].getUID(), context
+					AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BUS_STOP_NO_INFO, this.busStop.getUID(), context
 							.getPackageManager().getPackageInfo(Constant.PKG, 0).versionCode);
 				}
 				return hours;

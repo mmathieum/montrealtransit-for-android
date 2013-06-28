@@ -126,6 +126,7 @@
 	<string name="data_pref_cat_title">Data source</string>
 	<string name="advanced_pref_cat_title">Advanced settings</string>
 	<string name="credits_pref_cat_title">Credits</string>
+	<string name="prefetching_pref_cat_title">Prefetching</string>
 
 	<string name="nfc">NFC</string>
 
@@ -136,6 +137,12 @@
 	<string name="group_by_pref_type">Group by Type</string>
 	<string name="group_by_pref_day_night">Group by Day/Night</string>
 	<string name="group_by_pref_number">Group by Number</string>
+	
+	<string name="prefetching_pref_title">Prefetching</string>
+	<string name="prefetching_pref_summary">Download data in advance.</string>
+	
+	<string name="prefetching_wifi_only_pref_title">Over WiFi only</string>
+	<string name="prefetching_wifi_only_pref_summary">Prefetch data over WiFi only.</string>
 
 	<string name="ads_pref_title">Show Ads</string>
 	<string name="ads_pref_summary">Help support the development of MonTransit.</string>
@@ -266,7 +273,11 @@
     <string name="next_stop_pref_dialog_title">Data source</string>
     <string name="next_stop_pref_stmmobile">m.stm.info</string>
     <string name="next_stop_pref_stminfo">stm.info</string>
+    <string name="next_stop_pref_betastminfo">beta.stm.info</string>
     <string name="next_stop_pref_auto">Auto</string>
+    
+    <string name="beta_stm_info_pref_title">Enable beta.stm.info</string>
+    <string name="beta_stm_info_pref_summary">Use the STM beta website.</string>
     
     <string name="search_label">MonTransit</string>
     <string name="search_hint">Search bus stops.</string>

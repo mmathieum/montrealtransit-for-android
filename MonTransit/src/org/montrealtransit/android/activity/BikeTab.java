@@ -11,6 +11,7 @@ import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BikeUtils;
 import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.LocationUtils;
+import org.montrealtransit.android.LocationUtils.LocationTaskCompleted;
 import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
@@ -21,7 +22,6 @@ import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.ABikeStation;
 import org.montrealtransit.android.data.ClosestPOI;
-import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.provider.BixiStore.BikeStation;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore;
@@ -32,8 +32,8 @@ import org.montrealtransit.android.services.ClosestBikeStationsFinderTask.Closes
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Typeface;
-import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -101,7 +101,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	/**
 	 * The location address used to generate the closest bike stations list;
 	 */
-	private Address closestBikeStationsLocationAddress;
+	private String closestBikeStationsLocationAddress;
 	/**
 	 * The bike stations list adapter.
 	 */
@@ -196,6 +196,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	 * True if the activity has the focus, false otherwise.
 	 */
 	private boolean hasFocus = true;
+	private boolean paused = false;
 
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
@@ -210,6 +211,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
+		this.paused = false;
 		// IF the activity has the focus DO
 		if (this.hasFocus) {
 			onResumeWithFocus();
@@ -239,9 +241,8 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 						setLocation(result);
 						updateDistancesWithNewLocation();
 					}
-					// re-enable
-					LocationUtils.enableLocationUpdates(BikeTab.this, BikeTab.this);
-					BikeTab.this.locationUpdatesEnabled = true;
+					BikeTab.this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(BikeTab.this, BikeTab.this,
+							BikeTab.this.locationUpdatesEnabled, BikeTab.this.paused);
 				};
 
 			}.execute();
@@ -254,10 +255,12 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	@Override
 	protected void onPause() {
 		MyLog.v(TAG, "onPause()");
-		LocationUtils.disableLocationUpdates(this, this);
-		this.locationUpdatesEnabled = false;
-		SensorUtils.unregisterSensorListener(this, this);
-		this.compassUpdatesEnabled = false;
+		this.paused = true;
+		BikeTab.this.locationUpdatesEnabled = LocationUtils.disableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled);
+		if (this.compassUpdatesEnabled) {
+			SensorUtils.unregisterSensorListener(this, this);
+			this.compassUpdatesEnabled = false;
+		}
 		super.onPause();
 	}
 
@@ -304,7 +307,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	public void onCompass() {
 		// MyLog.v(TAG, "onCompass()");
 		if (this.accelerometerValues != null && this.magneticFieldValues != null) {
-			updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues));
+			updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues), false);
 		}
 	}
 
@@ -312,29 +315,27 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	 * Update the compass image(s).
 	 * @param orientation the new orientation
 	 */
-	private void updateCompass(float[] orientation) {
+	private void updateCompass(final float orientation, boolean force) {
 		// MyLog.v(TAG, "updateCompass(%s)", orientation[0]);
 		Location currentLocation = getLocation();
-		if (currentLocation != null) {
-			int io = (int) orientation[0];
-			long now = System.currentTimeMillis();
-			if (io != 0 && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE && (now - this.lastCompassChanged) > SensorUtils.COMPASS_UPDATE_THRESOLD
-					&& Math.abs(this.lastCompassInDegree - io) > SensorUtils.COMPASS_DEGREE_UPDATE_THRESOLD) {
-				// update closest bike stations compass
-				if (this.closestStations != null) {
-					this.lastCompassInDegree = io;
-					this.lastCompassChanged = now;
-					for (ABikeStation station : this.closestStations) {
-						station.getCompassMatrix().reset();
-						station.getCompassMatrix().postRotate(
-								SensorUtils.getCompassRotationInDegree(this, currentLocation, station.getLocation(), orientation, getLocationDeclination()),
-								getArrowDim().first / 2, getArrowDim().second / 2);
-					}
-					// update the view
-					notifyDataSetChanged(false);
-				}
-			}
+		if (currentLocation == null || orientation == 0 || this.closestStations == null) {
+			// MyLog.d(TAG, "updateCompass() > no location or no POI");
+			return;
 		}
+		final long now = System.currentTimeMillis();
+		SensorUtils.updateCompass(this, this.closestStations, force, currentLocation, orientation, now, this.scrollState, this.lastCompassChanged,
+				this.lastCompassInDegree, R.drawable.heading_arrow, new SensorUtils.SensorTaskCompleted() {
+
+					@Override
+					public void onSensorTaskCompleted(boolean result) {
+						if (result) {
+							BikeTab.this.lastCompassInDegree = (int) orientation;
+							BikeTab.this.lastCompassChanged = now;
+							// update the view
+							notifyDataSetChanged(false);
+						}
+					}
+				});
 	}
 
 	/**
@@ -361,25 +362,6 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 		}
 	}
 
-	private Pair<Integer, Integer> arrowDim;
-	private Float locationDeclination;
-
-	private float getLocationDeclination() {
-		if (this.locationDeclination == null && this.location != null) {
-			this.locationDeclination = new GeomagneticField((float) this.location.getLatitude(), (float) this.location.getLongitude(),
-					(float) this.location.getAltitude(), this.location.getTime()).getDeclination();
-		}
-		return this.locationDeclination;
-	}
-
-	public Pair<Integer, Integer> getArrowDim() {
-		if (this.arrowDim == null) {
-			this.arrowDim = SensorUtils.getResourceDimension(this, R.drawable.heading_arrow);
-		}
-		return this.arrowDim;
-	}
-
-	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
 	}
 
@@ -451,20 +433,17 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			return;
 		}
 		// ELSE IF there are closest stations AND new location DO
-		if (Utils.getCollectionSize(this.closestStations) > 0 && currentLocation != null) {
-			// update the list distances
-			boolean isDetailed = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
-					UserPreferences.PREFS_DISTANCE_DETAILED);
-			String distanceUnit = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
-			float accuracyInMeters = currentLocation.getAccuracy();
-			for (ABikeStation station : this.closestStations) {
-				// distance
-				station.setDistance(currentLocation.distanceTo(station.getLocation()));
-				station.setDistanceString(Utils.getDistanceString(station.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
-			}
-			String previousClosest = this.closestStationTerminalName;
-			generateOrderedStationsIds();
-			notifyDataSetChanged(this.closestStationTerminalName == null ? false : this.closestStationTerminalName.equals(previousClosest));
+		if (currentLocation != null) {
+			LocationUtils.updateDistance(BikeTab.this, BikeTab.this.closestStations, currentLocation, new LocationTaskCompleted() {
+
+				@Override
+				public void onLocationTaskCompleted() {
+					String previousClosest = BikeTab.this.closestStationTerminalName;
+					generateOrderedStationsIds();
+					notifyDataSetChanged(BikeTab.this.closestStationTerminalName == null ? false : BikeTab.this.closestStationTerminalName
+							.equals(previousClosest));
+				}
+			});
 		}
 	}
 
@@ -522,11 +501,21 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			// hide loading
 			findViewById(R.id.closest_bike_stations_list_loading).setVisibility(View.GONE); // hide
 			// show stations list
-			this.lastSuccessfulRefresh = UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, 0);
 			notifyDataSetChanged(true);
 			findViewById(R.id.closest_bike_stations_list).setVisibility(View.VISIBLE);
 			setClosestStationsNotLoading();
-			refreshDataIfTooOld();
+			new AsyncTask<Void, Void, Integer>() {
+				@Override
+				protected Integer doInBackground(Void... params) {
+					return UserPreferences.getPrefLcl(BikeTab.this, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, 0);
+				}
+
+				@Override
+				protected void onPostExecute(Integer result) {
+					BikeTab.this.lastSuccessfulRefresh = result;
+					refreshDataIfTooOld();
+				};
+			}.execute();
 		}
 	}
 
@@ -577,14 +566,32 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 		}
 	}
 
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		MyLog.v(TAG, "onConfigurationChanged()");
+		super.onConfigurationChanged(newConfig);
+		adaptToScreenSize(newConfig);
+	}
+
+	private void adaptToScreenSize(Configuration configuration) {
+		if (SupportFactory.get().isScreenHeightSmall(configuration)) {
+			// HIDE AD
+			if (findViewById(R.id.ad_layout) != null) {
+				findViewById(R.id.ad_layout).setVisibility(View.GONE); // not enough space on phone
+			}
+		} else {
+			// SHOW AD
+			AdsUtils.setupAd(this);
+		}
+	}
+
 	/**
 	 * set the closest station title
 	 */
 	public void showNewClosestBikeStationsTitle() {
 		if (this.closestBikeStationsLocationAddress != null && this.closestBikeStationsLocation != null) {
-			((TextView) findViewById(R.id.closest_bike_stations_title).findViewById(R.id.closest_bike_stations_title_text)).setText(LocationUtils
-					.getLocationString(this, R.string.closest_bike_stations, this.closestBikeStationsLocationAddress,
-							this.closestBikeStationsLocation.getAccuracy()));
+			((TextView) findViewById(R.id.closest_bike_stations_title).findViewById(R.id.closest_bike_stations_title_text))
+					.setText(this.closestBikeStationsLocationAddress);
 		}
 	}
 
@@ -716,7 +723,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 					holder.distanceTv.setVisibility(View.VISIBLE);
 				} else {
 					holder.distanceTv.setVisibility(View.INVISIBLE); // never hide once shown
-					holder.distanceTv.setText(null);
+					// holder.distanceTv.setText(null);
 				}
 				// compass
 				if (bikeStation.getCompassMatrixOrNull() != null) {
@@ -811,12 +818,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	public void showClosestBikeStations() {
 		MyLog.v(TAG, "showClosestBikeStations()");
 		// enable location updates
-		// IF location updates are not already enabled DO
-		if (!this.locationUpdatesEnabled) {
-			// enable
-			LocationUtils.enableLocationUpdates(this, this);
-			this.locationUpdatesEnabled = true;
-		}
+		this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled, this.paused);
 		// IF there is no closest bike stations DO
 		if (Utils.getCollectionSize(this.closestStations) == 0) {
 			// generate the closest bike stations list
@@ -859,15 +861,20 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 				// find the closest stations
 				this.closestBikeStationsLocation = locationUsed;
 				startClosestStationsTask(force);
-				new AsyncTask<Location, Void, Address>() {
+				new AsyncTask<Location, Void, String>() {
 
 					@Override
-					protected Address doInBackground(Location... locations) {
-						return LocationUtils.getLocationAddress(BikeTab.this, locations[0]);
+					protected String doInBackground(Location... locations) {
+						Address address = LocationUtils.getLocationAddress(BikeTab.this, locations[0]);
+						if (address == null || BikeTab.this.closestBikeStationsLocation == null) {
+							return null;
+						}
+						return LocationUtils.getLocationString(BikeTab.this, R.string.closest_bike_stations, address,
+								BikeTab.this.closestBikeStationsLocation.getAccuracy());
 					}
 
 					@Override
-					protected void onPostExecute(Address result) {
+					protected void onPostExecute(String result) {
 						boolean refreshRequired = BikeTab.this.closestBikeStationsLocationAddress == null;
 						BikeTab.this.closestBikeStationsLocationAddress = result;
 						if (refreshRequired) {
@@ -888,8 +895,8 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			this.lastForcedRefresh = Utils.currentTimeSec();
 		}
 		setClosestStationsLoading(null);
-		this.closestBikeStationsTask = new ClosestBikeStationsFinderTask(this, this, SupportFactory.getInstance(this).getNbClosestPOIDisplay(), force);
-		this.closestBikeStationsTask.execute(this.closestBikeStationsLocation);
+		this.closestBikeStationsTask = new ClosestBikeStationsFinderTask(this, this, SupportFactory.get().getNbClosestPOIDisplay(), force);
+		this.closestBikeStationsTask.execute(this.closestBikeStationsLocation.getLatitude(), this.closestBikeStationsLocation.getLongitude());
 	}
 
 	@Override
@@ -915,7 +922,13 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			} else { // ELSE
 				// get the result
 				this.closestStations = result.getPoiList();
+				// set location
+				updateDistancesWithNewLocation();
+				// set compass
+				updateCompass(this.lastCompassInDegree, true);
+				// find closest station
 				generateOrderedStationsIds();
+				// refresh favorites
 				refreshFavoriteTerminalNamesFromDB();
 				// shot the result
 				showNewClosestBikeStations();
@@ -976,10 +989,8 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 						BikeTab.this.setLocation(result);
 					}
 					// enable location updates if necessary
-					if (!BikeTab.this.locationUpdatesEnabled) {
-						LocationUtils.enableLocationUpdates(BikeTab.this, BikeTab.this);
-						BikeTab.this.locationUpdatesEnabled = true;
-					}
+					BikeTab.this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(BikeTab.this, BikeTab.this,
+							BikeTab.this.locationUpdatesEnabled, BikeTab.this.paused);
 				}
 
 			}.execute();

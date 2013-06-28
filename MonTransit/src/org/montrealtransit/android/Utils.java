@@ -828,7 +828,7 @@ public class Utils {
 		newFav.setFkId("6415"); // Wilson / Sherbrooke
 		newFav.setFkId2(null);
 		DataManager.addFav(context.getContentResolver(), newFav);
-		SupportFactory.getInstance(context).backupManagerDataChanged();
+		SupportFactory.get().backupManagerDataChanged(context);
 	}
 
 	/**

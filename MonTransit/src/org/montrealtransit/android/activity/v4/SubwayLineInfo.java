@@ -151,25 +151,27 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 			((ImageView) findViewById(R.id.subway_img)).setImageResource(SubwayUtils.getSubwayLineImgId(newLineNumber));
 			// show loading layout
 			showLoading();
-			new AsyncTask<Integer, Void, SubwayLine>() {
+			new AsyncTask<Integer, Void, Void>() {
 				@Override
-				protected SubwayLine doInBackground(Integer... params) {
+				protected Void doInBackground(Integer... params) {
 					if (SubwayLineInfo.this.subwayLine != null && SubwayLineInfo.this.subwayLine.getNumber() == params[0].intValue()) {
-						return SubwayLineInfo.this.subwayLine;
+						return null;
 					}
-					return StmManager.findSubwayLine(getContentResolver(), params[0]);
+					SubwayLineInfo.this.subwayLine = StmManager.findSubwayLine(getContentResolver(), params[0]);
+					if (newOrderPref == null) {
+						SubwayLineInfo.this.currentSubwayLineDirectionId = UserPreferences.getPrefDefault(SubwayLineInfo.this,
+								UserPreferences.getPrefsSubwayStationsOrder(SubwayLineInfo.this.subwayLine.getNumber()),
+								UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_DEFAULT);
+					} else {
+						UserPreferences.savePrefDefault(SubwayLineInfo.this,
+								UserPreferences.getPrefsSubwayStationsOrder(SubwayLineInfo.this.subwayLine.getNumber()), newOrderPref);
+						SubwayLineInfo.this.currentSubwayLineDirectionId = newOrderPref;
+					}
+					return null;
 				}
 
 				@Override
-				protected void onPostExecute(SubwayLine result) {
-					SubwayLineInfo.this.subwayLine = result;
-					if (newOrderPref == null) {
-						SubwayLineInfo.this.currentSubwayLineDirectionId = UserPreferences.getPrefDefault(SubwayLineInfo.this,
-								UserPreferences.getPrefsSubwayStationsOrder(result.getNumber()), UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_DEFAULT);
-					} else {
-						UserPreferences.savePrefDefault(SubwayLineInfo.this, UserPreferences.getPrefsSubwayStationsOrder(result.getNumber()), newOrderPref);
-						SubwayLineInfo.this.currentSubwayLineDirectionId = newOrderPref;
-					}
+				protected void onPostExecute(Void result) {
 					refreshAll();
 				};
 			}.execute(newLineNumber);
@@ -196,6 +198,7 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 	 * True if the activity has the focus, false otherwise.
 	 */
 	private boolean hasFocus = true;
+	private boolean paused = false;
 
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
@@ -210,6 +213,7 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
+		this.paused = false;
 		// IF the activity has the focus DO
 		if (this.hasFocus) {
 			onResumeWithFocus();
@@ -231,8 +235,7 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 				updateDistancesWithNewLocation();
 			}
 			// re-enable
-			LocationUtils.enableLocationUpdates(this, this);
-			this.locationUpdatesEnabled = true;
+			this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled, this.paused);
 		}
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		// resume fragments
@@ -250,8 +253,8 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 	@Override
 	protected void onPause() {
 		MyLog.v(TAG, "onPause()");
-		LocationUtils.disableLocationUpdates(this, this);
-		this.locationUpdatesEnabled = false;
+		this.paused = true;
+		this.locationUpdatesEnabled = LocationUtils.disableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled);
 		SensorUtils.unregisterSensorListener(this, this);
 		this.compassUpdatesEnabled = false;
 		super.onPause();
@@ -323,14 +326,14 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 	 * Update the compass image(s).
 	 * @param orientation the new orientation
 	 */
-	private void updateCompass(float[] orientation) {
+	private void updateCompass(float orientation) {
 		// MyLog.v(TAG, "onCompass()");
 		if (this.adapter != null && this.accelerometerValues != null && this.magneticFieldValues != null) {
 			for (int i = 0; i < this.adapter.getCount(); i++) {
 				Fragment f = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.viewpager + ":" + i);
 				if (f != null) {
 					SubwayLineDirectionFragment df = (SubwayLineDirectionFragment) f;
-					df.updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues));
+					df.updateCompass(orientation, false);
 				}
 			}
 		}
@@ -350,11 +353,7 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 			updateDistancesWithNewLocation();
 		}
 		// IF location updates are not already enabled DO
-		if (!this.locationUpdatesEnabled) {
-			// enable
-			LocationUtils.enableLocationUpdates(this, this);
-			this.locationUpdatesEnabled = true;
-		}
+		this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled, this.paused);
 	}
 
 	/**
@@ -415,9 +414,9 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 		((TextView) findViewById(R.id.line_name)).setText(SubwayUtils.getSubwayLineName(this.subwayLine.getNumber()));
 		((ImageView) findViewById(R.id.subway_img)).setImageResource(SubwayUtils.getSubwayLineImgId(this.subwayLine.getNumber()));
 		// subway line direction
-		new AsyncTask<String, Void, SubwayStation>() {
+		new AsyncTask<Void, Void, Void>() {
 			@Override
-			protected SubwayStation doInBackground(String... params) {
+			protected Void doInBackground(Void... params) {
 				for (int i = 0; i < subwayLineDirections.length; i++) {
 					subwayLineDirectionsStations[i] = StmManager.findSubwayLineLastSubwayStation(getContentResolver(),
 							SubwayLineInfo.this.subwayLine.getNumber(), getSortOrderFromOrderPref(subwayLineDirections[i]));
@@ -426,20 +425,11 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 			}
 
 			@Override
-			protected void onPostExecute(SubwayStation result) {
+			protected void onPostExecute(Void result) {
 				// refresh view pager title
 				((TitlePageIndicator) findViewById(R.id.indicator)).notifyDataSetChanged();
 			};
-		}.execute(getSortOrderFromOrderPref(this.subwayLine.getNumber()));
-	}
-
-	/**
-	 * @return the sort order from the order preference
-	 */
-	private String getSortOrderFromOrderPref(int subwayLineNumber) {
-		String prefsSubwayStationsOrder = UserPreferences.getPrefsSubwayStationsOrder(subwayLineNumber);
-		String sharedPreferences = UserPreferences.getPrefDefault(this, prefsSubwayStationsOrder, UserPreferences.PREFS_SUBWAY_STATIONS_ORDER_DEFAULT);
-		return getSortOrderFromOrderPref(sharedPreferences);
+		}.execute();
 	}
 
 	/**
@@ -489,10 +479,7 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 				this.setLocation(bestLastKnownLocationOrNull);
 			}
 			// enable location updates if necessary
-			if (!this.locationUpdatesEnabled) {
-				LocationUtils.enableLocationUpdates(this, this);
-				this.locationUpdatesEnabled = true;
-			}
+			this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled, this.paused);
 		}
 		return this.location;
 	}

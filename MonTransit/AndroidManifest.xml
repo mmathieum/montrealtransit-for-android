@@ -58,7 +58,7 @@
 		<activity android:name=".activity.BusTab" android:configChanges="orientation|keyboardHidden" />
 		<activity android:name=".activity.v4.BusTab" android:configChanges="orientation|keyboardHidden" />
 		<activity android:name=".activity.SubwayTab" android:configChanges="orientation|keyboardHidden" />
-		<activity android:name=".activity.BikeTab" />
+		<activity android:name=".activity.BikeTab" android:configChanges="orientation|keyboardHidden" />
 		<!-- BUS LINE INFO -->
 		<activity android:name=".activity.BusLineInfo" android:configChanges="orientation|keyboardHidden" />
 		<activity android:name=".activity.v4.BusLineInfo" android:configChanges="orientation|keyboardHidden" />

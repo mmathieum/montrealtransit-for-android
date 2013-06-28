@@ -1,17 +1,21 @@
 package org.montrealtransit.android.activity.v4;
 
 import org.montrealtransit.android.AnalyticsUtils;
+import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.activity.UserPreferences;
 
 import android.annotation.TargetApi;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 /**
@@ -85,14 +89,30 @@ public class BusTab extends FragmentActivity {
 		MyLog.v(TAG, "showAll()");
 		this.viewPager = (ViewPager) findViewById(R.id.viewpager);
 		this.viewPager.setAdapter(new BusTabFragmentAdapter(getSupportFragmentManager()));
-		this.viewPager.setCurrentItem(UserPreferences.getPrefLcl(BusTab.this, UserPreferences.PREFS_LCL_BUS_TAB, UserPreferences.PREFS_LCL_BUS_TAB_DEFAULT));
 		this.viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-			
+
 			@Override
 			public void onPageSelected(int position) {
 				UserPreferences.savePrefLcl(BusTab.this, UserPreferences.PREFS_LCL_BUS_TAB, position);
 			}
 		});
+		new AsyncTask<Void, Void, Integer>() {
+			@Override
+			protected Integer doInBackground(Void... params) {
+				try {
+					return UserPreferences.getPrefLcl(BusTab.this, UserPreferences.PREFS_LCL_BUS_TAB, UserPreferences.PREFS_LCL_BUS_TAB_DEFAULT);
+				} catch (Throwable t) {
+					MyLog.w(TAG, t, "Error while loading default bus tab!");
+					return 0;
+				}
+			}
+
+			@Override
+			protected void onPostExecute(Integer result) {
+				BusTab.this.viewPager.setCurrentItem(result);
+			};
+
+		}.execute();
 	}
 
 	/**
@@ -138,4 +158,13 @@ public class BusTab extends FragmentActivity {
 		}
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		return MenuUtils.inflateMenu(this, menu, R.menu.main_menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		return MenuUtils.handleCommonMenuActions(this, item);
+	}
 }

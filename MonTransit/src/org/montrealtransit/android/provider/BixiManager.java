@@ -11,7 +11,6 @@ import org.montrealtransit.android.provider.BixiStore.BikeStation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.location.Location;
 import android.net.Uri;
 
 /**
@@ -274,10 +273,9 @@ public class BixiManager {
 	 * @param location the location
 	 * @return all bike stations w/ location close to a location
 	 */
-	public static Cursor findAllBikeStationsLocation(ContentResolver contentResolver, Location location) {
+	public static Cursor findAllBikeStationsLocation(ContentResolver contentResolver, double lat, double lng) {
 		MyLog.v(TAG, "findAllBikeStationsLocation()");
-		return contentResolver.query(Uri.withAppendedPath(BixiStore.BikeStation.CONTENT_URI_LOC, location.getLatitude() + "+" + location.getLongitude()), null,
-				null, null, null);
+		return contentResolver.query(Uri.withAppendedPath(BixiStore.BikeStation.CONTENT_URI_LOC, lat + "+" + lng), null, null, null, null);
 	}
 
 	/**
@@ -285,12 +283,12 @@ public class BixiManager {
 	 * @param location the location
 	 * @return all bike stations w/ location list close to a location
 	 */
-	public static List<BikeStation> findAllBikeStationsLocationList(ContentResolver contentResolver, Location location) {
+	public static List<BikeStation> findAllBikeStationsLocationList(ContentResolver contentResolver, double lat, double lng) {
 		MyLog.v(TAG, "findAllBikeStationsLocationList()");
 		List<BikeStation> result = null;
 		Cursor cursor = null;
 		try {
-			cursor = findAllBikeStationsLocation(contentResolver, location);
+			cursor = findAllBikeStationsLocation(contentResolver, lat, lng);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					result = new ArrayList<BikeStation>();
