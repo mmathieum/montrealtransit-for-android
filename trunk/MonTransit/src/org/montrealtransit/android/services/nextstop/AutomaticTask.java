@@ -71,8 +71,9 @@ public class AutomaticTask extends AbstractNextStopProvider implements NextStopL
 	@Override
 	public void onNextStopsProgress(String progress) {
 		MyLog.v(TAG, "onNextStopsProgress(%s)", progress);
-		if (this.from != null) {
-			this.from.onNextStopsProgress(progress);
+		NextStopListener fromWR = this.from == null ? null : this.from.get();
+		if (fromWR != null) {
+			fromWR.onNextStopsProgress(progress);
 		}
 	}
 
@@ -86,8 +87,11 @@ public class AutomaticTask extends AbstractNextStopProvider implements NextStopL
 			stopAllTasks();
 		}
 		// IF valid result or the last result DO
-		if (containResult || countRunningTask() <= 1 && this.from != null) {
-			this.from.onNextStopsLoaded(results);
+		if (containResult || countRunningTask() <= 1) {
+			NextStopListener fromWR = this.from == null ? null : this.from.get();
+			if (fromWR != null) {
+				fromWR.onNextStopsLoaded(results);
+			}
 		}
 	}
 

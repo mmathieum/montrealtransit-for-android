@@ -1,5 +1,6 @@
 package org.montrealtransit.android.services;
 
+import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.URL;
@@ -59,7 +60,7 @@ public class StmInfoStatusApiReader extends AsyncTask<String, String, String> {
 	/**
 	 * The class that will handle the answer.
 	 */
-	private StmInfoStatusReaderListener from;
+	private WeakReference<StmInfoStatusReaderListener> from;
 
 	/**
 	 * The default constructor.
@@ -67,7 +68,7 @@ public class StmInfoStatusApiReader extends AsyncTask<String, String, String> {
 	 * @param context context executing the task
 	 */
 	public StmInfoStatusApiReader(StmInfoStatusReaderListener from, Context context) {
-		this.from = from;
+		this.from = new WeakReference<StmInfoStatusReaderListener>(from);
 		this.context = context;
 	}
 
@@ -129,10 +130,23 @@ public class StmInfoStatusApiReader extends AsyncTask<String, String, String> {
 	@Override
 	protected void onPostExecute(String errorMessage) {
 		MyLog.v(TAG, "onPostExecute(%s)", errorMessage);
-		if (this.from != null) {
-			this.from.onStmInfoStatusesLoaded(errorMessage);
+		StmInfoStatusReaderListener fromWR = this.from == null ? null : this.from.get();
+		if (fromWR != null) {
+			fromWR.onStmInfoStatusesLoaded(errorMessage);
 		}
 		super.onPostExecute(errorMessage);
+	}
+
+	@Override
+	protected void onProgressUpdate(String... values) {
+		MyLog.v(TAG, "onProgressUpdate()");
+		if (values.length <= 0) {
+			return;
+		}
+		StmInfoStatusReaderListener fromWR = this.from == null ? null : this.from.get();
+		if (fromWR != null) {
+			fromWR.onStmInfoStatusesLoaded(values[0]);
+		}
 	}
 
 	private static final String STATUS_GREEN_FR = "Service normal";
