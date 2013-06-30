@@ -53,6 +53,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.AbsListView.OnScrollListener;
 
 public class BikeStationInfo extends Activity implements BixiDataReaderListener, ClosestBikeStationsFinderListener, LocationListener, SensorEventListener,
 		CompassListener {
@@ -270,39 +271,24 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	 */
 	private void updateCompass(final float orientation, boolean force) {
 		// MyLog.v(TAG, "updateCompass(%s)", orientation);
-		Location currentLocation = getLocation();
-		if (currentLocation == null || orientation == 0) {
-			return;
-		}
-		// int io = (int) orientation[0];
 		final long now = System.currentTimeMillis();
-		if (this.bikeStation != null) {
-			SensorUtils.updateCompass(this, this.bikeStation, force, currentLocation, orientation, now, -1, this.lastCompassChanged, this.lastCompassInDegree,
-					R.drawable.heading_arrow_light, new SensorUtils.SensorTaskCompleted() {
+		SensorUtils.updateCompass(force, getLocation(), orientation, now, OnScrollListener.SCROLL_STATE_IDLE, this.lastCompassChanged,
+				this.lastCompassInDegree, new SensorUtils.SensorTaskCompleted() {
 
-						@Override
-						public void onSensorTaskCompleted(boolean result) {
-							if (result) {
+					@Override
+					public void onSensorTaskCompleted(boolean result) {
+						if (result) {
+							if (BikeStationInfo.this.bikeStation != null && BikeStationInfo.this.closestBikeStations != null) {
 								BikeStationInfo.this.lastCompassInDegree = (int) orientation;
 								BikeStationInfo.this.lastCompassChanged = now;
-								// update the view
+							}
+							if (BikeStationInfo.this.bikeStation != null) {
 								ImageView compassImg = (ImageView) findViewById(R.id.compass);
-								compassImg.setImageMatrix(BikeStationInfo.this.bikeStation.getCompassMatrix());
+								float compassRotation = SensorUtils.getCompassRotationInDegree(location, bikeStation, lastCompassInDegree, locationDeclination);
+								SupportFactory.get().rotateImageView(compassImg, compassRotation, BikeStationInfo.this);
 								compassImg.setVisibility(View.VISIBLE);
 							}
-						}
-					});
-		}
-		if (this.closestBikeStations != null) {
-			SensorUtils.updateCompass(this, this.closestBikeStations, force, currentLocation, orientation, now, -1, this.lastCompassChanged,
-					this.lastCompassInDegree, R.drawable.heading_arrow, new SensorUtils.SensorTaskCompleted() {
-
-						@Override
-						public void onSensorTaskCompleted(boolean result) {
-							if (result && BikeStationInfo.this.closestBikeStations != null) {
-								BikeStationInfo.this.lastCompassInDegree = (int) orientation;
-								BikeStationInfo.this.lastCompassChanged = now;
-								// update the view
+							if (BikeStationInfo.this.closestBikeStations != null) {
 								final View closestStations = findViewById(R.id.closest_stations);
 								for (ABikeStation station : BikeStationInfo.this.closestBikeStations) {
 									if (station == null) {
@@ -313,19 +299,23 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 										continue;
 									}
 									ImageView compassImg = (ImageView) stationView.findViewById(R.id.compass);
-									compassImg.setImageMatrix(station.getCompassMatrix());
+									float compassRotation = SensorUtils.getCompassRotationInDegree(BikeStationInfo.this.location, station,
+											BikeStationInfo.this.lastCompassInDegree, BikeStationInfo.this.locationDeclination);
+									SupportFactory.get().rotateImageView(compassImg, compassRotation, BikeStationInfo.this);
 									compassImg.setVisibility(View.VISIBLE);
 								}
 							}
 						}
-					});
-		}
+					}
+				});
 	}
 
 	/**
 	 * The time-stamp of the last data refresh from www.
 	 */
 	private int lastSuccessfulRefresh = 0;
+
+	private float locationDeclination;
 
 	/**
 	 * Update the distance with the latest device location.
@@ -408,6 +398,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			// MyLog.d(TAG, "new location: '%s'.", LocationUtils.locationToString(newLocation));
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
+				this.locationDeclination = SensorUtils.getLocationDeclination(this.location);
 				if (!this.compassUpdatesEnabled) {
 					SensorUtils.registerCompassListener(this, this);
 					this.compassUpdatesEnabled = true;
@@ -531,6 +522,12 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			}
 			final int lastUpdate = this.lastSuccessfulRefresh != 0 ? this.lastSuccessfulRefresh : station.getLatestUpdateTime();
 			setBikeStationStatus(station, stationView, lastUpdate);
+			if (location != null && lastCompassInDegree != 0) {
+				ImageView compassImg = (ImageView) stationView.findViewById(R.id.compass);
+				float compassRotation = SensorUtils.getCompassRotationInDegree(location, bikeStation, lastCompassInDegree, locationDeclination);
+				SupportFactory.get().rotateImageView(compassImg, compassRotation, this);
+				compassImg.setVisibility(View.VISIBLE);
+			}
 		}
 	}
 

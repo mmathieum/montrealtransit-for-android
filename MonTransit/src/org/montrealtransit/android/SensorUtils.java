@@ -1,7 +1,5 @@
 package org.montrealtransit.android;
 
-import java.util.List;
-
 import org.montrealtransit.android.LocationUtils.POI;
 import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.Pair;
@@ -17,7 +15,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.util.DisplayMetrics;
 import android.util.FloatMath;
 import android.view.Surface;
@@ -37,7 +34,7 @@ public final class SensorUtils {
 	/**
 	 * The shake threshold acceleration.
 	 */
-	public static final float SHAKE_THRESHOLD_ACCELERATION = 15.00f;
+	public static final float SHAKE_THRESHOLD_ACCELERATION = 17.00f;
 
 	/**
 	 * The shake threshold minimum duration between 2 checks (in milliseconds).
@@ -198,9 +195,11 @@ public final class SensorUtils {
 	 */
 	public static float getCompassRotationInDegree(double startLatitude, double startLongitude, double endLatitude, double endLongitude, float orientation,
 			float declination) {
-		float bearTo = LocationUtils.bearTo(startLatitude, startLongitude, endLatitude, endLongitude);
-		float rotationDegrees = bearTo - (orientation + declination);
-		return rotationDegrees;
+		return LocationUtils.bearTo(startLatitude, startLongitude, endLatitude, endLongitude) - (orientation + declination);
+	}
+
+	public static float getCompassRotationInDegree(Location start, POI poi, float orientation, float declination) {
+		return getCompassRotationInDegree(start.getLatitude(), start.getLongitude(), poi.getLat(), poi.getLng(), orientation, declination);
 	}
 
 	/**
@@ -338,130 +337,207 @@ public final class SensorUtils {
 		}
 	}
 
-	public static void updateCompass(final Activity activity, final POI poi, final boolean force, final Location currentLocation, final float orientation,
-			final long now, final int scrollState, final long lastCompassChanged, final int lastCompassInDegree, final int headingArrowResId,
-			final SensorTaskCompleted callback) {
-		if (currentLocation == null || poi == null || orientation == 0) {
-			MyLog.d(TAG, "updateCompass() > no location (%s) or no POI (%s) or no orientation (%s)", (currentLocation == null), (poi == null), orientation);
+	// public static void updateCompass(final boolean force, final Location currentLocation, final float orientation, final long now, final int scrollState,
+	// final long lastCompassChanged, final int lastCompassInDegree, final SensorTaskCompleted callback) {
+	// if (currentLocation == null /* || poi == null */|| orientation == 0) {
+	// // MyLog.d(TAG, "updateCompass() > no location (%s) or no POI (%s) or no orientation (%s)", (currentLocation == null), (poi == null), orientation);
+	// callback.onSensorTaskCompleted(false);
+	// return;
+	// }
+	// if (!force) {
+	// // if (io == 0) {
+	// // // MyLog.d(TAG, "updateCompass() > no orientation");
+	// // callback.onSensorTaskCompleted(false);
+	// // return;
+	// // }
+	// if (scrollState != OnScrollListener.SCROLL_STATE_IDLE) {
+	// // MyLog.d(TAG, "updateCompass() > scrolling");
+	// callback.onSensorTaskCompleted(false);
+	// return;
+	// }
+	// final boolean tooSoon = (now - lastCompassChanged) <= COMPASS_UPDATE_THRESOLD;
+	// if (tooSoon) {
+	// // MyLog.d(TAG, "updateCompass() > too soon");
+	// callback.onSensorTaskCompleted(false);
+	// return;
+	// }
+	// final boolean notDifferentEnough = Math.abs(lastCompassInDegree - orientation) <= COMPASS_DEGREE_UPDATE_THRESOLD;
+	// if (notDifferentEnough) {
+	// // MyLog.d(TAG, "updateCompass() > not different enough");
+	// callback.onSensorTaskCompleted(false);
+	// return;
+	// }
+	// }
+	// callback.onSensorTaskCompleted(true);
+	// // new AsyncTask<Void, Void, Boolean>() {
+	// //
+	// // @Override
+	// // protected Boolean doInBackground(Void... params) {
+	// // return updateCompass(activity, poi, force, currentLocation, orientation, now, scrollState, lastCompassChanged, lastCompassInDegree,
+	// // headingArrowResId);
+	// // }
+	// //
+	// // @Override
+	// // protected void onPostExecute(Boolean result) {
+	// // callback.onSensorTaskCompleted(result);
+	// // }
+	// // }.execute();
+	// }
+
+	public static void updateCompass(final boolean force, final Location currentLocation, final float orientation, final long now, final int scrollState,
+			final long lastCompassChanged, final int lastCompassInDegree, final SensorTaskCompleted callback) {
+		if (currentLocation == null /* || pois == null */|| orientation == 0) {
+			// MyLog.d(TAG, "updateCompass() > no location (%s) or no POI (%s) or no orientation (%s)", (currentLocation == null), (pois == null), orientation);
 			callback.onSensorTaskCompleted(false);
 			return;
 		}
-		new AsyncTask<Void, Void, Boolean>() {
-
-			@Override
-			protected Boolean doInBackground(Void... params) {
-				return updateCompass(activity, poi, force, currentLocation, orientation, now, scrollState, lastCompassChanged, lastCompassInDegree,
-						headingArrowResId);
-			}
-
-			@Override
-			protected void onPostExecute(Boolean result) {
-				callback.onSensorTaskCompleted(result);
-			}
-		}.execute();
-	}
-
-	public static void updateCompass(final Activity activity, final List<? extends POI> pois, final boolean force, final Location currentLocation,
-			final float orientation, final long now, final int scrollState, final long lastCompassChanged, final int lastCompassInDegree,
-			final int headingArrowResId, final SensorTaskCompleted callback) {
-		if (currentLocation == null || pois == null || orientation == 0) {
-			MyLog.d(TAG, "updateCompass() > no location (%s) or no POI (%s) or no orientation (%s)", (currentLocation == null), (pois == null), orientation);
-			callback.onSensorTaskCompleted(false);
-			return;
-		}
-		new AsyncTask<Void, Void, Boolean>() {
-
-			@Override
-			protected Boolean doInBackground(Void... params) {
-				return updateCompass(activity, pois, force, currentLocation, orientation, now, scrollState, lastCompassChanged, lastCompassInDegree,
-						headingArrowResId);
-			}
-
-			@Override
-			protected void onPostExecute(Boolean result) {
-				callback.onSensorTaskCompleted(result);
-			}
-		}.execute();
-	}
-
-	public static boolean updateCompass(Activity activity, List<? extends POI> pois, boolean force, Location currentLocation, float orientation, long now,
-			int scrollState, long lastCompassChanged, int lastCompassInDegree, int headingArrowResId) {
-		if (currentLocation == null || pois == null || orientation == 0) {
-			// MyLog.d(TAG, "updateCompass() > no location (%s) or no POI (%s) or no orientation (%s)", (currentLocation== null), (pois == null), orientation);
-			return false;
-		}
-		int io = (int) orientation;
 		if (!force) {
 			// if (io == 0) {
 			// // MyLog.d(TAG, "updateCompass() > no orientation");
-			// return false;
+			// callback.onSensorTaskCompleted(false);
+			// return;
 			// }
 			if (scrollState != OnScrollListener.SCROLL_STATE_IDLE) {
 				// MyLog.d(TAG, "updateCompass() > scrolling");
+				callback.onSensorTaskCompleted(false);
+				return;
 			}
 			final boolean tooSoon = (now - lastCompassChanged) <= COMPASS_UPDATE_THRESOLD;
 			if (tooSoon) {
 				// MyLog.d(TAG, "updateCompass() > too soon");
-				return false;
+				callback.onSensorTaskCompleted(false);
+				return;
 			}
-			final boolean notDifferentEnough = Math.abs(lastCompassInDegree - io) <= COMPASS_DEGREE_UPDATE_THRESOLD;
+			final boolean notDifferentEnough = Math.abs(lastCompassInDegree - orientation) <= COMPASS_DEGREE_UPDATE_THRESOLD;
 			if (notDifferentEnough) {
 				// MyLog.d(TAG, "updateCompass() > not different enough");
-				return false;
+				callback.onSensorTaskCompleted(false);
+				return;
 			}
 		}
-		float locationDeclination = new GeomagneticField((float) currentLocation.getLatitude(), (float) currentLocation.getLongitude(),
-				(float) currentLocation.getAltitude(), currentLocation.getTime()).getDeclination();
-		Pair<Integer, Integer> arrowDim = SensorUtils.getResourceDimension(activity, headingArrowResId);
-		// update closest bike stations compass
-		for (POI poi : pois) {
-			poi.getCompassMatrix().reset();
-			poi.getCompassMatrix().postRotate(
-					getCompassRotationInDegree(currentLocation.getLatitude(), currentLocation.getLongitude(), poi.getLat(), poi.getLng(), orientation,
-							locationDeclination), arrowDim.first / 2, arrowDim.second / 2);
-		}
-		return true;
+		callback.onSensorTaskCompleted(true);
+		// new AsyncTask<Void, Void, Boolean>() {
+		//
+		// @Override
+		// protected Boolean doInBackground(Void... params) {
+		// return updateCompass(activity, pois, force, currentLocation, orientation, now, scrollState, lastCompassChanged, lastCompassInDegree,
+		// headingArrowResId);
+		// }
+		//
+		// @Override
+		// protected void onPostExecute(Boolean result) {
+		// callback.onSensorTaskCompleted(result);
+		// }
+		// }.execute();
 	}
 
-	public static boolean updateCompass(Activity activity, POI poi, boolean force, Location currentLocation, float orientation, long now, int scrollState,
-			long lastCompassChanged, int lastCompassInDegree, int headingArrowResId) {
-		if (currentLocation == null || poi == null || orientation == 0) {
-			// MyLog.d(TAG, "updateCompass() > no location (%s) or no POI (%s) or no orientation (%s)", (currentLocation== null), (pois == null), orientation);
-			return false;
-		}
-		int io = (int) orientation;
-		if (!force) {
-			// if (io == 0) {
-			// // MyLog.d(TAG, "updateCompass() > no orientation");
-			// return false;
-			// }
-			if (scrollState != OnScrollListener.SCROLL_STATE_IDLE) {
-				// MyLog.d(TAG, "updateCompass() > scrolling");
-			}
-			final boolean tooSoon = (now - lastCompassChanged) <= COMPASS_UPDATE_THRESOLD;
-			if (tooSoon) {
-				// MyLog.d(TAG, "updateCompass() > too soon");
-				return false;
-			}
-			final boolean notDifferentEnough = Math.abs(lastCompassInDegree - io) <= COMPASS_DEGREE_UPDATE_THRESOLD;
-			if (notDifferentEnough) {
-				// MyLog.d(TAG, "updateCompass() > not different enough");
-				return false;
-			}
-		}
-		float locationDeclination = new GeomagneticField((float) currentLocation.getLatitude(), (float) currentLocation.getLongitude(),
-				(float) currentLocation.getAltitude(), currentLocation.getTime()).getDeclination();
-		Pair<Integer, Integer> arrowDim = SensorUtils.getResourceDimension(activity, headingArrowResId /* R.drawable.heading_arrow */);
-		// update closest bike stations compass
-		poi.getCompassMatrix().reset();
-		poi.getCompassMatrix().postRotate(
-				getCompassRotationInDegree(currentLocation.getLatitude(), currentLocation.getLongitude(), poi.getLat(), poi.getLng(), orientation,
-						locationDeclination), arrowDim.first / 2, arrowDim.second / 2);
-		return true;
-	}
+	// public static boolean updateCompass(Activity activity, List<? extends POI> pois, boolean force, Location currentLocation, float orientation, long now,
+	// int scrollState, long lastCompassChanged, int lastCompassInDegree, int headingArrowResId) {
+	// if (currentLocation == null || pois == null || orientation == 0) {
+	// // MyLog.d(TAG, "updateCompass() > no location (%s) or no POI (%s) or no orientation (%s)", (currentLocation== null), (pois == null), orientation);
+	// return false;
+	// }
+	// int io = (int) orientation;
+	// if (!force) {
+	// // if (io == 0) {
+	// // // MyLog.d(TAG, "updateCompass() > no orientation");
+	// // return false;
+	// // }
+	// if (scrollState != OnScrollListener.SCROLL_STATE_IDLE) {
+	// // MyLog.d(TAG, "updateCompass() > scrolling");
+	// }
+	// final boolean tooSoon = (now - lastCompassChanged) <= COMPASS_UPDATE_THRESOLD;
+	// if (tooSoon) {
+	// // MyLog.d(TAG, "updateCompass() > too soon");
+	// return false;
+	// }
+	// final boolean notDifferentEnough = Math.abs(lastCompassInDegree - io) <= COMPASS_DEGREE_UPDATE_THRESOLD;
+	// if (notDifferentEnough) {
+	// // MyLog.d(TAG, "updateCompass() > not different enough");
+	// return false;
+	// }
+	// }
+	// float locationDeclination = new GeomagneticField((float) currentLocation.getLatitude(), (float) currentLocation.getLongitude(),
+	// (float) currentLocation.getAltitude(), currentLocation.getTime()).getDeclination();
+	// Pair<Integer, Integer> arrowDim = SensorUtils.getResourceDimension(activity, headingArrowResId);
+	// // update closest bike stations compass
+	// for (POI poi : pois) {
+	// poi.getCompassMatrix().reset();
+	// final float compassRotationInDegree = getCompassRotationInDegree(currentLocation.getLatitude(), currentLocation.getLongitude(), poi.getLat(),
+	// poi.getLng(), orientation, locationDeclination);
+	// poi.getCompassMatrix().postRotate(compassRotationInDegree, arrowDim.first / 2, arrowDim.second / 2);
+	// }
+	// return true;
+	// }
+
+	// public static boolean updateCompass(Activity activity, POI poi, boolean force, Location currentLocation, float orientation, long now, int scrollState,
+	// long lastCompassChanged, int lastCompassInDegree, int headingArrowResId) {
+	// if (currentLocation == null || poi == null || orientation == 0) {
+	// // MyLog.d(TAG, "updateCompass() > no location (%s) or no POI (%s) or no orientation (%s)", (currentLocation== null), (pois == null), orientation);
+	// return false;
+	// }
+	// int io = (int) orientation;
+	// if (!force) {
+	// // if (io == 0) {
+	// // // MyLog.d(TAG, "updateCompass() > no orientation");
+	// // return false;
+	// // }
+	// if (scrollState != OnScrollListener.SCROLL_STATE_IDLE) {
+	// // MyLog.d(TAG, "updateCompass() > scrolling");
+	// }
+	// final boolean tooSoon = (now - lastCompassChanged) <= COMPASS_UPDATE_THRESOLD;
+	// if (tooSoon) {
+	// // MyLog.d(TAG, "updateCompass() > too soon");
+	// return false;
+	// }
+	// final boolean notDifferentEnough = Math.abs(lastCompassInDegree - io) <= COMPASS_DEGREE_UPDATE_THRESOLD;
+	// if (notDifferentEnough) {
+	// // MyLog.d(TAG, "updateCompass() > not different enough");
+	// return false;
+	// }
+	// }
+	// float locationDeclination = new GeomagneticField((float) currentLocation.getLatitude(), (float) currentLocation.getLongitude(),
+	// (float) currentLocation.getAltitude(), currentLocation.getTime()).getDeclination();
+	// Pair<Integer, Integer> arrowDim = SensorUtils.getResourceDimension(activity, headingArrowResId /* R.drawable.heading_arrow */);
+	// // update closest bike stations compass
+	// poi.getCompassMatrix().reset();
+	// poi.getCompassMatrix().postRotate(
+	// getCompassRotationInDegree(currentLocation.getLatitude(), currentLocation.getLongitude(), poi.getLat(), poi.getLng(), orientation,
+	// locationDeclination), arrowDim.first / 2, arrowDim.second / 2);
+	// return true;
+	// }
 
 	public interface SensorTaskCompleted {
 		void onSensorTaskCompleted(boolean result);
+	}
+
+	private static int rotationPx = -1;
+	private static int rotationPy = -1;
+
+	public static int getRotationPx(Activity activity) {
+		if (rotationPx < 0) {
+			initRotation(activity);
+		}
+		return rotationPx;
+	}
+
+	public static int getRotationPy(Activity activity) {
+		if (rotationPy < 0) {
+			initRotation(activity);
+		}
+		return rotationPy;
+	}
+
+	private static void initRotation(Activity activity) {
+		MyLog.v(TAG, "initRotation()");
+		Pair<Integer, Integer> arrowDim = getResourceDimension(activity, R.drawable.heading_arrow);
+		rotationPx = arrowDim.first / 2;
+		rotationPy = arrowDim.second / 2;
+	}
+
+	public static float getLocationDeclination(Location location) {
+		return new GeomagneticField((float) location.getLatitude(), (float) location.getLongitude(), (float) location.getAltitude(), location.getTime())
+				.getDeclination();
 	}
 
 }

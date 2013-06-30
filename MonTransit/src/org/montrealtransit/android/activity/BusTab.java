@@ -276,14 +276,13 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 	 */
 	private void updateCompass(final float orientation, boolean force) {
 		// MyLog.v(TAG, "updateCompass(%s)", orientation);
-		Location currentLocation = getLocation();
-		if (currentLocation == null || orientation == 0 || this.closestStops == null) {
+		if (this.closestStops == null) {
 			// MyLog.d(TAG, "updateCompass() > no location or no POI");
 			return;
 		}
 		final long now = System.currentTimeMillis();
-		SensorUtils.updateCompass(this, this.closestStops, force, currentLocation, orientation, now, this.scrollState, this.lastCompassChanged,
-				this.lastCompassInDegree, R.drawable.heading_arrow, new SensorUtils.SensorTaskCompleted() {
+		SensorUtils.updateCompass(force, getLocation(), orientation, now, this.scrollState, this.lastCompassChanged, this.lastCompassInDegree,
+				new SensorUtils.SensorTaskCompleted() {
 
 					@Override
 					public void onSensorTaskCompleted(boolean result) {
@@ -542,18 +541,19 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 					holder.distanceTv.setVisibility(View.INVISIBLE);
 					holder.distanceTv.setText(null);
 				}
-				// compass
-				if (stop.getCompassMatrixOrNull() != null) {
-					holder.compassImg.setImageMatrix(stop.getCompassMatrix());
-					holder.compassImg.setVisibility(View.VISIBLE);
-				} else {
-					holder.compassImg.setVisibility(View.INVISIBLE);
-				}
 				// favorite
 				if (BusTab.this.favUIDs != null && BusTab.this.favUIDs.contains(stop.getUID())) {
 					holder.favImg.setVisibility(View.VISIBLE);
 				} else {
 					holder.favImg.setVisibility(View.GONE);
+				}
+				// compass
+				if (location != null && lastCompassInDegree != 0) {
+					float compassRotation = SensorUtils.getCompassRotationInDegree(location, stop, lastCompassInDegree, locationDeclination);
+					SupportFactory.get().rotateImageView(holder.compassImg, compassRotation, BusTab.this);
+					holder.compassImg.setVisibility(View.VISIBLE);
+				} else {
+					holder.compassImg.setVisibility(View.INVISIBLE);
 				}
 				// // closest bike station
 				// int index = -1;
@@ -656,6 +656,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 	 * The list scroll state.
 	 */
 	private int scrollState = OnScrollListener.SCROLL_STATE_IDLE;
+	private float locationDeclination;
 
 	@Override
 	public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
@@ -769,6 +770,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 			// MyLog.d(TAG, "new location: %s.", LocationUtils.locationToString(newLocation));
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
+				this.locationDeclination = SensorUtils.getLocationDeclination(this.location);
 				if (!this.compassUpdatesEnabled) {
 					SensorUtils.registerShakeAndCompassListener(this, this);
 					this.compassUpdatesEnabled = true;

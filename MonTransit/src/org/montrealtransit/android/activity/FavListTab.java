@@ -52,6 +52,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.AbsListView.OnScrollListener;
 
 /**
  * This activity list the favorite bus stops.
@@ -228,21 +229,20 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 	 */
 	private void updateCompass(final float orientation, boolean force) {
 		// MyLog.v(TAG, "updateCompass(%s)", orientation);
-		Location currentLocation = getLocation();
-		if (currentLocation == null || orientation == 0) {
-			return;
-		}
 		final long now = System.currentTimeMillis();
-		if (this.busStops != null) {
-			SensorUtils.updateCompass(this, this.busStops, force, currentLocation, orientation, now, -1, this.lastCompassChanged, this.lastCompassInDegree,
-					R.drawable.heading_arrow, new SensorUtils.SensorTaskCompleted() {
+		// if (this.busStops != null) {
+		SensorUtils.updateCompass(force, getLocation(), orientation, now, OnScrollListener.SCROLL_STATE_IDLE, this.lastCompassChanged,
+				this.lastCompassInDegree, new SensorUtils.SensorTaskCompleted() {
 
-						@Override
-						public void onSensorTaskCompleted(boolean result) {
-							if (result) {
+					@Override
+					public void onSensorTaskCompleted(boolean result) {
+						if (result) {
+							if (FavListTab.this.busStops != null && FavListTab.this.subwayStations != null && FavListTab.this.bikeStations != null) {
 								FavListTab.this.lastCompassInDegree = (int) orientation;
 								FavListTab.this.lastCompassChanged = now;
-								// update the view
+							}
+							// update bus stops compass
+							if (FavListTab.this.busStops != null) {
 								View busStopsLayout = findViewById(R.id.bus_stops_list);
 								for (ABusStop busStop : FavListTab.this.busStops) {
 									if (busStop == null) {
@@ -253,24 +253,13 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 										continue;
 									}
 									ImageView compassImg = (ImageView) stopView.findViewById(R.id.compass);
-									compassImg.setImageMatrix(busStop.getCompassMatrix());
+									float compassRotation = SensorUtils.getCompassRotationInDegree(location, busStop, lastCompassInDegree, locationDeclination);
+									SupportFactory.get().rotateImageView(compassImg, compassRotation, FavListTab.this);
 									compassImg.setVisibility(View.VISIBLE);
 								}
 							}
-						}
-					});
-		}
-		// update subway station compass
-		if (this.subwayStations != null) {
-			SensorUtils.updateCompass(this, this.subwayStations, force, currentLocation, orientation, now, -1, this.lastCompassChanged,
-					this.lastCompassInDegree, R.drawable.heading_arrow, new SensorUtils.SensorTaskCompleted() {
-
-						@Override
-						public void onSensorTaskCompleted(boolean result) {
-							if (result) {
-								FavListTab.this.lastCompassInDegree = (int) orientation;
-								FavListTab.this.lastCompassChanged = now;
-								// update the view
+							// update subway stations compass
+							if (FavListTab.this.subwayStations != null) {
 								View subwayStationsLayout = findViewById(R.id.subway_stations_list);
 								for (ASubwayStation subwayStation : FavListTab.this.subwayStations) {
 									if (subwayStation == null) {
@@ -281,24 +270,14 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 										continue;
 									}
 									ImageView compassImg = (ImageView) stationView.findViewById(R.id.compass);
-									compassImg.setImageMatrix(subwayStation.getCompassMatrix());
+									float compassRotation = SensorUtils.getCompassRotationInDegree(location, subwayStation, lastCompassInDegree,
+											locationDeclination);
+									SupportFactory.get().rotateImageView(compassImg, compassRotation, FavListTab.this);
 									compassImg.setVisibility(View.VISIBLE);
 								}
 							}
-						}
-					});
-		}
-		// update bike stations compass
-		if (this.bikeStations != null) {
-			SensorUtils.updateCompass(this, this.bikeStations, force, currentLocation, orientation, now, -1, this.lastCompassChanged, this.lastCompassInDegree,
-					R.drawable.heading_arrow, new SensorUtils.SensorTaskCompleted() {
-
-						@Override
-						public void onSensorTaskCompleted(boolean result) {
-							if (result) {
-								FavListTab.this.lastCompassInDegree = (int) orientation;
-								FavListTab.this.lastCompassChanged = now;
-								// update the view
+							// update bike stations compass
+							if (FavListTab.this.bikeStations != null) {
 								View bikeStationsLayout = findViewById(R.id.bike_stations_list);
 								for (ABikeStation bikeStation : FavListTab.this.bikeStations) {
 									if (bikeStation == null) {
@@ -309,16 +288,19 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 										continue;
 									}
 									ImageView compassImg = (ImageView) stationView.findViewById(R.id.compass);
-									compassImg.setImageMatrix(bikeStation.getCompassMatrix());
+									float compassRotation = SensorUtils.getCompassRotationInDegree(location, bikeStation, lastCompassInDegree,
+											locationDeclination);
+									SupportFactory.get().rotateImageView(compassImg, compassRotation, FavListTab.this);
 									compassImg.setVisibility(View.VISIBLE);
 								}
 							}
 						}
-					});
-		}
+					}
+				});
 	}
 
 	private boolean paused = false;
+	private float locationDeclination;
 
 	@Override
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -903,6 +885,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 			// MyLog.d(TAG, "new location: %s.", LocationUtils.locationToString(newLocation));
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
+				this.locationDeclination = SensorUtils.getLocationDeclination(this.location);
 				if (!this.compassUpdatesEnabled) {
 					SensorUtils.registerCompassListener(this, this);
 					this.compassUpdatesEnabled = true;

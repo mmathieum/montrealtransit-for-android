@@ -161,6 +161,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 	 */
 	private boolean hasFocus = true;
 	private boolean paused = false;
+	private float locationDeclination;
 
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
@@ -437,6 +438,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 		if (newLocation != null) {
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
+				this.locationDeclination = SensorUtils.getLocationDeclination(this.location);
 				if (!this.compassUpdatesEnabled) {
 					SensorUtils.registerShakeAndCompassListener(this, this);
 					this.compassUpdatesEnabled = true;
@@ -444,6 +446,10 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 				}
 			}
 		}
+	}
+
+	public float getLocationDeclination() {
+		return locationDeclination;
 	}
 
 	/**

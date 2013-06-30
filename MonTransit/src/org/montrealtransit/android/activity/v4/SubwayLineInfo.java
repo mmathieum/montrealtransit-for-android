@@ -467,6 +467,7 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 	 * Store the device location.
 	 */
 	private Location location;
+	private float locationDeclination;
 
 	/**
 	 * Initialize the location updates if necessary.
@@ -491,6 +492,7 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 		if (newLocation != null) {
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
+				this.locationDeclination = SensorUtils.getLocationDeclination(this.location);
 				if (!this.compassUpdatesEnabled) {
 					SensorUtils.registerShakeAndCompassListener(this, this);
 					this.compassUpdatesEnabled = true;
@@ -498,6 +500,10 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 				}
 			}
 		}
+	}
+
+	public float getLocationDeclination() {
+		return locationDeclination;
 	}
 
 	@Override

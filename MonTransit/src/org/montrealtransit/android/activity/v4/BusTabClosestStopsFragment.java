@@ -471,8 +471,9 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 					holder.distanceTv.setText(null);
 				}
 				// compass
-				if (stop.getCompassMatrixOrNull() != null) {
-					holder.compassImg.setImageMatrix(stop.getCompassMatrix());
+				if (location != null && lastCompassInDegree != 0) {
+					float compassRotation = SensorUtils.getCompassRotationInDegree(location, stop, lastCompassInDegree, locationDeclination);
+					SupportFactory.get().rotateImageView(holder.compassImg, compassRotation, getLastActivity());
 					holder.compassImg.setVisibility(View.VISIBLE);
 				} else {
 					holder.compassImg.setVisibility(View.INVISIBLE);
@@ -511,6 +512,8 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 	 * The favorites bus stops UIDs.
 	 */
 	private List<String> favUIDs;
+
+	private float locationDeclination;
 
 	/**
 	 * Find favorites bus stops UIDs.
@@ -650,6 +653,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 			// MyLog.d(TAG, "new location: %s.", LocationUtils.locationToString(newLocation));
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
+				this.locationDeclination = SensorUtils.getLocationDeclination(this.location);
 				if (!this.compassUpdatesEnabled) {
 					SensorUtils.registerShakeAndCompassListener(getLastActivity(), this);
 					// SensorUtils.registerCompassListener(this, this);
@@ -718,14 +722,13 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 	 */
 	private void updateCompass(final float orientation, boolean force) {
 		// MyLog.v(TAG, "updateCompass(%s)", orientation);
-		Location currentLocation = getLocation();
-		if (currentLocation == null || orientation == 0 || this.closestStops == null) {
+		if (this.closestStops == null) {
 			// MyLog.d(TAG, "updateCompass() > no location or no POI");
 			return;
 		}
 		final long now = System.currentTimeMillis();
-		SensorUtils.updateCompass(getLastActivity(), this.closestStops, force, currentLocation, orientation, now, this.scrollState, this.lastCompassChanged,
-				this.lastCompassInDegree, R.drawable.heading_arrow, new SensorUtils.SensorTaskCompleted() {
+		SensorUtils.updateCompass(force, getLocation(), orientation, now, this.scrollState, this.lastCompassChanged, this.lastCompassInDegree,
+				new SensorUtils.SensorTaskCompleted() {
 
 					@Override
 					public void onSensorTaskCompleted(boolean result) {

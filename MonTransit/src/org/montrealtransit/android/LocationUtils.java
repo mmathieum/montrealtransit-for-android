@@ -9,7 +9,6 @@ import org.montrealtransit.android.activity.UserPreferences;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Matrix;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
@@ -514,8 +513,5 @@ public class LocationUtils {
 		 * @return the distance
 		 */
 		public float getDistance();
-
-		public Matrix getCompassMatrix();
 	}
-
 }

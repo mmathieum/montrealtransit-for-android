@@ -111,7 +111,8 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 				// store in cache
 				for (String lineNumber : results.keySet()) {
 					BusStopHours busStopHours = results.get(lineNumber);
-					// MyLog.d(TAG, "onNextStopsLoaded() > %s result hours to store in cache.", (busStopHours == null ? null : busStopHours.getSHours().size()));
+					// MyLog.d(TAG, "onNextStopsLoaded() > %s result hours to store in cache.", (busStopHours == null ? null :
+					// busStopHours.getSHours().size()));
 					if (busStopHours != null && busStopHours.getSHours().size() > 0) {
 						saveToCache(LoadNextBusStopIntoCacheTask.this.busStop.getCode(), lineNumber, busStopHours);
 					}

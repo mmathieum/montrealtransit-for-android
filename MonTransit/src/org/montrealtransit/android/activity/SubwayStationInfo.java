@@ -50,6 +50,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -241,13 +242,12 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 	 */
 	private void updateCompass(final float orientation, boolean force) {
 		// MyLog.v(TAG, "updateCompass(%s)", orientation);
-		Location currentLocation = getLocation();
-		if (currentLocation == null || orientation == 0 || this.subwayStation == null) {
+		if (this.subwayStation == null) {
 			return;
 		}
 		final long now = System.currentTimeMillis();
-		SensorUtils.updateCompass(this, this.subwayStation, force, currentLocation, orientation, now, -1, this.lastCompassChanged, this.lastCompassInDegree,
-				R.drawable.heading_arrow_light, new SensorUtils.SensorTaskCompleted() {
+		SensorUtils.updateCompass(force, getLocation(), orientation, now, OnScrollListener.SCROLL_STATE_IDLE, this.lastCompassChanged,
+				this.lastCompassInDegree, new SensorUtils.SensorTaskCompleted() {
 
 					@Override
 					public void onSensorTaskCompleted(boolean result) {
@@ -256,7 +256,8 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 							SubwayStationInfo.this.lastCompassChanged = now;
 							// update the view
 							ImageView compassImg = (ImageView) findViewById(R.id.compass);
-							compassImg.setImageMatrix(SubwayStationInfo.this.subwayStation.getCompassMatrix());
+							float compassRotation = SensorUtils.getCompassRotationInDegree(location, subwayStation, lastCompassInDegree, locationDeclination);
+							SupportFactory.get().rotateImageView(compassImg, compassRotation, SubwayStationInfo.this);
 							compassImg.setVisibility(View.VISIBLE);
 						}
 					}
@@ -552,6 +553,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 	 * Store the device location.
 	 */
 	private Location location;
+	private float locationDeclination;
 
 	/**
 	 * Initialize the location updates if necessary.
@@ -577,6 +579,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 			// MyLog.d(TAG, "new location: '%s'.", LocationUtils.locationToString(newLocation));
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
+				this.locationDeclination = SensorUtils.getLocationDeclination(this.location);
 				if (!this.compassUpdatesEnabled) {
 					SensorUtils.registerCompassListener(this, this);
 					this.compassUpdatesEnabled = true;

@@ -202,7 +202,7 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 						&& SubwayLineDirectionFragment.this.stations.get(position) != null && activity != null) {
 					// IF last subway station, show descent only
 					if (position + 1 == SubwayLineDirectionFragment.this.stations.size()) {
-						Toast toast = Toast.makeText(activity, R.string.subway_station_descent_only, Toast.LENGTH_SHORT);
+						Toast toast = Toast.makeText(activity, R.string.descent_only, Toast.LENGTH_SHORT);
 						// toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
 						toast.show();
 						return;
@@ -435,14 +435,14 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 	 */
 	protected void updateCompass(final float orientation, boolean force) {
 		// MyLog.v(TAG, "updateCompass(%s)", orientation);
-		Location currentLocation = getSubwayLineInfoActivity() == null ? null : getSubwayLineInfoActivity().getLocation();
-		if (currentLocation == null || orientation == 0 || this.stations == null) {
+		final Location currentLocation = getSubwayLineInfoActivity() == null ? null : getSubwayLineInfoActivity().getLocation();
+		if (this.stations == null) {
 			// MyLog.d(TAG, "updateCompass() > no location or no POI");
 			return;
 		}
 		final long now = System.currentTimeMillis();
-		SensorUtils.updateCompass(getLastActivity(), this.stations, force, currentLocation, orientation, now, this.scrollState, this.lastCompassChanged,
-				this.lastCompassInDegree, R.drawable.heading_arrow, new SensorUtils.SensorTaskCompleted() {
+		SensorUtils.updateCompass(force, currentLocation, orientation, now, this.scrollState, this.lastCompassChanged, this.lastCompassInDegree,
+				new SensorUtils.SensorTaskCompleted() {
 
 					@Override
 					public void onSensorTaskCompleted(boolean result) {
@@ -677,13 +677,6 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 				} else {
 					holder.distanceTv.setVisibility(View.INVISIBLE);
 				}
-				// station compass
-				if (station.getCompassMatrixOrNull() != null) {
-					holder.compassImg.setImageMatrix(station.getCompassMatrix());
-					holder.compassImg.setVisibility(View.VISIBLE);
-				} else {
-					holder.compassImg.setVisibility(View.INVISIBLE);
-				}
 				// set style for closest subway station
 				int index = -1;
 				if (!TextUtils.isEmpty(SubwayLineDirectionFragment.this.closestStationId)) {
@@ -702,6 +695,15 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 					holder.distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
 					holder.compassImg.setImageResource(R.drawable.heading_arrow);
 					break;
+				}
+				// compass
+				if (getSubwayLineInfoActivity() != null && getSubwayLineInfoActivity().getLocation() != null && lastCompassInDegree != 0) {
+					float compassRotation = SensorUtils.getCompassRotationInDegree(getSubwayLineInfoActivity().getLocation(), station, lastCompassInDegree,
+							getSubwayLineInfoActivity().getLocationDeclination());
+					SupportFactory.get().rotateImageView(holder.compassImg, compassRotation, getLastActivity());
+					holder.compassImg.setVisibility(View.VISIBLE);
+				} else {
+					holder.compassImg.setVisibility(View.INVISIBLE); // never hide once shown
 				}
 			}
 			return convertView;
