@@ -80,6 +80,7 @@
 	<string name="bus_stop_removed">The bus line %s no longer passes at this bus stop!</string>
 	<string name="bus_stop_descent_only">Descent only</string>
 	<string name="bus_stop_no_info_and_source">No information on %2$s about the line %1$s at this bus stop.</string>
+	<string name="bus_stop_no_results_date">No service today for the line %1$s at this bus stop.</string>
 	<string name="waiting_for_location_fix">Waiting for location&#8230;</string>
 	<string name="no_location_provider_available">No location provider available.\nYou need to enable location by wireless network or GPS satellites in your phone settings.</string>
 	<string name="subway_status">Service status</string>

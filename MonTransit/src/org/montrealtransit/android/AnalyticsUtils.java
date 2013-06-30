@@ -66,6 +66,10 @@ public class AnalyticsUtils {
 	 */
 	public static final String ACTION_BUS_STOP_NO_INFO = "bus_stop_no_info";
 	/**
+	 * Action for bus stop source error code.
+	 */
+	public static final String ACTION_BUS_STOP_SOURCE_ERROR = "bus_stop_source_error";
+	/**
 	 * Action for DB initialization fail.
 	 */
 	public static final String ACTION_DB_INIT_FAIL = "db_init_failt";
