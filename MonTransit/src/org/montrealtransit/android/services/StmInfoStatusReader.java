@@ -1,5 +1,6 @@
 package org.montrealtransit.android.services;
 
+
 //import java.util.ArrayList;
 //import java.util.List;
 //
@@ -46,7 +47,7 @@ package org.montrealtransit.android.services;
 //	/**
 //	 * The class that will handle the answer.
 //	 */
-//	private StmInfoStatusReaderListener from;
+//	private WeakReference<StmInfoStatusReaderListener> from;
 //
 //	/**
 //	 * The default constructor.

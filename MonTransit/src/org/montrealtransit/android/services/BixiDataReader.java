@@ -1,11 +1,13 @@
 package org.montrealtransit.android.services;
 
+import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,10 +16,9 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import javax.net.ssl.SSLSession;
-import java.security.cert.X509Certificate;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -60,7 +61,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 	/**
 	 * The class that will handle the answer.
 	 */
-	private BixiDataReaderListener from;
+	private WeakReference<BixiDataReaderListener> from;
 	/**
 	 * The new update date.
 	 */
@@ -81,7 +82,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 	 * @param waitFor time to wait before actually refreshing the data (in seconds)
 	 */
 	public BixiDataReader(Context context, BixiDataReaderListener from, int waitFor) {
-		this.from = from;
+		this.from = new WeakReference<BixiDataReader.BixiDataReaderListener>(from);
 		this.context = context;
 		this.waitFor = waitFor;
 	}
@@ -127,7 +128,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 	/**
 	 * Synchronous {@link #doInBackground(String...)} for access from another {@link AsyncTask}.
 	 */
-	public static List<BikeStation> doInForeground(Context context, BixiDataReaderListener from, final List<String> forceDBUpdateTerminalNames, int tried) {
+	public static List<BikeStation> doInForeground(Context context, WeakReference<BixiDataReaderListener> from, final List<String> forceDBUpdateTerminalNames, int tried) {
 		// MyLog.v(TAG, "doInForeground(%s,%s)", forceDBUpdate, Utils.getCollectionSize(forceDBUpdateTerminalNames));
 		try {
 			URL url = new URL(XML_SOURCE);
@@ -294,26 +295,32 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 	 * @param from the listener
 	 * @param values the progress messages
 	 */
-	private static void publishProgress(BixiDataReaderListener from, String... values) {
+	private static void publishProgress(WeakReference<BixiDataReaderListener> from, String... values) {
 		// MyLog.v(TAG, "publishProgress()");
-		if (from != null) {
-			from.onBixiDataProgress(values[0]);
+		BixiDataReaderListener fromWR = from == null ? null : from.get();
+		if (fromWR != null) {
+			fromWR.onBixiDataProgress(values[0]);
 		}
 	}
 
 	@Override
 	protected void onPostExecute(List<BikeStation> newBikeStations) {
 		// MyLog.v(TAG, "onPostExecute(%s)", Utils.getCollectionSize(newBikeStations));
-		if (this.from != null) {
-			this.from.onBixiDataLoaded(newBikeStations, (newUpdate > lastUpdate));
+		BixiDataReaderListener fromWR = this.from == null ? null : this.from.get();
+		if (fromWR != null) {
+			fromWR.onBixiDataLoaded(newBikeStations, (newUpdate > lastUpdate));
 		}
 	}
 
 	@Override
 	protected void onProgressUpdate(String... values) {
-		MyLog.v(TAG, "onProgressUpdate(%s)", values[0]);
-		if (this.from != null) {
-			this.from.onBixiDataProgress(values[0]);
+		MyLog.v(TAG, "onProgressUpdate()");
+		if (values.length <= 0) {
+			return;
+		}
+		BixiDataReaderListener fromWR = this.from == null ? null : this.from.get();
+		if (fromWR != null) {
+			fromWR.onBixiDataProgress(values[0]);
 		}
 	}
 

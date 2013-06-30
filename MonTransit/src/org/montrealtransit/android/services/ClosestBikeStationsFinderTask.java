@@ -1,5 +1,6 @@
 package org.montrealtransit.android.services;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -47,7 +48,7 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Double, String, Clo
 	/**
 	 * The class handling the result and progress.
 	 */
-	private ClosestBikeStationsFinderListener from;
+	private WeakReference<ClosestBikeStationsFinderListener> from;
 	/**
 	 * The last Bixi data message.
 	 */
@@ -68,7 +69,7 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Double, String, Clo
 	 * @param maxResult the maximum number of result or {@link #NO_LIMIT}
 	 */
 	public ClosestBikeStationsFinderTask(ClosestBikeStationsFinderListener from, Context context, int maxResult, boolean forceUpdateFromWeb) {
-		this.from = from;
+		this.from = new WeakReference<ClosestBikeStationsFinderTask.ClosestBikeStationsFinderListener>(from);
 		this.context = context;
 		this.maxResult = maxResult;
 		this.forceUpdateFromWeb = forceUpdateFromWeb;
@@ -88,7 +89,7 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Double, String, Clo
 							+ BIKE_STATION_LIST_TOO_OLD_IN_SEC) {
 				publishProgress(this.context.getString(R.string.downloading_data_from_and_source, BixiDataReader.SOURCE));
 				// look for new data
-				BixiDataReader.doInForeground(this.context, this, null, 0);
+				BixiDataReader.doInForeground(this.context, new WeakReference<BixiDataReaderListener>(this), null, 0);
 			}
 			publishProgress(this.context.getString(R.string.processing));
 			// get the closest bike station from database or NULL
@@ -194,16 +195,23 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Double, String, Clo
 	@Override
 	protected void onProgressUpdate(String... values) {
 		MyLog.v(TAG, "onProgressUpdate()");
-		if (values.length > 0) {
-			from.onClosestBikeStationsProgress(values[0]);
-			super.onProgressUpdate(values);
+		if (values.length <= 0) {
+			return;
 		}
+		ClosestBikeStationsFinderListener fromWR = this.from == null ? null : this.from.get();
+		if (fromWR != null) {
+			fromWR.onClosestBikeStationsProgress(values[0]);
+		}
+		super.onProgressUpdate(values);
 	}
 
 	@Override
 	protected void onPostExecute(ClosestPOI<ABikeStation> result) {
 		MyLog.v(TAG, "onPostExecute()");
-		from.onClosestBikeStationsDone(result);
+		ClosestBikeStationsFinderListener fromWR = this.from == null ? null : this.from.get();
+		if (fromWR != null) {
+			fromWR.onClosestBikeStationsDone(result);
+		}
 		super.onPostExecute(result);
 	}
 

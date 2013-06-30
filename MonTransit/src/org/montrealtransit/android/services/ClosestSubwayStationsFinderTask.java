@@ -1,5 +1,6 @@
 package org.montrealtransit.android.services;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -48,7 +49,7 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 	/**
 	 * The class handling the result and progress.
 	 */
-	private ClosestSubwayStationsFinderListener from;
+	private WeakReference<ClosestSubwayStationsFinderListener> from;
 
 	private int maxResult = 10;
 
@@ -58,7 +59,7 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 	 * @param context the context
 	 */
 	public ClosestSubwayStationsFinderTask(ClosestSubwayStationsFinderListener from, Context context, int maxResult) {
-		this.from = from;
+		this.from = new WeakReference<ClosestSubwayStationsFinderTask.ClosestSubwayStationsFinderListener>(from);
 		this.context = context;
 		this.maxResult = maxResult;
 	}
@@ -123,16 +124,23 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 
 	@Override
 	protected void onProgressUpdate(String... values) {
-		if (values.length > 0) {
-			from.onClosestStationsProgress(values[0]);
-			super.onProgressUpdate(values);
+		if (values.length <= 0) {
+			return;
 		}
+		ClosestSubwayStationsFinderListener fromWR = this.from == null ? null : this.from.get();
+		if (fromWR != null) {
+			fromWR.onClosestStationsProgress(values[0]);
+		}
+		super.onProgressUpdate(values);
 	}
 
 	@Override
 	protected void onPostExecute(ClosestPOI<ASubwayStation> result) {
 		MyLog.v(TAG, "onPostExecute()");
-		from.onClosestStationsDone(result);
+		ClosestSubwayStationsFinderListener fromWR = this.from == null ? null : this.from.get();
+		if (fromWR != null) {
+			fromWR.onClosestStationsDone(result);
+		}
 		super.onPostExecute(result);
 	}
 

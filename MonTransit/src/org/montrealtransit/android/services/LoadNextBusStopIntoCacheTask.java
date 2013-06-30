@@ -1,5 +1,6 @@
 package org.montrealtransit.android.services;
 
+import java.lang.ref.WeakReference;
 import java.util.Map;
 
 import org.montrealtransit.android.BusUtils;
@@ -27,7 +28,7 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 
 	private BusStop busStop;
 
-	private NextStopListener from;
+	private WeakReference<NextStopListener> from;
 
 	private boolean prefetch;
 
@@ -37,7 +38,7 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 		MyLog.d(TAG, "LoadNextBusStopIntoCacheTask()");
 		this.context = context;
 		this.busStop = busStop;
-		this.from = from;
+		this.from = new WeakReference<NextStopListener>(from);
 		this.prefetch = prefetch;
 		this.force = force;
 	}
@@ -87,8 +88,9 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 	@Override
 	public void onNextStopsProgress(String progress) {
 		MyLog.v(TAG, "onNextStopsProgress(%s)", progress);
-		if (this.from != null) {
-			this.from.onNextStopsProgress(progress);
+		NextStopListener fromWR = this.from == null ? null : this.from.get();
+		if (fromWR != null) {
+			fromWR.onNextStopsProgress(progress);
 		}
 	}
 
@@ -100,8 +102,9 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 			return; // no result
 		}
 		// IF valid result or the last result DO
-		if (this.from != null) {
-			this.from.onNextStopsLoaded(results);
+		NextStopListener fromWR = this.from == null ? null : this.from.get();
+		if (fromWR != null) {
+			fromWR.onNextStopsLoaded(results);
 		}
 		// if (containResult) {
 		new AsyncTask<Void, Void, Void>() {
