@@ -87,8 +87,13 @@ public class BetaStmInfoTask extends AbstractNextStopProvider {
 					JSONObject jStatus = jResponse.getJSONObject("status");
 					if ("Error".equalsIgnoreCase(jStatus.getString("level"))) {
 						String code = jStatus.getString("code");
+						MyLog.d(TAG, "%s error: %s", SOURCE_NAME, code);
 						if ("NoResultsDate".equalsIgnoreCase(code)) {
 							errorMessage = this.context.getString(R.string.bus_stop_no_results_date, this.busStop.getLineNumber());
+							publishProgress(errorMessage);
+							hours.put(this.busStop.getLineNumber(), new BusStopHours(SOURCE_NAME, errorMessage));
+						} else if ("LastStop".equalsIgnoreCase(code)) {
+							errorMessage = this.context.getString(R.string.descent_only);
 							publishProgress(errorMessage);
 							hours.put(this.busStop.getLineNumber(), new BusStopHours(SOURCE_NAME, errorMessage));
 						}

@@ -5,11 +5,13 @@ import java.util.concurrent.Executor;
 import org.montrealtransit.android.services.LoadNextBusStopIntoCacheTask;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
 import android.os.StrictMode.VmPolicy;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
@@ -49,5 +51,10 @@ public class HoneycombSupport extends GingerbreadSupport {
 	@Override
 	public void executeOnExecutor(LoadNextBusStopIntoCacheTask task, Executor executor) {
 		task.executeOnExecutor(executor);
+	}
+
+	@Override
+	public void rotateImageView(ImageView img, float rotation, Activity activity) {
+		img.setRotation(rotation);
 	}
 }

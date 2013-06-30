@@ -74,6 +74,7 @@ import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.AbsListView.OnScrollListener;
 
 /**
  * This activity show information about a bus stop.
@@ -230,6 +231,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	 */
 	private boolean hasFocus = true;
 	private boolean paused = false;
+	private float locationDeclination;
 
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
@@ -337,13 +339,12 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	 */
 	private void updateCompass(final float orientation, boolean force) {
 		// MyLog.v(TAG, "updateCompass(%s)", orientation[0]);
-		Location currentLocation = getLocation();
-		if (currentLocation == null || orientation == 0 || this.busStop == null) {
+		if (this.busStop == null) {
 			return;
 		}
 		final long now = System.currentTimeMillis();
-		SensorUtils.updateCompass(this, this.busStop, force, currentLocation, orientation, now, -1, this.lastCompassChanged, this.lastCompassInDegree,
-				R.drawable.heading_arrow_light, new SensorUtils.SensorTaskCompleted() {
+		SensorUtils.updateCompass(force, getLocation(), orientation, now, OnScrollListener.SCROLL_STATE_IDLE, this.lastCompassChanged,
+				this.lastCompassInDegree, new SensorUtils.SensorTaskCompleted() {
 
 					@Override
 					public void onSensorTaskCompleted(boolean result) {
@@ -352,7 +353,8 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 							BusStopInfo.this.lastCompassChanged = now;
 							// update the view
 							ImageView compassImg = (ImageView) findViewById(R.id.compass);
-							compassImg.setImageMatrix(BusStopInfo.this.busStop.getCompassMatrix());
+							float compassRotation = SensorUtils.getCompassRotationInDegree(location, busStop, lastCompassInDegree, locationDeclination);
+							SupportFactory.get().rotateImageView(compassImg, compassRotation, BusStopInfo.this);
 							compassImg.setVisibility(View.VISIBLE);
 						}
 					}
@@ -1267,6 +1269,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		if (newLocation != null) {
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
+				this.locationDeclination = SensorUtils.getLocationDeclination(this.location);
 				if (!this.compassUpdatesEnabled) {
 					SensorUtils.registerCompassListener(this, this);
 					this.compassUpdatesEnabled = true;

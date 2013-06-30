@@ -306,14 +306,13 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 */
 	private void updateCompass(final float orientation, boolean force) {
 		// MyLog.v(TAG, "updateCompass(%s)", orientation[0]);
-		Location currentLocation = getLocation();
-		if (currentLocation == null || orientation == 0 || this.closestStations == null) {
+		if (this.closestStations == null) {
 			// MyLog.d(TAG, "updateCompass() > no location or no POI");
 			return;
 		}
 		final long now = System.currentTimeMillis();
-		SensorUtils.updateCompass(this, this.closestStations, force, currentLocation, orientation, now, this.scrollState, this.lastCompassChanged,
-				this.lastCompassInDegree, R.drawable.heading_arrow, new SensorUtils.SensorTaskCompleted() {
+		SensorUtils.updateCompass(force, getLocation(), orientation, now, this.scrollState, this.lastCompassChanged, this.lastCompassInDegree,
+				new SensorUtils.SensorTaskCompleted() {
 
 					@Override
 					public void onSensorTaskCompleted(boolean result) {
@@ -953,13 +952,6 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 					holder.distanceTv.setVisibility(View.INVISIBLE);
 					holder.distanceTv.setText(null);
 				}
-				// compass
-				if (station.getCompassMatrixOrNull() != null) {
-					holder.compassImg.setImageMatrix(station.getCompassMatrix());
-					holder.compassImg.setVisibility(View.VISIBLE);
-				} else {
-					holder.compassImg.setVisibility(View.INVISIBLE);
-				}
 				// favorite
 				if (SubwayTab.this.favStationIds != null && SubwayTab.this.favStationIds.contains(station.getId())) {
 					holder.favImg.setVisibility(View.VISIBLE);
@@ -984,6 +976,15 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 					holder.distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
 					holder.compassImg.setImageResource(R.drawable.heading_arrow);
 					break;
+				}
+				// compass
+				if (location != null && lastCompassInDegree != 0) {
+					float compassRotation = SensorUtils.getCompassRotationInDegree(location, station, lastCompassInDegree, locationDeclination);
+					SupportFactory.get().rotateImageView(holder.compassImg, compassRotation, SubwayTab.this);
+					// holder.compassImg.setImageMatrix(station.getCompassMatrix());
+					holder.compassImg.setVisibility(View.VISIBLE);
+				} else {
+					holder.compassImg.setVisibility(View.INVISIBLE);
 				}
 			}
 			return convertView;
@@ -1282,6 +1283,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 * The subway stations IDs ordered by distance (closest first).
 	 */
 	private String closestStationId;
+	private float locationDeclination;
 
 	/**
 	 * Generate the ordered subway line station IDs.
@@ -1315,6 +1317,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			// MyLog.d(TAG, "new location: %s.", LocationUtils.locationToString(newLocation));
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
+				this.locationDeclination = SensorUtils.getLocationDeclination(this.location);
 				if (!this.compassUpdatesEnabled) {
 					SensorUtils.registerShakeAndCompassListener(this, this);
 					this.compassUpdatesEnabled = true;

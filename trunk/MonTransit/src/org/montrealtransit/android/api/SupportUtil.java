@@ -15,6 +15,7 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.view.Surface;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
@@ -142,4 +143,6 @@ public interface SupportUtil {
 	void executeOnExecutor(LoadNextBusStopIntoCacheTask task, Executor executor);
 
 	BlockingQueue<Runnable> getNewBlockingQueue();
+
+	void rotateImageView(ImageView img, float rotation, Activity activity);
 }

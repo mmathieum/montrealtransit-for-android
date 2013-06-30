@@ -4,6 +4,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 
+import org.montrealtransit.android.SensorUtils;
 import org.montrealtransit.android.services.LoadNextBusStopIntoCacheTask;
 import org.montrealtransit.android.services.NfcListener;
 
@@ -14,7 +15,9 @@ import android.content.Intent;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Matrix;
 import android.view.Surface;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
@@ -153,5 +156,12 @@ public class CupcakeSupport implements SupportUtil {
 	@Override
 	public BlockingQueue<Runnable> getNewBlockingQueue() {
 		return new ArrayBlockingQueue<Runnable>(5);
+	}
+
+	@Override
+	public void rotateImageView(ImageView img, float rotation, Activity activity) {
+		Matrix compassMatrix = new Matrix();
+		compassMatrix.postRotate(rotation, SensorUtils.getRotationPx(activity), SensorUtils.getRotationPy(activity));
+		img.setImageMatrix(compassMatrix);
 	}
 }

@@ -200,7 +200,7 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 						&& !TextUtils.isEmpty(BusLineDirectionFragment.this.busStops.get(position).getCode())) {
 					// IF last bus stop, show descent only
 					if (position + 1 == BusLineDirectionFragment.this.busStops.size()) {
-						Toast toast = Toast.makeText(BusLineDirectionFragment.this.getLastActivity(), R.string.bus_stop_descent_only, Toast.LENGTH_SHORT);
+						Toast toast = Toast.makeText(BusLineDirectionFragment.this.getLastActivity(), R.string.descent_only, Toast.LENGTH_SHORT);
 						// toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
 						toast.show();
 						return;
@@ -460,13 +460,13 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 	protected void updateCompass(final float orientation, boolean force) {
 		// MyLog.v(TAG, "updateCompass(%s)", orientation);
 		Location currentLocation = getBusLineInfoActivity() == null ? null : getBusLineInfoActivity().getLocation();
-		if (currentLocation == null || orientation == 0 || this.busStops == null) {
+		if (this.busStops == null) {
 			// MyLog.d(TAG, "updateCompass() > no location or no POI");
 			return;
 		}
 		final long now = System.currentTimeMillis();
-		SensorUtils.updateCompass(getLastActivity(), this.busStops, force, currentLocation, orientation, now, this.scrollState, this.lastCompassChanged,
-				this.lastCompassInDegree, R.drawable.heading_arrow, new SensorUtils.SensorTaskCompleted() {
+		SensorUtils.updateCompass(force, currentLocation, orientation, now, this.scrollState, this.lastCompassChanged, this.lastCompassInDegree,
+				new SensorUtils.SensorTaskCompleted() {
 
 					@Override
 					public void onSensorTaskCompleted(boolean result) {
@@ -671,13 +671,6 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 				} else {
 					holder.distanceTv.setVisibility(View.INVISIBLE);
 				}
-				// bus stop compass
-				if (busStop.getCompassMatrixOrNull() != null) {
-					holder.compassImg.setImageMatrix(busStop.getCompassMatrix());
-					holder.compassImg.setVisibility(View.VISIBLE);
-				} else {
-					holder.compassImg.setVisibility(View.INVISIBLE);
-				}
 				// set style for closest bus stop
 				int index = -1;
 				if (!TextUtils.isEmpty(BusLineDirectionFragment.this.closestStopCode)) {
@@ -696,6 +689,15 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 					holder.distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
 					holder.compassImg.setImageResource(R.drawable.heading_arrow);
 					break;
+				}
+				// bus stop compass
+				if (getBusLineInfoActivity() != null && getBusLineInfoActivity().getLocation() != null && lastCompassInDegree != 0) {
+					float compassRotation = SensorUtils.getCompassRotationInDegree(getBusLineInfoActivity().getLocation(), busStop, lastCompassInDegree,
+							getBusLineInfoActivity().getLocationDeclination());
+					SupportFactory.get().rotateImageView(holder.compassImg, compassRotation, getLastActivity());
+					holder.compassImg.setVisibility(View.VISIBLE);
+				} else {
+					holder.compassImg.setVisibility(View.INVISIBLE);
 				}
 			}
 			return convertView;

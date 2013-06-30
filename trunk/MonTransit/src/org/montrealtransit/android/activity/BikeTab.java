@@ -317,14 +317,13 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	 */
 	private void updateCompass(final float orientation, boolean force) {
 		// MyLog.v(TAG, "updateCompass(%s)", orientation[0]);
-		Location currentLocation = getLocation();
-		if (currentLocation == null || orientation == 0 || this.closestStations == null) {
-			// MyLog.d(TAG, "updateCompass() > no location or no POI");
+		if (this.closestStations == null) {
+			// MyLog.d(TAG, "updateCompass() > no POI");
 			return;
 		}
 		final long now = System.currentTimeMillis();
-		SensorUtils.updateCompass(this, this.closestStations, force, currentLocation, orientation, now, this.scrollState, this.lastCompassChanged,
-				this.lastCompassInDegree, R.drawable.heading_arrow, new SensorUtils.SensorTaskCompleted() {
+		SensorUtils.updateCompass(force, getLocation(), orientation, now, this.scrollState, this.lastCompassChanged, this.lastCompassInDegree,
+				new SensorUtils.SensorTaskCompleted() {
 
 					@Override
 					public void onSensorTaskCompleted(boolean result) {
@@ -347,6 +346,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	 * The last {@link ArrayAdapter#notifyDataSetChanged() time-stamp in milliseconds.
 	 */
 	private long lastNotifyDataSetChanged = -1;
+	private float locationDeclination;
 
 	/**
 	 * @param force true to force notify {@link ArrayAdapter#notifyDataSetChanged()} if necessary
@@ -411,6 +411,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			// MyLog.d(TAG, "new location: %s.", LocationUtils.locationToString(newLocation));
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
+				this.locationDeclination = SensorUtils.getLocationDeclination(this.location);
 				if (!this.compassUpdatesEnabled) {
 					SensorUtils.registerShakeAndCompassListener(this, this);
 					this.compassUpdatesEnabled = true;
@@ -725,13 +726,6 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 					holder.distanceTv.setVisibility(View.INVISIBLE); // never hide once shown
 					// holder.distanceTv.setText(null);
 				}
-				// compass
-				if (bikeStation.getCompassMatrixOrNull() != null) {
-					holder.compassImg.setImageMatrix(bikeStation.getCompassMatrix());
-					holder.compassImg.setVisibility(View.VISIBLE);
-				} else {
-					holder.compassImg.setVisibility(View.INVISIBLE); // never hide once shown
-				}
 				// closest bike station
 				int index = -1;
 				if (!TextUtils.isEmpty(BikeTab.this.closestStationTerminalName)) {
@@ -750,6 +744,14 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 					holder.distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
 					holder.compassImg.setImageResource(R.drawable.heading_arrow);
 					break;
+				}
+				// compass
+				if (location != null && lastCompassInDegree != 0) {
+					float compassRotation = SensorUtils.getCompassRotationInDegree(location, bikeStation, lastCompassInDegree, locationDeclination);
+					SupportFactory.get().rotateImageView(holder.compassImg, compassRotation, BikeTab.this);
+					holder.compassImg.setVisibility(View.VISIBLE);
+				} else {
+					holder.compassImg.setVisibility(View.INVISIBLE); // never hide once shown
 				}
 			}
 			return convertView;

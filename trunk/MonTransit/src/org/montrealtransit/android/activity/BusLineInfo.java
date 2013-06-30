@@ -17,6 +17,7 @@ import org.montrealtransit.android.SensorUtils;
 import org.montrealtransit.android.SensorUtils.CompassListener;
 import org.montrealtransit.android.SensorUtils.ShakeListener;
 import org.montrealtransit.android.Utils;
+import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.ABusStop;
 import org.montrealtransit.android.dialog.BusLineSelectDirection;
 import org.montrealtransit.android.dialog.BusLineSelectDirectionDialogListener;
@@ -201,7 +202,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 						&& !TextUtils.isEmpty(BusLineInfo.this.busStops.get(position).getCode())) {
 					// IF last bus stop, show descent only
 					if (position + 1 == BusLineInfo.this.busStops.size()) {
-						Toast toast = Toast.makeText(BusLineInfo.this, R.string.bus_stop_descent_only, Toast.LENGTH_SHORT);
+						Toast toast = Toast.makeText(BusLineInfo.this, R.string.descent_only, Toast.LENGTH_SHORT);
 						// toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
 						toast.show();
 						return;
@@ -333,14 +334,13 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 */
 	private void updateCompass(final float orientation, boolean force) {
 		// MyLog.v(TAG, "updateCompass(%s)", orientation);
-		Location currentLocation = getLocation();
-		if (currentLocation == null || orientation == 0 || this.busStops == null) {
+		if (this.busStops == null) {
 			// MyLog.d(TAG, "updateCompass() > no location or no POI");
 			return;
 		}
 		final long now = System.currentTimeMillis();
-		SensorUtils.updateCompass(this, this.busStops, force, currentLocation, orientation, now, this.scrollState, this.lastCompassChanged,
-				this.lastCompassInDegree, R.drawable.heading_arrow, new SensorUtils.SensorTaskCompleted() {
+		SensorUtils.updateCompass(force, getLocation(), orientation, now, this.scrollState, this.lastCompassChanged, this.lastCompassInDegree,
+				new SensorUtils.SensorTaskCompleted() {
 
 					@Override
 					public void onSensorTaskCompleted(boolean result) {
@@ -364,6 +364,8 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 	 * The last {@link ArrayAdapter#notifyDataSetChanged() time-stamp in milliseconds.
 	 */
 	private long lastNotifyDataSetChanged = -1;
+
+	private float locationDeclination;
 
 	/**
 	 * @param force true to force notify {@link ArrayAdapter#notifyDataSetChanged()} if necessary
@@ -688,13 +690,6 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 				} else {
 					holder.distanceTv.setVisibility(View.INVISIBLE);
 				}
-				// bus stop compass
-				if (busStop.getCompassMatrixOrNull() != null) {
-					holder.compassImg.setImageMatrix(busStop.getCompassMatrix());
-					holder.compassImg.setVisibility(View.VISIBLE);
-				} else {
-					holder.compassImg.setVisibility(View.INVISIBLE);
-				}
 				// set style for closest bus stop
 				int index = -1;
 				if (!TextUtils.isEmpty(BusLineInfo.this.closestStopCode)) {
@@ -713,6 +708,14 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 					holder.distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
 					holder.compassImg.setImageResource(R.drawable.heading_arrow);
 					break;
+				}
+				// bus stop compass
+				if (location != null && lastCompassInDegree != 0) {
+					float compassRotation = SensorUtils.getCompassRotationInDegree(location, busStop, lastCompassInDegree, locationDeclination);
+					SupportFactory.get().rotateImageView(holder.compassImg, compassRotation, BusLineInfo.this);
+					holder.compassImg.setVisibility(View.VISIBLE);
+				} else {
+					holder.compassImg.setVisibility(View.INVISIBLE);
 				}
 			}
 			return convertView;
@@ -735,6 +738,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 		if (newLocation != null) {
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
+				this.locationDeclination = SensorUtils.getLocationDeclination(this.location);
 				if (!this.compassUpdatesEnabled) {
 					SensorUtils.registerShakeAndCompassListener(this, this);
 					this.compassUpdatesEnabled = true;

@@ -20,6 +20,7 @@ import org.montrealtransit.android.SensorUtils.CompassListener;
 import org.montrealtransit.android.SensorUtils.ShakeListener;
 import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.Utils;
+import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.ASubwayStation;
 import org.montrealtransit.android.data.Pair;
 import org.montrealtransit.android.dialog.SubwayLineSelectDirection;
@@ -186,7 +187,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 						&& SubwayLineInfo.this.stations.get(position) != null) {
 					// IF last subway station, show descent only
 					if (position + 1 == SubwayLineInfo.this.stations.size()) {
-						Toast toast = Toast.makeText(SubwayLineInfo.this, R.string.subway_station_descent_only, Toast.LENGTH_SHORT);
+						Toast toast = Toast.makeText(SubwayLineInfo.this, R.string.descent_only, Toast.LENGTH_SHORT);
 						// toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
 						toast.show();
 						return;
@@ -384,14 +385,13 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 */
 	private void updateCompass(final float orientation, boolean force) {
 		// MyLog.v(TAG, "updateCompass(%s)", orientation[0]);
-		Location currentLocation = getLocation();
-		if (currentLocation == null || orientation == 0 || this.stations == null) {
+		if (this.stations == null) {
 			// MyLog.d(TAG, "updateCompass() > no location or no POI");
 			return;
 		}
 		final long now = System.currentTimeMillis();
-		SensorUtils.updateCompass(this, this.stations, force, currentLocation, orientation, now, this.scrollState, this.lastCompassChanged,
-				this.lastCompassInDegree, R.drawable.heading_arrow, new SensorUtils.SensorTaskCompleted() {
+		SensorUtils.updateCompass(force, getLocation(), orientation, now, this.scrollState, this.lastCompassChanged, this.lastCompassInDegree,
+				new SensorUtils.SensorTaskCompleted() {
 
 					@Override
 					public void onSensorTaskCompleted(boolean result) {
@@ -768,13 +768,6 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 				} else {
 					holder.distanceTv.setVisibility(View.INVISIBLE);
 				}
-				// station compass
-				if (station.getCompassMatrixOrNull() != null) {
-					holder.compassImg.setImageMatrix(station.getCompassMatrix());
-					holder.compassImg.setVisibility(View.VISIBLE);
-				} else {
-					holder.compassImg.setVisibility(View.INVISIBLE);
-				}
 				// set style for closest subway station
 				int index = -1;
 				if (!TextUtils.isEmpty(SubwayLineInfo.this.closestStationId)) {
@@ -794,6 +787,14 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 					holder.compassImg.setImageResource(R.drawable.heading_arrow);
 					break;
 				}
+				// compass
+				if (location != null && lastCompassInDegree != 0) {
+					float compassRotation = SensorUtils.getCompassRotationInDegree(location, station, lastCompassInDegree, locationDeclination);
+					SupportFactory.get().rotateImageView(holder.compassImg, compassRotation, SubwayLineInfo.this);
+					holder.compassImg.setVisibility(View.VISIBLE);
+				} else {
+					holder.compassImg.setVisibility(View.INVISIBLE); // never hide once shown
+				}
 			}
 			return convertView;
 		}
@@ -812,6 +813,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	 * Store the device location.
 	 */
 	private Location location;
+	private float locationDeclination;
 
 	/**
 	 * Initialize the location updates if necessary.
@@ -836,6 +838,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		if (newLocation != null) {
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
+				this.locationDeclination = SensorUtils.getLocationDeclination(this.location);
 				if (!this.compassUpdatesEnabled) {
 					SensorUtils.registerShakeAndCompassListener(this, this);
 					this.compassUpdatesEnabled = true;
