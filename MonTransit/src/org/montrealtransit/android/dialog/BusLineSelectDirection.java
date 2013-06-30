@@ -198,7 +198,8 @@ public class BusLineSelectDirection implements View.OnClickListener, BusLineSele
 		}
 		List<String> items = new ArrayList<String>();
 		for (String simpleDirectionId : this.simpleDirectionsIds) {
-			items.add(this.context.getString(BusUtils.getBusLineDirectionStringIdFromId(simpleDirectionId).get(0)));
+			// items.add(this.context.getString(BusUtils.getBusLineDirectionStringIdFromId(simpleDirectionId).get(0)));
+			items.add(this.context.getString(BusUtils.getBusLineSimpleDirection(simpleDirectionId)));
 		}
 		return items.toArray(new String[] {});
 	}
@@ -241,6 +242,8 @@ public class BusLineSelectDirection implements View.OnClickListener, BusLineSele
 	 * @return the dialog of detail directions ID
 	 */
 	private void showSecondAlertDialog(String simpleDirectionId, final DialogInterface firstDialog) {
+		@SuppressWarnings("deprecation")
+		// show never happen now
 		String title = this.context.getString(R.string.select_bus_line_detail_direction_and_number_and_direction, this.lineNumber,
 				this.context.getString(BusUtils.getBusLineDirectionStringIdFromId(simpleDirectionId).get(0)));
 		String[] secondItems = getSecondItems(simpleDirectionId); // initialize detailDirectionsIds
@@ -283,6 +286,8 @@ public class BusLineSelectDirection implements View.OnClickListener, BusLineSele
 		}
 		List<String> items = new ArrayList<String>();
 		for (String defailDirectionId : this.detailDirectionsIds) {
+			@SuppressWarnings("deprecation")
+			// should never happen now
 			List<Integer> stringIds = BusUtils.getBusLineDirectionStringIdFromId(defailDirectionId);
 			int stringId;
 			if (stringIds.size() >= 2) {
