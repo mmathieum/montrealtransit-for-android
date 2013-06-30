@@ -42,7 +42,8 @@ public class BetaStmInfoTask extends AbstractNextStopProvider {
 	/**
 	 * The URL.
 	 */
-	// http://i-beta.stm.info/en/lines/97/stops/52084/arrivals?direction=E&limit=5&t=1720
+	// http://i-beta.stm.info/en/lines/97/stops/52084/arrivals?direction=E&limit=5
+	// d=20130702&t=1002
 	private static final String URL_PART_1_BEFORE_LANG = "http://i-beta.stm.info/";
 	private static final String URL_PART_2_BEFORE_BUS_LINE = "/lines/";
 	private static final String URL_PART_3_BEFORE_BUS_STOP = "/stops/";
@@ -71,7 +72,8 @@ public class BetaStmInfoTask extends AbstractNextStopProvider {
 				String json = getJson(urlc);
 				AnalyticsUtils.dispatch(context); // while we are connected, send the analytics data
 				publishProgress(this.context.getResources().getString(R.string.processing_data));
-				JSONArray jResults = new JSONObject(json).getJSONArray("result");
+				JSONObject jResponse = new JSONObject(json);
+				JSONArray jResults = jResponse.getJSONArray("result");
 				if (jResults.length() > 0) {
 					BusStopHours busStopHours = new BusStopHours(SOURCE_NAME);
 					for (int i = 0; i < jResults.length(); i++) {
@@ -81,12 +83,26 @@ public class BetaStmInfoTask extends AbstractNextStopProvider {
 					}
 					hours.put(this.busStop.getLineNumber(), busStopHours);
 				} else {
-					// no information
-					errorMessage = this.context.getString(R.string.bus_stop_no_info_and_source, this.busStop.getLineNumber(), SOURCE_NAME);
-					publishProgress(errorMessage);
-					hours.put(this.busStop.getLineNumber(), new BusStopHours(SOURCE_NAME, errorMessage));
-					AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BUS_STOP_REMOVED, this.busStop.getUID(), context
-							.getPackageManager().getPackageInfo(Constant.PKG, 0).versionCode);
+					// provider error
+					JSONObject jStatus = jResponse.getJSONObject("status");
+					if ("Error".equalsIgnoreCase(jStatus.getString("level"))) {
+						String code = jStatus.getString("code");
+						if ("NoResultsDate".equalsIgnoreCase(code)) {
+							errorMessage = this.context.getString(R.string.bus_stop_no_results_date, this.busStop.getLineNumber());
+							publishProgress(errorMessage);
+							hours.put(this.busStop.getLineNumber(), new BusStopHours(SOURCE_NAME, errorMessage));
+						}
+						AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BUS_STOP_SOURCE_ERROR, code,
+								Integer.valueOf(this.busStop.getCode()));
+					}
+					if (hours.size() == 0) {
+						// no information
+						errorMessage = this.context.getString(R.string.bus_stop_no_info_and_source, this.busStop.getLineNumber(), SOURCE_NAME);
+						publishProgress(errorMessage);
+						hours.put(this.busStop.getLineNumber(), new BusStopHours(SOURCE_NAME, errorMessage));
+						AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BUS_STOP_REMOVED, this.busStop.getUID(),
+								context.getPackageManager().getPackageInfo(Constant.PKG, 0).versionCode);
+					}
 				}
 				return hours;
 			case HttpURLConnection.HTTP_INTERNAL_ERROR:
