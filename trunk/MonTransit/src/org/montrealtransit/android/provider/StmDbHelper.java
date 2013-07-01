@@ -37,7 +37,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	/**
 	 * The database version use to manage database changes.
 	 */
-	public static final int DB_VERSION = 21; // TODO 22
+	public static final int DB_VERSION = 22;
 
 	/**
 	 * The list of SQL dump files.
