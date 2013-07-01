@@ -17,7 +17,7 @@ public class MyLog {
 	 * Use this to enable location display.
 	 */
 	public static final boolean SHOW_LOCATION = false;
-	
+
 	/**
 	 * The log tag for all the logs from the app.
 	 */
