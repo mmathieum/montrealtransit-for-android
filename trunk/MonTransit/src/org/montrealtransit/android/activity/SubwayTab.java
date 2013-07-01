@@ -1257,6 +1257,12 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 */
 	public void generateOrderedStationsIds() {
 		MyLog.v(TAG, "generateOrderedStationsIds()");
+		// IF no station DO
+		if (Utils.getCollectionSize(this.closestStations) == 0) {
+			this.closestStationId = null;
+			return;
+		}
+		// ELSE IF stations DO
 		List<ASubwayStation> orderedStations = new ArrayList<ASubwayStation>(this.closestStations);
 		// order the stations list by distance (closest first)
 		Collections.sort(orderedStations, new Comparator<ASubwayStation>() {
