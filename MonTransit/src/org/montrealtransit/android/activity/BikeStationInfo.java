@@ -313,7 +313,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	/**
 	 * The time-stamp of the last data refresh from www.
 	 */
-	private int lastSuccessfulRefresh = 0;
+	private int lastSuccessfulRefresh = -1;
 
 	private float locationDeclination;
 
@@ -680,10 +680,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			updateDistancesWithNewLocation();
 		}
 		// IF location updates are not already enabled DO
-		if (!this.locationUpdatesEnabled) {
-			// enable
-			this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled, this.paused);
-		}
+		this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled, this.paused);
 	}
 
 	/**
@@ -922,6 +919,9 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	 */
 	public int getLastUpdateTime() {
 		int timestamp = 0;
+		if (this.lastSuccessfulRefresh < 0) {
+			this.lastSuccessfulRefresh = UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, 0);
+		}
 		timestamp = this.lastSuccessfulRefresh;
 		if (timestamp == 0 && this.bikeStation != null) {
 			timestamp = this.bikeStation.getLatestUpdateTime();
