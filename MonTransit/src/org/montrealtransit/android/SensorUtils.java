@@ -44,11 +44,11 @@ public final class SensorUtils {
 	/**
 	 * The minimum degree change for a list view to be updated.
 	 */
-	public static final int COMPASS_DEGREE_UPDATE_THRESOLD = 18;
+	public static final int COMPASS_DEGREE_UPDATE_THRESOLD = 1;
 	/**
 	 * The minimum between 2 {@link #updateCompass(float[])} in milliseconds.
 	 */
-	public static final int COMPASS_UPDATE_THRESOLD = 150; // 0.15 seconds
+	public static final int COMPASS_UPDATE_THRESOLD = 0; // 0.15 seconds
 
 	/**
 	 * Utility class.
@@ -213,9 +213,10 @@ public final class SensorUtils {
 			return 0;
 		}
 		float[] R = new float[9];
-		SensorManager.getRotationMatrix(R, null, accelerometerValues, magneticFieldValues);
-		float[] outR = new float[9];
-
+		if (!SensorManager.getRotationMatrix(R, null, accelerometerValues, magneticFieldValues)) {
+			// MyLog.d(TAG, "No rotation matrix!");
+			return 0;
+		}
 		int x_axis = SensorManager.AXIS_X;
 		int y_axis = SensorManager.AXIS_Y;
 		int rotation = SupportFactory.get().getSurfaceRotation(context);
@@ -234,11 +235,15 @@ public final class SensorUtils {
 			y_axis = SensorManager.AXIS_X;
 			break;
 		}
-		SensorManager.remapCoordinateSystem(R, x_axis, y_axis, outR);
+		float[] outR = new float[9];
+		if (!SensorManager.remapCoordinateSystem(R, x_axis, y_axis, outR)) {
+			MyLog.d(TAG, "Can't remap coordinate system!");
+			return 0;
+		}
 
 		float[] values = new float[3];
 		SensorManager.getOrientation(outR, values);
-
+		
 		// Convert from Radians to Degrees.
 		values[0] = (float) Math.toDegrees(values[0]);
 		values[1] = (float) Math.toDegrees(values[1]);
