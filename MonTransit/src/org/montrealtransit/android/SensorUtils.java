@@ -48,7 +48,7 @@ public final class SensorUtils {
 	/**
 	 * The minimum between 2 {@link #updateCompass(float[])} in milliseconds.
 	 */
-	public static final int COMPASS_UPDATE_THRESOLD = 0; // 0.15 seconds
+	public static final int COMPASS_UPDATE_THRESOLD = 0; // 0 seconds
 
 	/**
 	 * Utility class.
@@ -63,8 +63,29 @@ public final class SensorUtils {
 	public static void registerShakeAndCompassListener(Context context, SensorEventListener listener) {
 		MyLog.v(TAG, "registerShakeAndCompassListener()");
 		SensorManager mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+		// printSensorsList(mSensorManager);
 		mSensorManager.registerListener(listener, getAccelerometerSensor(mSensorManager), SensorManager.SENSOR_DELAY_UI);
 		mSensorManager.registerListener(listener, getMagneticFieldSensor(mSensorManager), SensorManager.SENSOR_DELAY_UI);
+	}
+
+	/**
+	 * Register the listener for the compass sensor service.
+	 * @param context the context
+	 * @param listener the listener
+	 */
+	public static void registerCompassListener(Context context, SensorEventListener listener) {
+		MyLog.v(TAG, "registerCompassListener()");
+		SensorManager mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+		// printSensorsList(mSensorManager);
+		mSensorManager.registerListener(listener, getAccelerometerSensor(mSensorManager), SensorManager.SENSOR_DELAY_UI);
+		mSensorManager.registerListener(listener, getMagneticFieldSensor(mSensorManager), SensorManager.SENSOR_DELAY_UI);
+	}
+
+	@Deprecated
+	public static void registerOrientationListener(Context context, SensorEventListener listener) {
+		MyLog.v(TAG, "registerOrientationListener()");
+		SensorManager mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+		mSensorManager.registerListener(listener, getOrientationSensor(mSensorManager), SensorManager.SENSOR_DELAY_GAME);
 	}
 
 	/**
@@ -75,7 +96,7 @@ public final class SensorUtils {
 	public static void registerShakeListener(Context context, SensorEventListener listener) {
 		MyLog.v(TAG, "registerShakeListener()");
 		SensorManager mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-		mSensorManager.registerListener(listener, getAccelerometerSensor(mSensorManager), SensorManager.SENSOR_DELAY_UI);
+		mSensorManager.registerListener(listener, getAccelerometerSensor(mSensorManager), SensorManager.SENSOR_DELAY_NORMAL);
 	}
 
 	/**
@@ -126,16 +147,29 @@ public final class SensorUtils {
 		void onShake();
 	}
 
-	/**
-	 * Register the listener for the compass sensor service.
-	 * @param context the context
-	 * @param listener the listener
-	 */
-	public static void registerCompassListener(Context context, SensorEventListener listener) {
-		MyLog.v(TAG, "registerCompassListener()");
-		SensorManager mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-		mSensorManager.registerListener(listener, getAccelerometerSensor(mSensorManager), SensorManager.SENSOR_DELAY_UI);
-		mSensorManager.registerListener(listener, getMagneticFieldSensor(mSensorManager), SensorManager.SENSOR_DELAY_UI);
+	@SuppressWarnings("deprecation")
+	public static void printSensorsList(SensorManager mSensorManager) {
+		MyLog.v(TAG, "printSensorsList()");
+		for (Sensor sensor : mSensorManager.getSensorList(Sensor.TYPE_MAGNETIC_FIELD)) {
+			MyLog.d(TAG, "TYPE_MAGNETIC_FIELD: %s", toSensorString(sensor));
+		}
+		for (Sensor sensor : mSensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER)) {
+			MyLog.d(TAG, "TYPE_ACCELEROMETER: %s", toSensorString(sensor));
+		}
+		for (Sensor sensor : mSensorManager.getSensorList(Sensor.TYPE_ORIENTATION)) {
+			MyLog.d(TAG, "TYPE_ORIENTATION_: %s", toSensorString(sensor));
+		}
+	}
+
+	private static String toSensorString(Sensor sensor) {
+		return "- {Sensor name=\"" + sensor.getName() + "\", vendor=\"" + sensor.getVendor() + "\", version=" + sensor.getVersion() + ", type="
+				+ sensor.getType() + ", maxRange=" + sensor.getMaximumRange() + ", resolution=" + sensor.getResolution() + ", power=" + sensor.getPower()
+				/* + ", minDelay=" + sensor.getMinDelay() */+ "}";
+	}
+
+	@Deprecated
+	private static Sensor getOrientationSensor(SensorManager mSensorManager) {
+		return mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
 	}
 
 	/**
@@ -144,12 +178,6 @@ public final class SensorUtils {
 	 */
 	public static Sensor getMagneticFieldSensor(SensorManager mSensorManager) {
 		return mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-		// List<Sensor> list = mSensorManager.getSensorList(Sensor.TYPE_MAGNETIC_FIELD);
-		// MyLog.d(TAG, "MagneticFieldSensor: " + list.size());
-		// if (list.size() > 0) {
-		// return list.get(0);
-		// }
-		// return null;
 	}
 
 	/**
@@ -158,12 +186,6 @@ public final class SensorUtils {
 	 */
 	public static Sensor getAccelerometerSensor(SensorManager mSensorManager) {
 		return mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		// List<Sensor> list = mSensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
-		// MyLog.d(TAG, "AccelerometerSensor: " + list.size());
-		// if (list.size() > 0) {
-		// return list.get(0);
-		// }
-		// return null;
 	}
 
 	/**
@@ -208,7 +230,8 @@ public final class SensorUtils {
 	 * @return the orientation
 	 */
 	public static float calculateOrientation(Context context, float[] accelerometerValues, float[] magneticFieldValues) {
-		if (accelerometerValues == null || magneticFieldValues == null) {
+		// MyLog.v(TAG, "calculateOrientation()");
+		if (accelerometerValues == null || accelerometerValues.length != 3 || magneticFieldValues == null || magneticFieldValues.length != 3) {
 			MyLog.w(TAG, "accelerometer and magnetic field values are required!");
 			return 0;
 		}
@@ -243,11 +266,13 @@ public final class SensorUtils {
 
 		float[] values = new float[3];
 		SensorManager.getOrientation(outR, values);
-		
+
 		// Convert from Radians to Degrees.
 		values[0] = (float) Math.toDegrees(values[0]);
 		values[1] = (float) Math.toDegrees(values[1]);
 		values[2] = (float) Math.toDegrees(values[2]);
+
+		// MyLog.d(TAG, "calculateOrientation() > [" + values[0] + "|" + values[1] + "|" + values[2]);
 
 		return values[0];
 	}
@@ -270,25 +295,41 @@ public final class SensorUtils {
 	 * @param accelerometerValues the {@link Sensor#TYPE_ACCELEROMETER} values
 	 * @param magneticFieldValues the {@link Sensor#TYPE_MAGNETIC_FIELD} values
 	 * @param listener the listener
-	 * @deprecated not working yet
 	 */
-	@Deprecated
-	public static void checkForCompass(SensorEvent event, float[] accelerometerValues, float[] magneticFieldValues, CompassListener listener) {
+	public static void checkForCompass(Context context, SensorEvent event, float[] accelerometerValues, float[] magneticFieldValues, CompassListener listener) {
 		// MyLog.v(TAG, "checkForCompass(%s,%s,%s)", event.sensor.getType(), accelerometerValues, magneticFieldValues);
+		switch (event.accuracy) {
+		case SensorManager.SENSOR_STATUS_UNRELIABLE:
+			// MyLog.d(TAG, "Sensor status unreliable: %s", toSensorString(event.sensor));
+			// return;
+			break;
+		case SensorManager.SENSOR_STATUS_ACCURACY_LOW:
+			// MyLog.d(TAG, "Sensor status accuracy low: %s", toSensorString(event.sensor));
+			break;
+		default:
+			break;
+		}
+		// MyLog.d(TAG, "TYPE_ACCELEROMETER > [" + accelerometerValues[0] + "|" + accelerometerValues[1] + "|" + accelerometerValues[2]);
+		// MyLog.d(TAG, "TYPE_MAGNETIC_FIELD > [" + magneticFieldValues[0] + "|" + magneticFieldValues[1] + "|" + magneticFieldValues[2]);
 		switch (event.sensor.getType()) {
 		case Sensor.TYPE_ACCELEROMETER:
-			accelerometerValues = event.values;
-			if (magneticFieldValues != null) {
-				listener.onCompass();
+			for (int i = 0; i < event.values.length; i++) {
+				accelerometerValues[i] = event.values[i];
+			}
+			if (magneticFieldValues != null && magneticFieldValues[0] != 0.0f && magneticFieldValues[1] != 0.0f && magneticFieldValues[2] != 0.0f) {
+				listener.updateCompass(calculateOrientation(context, accelerometerValues, magneticFieldValues), false);
 			}
 			break;
 		case Sensor.TYPE_MAGNETIC_FIELD:
-			magneticFieldValues = event.values;
-			if (accelerometerValues != null) {
-				listener.onCompass();
+			for (int i = 0; i < event.values.length; i++) {
+				magneticFieldValues[i] = event.values[i];
+			}
+			if (accelerometerValues != null && accelerometerValues[0] != 0.0f && accelerometerValues[1] != 0.0f && accelerometerValues[2] != 0.0f) {
+				listener.updateCompass(calculateOrientation(context, accelerometerValues, magneticFieldValues), false);
 			}
 			break;
 		default:
+			// MyLog.d(TAG, "unexpected event from sensor: " + toSensorString(event.sensor));
 			break;
 		}
 	}
@@ -300,8 +341,10 @@ public final class SensorUtils {
 
 		/**
 		 * Called when the compass change.
+		 * @param orientation the new orientation
+		 * @param force true to force update
 		 */
-		void onCompass();
+		void updateCompass(float orientation, boolean force);
 	}
 
 	/**
@@ -312,13 +355,6 @@ public final class SensorUtils {
 	public static void unregisterSensorListener(Context context, SensorEventListener listener) {
 		MyLog.v(TAG, "unregisterSensorListener()");
 		((SensorManager) context.getSystemService(Context.SENSOR_SERVICE)).unregisterListener(listener);
-	}
-
-	@Deprecated
-	public static void registerOrientationListener(Context context, SensorEventListener listener) {
-		MyLog.v(TAG, "registerOrientationListener()");
-		SensorManager mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-		mSensorManager.registerListener(listener, mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_GAME);
 	}
 
 	@Deprecated
@@ -336,58 +372,19 @@ public final class SensorUtils {
 
 	@Deprecated
 	public static void checkForOrientation(SensorEvent event, float[] orientationFieldValues, CompassListener listener) {
-		if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
-			orientationFieldValues = event.values;
-			listener.onCompass();
+		switch (event.sensor.getType()) {
+		case Sensor.TYPE_ORIENTATION:
+			// MyLog.d(TAG, "TYPE_ORIENTATION > [" + event.values[0] + "|" + event.values[1] + "|" + event.values[2]);
+			for (int i = 0; i < event.values.length; i++) {
+				orientationFieldValues[i] = event.values[i];
+			}
+			listener.updateCompass(orientationFieldValues[0], false);
+			break;
+		default:
+			// MyLog.d(TAG, "unexpected event from sensor: " + toSensorString(event.sensor));
+			break;
 		}
 	}
-
-	// public static void updateCompass(final boolean force, final Location currentLocation, final float orientation, final long now, final int scrollState,
-	// final long lastCompassChanged, final int lastCompassInDegree, final SensorTaskCompleted callback) {
-	// if (currentLocation == null /* || poi == null */|| orientation == 0) {
-	// // MyLog.d(TAG, "updateCompass() > no location (%s) or no POI (%s) or no orientation (%s)", (currentLocation == null), (poi == null), orientation);
-	// callback.onSensorTaskCompleted(false);
-	// return;
-	// }
-	// if (!force) {
-	// // if (io == 0) {
-	// // // MyLog.d(TAG, "updateCompass() > no orientation");
-	// // callback.onSensorTaskCompleted(false);
-	// // return;
-	// // }
-	// if (scrollState != OnScrollListener.SCROLL_STATE_IDLE) {
-	// // MyLog.d(TAG, "updateCompass() > scrolling");
-	// callback.onSensorTaskCompleted(false);
-	// return;
-	// }
-	// final boolean tooSoon = (now - lastCompassChanged) <= COMPASS_UPDATE_THRESOLD;
-	// if (tooSoon) {
-	// // MyLog.d(TAG, "updateCompass() > too soon");
-	// callback.onSensorTaskCompleted(false);
-	// return;
-	// }
-	// final boolean notDifferentEnough = Math.abs(lastCompassInDegree - orientation) <= COMPASS_DEGREE_UPDATE_THRESOLD;
-	// if (notDifferentEnough) {
-	// // MyLog.d(TAG, "updateCompass() > not different enough");
-	// callback.onSensorTaskCompleted(false);
-	// return;
-	// }
-	// }
-	// callback.onSensorTaskCompleted(true);
-	// // new AsyncTask<Void, Void, Boolean>() {
-	// //
-	// // @Override
-	// // protected Boolean doInBackground(Void... params) {
-	// // return updateCompass(activity, poi, force, currentLocation, orientation, now, scrollState, lastCompassChanged, lastCompassInDegree,
-	// // headingArrowResId);
-	// // }
-	// //
-	// // @Override
-	// // protected void onPostExecute(Boolean result) {
-	// // callback.onSensorTaskCompleted(result);
-	// // }
-	// // }.execute();
-	// }
 
 	public static void updateCompass(final boolean force, final Location currentLocation, final float orientation, final long now, final int scrollState,
 			final long lastCompassChanged, final int lastCompassInDegree, final SensorTaskCompleted callback) {
@@ -421,96 +418,7 @@ public final class SensorUtils {
 			}
 		}
 		callback.onSensorTaskCompleted(true);
-		// new AsyncTask<Void, Void, Boolean>() {
-		//
-		// @Override
-		// protected Boolean doInBackground(Void... params) {
-		// return updateCompass(activity, pois, force, currentLocation, orientation, now, scrollState, lastCompassChanged, lastCompassInDegree,
-		// headingArrowResId);
-		// }
-		//
-		// @Override
-		// protected void onPostExecute(Boolean result) {
-		// callback.onSensorTaskCompleted(result);
-		// }
-		// }.execute();
 	}
-
-	// public static boolean updateCompass(Activity activity, List<? extends POI> pois, boolean force, Location currentLocation, float orientation, long now,
-	// int scrollState, long lastCompassChanged, int lastCompassInDegree, int headingArrowResId) {
-	// if (currentLocation == null || pois == null || orientation == 0) {
-	// // MyLog.d(TAG, "updateCompass() > no location (%s) or no POI (%s) or no orientation (%s)", (currentLocation== null), (pois == null), orientation);
-	// return false;
-	// }
-	// int io = (int) orientation;
-	// if (!force) {
-	// // if (io == 0) {
-	// // // MyLog.d(TAG, "updateCompass() > no orientation");
-	// // return false;
-	// // }
-	// if (scrollState != OnScrollListener.SCROLL_STATE_IDLE) {
-	// // MyLog.d(TAG, "updateCompass() > scrolling");
-	// }
-	// final boolean tooSoon = (now - lastCompassChanged) <= COMPASS_UPDATE_THRESOLD;
-	// if (tooSoon) {
-	// // MyLog.d(TAG, "updateCompass() > too soon");
-	// return false;
-	// }
-	// final boolean notDifferentEnough = Math.abs(lastCompassInDegree - io) <= COMPASS_DEGREE_UPDATE_THRESOLD;
-	// if (notDifferentEnough) {
-	// // MyLog.d(TAG, "updateCompass() > not different enough");
-	// return false;
-	// }
-	// }
-	// float locationDeclination = new GeomagneticField((float) currentLocation.getLatitude(), (float) currentLocation.getLongitude(),
-	// (float) currentLocation.getAltitude(), currentLocation.getTime()).getDeclination();
-	// Pair<Integer, Integer> arrowDim = SensorUtils.getResourceDimension(activity, headingArrowResId);
-	// // update closest bike stations compass
-	// for (POI poi : pois) {
-	// poi.getCompassMatrix().reset();
-	// final float compassRotationInDegree = getCompassRotationInDegree(currentLocation.getLatitude(), currentLocation.getLongitude(), poi.getLat(),
-	// poi.getLng(), orientation, locationDeclination);
-	// poi.getCompassMatrix().postRotate(compassRotationInDegree, arrowDim.first / 2, arrowDim.second / 2);
-	// }
-	// return true;
-	// }
-
-	// public static boolean updateCompass(Activity activity, POI poi, boolean force, Location currentLocation, float orientation, long now, int scrollState,
-	// long lastCompassChanged, int lastCompassInDegree, int headingArrowResId) {
-	// if (currentLocation == null || poi == null || orientation == 0) {
-	// // MyLog.d(TAG, "updateCompass() > no location (%s) or no POI (%s) or no orientation (%s)", (currentLocation== null), (pois == null), orientation);
-	// return false;
-	// }
-	// int io = (int) orientation;
-	// if (!force) {
-	// // if (io == 0) {
-	// // // MyLog.d(TAG, "updateCompass() > no orientation");
-	// // return false;
-	// // }
-	// if (scrollState != OnScrollListener.SCROLL_STATE_IDLE) {
-	// // MyLog.d(TAG, "updateCompass() > scrolling");
-	// }
-	// final boolean tooSoon = (now - lastCompassChanged) <= COMPASS_UPDATE_THRESOLD;
-	// if (tooSoon) {
-	// // MyLog.d(TAG, "updateCompass() > too soon");
-	// return false;
-	// }
-	// final boolean notDifferentEnough = Math.abs(lastCompassInDegree - io) <= COMPASS_DEGREE_UPDATE_THRESOLD;
-	// if (notDifferentEnough) {
-	// // MyLog.d(TAG, "updateCompass() > not different enough");
-	// return false;
-	// }
-	// }
-	// float locationDeclination = new GeomagneticField((float) currentLocation.getLatitude(), (float) currentLocation.getLongitude(),
-	// (float) currentLocation.getAltitude(), currentLocation.getTime()).getDeclination();
-	// Pair<Integer, Integer> arrowDim = SensorUtils.getResourceDimension(activity, headingArrowResId /* R.drawable.heading_arrow */);
-	// // update closest bike stations compass
-	// poi.getCompassMatrix().reset();
-	// poi.getCompassMatrix().postRotate(
-	// getCompassRotationInDegree(currentLocation.getLatitude(), currentLocation.getLongitude(), poi.getLat(), poi.getLng(), orientation,
-	// locationDeclination), arrowDim.first / 2, arrowDim.second / 2);
-	// return true;
-	// }
 
 	public interface SensorTaskCompleted {
 		void onSensorTaskCompleted(boolean result);

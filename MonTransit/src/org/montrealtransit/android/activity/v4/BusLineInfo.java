@@ -127,11 +127,11 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 	/**
 	 * The {@link Sensor#TYPE_ACCELEROMETER} values.
 	 */
-	private float[] accelerometerValues;
+	private float[] accelerometerValues = new float[3];
 	/**
 	 * The {@link Sensor#TYPE_MAGNETIC_FIELD} values.
 	 */
-	private float[] magneticFieldValues;
+	private float[] magneticFieldValues = new float[3];
 	/**
 	 * The selected stop code (or null).
 	 */
@@ -227,27 +227,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 	public void onSensorChanged(SensorEvent se) {
 		// MyLog.v(TAG, "onSensorChanged()");
 		SensorUtils.checkForShake(se, this.lastSensorUpdate, this.lastSensorAccelerationIncGravity, this.lastSensorAcceleration, this);
-		checkForCompass(se, this);
-	}
-
-	/**
-	 * @see SensorUtils#checkForCompass(SensorEvent, float[], float[], CompassListener)
-	 */
-	public void checkForCompass(SensorEvent event, CompassListener listener) {
-		switch (event.sensor.getType()) {
-		case Sensor.TYPE_ACCELEROMETER:
-			accelerometerValues = event.values;
-			if (magneticFieldValues != null) {
-				listener.onCompass();
-			}
-			break;
-		case Sensor.TYPE_MAGNETIC_FIELD:
-			magneticFieldValues = event.values;
-			if (accelerometerValues != null) {
-				listener.onCompass();
-			}
-			break;
-		}
+		SensorUtils.checkForCompass(this, se, this.accelerometerValues, this.magneticFieldValues, this);
 	}
 
 	@Override
@@ -276,15 +256,15 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 	}
 
 	@Override
-	public void onCompass() {
+	public void updateCompass(float orientation, boolean force) {
 		// MyLog.v(TAG, "onCompass()");
-		if (this.adapter != null && this.accelerometerValues != null && this.magneticFieldValues != null) {
+		if (this.adapter != null && orientation != 0) {
 			// updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues));
 			for (int i = 0; i < this.adapter.getCount(); i++) {
 				Fragment f = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.viewpager + ":" + i);
 				if (f != null) {
 					BusLineDirectionFragment df = (BusLineDirectionFragment) f;
-					df.updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues), false);
+					df.updateCompass(orientation, force);
 				}
 			}
 		}

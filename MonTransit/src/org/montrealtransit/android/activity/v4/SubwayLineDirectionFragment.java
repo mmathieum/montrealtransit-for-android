@@ -63,10 +63,6 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 	 * The log tag.
 	 */
 	private static final String TAG = SubwayLineDirectionFragment.class.getSimpleName();
-	/**
-	 * The minimum between 2 {@link ArrayAdapter#notifyDataSetChanged()} in milliseconds.
-	 */
-	private static final int ADAPTER_NOTIFY_THRESOLD = 150; // 0.15 seconds
 
 	/**
 	 * The subway stations list adapter.
@@ -525,7 +521,7 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 		// MyLog.v(TAG, "notifyDataSetChanged(%s)", force);
 		long now = System.currentTimeMillis();
 		if (this.adapter != null && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE
-				&& (force || (now - this.lastNotifyDataSetChanged) > ADAPTER_NOTIFY_THRESOLD)) {
+				&& (force || (now - this.lastNotifyDataSetChanged) > Utils.ADAPTER_NOTIFY_THRESOLD)) {
 			// MyLog.d(TAG, "Notify data set changed");
 			this.adapter.notifyDataSetChanged();
 			this.lastNotifyDataSetChanged = now;
