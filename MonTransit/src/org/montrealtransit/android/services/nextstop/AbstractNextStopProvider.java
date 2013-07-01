@@ -1,6 +1,5 @@
 package org.montrealtransit.android.services.nextstop;
 
-import java.lang.ref.WeakReference;
 import java.util.Map;
 
 import org.montrealtransit.android.MyLog;
@@ -19,7 +18,7 @@ public abstract class AbstractNextStopProvider extends AsyncTask<Void, String, M
 	/**
 	 * The class that will handle the response.
 	 */
-	protected WeakReference<NextStopListener> from;
+	protected/* WeakReference< */NextStopListener/* > */from;
 	/**
 	 * The class asking for the info.
 	 */
@@ -36,7 +35,7 @@ public abstract class AbstractNextStopProvider extends AsyncTask<Void, String, M
 	 */
 	public AbstractNextStopProvider(Context context, NextStopListener from, BusStop busStop) {
 		this.context = context;
-		this.from = new WeakReference<NextStopListener>(from);
+		this.from = /* new WeakReference<NextStopListener>( */from/* ) */;
 		this.busStop = busStop;
 	}
 
@@ -48,11 +47,14 @@ public abstract class AbstractNextStopProvider extends AsyncTask<Void, String, M
 	@Override
 	protected void onPostExecute(Map<String, BusStopHours> results) {
 		MyLog.v(getTag(), "onPostExecute()");
-		if (results != null) {
-			NextStopListener fromWR = this.from == null ? null : this.from.get();
-			if (fromWR != null) {
-				fromWR.onNextStopsLoaded(results);
-			}
+		// MyLog.d(getTag(), "results null?: " + (results == null));
+		if (results == null) {
+			return;
+		}
+		NextStopListener fromWR = this.from;// == null ? null : this.from.get();
+		// MyLog.d(getTag(), "fromWR null?: " + (fromWR == null));
+		if (fromWR != null) {
+			fromWR.onNextStopsLoaded(results);
 		}
 	}
 
@@ -62,7 +64,8 @@ public abstract class AbstractNextStopProvider extends AsyncTask<Void, String, M
 		if (values.length <= 0) {
 			return;
 		}
-		NextStopListener fromWR = this.from == null ? null : this.from.get();
+		NextStopListener fromWR = this.from; // == null ? null : this.from.get();
+		// MyLog.d(getTag(), "fromWR null?: " + (fromWR == null));
 		if (fromWR != null) {
 			fromWR.onNextStopsProgress(values[0]);
 		}
