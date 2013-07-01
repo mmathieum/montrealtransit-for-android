@@ -133,11 +133,11 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	/**
 	 * The {@link Sensor#TYPE_ACCELEROMETER} values.
 	 */
-	private float[] accelerometerValues;
+	private float[] accelerometerValues = new float[3];
 	/**
 	 * The {@link Sensor#TYPE_MAGNETIC_FIELD} values.
 	 */
-	private float[] magneticFieldValues;
+	private float[] magneticFieldValues = new float[3];
 	/**
 	 * The last compass value.
 	 */
@@ -268,28 +268,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	public void onSensorChanged(SensorEvent event) {
 		// MyLog.v(TAG, "onSensorChanged()");
 		SensorUtils.checkForShake(event, this.lastSensorUpdate, this.lastSensorAccelerationIncGravity, this.lastSensorAcceleration, this);
-		// SensorUtils.checkForCompass(event, this.accelerometerValues, this.magneticFieldValues, this);
-		checkForCompass(event, this);
-	}
-
-	/**
-	 * @see SensorUtils#checkForCompass(SensorEvent, float[], float[], CompassListener)
-	 */
-	public void checkForCompass(SensorEvent event, CompassListener listener) {
-		switch (event.sensor.getType()) {
-		case Sensor.TYPE_ACCELEROMETER:
-			accelerometerValues = event.values;
-			if (magneticFieldValues != null) {
-				listener.onCompass();
-			}
-			break;
-		case Sensor.TYPE_MAGNETIC_FIELD:
-			magneticFieldValues = event.values;
-			if (accelerometerValues != null) {
-				listener.onCompass();
-			}
-			break;
-		}
+		SensorUtils.checkForCompass(this, event, this.accelerometerValues, this.magneticFieldValues,/* this.orientationFieldValues, */this);
 	}
 
 	@Override
@@ -303,20 +282,13 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 		showClosestStation();
 	}
 
-	@Override
-	public void onCompass() {
-		// MyLog.v(TAG, "onCompass()");
-		if (this.accelerometerValues != null && this.magneticFieldValues != null) {
-			updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues), false);
-		}
-	}
-
 	/**
 	 * Update the compass image(s).
 	 * @param orientation the new orientation
 	 */
-	private void updateCompass(final float orientation, boolean force) {
-		// MyLog.v(TAG, "updateCompass(%s)", orientation[0]);
+	@Override
+	public void updateCompass(final float orientation, boolean force) {
+		// MyLog.v(TAG, "updateCompass(%s, %s)", orientation, force);
 		if (this.closestStations == null) {
 			// MyLog.d(TAG, "updateCompass() > no POI");
 			return;
@@ -338,11 +310,6 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	}
 
 	/**
-	 * The minimum between 2 {@link ArrayAdapter#notifyDataSetChanged()} in milliseconds.
-	 */
-	private static final int ADAPTER_NOTIFY_THRESOLD = 150; // 0.15 seconds
-
-	/**
 	 * The last {@link ArrayAdapter#notifyDataSetChanged() time-stamp in milliseconds.
 	 */
 	private long lastNotifyDataSetChanged = -1;
@@ -355,7 +322,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 		// MyLog.v(TAG, "notifyDataSetChanged(%s)", force);
 		long now = System.currentTimeMillis();
 		if (this.adapter != null && this.scrollState == OnScrollListener.SCROLL_STATE_IDLE
-				&& (force || (now - this.lastNotifyDataSetChanged) > ADAPTER_NOTIFY_THRESOLD)) {
+				&& (force || (now - this.lastNotifyDataSetChanged) > Utils.ADAPTER_NOTIFY_THRESOLD)) {
 			// MyLog.d(TAG, "Notify data set changed");
 			this.adapter.notifyDataSetChanged();
 			this.lastNotifyDataSetChanged = now;

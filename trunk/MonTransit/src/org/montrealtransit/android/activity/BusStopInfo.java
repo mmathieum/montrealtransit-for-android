@@ -147,11 +147,11 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	/**
 	 * The {@link Sensor#TYPE_ACCELEROMETER} values.
 	 */
-	private float[] accelerometerValues;
+	private float[] accelerometerValues = new float[3];
 	/**
 	 * The {@link Sensor#TYPE_MAGNETIC_FIELD} values.
 	 */
-	private float[] magneticFieldValues;
+	private float[] magneticFieldValues = new float[3];
 	/**
 	 * The last compass degree.
 	 */
@@ -301,43 +301,15 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 		// MyLog.v(TAG, "onSensorChanged()");
-		// SensorUtils.checkForCompass(event, this.accelerometerValues, this.magneticFieldValues, this);
-		checkForCompass(event, this);
-	}
-
-	/**
-	 * @see SensorUtils#checkForCompass(SensorEvent, float[], float[], CompassListener)
-	 */
-	public void checkForCompass(SensorEvent event, CompassListener listener) {
-		switch (event.sensor.getType()) {
-		case Sensor.TYPE_ACCELEROMETER:
-			accelerometerValues = event.values;
-			if (magneticFieldValues != null) {
-				listener.onCompass();
-			}
-			break;
-		case Sensor.TYPE_MAGNETIC_FIELD:
-			magneticFieldValues = event.values;
-			if (accelerometerValues != null) {
-				listener.onCompass();
-			}
-			break;
-		}
-	}
-
-	@Override
-	public void onCompass() {
-		// MyLog.v(TAG, "onCompass()");
-		if (this.accelerometerValues != null && this.magneticFieldValues != null) {
-			updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues), false);
-		}
+		SensorUtils.checkForCompass(this, event, this.accelerometerValues, this.magneticFieldValues, this);
 	}
 
 	/**
 	 * Update the compass image(s).
 	 * @param orientation the new orientation
 	 */
-	private void updateCompass(final float orientation, boolean force) {
+	@Override
+	public void updateCompass(final float orientation, boolean force) {
 		// MyLog.v(TAG, "updateCompass(%s)", orientation[0]);
 		if (this.busStop == null) {
 			return;

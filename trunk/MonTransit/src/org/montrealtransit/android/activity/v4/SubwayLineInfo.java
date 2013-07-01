@@ -115,11 +115,11 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 	/**
 	 * The {@link Sensor#TYPE_ACCELEROMETER} values.
 	 */
-	private float[] accelerometerValues;
+	private float[] accelerometerValues = new float[3];
 	/**
 	 * The {@link Sensor#TYPE_MAGNETIC_FIELD} values.
 	 */
-	private float[] magneticFieldValues;
+	private float[] magneticFieldValues = new float[3];
 	/**
 	 * The selected station ID (or null)
 	 */
@@ -264,29 +264,7 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 	public void onSensorChanged(SensorEvent se) {
 		// MyLog.v(TAG, "onSensorChanged()");
 		SensorUtils.checkForShake(se, this.lastSensorUpdate, this.lastSensorAccelerationIncGravity, this.lastSensorAcceleration, this);
-		checkForCompass(se, this);
-	}
-
-	/**
-	 * @see SensorUtils#checkForCompass(SensorEvent, float[], float[], CompassListener)
-	 */
-	public void checkForCompass(SensorEvent event, CompassListener listener) {
-		switch (event.sensor.getType()) {
-		case Sensor.TYPE_ACCELEROMETER:
-			accelerometerValues = event.values;
-			if (magneticFieldValues != null) {
-				listener.onCompass();
-			}
-			break;
-		case Sensor.TYPE_MAGNETIC_FIELD:
-			magneticFieldValues = event.values;
-			if (accelerometerValues != null) {
-				listener.onCompass();
-			}
-			break;
-		default:
-			break;
-		}
+		SensorUtils.checkForCompass(this, se, this.accelerometerValues, this.magneticFieldValues, this);
 	}
 
 	@Override
@@ -314,19 +292,12 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 		}
 	}
 
-	@Override
-	public void onCompass() {
-		// MyLog.v(TAG, "onCompass()");
-		if (this.accelerometerValues != null && this.magneticFieldValues != null) {
-			updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues));
-		}
-	}
-
 	/**
 	 * Update the compass image(s).
 	 * @param orientation the new orientation
 	 */
-	private void updateCompass(float orientation) {
+	@Override
+	public void updateCompass(float orientation, boolean force) {
 		// MyLog.v(TAG, "onCompass()");
 		if (this.adapter != null && this.accelerometerValues != null && this.magneticFieldValues != null) {
 			for (int i = 0; i < this.adapter.getCount(); i++) {

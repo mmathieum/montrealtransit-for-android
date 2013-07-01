@@ -137,18 +137,6 @@ public class StmInfoStatusApiReader extends AsyncTask<String, String, String> {
 		super.onPostExecute(errorMessage);
 	}
 
-	@Override
-	protected void onProgressUpdate(String... values) {
-		MyLog.v(TAG, "onProgressUpdate()");
-		if (values.length <= 0) {
-			return;
-		}
-		StmInfoStatusReaderListener fromWR = this.from == null ? null : this.from.get();
-		if (fromWR != null) {
-			fromWR.onStmInfoStatusesLoaded(values[0]);
-		}
-	}
-
 	private static final String STATUS_GREEN_FR = "Service normal";
 	private static final String STATUS_GREEN_EN = "Normal m";
 
