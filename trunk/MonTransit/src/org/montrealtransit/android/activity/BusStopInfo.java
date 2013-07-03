@@ -43,7 +43,6 @@ import org.montrealtransit.android.services.NfcListener;
 import org.montrealtransit.android.services.nextstop.BetaStmInfoTask;
 import org.montrealtransit.android.services.nextstop.NextStopListener;
 import org.montrealtransit.android.services.nextstop.StmInfoTask;
-import org.montrealtransit.android.services.nextstop.StmMobileTask;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -1382,13 +1381,13 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		}).execute(this.busStop.getPlace());
 	}
 
-	/**
-	 * Show m.stm.info page for the current bus stop.
-	 * @param v the view (not used).
-	 */
-	public void showSTMInfoPage(View v) {
-		startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(StmMobileTask.getUrlString(this.busStop.getCode()))));
-	}
+	// /**
+	// * Show m.stm.info page for the current bus stop.
+	// * @param v the view (not used).
+	// */
+	// public void showSTMInfoPage(View v) {
+	// startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(StmMobileTask.getUrlString(this.busStop.getCode()))));
+	// }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -1398,9 +1397,9 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.stm_mobile:
-			showSTMInfoPage(null);
-			return true;
+		// case R.id.stm_mobile:
+		// showSTMInfoPage(null);
+		// return true;
 		case R.id.map:
 			showStopLocationInMaps(null);
 			return true;

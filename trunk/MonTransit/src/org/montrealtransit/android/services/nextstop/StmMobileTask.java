@@ -182,6 +182,7 @@ public class StmMobileTask extends AbstractNextStopProvider {
 	 * @param stopCode the bus stop code
 	 * @return the URL of the bus stop page on m.stm.info
 	 */
+	@Deprecated
 	public static String getUrlString(String stopCode) {
 		return new StringBuilder().append(URL_PART_1_BEFORE_STOP_CODE).append(stopCode).append(URL_PART_2_BEFORE_LANG)
 				.append(Utils.getUserLanguage().equals("fr") ? "fr" : "en").toString();
