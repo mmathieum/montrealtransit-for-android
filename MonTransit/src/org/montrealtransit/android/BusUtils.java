@@ -15,7 +15,6 @@ import org.montrealtransit.android.services.nextstop.AutomaticTask;
 import org.montrealtransit.android.services.nextstop.BetaStmInfoTask;
 import org.montrealtransit.android.services.nextstop.NextStopListener;
 import org.montrealtransit.android.services.nextstop.StmInfoTask;
-import org.montrealtransit.android.services.nextstop.StmMobileTask;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -487,12 +486,12 @@ public class BusUtils {
 		} else if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_BETA_STM_INFO)) {
 			return new BetaStmInfoTask(context, from, busStop);
 		} else if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_MOBILE)) {
-			return new StmMobileTask(context, from, busStop);
+			return new AutomaticTask(context, from, busStop); // StmMobileTask(context, from, busStop);
 		} else if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_AUTO)) {
-			return new AutomaticTask(from, context, busStop);
+			return new AutomaticTask(context, from, busStop);
 		} else {
 			MyLog.w(TAG, "Unknow next stop provider '%s'", provider);
-			return new AutomaticTask(from, context, busStop); // default Auto
+			return new AutomaticTask(context, from, busStop); // default Auto
 		}
 	}
 

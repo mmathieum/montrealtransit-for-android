@@ -24,10 +24,10 @@ public class AutomaticTask extends AbstractNextStopProvider implements NextStopL
 	 * The log tag.
 	 */
 	private static final String TAG = AutomaticTask.class.getSimpleName();
-	/**
-	 * The {@link StmMobileTask}.
-	 */
-	private StmMobileTask taskStmMobile;
+	// /**
+	// * The {@link StmMobileTask}.
+	// */
+	// private StmMobileTask taskStmMobile;
 	/**
 	 * The {@link StmInfoTask}.
 	 */
@@ -40,7 +40,7 @@ public class AutomaticTask extends AbstractNextStopProvider implements NextStopL
 	/**
 	 * @see AbstractNextStopProvider#AbstractNextStopProvider(NextStopListener, Context)
 	 */
-	public AutomaticTask(NextStopListener from, Context context, BusStop busStop) {
+	public AutomaticTask(Context context, NextStopListener from, BusStop busStop) {
 		super(context, from, busStop);
 	}
 
@@ -59,8 +59,8 @@ public class AutomaticTask extends AbstractNextStopProvider implements NextStopL
 			return null; // only beta
 		}
 
-		this.taskStmMobile = new StmMobileTask(context, this, this.busStop);
-		this.taskStmMobile.execute();
+		// this.taskStmMobile = new StmMobileTask(context, this, this.busStop);
+		// this.taskStmMobile.execute();
 
 		this.taskStmInfo = new StmInfoTask(context, this, this.busStop);
 		this.taskStmInfo.execute();
@@ -106,9 +106,9 @@ public class AutomaticTask extends AbstractNextStopProvider implements NextStopL
 		if (this.taskStmInfo != null && this.taskStmInfo.getStatus() != Status.FINISHED) {
 			nbRunning++;
 		}
-		if (this.taskStmMobile != null && this.taskStmMobile.getStatus() != Status.FINISHED) {
-			nbRunning++;
-		}
+		// if (this.taskStmMobile != null && this.taskStmMobile.getStatus() != Status.FINISHED) {
+		// nbRunning++;
+		// }
 		// MyLog.d(TAG, "running task: " + nbRunning);
 		return nbRunning;
 	}
@@ -122,10 +122,10 @@ public class AutomaticTask extends AbstractNextStopProvider implements NextStopL
 			this.taskStmInfo.cancel(true);
 			this.taskStmInfo = null;
 		}
-		if (this.taskStmMobile != null && this.taskStmMobile.getStatus() != Status.FINISHED) {
-			this.taskStmMobile.cancel(true);
-			this.taskStmMobile = null;
-		}
+		// if (this.taskStmMobile != null && this.taskStmMobile.getStatus() != Status.FINISHED) {
+		// this.taskStmMobile.cancel(true);
+		// this.taskStmMobile = null;
+		// }
 	}
 
 	@Override
