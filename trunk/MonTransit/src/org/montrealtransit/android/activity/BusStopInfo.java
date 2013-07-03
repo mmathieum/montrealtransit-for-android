@@ -458,8 +458,9 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 			}
 
 			protected void onPostExecute(Fav result) {
-				((CheckBox) findViewById(R.id.star)).setChecked(result != null);
-				// findViewById(R.id.star).setVisibility(View.VISIBLE);
+				final CheckBox starCb = (CheckBox) findViewById(R.id.star);
+				starCb.setChecked(result != null);
+				starCb.setVisibility(View.VISIBLE);
 			};
 		}.execute();
 	}
@@ -662,6 +663,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		// }
 		// hide other bus lines
 		findViewById(R.id.other_bus_line_list).setVisibility(View.INVISIBLE);
+		findViewById(R.id.star).setVisibility(View.INVISIBLE);
 		this.hours = null;
 		setNextStopsLoading();
 

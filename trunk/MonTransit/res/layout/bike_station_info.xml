@@ -42,7 +42,8 @@
                 android:layout_alignParentRight="true"
                 android:layout_alignWithParentIfMissing="true"
                 android:layout_centerVertical="true"
-                android:onClick="addOrRemoveFavorite" />
+                android:onClick="addOrRemoveFavorite"
+                android:visibility="invisible" />
             <!-- DISTANCE -->
             <TextView
                 android:id="@+id/distance"
