@@ -27,7 +27,9 @@ import android.text.TextUtils;
 /**
  * This task retrieve next bus stop from the http://m.stm.info/ web site.
  * @author Mathieu Méa
+ * @deprecated completely broken by completely new web site design.
  */
+@Deprecated
 public class StmMobileTask extends AbstractNextStopProvider {
 
 	/**

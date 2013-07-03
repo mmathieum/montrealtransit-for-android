@@ -69,12 +69,12 @@ import android.text.style.TextAppearanceSpan;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.CheckBox;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.AbsListView.OnScrollListener;
 
 /**
  * This activity show information about a bus stop.
@@ -433,7 +433,8 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 			} else if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_BETA_STM_INFO)) {
 				message = getString(R.string.next_bus_stops_message_and_source, BetaStmInfoTask.SOURCE_NAME);
 			} else if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_MOBILE)) {
-				message = getString(R.string.next_bus_stops_message_and_source, StmMobileTask.SOURCE_NAME);
+				// message = getString(R.string.next_bus_stops_message_and_source, StmMobileTask.SOURCE_NAME);
+				message = getString(R.string.next_bus_stops_message_auto);
 			} else if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_AUTO)) {
 				message = getString(R.string.next_bus_stops_message_auto);
 			} else {
