@@ -593,6 +593,8 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		if (!TextUtils.isEmpty(newBikeStationName)) {
 			((TextView) findViewById(R.id.station_name)).setText(Utils.cleanBikeStationName(newBikeStationName));
 		}
+		findViewById(R.id.star).setVisibility(View.INVISIBLE);
+
 		if (BikeStationInfo.this.bikeStation == null || !BikeStationInfo.this.bikeStation.getTerminalName().equals(newBikeStationTerminalName)) {
 			findViewById(R.id.availability).setVisibility(View.GONE);
 			findViewById(R.id.availability_loading).setVisibility(View.VISIBLE);
@@ -973,7 +975,9 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			}
 
 			protected void onPostExecute(Fav result) {
-				((CheckBox) findViewById(R.id.star)).setChecked(result != null);
+				final CheckBox starCb = (CheckBox) findViewById(R.id.star);
+				starCb.setChecked(result != null);
+				starCb.setVisibility(View.VISIBLE);
 			};
 		}.execute();
 	}

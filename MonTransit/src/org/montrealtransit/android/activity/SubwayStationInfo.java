@@ -286,6 +286,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 		MyLog.v(TAG, "showNewSubwayStation(%s, %s)", newStationId, newStationName);
 		// temporary set station name
 		((TextView) findViewById(R.id.station_name)).setText(newStationName);
+		findViewById(R.id.star).setVisibility(View.INVISIBLE);
 		if (this.subwayStation == null || !this.subwayStation.getId().equals(newStationId)) {
 			new AsyncTask<String, Void, Pair<SubwayStation, List<SubwayLine>>>() {
 				@Override
@@ -596,7 +597,9 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 			}
 
 			protected void onPostExecute(Fav result) {
-				((CheckBox) findViewById(R.id.star)).setChecked(result != null);
+				final CheckBox starCb = (CheckBox) findViewById(R.id.star);
+				starCb.setChecked(result != null);
+				starCb.setVisibility(View.VISIBLE);
 			};
 		}.execute();
 	}

@@ -62,7 +62,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
-                android:onClick="addOrRemoveFavorite" />
+                android:onClick="addOrRemoveFavorite"
+                android:visibility="invisible" />
             <!-- BUS STOP PLACE -->
             <TextView
                 android:id="@+id/bus_stop_place"
