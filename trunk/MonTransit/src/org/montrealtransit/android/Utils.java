@@ -72,7 +72,7 @@ public class Utils {
 	/**
 	 * The minimum between 2 {@link BaseAdapter#notifyDataSetChanged()} in milliseconds.
 	 */
-	public static final int ADAPTER_NOTIFY_THRESOLD = 150; // 0.15 seconds
+	public static final int ADAPTER_NOTIFY_THRESOLD = 250; // 0.25 seconds
 
 	/**
 	 * Read the input stream and write the stream to the output stream file.
