@@ -1,9 +1,5 @@
 package org.montrealtransit.android.services.nextstop;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.URL;
@@ -65,11 +61,11 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 			publishProgress(context.getString(R.string.downloading_data_from_and_source, SOURCE_NAME));
 			URL url = new URL(getUrlString());
 			URLConnection urlc = url.openConnection();
-			MyLog.d(TAG, "URL created: '%s'", url.toString());
+			// MyLog.d(TAG, "URL created: '%s'", url.toString());
 			HttpURLConnection httpUrlConnection = (HttpURLConnection) urlc;
 			switch (httpUrlConnection.getResponseCode()) {
 			case HttpURLConnection.HTTP_OK:
-				String json = getJson(urlc);
+				String json = Utils.getJson(urlc);
 				AnalyticsUtils.dispatch(context); // while we are connected, send the analytics data
 				publishProgress(this.context.getResources().getString(R.string.processing_data));
 				JSONObject jResponse = new JSONObject(json);
@@ -134,23 +130,6 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 			hours.put(this.busStop.getLineNumber(), new BusStopHours(SOURCE_NAME, this.context.getString(R.string.error)));
 			return hours;
 		}
-	}
-
-	private String getJson(URLConnection urlc) throws UnsupportedEncodingException, IOException {
-		StringBuilder sb = new StringBuilder();
-		BufferedReader reader = null;
-		try {
-			reader = new BufferedReader(new InputStreamReader(urlc.getInputStream(), "UTF-8"), 8);
-			String line = null;
-			while ((line = reader.readLine()) != null) {
-				sb.append(line).append('\n');
-			}
-		} catch (Exception e) {
-			MyLog.w(TAG, e, "Error while reading json!");
-		} finally {
-			reader.close();
-		}
-		return sb.toString();
 	}
 
 	private String formatHour(String time) {
