@@ -40,9 +40,8 @@ import org.montrealtransit.android.services.GeocodingTask;
 import org.montrealtransit.android.services.GeocodingTaskListener;
 import org.montrealtransit.android.services.LoadNextBusStopIntoCacheTask;
 import org.montrealtransit.android.services.NfcListener;
-import org.montrealtransit.android.services.nextstop.BetaStmInfoTask;
+import org.montrealtransit.android.services.nextstop.IStmInfoTask;
 import org.montrealtransit.android.services.nextstop.NextStopListener;
-import org.montrealtransit.android.services.nextstop.StmInfoTask;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -426,20 +425,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		if (this.hours != null) {
 			message = getString(R.string.next_bus_stops_message_and_source, this.hours.getSourceName());
 		} else {
-			String provider = UserPreferences.getPrefDefault(this, UserPreferences.PREFS_NEXT_STOP_PROVIDER, UserPreferences.PREFS_NEXT_STOP_PROVIDER_DEFAULT);
-			if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_INFO)) {
-				message = getString(R.string.next_bus_stops_message_and_source, StmInfoTask.SOURCE_NAME);
-			} else if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_BETA_STM_INFO)) {
-				message = getString(R.string.next_bus_stops_message_and_source, BetaStmInfoTask.SOURCE_NAME);
-			} else if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_STM_MOBILE)) {
-				// message = getString(R.string.next_bus_stops_message_and_source, StmMobileTask.SOURCE_NAME);
-				message = getString(R.string.next_bus_stops_message_auto);
-			} else if (provider.equals(UserPreferences.PREFS_NEXT_STOP_PROVIDER_AUTO)) {
-				message = getString(R.string.next_bus_stops_message_auto);
-			} else {
-				MyLog.w(TAG, "Unknow next stop provider '%s'", provider);
-				message = getString(R.string.next_bus_stops_message_auto); // default Auto
-			}
+			message = getString(R.string.next_bus_stops_message_and_source, IStmInfoTask.SOURCE_NAME);
 		}
 		new AlertDialog.Builder(this).setTitle(getString(R.string.next_bus_stops)).setIcon(R.drawable.ic_btn_info_details).setMessage(message)
 				.setPositiveButton(getString(android.R.string.ok), null).setCancelable(true).create().show();
