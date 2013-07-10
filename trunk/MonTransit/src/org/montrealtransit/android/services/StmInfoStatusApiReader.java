@@ -7,26 +7,18 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore.ServiceStatus;
-import org.xml.sax.Attributes;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.DefaultHandler;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -50,7 +42,8 @@ public class StmInfoStatusApiReader extends AsyncTask<String, String, String> {
 	/**
 	 * The stm.info XMX URL.
 	 */
-	public static final String XML_SOURCE = "http://www.stm.info/alertesmetro/esm.xml";
+	private static final String URL_PART_1_BEFORE_LANG = "http://www.stm.info/";
+	private static final String URL_PART_2 = "/ajax/etats-du-service";
 
 	/**
 	 * The context executing the task.
@@ -76,25 +69,41 @@ public class StmInfoStatusApiReader extends AsyncTask<String, String, String> {
 	protected String doInBackground(String... params) {
 		MyLog.v(TAG, "doInBackground()");
 		try {
-			URL url = new URL(XML_SOURCE);
+			URL url = new URL(getUrlString());
 			URLConnection urlc = url.openConnection();
+			// MyLog.d(TAG, "URL created: '%s'", url.toString());
 			HttpURLConnection httpUrlConnection = (HttpURLConnection) urlc;
 			switch (httpUrlConnection.getResponseCode()) {
 			case HttpURLConnection.HTTP_OK:
+				String json = Utils.getJson(urlc);
 				AnalyticsUtils.dispatch(this.context); // while we are connected, send the analytics data
-				// Get a SAX Parser from the SAX Parser Factory
-				SAXParserFactory spf = SAXParserFactory.newInstance();
-				SAXParser sp = spf.newSAXParser();
-				// Get the XML Reader of the SAX Parser we created
-				XMLReader xr = sp.getXMLReader();
-				// Create a new ContentHandler and apply it to the XML-Reader
-				StmInfoStatusApiHandler handler = new StmInfoStatusApiHandler();
-				xr.setContentHandler(handler);
-				// MyLog.d(TAG, "Parsing data ...");
-				xr.parse(new InputSource(urlc.getInputStream()));
-				// MyLog.d(TAG, "Parsing data... DONE");
-				publishProgress(this.context.getString(R.string.done));
-				List<ServiceStatus> allServiceStatus = handler.getServiceStatus();
+				publishProgress(this.context.getResources().getString(R.string.processing_data));
+				JSONObject jResponse = new JSONObject(json);
+				List<ServiceStatus> allServiceStatus = new ArrayList<ServiceStatus>();
+				JSONObject jMetro = jResponse.getJSONObject("metro");
+				JSONArray jMetroNames = jMetro.names();
+				if (jMetroNames.length() > 0) {
+					int now = Utils.currentTimeSec();
+					for (int i = 0; i < jMetroNames.length(); i++) {
+						String jMetroName = jMetroNames.getString(i);
+						JSONObject jLine = jMetro.getJSONObject(jMetroName);
+						JSONObject jLineData = jLine.getJSONObject("data");
+						String jLineDataText = jLineData.getString("text");
+						ServiceStatus serviceStatus = new ServiceStatus();
+						int type = extractServiceStatus(jLineDataText);
+						serviceStatus.setType(type);
+						serviceStatus.setMessage(jLineDataText);
+						serviceStatus.setLanguage(Utils.getSupportedUserLocale().equals(Locale.FRENCH.toString()) ? ServiceStatus.STATUS_LANG_FRENCH
+								: ServiceStatus.STATUS_LANG_ENGLISH);
+						// date
+						serviceStatus.setReadDate(now);
+						serviceStatus.setPubDate(now);
+						// source name
+						serviceStatus.setSourceName("stminfoetatsduservice");
+						allServiceStatus.add(serviceStatus);
+					}
+				}
+				// publishProgress(this.context.getString(R.string.done));
 				// MyLog.d(TAG, "new service statuses :" + (allServiceStatus == null ? null : allServiceStatus.size()));
 				// delete existing status
 				DataManager.deleteAllServiceStatus(this.context.getContentResolver());
@@ -125,6 +134,13 @@ public class StmInfoStatusApiReader extends AsyncTask<String, String, String> {
 			publishProgress(this.context.getString(R.string.error));
 			return this.context.getString(R.string.error);
 		}
+	}
+
+	public String getUrlString() {
+		return new StringBuilder() //
+				.append(URL_PART_1_BEFORE_LANG).append(Utils.getSupportedUserLocale().equals(Locale.FRENCH.toString()) ? "fr" : "en") // lang
+				.append(URL_PART_2) //
+				.toString();
 	}
 
 	@Override
@@ -193,111 +209,6 @@ public class StmInfoStatusApiReader extends AsyncTask<String, String, String> {
 			return ServiceStatus.STATUS_LANG_UNKNOWN;
 		}
 		// }
-	}
-
-	/**
-	 * XML Handler.
-	 */
-	private class StmInfoStatusApiHandler extends DefaultHandler implements ContentHandler {
-
-		/**
-		 * <Root> XML tag.
-		 */
-		private static final String ROOT = "Root";
-		/**
-		 * <msgFrancais> XML tag.
-		 */
-		private static final String MSGFRANCAIS = "msgFrancais";
-		/**
-		 * <msgAnglais> XML tag.
-		 */
-		private static final String MSGANGLAIS = "msgAnglais";
-
-		/**
-		 * The current element name.
-		 */
-		private String currentLocalName = ROOT;
-		/**
-		 * True if in {@link #MSGANGLAIS} or {@value #MSGFRANCAIS}.
-		 */
-		private boolean isMsg = false;
-
-		/**
-		 * The service statuses.
-		 */
-		private List<ServiceStatus> status = new ArrayList<ServiceStatus>();
-
-		/**
-		 * @return the orderer service statuses
-		 */
-		public List<ServiceStatus> getServiceStatus() {
-			Collections.sort(status, new ServiceStatusTypeComparator());
-			return status;
-		}
-
-		@Override
-		public void startDocument() throws SAXException {
-			// MyLog.v(TAG, "startDocument()");
-		}
-
-		@Override
-		public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-			// MyLog.v(TAG, "startDocument(%s,%s,%s)", uri, localName, qName);
-			currentLocalName = localName;
-			isMsg = localName.equalsIgnoreCase(MSGFRANCAIS) || localName.equalsIgnoreCase(MSGANGLAIS);
-		}
-
-		@Override
-		public void characters(char[] ch, int start, int length) throws SAXException {
-			// MyLog.v(TAG, "characters(%s)", new String(ch, start, length));
-			if (isMsg) {
-				String string = new String(ch, start, length).trim();
-				int type = extractServiceStatus(string);
-				ServiceStatus serviceStatus = new ServiceStatus();
-				serviceStatus.setLanguage(currentLocalName.equals(MSGFRANCAIS) ? ServiceStatus.STATUS_LANG_FRENCH : ServiceStatus.STATUS_LANG_ENGLISH);
-				serviceStatus.setMessage(string);
-				serviceStatus.setType(type);
-				// date
-				int now = Utils.currentTimeSec();
-				serviceStatus.setReadDate(now);
-				serviceStatus.setPubDate(now);
-				// source name
-				serviceStatus.setSourceName("stminfoalertesmetro");
-				// IF 1st status OR more important DO
-				status.add(serviceStatus);
-			}
-			super.characters(ch, start, length);
-		}
-
-		@Override
-		public void endElement(String uri, String localName, String qName) throws SAXException {
-			// MyLog.v(TAG, "endElement(%s,%s,%s)", uri, localName, qName);
-			isMsg = false;
-		}
-
-		@Override
-		public void endDocument() throws SAXException {
-			// MyLog.v(TAG, "endDocument()");
-		}
-
-		@Override
-		public void error(SAXParseException exception) throws SAXException {
-			MyLog.v(TAG, "error()");
-			exception.printStackTrace();
-		}
-
-		@Override
-		public void fatalError(SAXParseException exception) throws SAXException {
-			MyLog.v(TAG, "fatalError()");
-			exception.printStackTrace();
-		}
-
-		@Override
-		public void warning(SAXParseException exception) throws SAXException {
-			MyLog.v(TAG, "warning()");
-			exception.printStackTrace();
-		}
-
 	}
 
 	public static class ServiceStatusTypeComparator implements Comparator<ServiceStatus> {
