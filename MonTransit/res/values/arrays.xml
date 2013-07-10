@@ -10,31 +10,6 @@
 		<item>imperial</item>
 	</string-array>
 
-	<!-- NEXT BUS STOP PROVIDER PREFERENCES -->
-	<string-array name="next_stop_pref_entries">
-	    <item>@string/next_stop_pref_auto</item>
-		<!-- <item>@string/next_stop_pref_stmmobile</item> -->
-		<item>@string/next_stop_pref_stminfo</item>
-	</string-array>
-	<string-array name="next_stop_pref_values">
-	    <item>auto</item>
-		<!-- <item>stmmobile</item> -->
-		<item>stminfo</item>
-	</string-array>
-	<!-- NEXT BUS STOP W/ BETA PROVIDER PREFERENCES -->
-	<string-array name="next_stop_pref_entries_with_beta">
-	    <item>@string/next_stop_pref_auto</item>
-		<!-- <item>@string/next_stop_pref_stmmobile</item> -->
-		<item>@string/next_stop_pref_stminfo</item>
-		<item>@string/next_stop_pref_betastminfo</item>
-	</string-array>
-	<string-array name="next_stop_pref_values_with_beta">
-	    <item>auto</item>
-		<!-- <item>stmmobile</item> -->
-		<item>stminfo</item>
-		<item>betastminfo</item>
-	</string-array>
-	
 	<!-- SEARCH PREFERENCES -->
 	<string-array name="search_pref_entries">
 		<item>@string/search_pref_simple</item>

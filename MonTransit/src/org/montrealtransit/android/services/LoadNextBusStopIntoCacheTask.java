@@ -11,6 +11,7 @@ import org.montrealtransit.android.data.BusStopHours;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore.Cache;
 import org.montrealtransit.android.provider.StmStore.BusStop;
+import org.montrealtransit.android.services.nextstop.IStmInfoTask;
 import org.montrealtransit.android.services.nextstop.NextStopListener;
 
 import android.content.Context;
@@ -62,7 +63,7 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 			return null;
 		}
 		MyLog.d(TAG, "Prefetching bus stop %s data...", this.busStop.getUID());
-		BusUtils.getNextStopTask(this, context, busStop).execute();
+		new IStmInfoTask(context, this, busStop).execute();
 		return null;
 	}
 

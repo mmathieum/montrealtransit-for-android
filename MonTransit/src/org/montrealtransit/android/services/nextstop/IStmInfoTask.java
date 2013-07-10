@@ -27,30 +27,30 @@ import org.montrealtransit.android.provider.StmStore.BusStop;
 
 import android.content.Context;
 
-public class BetaStmInfoTask extends AbstractNextStopProvider {
+public class IStmInfoTask extends AbstractNextStopProvider {
 
 	/**
 	 * The log tag.
 	 */
-	private static final String TAG = BetaStmInfoTask.class.getSimpleName();
+	private static final String TAG = IStmInfoTask.class.getSimpleName();
 
 	/**
 	 * The source name
 	 */
-	public static final String SOURCE_NAME = "beta.stm.info";
+	public static final String SOURCE_NAME = "www.stm.info";
 
 	/**
 	 * The URL.
 	 */
-	// http://i-beta.stm.info/en/lines/97/stops/52084/arrivals?direction=E&limit=5
+	// http://i-www.stm.info/en/lines/97/stops/52084/arrivals?direction=E&limit=5
 	// d=20130702&t=1002
-	private static final String URL_PART_1_BEFORE_LANG = "http://i-beta.stm.info/";
+	private static final String URL_PART_1_BEFORE_LANG = "http://i-www.stm.info/";
 	private static final String URL_PART_2_BEFORE_BUS_LINE = "/lines/";
 	private static final String URL_PART_3_BEFORE_BUS_STOP = "/stops/";
 	private static final String URL_PART_4_BEFORE_DIRECTION = "/arrivals?direction=";
 	private static final String URL_PART_5 = "&limit=7";
 
-	public BetaStmInfoTask(Context context, NextStopListener from, BusStop busStop) {
+	public IStmInfoTask(Context context, NextStopListener from, BusStop busStop) {
 		super(context, from, busStop);
 	}
 

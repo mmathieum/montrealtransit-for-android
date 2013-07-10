@@ -80,31 +80,6 @@ public class UserPreferences extends PreferenceActivity {
 	public static final String PREFS_BUS_LINE_LIST_GROUP_BY_DEFAULT = PREFS_BUS_LINE_LIST_GROUP_BY_NO_GROUP;
 
 	/**
-	 * The preference key for the next stop provider V2.
-	 */
-	public static final String PREFS_NEXT_STOP_PROVIDER = "pNextStopProvider2";
-	/**
-	 * The preference value for automatic next stop provider.
-	 */
-	public static final String PREFS_NEXT_STOP_PROVIDER_AUTO = "auto";
-	/**
-	 * The preference value for the next stop provider stm.info.
-	 */
-	public static final String PREFS_NEXT_STOP_PROVIDER_STM_INFO = "stminfo";
-	/**
-	 * The preference value for the next stop provider m.stm.info.
-	 */
-	public static final String PREFS_NEXT_STOP_PROVIDER_STM_MOBILE = "stmmobile";
-	/**
-	 * The preference value for the next stop provider beta.stm.info.
-	 */
-	public static final String PREFS_NEXT_STOP_PROVIDER_BETA_STM_INFO = "betastminfo";
-	/**
-	 * The default value for the bus lines display.
-	 */
-	public static final String PREFS_NEXT_STOP_PROVIDER_DEFAULT = PREFS_NEXT_STOP_PROVIDER_AUTO;
-
-	/**
 	 * The preference key for the search.
 	 */
 	public static final String PREFS_SEARCH = "pSearch";
@@ -563,7 +538,7 @@ public class UserPreferences extends PreferenceActivity {
 	 */
 	@SuppressLint("CommitPrefEdits")
 	private static void savePref(Context context, final SharedPreferences sharedPreferences, String prefKey, int newValue) {
-		// MyLog.v(TAG, "savePref(%s, %s)", prefKey, newValue);
+		MyLog.v(TAG, "savePref(%s, %s)", prefKey, newValue);
 		SharedPreferences.Editor editor = sharedPreferences.edit();
 		editor.putInt(prefKey, newValue);
 		SupportFactory.get().applySharedPreferencesEditor(editor);

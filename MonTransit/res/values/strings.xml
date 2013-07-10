@@ -268,17 +268,6 @@
     <string name="select_next_stop_data_source">Source</string>
     <string name="data_source">Source</string>
     
-    <string name="next_stop_pref_title">Next bus stops</string>
-    <string name="next_stop_pref_summary">Data source used to display the next bus stops.</string>
-    <string name="next_stop_pref_dialog_title">Data source</string>
-    <string name="next_stop_pref_stmmobile">m.stm.info</string>
-    <string name="next_stop_pref_stminfo">stm.info</string>
-    <string name="next_stop_pref_betastminfo">beta.stm.info</string>
-    <string name="next_stop_pref_auto">Auto</string>
-    
-    <string name="beta_stm_info_pref_title">Enable beta.stm.info</string>
-    <string name="beta_stm_info_pref_summary">Use the STM beta website.</string>
-    
     <string name="search_label">MonTransit</string>
     <string name="search_hint">Search bus stops.</string>
     <string name="search_settings_description">Bus stops (MonTransit).</string>
