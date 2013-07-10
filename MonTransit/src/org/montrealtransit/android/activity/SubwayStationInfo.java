@@ -228,9 +228,14 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 							SubwayStationInfo.this.lastCompassChanged = now;
 							// update the view
 							ImageView compassImg = (ImageView) findViewById(R.id.compass);
-							float compassRotation = SensorUtils.getCompassRotationInDegree(location, subwayStation, lastCompassInDegree, locationDeclination);
-							SupportFactory.get().rotateImageView(compassImg, compassRotation, SubwayStationInfo.this);
-							compassImg.setVisibility(View.VISIBLE);
+							if (location.getAccuracy() <= subwayStation.getDistance()) {
+								float compassRotation = SensorUtils.getCompassRotationInDegree(location, subwayStation, lastCompassInDegree,
+										locationDeclination);
+								SupportFactory.get().rotateImageView(compassImg, compassRotation, SubwayStationInfo.this);
+								compassImg.setVisibility(View.VISIBLE);
+							} else {
+								compassImg.setVisibility(View.INVISIBLE);
+							}
 						}
 					}
 				});

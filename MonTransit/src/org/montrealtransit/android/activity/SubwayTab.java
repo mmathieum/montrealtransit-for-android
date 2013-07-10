@@ -950,7 +950,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 					break;
 				}
 				// compass
-				if (location != null && lastCompassInDegree != 0) {
+				if (location != null && lastCompassInDegree != 0 && location.getAccuracy() <= station.getDistance()) {
 					float compassRotation = SensorUtils.getCompassRotationInDegree(location, station, lastCompassInDegree, locationDeclination);
 					SupportFactory.get().rotateImageView(holder.compassImg, compassRotation, SubwayTab.this);
 					// holder.compassImg.setImageMatrix(station.getCompassMatrix());

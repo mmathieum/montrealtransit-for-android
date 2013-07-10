@@ -677,7 +677,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 					break;
 				}
 				// bus stop compass
-				if (location != null && lastCompassInDegree != 0) {
+				if (location != null && lastCompassInDegree != 0 && location.getAccuracy() <= busStop.getDistance()) {
 					float compassRotation = SensorUtils.getCompassRotationInDegree(location, busStop, lastCompassInDegree, locationDeclination);
 					SupportFactory.get().rotateImageView(holder.compassImg, compassRotation, BusLineInfo.this);
 					holder.compassImg.setVisibility(View.VISIBLE);

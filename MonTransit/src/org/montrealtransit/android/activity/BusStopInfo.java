@@ -323,9 +323,13 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 							BusStopInfo.this.lastCompassChanged = now;
 							// update the view
 							ImageView compassImg = (ImageView) findViewById(R.id.compass);
-							float compassRotation = SensorUtils.getCompassRotationInDegree(location, busStop, lastCompassInDegree, locationDeclination);
-							SupportFactory.get().rotateImageView(compassImg, compassRotation, BusStopInfo.this);
-							compassImg.setVisibility(View.VISIBLE);
+							if (location.getAccuracy() <= busStop.getDistance()) {
+								float compassRotation = SensorUtils.getCompassRotationInDegree(location, busStop, lastCompassInDegree, locationDeclination);
+								SupportFactory.get().rotateImageView(compassImg, compassRotation, BusStopInfo.this);
+								compassImg.setVisibility(View.VISIBLE);
+							} else {
+								compassImg.setVisibility(View.INVISIBLE);
+							}
 						}
 					}
 				});

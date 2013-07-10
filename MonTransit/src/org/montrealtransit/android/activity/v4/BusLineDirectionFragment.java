@@ -687,7 +687,8 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 					break;
 				}
 				// bus stop compass
-				if (getBusLineInfoActivity() != null && getBusLineInfoActivity().getLocation() != null && lastCompassInDegree != 0) {
+				final Location location = getBusLineInfoActivity() == null ? null : getBusLineInfoActivity().getLocation();
+				if (location != null && lastCompassInDegree != 0 && location.getAccuracy() <= busStop.getDistance()) {
 					float compassRotation = SensorUtils.getCompassRotationInDegree(getBusLineInfoActivity().getLocation(), busStop, lastCompassInDegree,
 							getBusLineInfoActivity().getLocationDeclination());
 					SupportFactory.get().rotateImageView(holder.compassImg, compassRotation, getLastActivity());
