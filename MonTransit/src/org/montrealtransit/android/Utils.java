@@ -1,10 +1,14 @@
 package org.montrealtransit.android;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -915,5 +919,22 @@ public class Utils {
 			Thread.sleep(timeInSec * 1000);
 		} catch (InterruptedException e) {
 		}
+	}
+	
+	public static String getJson(URLConnection urlc) throws UnsupportedEncodingException, IOException {
+		StringBuilder sb = new StringBuilder();
+		BufferedReader reader = null;
+		try {
+			reader = new BufferedReader(new InputStreamReader(urlc.getInputStream(), "UTF-8"), 8);
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				sb.append(line).append('\n');
+			}
+		} catch (Exception e) {
+			MyLog.w(TAG, e, "Error while reading json!");
+		} finally {
+			reader.close();
+		}
+		return sb.toString();
 	}
 }
