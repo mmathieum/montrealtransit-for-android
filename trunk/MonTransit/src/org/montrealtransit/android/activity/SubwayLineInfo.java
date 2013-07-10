@@ -753,7 +753,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 					break;
 				}
 				// compass
-				if (location != null && lastCompassInDegree != 0) {
+				if (location != null && lastCompassInDegree != 0 && location.getAccuracy() <= station.getDistance()) {
 					float compassRotation = SensorUtils.getCompassRotationInDegree(location, station, lastCompassInDegree, locationDeclination);
 					SupportFactory.get().rotateImageView(holder.compassImg, compassRotation, SubwayLineInfo.this);
 					holder.compassImg.setVisibility(View.VISIBLE);

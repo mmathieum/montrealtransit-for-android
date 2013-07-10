@@ -256,9 +256,14 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 							}
 							if (BikeStationInfo.this.bikeStation != null) {
 								ImageView compassImg = (ImageView) findViewById(R.id.compass);
-								float compassRotation = SensorUtils.getCompassRotationInDegree(location, bikeStation, lastCompassInDegree, locationDeclination);
-								SupportFactory.get().rotateImageView(compassImg, compassRotation, BikeStationInfo.this);
-								compassImg.setVisibility(View.VISIBLE);
+								if (location.getAccuracy() <= bikeStation.getDistance()) {
+									float compassRotation = SensorUtils.getCompassRotationInDegree(location, bikeStation, lastCompassInDegree,
+											locationDeclination);
+									SupportFactory.get().rotateImageView(compassImg, compassRotation, BikeStationInfo.this);
+									compassImg.setVisibility(View.VISIBLE);
+								} else {
+									compassImg.setVisibility(View.INVISIBLE);
+								}
 							}
 							if (BikeStationInfo.this.closestBikeStations != null) {
 								final View closestStations = findViewById(R.id.closest_stations);
@@ -271,10 +276,14 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 										continue;
 									}
 									ImageView compassImg = (ImageView) stationView.findViewById(R.id.compass);
-									float compassRotation = SensorUtils.getCompassRotationInDegree(BikeStationInfo.this.location, station,
-											BikeStationInfo.this.lastCompassInDegree, BikeStationInfo.this.locationDeclination);
-									SupportFactory.get().rotateImageView(compassImg, compassRotation, BikeStationInfo.this);
-									compassImg.setVisibility(View.VISIBLE);
+									if (location.getAccuracy() <= bikeStation.getDistance()) {
+										float compassRotation = SensorUtils.getCompassRotationInDegree(BikeStationInfo.this.location, station,
+												BikeStationInfo.this.lastCompassInDegree, BikeStationInfo.this.locationDeclination);
+										SupportFactory.get().rotateImageView(compassImg, compassRotation, BikeStationInfo.this);
+										compassImg.setVisibility(View.VISIBLE);
+									} else {
+										compassImg.setVisibility(View.INVISIBLE);
+									}
 								}
 							}
 						}

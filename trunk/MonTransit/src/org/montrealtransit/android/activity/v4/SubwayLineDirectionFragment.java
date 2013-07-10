@@ -693,7 +693,8 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 					break;
 				}
 				// compass
-				if (getSubwayLineInfoActivity() != null && getSubwayLineInfoActivity().getLocation() != null && lastCompassInDegree != 0) {
+				final Location location = getSubwayLineInfoActivity() == null ? null : getSubwayLineInfoActivity().getLocation();
+				if (location != null && lastCompassInDegree != 0 && location.getAccuracy() <= station.getDistance()) {
 					float compassRotation = SensorUtils.getCompassRotationInDegree(getSubwayLineInfoActivity().getLocation(), station, lastCompassInDegree,
 							getSubwayLineInfoActivity().getLocationDeclination());
 					SupportFactory.get().rotateImageView(holder.compassImg, compassRotation, getLastActivity());

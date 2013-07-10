@@ -466,7 +466,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 					holder.distanceTv.setText(null);
 				}
 				// compass
-				if (location != null && lastCompassInDegree != 0) {
+				if (location != null && lastCompassInDegree != 0 && location.getAccuracy() <= stop.getDistance()) {
 					float compassRotation = SensorUtils.getCompassRotationInDegree(location, stop, lastCompassInDegree, locationDeclination);
 					SupportFactory.get().rotateImageView(holder.compassImg, compassRotation, getLastActivity());
 					holder.compassImg.setVisibility(View.VISIBLE);

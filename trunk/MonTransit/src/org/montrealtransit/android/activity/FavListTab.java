@@ -226,9 +226,14 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 										continue;
 									}
 									ImageView compassImg = (ImageView) stopView.findViewById(R.id.compass);
-									float compassRotation = SensorUtils.getCompassRotationInDegree(location, busStop, lastCompassInDegree, locationDeclination);
-									SupportFactory.get().rotateImageView(compassImg, compassRotation, FavListTab.this);
-									compassImg.setVisibility(View.VISIBLE);
+									if (location.getAccuracy() <= busStop.getDistance()) {
+										float compassRotation = SensorUtils.getCompassRotationInDegree(location, busStop, lastCompassInDegree,
+												locationDeclination);
+										SupportFactory.get().rotateImageView(compassImg, compassRotation, FavListTab.this);
+										compassImg.setVisibility(View.VISIBLE);
+									} else {
+										compassImg.setVisibility(View.INVISIBLE);
+									}
 								}
 							}
 							// update subway stations compass
@@ -243,10 +248,14 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 										continue;
 									}
 									ImageView compassImg = (ImageView) stationView.findViewById(R.id.compass);
-									float compassRotation = SensorUtils.getCompassRotationInDegree(location, subwayStation, lastCompassInDegree,
-											locationDeclination);
-									SupportFactory.get().rotateImageView(compassImg, compassRotation, FavListTab.this);
-									compassImg.setVisibility(View.VISIBLE);
+									if (location.getAccuracy() <= subwayStation.getDistance()) {
+										float compassRotation = SensorUtils.getCompassRotationInDegree(location, subwayStation, lastCompassInDegree,
+												locationDeclination);
+										SupportFactory.get().rotateImageView(compassImg, compassRotation, FavListTab.this);
+										compassImg.setVisibility(View.VISIBLE);
+									} else {
+										compassImg.setVisibility(View.INVISIBLE);
+									}
 								}
 							}
 							// update bike stations compass
@@ -261,10 +270,14 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 										continue;
 									}
 									ImageView compassImg = (ImageView) stationView.findViewById(R.id.compass);
-									float compassRotation = SensorUtils.getCompassRotationInDegree(location, bikeStation, lastCompassInDegree,
-											locationDeclination);
-									SupportFactory.get().rotateImageView(compassImg, compassRotation, FavListTab.this);
-									compassImg.setVisibility(View.VISIBLE);
+									if (location.getAccuracy() <= bikeStation.getDistance()) {
+										float compassRotation = SensorUtils.getCompassRotationInDegree(location, bikeStation, lastCompassInDegree,
+												locationDeclination);
+										SupportFactory.get().rotateImageView(compassImg, compassRotation, FavListTab.this);
+										compassImg.setVisibility(View.VISIBLE);
+									} else {
+										compassImg.setVisibility(View.INVISIBLE);
+									}
 								}
 							}
 						}

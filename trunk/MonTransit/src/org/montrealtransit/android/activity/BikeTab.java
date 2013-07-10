@@ -713,7 +713,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 					break;
 				}
 				// compass
-				if (location != null && lastCompassInDegree != 0) {
+				if (location != null && lastCompassInDegree != 0 && location.getAccuracy() <= bikeStation.getDistance()) {
 					float compassRotation = SensorUtils.getCompassRotationInDegree(location, bikeStation, lastCompassInDegree, locationDeclination);
 					SupportFactory.get().rotateImageView(holder.compassImg, compassRotation, BikeTab.this);
 					holder.compassImg.setVisibility(View.VISIBLE);
