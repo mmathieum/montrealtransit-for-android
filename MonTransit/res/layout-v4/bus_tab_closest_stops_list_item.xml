@@ -31,7 +31,7 @@
             style="@style/BusLineNumber"
             android:layout_width="66dip"
             android:layout_height="44dip"
-            android:textSize="33dip"
+            android:textSize="33sp"
             android:text="@string/default_line_number" />
         <!-- BUS LINE DIRECTION -->
         <TextView

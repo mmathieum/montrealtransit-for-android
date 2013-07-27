@@ -21,7 +21,7 @@
             android:layout_width="66dip"
             android:layout_height="44dip"
             android:text="@string/default_line_number"
-            android:textSize="33dip" />
+            android:textSize="33sp" />
         <!-- BUS LINE DIRECTION -->
         <TextView
             android:id="@+id/line_direction"
