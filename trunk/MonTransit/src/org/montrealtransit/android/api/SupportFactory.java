@@ -61,9 +61,12 @@ public class SupportFactory {
 			case Build.VERSION_CODES.JELLY_BEAN_MR1:
 				className += ".JellyBeanSupport"; // 16 17
 				break;
+			case Build.VERSION_CODES.JELLY_BEAN_MR2:
+				className += ".JellyBeanSupportMR2"; // 18
+				break;
 			default:
 				MyLog.w(TAG, "Unknow API Level: %s", sdkVersion);
-				className += ".JellyBeanSupport"; // default for newer SDK
+				className += ".JellyBeanSupportMR2"; // default for newer SDK
 				break;
 			}
 

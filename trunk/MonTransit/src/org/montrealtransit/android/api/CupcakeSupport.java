@@ -16,6 +16,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Matrix;
+import android.os.StatFs;
 import android.view.Surface;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -163,5 +164,17 @@ public class CupcakeSupport implements SupportUtil {
 		Matrix compassMatrix = new Matrix();
 		compassMatrix.postRotate(rotation, SensorUtils.getRotationPx(activity), SensorUtils.getRotationPy(activity));
 		img.setImageMatrix(compassMatrix);
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Override
+	public long getStatFsAvailableBlocksLong(StatFs statFs) {
+		return (long) statFs.getAvailableBlocks();
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Override
+	public long getStatFsBlockSizeLong(StatFs statFs) {
+		return (long) statFs.getBlockSize();
 	}
 }

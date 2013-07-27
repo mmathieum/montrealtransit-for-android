@@ -873,7 +873,7 @@ public class Utils {
 	public static long getAvailableSize() {
 		MyLog.v(TAG, "getAvailableSize()");
 		StatFs stat = new StatFs(Environment.getDataDirectory().getPath());
-		return (long) stat.getAvailableBlocks() * (long) stat.getBlockSize();
+		return SupportFactory.get().getStatFsAvailableBlocksLong(stat) * SupportFactory.get().getStatFsBlockSizeLong(stat);
 	}
 
 	/**
