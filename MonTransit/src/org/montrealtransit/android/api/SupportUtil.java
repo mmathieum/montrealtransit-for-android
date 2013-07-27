@@ -14,6 +14,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.os.StatFs;
 import android.view.Surface;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -145,4 +146,8 @@ public interface SupportUtil {
 	BlockingQueue<Runnable> getNewBlockingQueue();
 
 	void rotateImageView(ImageView img, float rotation, Activity activity);
+
+	long getStatFsAvailableBlocksLong(StatFs statFs);
+	
+	long getStatFsBlockSizeLong(StatFs statFs);
 }
