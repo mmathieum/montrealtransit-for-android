@@ -17,7 +17,7 @@
 		
 		<item name="android:singleLine">true</item>
 		<item name="android:gravity">center_vertical|right</item>
-		<item name="android:textSize">40dip</item>
+		<item name="android:textSize">40sp</item>
 		<item name="android:textStyle">bold</item>
 		<item name="android:textColor">#FFFFFF</item>
 	</style>
