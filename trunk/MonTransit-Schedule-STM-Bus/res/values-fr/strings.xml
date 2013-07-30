@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MonTransit Horaires STM Bus</string>
+    <string name="app_desc">Horaires planifiés des bus de la STM enregistrées sur l\'appareil pour une utilisation hors-ligne par exemple.</string>
+</resources>

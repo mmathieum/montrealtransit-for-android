@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">MonTransit STM Bus Schedule</string>
+    <string name="app_desc">STM Bus planned schedule stored on the device for offline usage for instance.</string>
+</resources>
