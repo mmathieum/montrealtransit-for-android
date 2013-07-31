@@ -35,12 +35,12 @@ public class StmBusScheduleProvider extends ContentProvider {
 	private static final UriMatcher URI_MATCHER;
 	static {
 		URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
-		URI_MATCHER.addURI(AUTHORITY, "/route/#/trip/#/stop/#", ROUTE_TRIP_STOP);
-		URI_MATCHER.addURI(AUTHORITY, "/route/#/trip/#/stop/#/date/#/time/#", ROUTE_TRIP_STOP_DATE_TIME);
-		URI_MATCHER.addURI(AUTHORITY, "/route/#/stop/#", ROUTE_STOP);
-		URI_MATCHER.addURI(AUTHORITY, "/route/#/stop/#/date/#", ROUTE_STOP_DATE);
-		URI_MATCHER.addURI(AUTHORITY, "/route/#/stop/#/time/#", ROUTE_STOP_TIME);
-		URI_MATCHER.addURI(AUTHORITY, "/route/#/stop/#/date/#/time/#", ROUTE_STOP_DATE_TIME);
+		URI_MATCHER.addURI(AUTHORITY, "route/#/trip/#/stop/#", ROUTE_TRIP_STOP);
+		URI_MATCHER.addURI(AUTHORITY, "route/#/trip/#/stop/#/date/#/time/#", ROUTE_TRIP_STOP_DATE_TIME);
+		URI_MATCHER.addURI(AUTHORITY, "route/#/stop/#", ROUTE_STOP);
+		URI_MATCHER.addURI(AUTHORITY, "route/#/stop/#/date/#", ROUTE_STOP_DATE);
+		URI_MATCHER.addURI(AUTHORITY, "route/#/stop/#/time/#", ROUTE_STOP_TIME);
+		URI_MATCHER.addURI(AUTHORITY, "route/#/stop/#/date/#/time/#", ROUTE_STOP_DATE_TIME);
 
 		HashMap<String, String> map = new HashMap<String, String>();
 		map.put(StmBusScheduleDbHelper.T_SCHEDULES_K_DEPARTURE, StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_DEPARTURE
@@ -112,7 +112,7 @@ public class StmBusScheduleProvider extends ContentProvider {
 		case ROUTE_STOP_DATE_TIME:
 			return SCHEDULE_CONTENT_TYPE;
 		default:
-			throw new IllegalArgumentException(String.format("Unknown URI (type): " + uri + ""));
+			throw new IllegalArgumentException(String.format("Unknown URI (type): '%s'", uri));
 		}
 	}
 
@@ -209,7 +209,7 @@ public class StmBusScheduleProvider extends ContentProvider {
 			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_DEPARTURE + " >= " + uri.getPathSegments().get(7));
 			break;
 		default:
-			throw new IllegalArgumentException(String.format("Unknown URI (query): %s", uri));
+			throw new IllegalArgumentException(String.format("Unknown URI (query): '%s'", uri));
 		}
 		limit = "7"; // limited to the next 7 passages
 		// If no sort order is specified use the default
@@ -225,7 +225,7 @@ public class StmBusScheduleProvider extends ContentProvider {
 				orderBy = SCHEDULE_SORT_ORDER;
 				break;
 			default:
-				throw new IllegalArgumentException(String.format("Unknown URI (order): %s", uri));
+				throw new IllegalArgumentException(String.format("Unknown URI (order): '%s'", uri));
 			}
 		} else {
 			orderBy = sortOrder;
