@@ -24,7 +24,7 @@ public class ASubwayStation extends SubwayStation implements POI {
 	/**
 	 * The distance string.
 	 */
-	private String distanceString;
+	private String distanceString = null;
 	/**
 	 * The distance in meter.
 	 */

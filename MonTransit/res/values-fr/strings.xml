@@ -14,6 +14,7 @@
     <string name="clear_history">Supprimer tout l\'historique.</string>
     
     <string name="no_internet">Pas de connexion Internet !</string>
+    <string name="no_offline_data">Pas de données hors-ligne!</string>
     
     <string name="select_bus_direction">Direction</string>
     <string name="select_bus_line_direction_and_number">Ligne %s - Direction</string>
@@ -261,7 +262,8 @@
     <string name="ellipsis">&#160;</string>
     <string name="colon">&#160;:&#160;</string>
     <string name="error">Erreur</string>
-    <string name="error_http_500_and_source">Erreur interne du serveur. Réessayer plus tard ou utiliser une autre source (Menu > %s).</string>
+    <string name="error_http_500_and_source">Erreur interne du serveur. Merci de réessayer plus tard.</string>
+    <string name="error_http_504_and_source">Le serveur ne répond pas. Merci de réessayer plus tard.</string>
     <string name="error_ssl">Impossible de charger des données depuis le serveur !</string>
     <string name="error_ssl_and_url">Impossible de charger des données depuis %s !</string>
     <string name="loading">Chargement &#8230;</string>
@@ -377,6 +379,10 @@
     <string name="confirm_exit">Etes-vous sûr de vouloir quitter?</string>
 
     <string name="donate_to_remove_ads">Veuillez faire un don pour désactiver les pubs.</string>
+    
+    <string name="offline_schedule">Hors-ligne</string>
+    <string name="no_offline_schedule">Horaires hors-ligne pas installées</string>
+    <string name="no_offline_schedule_or_sd_card_not_mounted">Horaires hors-ligne pas installées (ou carte SD pas lisible).</string>
 
     <string name="demo_title">DEMO</string>
     <string name="demo_message">Voulez-vous configurer le mode de démonstration ? Cela va supprimer tous les paramètres actuels !</string>

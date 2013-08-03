@@ -13,6 +13,7 @@ import org.montrealtransit.android.provider.DataStore.Cache;
 import org.montrealtransit.android.provider.StmStore.BusStop;
 import org.montrealtransit.android.services.nextstop.IStmInfoTask;
 import org.montrealtransit.android.services.nextstop.NextStopListener;
+import org.montrealtransit.android.services.nextstop.StmBusScheduleTask;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -34,6 +35,10 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 	private boolean prefetch;
 
 	private boolean force;
+
+	private IStmInfoTask wwwTask;
+
+	private StmBusScheduleTask localTask;
 
 	public LoadNextBusStopIntoCacheTask(Context context, BusStop busStop, NextStopListener from, boolean prefetch, boolean force) {
 		MyLog.d(TAG, "LoadNextBusStopIntoCacheTask()");
@@ -62,8 +67,13 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 			MyLog.d(TAG, "bus stop already in cache (%s)", this.busStop.getUID());
 			return null;
 		}
-		MyLog.d(TAG, "Prefetching bus stop %s data...", this.busStop.getUID());
-		new IStmInfoTask(context, this, busStop).execute();
+		MyLog.d(TAG, "Loading bus stop %s data...", this.busStop.getUID());
+		this.wwwTask = new IStmInfoTask(this.context, this, this.busStop);
+		this.wwwTask.execute();
+		if (!prefetch) {
+    		this.localTask = new StmBusScheduleTask(this.context, this, this.busStop);
+    		this.localTask.execute();
+		}
 		return null;
 	}
 
@@ -71,7 +81,7 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 		// load cache from database
 		Cache cache = DataManager.findCache(context.getContentResolver(), Cache.KEY_TYPE_VALUE_BUS_STOP, busStop.getUID());
 		// compute the too old date
-		int tooOld = Utils.currentTimeSec() - BusUtils.CACHE_TOO_OLD_IN_SEC;
+		int tooOld = Utils.currentTimeSec() - BusUtils.CACHE_NOT_USEFUL_IN_SEC;
 		// IF the cache is too old DO
 		if (cache != null && tooOld >= cache.getDate()) {
 			// don't use the cache
@@ -99,13 +109,20 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 	public void onNextStopsLoaded(final Map<String, BusStopHours> results) {
 		MyLog.v(TAG, "onNextStopsLoaded()");
 		if (results == null || results.size() <= 0) {
-			MyLog.d(TAG, "onNextStopsLoaded() > no result to store in cache!");
+			MyLog.d(TAG, "onNextStopsLoaded() > no result!");
 			return; // no result
 		}
 		// IF valid result or the last result DO
-		NextStopListener fromWR = this.from == null ? null : this.from.get();
-		if (fromWR != null) {
-			fromWR.onNextStopsLoaded(results);
+		boolean containResult = results.containsKey(this.busStop.getLineNumber()) && results.get(this.busStop.getLineNumber()).getSHours().size() > 0;
+		if (containResult) {
+			// since the data from the www is not necessary more relevant than the local data we cancel other task(s)
+			stopAllTasks();
+		}
+		if (containResult || countRunningTask() <= 1) {
+			NextStopListener fromWR = this.from == null ? null : this.from.get();
+			if (fromWR != null) {
+				fromWR.onNextStopsLoaded(results);
+			}
 		}
 		// if (containResult) {
 		new AsyncTask<Void, Void, Void>() {
@@ -125,6 +142,31 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 			}
 
 		}.execute();
+	}
+
+	private int countRunningTask() {
+		MyLog.v(TAG, "countRunningTask()");
+		int nbRunning = 0;
+		if (this.wwwTask != null && this.wwwTask.getStatus() != Status.FINISHED) {
+			nbRunning++;
+		}
+		if (this.localTask != null && this.localTask.getStatus() != Status.FINISHED) {
+			nbRunning++;
+		}
+		MyLog.d(TAG, "running task: " + nbRunning);
+		return nbRunning;
+	}
+
+	private void stopAllTasks() {
+		MyLog.v(TAG, "stopAllTasks()");
+		if (this.wwwTask != null && this.wwwTask.getStatus() != Status.FINISHED) {
+			this.wwwTask.cancel(true);
+			this.wwwTask = null;
+		}
+		if (this.localTask != null && this.localTask.getStatus() != Status.FINISHED) {
+			this.localTask.cancel(true);
+			this.localTask = null;
+		}
 	}
 
 	private void saveToCache(String stopCode, String lineNumber, BusStopHours busStopHours) {

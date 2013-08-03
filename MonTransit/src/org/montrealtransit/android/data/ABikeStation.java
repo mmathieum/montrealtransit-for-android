@@ -12,7 +12,7 @@ public class ABikeStation extends BikeStation implements POI {
 	/**
 	 * The distance string.
 	 */
-	private String distanceString;
+	private String distanceString = null;
 	/**
 	 * The distance in meter.
 	 */

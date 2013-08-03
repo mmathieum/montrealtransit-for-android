@@ -77,6 +77,10 @@ public class AnalyticsUtils {
 	 * Action for Bixi data loading fail.
 	 */
 	public static final String ACTION_BIXI_DATA_LOADING_FAIL = "bixi_data_loading_fail";
+	/**
+	 * Action for HTTP errors.
+	 */
+	public static final String ACTION_HTTP_ERROR = "http_error";
 
 	/**
 	 * The instance.

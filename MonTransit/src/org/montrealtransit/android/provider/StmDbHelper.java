@@ -484,7 +484,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 		try {
 			super.close();
 		} catch (Exception e) {
-			MyLog.w(TAG, "Error while closing the databases!", e);
+			MyLog.w(TAG, e, "Error while closing the databases!");
 		}
 	}
 

@@ -44,6 +44,8 @@ public abstract class AbstractNextStopProvider extends AsyncTask<Void, String, M
 	 */
 	public abstract String getTag();
 
+	public abstract String getSourceName();
+
 	@Override
 	protected void onPostExecute(Map<String, BusStopHours> results) {
 		MyLog.v(getTag(), "onPostExecute()");

@@ -14,6 +14,7 @@
     <string name="clear_history">Clear the history.</string>
     
     <string name="no_internet">No Internet connection!</string>
+    <string name="no_offline_data">No offline data!</string>
     
     <string name="select_bus_direction">Direction</string>
     <string name="select_bus_line_direction_and_number">Line %s - Direction</string>
@@ -235,7 +236,7 @@
 	<string name="bus_line_service_night">Night service</string>
 	
 	<string name="no_service">No service.</string>
-	<string name="no_more_stops_for_this_bus_line">No service for the bus line %s.</string>
+	<string name="no_more_stops_for_this_bus_line">No service for bus line %s.</string>
 	
 	<string name="view_bus_stop">View bus stop</string>
 	<string name="view_bus_stop_line">View bus line</string>
@@ -261,7 +262,8 @@
     <string name="ellipsis">&#160;&#8230;</string>
     <string name="colon">:&#160;</string>
     <string name="error">Error</string>
-    <string name="error_http_500_and_source">Internal Server Error. Try again later or use another source (Menu > %s).</string>
+    <string name="error_http_500_and_source">Internal server error. Please, try again later.</string>
+    <string name="error_http_504_and_source">Server not responding. Please, try again later.</string>
     <string name="error_ssl">Can\'t load data from the server!</string>
     <string name="error_ssl_and_url">Can\'t load data from the %s!</string>
     <string name="loading">Loading&#8230;</string>
@@ -377,6 +379,10 @@
     <string name="confirm_exit">Are you sure you want to exit?</string>
 
     <string name="donate_to_remove_ads">Please donate to disable ads.</string>
+    
+    <string name="offline_schedule">Offline</string>
+    <string name="no_offline_schedule">Offline schedule not installed.</string>
+    <string name="no_offline_schedule_or_sd_card_not_mounted">Offline schedule not installed (or SD card not readable).</string>
 
     <string name="demo_title">DEMO</string>
     <string name="demo_message">Do you want to set-up demo mode? This will erase all your current settings!</string>
