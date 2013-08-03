@@ -47,7 +47,7 @@ public class LocationUtils {
 	/**
 	 * How long do we even consider the location? (in milliseconds)
 	 */
-	private static final long MAX_LAST_KNOW_LOCATION_TIME = 2 * 60 * 1000; // 2 minutes
+	private static final long MAX_LAST_KNOW_LOCATION_TIME = 10 * 60 * 1000; // 10 minutes
 	/**
 	 * The range of the location around.
 	 */
@@ -336,7 +336,7 @@ public class LocationUtils {
 				sb.append(", ").append(locationAddress.getLocality());
 			}
 			if (accuracy != null) {
-				sb.append(" ± ").append(Utils.getDistanceStringUsingPref(context, accuracy, 0));
+				sb.append(" ± ").append(getDistanceStringUsingPref(context, accuracy, 0));
 			}
 			sb.append(")");
 		}
@@ -359,6 +359,116 @@ public class LocationUtils {
 	 */
 	public static String truncAround(double loc) {
 		return String.format(Locale.US, AROUND_TRUNC, loc);
+	}
+
+	/**
+	 * Return the distance string matching the accuracy and the user settings.
+	 * @param context the activity
+	 * @param distanceInMeters the distance in meter
+	 * @param accuracyInMeters the accuracy in meter
+	 * @return the distance string.
+	 */
+	public static String getDistanceStringUsingPref(Context context, float distanceInMeters, float accuracyInMeters) {
+		// MyLog.v(TAG, "getDistanceStringUsingPref(" + distanceInMeters + ", " + accuracyInMeters + ")");
+		boolean isDetailed = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
+				UserPreferences.PREFS_DISTANCE_DETAILED);
+		String distanceUnit = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
+		return getDistanceString(distanceInMeters, accuracyInMeters, isDetailed, distanceUnit);
+	}
+
+	/**
+	 * Return the distance string matching the accuracy and the user settings.
+	 * @param context the activity
+	 * @param distanceInMeters the distance in meter
+	 * @param accuracyInMeters the accuracy in meter
+	 * @param isDetailed true if detailed {@link UserPreferences#PREFS_DISTANCE}
+	 * @param distanceUnit {@link UserPreferences#PREFS_DISTANCE_UNIT}
+	 * @return the distance string.
+	 */
+	private static String getDistanceString(float distanceInMeters, float accuracyInMeters, boolean isDetailed, String distanceUnit) {
+		// IF distance unit is Imperial DO
+		if (distanceUnit.equals(UserPreferences.PREFS_DISTANCE_UNIT_IMPERIAL)) {
+			float distanceInSmall = distanceInMeters * Constant.FEET_PER_M;
+			float accuracyInSmall = accuracyInMeters * Constant.FEET_PER_M;
+			return getDistance(distanceInSmall, accuracyInSmall, isDetailed, Constant.FEET_PER_MILE, 10, "ft", "mi");
+		} else { // use Metric (default)
+			return getDistance(distanceInMeters, accuracyInMeters, isDetailed, Constant.METER_PER_KM, 1, "m", "km");
+		}
+	}
+
+	/**
+	 * @param distance the distance
+	 * @param accuracy the accuracy
+	 * @param isDetailed true if the distance string must be detailed
+	 * @param smallPerBig the number of small unit to make the big unit
+	 * @param threshold the threshold between small and big
+	 * @param smallUnit the small unit
+	 * @param bigUnit the big unit
+	 * @return the distance string
+	 */
+	private static String getDistance(final float distance, final float accuracy, final boolean isDetailed, final float smallPerBig, final int threshold,
+			final String smallUnit, final String bigUnit) {
+		StringBuilder sb = new StringBuilder();
+		// IF the location is enough precise AND the accuracy is 10% or more of the distance DO
+		if (isDetailed && accuracy < distance && accuracy / distance > 0.1) {
+			final float shorterDistanceInSmallUnit = distance - accuracy / 2;
+			final float longerDistanceInSmallUnit = distance + accuracy;
+			// IF distance in "small unit" is big enough to fit in "big unit" DO
+			if (distance > (smallPerBig / threshold)) {
+				// use "big unit"
+				final float shorterDistanceInBigUnit = shorterDistanceInSmallUnit / smallPerBig;
+				final float niceShorterDistanceInBigUnit = Integer.valueOf(Math.round(shorterDistanceInBigUnit * 10)).floatValue() / 10;
+				final float longerDistanceInBigUnit = longerDistanceInSmallUnit / smallPerBig;
+				final float niceLongerDistanceInBigUnit = Integer.valueOf(Math.round(longerDistanceInBigUnit * 10)).floatValue() / 10;
+				sb.append(niceShorterDistanceInBigUnit).append(" - ").append(niceLongerDistanceInBigUnit).append(" ").append(bigUnit);
+			} else {
+				// use "small unit"
+				final int niceShorterDistanceInSmallUnit = Math.round(shorterDistanceInSmallUnit);
+				final int niceLongerDistanceInSmallUnit = Math.round(longerDistanceInSmallUnit);
+				sb.append(niceShorterDistanceInSmallUnit).append(" - ").append(niceLongerDistanceInSmallUnit).append(" ").append(smallUnit);
+			}
+			// ELSE IF the accuracy of the location is more than the distance DO
+		} else if (accuracy > distance) { // basically, the location is in the blue circle in Maps
+			// use the accuracy as a distance
+			// IF distance in "small unit" is big enough to fit in "big unit" DO
+			if (accuracy > (smallPerBig / threshold)) {
+				// use "big unit"
+				final float accuracyInBigUnit = accuracy / smallPerBig;
+				final float niceAccuracyInBigUnit = Integer.valueOf(Math.round(accuracyInBigUnit * 10)).floatValue() / 10;
+				sb.append("< ").append(niceAccuracyInBigUnit).append(" ").append(bigUnit);
+			} else {
+				// use "small unit"
+				final int niceAccuracyInSmallUnit = Math.round(accuracy);
+				sb.append("< ").append(getSimplerDistance(niceAccuracyInSmallUnit, accuracy, isDetailed)).append(" ").append(smallUnit);
+			}
+			// TODO ? ELSE if accuracy non-significant DO show the longer distance ?
+		} else {
+			// IF distance in "small unit" is big enough to fit in "big unit" DO
+			if (distance > (smallPerBig / threshold)) {
+				// use "big unit"
+				final float distanceInBigUnit = distance / smallPerBig;
+				final float niceDistanceInBigUnit = Integer.valueOf(Math.round(distanceInBigUnit * 10)).floatValue() / 10;
+				sb.append(niceDistanceInBigUnit).append(" ").append(bigUnit);
+			} else {
+				// use "small unit"
+				final int niceDistanceInSmallUnit = Math.round(distance);
+				sb.append(getSimplerDistance(niceDistanceInSmallUnit, accuracy, isDetailed)).append(" ").append(smallUnit);
+			}
+		}
+		return sb.toString();
+	}
+
+	public static final int getSimplerDistance(int distance, float accuracyF, boolean isDetailed) {
+		if (isDetailed) {
+			return distance;
+		}
+		final int accuracy = (int) Math.round(accuracyF);
+		final int simplerDistance = Math.round(distance / 10) * 10;
+		if (Math.abs(simplerDistance - distance) < accuracy) {
+			return simplerDistance;
+		} else {
+			return distance; // accuracy too good, have to keep real data
+		}
 	}
 
 	/**
@@ -400,9 +510,14 @@ public class LocationUtils {
 			if (!poi.hasLocation()) {
 				continue;
 			}
+			final float newDistance = distanceTo(currentLocation.getLatitude(), currentLocation.getLongitude(), poi.getLat(), poi.getLng());
+			if (poi.getDistance() > 1 && newDistance == poi.getDistance() && poi.getDistanceString() != null) {
+				// MyLog.d(TAG, "skip distance");
+				continue;
+			}
 			// update value
-			poi.setDistance(LocationUtils.distanceTo(currentLocation.getLatitude(), currentLocation.getLongitude(), poi.getLat(), poi.getLng()));
-			poi.setDistanceString(Utils.getDistanceString(poi.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
+			poi.setDistance(newDistance);
+			poi.setDistanceString(getDistanceString(poi.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
 		}
 	}
 
@@ -440,9 +555,14 @@ public class LocationUtils {
 			if (!poi.hasLocation()) {
 				continue;
 			}
+			final float newDistance = distanceTo(currentLocation.getLatitude(), currentLocation.getLongitude(), poi.getLat(), poi.getLng());
+			if (poi.getDistance() > 1 && newDistance == poi.getDistance() && poi.getDistanceString() != null) {
+				// MyLog.d(TAG, "skip distance");
+				continue;
+			}
 			// update value
-			poi.setDistance(LocationUtils.distanceTo(currentLocation.getLatitude(), currentLocation.getLongitude(), poi.getLat(), poi.getLng()));
-			poi.setDistanceString(Utils.getDistanceString(poi.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
+			poi.setDistance(newDistance);
+			poi.setDistanceString(getDistanceString(poi.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
 		}
 	}
 
@@ -478,9 +598,14 @@ public class LocationUtils {
 		if (!poi.hasLocation()) {
 			return;
 		}
+		final float newDistance = distanceTo(currentLocation.getLatitude(), currentLocation.getLongitude(), poi.getLat(), poi.getLng());
+		if (poi.getDistance() > 1 && newDistance == poi.getDistance() && poi.getDistanceString() != null) {
+			// MyLog.d(TAG, "skip distance");
+			return;
+		}
 		// update value
-		poi.setDistance(LocationUtils.distanceTo(currentLocation.getLatitude(), currentLocation.getLongitude(), poi.getLat(), poi.getLng()));
-		poi.setDistanceString(Utils.getDistanceString(poi.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
+		poi.setDistance(newDistance);
+		poi.setDistanceString(getDistanceString(poi.getDistance(), accuracyInMeters, isDetailed, distanceUnit));
 	}
 
 	public interface LocationTaskCompleted {

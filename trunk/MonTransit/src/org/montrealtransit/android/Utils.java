@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.montrealtransit.android.activity.UserPreferences;
 import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore;
@@ -38,6 +37,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -478,6 +479,24 @@ public class Utils {
 		return list.size() > 0;
 	}
 
+	public static boolean isPackageExists(Context context, String targetPackage) {
+		try {
+			context.getPackageManager().getPackageInfo(targetPackage, PackageManager.GET_META_DATA);
+			return true;
+		} catch (NameNotFoundException e) {
+			return false;
+		}
+	}
+
+	public static boolean isConnectedOrConnecting(Context context) {
+		ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		final NetworkInfo activeNetworkInfo = cm.getActiveNetworkInfo();
+		if (activeNetworkInfo == null) {
+			return false;
+		}
+		return activeNetworkInfo.isConnectedOrConnecting();
+	}
+
 	/**
 	 * @return the user language (fr/en/...)
 	 */
@@ -567,102 +586,6 @@ public class Utils {
 
 		new AlertDialog.Builder(activity).setTitle(activity.getString(R.string.app_name)).setIcon(android.R.drawable.ic_dialog_info).setView(view)
 				.setPositiveButton(activity.getString(android.R.string.ok), null).setCancelable(true).create().show();
-	}
-
-	/**
-	 * Return the distance string matching the accuracy and the user settings.
-	 * @param context the activity
-	 * @param distanceInMeters the distance in meter
-	 * @param accuracyInMeters the accuracy in meter
-	 * @return the distance string.
-	 */
-	public static String getDistanceStringUsingPref(Context context, float distanceInMeters, float accuracyInMeters) {
-		// MyLog.v(TAG, "getDistanceStringUsingPref(" + distanceInMeters + ", " + accuracyInMeters + ")");
-		boolean isDetailed = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE, UserPreferences.PREFS_DISTANCE_DEFAULT).equals(
-				UserPreferences.PREFS_DISTANCE_DETAILED);
-		String distanceUnit = UserPreferences.getPrefDefault(context, UserPreferences.PREFS_DISTANCE_UNIT, UserPreferences.PREFS_DISTANCE_UNIT_DEFAULT);
-		return getDistanceString(distanceInMeters, accuracyInMeters, isDetailed, distanceUnit);
-	}
-
-	/**
-	 * Return the distance string matching the accuracy and the user settings.
-	 * @param context the activity
-	 * @param distanceInMeters the distance in meter
-	 * @param accuracyInMeters the accuracy in meter
-	 * @param isDetailed true if detailed {@link UserPreferences#PREFS_DISTANCE}
-	 * @param distanceUnit {@link UserPreferences#PREFS_DISTANCE_UNIT}
-	 * @return the distance string.
-	 */
-	public static String getDistanceString(float distanceInMeters, float accuracyInMeters, boolean isDetailed, String distanceUnit) {
-		// IF distance unit is Imperial DO
-		if (distanceUnit.equals(UserPreferences.PREFS_DISTANCE_UNIT_IMPERIAL)) {
-			float distanceInFeet = distanceInMeters * Constant.FEET_PER_M;
-			float accuracyInFeet = accuracyInMeters * Constant.FEET_PER_M;
-			return getDistance(distanceInFeet, accuracyInFeet, isDetailed, Constant.FEET_PER_MILE, 10, "ft", "mi");
-		} else { // use Metric (default)
-			return getDistance(distanceInMeters, accuracyInMeters, isDetailed, Constant.METER_PER_KM, 1, "m", "km");
-		}
-	}
-
-	/**
-	 * @param distance the distance
-	 * @param accuracy the accuracy
-	 * @param isDetailed true if the distance string must be detailed
-	 * @param smallPerBig the number of small unit to make the big unit
-	 * @param threshold the threshold between small and big
-	 * @param smallUnit the small unit
-	 * @param bigUnit the big unit
-	 * @return the distance string
-	 */
-	private static String getDistance(float distance, float accuracy, boolean isDetailed, float smallPerBig, int threshold, String smallUnit, String bigUnit) {
-		StringBuilder sb = new StringBuilder();
-		// IF the location is enough precise AND the accuracy is 10% or more of the distance DO
-		if (isDetailed && accuracy < distance && accuracy / distance > 0.1) {
-			float shorterDistanceInFeet = distance - accuracy / 2;
-			float longerDistanceInFeet = distance + accuracy;
-			// IF distance in "small unit" is big enough to fit in "big unit" DO
-			if (distance > (smallPerBig / threshold)) {
-				// use "big unit"
-				float shorterDistanceInMile = shorterDistanceInFeet / smallPerBig;
-				float niceShorterDistanceInMile = ((Integer) Math.round(shorterDistanceInMile * 10)).floatValue() / 10;
-				float longerDistanceInMile = longerDistanceInFeet / smallPerBig;
-				float niceLongerDistanceInMile = ((Integer) Math.round(longerDistanceInMile * 10)).floatValue() / 10;
-				sb.append(niceShorterDistanceInMile).append(" - ").append(niceLongerDistanceInMile).append(" ").append(bigUnit);
-			} else {
-				// use "small unit"
-				int niceShorterDistanceInFeet = Math.round(shorterDistanceInFeet);
-				int niceLongerDistanceInFeet = Math.round(longerDistanceInFeet);
-				sb.append(niceShorterDistanceInFeet).append(" - ").append(niceLongerDistanceInFeet).append(" ").append(smallUnit);
-			}
-			// ELSE IF the accuracy of the location is more than the distance DO
-		} else if (accuracy > distance) { // basically, the location is in the blue circle in Maps
-			// use the accuracy as a distance
-			// IF distance in "small unit" is big enough to fit in "big unit" DO
-			if (accuracy > (smallPerBig / threshold)) {
-				// use "big unit"
-				float accuracyInMile = accuracy / smallPerBig;
-				float niceAccuracyInMile = ((Integer) Math.round(accuracyInMile * 10)).floatValue() / 10;
-				sb.append("< ").append(niceAccuracyInMile).append(" ").append(bigUnit);
-			} else {
-				// use "small unit"
-				int niceAccuracyInFeet = Math.round(accuracy);
-				sb.append("< ").append(niceAccuracyInFeet).append(" ").append(smallUnit);
-			}
-			// TODO ? ELSE if accuracy non-significant DO show the longer distance ?
-		} else {
-			// IF distance in "small unit" is big enough to fit in "big unit" DO
-			if (distance > (smallPerBig / threshold)) {
-				// use "big unit"
-				float distanceInMile = distance / smallPerBig;
-				float niceDistanceInMile = ((Integer) Math.round(distanceInMile * 10)).floatValue() / 10;
-				sb.append(niceDistanceInMile).append(" ").append(bigUnit);
-			} else {
-				// use "small unit"
-				int niceDistanceInFeet = Math.round(distance);
-				sb.append(niceDistanceInFeet).append(" ").append(smallUnit);
-			}
-		}
-		return sb.toString();
 	}
 
 	/**
@@ -901,12 +824,9 @@ public class Utils {
 	 */
 	public static String cleanBikeStationName(String uncleanStation) {
 		String result = uncleanStation;
-
 		result = BusUtils.cleanBusStopPlace(result);
-
 		// clean "/" => " / "
 		result = result.replaceAll("(\\w)(/)(\\w)", "$1 / $3");
-
 		return result;
 	}
 
@@ -920,7 +840,7 @@ public class Utils {
 		} catch (InterruptedException e) {
 		}
 	}
-	
+
 	public static String getJson(URLConnection urlc) throws UnsupportedEncodingException, IOException {
 		StringBuilder sb = new StringBuilder();
 		BufferedReader reader = null;

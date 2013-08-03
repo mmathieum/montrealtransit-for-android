@@ -128,7 +128,8 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 	/**
 	 * Synchronous {@link #doInBackground(String...)} for access from another {@link AsyncTask}.
 	 */
-	public static List<BikeStation> doInForeground(Context context, WeakReference<BixiDataReaderListener> from, final List<String> forceDBUpdateTerminalNames, int tried) {
+	public static List<BikeStation> doInForeground(Context context, WeakReference<BixiDataReaderListener> from, final List<String> forceDBUpdateTerminalNames,
+			int tried) {
 		// MyLog.v(TAG, "doInForeground(%s,%s)", forceDBUpdate, Utils.getCollectionSize(forceDBUpdateTerminalNames));
 		try {
 			URL url = new URL(XML_SOURCE);
@@ -165,6 +166,8 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 				publishProgress(from, context.getString(R.string.error));
 				AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BIXI_DATA_LOADING_FAIL,
 						tried + httpsUrlConnection.getResponseMessage(), httpsUrlConnection.getResponseCode());
+				AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_HTTP_ERROR, SOURCE,
+						httpsUrlConnection.getResponseCode());
 				if (tried < MAX_RETRY) {
 					return doInForeground(context, from, forceDBUpdateTerminalNames, ++tried);
 				} else {

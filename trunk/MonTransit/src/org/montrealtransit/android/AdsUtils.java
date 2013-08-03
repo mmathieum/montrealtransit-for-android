@@ -9,7 +9,6 @@ import org.montrealtransit.android.activity.UserPreferences;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.view.View;
@@ -196,8 +195,7 @@ public class AdsUtils {
 		MyLog.v(TAG, "isGenerousUser()");
 		if (AdsUtils.generousUser == null) {
 			generousUser = false;
-			final PackageManager packageManager = context.getPackageManager();
-			for (PackageInfo pkg : packageManager.getInstalledPackages(0)) {
+			for (PackageInfo pkg : context.getPackageManager().getInstalledPackages(0)) {
 				if (pkg.packageName.startsWith(DONATE_PACKAGES_START_WITH)) {
 					AdsUtils.generousUser = true;
 					// TODO check that the app was bought (Google Play Store Licensing)

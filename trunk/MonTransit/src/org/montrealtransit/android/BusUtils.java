@@ -23,9 +23,14 @@ public class BusUtils {
 	private static final String TAG = BusUtils.class.getSimpleName();
 
 	/**
-	 * The validity of the cache (in seconds).
+	 * The cache is too old to be useful, don't display it.
 	 */
-	public static final int CACHE_TOO_OLD_IN_SEC = 60 * 60; // 60 minutes
+	public static final int CACHE_NOT_USEFUL_IN_SEC = 60 * 60; // 60 minutes
+
+	/**
+	 * The validity of the cache (in seconds), try to refresh it (display it).
+	 */
+	public static final int CACHE_TOO_OLD_IN_SEC = 1 * 60; // 1 minute
 
 	/**
 	 * Return 1 R.string.<ID> for the bus line simple/main direction string.
@@ -61,6 +66,22 @@ public class BusUtils {
 		} else {
 			MyLog.w(TAG, "INTERNAL ERROR: unknow simple direction for '%s'!", directionId);
 			return "";
+		}
+	}
+
+	public static int getBusLineDirectionId(String directionId) {
+		// MyLog.v(TAG, "getBusLineDirectionId(%s)", directionId);
+		if (directionId.endsWith("E")) {
+			return 1;
+		} else if (directionId.endsWith("O")) {
+			return 2;
+		} else if (directionId.endsWith("N")) {
+			return 3;
+		} else if (directionId.endsWith("S")) {
+			return 4;
+		} else {
+			MyLog.w(TAG, "INTERNAL ERROR: unknow simple direction for '%s'!", directionId);
+			return 0;
 		}
 	}
 

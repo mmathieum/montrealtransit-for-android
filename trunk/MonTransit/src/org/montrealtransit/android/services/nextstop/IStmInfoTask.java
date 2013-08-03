@@ -57,6 +57,12 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 		}
 		String errorMessage = this.context.getString(R.string.error); // set the default error message
 		Map<String, BusStopHours> hours = new HashMap<String, BusStopHours>();
+		// if (!Utils.isConnectedOrConnecting(this.context)) {
+		// MyLog.d(TAG, "No Internet Connection!");
+		// publishProgress(this.context.getString(R.string.no_internet));
+		// hours.put(this.busStop.getLineNumber(), new BusStopHours(SOURCE_NAME, this.context.getString(R.string.no_internet)));
+		// return hours;
+		// }
 		try {
 			publishProgress(context.getString(R.string.downloading_data_from_and_source, SOURCE_NAME));
 			URL url = new URL(getUrlString());
@@ -107,10 +113,14 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 				}
 				return hours;
 			case HttpURLConnection.HTTP_INTERNAL_ERROR:
-				errorMessage = this.context.getString(R.string.error_http_500_and_source, this.context.getString(R.string.select_next_stop_data_source));
+				errorMessage = this.context.getString(R.string.error_http_500_and_source);
+			case HttpURLConnection.HTTP_GATEWAY_TIMEOUT:
+				errorMessage = this.context.getString(R.string.error_http_504_and_source);
 			default:
 				MyLog.w(TAG, "ERROR: HTTP URL-Connection Response Code %s (Message: %s)", httpUrlConnection.getResponseCode(),
 						httpUrlConnection.getResponseMessage());
+				AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_HTTP_ERROR, SOURCE_NAME,
+						httpUrlConnection.getResponseCode());
 				hours.put(this.busStop.getLineNumber(), new BusStopHours(SOURCE_NAME, errorMessage));
 				return hours;
 			}
@@ -167,5 +177,10 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 	@Override
 	public String getTag() {
 		return TAG;
+	}
+
+	@Override
+	public String getSourceName() {
+		return SOURCE_NAME;
 	}
 }

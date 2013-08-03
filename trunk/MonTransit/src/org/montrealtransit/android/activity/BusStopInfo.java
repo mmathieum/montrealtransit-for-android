@@ -840,6 +840,9 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	private void showNextBusStops() {
 		MyLog.v(TAG, "showNextBusStops()");
 		new AsyncTask<Void, Void, Void>() {
+
+			private boolean refreshAsync = false;
+
 			@Override
 			protected Void doInBackground(Void... params) {
 
@@ -850,17 +853,20 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 						// load cache from database
 						BusStopInfo.this.cache = DataManager.findCache(getContentResolver(), Cache.KEY_TYPE_VALUE_BUS_STOP, BusStopInfo.this.busStop.getUID());
 					}
-					// compute the too old date
-					int tooOld = Utils.currentTimeSec() - BusUtils.CACHE_TOO_OLD_IN_SEC;
-					// IF the cache is too old DO
-					if (BusStopInfo.this.cache != null && tooOld >= BusStopInfo.this.cache.getDate()) {
-						// don't use the cache
-						BusStopInfo.this.cache = null;
-						// delete all too old cache
-						try {
-							DataManager.deleteCacheOlderThan(getContentResolver(), tooOld);
-						} catch (Exception e) {
-							MyLog.w(TAG, e, "Can't clean the cache!");
+					if (BusStopInfo.this.cache != null) {
+						// IF the cache is too old DO
+						final int tooOld = Utils.currentTimeSec() - BusUtils.CACHE_NOT_USEFUL_IN_SEC;
+						if (tooOld >= BusStopInfo.this.cache.getDate()) {
+							// don't use the cache
+							BusStopInfo.this.cache = null;
+							// delete all too old cache
+							try {
+								DataManager.deleteCacheOlderThan(getContentResolver(), tooOld);
+							} catch (Exception e) {
+								MyLog.w(TAG, e, "Can't clean the cache!");
+							}
+						} else if (Utils.currentTimeSec() - BusUtils.CACHE_TOO_OLD_IN_SEC >= BusStopInfo.this.cache.getDate()) {
+							refreshAsync = true;
 						}
 					}
 					if (BusStopInfo.this.cache != null) {
@@ -879,6 +885,9 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 				} else {
 					showNewNextStops();
 					setNextStopsNotLoading();
+					if (refreshAsync) {
+						refreshNextStops();
+					}
 				}
 			};
 
@@ -1009,6 +1018,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 			this.task = null;
 			setNextStopsCancelled();
 		} else {
+			this.hours = null; // clear current bus stop hours
 			refreshNextStops();
 		}
 	}
@@ -1170,9 +1180,11 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 			setNextStopsError(result);
 		} else {
 			// get the result
-			this.hours = result;
-			// show the result
-			showNewNextStops();
+			if (this.hours == null || !this.hours.getSourceName().equals(IStmInfoTask.SOURCE_NAME)) {
+				this.hours = result;
+				// show the result
+				showNewNextStops();
+			}
 			setNextStopsNotLoading();
 		}
 	}
@@ -1261,7 +1273,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-		MyLog.v(TAG, "onStatusChanged(%s, %s)", provider, status);
+		// MyLog.v(TAG, "onStatusChanged(%s, %s)", provider, status);
 	}
 
 	/**

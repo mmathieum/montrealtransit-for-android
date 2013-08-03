@@ -12,7 +12,7 @@ public class ABusStop extends BusStop implements POI {
 	/**
 	 * The distance string.
 	 */
-	private String distanceString;
+	private String distanceString = null;
 	/**
 	 * The distance in meter.
 	 */

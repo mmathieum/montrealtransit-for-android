@@ -348,9 +348,8 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 		if (this.closestStops == null) {
 			return;
 		}
-		for (int i = 0; i < this.closestStops.size() && i < 10; i++) {
-			BusStop busStop = this.closestStops.get(i);
-			SupportFactory.get().executeOnExecutor(new LoadNextBusStopIntoCacheTask(getLastActivity(), busStop, null, true, false),
+		for (int i = 0; i < this.closestStops.size() && i < 5; i++) {
+			SupportFactory.get().executeOnExecutor(new LoadNextBusStopIntoCacheTask(getLastActivity(), this.closestStops.get(i), null, true, false),
 					PrefetchingUtils.getExecutor());
 		}
 	}
