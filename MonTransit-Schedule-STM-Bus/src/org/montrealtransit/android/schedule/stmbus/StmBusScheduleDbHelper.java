@@ -59,6 +59,8 @@ public class StmBusScheduleDbHelper extends SQLiteOpenHelper {
 
 	private String routeId;
 
+	private boolean deployingData = false;
+
 	public StmBusScheduleDbHelper(Context context, String routeId) {
 		super(context, String.format(DB_NAME_FORMAT, routeId), null, DB_VERSION);
 		MyLog.v(TAG, "StmBusScheduleDbHelper(%s, %s)", String.format(DB_NAME_FORMAT, routeId), DB_VERSION);
@@ -90,6 +92,14 @@ public class StmBusScheduleDbHelper extends SQLiteOpenHelper {
 	@Override
 	public synchronized void close() {
 		try {
+			// wait until the data is deployed
+			while (this.deployingData) {
+				MyLog.d(TAG, "waiting 1 second before closing route %s DB...", routeId);
+				try {
+					Thread.sleep(1 * 1000);
+				} catch (InterruptedException ie) {
+				}
+			}
 			super.close();
 		} catch (Exception e) {
 			MyLog.w(TAG, "Error while closing the databases!", e);
@@ -98,6 +108,7 @@ public class StmBusScheduleDbHelper extends SQLiteOpenHelper {
 
 	private void initAllDbTables(SQLiteDatabase db) {
 		MyLog.v(TAG, "initAllDbTables()");
+		this.deployingData = true;
 		// global settings
 		db.execSQL("PRAGMA foreign_keys=OFF;");
 		// dataBase.execSQL("PRAGMA synchronous=OFF;");
@@ -108,6 +119,8 @@ public class StmBusScheduleDbHelper extends SQLiteOpenHelper {
 		initDbTableWithRetry(db, T_SCHEDULES, DATABASE_CREATE_T_SCHEDULES, T_SCHEDULES_SQL_INSERT, DATABASE_DROP_T_SCHEDULES,
 				new String[] { String.format(RAW_FILE_FORMAT, this.routeId) });
 		// TODO UserPreferences.savePrefLcl(this.context, UserPreferences.PREFS_LCL_STM_DB_VERSION, DB_VERSION);
+		this.deployingData = false;
+		MyLog.v(TAG, "initAllDbTables() - DONE (route: %s)", routeId);
 	}
 
 	private void initDbTableWithRetry(SQLiteDatabase dataBase, String table, String createSQL, String insertSQL, String dropSQL, String[] fileNames) {
