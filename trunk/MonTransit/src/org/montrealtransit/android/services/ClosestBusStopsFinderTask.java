@@ -69,15 +69,15 @@ public class ClosestBusStopsFinderTask extends AsyncTask<Location, String, Close
 		MyLog.v(TAG, "doInBackground()");
 		ClosestPOI<ABusStop> result = null;
 		// read last (not too old) location
-		Location currentLocation = params[0];
+		Location location = params[0];
 		// MyLog.d(TAG, "currentLocation:" + currentLocation);
 		// IF location available DO
-		if (currentLocation != null) {
+		if (location != null) {
 			publishProgress(this.context.getString(R.string.processing));
-			result = new ClosestPOI<ABusStop>();
+			result = new ClosestPOI<ABusStop>(location);
 			// read location accuracy
 			// create a list of all stops with lines and location
-			List<ABusStop> stopsWithOtherLines = getAllStopsWithLines(currentLocation);
+			List<ABusStop> stopsWithOtherLines = getAllStopsWithLines(location);
 			Collections.sort(stopsWithOtherLines, new BusStopComparator());
 			if (Utils.getCollectionSize(stopsWithOtherLines) > maxResult) {
 				result.setPoiList(stopsWithOtherLines.subList(0, maxResult));
@@ -106,14 +106,14 @@ public class ClosestBusStopsFinderTask extends AsyncTask<Location, String, Close
 
 	/**
 	 * Create a list of all stops including their distance to the location and all bus lines.
-	 * @param currentLocation the location
+	 * @param location the location
 	 * @return the list of localized stops
 	 */
-	private List<ABusStop> getAllStopsWithLines(Location currentLocation) {
+	private List<ABusStop> getAllStopsWithLines(Location location) {
 		MyLog.v(TAG, "getAllStopsWithLines()");
 		Map<String, ABusStop> aresult = new HashMap<String, ABusStop>();
 		// try the short way with location hack
-		List<BusStop> allBusStopsWithLoc = StmManager.findAllBusStopLocationList(context.getContentResolver(), currentLocation);
+		List<BusStop> allBusStopsWithLoc = StmManager.findAllBusStopLocationList(context.getContentResolver(), location);
 		// MyLog.d(TAG, "1st try: " + Utils.getCollectionSize(allBusStopsWithLoc));
 		if (Utils.getCollectionSize(allBusStopsWithLoc) == 0) { // if no value return
 			// do it the hard long way
@@ -126,7 +126,7 @@ public class ClosestBusStopsFinderTask extends AsyncTask<Location, String, Close
 			ABusStop stop = new ABusStop(busStop);
 			aresult.put(busStop.getUID(), stop); // filters on UID
 		}
-		LocationUtils.updateDistance(context, aresult, currentLocation);
+		LocationUtils.updateDistance(context, aresult, location);
 		return new ArrayList<ABusStop>(aresult.values());
 	}
 

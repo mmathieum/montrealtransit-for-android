@@ -180,7 +180,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 			refreshClosestStops();
 		} else {
 			// show the closest stops
-			showNewClosestStops(view, activity);
+			showNewClosestStops(view, activity, false);
 			// IF the latest location is too old DO
 			if (LocationUtils.isTooOld(this.closestStopsLocation)) {
 				// start refreshing
@@ -339,7 +339,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 			prefetchClosestStops();
 			refreshFavoriteUIDsFromDB();
 			// show the result
-			showNewClosestStops(view, activity);
+			showNewClosestStops(view, activity, LocationUtils.areTheSame(this.closestStopsLocation, result.getLat(), result.getLng()));
 			setClosestStopsNotLoading(view);
 		}
 	}
@@ -357,8 +357,8 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 	/**
 	 * Show the new closest stops.
 	 */
-	private void showNewClosestStops(View view, Context activity) {
-		MyLog.v(TAG, "showNewClosestStops()");
+	private void showNewClosestStops(View view, Context activity, boolean scroll) {
+		MyLog.v(TAG, "showNewClosestStops(%s)", scroll);
 		if (this.closestStops != null && view != null && activity != null) {
 			// set the closest stop title
 			showNewClosestStopsTitle(view, activity);
@@ -371,7 +371,11 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 			}
 			// show stops list
 			notifyDataSetChanged(true);
-			view.findViewById(R.id.closest_stops).setVisibility(View.VISIBLE);
+			ListView closestStopsListView = (ListView) view.findViewById(R.id.closest_stops);
+			if (scroll) {
+				SupportFactory.get().listViewScrollTo(closestStopsListView, 0, 0);
+			}
+			closestStopsListView.setVisibility(View.VISIBLE);
 			setClosestStopsNotLoading(view);
 		}
 	}
@@ -618,15 +622,13 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 			new AsyncTask<Void, Void, Location>() {
 				@Override
 				protected Location doInBackground(Void... params) {
-					// MyLog.v(TAG, "doInBackground()");
 					return LocationUtils.getBestLastKnownLocation(BusTabClosestStopsFragment.this.getLastActivity());
 				}
 
 				@Override
 				protected void onPostExecute(Location result) {
-					// MyLog.v(TAG, "onPostExecute()");
 					if (result != null) {
-						BusTabClosestStopsFragment.this.setLocation(result);
+						setLocation(result);
 					}
 					// enable location updates if necessary
 					BusTabClosestStopsFragment.this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(
@@ -744,17 +746,17 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 
 	@Override
 	public void onProviderEnabled(String provider) {
-		MyLog.v(TAG, "onProviderEnabled(%s)", provider);
+		// MyLog.v(TAG, "onProviderEnabled(%s)", provider);
 	}
 
 	@Override
 	public void onProviderDisabled(String provider) {
-		MyLog.v(TAG, "onProviderDisabled(%s)", provider);
+		// MyLog.v(TAG, "onProviderDisabled(%s)", provider);
 	}
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-		MyLog.v(TAG, "onStatusChanged(%s, %s)", provider, status);
+		// MyLog.v(TAG, "onStatusChanged(%s, %s)", provider, status);
 	}
 
 	@Override
@@ -797,6 +799,13 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 				protected void onPostExecute(Location result) {
 					// IF there is a valid last know location DO
 					if (result != null) {
+						if (BusTabClosestStopsFragment.this.closestStopsLocation != null) {
+							if (LocationUtils.isMoreRelevant(BusTabClosestStopsFragment.this.closestStopsLocation, result,
+									LocationUtils.SIGNIFICANT_ACCURACY_IN_METERS, Utils.CLOSEST_POI_LIST_PREFER_ACCURACY_OVER_TIME)
+									&& LocationUtils.isTooOld(BusTabClosestStopsFragment.this.closestStopsLocation, Utils.CLOSEST_POI_LIST_TIMEOUT)) {
+								BusTabClosestStopsFragment.this.closestStops = null; // force refresh
+							}
+						}
 						// set the new distance
 						setLocation(result);
 						updateDistancesWithNewLocation();
@@ -805,6 +814,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 					BusTabClosestStopsFragment.this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(
 							BusTabClosestStopsFragment.this.getLastActivity(), BusTabClosestStopsFragment.this,
 							BusTabClosestStopsFragment.this.locationUpdatesEnabled, BusTabClosestStopsFragment.this.paused);
+
 				};
 
 			}.execute();

@@ -89,10 +89,6 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 * The tracker tag.
 	 */
 	private static final String TRACKER_TAG = "/Subways";
-	/**
-	 * The validity of the current status (in seconds).
-	 */
-	private static final int STATUS_TOO_OLD_IN_SEC = 20 * 60; // 20 minutes
 
 	/**
 	 * The cursor used to display the subway lines.
@@ -248,6 +244,13 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 				protected void onPostExecute(Location result) {
 					// IF there is a valid last know location DO
 					if (result != null) {
+						if (SubwayTab.this.closestStationsLocation != null) {
+							if (LocationUtils.isMoreRelevant(SubwayTab.this.closestStationsLocation, result, LocationUtils.SIGNIFICANT_ACCURACY_IN_METERS,
+									Utils.CLOSEST_POI_LIST_PREFER_ACCURACY_OVER_TIME)
+									&& LocationUtils.isTooOld(SubwayTab.this.closestStationsLocation, Utils.CLOSEST_POI_LIST_TIMEOUT)) {
+								SubwayTab.this.closestStations = null; // force refresh
+							}
+						}
 						// set the new distance
 						setLocation(result);
 						updateDistancesWithNewLocation();
@@ -434,8 +437,9 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			protected void onPostExecute(List<ServiceStatus> result) {
 				// MyLog.v(TAG, "showStatusFromDB()>onPostExecute()");
 				SubwayTab.this.serviceStatuses = result;
-				// IF there is no service status DO
-				if (SubwayTab.this.serviceStatuses == null) {
+				// IF there is no service status OR service status is way too old to be useful DO
+				if (SubwayTab.this.serviceStatuses == null
+						|| Utils.currentTimeSec() >= SubwayTab.this.serviceStatuses.get(0).getReadDate() + SubwayUtils.STATUS_NOT_USEFUL_IN_SEC) {
 					// look for new service status
 					refreshStatus();
 				} else {
@@ -444,9 +448,9 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 					// check service age
 					// IF the latest service is too old DO
 					if (SubwayTab.this.serviceStatuses.size() > 0) {
-						int statusTooOldInSec = STATUS_TOO_OLD_IN_SEC;
+						int statusTooOldInSec = SubwayUtils.STATUS_TOO_OLD_IN_SEC;
 						if (SubwayTab.this.serviceStatuses.get(0).getType() != ServiceStatus.STATUS_TYPE_GREEN) { // IF status not OK
-							statusTooOldInSec /= 2; // check twice as often
+							statusTooOldInSec /= 3; // check more often
 						}
 						if (Utils.currentTimeSec() >= SubwayTab.this.serviceStatuses.get(0).getReadDate() + statusTooOldInSec) {
 							// look for new service status
@@ -731,7 +735,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			refreshClosestStations();
 		} else {
 			// show the closest stations
-			showNewClosestStations();
+			showNewClosestStations(false);
 			// IF the latest location is too old DO
 			if (LocationUtils.isTooOld(this.closestStationsLocation)) {
 				// start refreshing
@@ -748,8 +752,8 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	/**
 	 * Show the new closest stations.
 	 */
-	private void showNewClosestStations() {
-		MyLog.v(TAG, "showNewClosestStations()");
+	private void showNewClosestStations(boolean scroll) {
+		MyLog.v(TAG, "showNewClosestStations(%s)", scroll);
 		if (this.closestStations != null) {
 			// set the closest station title
 			showNewClosestStationsTitle();
@@ -762,7 +766,11 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			}
 			// show stations list
 			notifyDataSetChanged(true);
-			findViewById(R.id.closest_stations).setVisibility(View.VISIBLE);
+			ListView closestStationsListView = (ListView) findViewById(R.id.closest_stations);
+			if (scroll) {
+				SupportFactory.get().listViewScrollTo(closestStationsListView, 0, 0);
+			}
+			closestStationsListView.setVisibility(View.VISIBLE);
 			setClosestStationsNotLoading();
 		}
 	}
@@ -1178,7 +1186,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			generateOrderedStationsIds();
 			refreshFavoriteIDsFromDB();
 			// shot the result
-			showNewClosestStations();
+			showNewClosestStations(LocationUtils.areTheSame(this.closestStationsLocation, result.getLat(), result.getLng()));
 			setClosestStationsNotLoading();
 		}
 	}
@@ -1337,17 +1345,17 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 
 	@Override
 	public void onProviderEnabled(String provider) {
-		MyLog.v(TAG, "onProviderEnabled(%s)", provider);
+		// MyLog.v(TAG, "onProviderEnabled(%s)", provider);
 	}
 
 	@Override
 	public void onProviderDisabled(String provider) {
-		MyLog.v(TAG, "onProviderDisabled(%s)", provider);
+		// MyLog.v(TAG, "onProviderDisabled(%s)", provider);
 	}
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-		MyLog.v(TAG, "onStatusChanged(%s, %s)", provider, status);
+		// MyLog.v(TAG, "onStatusChanged(%s, %s)", provider, status);
 	}
 
 	// /**

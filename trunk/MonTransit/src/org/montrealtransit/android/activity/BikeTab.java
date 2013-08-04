@@ -237,6 +237,13 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 				protected void onPostExecute(Location result) {
 					// IF there is a valid last know location DO
 					if (result != null) {
+						if (BikeTab.this.closestBikeStationsLocation != null) {
+							if (LocationUtils.isMoreRelevant(BikeTab.this.closestBikeStationsLocation, result, LocationUtils.SIGNIFICANT_ACCURACY_IN_METERS,
+									Utils.CLOSEST_POI_LIST_PREFER_ACCURACY_OVER_TIME)
+									&& LocationUtils.isTooOld(BikeTab.this.closestBikeStationsLocation, Utils.CLOSEST_POI_LIST_TIMEOUT)) {
+								BikeTab.this.closestStations = null; // force refresh
+							}
+						}
 						// set the new distance
 						setLocation(result);
 						updateDistancesWithNewLocation();
@@ -460,8 +467,8 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	/**
 	 * Show the new closest bike stations.
 	 */
-	private void showNewClosestBikeStations() {
-		MyLog.v(TAG, "showNewClosestBikeStations()");
+	private void showNewClosestBikeStations(boolean scroll) {
+		MyLog.v(TAG, "showNewClosestBikeStations(%s)", scroll);
 		// if (Utils.getCollectionSize(this.closestStations) > 0) {
 		if (this.closestStations != null) {
 			// set the closest station title
@@ -470,7 +477,11 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			findViewById(R.id.closest_bike_stations_list_loading).setVisibility(View.GONE); // hide
 			// show stations list
 			notifyDataSetChanged(true);
-			findViewById(R.id.closest_bike_stations_list).setVisibility(View.VISIBLE);
+			ListView closestStationsListView = (ListView) findViewById(R.id.closest_bike_stations_list);
+			if (scroll) {
+				SupportFactory.get().listViewScrollTo(closestStationsListView, 0, 0);
+			}
+			closestStationsListView.setVisibility(View.VISIBLE);
 			setClosestStationsNotLoading();
 			new AsyncTask<Void, Void, Integer>() {
 				@Override
@@ -487,13 +498,13 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 		}
 	}
 
-	private void refreshDataIfTooOld() {
+	private boolean refreshDataIfTooOld() {
 		MyLog.v(TAG, "refreshDataIfTooOld()");
 		if (Utils.currentTimeSec() - BikeUtils.CACHE_TOO_OLD_IN_SEC - getLastUpdateTime() > 0) {
 			// IF last try too recent DO
 			if (Utils.currentTimeSec() - BikeUtils.CACHE_TOO_OLD_IN_SEC - this.lastForcedRefresh < 0) {
 				MyLog.d(TAG, "refreshDataIfTooOld() > last refresh too recent, not refreshing");
-				return; // skip refresh
+				return false; // skip refresh
 			}
 			// ELSE refresh from www
 			if (this.closestBikeStationsTask != null && this.closestBikeStationsTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
@@ -504,7 +515,9 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 				}
 			}
 			startClosestStationsTask(true);
+			return true;
 		}
+		return false;
 	}
 
 	/**
@@ -794,7 +807,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			refreshClosestBikeStations(false);
 		} else {
 			// show the closest stations
-			showNewClosestBikeStations();
+			showNewClosestBikeStations(false);
 			// IF the latest location is too old DO
 			if (LocationUtils.isTooOld(this.closestBikeStationsLocation)) {
 				// start refreshing
@@ -809,16 +822,17 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	 */
 	public void refreshOrStopRefreshClosestStations(View v) {
 		MyLog.v(TAG, "refreshOrStopRefreshClosestStations()");
-		refreshClosestBikeStations(true);
+		this.closestStations = null; // refresh list 1st, then data from www
+		refreshClosestBikeStations(false);
 	}
 
 	/**
 	 * Refresh the closest bike stations list.
 	 */
-	private void refreshClosestBikeStations(boolean force) {
-		MyLog.v(TAG, "refreshClosestBikeStations(%s)", force);
+	private void refreshClosestBikeStations(boolean forceUpdateFromWeb) {
+		MyLog.v(TAG, "refreshClosestBikeStations(%s)", forceUpdateFromWeb);
 		// cancel current if forcing
-		if (force && this.closestBikeStationsTask != null) {
+		if (forceUpdateFromWeb && this.closestBikeStationsTask != null) {
 			this.closestBikeStationsTask.cancel(true);
 			this.closestBikeStationsTask = null;
 		}
@@ -829,7 +843,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			if (locationUsed != null) {
 				// find the closest stations
 				this.closestBikeStationsLocation = locationUsed;
-				startClosestStationsTask(force);
+				startClosestStationsTask(forceUpdateFromWeb);
 				new AsyncTask<Location, Void, String>() {
 
 					@Override
@@ -858,13 +872,13 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 		}
 	}
 
-	private void startClosestStationsTask(boolean force) {
-		// MyLog.v(TAG, "startClosestStationsTask(%s)", force);
-		if (force) {
+	private void startClosestStationsTask(boolean forceUpdateFromWeb) {
+		// MyLog.v(TAG, "startClosestStationsTask(%s)", forceUpdateFromWeb);
+		if (forceUpdateFromWeb) {
 			this.lastForcedRefresh = Utils.currentTimeSec();
 		}
 		setClosestStationsLoading(null);
-		this.closestBikeStationsTask = new ClosestBikeStationsFinderTask(this, this, SupportFactory.get().getNbClosestPOIDisplay(), force);
+		this.closestBikeStationsTask = new ClosestBikeStationsFinderTask(this, this, SupportFactory.get().getNbClosestPOIDisplay(), forceUpdateFromWeb);
 		this.closestBikeStationsTask.execute(this.closestBikeStationsLocation.getLatitude(), this.closestBikeStationsLocation.getLongitude());
 	}
 
@@ -900,7 +914,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 				// refresh favorites
 				refreshFavoriteTerminalNamesFromDB();
 				// shot the result
-				showNewClosestBikeStations();
+				showNewClosestBikeStations(LocationUtils.areTheSame(this.closestBikeStationsLocation, result.getLat(), result.getLng()));
 			}
 			// notify the error message
 			if (!TextUtils.isEmpty(result.getErrorMessage())) {
@@ -976,17 +990,17 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 
 	@Override
 	public void onProviderEnabled(String provider) {
-		MyLog.v(TAG, "onProviderEnabled(%s)", provider);
+		// MyLog.v(TAG, "onProviderEnabled(%s)", provider);
 	}
 
 	@Override
 	public void onProviderDisabled(String provider) {
-		MyLog.v(TAG, "onProviderDisabled(%s)", provider);
+		// MyLog.v(TAG, "onProviderDisabled(%s)", provider);
 	}
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-		MyLog.v(TAG, "onStatusChanged(%s, %s)", provider, status);
+		// MyLog.v(TAG, "onStatusChanged(%s, %s)", provider, status);
 	}
 
 	@Override

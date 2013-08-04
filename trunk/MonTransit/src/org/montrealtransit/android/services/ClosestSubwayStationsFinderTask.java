@@ -69,14 +69,14 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 		MyLog.v(TAG, "doInBackground()");
 		ClosestPOI<ASubwayStation> result = null;
 		// read last (not too old) location
-		Location currentLocation = params[0];
+		Location location = params[0];
 		// MyLog.d(TAG, "currentLocation:" + currentLocation);
 		// IF location available DO
-		if (currentLocation != null) {
+		if (location != null) {
 			publishProgress(this.context.getString(R.string.processing));
-			result = new ClosestPOI<ASubwayStation>();
+			result = new ClosestPOI<ASubwayStation>(location);
 			// create a list of all stations with lines and location
-			List<ASubwayStation> stationsWithOtherLines = getAllStationsWithLines(currentLocation, maxResult);
+			List<ASubwayStation> stationsWithOtherLines = getAllStationsWithLines(location, maxResult);
 			// order the stations list by distance (closest first)
 			Collections.sort(stationsWithOtherLines, new SubwayStationDistancesComparator());
 			result.setPoiList(stationsWithOtherLines);

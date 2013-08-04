@@ -78,6 +78,14 @@ public class Utils {
 	 * The minimum between 2 {@link BaseAdapter#notifyDataSetChanged()} in milliseconds.
 	 */
 	public static final int ADAPTER_NOTIFY_THRESOLD = 250; // 0.25 seconds
+	/**
+	 * The time after which a POIs list should be refresh if the user is not currently interacting with it (in milliseconds).
+	 */
+	public static final int CLOSEST_POI_LIST_TIMEOUT = 60 * 60 * 1000; // 1 hour
+	/**
+	 * How long do we prefer accuracy over time? (in milliseconds)
+	 */
+	public static final long CLOSEST_POI_LIST_PREFER_ACCURACY_OVER_TIME = 2 * 60 * 1000; // 2 minutes
 
 	/**
 	 * Read the input stream and write the stream to the output stream file.
