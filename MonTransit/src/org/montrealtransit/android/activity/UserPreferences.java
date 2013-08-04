@@ -212,7 +212,7 @@ public class UserPreferences extends PreferenceActivity {
 	public static final String PREFS_LCL_STM_DB_VERSION = "pStmDbVersion";
 
 	/**
-	 * The latest update of the Bixi database.
+	 * The latest update of the Bixi database (device time).
 	 */
 	public static final String PREFS_LCL_BIXI_LAST_UPDATE = "pBixiLastUpdate";
 
