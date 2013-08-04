@@ -233,7 +233,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 		// MyLog.v(TAG, "onSensorChanged()");
-		SensorUtils.checkForCompass(this, event, this.accelerometerValues, this.magneticFieldValues/* , this.orientationFieldValues */, this);
+		SensorUtils.checkForCompass(this, event, this.accelerometerValues, this.magneticFieldValues, this);
 	}
 
 	/**
@@ -397,17 +397,17 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 
 	@Override
 	public void onProviderEnabled(String provider) {
-		MyLog.v(TAG, "onProviderEnabled(%s)", provider);
+		// MyLog.v(TAG, "onProviderEnabled(%s)", provider);
 	}
 
 	@Override
 	public void onProviderDisabled(String provider) {
-		MyLog.v(TAG, "onProviderDisabled(%s)", provider);
+		// MyLog.v(TAG, "onProviderDisabled(%s)", provider);
 	}
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-		MyLog.v(TAG, "onStatusChanged(%s, %s)", provider, status);
+		// MyLog.v(TAG, "onStatusChanged(%s, %s)", provider, status);
 	}
 
 	private void setBikeStationFromIntent(Intent intent, Bundle savedInstanceState) {
@@ -439,7 +439,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			// this.task.cancel(true);
 			// this.task = null;
 			return;
-		}// else
+		} // else
 		if (this.bikeStation != null) {
 			setStatusAsLoading();
 			// check if it's not too soon
@@ -464,6 +464,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		if (Utils.getCollectionSize(newBikeStations) == 1) {
 			this.lastSuccessfulRefresh = UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, 0);
 			this.bikeStation = new ABikeStation(newBikeStations.get(0));
+			updateDistancesWithNewLocation();
 			showNewBikeStationStatus();
 			showNewClosestBikeStationsStatus();
 			setStatusNotLoading();
@@ -501,7 +502,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			if (stationView == null) {
 				continue;
 			}
-			final int lastUpdate = this.lastSuccessfulRefresh != 0 ? this.lastSuccessfulRefresh : station.getLatestUpdateTime();
+			final int lastUpdate = this.lastSuccessfulRefresh != 0 ? this.lastSuccessfulRefresh : getLastUpdateTime(); // station.getLatestUpdateTime();
 			setBikeStationStatus(station, stationView, lastUpdate);
 			if (location != null && lastCompassInDegree != 0) {
 				ImageView compassImg = (ImageView) stationView.findViewById(R.id.compass);
@@ -812,7 +813,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 				view.findViewById(R.id.fav_img).setVisibility(View.GONE);
 			}
 			// status
-			final int lastUpdate = this.lastSuccessfulRefresh != 0 ? this.lastSuccessfulRefresh : station.getLatestUpdateTime();
+			final int lastUpdate = this.lastSuccessfulRefresh != 0 ? this.lastSuccessfulRefresh : getLastUpdateTime();
 			setBikeStationStatus(station, view, lastUpdate);
 			// add click listener
 			final String terminalName = station.getTerminalName();
@@ -906,9 +907,9 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			this.lastSuccessfulRefresh = UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, 0);
 		}
 		timestamp = this.lastSuccessfulRefresh;
-		if (timestamp == 0 && this.bikeStation != null) {
-			timestamp = this.bikeStation.getLatestUpdateTime();
-		}
+		// if (timestamp == 0 && this.bikeStation != null) {
+		// timestamp = this.bikeStation.getLatestUpdateTime();
+		// }
 		if (timestamp == 0) {
 			timestamp = Utils.currentTimeSec(); // use device time
 		}

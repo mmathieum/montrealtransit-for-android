@@ -436,26 +436,27 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			@Override
 			protected void onPostExecute(List<ServiceStatus> result) {
 				// MyLog.v(TAG, "showStatusFromDB()>onPostExecute()");
-				SubwayTab.this.serviceStatuses = result;
 				// IF there is no service status OR service status is way too old to be useful DO
-				if (SubwayTab.this.serviceStatuses == null
-						|| Utils.currentTimeSec() >= SubwayTab.this.serviceStatuses.get(0).getReadDate() + SubwayUtils.STATUS_NOT_USEFUL_IN_SEC) {
+				if (result == null
+						|| Utils.currentTimeSec() >= result.get(0).getReadDate() + SubwayUtils.STATUS_NOT_USEFUL_IN_SEC) {
+					setStatusLoading();
 					// look for new service status
 					refreshStatus();
-				} else {
-					// show latest service status
-					showNewStatus();
-					// check service age
-					// IF the latest service is too old DO
-					if (SubwayTab.this.serviceStatuses.size() > 0) {
-						int statusTooOldInSec = SubwayUtils.STATUS_TOO_OLD_IN_SEC;
-						if (SubwayTab.this.serviceStatuses.get(0).getType() != ServiceStatus.STATUS_TYPE_GREEN) { // IF status not OK
-							statusTooOldInSec /= 3; // check more often
-						}
-						if (Utils.currentTimeSec() >= SubwayTab.this.serviceStatuses.get(0).getReadDate() + statusTooOldInSec) {
-							// look for new service status
-							refreshStatus();
-						}
+					return;
+				}
+				SubwayTab.this.serviceStatuses = result;
+				// show latest service status
+				showNewStatus();
+				// check service age
+				// IF the latest service is too old DO
+				if (SubwayTab.this.serviceStatuses.size() > 0) {
+					int statusTooOldInSec = SubwayUtils.STATUS_TOO_OLD_IN_SEC;
+					if (SubwayTab.this.serviceStatuses.get(0).getType() != ServiceStatus.STATUS_TYPE_GREEN) { // IF status not OK
+						statusTooOldInSec /= 3; // check more often
+					}
+					if (Utils.currentTimeSec() >= SubwayTab.this.serviceStatuses.get(0).getReadDate() + statusTooOldInSec) {
+						// look for new service status
+						refreshStatus();
 					}
 				}
 			}
@@ -472,7 +473,6 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		if (findViewById(R.id.subway_status_loading) != null) { // IF present/inflated DO
 			findViewById(R.id.subway_status_loading).setVisibility(View.GONE);
 		}
-
 		if (this.serviceStatuses != null && this.serviceStatuses.size() > 0) {
 			if (findViewById(R.id.subway_status) == null) { // IF NOT present/inflated DO
 				((ViewStub) findViewById(R.id.subway_status_stub)).inflate(); // inflate

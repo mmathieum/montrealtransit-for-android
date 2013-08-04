@@ -153,7 +153,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 				publishProgress(from, context.getString(R.string.processing));
 				updateDatabaseAll(context, handler.getBikeStations());
 				// save new last update
-				UserPreferences.savePrefLcl(context, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, handler.getLastUpdate());
+				UserPreferences.savePrefLcl(context, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, Utils.currentTimeSec());
 				if (tried > 0) { // didn't work on 1st try but worked on retry
 					AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BIXI_DATA_LOADING_FAIL, "Success after X retry.",
 							tried);

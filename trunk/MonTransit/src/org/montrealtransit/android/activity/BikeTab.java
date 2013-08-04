@@ -665,7 +665,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 					holder.stationNameTv.setTextColor(Utils.getTextColorPrimary(getContext()));
 				}
 				// availability
-				final int lastUpdate = BikeTab.this.lastSuccessfulRefresh != 0 ? BikeTab.this.lastSuccessfulRefresh : bikeStation.getLatestUpdateTime();
+				final int lastUpdate = BikeTab.this.lastSuccessfulRefresh != 0 ? BikeTab.this.lastSuccessfulRefresh : getLastUpdateTime();
 				int waitFor = Utils.currentTimeSec() - BikeUtils.CACHE_NOT_USEFUL_IN_SEC - lastUpdate;
 				if (waitFor < 0) {
 					if (!bikeStation.isInstalled()) {
