@@ -81,7 +81,7 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Double, String, Clo
 		ClosestPOI<ABikeStation> result = null;
 		// IF location available DO
 		if (params.length == 2 && params[0] != null && params[1] != null) {
-			result = new ClosestPOI<ABikeStation>();
+			result = new ClosestPOI<ABikeStation>(params[0], params[1]);
 			// IF the local cache is too old DO
 			if (FORCE_UPDATE_FROM_WEB
 					|| forceUpdateFromWeb

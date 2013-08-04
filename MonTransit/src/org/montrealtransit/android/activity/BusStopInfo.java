@@ -427,7 +427,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		MyLog.v(TAG, "showNextStopsInfoDialog()");
 		String message;
 		if (this.hours != null) {
-			message = getString(R.string.next_bus_stops_message_and_source, this.hours.getSourceName());
+			message = getString(R.string.next_bus_stops_message_and_source, IStmInfoTask.SOURCE_NAME);
 		} else {
 			message = getString(R.string.next_bus_stops_message_and_source, IStmInfoTask.SOURCE_NAME);
 		}

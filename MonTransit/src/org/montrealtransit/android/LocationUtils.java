@@ -139,7 +139,11 @@ public class LocationUtils {
 	 */
 	public static boolean isTooOld(Location location) {
 		// MyLog.v(TAG, "isTooOld()");
-		return location.getTime() + MAX_LAST_KNOW_LOCATION_TIME < System.currentTimeMillis();
+		return isTooOld(location, MAX_LAST_KNOW_LOCATION_TIME);
+	}
+
+	public static boolean isTooOld(Location location, final long maxLastKnowLocationTime) {
+		return location.getTime() + maxLastKnowLocationTime < System.currentTimeMillis();
 	}
 
 	/**
@@ -222,7 +226,14 @@ public class LocationUtils {
 		MyLog.v(TAG, "isMoreRelevant()");
 		// MyLog.d(TAG, "current location: %s.", locationToString(currentLocation));
 		// MyLog.d(TAG, "new location: %s.", locationToString(newLocation));
+		return isMoreRelevant(currentLocation, newLocation, SIGNIFICANT_ACCURACY_IN_METERS, PREFER_ACCURACY_OVER_TIME);
+	}
 
+	public static boolean isMoreRelevant(Location currentLocation, Location newLocation, final int significantAccuracyInMeters,
+			final long preferAccuracyOverTime) {
+		MyLog.v(TAG, "isMoreRelevant(%s,%s)", significantAccuracyInMeters, preferAccuracyOverTime);
+		// MyLog.d(TAG, "current location: %s.", locationToString(currentLocation));
+		// MyLog.d(TAG, "new location: %s.", locationToString(newLocation));
 		if (currentLocation == null) {
 			// A new location is always better than no location
 			MyLog.d(TAG, "New location is better than 'null'.");
@@ -231,8 +242,8 @@ public class LocationUtils {
 
 		// Check whether the new location fix is newer or older
 		long timeDelta = newLocation.getTime() - currentLocation.getTime();
-		boolean isSignificantlyNewer = timeDelta > PREFER_ACCURACY_OVER_TIME;
-		boolean isSignificantlyOlder = timeDelta < -PREFER_ACCURACY_OVER_TIME;
+		boolean isSignificantlyNewer = timeDelta > preferAccuracyOverTime;
+		boolean isSignificantlyOlder = timeDelta < -preferAccuracyOverTime;
 		boolean isNewer = timeDelta > 0;
 
 		// If it's been more than two minutes since the current location, use the new location
@@ -250,7 +261,7 @@ public class LocationUtils {
 		int accuracyDelta = (int) (newLocation.getAccuracy() - currentLocation.getAccuracy());
 		boolean isLessAccurate = accuracyDelta > 0;
 		boolean isMoreAccurate = accuracyDelta < 0;
-		boolean isSignificantlyLessAccurate = accuracyDelta > SIGNIFICANT_ACCURACY_IN_METERS;
+		boolean isSignificantlyLessAccurate = accuracyDelta > significantAccuracyInMeters;
 
 		// Check if the old and new location are from the same provider
 		boolean isFromSameProvider = isSameProvider(newLocation, currentLocation);
@@ -336,7 +347,7 @@ public class LocationUtils {
 				sb.append(", ").append(locationAddress.getLocality());
 			}
 			if (accuracy != null) {
-				sb.append(" ± ").append(getDistanceStringUsingPref(context, accuracy, 0));
+				sb.append(" ± ").append(getDistanceStringUsingPref(context, accuracy, accuracy));
 			}
 			sb.append(")");
 		}
@@ -638,5 +649,22 @@ public class LocationUtils {
 		 * @return the distance
 		 */
 		public float getDistance();
+	}
+
+	/**
+	 * @return true if both lat/lng are available (not null) and the same
+	 */
+	public static boolean areTheSame(Location loc1, double lat2, double lng2) {
+		if (loc1 == null) {
+			return false;
+		}
+		return areTheSame(loc1.getLatitude(), loc1.getLongitude(), lat2, lng2);
+	}
+
+	/**
+	 * @return true if both lat/lng are the same
+	 */
+	public static boolean areTheSame(double lat1, double lng1, double lat2, double lng2) {
+		return lat1 == lat2 && lng1 == lng2;
 	}
 }

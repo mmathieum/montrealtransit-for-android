@@ -3,10 +3,6 @@ package org.montrealtransit.android.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.montrealtransit.android.LocationUtils;
-
-import android.content.Context;
-import android.location.Address;
 import android.location.Location;
 
 /**
@@ -20,40 +16,28 @@ public class ClosestPOI<T> {
 	 */
 	private List<T> poiList;
 	/**
-	 * The location.
-	 */
-	private Location location;
-	/**
-	 * The location address.
-	 */
-	private Address locationAddress;
-	/**
 	 * The error message.
 	 */
 	private String errorMessage;
+	private double lat;
+	private double lng;
 
-	/**
-	 * Default constructor.
-	 */
-	public ClosestPOI() {
+	public ClosestPOI(Location location) {
+		this.lat = location.getLatitude();
+		this.lng = location.getLongitude();
 	}
 
-	/**
-	 * Set the location and LOAD the location address.
-	 * @param location the location
-	 * @param context the context
-	 */
-	@Deprecated
-	public void setLocationAndAddress(Location location, Context context) {
-		this.location = location;
-		this.locationAddress = LocationUtils.getLocationAddress(context, this.location);
+	public ClosestPOI(double lat, double lng) {
+		this.lat = lat;
+		this.lng = lng;
 	}
 
-	/**
-	 * @param location the new location
-	 */
-	public void setLocation(Location location) {
-		this.location = location;
+	public double getLat() {
+		return lat;
+	}
+
+	public double getLng() {
+		return lng;
 	}
 
 	/**
@@ -85,20 +69,6 @@ public class ClosestPOI<T> {
 	 */
 	public void setPoiList(List<T> poiList) {
 		this.poiList = poiList;
-	}
-
-	/**
-	 * @return the location
-	 */
-	public Location getLocation() {
-		return this.location;
-	}
-
-	/**
-	 * @return the location address
-	 */
-	public Address getLocationAddress() {
-		return this.locationAddress;
 	}
 
 	/**

@@ -28,6 +28,14 @@ public class SubwayUtils {
 	 * The STM map (EN).
 	 */
 	private static final String STM_SUBWAY_MAP_URL_EN = "http://stm.info/English/metro/images/plan-metro.jpg";
+	/**
+	 * The cache is too old to be useful, don't display it.
+	 */
+	public static final int STATUS_NOT_USEFUL_IN_SEC = 30 * 60; // 30 minutes
+	/**
+	 * The validity of the current status (in seconds).
+	 */
+	public static final int STATUS_TOO_OLD_IN_SEC = 10 * 60; // 10 minutes
 
 	/**
 	 * Show the STM subway map.
