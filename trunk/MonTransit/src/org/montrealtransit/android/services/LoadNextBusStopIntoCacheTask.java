@@ -1,6 +1,5 @@
 package org.montrealtransit.android.services;
 
-import java.lang.ref.WeakReference;
 import java.util.Map;
 
 import org.montrealtransit.android.BusUtils;
@@ -13,7 +12,6 @@ import org.montrealtransit.android.provider.DataStore.Cache;
 import org.montrealtransit.android.provider.StmStore.BusStop;
 import org.montrealtransit.android.services.nextstop.IStmInfoTask;
 import org.montrealtransit.android.services.nextstop.NextStopListener;
-import org.montrealtransit.android.services.nextstop.StmBusScheduleTask;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -30,7 +28,7 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 
 	private BusStop busStop;
 
-	private WeakReference<NextStopListener> from;
+	private NextStopListener from;
 
 	private boolean prefetch;
 
@@ -38,13 +36,11 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 
 	private IStmInfoTask wwwTask;
 
-	private StmBusScheduleTask localTask;
-
 	public LoadNextBusStopIntoCacheTask(Context context, BusStop busStop, NextStopListener from, boolean prefetch, boolean force) {
 		MyLog.d(TAG, "LoadNextBusStopIntoCacheTask()");
 		this.context = context;
 		this.busStop = busStop;
-		this.from = new WeakReference<NextStopListener>(from);
+		this.from = from;
 		this.prefetch = prefetch;
 		this.force = force;
 	}
@@ -70,10 +66,6 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 		MyLog.d(TAG, "Loading bus stop %s data...", this.busStop.getUID());
 		this.wwwTask = new IStmInfoTask(this.context, this, this.busStop);
 		this.wwwTask.execute();
-		if (!prefetch) {
-    		this.localTask = new StmBusScheduleTask(this.context, this, this.busStop);
-    		this.localTask.execute();
-		}
 		return null;
 	}
 
@@ -99,9 +91,8 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 	@Override
 	public void onNextStopsProgress(String progress) {
 		MyLog.v(TAG, "onNextStopsProgress(%s)", progress);
-		NextStopListener fromWR = this.from == null ? null : this.from.get();
-		if (fromWR != null) {
-			fromWR.onNextStopsProgress(progress);
+		if (this.from != null) {
+			this.from.onNextStopsProgress(progress);
 		}
 	}
 
@@ -112,17 +103,10 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 			MyLog.d(TAG, "onNextStopsLoaded() > no result!");
 			return; // no result
 		}
-		// IF valid result or the last result DO
-		boolean containResult = results.containsKey(this.busStop.getLineNumber()) && results.get(this.busStop.getLineNumber()).getSHours().size() > 0;
-		if (containResult) {
-			// since the data from the www is not necessary more relevant than the local data we cancel other task(s)
-			stopAllTasks();
-		}
-		if (containResult || countRunningTask() <= 1) {
-			NextStopListener fromWR = this.from == null ? null : this.from.get();
-			if (fromWR != null) {
-				fromWR.onNextStopsLoaded(results);
-			}
+		if (this.from != null) {
+			this.from.onNextStopsLoaded(results);
+		} else {
+			MyLog.d(TAG, "onNextStopsLoaded() > no listener!");
 		}
 		// if (containResult) {
 		new AsyncTask<Void, Void, Void>() {
@@ -142,31 +126,6 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 			}
 
 		}.execute();
-	}
-
-	private int countRunningTask() {
-		MyLog.v(TAG, "countRunningTask()");
-		int nbRunning = 0;
-		if (this.wwwTask != null && this.wwwTask.getStatus() != Status.FINISHED) {
-			nbRunning++;
-		}
-		if (this.localTask != null && this.localTask.getStatus() != Status.FINISHED) {
-			nbRunning++;
-		}
-		MyLog.d(TAG, "running task: " + nbRunning);
-		return nbRunning;
-	}
-
-	private void stopAllTasks() {
-		MyLog.v(TAG, "stopAllTasks()");
-		if (this.wwwTask != null && this.wwwTask.getStatus() != Status.FINISHED) {
-			this.wwwTask.cancel(true);
-			this.wwwTask = null;
-		}
-		if (this.localTask != null && this.localTask.getStatus() != Status.FINISHED) {
-			this.localTask.cancel(true);
-			this.localTask = null;
-		}
 	}
 
 	private void saveToCache(String stopCode, String lineNumber, BusStopHours busStopHours) {

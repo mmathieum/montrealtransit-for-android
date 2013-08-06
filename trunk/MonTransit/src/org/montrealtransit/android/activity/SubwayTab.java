@@ -437,8 +437,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			protected void onPostExecute(List<ServiceStatus> result) {
 				// MyLog.v(TAG, "showStatusFromDB()>onPostExecute()");
 				// IF there is no service status OR service status is way too old to be useful DO
-				if (result == null
-						|| Utils.currentTimeSec() >= result.get(0).getReadDate() + SubwayUtils.STATUS_NOT_USEFUL_IN_SEC) {
+				if (result == null || Utils.currentTimeSec() >= result.get(0).getReadDate() + SubwayUtils.STATUS_NOT_USEFUL_IN_SEC) {
 					setStatusLoading();
 					// look for new service status
 					refreshStatus();
@@ -591,23 +590,24 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	private void setStatusLoading() {
 		MyLog.v(TAG, "setStatusLoading()");
 		if (this.serviceStatuses == null) {
-			// set the BIG loading message
-			if (findViewById(R.id.subway_status) != null) { // IF present/inflated DO
-				// hide the status layout
-				findViewById(R.id.subway_status).setVisibility(View.GONE);
-			}
-			// clean the status
-			((TextView) findViewById(R.id.subway_status_title).findViewById(R.id.subway_status_section)).setText(R.string.subway_status);
-			// show the loading layout
-			if (findViewById(R.id.subway_status_loading) == null) { // IF NOT present/inflated DO
-				((ViewStub) findViewById(R.id.subway_status_loading_stub)).inflate(); // inflate
-			}
-			findViewById(R.id.subway_status_loading).setVisibility(View.VISIBLE);
-			// set the progress bar
-			TextView progressBarLoading = (TextView) findViewById(R.id.subway_status_loading).findViewById(R.id.detail_msg);
-			String loadingMsg = getString(R.string.downloading_data_from_and_source, StmInfoStatusApiReader.SOURCE);
-			progressBarLoading.setText(loadingMsg);
-			progressBarLoading.setVisibility(View.VISIBLE);
+			// // set the BIG loading message
+			// if (findViewById(R.id.subway_status) != null) { // IF present/inflated DO
+			// // hide the status layout
+			// findViewById(R.id.subway_status).setVisibility(View.GONE);
+			// }
+			// // clean the status
+			// ((TextView) findViewById(R.id.subway_status_title).findViewById(R.id.subway_status_section)).setText(R.string.subway_status);
+			// // show the loading layout
+			// if (findViewById(R.id.subway_status_loading) == null) { // IF NOT present/inflated DO
+			// ((ViewStub) findViewById(R.id.subway_status_loading_stub)).inflate(); // inflate
+			// }
+			// findViewById(R.id.subway_status_loading).setVisibility(View.VISIBLE);
+			// // set the progress bar
+			// TextView progressBarLoading = (TextView) findViewById(R.id.subway_status_loading).findViewById(R.id.detail_msg);
+			// String loadingMsg = getString(R.string.downloading_data_from_and_source, StmInfoStatusApiReader.SOURCE);
+			// progressBarLoading.setText(loadingMsg);
+			// progressBarLoading.setVisibility(View.VISIBLE);
+			showStatusMessage(getString(R.string.downloading_data_from_and_source, StmInfoStatusApiReader.SOURCE));
 			// } else { // just notify the user ?
 		}
 		// show stop icon instead of refresh
