@@ -42,6 +42,7 @@ import org.montrealtransit.android.services.LoadNextBusStopIntoCacheTask;
 import org.montrealtransit.android.services.NfcListener;
 import org.montrealtransit.android.services.nextstop.IStmInfoTask;
 import org.montrealtransit.android.services.nextstop.NextStopListener;
+import org.montrealtransit.android.services.nextstop.StmBusScheduleTask;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -58,6 +59,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.AsyncTask.Status;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -78,8 +80,7 @@ import android.widget.TextView;
  * This activity show information about a bus stop.
  * @author Mathieu Méa
  */
-public class BusStopInfo extends Activity implements LocationListener, NextStopListener, DialogInterface.OnClickListener, NfcListener, SensorEventListener,
-		CompassListener {
+public class BusStopInfo extends Activity implements LocationListener, DialogInterface.OnClickListener, NfcListener, SensorEventListener, CompassListener {
 
 	/**
 	 * The log tag.
@@ -133,11 +134,11 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	/**
 	 * The cache for the current bus stop (code+line number).
 	 */
-	private Cache cache;
+	private Cache memCache;
 	/**
 	 * The task used to load the next bus stops.
 	 */
-	private LoadNextBusStopIntoCacheTask task;
+	private LoadNextBusStopIntoCacheTask wwwTask;
 	/**
 	 * The other bus stop lines.
 	 */
@@ -400,7 +401,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 			try {
 				BusStopHours tmp = BusStopHours.deserialized(stringRecords[2]);
 				if (tmp != null && tmp.getSHours().size() != 0) {
-					saveToCache(stopCode, lineNumber, tmp);
+					saveToMemCache(stopCode, lineNumber, tmp);
 					this.hours = tmp;
 					// } else {
 					// MyLog.d(TAG, "No bus stop hours from the NFC record!");
@@ -763,11 +764,15 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 					}
 					// IF new bus stop code and line number DO
 					if (isNewBusLine) {
-						BusStopInfo.this.cache = null; // clear the cache for the new bus stop
+						BusStopInfo.this.memCache = null; // clear the cache for the new bus stop
 					}
-					if (BusStopInfo.this.task != null) {
-						BusStopInfo.this.task.cancel(true);
-						BusStopInfo.this.task = null;
+					if (BusStopInfo.this.wwwTask != null) {
+						BusStopInfo.this.wwwTask.cancel(true);
+						BusStopInfo.this.wwwTask = null;
+					}
+					if (BusStopInfo.this.localTask != null) {
+						BusStopInfo.this.localTask.cancel(true);
+						BusStopInfo.this.localTask = null;
 					}
 				}
 				setUpUI();
@@ -812,7 +817,7 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 			this.finish(); // close the activity.
 		} else {
 			// try to load the next stop from the web.
-			refreshNextStops();
+			loadNextStopsFromWeb();
 		}
 	}
 
@@ -845,33 +850,33 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 
 			@Override
 			protected Void doInBackground(Void... params) {
-
 				if (BusStopInfo.this.hours == null) {
 					// check cache
 					// IF no local cache DO
-					if (BusStopInfo.this.cache == null) {
+					if (BusStopInfo.this.memCache == null) {
 						// load cache from database
-						BusStopInfo.this.cache = DataManager.findCache(getContentResolver(), Cache.KEY_TYPE_VALUE_BUS_STOP, BusStopInfo.this.busStop.getUID());
+						BusStopInfo.this.memCache = DataManager.findCache(getContentResolver(), Cache.KEY_TYPE_VALUE_BUS_STOP,
+								BusStopInfo.this.busStop.getUID());
 					}
-					if (BusStopInfo.this.cache != null) {
+					if (BusStopInfo.this.memCache != null) {
 						// IF the cache is too old DO
 						final int tooOld = Utils.currentTimeSec() - BusUtils.CACHE_NOT_USEFUL_IN_SEC;
-						if (tooOld >= BusStopInfo.this.cache.getDate()) {
+						if (tooOld >= BusStopInfo.this.memCache.getDate()) {
 							// don't use the cache
-							BusStopInfo.this.cache = null;
+							BusStopInfo.this.memCache = null;
 							// delete all too old cache
 							try {
 								DataManager.deleteCacheOlderThan(getContentResolver(), tooOld);
 							} catch (Exception e) {
 								MyLog.w(TAG, e, "Can't clean the cache!");
 							}
-						} else if (Utils.currentTimeSec() - BusUtils.CACHE_TOO_OLD_IN_SEC >= BusStopInfo.this.cache.getDate()) {
+						} else if (Utils.currentTimeSec() - BusUtils.CACHE_TOO_OLD_IN_SEC >= BusStopInfo.this.memCache.getDate()) {
 							refreshAsync = true;
 						}
 					}
-					if (BusStopInfo.this.cache != null) {
+					if (BusStopInfo.this.memCache != null) {
 						// use cache
-						BusStopInfo.this.hours = BusStopHours.deserialized(BusStopInfo.this.cache.getObject());
+						BusStopInfo.this.hours = BusStopHours.deserialized(BusStopInfo.this.memCache.getObject());
 					}
 				}
 				return null;
@@ -880,18 +885,89 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 			@Override
 			protected void onPostExecute(Void result) {
 				if (BusStopInfo.this.hours == null) {
+					// try to load from local schedule
+					loadNextStopsFromLocalSchedule();
 					// load from the web
-					refreshNextStops();
+					loadNextStopsFromWeb();
 				} else {
 					showNewNextStops();
 					setNextStopsNotLoading();
 					if (refreshAsync) {
-						refreshNextStops();
+						loadNextStopsFromWeb();
 					}
 				}
 			};
 
 		}.execute();
+	}
+
+	private StmBusScheduleTask localTask;
+	private boolean wwwTaskRunning;
+
+	private void loadNextStopsFromLocalSchedule() {
+		MyLog.v(TAG, "loadNextStopsFromLocalSchedule()");
+		if (this.localTask != null && this.localTask.getStatus() == Status.RUNNING) {
+			this.localTask.cancel(true);
+			this.localTask = null;
+		}
+		this.localTask = new StmBusScheduleTask(this, new NextStopListener() {
+
+			@Override
+			public void onNextStopsProgress(String progress) {
+				// MyLog.v(TAG, "loadNextStopsFromLocalSchedule()>onNextStopsProgress(%s)", progress);
+				// IF the task was cancelled DO
+				if (BusStopInfo.this.localTask == null || BusStopInfo.this.localTask.isCancelled()) {
+					// MyLog.d(TAG, "Task cancelled!");
+					return; // stop here
+				}
+				BusStopInfo.this.onNextStopsProgress(progress);
+			}
+
+			@Override
+			public void onNextStopsLoaded(Map<String, BusStopHours> results) {
+				MyLog.v(TAG, "loadNextStopsFromLocalSchedule()>onNextStopsLoaded(%s)", results == null ? null : results.size());
+				if (BusStopInfo.this.hours != null && BusStopInfo.this.hours.getSourceName().equals(IStmInfoTask.SOURCE_NAME)) {
+					MyLog.d(TAG, "Local DB too late");
+					return;
+				}
+				if (results == null) {
+					MyLog.d(TAG, "Local DB no result");
+					return;
+				}
+				if (!results.containsKey(BusStopInfo.this.busStop.getLineNumber())) {
+					MyLog.d(TAG, "Local DB no result for this line number");
+					return;
+				}
+				// IF error DO
+				BusStopHours result = results.get(BusStopInfo.this.busStop.getLineNumber());
+				if (result == null || result.getSHours().size() <= 0) {
+					MyLog.d(TAG, "Local DB no hours in result");
+					// process the error
+					if (BusStopInfo.this.wwwTask != null && BusStopInfo.this.wwwTask.getStatus() == Status.RUNNING) {
+						if (!TextUtils.isEmpty(result.getError())) {
+							BusStopInfo.this.onNextStopsProgress(result.getError());
+						} else if (!TextUtils.isEmpty(result.getMessage())) {
+							BusStopInfo.this.onNextStopsProgress(result.getMessage());
+						} else if (!TextUtils.isEmpty(result.getMessage2())) {
+							BusStopInfo.this.onNextStopsProgress(result.getMessage2());
+						}
+					} else {
+						setNextStopsError(result);
+					}
+					return;
+				}
+				// get the result
+				if (BusStopInfo.this.hours == null) {
+					BusStopInfo.this.hours = result;
+					// show the result
+					showNewNextStops();
+				}
+				if (!BusStopInfo.this.wwwTaskRunning) {
+					setNextStopsNotLoading(); // www task completed
+				}
+			}
+		}, this.busStop);
+		this.localTask.execute();
 	}
 
 	/**
@@ -913,8 +989,10 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 				message2Tv.setVisibility(View.GONE);
 				// show next bus stop group
 				HorizontalScrollView stopsHScrollv = (HorizontalScrollView) findViewById(R.id.next_stops_group);
-				stopsHScrollv.smoothScrollTo(0, 0); // reset scroll
-				stopsHScrollv.setVisibility(View.VISIBLE);
+				if (stopsHScrollv.getVisibility() != View.VISIBLE) {
+    				stopsHScrollv.smoothScrollTo(0, 0); // reset scroll
+    				stopsHScrollv.setVisibility(View.VISIBLE);
+				}
 				List<String> fHours = this.hours.getFormattedHours(this);
 				// show the next bus stops
 				SpannableStringBuilder nextStopsSb = new SpannableStringBuilder();
@@ -994,17 +1072,80 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	/**
 	 * Start the next bus stops refresh task if not running.
 	 */
-	private void refreshNextStops() {
-		MyLog.v(TAG, "refreshNextStops()");
-		// IF the task is NOT already running DO
-		if (this.task == null || !this.task.getStatus().equals(AsyncTask.Status.RUNNING)) {
-			setNextStopsLoading();
-			// find the next bus stop
-			this.task = new LoadNextBusStopIntoCacheTask(this, this.busStop, this, false, true);
-			this.task.execute();
+	private void loadNextStopsFromWeb() {
+		MyLog.v(TAG, "loadNextStopsFromWeb()");
+		// IF the task is already running DO
+		if (this.wwwTask != null && this.wwwTask.getStatus() == Status.RUNNING) {
+			return; // skip
 		}
+		setNextStopsLoading();
+		// find the next bus stop
+		this.wwwTask = new LoadNextBusStopIntoCacheTask(this, this.busStop, new NextStopListener() {
+
+			@Override
+			public void onNextStopsProgress(String progress) {
+				// MyLog.v(TAG, "loadNextStopsFromWeb()>onNextStopsProgress(%s)", progress);
+				// IF the task was cancelled DO
+				if (BusStopInfo.this.wwwTask == null || BusStopInfo.this.wwwTask.isCancelled()) {
+					// MyLog.d(TAG, "Task cancelled!");
+					return; // stop here
+				}
+				BusStopInfo.this.onNextStopsProgress(progress);
+			}
+
+			@Override
+			public void onNextStopsLoaded(Map<String, BusStopHours> results) {
+				MyLog.v(TAG, "loadNextStopsFromWeb()>onNextStopsLoaded(%s)", results.size());
+				for (String lineNumber : results.keySet()) {
+					BusStopHours busStopHours = results.get(lineNumber);
+					if (busStopHours != null && busStopHours.getSHours().size() > 0) {
+						saveToMemCache(BusStopInfo.this.busStop.getCode(), lineNumber, busStopHours);
+					}
+				}
+				// IF error DO
+				BusStopHours result = results.get(BusStopInfo.this.busStop.getLineNumber());
+				if (result == null || result.getSHours().size() <= 0) {
+					// process the error
+					if (BusStopInfo.this.localTask != null && BusStopInfo.this.localTask.getStatus() == Status.RUNNING) {
+						if (!TextUtils.isEmpty(result.getError())) {
+							BusStopInfo.this.onNextStopsProgress(result.getError());
+						} else if (!TextUtils.isEmpty(result.getMessage())) {
+							BusStopInfo.this.onNextStopsProgress(result.getMessage());
+						} else if (!TextUtils.isEmpty(result.getMessage2())) {
+							BusStopInfo.this.onNextStopsProgress(result.getMessage2());
+						}
+					} else {
+						setNextStopsError(result);
+					}
+					return;
+				}
+				// get the result
+				BusStopInfo.this.hours = result;
+				// show the result
+				showNewNextStops();
+				setNextStopsNotLoading();
+				BusStopInfo.this.wwwTaskRunning = false;
+				cancelLocalTask();
+			}
+		}, false, true);
+		this.wwwTask.execute();
+		this.wwwTaskRunning = true;
 	}
 
+	private void onNextStopsProgress(String progress) {
+		if (TextUtils.isEmpty(progress)) {
+			return;
+		}
+		if (this.hours != null) {
+			// notify the user ?
+			return;
+		}
+		// update the BIG message
+		TextView detailMsgTv = (TextView) findViewById(R.id.detail_msg);
+		detailMsgTv.setText(progress);
+		detailMsgTv.setVisibility(View.VISIBLE);
+	}
+	
 	/**
 	 * Refresh or stop refresh the next bus stop depending on the current status of the task.
 	 * @param v the view (not used)
@@ -1012,14 +1153,14 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	public void refreshOrStopRefreshNextStops(View v) {
 		MyLog.v(TAG, "refreshOrStopRefreshNextStops()");
 		// IF the task is running DO
-		if (this.task != null && this.task.getStatus().equals(AsyncTask.Status.RUNNING)) {
+		if (this.wwwTask != null && this.wwwTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
 			// stopping the task
-			this.task.cancel(true);
-			this.task = null;
+			this.wwwTask.cancel(true);
+			this.wwwTask = null;
 			setNextStopsCancelled();
 		} else {
-			this.hours = null; // clear current bus stop hours
-			refreshNextStops();
+			loadNextStopsFromLocalSchedule();
+			loadNextStopsFromWeb();
 		}
 	}
 
@@ -1144,62 +1285,17 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 		setNextStopsNotLoading();
 	}
 
-	@Override
-	public void onNextStopsProgress(String progress) {
-		MyLog.v(TAG, "onNextStopsProgress(%s)", progress);
-		// IF the task was cancelled DO
-		if (this.task == null || this.task.isCancelled()) {
-			// MyLog.d(TAG, "Task cancelled!");
-			return; // stop here
-		}
-		if (!TextUtils.isEmpty(progress)) {
-			if (this.hours != null) {
-				// notify the user ?
-			} else {
-				// update the BIG message
-				TextView detailMsgTv = (TextView) findViewById(R.id.detail_msg);
-				detailMsgTv.setText(progress);
-				detailMsgTv.setVisibility(View.VISIBLE);
-			}
-		}
-	}
-
-	@Override
-	public void onNextStopsLoaded(Map<String, BusStopHours> results) {
-		// MyLog.v(TAG, "onNextStopsLoaded(%s)", results.size());
-		for (String lineNumber : results.keySet()) {
-			BusStopHours busStopHours = results.get(lineNumber);
-			if (busStopHours != null && busStopHours.getSHours().size() > 0) {
-				saveToCache(this.busStop.getCode(), lineNumber, busStopHours);
-			}
-		}
-		// IF error DO
-		BusStopHours result = results.get(this.busStop.getLineNumber());
-		if (result == null || result.getSHours().size() <= 0) {
-			// process the error
-			setNextStopsError(result);
-		} else {
-			// get the result
-			if (this.hours == null || !this.hours.getSourceName().equals(IStmInfoTask.SOURCE_NAME)) {
-				this.hours = result;
-				// show the result
-				showNewNextStops();
-			}
-			setNextStopsNotLoading();
-		}
-	}
-
 	/**
 	 * Save the bus stop hours for the line number into the local cache.
 	 * @param lineNumber the bus stop line number
 	 * @param busStopHours the stop hours
 	 */
-	private void saveToCache(String stopCode, String lineNumber, BusStopHours busStopHours) {
-		// MyLog.v(TAG, "saveToCache(%s,%s)", stopCode, lineNumber);
+	private void saveToMemCache(String stopCode, String lineNumber, BusStopHours busStopHours) {
+		// MyLog.v(TAG, "saveToMemCache(%s,%s)", stopCode, lineNumber);
 		Cache newCache = new Cache(Cache.KEY_TYPE_VALUE_BUS_STOP, BusStop.getUID(stopCode, lineNumber), busStopHours.serialized());
 		// remove existing cache for this bus stop
 		if (this.busStop != null && lineNumber.equals(this.busStop.getLineNumber())) {
-			this.cache = newCache;
+			this.memCache = newCache;
 		}
 	}
 
@@ -1415,11 +1511,19 @@ public class BusStopInfo extends Activity implements LocationListener, NextStopL
 	@Override
 	protected void onDestroy() {
 		MyLog.v(TAG, "onDestroy()");
-		if (this.task != null) {
-			this.task.cancel(true);
-			this.task = null;
+		if (this.wwwTask != null) {
+			this.wwwTask.cancel(true);
+			this.wwwTask = null;
 		}
+		cancelLocalTask();
 		AdsUtils.destroyAd(this);
 		super.onDestroy();
+	}
+
+	private void cancelLocalTask() {
+		if (this.localTask != null) {
+			this.localTask.cancel(true);
+			this.localTask = null;
+		}
 	}
 }

@@ -157,11 +157,11 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	/**
 	 * The time-stamp of the last data refresh from www.
 	 */
-	private int lastSuccessfulRefresh = 0;
+	private int lastSuccessfulRefresh = -1;
 	/**
 	 * Last try (device time).
 	 */
-	private int lastForcedRefresh = 0;
+	private int lastForcedRefresh = -1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -257,6 +257,9 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		AdsUtils.setupAd(this);
 		refreshFavoriteTerminalNamesFromDB();
+		if (this.closestBikeStationsLocation != null) {
+			refreshDataIfTooOld();
+		}
 	}
 
 	@Override
@@ -467,8 +470,8 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	/**
 	 * Show the new closest bike stations.
 	 */
-	private void showNewClosestBikeStations(boolean scroll) {
-		MyLog.v(TAG, "showNewClosestBikeStations(%s)", scroll);
+	private void showNewClosestBikeStations(final boolean forceRefresh, boolean scroll) {
+		MyLog.v(TAG, "showNewClosestBikeStations(%s,%s)", forceRefresh, scroll);
 		// if (Utils.getCollectionSize(this.closestStations) > 0) {
 		if (this.closestStations != null) {
 			// set the closest station title
@@ -492,7 +495,11 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 				@Override
 				protected void onPostExecute(Integer result) {
 					BikeTab.this.lastSuccessfulRefresh = result;
-					refreshDataIfTooOld();
+					if (forceRefresh) {
+						forceRefresh();
+					} else {
+						refreshDataIfTooOld();
+					}
 				};
 			}.execute();
 		}
@@ -500,39 +507,57 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 
 	private boolean refreshDataIfTooOld() {
 		MyLog.v(TAG, "refreshDataIfTooOld()");
-		if (Utils.currentTimeSec() - BikeUtils.CACHE_TOO_OLD_IN_SEC - getLastUpdateTime() > 0) {
+		if (isDataTooOld()) {
 			// IF last try too recent DO
-			if (Utils.currentTimeSec() - BikeUtils.CACHE_TOO_OLD_IN_SEC - this.lastForcedRefresh < 0) {
+			if (isDataTooRecent()) {
 				MyLog.d(TAG, "refreshDataIfTooOld() > last refresh too recent, not refreshing");
 				return false; // skip refresh
 			}
 			// ELSE refresh from www
-			if (this.closestBikeStationsTask != null && this.closestBikeStationsTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
-				try { // wait for 1 seconds
-					this.closestBikeStationsTask.get(1, TimeUnit.SECONDS);
-				} catch (Exception e) {
-					MyLog.w(TAG, e, "Error while waiting to task to complete!");
-				}
-			}
-			startClosestStationsTask(true);
+			forceRefresh();
 			return true;
 		}
 		return false;
+	}
+
+	private boolean isDataTooOld() {
+		// MyLog.v(TAG, " isDataTooOld()");
+		return Utils.currentTimeSec() - BikeUtils.CACHE_TOO_OLD_IN_SEC - getLastUpdateTime() > 0;
+	}
+	
+	private void forceRefresh() {
+		MyLog.v(TAG, "forceRefresh()");
+		// cancel current task
+		if (this.closestBikeStationsTask != null && this.closestBikeStationsTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
+			try { // wait for 1 seconds
+				this.closestBikeStationsTask.get(1, TimeUnit.SECONDS);
+			} catch (Exception e) {
+				MyLog.w(TAG, e, "Error while waiting to task to complete!");
+			}
+		}
+		// start new task w/ force refresh
+		startClosestStationsTask(true);
+	}
+
+	private boolean isDataTooRecent() {
+		// MyLog.v(TAG, " isDataTooRecent()");
+		if (this.lastForcedRefresh < 0) {
+			return false; // never forced refresh
+		}
+		return Utils.currentTimeSec() - BikeUtils.CACHE_TOO_OLD_IN_SEC - this.lastForcedRefresh < 0;
 	}
 
 	/**
 	 * @return the last update time
 	 */
 	public int getLastUpdateTime() {
-		int timestamp = 0;
-		timestamp = this.lastSuccessfulRefresh;
-		// if (timestamp == 0 && this.bikeStation != null) {
-		// timestamp = this.bikeStation.getLatestUpdateTime();
-		// }
-		if (timestamp == 0) {
-			timestamp = Utils.currentTimeSec(); // use device time
+		if (this.lastSuccessfulRefresh < 0) {
+			this.lastSuccessfulRefresh = UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, 0);
 		}
-		return timestamp;
+		if (this.lastSuccessfulRefresh == 0) {
+			return Utils.currentTimeSec(); // use device time
+		}
+		return this.lastSuccessfulRefresh;
 	}
 
 	@Override
@@ -692,6 +717,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 					holder.progressBar.setMax(bikeStation.getNbTotalDocks());
 					holder.progressBar.setProgress(bikeStation.getNbBikes());
 				} else {
+					// TODO trigger refresh?
 					holder.bikeTv.setText(R.string.ellipsis);
 					holder.bikeTv.setTypeface(Typeface.DEFAULT);
 					holder.dockTv.setText(R.string.ellipsis);
@@ -807,7 +833,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			refreshClosestBikeStations(false);
 		} else {
 			// show the closest stations
-			showNewClosestBikeStations(false);
+			showNewClosestBikeStations(false, false);
 			// IF the latest location is too old DO
 			if (LocationUtils.isTooOld(this.closestBikeStationsLocation)) {
 				// start refreshing
@@ -822,7 +848,9 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	 */
 	public void refreshOrStopRefreshClosestStations(View v) {
 		MyLog.v(TAG, "refreshOrStopRefreshClosestStations()");
-		this.closestStations = null; // refresh list 1st, then data from www
+		if (!isDataTooRecent()) {
+			this.closestStations = null; // refresh list 1st, then data from www
+		}
 		refreshClosestBikeStations(false);
 	}
 
@@ -903,6 +931,10 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 				// force refresh from server
 				refreshClosestBikeStations(true);
 			} else { // ELSE
+				boolean forceRefresh = false;
+				if (this.closestStations == null && isDataTooOld() && !isDataTooRecent()) {
+					forceRefresh = true;
+				}
 				// get the result
 				this.closestStations = result.getPoiList();
 				// set location
@@ -914,7 +946,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 				// refresh favorites
 				refreshFavoriteTerminalNamesFromDB();
 				// shot the result
-				showNewClosestBikeStations(LocationUtils.areTheSame(this.closestBikeStationsLocation, result.getLat(), result.getLng()));
+				showNewClosestBikeStations(forceRefresh, false);
 			}
 			// notify the error message
 			if (!TextUtils.isEmpty(result.getErrorMessage())) {

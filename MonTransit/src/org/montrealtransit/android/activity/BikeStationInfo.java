@@ -502,7 +502,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			if (stationView == null) {
 				continue;
 			}
-			final int lastUpdate = this.lastSuccessfulRefresh != 0 ? this.lastSuccessfulRefresh : getLastUpdateTime(); // station.getLatestUpdateTime();
+			final int lastUpdate = this.lastSuccessfulRefresh > 0 ? this.lastSuccessfulRefresh : getLastUpdateTime();
 			setBikeStationStatus(station, stationView, lastUpdate);
 			if (location != null && lastCompassInDegree != 0) {
 				ImageView compassImg = (ImageView) stationView.findViewById(R.id.compass);
@@ -902,18 +902,13 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	 * @return the last update time
 	 */
 	public int getLastUpdateTime() {
-		int timestamp = 0;
 		if (this.lastSuccessfulRefresh < 0) {
 			this.lastSuccessfulRefresh = UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, 0);
 		}
-		timestamp = this.lastSuccessfulRefresh;
-		// if (timestamp == 0 && this.bikeStation != null) {
-		// timestamp = this.bikeStation.getLatestUpdateTime();
-		// }
-		if (timestamp == 0) {
-			timestamp = Utils.currentTimeSec(); // use device time
+		if (this.lastSuccessfulRefresh == 0) {
+			return Utils.currentTimeSec(); // use device time
 		}
-		return timestamp;
+		return this.lastSuccessfulRefresh;
 	}
 
 	/**

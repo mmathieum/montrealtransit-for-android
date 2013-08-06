@@ -18,7 +18,7 @@ public abstract class AbstractNextStopProvider extends AsyncTask<Void, String, M
 	/**
 	 * The class that will handle the response.
 	 */
-	protected/* WeakReference< */NextStopListener/* > */from;
+	protected NextStopListener from;
 	/**
 	 * The class asking for the info.
 	 */
@@ -35,7 +35,7 @@ public abstract class AbstractNextStopProvider extends AsyncTask<Void, String, M
 	 */
 	public AbstractNextStopProvider(Context context, NextStopListener from, BusStop busStop) {
 		this.context = context;
-		this.from = /* new WeakReference<NextStopListener>( */from/* ) */;
+		this.from = from;
 		this.busStop = busStop;
 	}
 
@@ -53,10 +53,10 @@ public abstract class AbstractNextStopProvider extends AsyncTask<Void, String, M
 		if (results == null) {
 			return;
 		}
-		NextStopListener fromWR = this.from;// == null ? null : this.from.get();
-		// MyLog.d(getTag(), "fromWR null?: " + (fromWR == null));
-		if (fromWR != null) {
-			fromWR.onNextStopsLoaded(results);
+		if (this.from != null) {
+			this.from.onNextStopsLoaded(results);
+		} else {
+			MyLog.d(getTag(), "onPostExecute() > no listener!");
 		}
 	}
 
@@ -66,10 +66,8 @@ public abstract class AbstractNextStopProvider extends AsyncTask<Void, String, M
 		if (values.length <= 0) {
 			return;
 		}
-		NextStopListener fromWR = this.from; // == null ? null : this.from.get();
-		// MyLog.d(getTag(), "fromWR null?: " + (fromWR == null));
-		if (fromWR != null) {
-			fromWR.onNextStopsProgress(values[0]);
+		if (this.from != null) {
+			this.from.onNextStopsProgress(values[0]);
 		}
 		super.onProgressUpdate(values);
 	}
