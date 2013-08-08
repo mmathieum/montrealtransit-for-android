@@ -470,8 +470,8 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	/**
 	 * Show the new closest bike stations.
 	 */
-	private void showNewClosestBikeStations(final boolean forceRefresh, boolean scroll) {
-		MyLog.v(TAG, "showNewClosestBikeStations(%s,%s)", forceRefresh, scroll);
+	private void showNewClosestBikeStations(final boolean forceRefresh) {
+		MyLog.v(TAG, "showNewClosestBikeStations(%s)", forceRefresh);
 		// if (Utils.getCollectionSize(this.closestStations) > 0) {
 		if (this.closestStations != null) {
 			// set the closest station title
@@ -481,9 +481,10 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			// show stations list
 			notifyDataSetChanged(true);
 			ListView closestStationsListView = (ListView) findViewById(R.id.closest_bike_stations_list);
-			if (scroll) {
+			if (this.forceRefresh) {
 				SupportFactory.get().listViewScrollTo(closestStationsListView, 0, 0);
 			}
+			this.forceRefresh = false;
 			closestStationsListView.setVisibility(View.VISIBLE);
 			setClosestStationsNotLoading();
 			new AsyncTask<Void, Void, Integer>() {
@@ -524,7 +525,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 		// MyLog.v(TAG, " isDataTooOld()");
 		return Utils.currentTimeSec() - BikeUtils.CACHE_TOO_OLD_IN_SEC - getLastUpdateTime() > 0;
 	}
-	
+
 	private void forceRefresh() {
 		MyLog.v(TAG, "forceRefresh()");
 		// cancel current task
@@ -833,7 +834,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			refreshClosestBikeStations(false);
 		} else {
 			// show the closest stations
-			showNewClosestBikeStations(false, false);
+			showNewClosestBikeStations(false);
 			// IF the latest location is too old DO
 			if (LocationUtils.isTooOld(this.closestBikeStationsLocation)) {
 				// start refreshing
@@ -842,12 +843,15 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 		}
 	}
 
+	private boolean forceRefresh = false;
+
 	/**
 	 * Refresh the closest stations if not running.
 	 * @param v a view (not used)
 	 */
 	public void refreshOrStopRefreshClosestStations(View v) {
 		MyLog.v(TAG, "refreshOrStopRefreshClosestStations()");
+		this.forceRefresh = true;
 		if (!isDataTooRecent()) {
 			this.closestStations = null; // refresh list 1st, then data from www
 		}
@@ -946,7 +950,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 				// refresh favorites
 				refreshFavoriteTerminalNamesFromDB();
 				// shot the result
-				showNewClosestBikeStations(forceRefresh, false);
+				showNewClosestBikeStations(forceRefresh);
 			}
 			// notify the error message
 			if (!TextUtils.isEmpty(result.getErrorMessage())) {
