@@ -99,10 +99,10 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 	@Override
 	public void onNextStopsLoaded(final Map<String, BusStopHours> results) {
 		MyLog.v(TAG, "onNextStopsLoaded()");
-		if (results == null || results.size() <= 0) {
-			MyLog.d(TAG, "onNextStopsLoaded() > no result!");
-			return; // no result
-		}
+		// if (results == null || results.size() <= 0) {
+		// MyLog.d(TAG, "onNextStopsLoaded() > no result!");
+		// return; // no result
+		// }
 		if (this.from != null) {
 			this.from.onNextStopsLoaded(results);
 		} else {
@@ -114,12 +114,14 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 			protected Void doInBackground(Void... params) {
 				// MyLog.d(TAG, "onNextStopsLoaded() > %s results to store in cache.", results.size());
 				// store in cache
-				for (String lineNumber : results.keySet()) {
-					BusStopHours busStopHours = results.get(lineNumber);
-					// MyLog.d(TAG, "onNextStopsLoaded() > %s result hours to store in cache.", (busStopHours == null ? null :
-					// busStopHours.getSHours().size()));
-					if (busStopHours != null && busStopHours.getSHours().size() > 0) {
-						saveToCache(LoadNextBusStopIntoCacheTask.this.busStop.getCode(), lineNumber, busStopHours);
+				if (results != null) {
+					for (String lineNumber : results.keySet()) {
+						BusStopHours busStopHours = results.get(lineNumber);
+						// MyLog.d(TAG, "onNextStopsLoaded() > %s result hours to store in cache.", (busStopHours == null ? null :
+						// busStopHours.getSHours().size()));
+						if (busStopHours != null && busStopHours.getSHours().size() > 0) {
+							saveToCache(LoadNextBusStopIntoCacheTask.this.busStop.getCode(), lineNumber, busStopHours);
+						}
 					}
 				}
 				return null;
