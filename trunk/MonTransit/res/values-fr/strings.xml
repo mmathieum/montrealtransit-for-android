@@ -380,9 +380,9 @@
 
     <string name="donate_to_remove_ads">Veuillez faire un don pour désactiver les pubs.</string>
     
-    <string name="offline_schedule">Hors-ligne</string>
-    <string name="no_offline_schedule">Horaires hors-ligne pas installées</string>
-    <string name="no_offline_schedule_or_sd_card_not_mounted">Horaires hors-ligne pas installées (ou carte SD pas lisible).</string>
+    <string name="offline_schedule">Horaires planifiées</string>
+    <string name="no_offline_schedule">Horaires planifiées pas installées</string>
+    <string name="no_offline_schedule_or_sd_card_not_mounted">Horaires planifiées pas installées (ou carte SD illisible).</string>
 
     <string name="demo_title">DEMO</string>
     <string name="demo_message">Voulez-vous configurer le mode de démonstration ? Cela va supprimer tous les paramètres actuels !</string>
