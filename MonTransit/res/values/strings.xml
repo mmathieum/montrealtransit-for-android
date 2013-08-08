@@ -380,9 +380,9 @@
 
     <string name="donate_to_remove_ads">Please donate to disable ads.</string>
     
-    <string name="offline_schedule">Offline</string>
-    <string name="no_offline_schedule">Offline schedule not installed.</string>
-    <string name="no_offline_schedule_or_sd_card_not_mounted">Offline schedule not installed (or SD card not readable).</string>
+    <string name="offline_schedule">Planned schedule</string>
+    <string name="no_offline_schedule">Planned schedule not installed.</string>
+    <string name="no_offline_schedule_or_sd_card_not_mounted">Planned schedule not installed (or SD card not usuable).</string>
 
     <string name="demo_title">DEMO</string>
     <string name="demo_message">Do you want to set-up demo mode? This will erase all your current settings!</string>
