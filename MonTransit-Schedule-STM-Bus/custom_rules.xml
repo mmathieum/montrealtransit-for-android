@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="custom_rules" default="debug">
+    
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+    
+    <property file="custom_local.properties" />
+    
+    <target name="-post-build" depends="copy-to-output-dir,copy-to-dropbox-dir">
+        
+	</target>
+	<target name="copy-to-output-dir">
+	    <xmlproperty file="AndroidManifest.xml" prefix="mymanifest" collapseAttributes="true"/>
+	        <!--  <propertyregex
+	             input="${mymanifest.manifest.android:versionName}"
+	             property="versionNameClean"
+	             regexp="\."
+	             replace="_" /> -->
+		<copy file="${out.final.file}" tofile="${output.dir}/MonTransit-Schedule-STM-Bus_v${mymanifest.manifest.android:versionName}.apk"/>
+	</target>
+	<target name="copy-to-dropbox-dir">
+		<xmlproperty file="AndroidManifest.xml" prefix="mymanifest" collapseAttributes="true"/>
+		<!-- <propertyregex
+			input="${mymanifest.manifest.android:versionName}"
+	        property="versionNameClean"
+	        regexp="\."
+	        replace="_" /> -->
+		<copy file="${out.final.file}" tofile="${output.dropbox.dir}//MonTransit-Schedule-STM-Bus_v${mymanifest.manifest.android:versionName}.apk"/>
+	</target>
+</project>
