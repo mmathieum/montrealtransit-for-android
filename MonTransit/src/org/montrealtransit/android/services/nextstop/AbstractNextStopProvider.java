@@ -50,9 +50,10 @@ public abstract class AbstractNextStopProvider extends AsyncTask<Void, String, M
 	protected void onPostExecute(Map<String, BusStopHours> results) {
 		MyLog.v(getTag(), "onPostExecute()");
 		// MyLog.d(getTag(), "results null?: " + (results == null));
-		if (results == null) {
-			return;
-		}
+		// if (results == null) {
+		// MyLog.v(getTag(), "onPostExecute() > no result!");
+		// return;
+		// }
 		if (this.from != null) {
 			this.from.onNextStopsLoaded(results);
 		} else {

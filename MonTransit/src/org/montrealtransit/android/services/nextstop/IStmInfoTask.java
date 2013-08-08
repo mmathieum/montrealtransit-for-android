@@ -19,9 +19,11 @@ import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.BusStopHours;
+import org.montrealtransit.android.provider.StmBusScheduleManager;
 import org.montrealtransit.android.provider.StmStore.BusStop;
 
 import android.content.Context;
+import android.os.Environment;
 
 public class IStmInfoTask extends AbstractNextStopProvider {
 
@@ -63,6 +65,15 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 		// hours.put(this.busStop.getLineNumber(), new BusStopHours(SOURCE_NAME, this.context.getString(R.string.no_internet)));
 		// return hours;
 		// }
+		String noInternetMsg = this.context.getString(R.string.no_internet);
+		String noOfflineSchedule = null;
+		if (!StmBusScheduleManager.isContentProviderAvailable(this.context)) {
+			if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+				noOfflineSchedule = this.context.getString(R.string.no_offline_schedule_or_sd_card_not_mounted);
+			} else {
+				noOfflineSchedule = this.context.getString(R.string.no_offline_schedule);
+			}
+		}
 		try {
 			publishProgress(context.getString(R.string.downloading_data_from_and_source, SOURCE_NAME));
 			URL url = new URL(getUrlString());
@@ -126,13 +137,13 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 			}
 		} catch (UnknownHostException uhe) {
 			MyLog.w(TAG, uhe, "No Internet Connection!");
-			publishProgress(this.context.getString(R.string.no_internet));
-			hours.put(this.busStop.getLineNumber(), new BusStopHours(SOURCE_NAME, this.context.getString(R.string.no_internet)));
+			publishProgress(noInternetMsg);
+			hours.put(this.busStop.getLineNumber(), new BusStopHours(SOURCE_NAME, noOfflineSchedule, noInternetMsg));
 			return hours;
 		} catch (SocketException se) {
 			MyLog.w(TAG, se, "No Internet Connection!");
-			publishProgress(this.context.getString(R.string.no_internet));
-			hours.put(this.busStop.getLineNumber(), new BusStopHours(SOURCE_NAME, this.context.getString(R.string.no_internet)));
+			publishProgress(noInternetMsg);
+			hours.put(this.busStop.getLineNumber(), new BusStopHours(SOURCE_NAME, noOfflineSchedule, noInternetMsg));
 			return hours;
 		} catch (Exception e) {
 			MyLog.e(TAG, e, "INTERNAL ERROR: Unknown Exception");

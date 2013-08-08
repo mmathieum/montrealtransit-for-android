@@ -928,14 +928,23 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 				MyLog.v(TAG, "loadNextStopsFromLocalSchedule()>onNextStopsLoaded(%s)", results == null ? null : results.size());
 				if (BusStopInfo.this.hours != null && BusStopInfo.this.hours.getSourceName().equals(IStmInfoTask.SOURCE_NAME)) {
 					MyLog.d(TAG, "Local DB too late");
+					if (!BusStopInfo.this.wwwTaskRunning) {
+						setNextStopsNotLoading(); // www task completed
+					}
 					return;
 				}
 				if (results == null) {
 					MyLog.d(TAG, "Local DB no result");
+					if (!BusStopInfo.this.wwwTaskRunning) {
+						setNextStopsNotLoading(); // www task completed
+					}
 					return;
 				}
 				if (!results.containsKey(BusStopInfo.this.busStop.getLineNumber())) {
 					MyLog.d(TAG, "Local DB no result for this line number");
+					if (!BusStopInfo.this.wwwTaskRunning) {
+						setNextStopsNotLoading(); // www task completed
+					}
 					return;
 				}
 				// IF error DO
@@ -953,6 +962,9 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 						}
 					} else {
 						setNextStopsError(result);
+					}
+					if (!BusStopInfo.this.wwwTaskRunning) {
+						setNextStopsNotLoading(); // www task completed
 					}
 					return;
 				}
@@ -990,8 +1002,8 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 				// show next bus stop group
 				HorizontalScrollView stopsHScrollv = (HorizontalScrollView) findViewById(R.id.next_stops_group);
 				if (stopsHScrollv.getVisibility() != View.VISIBLE) {
-    				stopsHScrollv.smoothScrollTo(0, 0); // reset scroll
-    				stopsHScrollv.setVisibility(View.VISIBLE);
+					stopsHScrollv.smoothScrollTo(0, 0); // reset scroll
+					stopsHScrollv.setVisibility(View.VISIBLE);
 				}
 				List<String> fHours = this.hours.getFormattedHours(this);
 				// show the next bus stops
@@ -1095,15 +1107,17 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 
 			@Override
 			public void onNextStopsLoaded(Map<String, BusStopHours> results) {
-				MyLog.v(TAG, "loadNextStopsFromWeb()>onNextStopsLoaded(%s)", results.size());
-				for (String lineNumber : results.keySet()) {
-					BusStopHours busStopHours = results.get(lineNumber);
-					if (busStopHours != null && busStopHours.getSHours().size() > 0) {
-						saveToMemCache(BusStopInfo.this.busStop.getCode(), lineNumber, busStopHours);
+				MyLog.v(TAG, "loadNextStopsFromWeb()>onNextStopsLoaded(%s)", results == null ? null : results.size());
+				if (results != null) {
+					for (String lineNumber : results.keySet()) {
+						BusStopHours busStopHours = results.get(lineNumber);
+						if (busStopHours != null && busStopHours.getSHours().size() > 0) {
+							saveToMemCache(BusStopInfo.this.busStop.getCode(), lineNumber, busStopHours);
+						}
 					}
 				}
 				// IF error DO
-				BusStopHours result = results.get(BusStopInfo.this.busStop.getLineNumber());
+				BusStopHours result = results == null ? null : results.get(BusStopInfo.this.busStop.getLineNumber());
 				if (result == null || result.getSHours().size() <= 0) {
 					// process the error
 					if (BusStopInfo.this.localTask != null && BusStopInfo.this.localTask.getStatus() == Status.RUNNING) {
@@ -1117,6 +1131,10 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 					} else {
 						setNextStopsError(result);
 					}
+					if (BusStopInfo.this.localTask == null || BusStopInfo.this.localTask.getStatus() != Status.RUNNING) {
+						setNextStopsNotLoading();
+					}
+					BusStopInfo.this.wwwTaskRunning = false;
 					return;
 				}
 				// get the result
@@ -1145,7 +1163,7 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 		detailMsgTv.setText(progress);
 		detailMsgTv.setVisibility(View.VISIBLE);
 	}
-	
+
 	/**
 	 * Refresh or stop refresh the next bus stop depending on the current status of the task.
 	 * @param v the view (not used)

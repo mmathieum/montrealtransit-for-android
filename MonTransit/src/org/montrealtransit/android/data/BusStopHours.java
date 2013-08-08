@@ -67,6 +67,12 @@ public class BusStopHours {
 		this.error = error;
 	}
 
+	public BusStopHours(String sourceName, String message, String message2) {
+		this.sourceName = sourceName;
+		this.message = message;
+		this.message2 = message2;
+	}
+
 	/**
 	 * @return the bus stop hours
 	 */
