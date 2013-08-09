@@ -9,6 +9,7 @@ import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.Utils;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 /**
  * Represent the bus stops hours.
@@ -25,6 +26,10 @@ public class BusStopHours {
 	 * The source name to display.
 	 */
 	private String sourceName;
+	/**
+	 * The previous hour if any.
+	 */
+	private String previousHour;
 	/**
 	 * The bus stop hours.
 	 */
@@ -81,6 +86,18 @@ public class BusStopHours {
 			this.sHours = new ArrayList<String>();
 		}
 		return this.sHours;
+	}
+	
+	public void setPreviousHour(String previousHour) {
+		this.previousHour = previousHour;
+	}
+	
+	public String getPreviousHour() {
+		return previousHour;
+	}
+	
+	public boolean hasPreviousHour() {
+		return !TextUtils.isEmpty(this.previousHour);
 	}
 
 	/**

@@ -50,6 +50,7 @@ public class StmBusScheduleTask extends AbstractNextStopProvider {
 			cal.add(Calendar.DATE, -1);
 			String yesterday = DATE_FORMAT.format(cal.getTime());
 			String timeYesterday = String.valueOf(Integer.valueOf(TIME_FORMAT.format(cal.getTime())) + 240000);
+			cal.add(Calendar.DATE, +1);
 			// MyLog.d(TAG, "timeYesterday: " + timeYesterday);
 			publishProgress(loadingFrom);
 			List<String> sHours = StmBusScheduleManager.findBusScheduleList(context.getContentResolver(), busStop.getLineNumber(), busStop.getCode(),
@@ -65,8 +66,9 @@ public class StmBusScheduleTask extends AbstractNextStopProvider {
 			appendToBusStopHours(sHours, busStopHours);
 			// 3rd - check tomorrow schedule
 			if (busStopHours.getSHours().size() < 7) {
-				cal.add(Calendar.DATE, +2); // yesterday +2 = tomorrow
+				cal.add(Calendar.DATE, +1);
 				String tomorrow = DATE_FORMAT.format(cal.getTime());
+				cal.add(Calendar.DATE, -1);
 				String afterMidnight = "000000";
 				publishProgress(loadingFrom);
 				sHours = StmBusScheduleManager.findBusScheduleList(context.getContentResolver(), busStop.getLineNumber(), busStop.getCode(), tomorrow,
@@ -74,6 +76,23 @@ public class StmBusScheduleTask extends AbstractNextStopProvider {
 				// MyLog.d(TAG, "provider result: " + sHours);
 				publishProgress(processingData);
 				appendToBusStopHours(sHours, busStopHours);
+			}
+			// 4th - look for last schedule
+			cal.add(Calendar.HOUR, -1);
+			String oneHourAgo = TIME_FORMAT.format(cal.getTime());
+			cal.add(Calendar.HOUR, +1);
+			sHours = StmBusScheduleManager.findBusScheduleList(context.getContentResolver(), busStop.getLineNumber(), busStop.getCode(), null, oneHourAgo);
+			// MyLog.d(TAG, "provider result: " + sHours);
+			if (sHours != null && sHours.size() > 0) {
+				for (int i = sHours.size() - 1; i >= 0; i--) {
+					final String formattedHour = formatHour(sHours.get(i));
+					// MyLog.d(TAG, "fHour : " + formattedHour);
+					if (!busStopHours.getSHours().contains(formattedHour)) {
+						// MyLog.d(TAG, "fHour previous : " + formattedHour);
+						busStopHours.setPreviousHour(formattedHour);
+						break;
+					}
+				}
 			}
 			hours.put(busStop.getLineNumber(), busStopHours);
 			if (hours.size() == 0) {

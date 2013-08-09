@@ -1008,6 +1008,12 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 				List<String> fHours = this.hours.getFormattedHours(this);
 				// show the next bus stops
 				SpannableStringBuilder nextStopsSb = new SpannableStringBuilder();
+				// previous stop
+				int startPreviousStop = nextStopsSb.length();
+				if (this.hours.hasPreviousHour()) {
+					nextStopsSb.append(Utils.formatHours(this, this.hours.getPreviousHour())).append(' ');
+				}
+				int endPreviousStop = nextStopsSb.length();
 				// 1st stop
 				int startFirstStop = nextStopsSb.length();
 				nextStopsSb.append(fHours.get(0));
@@ -1032,6 +1038,11 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 							endOtherStops += fHours.get(i).length();
 						}
 					}
+				}
+				if (startPreviousStop != endPreviousStop) {
+					nextStopsSb.setSpan(new TextAppearanceSpan(this, android.R.style.TextAppearance_Medium), startPreviousStop, endPreviousStop,
+							Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+					nextStopsSb.setSpan(new RelativeSizeSpan(2.0f), startPreviousStop, endPreviousStop, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
 				}
 				if (startFirstStop != endFirstStop) {
 					nextStopsSb.setSpan(new TextAppearanceSpan(this, android.R.style.TextAppearance_Large), startFirstStop, endFirstStop,
