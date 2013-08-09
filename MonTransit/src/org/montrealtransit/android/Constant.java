@@ -13,7 +13,7 @@ public class Constant {
 	/**
 	 * The donation package.
 	 */
-	public static final String DONATE_PKG = "org.montrealtransit.android.donate.mm.onetrip";
+	public static final String DONATE_PKG = "org.montrealtransit.android.donate.mm.onetrip2";
 
 	public static final String PLACE_CHAR_DE = "de ";
 	public static final int PLACE_CHAR_DE_LENGTH = PLACE_CHAR_DE.length();
