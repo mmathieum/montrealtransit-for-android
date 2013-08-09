@@ -7,6 +7,7 @@ import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -47,6 +48,7 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 	private static final String URL_PART_3_BEFORE_BUS_STOP = "/stops/";
 	private static final String URL_PART_4_BEFORE_DIRECTION = "/arrivals?direction=";
 	private static final String URL_PART_5 = "&limit=7";
+	private static final String URL_PART_6_TIME_EQUAL = "&t=";
 
 	public IStmInfoTask(Context context, NextStopListener from, BusStop busStop) {
 		super(context, from, busStop);
@@ -94,6 +96,7 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 						// TODO String note = jResult.getString("note");
 						busStopHours.addSHour(formatHour(jResult.getString("time")));
 					}
+					busStopHours.setPreviousHour(tryToLoadPreviousHour(jResults.getJSONObject(0).getString("time"), busStopHours.getSHours()));
 					hours.put(this.busStop.getLineNumber(), busStopHours);
 				} else {
 					// provider error
@@ -153,6 +156,45 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 		}
 	}
 
+	private String tryToLoadPreviousHour(String nextHour, List<String> sHours) {
+		MyLog.v(TAG, "tryToLoadPreviousHour(nextHour)", nextHour);
+		try {
+			final int nextHourInt = Integer.parseInt(nextHour);
+			if (nextHourInt < 100) {
+				return null;
+			}
+			int oneHourAgo = nextHourInt - 100;
+			// MyLog.d(TAG, "oneHourAgo: " + oneHourAgo);
+			final String urlS = getUrlStringWithHour(oneHourAgo);
+			// MyLog.d(TAG, "urlS: " + urlS);
+			URL url = new URL(urlS);
+			URLConnection urlc = url.openConnection();
+			// MyLog.d(TAG, "URL created: '%s'", url.toString());
+			HttpURLConnection httpUrlConnection = (HttpURLConnection) urlc;
+			switch (httpUrlConnection.getResponseCode()) {
+			case HttpURLConnection.HTTP_OK:
+				JSONArray jResults = new JSONObject(Utils.getJson(urlc)).getJSONArray("result");
+				if (jResults.length() > 0) {
+					for (int i = jResults.length() - 1; i >= 0; i--) {
+						final String fHour = formatHour(jResults.getJSONObject(i).getString("time"));
+						// MyLog.d(TAG, "fHour: " + fHour);
+						if (sHours != null && !sHours.contains(fHour)) {
+							// MyLog.d(TAG, "fHour previous: " + fHour);
+							return fHour;
+						}
+					}
+				}
+				break;
+			default:
+				MyLog.w(TAG, "ERROR: HTTP URL-Connection Response Code %s (Message: %s)", httpUrlConnection.getResponseCode(),
+						httpUrlConnection.getResponseMessage());
+			}
+		} catch (Throwable t) {
+			MyLog.e(TAG, t, "Error while loading previous hour!");
+		}
+		return null;
+	}
+
 	private String formatHour(String time) {
 		// MyLog.v(TAG, "formatHour(%s)", time);
 		try {
@@ -182,6 +224,13 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 				.append(URL_PART_3_BEFORE_BUS_STOP).append(this.busStop.getCode()) // stop code
 				.append(URL_PART_4_BEFORE_DIRECTION).append(BusUtils.getBusLineSimpleDirectionChar(this.busStop.getDirectionId())) // line direction
 				.append(URL_PART_5) //
+				.toString();
+	}
+
+	public String getUrlStringWithHour(int time) {
+		return new StringBuilder() //
+				.append(getUrlString()) // base URL
+				.append(URL_PART_6_TIME_EQUAL).append(time) // time
 				.toString();
 	}
 
