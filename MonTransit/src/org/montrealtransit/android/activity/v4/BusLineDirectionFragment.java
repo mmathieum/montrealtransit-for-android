@@ -199,7 +199,7 @@ public class BusLineDirectionFragment extends Fragment implements OnScrollListen
 						Toast toast = Toast.makeText(BusLineDirectionFragment.this.getLastActivity(), R.string.descent_only, Toast.LENGTH_SHORT);
 						// toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
 						toast.show();
-						return;
+						// return; why not?
 					}
 					ABusStop selectedBusStop = BusLineDirectionFragment.this.busStops.get(position);
 					Intent intent = new Intent(BusLineDirectionFragment.this.getLastActivity(), BusStopInfo.class);

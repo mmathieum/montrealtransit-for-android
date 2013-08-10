@@ -190,7 +190,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 						Toast toast = Toast.makeText(SubwayLineInfo.this, R.string.descent_only, Toast.LENGTH_SHORT);
 						// toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
 						toast.show();
-						return;
+						// return; why not?
 					}
 					Intent intent = new Intent(SubwayLineInfo.this, SubwayStationInfo.class);
 					String subwayStationId = SubwayLineInfo.this.stations.get(position).getId();

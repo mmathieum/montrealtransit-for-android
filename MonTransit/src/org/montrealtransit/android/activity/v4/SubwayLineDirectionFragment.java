@@ -201,7 +201,7 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 						Toast toast = Toast.makeText(activity, R.string.descent_only, Toast.LENGTH_SHORT);
 						// toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
 						toast.show();
-						return;
+						// return; why not?
 					}
 					Intent intent = new Intent(activity, SubwayStationInfo.class);
 					String subwayStationId = SubwayLineDirectionFragment.this.stations.get(position).getId();

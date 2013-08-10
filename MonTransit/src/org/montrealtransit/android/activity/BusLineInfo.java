@@ -205,7 +205,7 @@ public class BusLineInfo extends Activity implements BusLineSelectDirectionDialo
 						Toast toast = Toast.makeText(BusLineInfo.this, R.string.descent_only, Toast.LENGTH_SHORT);
 						// toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
 						toast.show();
-						return;
+						// return; why not?
 					}
 					Intent intent = new Intent(BusLineInfo.this, BusStopInfo.class);
 					String busStopCode = BusLineInfo.this.busStops.get(position).getCode();
