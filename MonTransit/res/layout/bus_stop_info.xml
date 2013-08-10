@@ -45,7 +45,7 @@
                     android:layout_width="66dip"
                     android:layout_height="fill_parent"
                     android:background="#000000"
-                    android:ellipsize="end"
+                    android:ellipsize="marquee"
                     android:gravity="center_vertical|right"
                     android:paddingRight="2dip"
                     android:singleLine="true"
@@ -67,11 +67,11 @@
             <!-- BUS STOP PLACE -->
             <TextView
                 android:id="@+id/bus_stop_place"
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_toLeftOf="@id/star"
                 android:layout_toRightOf="@id/line"
-                android:ellipsize="end"
+                android:ellipsize="marquee"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:gravity="center_vertical|left"

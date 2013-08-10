@@ -34,7 +34,7 @@
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@+id/line_number"
-            android:ellipsize="end"
+            android:ellipsize="marquee"
             android:focusable="true"
             android:focusableInTouchMode="true"
             android:gravity="center_vertical|left"
