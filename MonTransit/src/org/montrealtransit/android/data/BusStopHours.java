@@ -152,6 +152,7 @@ public class BusStopHours {
 	private static final String MESSAGE = "message";
 	private static final String MESSAGE2 = "message2";
 	private static final String ERROR = "error";
+	private static final String PREVIOUS_HOUR = "previous";
 
 	/**
 	 * @return the serialized version of this object
@@ -163,6 +164,7 @@ public class BusStopHours {
 		for (String sHour : this.getSHours()) {
 			result += "${" + HOURS + ":" + sHour + "},";
 		}
+		result += "${" + PREVIOUS_HOUR + ":" + getPreviousHour() + "}";
 		result += "${" + MESSAGE + ":" + getMessage() + "},";
 		result += "${" + MESSAGE2 + ":" + getMessage2() + "},";
 		result += "${" + ERROR + ":" + getError() + "}";
@@ -188,6 +190,8 @@ public class BusStopHours {
 			String value = matcher.group().substring(separator + 1, matcher.group().length() - 1);
 			if (SOURCE.equals(property)) {
 				result.setSourceName(value);
+			} else if (PREVIOUS_HOUR.equals(property)) {
+				result.setPreviousHour(value);
 			} else if (HOURS.equals(property)) {
 				result.addSHour(value);
 			} else if (MESSAGE.equals(property)) {
