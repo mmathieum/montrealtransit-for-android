@@ -97,6 +97,13 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 						busStopHours.addSHour(formatHour(jResult.getString("time")));
 					}
 					busStopHours.setPreviousHour(tryToLoadPreviousHour(jResults.getJSONObject(0).getString("time"), busStopHours.getSHours()));
+					JSONArray jMessages = jResponse.getJSONArray("messages");
+					if (jMessages.length() > 0) {
+						busStopHours.addMessageString(jMessages.getJSONObject(0).getString("text"));
+						if (jMessages.length() > 1) {
+							busStopHours.addMessage2String(jMessages.getJSONObject(1).getString("text"));
+						}
+					}
 					hours.put(this.busStop.getLineNumber(), busStopHours);
 				} else {
 					// provider error
