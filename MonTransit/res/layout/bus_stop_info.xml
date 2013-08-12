@@ -195,7 +195,7 @@
                     android:layout_width="fill_parent"
                     android:layout_height="?android:attr/listPreferredItemHeight"
                     android:gravity="bottom"
-                    android:visibility="gone">
+                    android:visibility="gone" >
                     <TextView
                         android:id="@+id/next_stops"
                         android:layout_width="wrap_content"
@@ -205,20 +205,24 @@
                         android:scrollHorizontally="true"
                         android:singleLine="true" />
                 </HorizontalScrollView>
-                <TextView
-                    android:id="@+id/next_stops_msg"
+                <HorizontalScrollView
+                    android:id="@+id/next_stops_message"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:padding="5dip"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:visibility="gone" />
-                <TextView
-                    android:id="@+id/next_stops_msg2"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="5dip"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:visibility="gone" />
+                    android:visibility="gone" >
+                    <TextView
+                        android:id="@+id/next_stops_message_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="marquee"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"
+                        android:marqueeRepeatLimit="marquee_forever"
+                        android:padding="5dp"
+                        android:scrollHorizontally="true"
+                        android:textColor="@android:color/white"
+                        android:textSize="18sp" />
+                </HorizontalScrollView>
                 <!-- OTHER BUS LINEs -->
                 <RelativeLayout
                     android:id="@+id/other_bus_line_title"
