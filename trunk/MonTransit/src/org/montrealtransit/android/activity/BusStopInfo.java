@@ -994,11 +994,10 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 			// IF there next stops found DO
 			if (this.hours.getSHours().size() > 0) {
 				// hide loading + messages
-				TextView message1Tv = (TextView) findViewById(R.id.next_stops_msg);
-				TextView message2Tv = (TextView) findViewById(R.id.next_stops_msg2);
 				findViewById(R.id.next_stops_loading).setVisibility(View.GONE);
-				message1Tv.setVisibility(View.GONE);
-				message2Tv.setVisibility(View.GONE);
+				View messageHSV = findViewById(R.id.next_stops_message);
+				TextView messageTv = (TextView) messageHSV.findViewById(R.id.next_stops_message_text);
+				messageHSV.setVisibility(View.GONE);
 				// show next bus stop group
 				HorizontalScrollView stopsHScrollv = (HorizontalScrollView) findViewById(R.id.next_stops_group);
 				if (stopsHScrollv.getVisibility() != View.VISIBLE) {
@@ -1078,15 +1077,10 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 				}
 				((TextView) findViewById(R.id.next_stops)).setText(nextStopsSb);
 				// show messages
-				if (!TextUtils.isEmpty(this.hours.getMessage())) {
-					message1Tv.setVisibility(View.VISIBLE);
-					message1Tv.setText(this.hours.getMessage());
-					// Linkify.addLinks(message1Tv, Linkify.ALL);
-				}
-				if (!TextUtils.isEmpty(this.hours.getMessage2())) {
-					message2Tv.setVisibility(View.VISIBLE);
-					message2Tv.setText(this.hours.getMessage2());
-					// Linkify.addLinks(message2Tv, Linkify.ALL);
+				StringBuilder messageSb = getMessageSb(this.hours);
+				if (messageSb.length() > 0) {
+					messageTv.setText(messageSb);
+					messageHSV.setVisibility(View.VISIBLE);
 				}
 			}
 		}
@@ -1201,8 +1195,7 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 		if (this.hours == null) {
 			// set the BIG loading message
 			findViewById(R.id.next_stops_group).setVisibility(View.GONE);
-			findViewById(R.id.next_stops_msg).setVisibility(View.GONE);
-			findViewById(R.id.next_stops_msg2).setVisibility(View.GONE);
+			findViewById(R.id.next_stops_message).setVisibility(View.GONE);
 			findViewById(R.id.next_stops_loading).setVisibility(View.VISIBLE);
 			// } else { // notify the user ?
 		}
@@ -1236,13 +1229,12 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 			// show the BIG cancel message
 			// hide loading + message 2 + next stops group
 			findViewById(R.id.next_stops_group).setVisibility(View.GONE);
-			findViewById(R.id.next_stops_msg2).setVisibility(View.GONE);
 			findViewById(R.id.next_stops_loading).setVisibility(View.GONE);
 			// show message 1
-			TextView message1Tv = (TextView) findViewById(R.id.next_stops_msg);
-			message1Tv.setVisibility(View.VISIBLE);
-			message1Tv.setText(R.string.next_bus_stop_load_cancelled);
-			message1Tv.setVisibility(View.VISIBLE);
+			TextView messageTv = (TextView) findViewById(R.id.next_stops_message);
+			messageTv.setText(R.string.next_bus_stop_load_cancelled);
+			messageTv.setVisibility(View.VISIBLE);
+			findViewById(R.id.next_stops_message).setVisibility(View.VISIBLE);
 		}
 		setNextStopsNotLoading();
 	}
@@ -1269,49 +1261,54 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 				Utils.notifyTheUser(this, defaultMessage);
 			}
 		} else {
-			// show the BIG cancel message
-			TextView message1Tv = (TextView) findViewById(R.id.next_stops_msg);
-			TextView message2Tv = (TextView) findViewById(R.id.next_stops_msg2);
-			// hide loading + message 2 + next stops group
-			findViewById(R.id.next_stops_group).setVisibility(View.GONE);
-			message2Tv.setVisibility(View.GONE);
-			findViewById(R.id.next_stops_loading).setVisibility(View.GONE);
 			// set next stop header with source name
 			if (hours == null || TextUtils.isEmpty(hours.getSourceName())) {
 				((TextView) findViewById(R.id.next_stops_string)).setText(getString(R.string.next_bus_stops));
 			} else {
 				((TextView) findViewById(R.id.next_stops_string)).setText(getString(R.string.next_bus_stops_and_source, hours.getSourceName()));
 			}
-			// show message 1
-			message1Tv.setVisibility(View.VISIBLE);
-			// IF an error occurs during the process DO
-			if (hours != null && !TextUtils.isEmpty(hours.getError())) {
-				message1Tv.setText(hours.getError());
-			} else {
-				// IF there is a secondary message from the STM DO
-				if (hours != null && !TextUtils.isEmpty(hours.getMessage2())) {
-					message1Tv.setText(hours.getMessage2());
-					// Linkify.addLinks(message1Tv, Linkify.ALL);
-					// IF there is also an error message from the STM DO
-					if (hours != null && !TextUtils.isEmpty(hours.getMessage())) {
-						message2Tv.setVisibility(View.VISIBLE);
-						message2Tv.setText(hours.getMessage());
-						// Linkify.addLinks(message2Tv, Linkify.ALL);
-					}
-					// ELSE IF there is only an error message from the STM DO
-				} else if (hours != null && !TextUtils.isEmpty(hours.getMessage())) {
-					message1Tv.setText(hours.getMessage());
-					// Linkify.addLinks(message1Tv, Linkify.ALL);
-					// ELSE
-				} else {
-					MyLog.w(TAG, "no next stop or message or error for %s %s!", busStop.getCode(), busLine.getNumber());
-					// DEFAULT MESSAGE > no more bus stop for this bus line
-					String defaultMessage = getString(R.string.no_more_stops_for_this_bus_line, busLine.getNumber());
-					message1Tv.setText(defaultMessage);
-				}
+			// show the BIG cancel message
+			View messageHSV = findViewById(R.id.next_stops_message);
+			TextView messageTv = (TextView) messageHSV.findViewById(R.id.next_stops_message_text);
+			// hide loading + message 2 + next stops group
+			findViewById(R.id.next_stops_group).setVisibility(View.GONE);
+			findViewById(R.id.next_stops_loading).setVisibility(View.GONE);
+			messageHSV.setVisibility(View.GONE);
+			// Show messages
+			StringBuilder messageSb = getMessageSb(hours);
+			if (messageSb.length() == 0) {
+				MyLog.w(TAG, "no next stop or message or error for %s %s!", busStop.getCode(), busLine.getNumber());
+				// DEFAULT MESSAGE > no more bus stop for this bus line
+				String defaultMessage = getString(R.string.no_more_stops_for_this_bus_line, busLine.getNumber());
+				messageSb.append(defaultMessage);
 			}
+			messageTv.setText(messageSb);
+			messageHSV.setVisibility(View.VISIBLE);
 		}
 		setNextStopsNotLoading();
+	}
+
+	private StringBuilder getMessageSb(BusStopHours hours) {
+		StringBuilder messageSb = new StringBuilder();
+		if (hours != null && !TextUtils.isEmpty(hours.getError())) {
+			if (messageSb.length() > 0) {
+				messageSb.append('\n');
+			}
+			messageSb.append(hours.getError().replaceAll("\\.\\ ", ".\n").replaceAll("\\:\\ ", ":\n"));
+		}
+		if (hours != null && !TextUtils.isEmpty(hours.getMessage())) {
+			if (messageSb.length() > 0) {
+				messageSb.append('\n');
+			}
+			messageSb.append(hours.getMessage().replaceAll("\\.\\ ", ".\n").replaceAll("\\:\\ ", ":\n"));
+		}
+		if (hours != null && !TextUtils.isEmpty(hours.getMessage2())) {
+			if (messageSb.length() > 0) {
+				messageSb.append('\n');
+			}
+			messageSb.append(hours.getMessage2().replaceAll("\\.\\ ", ".\n").replaceAll("\\:\\ ", ":\n"));
+		}
+		return messageSb;
 	}
 
 	/**
