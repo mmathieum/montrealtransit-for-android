@@ -47,8 +47,8 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 	private static final String URL_PART_2_BEFORE_BUS_LINE = "/lines/";
 	private static final String URL_PART_3_BEFORE_BUS_STOP = "/stops/";
 	private static final String URL_PART_4_BEFORE_DIRECTION = "/arrivals?direction=";
-	private static final String URL_PART_5 = "&limit=7";
-	private static final String URL_PART_6_TIME_EQUAL = "&t=";
+	private static final String URL_PART_5_BEFORE_LIMIT = "&limit=";
+	private static final String URL_PART_6_BEFORE_TIME = "&t=";
 
 	public IStmInfoTask(Context context, NextStopListener from, BusStop busStop) {
 		super(context, from, busStop);
@@ -182,10 +182,15 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 			case HttpURLConnection.HTTP_OK:
 				JSONArray jResults = new JSONObject(Utils.getJson(urlc)).getJSONArray("result");
 				if (jResults.length() > 0) {
+					boolean firstCommonHourFound = false;
 					for (int i = jResults.length() - 1; i >= 0; i--) {
 						final String fHour = formatHour(jResults.getJSONObject(i).getString("time"));
 						// MyLog.d(TAG, "fHour: " + fHour);
-						if (sHours != null && !sHours.contains(fHour)) {
+						if (sHours != null && sHours.contains(fHour)) {
+							firstCommonHourFound = true;
+							continue;
+						}
+						if (firstCommonHourFound && sHours != null && !sHours.contains(fHour)) {
 							// MyLog.d(TAG, "fHour previous: " + fHour);
 							return fHour;
 						}
@@ -230,14 +235,18 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 				.append(URL_PART_2_BEFORE_BUS_LINE).append(this.busStop.getLineNumber()) // line number
 				.append(URL_PART_3_BEFORE_BUS_STOP).append(this.busStop.getCode()) // stop code
 				.append(URL_PART_4_BEFORE_DIRECTION).append(BusUtils.getBusLineSimpleDirectionChar(this.busStop.getDirectionId())) // line direction
-				.append(URL_PART_5) //
+				.append(URL_PART_5_BEFORE_LIMIT).append(7) //
 				.toString();
 	}
 
 	public String getUrlStringWithHour(int time) {
 		return new StringBuilder() //
-				.append(getUrlString()) // base URL
-				.append(URL_PART_6_TIME_EQUAL).append(time) // time
+				.append(URL_PART_1_BEFORE_LANG).append(Utils.getSupportedUserLocale().equals(Locale.FRENCH.toString()) ? "fr" : "en") // lang
+				.append(URL_PART_2_BEFORE_BUS_LINE).append(this.busStop.getLineNumber()) // line number
+				.append(URL_PART_3_BEFORE_BUS_STOP).append(this.busStop.getCode()) // stop code
+				.append(URL_PART_4_BEFORE_DIRECTION).append(BusUtils.getBusLineSimpleDirectionChar(this.busStop.getDirectionId())) // line direction
+				.append(URL_PART_5_BEFORE_LIMIT).append(30) //
+				.append(URL_PART_6_BEFORE_TIME).append(time) // time
 				.toString();
 	}
 
