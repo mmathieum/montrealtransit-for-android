@@ -17,7 +17,7 @@
 		
 		<item name="android:singleLine">true</item>
 		<item name="android:gravity">center_vertical|right</item>
-		<item name="android:textSize">40sp</item>
+		<item name="android:textSize">40dp</item><!-- not using SP because box size is in DP! -->
 		<item name="android:textStyle">bold</item>
 		<item name="android:textColor">#FFFFFF</item>
 	</style>
