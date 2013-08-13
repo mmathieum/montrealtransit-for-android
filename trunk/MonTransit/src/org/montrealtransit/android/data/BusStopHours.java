@@ -38,15 +38,15 @@ public class BusStopHours {
 	/**
 	 * The first message from the STM.
 	 */
-	private String message = "";
+	private String message;
 	/**
 	 * The second message from the STM.
 	 */
-	private String message2 = "";
+	private String message2;
 	/**
 	 * The error message.
 	 */
-	private String error = null;
+	private String error;
 
 	/**
 	 * The private constructor.
@@ -87,26 +87,17 @@ public class BusStopHours {
 		}
 		return this.sHours;
 	}
-	
+
 	public void setPreviousHour(String previousHour) {
 		this.previousHour = previousHour;
 	}
-	
+
 	public String getPreviousHour() {
 		return previousHour;
 	}
-	
+
 	public boolean hasPreviousHour() {
 		return !TextUtils.isEmpty(this.previousHour);
-	}
-
-	/**
-	 * Clear the bus stop hours list.
-	 */
-	public void clear() {
-		this.message = "";
-		this.message2 = "";
-		this.getSHours().clear();
 	}
 
 	/**
@@ -136,6 +127,9 @@ public class BusStopHours {
 	 * @param string the string to add
 	 */
 	public void addMessageString(String string) {
+		if (this.message == null) {
+			this.message = "";
+		}
 		this.message += string;
 	}
 
@@ -144,6 +138,9 @@ public class BusStopHours {
 	 * @param string the string to add.
 	 */
 	public void addMessage2String(String string) {
+		if (this.message2 == null) {
+			this.message2 = "";
+		}
 		this.message2 += string;
 	}
 
@@ -164,10 +161,18 @@ public class BusStopHours {
 		for (String sHour : this.getSHours()) {
 			result += "${" + HOURS + ":" + sHour + "},";
 		}
-		result += "${" + PREVIOUS_HOUR + ":" + getPreviousHour() + "}";
-		result += "${" + MESSAGE + ":" + getMessage() + "},";
-		result += "${" + MESSAGE2 + ":" + getMessage2() + "},";
-		result += "${" + ERROR + ":" + getError() + "}";
+		if (!TextUtils.isEmpty(getPreviousHour())) {
+			result += "${" + PREVIOUS_HOUR + ":" + getPreviousHour() + "}";
+		}
+		if (!TextUtils.isEmpty(getMessage())) {
+			result += "${" + MESSAGE + ":" + getMessage() + "},";
+		}
+		if (!TextUtils.isEmpty(getMessage2())) {
+			result += "${" + MESSAGE2 + ":" + getMessage2() + "},";
+		}
+		if (!TextUtils.isEmpty(getError())) {
+			result += "${" + ERROR + ":" + getError() + "}";
+		}
 		return result;
 	}
 

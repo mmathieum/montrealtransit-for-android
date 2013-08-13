@@ -926,6 +926,9 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 			@Override
 			public void onNextStopsLoaded(Map<String, BusStopHours> results) {
 				MyLog.v(TAG, "loadNextStopsFromLocalSchedule()>onNextStopsLoaded(%s)", results == null ? null : results.size());
+				if (BusStopInfo.this.localTask == null || BusStopInfo.this.localTask.isCancelled()) {
+					return; // task cancelled
+				}
 				if (BusStopInfo.this.hours != null && BusStopInfo.this.hours.getSourceName().equals(IStmInfoTask.SOURCE_NAME)) {
 					MyLog.d(TAG, "Local DB too late");
 					if (!BusStopInfo.this.wwwTaskRunning) {
@@ -953,11 +956,11 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 					MyLog.d(TAG, "Local DB no hours in result");
 					// process the error
 					if (BusStopInfo.this.wwwTask != null && BusStopInfo.this.wwwTask.getStatus() == Status.RUNNING) {
-						if (!TextUtils.isEmpty(result.getError())) {
+						if (result != null && !TextUtils.isEmpty(result.getError())) {
 							BusStopInfo.this.onNextStopsProgress(result.getError());
-						} else if (!TextUtils.isEmpty(result.getMessage())) {
+						} else if (result != null && !TextUtils.isEmpty(result.getMessage())) {
 							BusStopInfo.this.onNextStopsProgress(result.getMessage());
-						} else if (!TextUtils.isEmpty(result.getMessage2())) {
+						} else if (result != null && !TextUtils.isEmpty(result.getMessage2())) {
 							BusStopInfo.this.onNextStopsProgress(result.getMessage2());
 						}
 					} else {
@@ -1081,6 +1084,9 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 				if (messageSb.length() > 0) {
 					messageTv.setText(messageSb);
 					messageHSV.setVisibility(View.VISIBLE);
+				} else {
+					messageTv.setText(null);
+					messageHSV.setVisibility(View.GONE);
 				}
 			}
 		}
@@ -1113,6 +1119,9 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 			@Override
 			public void onNextStopsLoaded(Map<String, BusStopHours> results) {
 				MyLog.v(TAG, "loadNextStopsFromWeb()>onNextStopsLoaded(%s)", results == null ? null : results.size());
+				if (BusStopInfo.this.wwwTask == null || BusStopInfo.this.wwwTask.isCancelled()) {
+					return; // task cancelled
+				}
 				if (results != null) {
 					for (String lineNumber : results.keySet()) {
 						BusStopHours busStopHours = results.get(lineNumber);
@@ -1126,11 +1135,11 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 				if (result == null || result.getSHours().size() <= 0) {
 					// process the error
 					if (BusStopInfo.this.localTask != null && BusStopInfo.this.localTask.getStatus() == Status.RUNNING) {
-						if (!TextUtils.isEmpty(result.getError())) {
+						if (result != null && !TextUtils.isEmpty(result.getError())) {
 							BusStopInfo.this.onNextStopsProgress(result.getError());
-						} else if (!TextUtils.isEmpty(result.getMessage())) {
+						} else if (result != null && !TextUtils.isEmpty(result.getMessage())) {
 							BusStopInfo.this.onNextStopsProgress(result.getMessage());
-						} else if (!TextUtils.isEmpty(result.getMessage2())) {
+						} else if (result != null && !TextUtils.isEmpty(result.getMessage2())) {
 							BusStopInfo.this.onNextStopsProgress(result.getMessage2());
 						}
 					} else {
@@ -1231,7 +1240,7 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 			findViewById(R.id.next_stops_group).setVisibility(View.GONE);
 			findViewById(R.id.next_stops_loading).setVisibility(View.GONE);
 			// show message 1
-			TextView messageTv = (TextView) findViewById(R.id.next_stops_message);
+			TextView messageTv = (TextView) findViewById(R.id.next_stops_message_text);
 			messageTv.setText(R.string.next_bus_stop_load_cancelled);
 			messageTv.setVisibility(View.VISIBLE);
 			findViewById(R.id.next_stops_message).setVisibility(View.VISIBLE);
@@ -1289,25 +1298,30 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 	}
 
 	private StringBuilder getMessageSb(BusStopHours hours) {
+		MyLog.v(TAG, "getMessageSb()");
 		StringBuilder messageSb = new StringBuilder();
 		if (hours != null && !TextUtils.isEmpty(hours.getError())) {
+			MyLog.d(TAG, "getMessageSb() > hours.getError(): " + hours.getError());
 			if (messageSb.length() > 0) {
 				messageSb.append('\n');
 			}
 			messageSb.append(hours.getError().replaceAll("\\.\\ ", ".\n").replaceAll("\\:\\ ", ":\n"));
 		}
 		if (hours != null && !TextUtils.isEmpty(hours.getMessage())) {
+			MyLog.d(TAG, "getMessageSb() > hours.getMessage(): " + hours.getMessage());
 			if (messageSb.length() > 0) {
 				messageSb.append('\n');
 			}
 			messageSb.append(hours.getMessage().replaceAll("\\.\\ ", ".\n").replaceAll("\\:\\ ", ":\n"));
 		}
 		if (hours != null && !TextUtils.isEmpty(hours.getMessage2())) {
+			MyLog.d(TAG, "getMessageSb() > hours.getMessage2(): " + hours.getMessage2());
 			if (messageSb.length() > 0) {
 				messageSb.append('\n');
 			}
 			messageSb.append(hours.getMessage2().replaceAll("\\.\\ ", ".\n").replaceAll("\\:\\ ", ":\n"));
 		}
+		MyLog.d(TAG, "getMessageSb() > messageSb: " + messageSb);
 		return messageSb;
 	}
 
