@@ -135,7 +135,7 @@ INSERT INTO "directions_autobus" VALUES(97,'9701O','');
 INSERT INTO "directions_autobus" VALUES(99,'9901E','');
 INSERT INTO "directions_autobus" VALUES(99,'9901O','');
 INSERT INTO "directions_autobus" VALUES(100,'10001E','');
-INSERT INTO "directions_autobus" VALUES(100,'10001E','');
+INSERT INTO "directions_autobus" VALUES(100,'10001O','');
 INSERT INTO "directions_autobus" VALUES(101,'10101O','');
 INSERT INTO "directions_autobus" VALUES(101,'10101E','');
 INSERT INTO "directions_autobus" VALUES(102,'10201O','');
