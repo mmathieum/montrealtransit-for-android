@@ -87,6 +87,7 @@ INSERT INTO "lignes_autobus" VALUES(121,'Sauvé / Côte-Vertu','J',' ');
 INSERT INTO "lignes_autobus" VALUES(123,'Dollard','J',' ');
 INSERT INTO "lignes_autobus" VALUES(124,'Victoria','J',' ');
 INSERT INTO "lignes_autobus" VALUES(125,'Ontario','J',' ');
+INSERT INTO "lignes_autobus" VALUES(126,'','J',' '); FIXME
 INSERT INTO "lignes_autobus" VALUES(128,'Ville-Saint-Laurent','J',' ');
 INSERT INTO "lignes_autobus" VALUES(129,'Côte-Sainte-Catherine','J',' ');
 INSERT INTO "lignes_autobus" VALUES(131,'De l''Assomption','J',' ');

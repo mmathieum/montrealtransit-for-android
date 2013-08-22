@@ -938,7 +938,7 @@ INSERT INTO "arrets_autobus" VALUES(57461,209,'20901S','Dorval / Carson','','',3
 INSERT INTO "arrets_autobus" VALUES(57491,209,'20901S','Dorval / No 352','','',38);
 INSERT INTO "arrets_autobus" VALUES(57506,209,'20901S','Terminus de la gare Dorval','','',39);
 INSERT INTO "arrets_autobus" VALUES(60864,209,'20901S','Aéroport international Montréal-Trudeau','','Descente seulement',40);
-INSERT INTO "arrets_autobus" VALUES(54267,211,'21101O','Atwater / Lionel-Groulx',36,'',0);
+INSERT INTO "arrets_autobus" VALUES(61338,211,'21101O','Station Lionel-Groulx / Greene',36,'',0);
 INSERT INTO "arrets_autobus" VALUES(57539,211,'21101O','Terminus de la gare Dorval','','',1);
 INSERT INTO "arrets_autobus" VALUES(57522,211,'21101O','Dorval / No 353','','',2);
 INSERT INTO "arrets_autobus" VALUES(57458,211,'21101O','Carson / Centre Commercial','','',3);
@@ -1031,7 +1031,7 @@ INSERT INTO "arrets_autobus" VALUES(57455,211,'21101E','Carson / Lepage','','',4
 INSERT INTO "arrets_autobus" VALUES(57499,211,'21101E','Carson / Centre Commercial','','',43);
 INSERT INTO "arrets_autobus" VALUES(57491,211,'21101E','Dorval / No 352','','',44);
 INSERT INTO "arrets_autobus" VALUES(57538,211,'21101E','Terminus de la gare Dorval','','',45);
-INSERT INTO "arrets_autobus" VALUES(54267,211,'21101E','Atwater / Lionel-Groulx',36,'Descente seulement',46);
+INSERT INTO "arrets_autobus" VALUES(61339,211,'21101E','Saint-Jacques / Marin','','Descente seulement',46);
 INSERT INTO "arrets_autobus" VALUES(58592,212,'21201E','Anciens-Combattants / Hôpital Sainte-Anne','','',0);
 INSERT INTO "arrets_autobus" VALUES(61121,212,'21201E','des Anciens-Combattants / No 305','','',1);
 INSERT INTO "arrets_autobus" VALUES(58563,212,'21201E','Sainte-Anne / Garden City','','',2);
