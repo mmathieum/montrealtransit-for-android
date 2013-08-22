@@ -9383,3 +9383,16 @@ INSERT INTO "arrets_autobus_loc" VALUES('61315','Rosemont / Marquette','45.54032
 INSERT INTO "arrets_autobus_loc" VALUES('61321','Pierrefonds / Winnie-Wakefield','45.458802','-73.894322');
 INSERT INTO "arrets_autobus_loc" VALUES('61322','Sherbrooke / Côte-Saint-Antoine','45.486637','-73.594543');
 INSERT INTO "arrets_autobus_loc" VALUES('61323','Décarie / Édouard-Laurin','45.514221','-73.682617');
+INSERT INTO "arrets_autobus_loc" VALUES('61328','Station Lionel-Groulx / Saint-Jacques','45.482815','-73.581177');
+INSERT INTO "arrets_autobus_loc" VALUES('61329','Station Lionel-Groulx / Saint-Jacques','45.483094','-73.580664');
+INSERT INTO "arrets_autobus_loc" VALUES('61330','Station Lionel-Groulx / Saint-Jacques','45.483105','-73.580620');
+INSERT INTO "arrets_autobus_loc" VALUES('61331','Station Lionel-Groulx / Saint-Jacques','45.483029','-73.580766');
+INSERT INTO "arrets_autobus_loc" VALUES('61332','Station Lionel-Groulx / Saint-Jacques','45.483562','-73.579910');
+INSERT INTO "arrets_autobus_loc" VALUES('61333','Station Lionel-Groulx / Atwater','45.483257','-73.579323');
+INSERT INTO "arrets_autobus_loc" VALUES('61334','Station Lionel-Groulx / Atwater','45.482716','-73.579025');
+INSERT INTO "arrets_autobus_loc" VALUES('61335','Station Lionel-Groulx / Atwater','45.482535','-73.578978');
+INSERT INTO "arrets_autobus_loc" VALUES('61336','Station Lionel-Groulx / Greene','45.482216','-73.580742');
+INSERT INTO "arrets_autobus_loc" VALUES('61337','Station Lionel-Groulx / Greene','45.482372','-73.580856');
+INSERT INTO "arrets_autobus_loc" VALUES('61338','Station Lionel-Groulx / Greene','45.482655','-73.581314');
+INSERT INTO "arrets_autobus_loc" VALUES('61339','Saint-Jacques / Marin','45.482086,-73.579498');
+INSERT INTO "arrets_autobus_loc" VALUES('61340','Transcanadienne /','45.455425,-73.845139');

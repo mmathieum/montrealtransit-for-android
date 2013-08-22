@@ -176,6 +176,8 @@ INSERT INTO "directions_autobus" VALUES(124,'12401N','');
 INSERT INTO "directions_autobus" VALUES(124,'12401S','');
 INSERT INTO "directions_autobus" VALUES(125,'12501E','');
 INSERT INTO "directions_autobus" VALUES(125,'12501O','');
+INSERT INTO "directions_autobus" VALUES(126,'12601E','');
+INSERT INTO "directions_autobus" VALUES(126,'12601O','');
 INSERT INTO "directions_autobus" VALUES(128,'12801N','');
 INSERT INTO "directions_autobus" VALUES(128,'12801S','');
 INSERT INTO "directions_autobus" VALUES(129,'12901N','');

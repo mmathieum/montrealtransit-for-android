@@ -37,7 +37,7 @@ INSERT INTO "arrets_autobus" VALUES(52550,715,'71501O','Peel / De La Gauchetièr
 INSERT INTO "arrets_autobus" VALUES(52482,715,'71501O','Peel / René-Lévesque','','',17);
 INSERT INTO "arrets_autobus" VALUES(60713,715,'71501O','Terminus INFOTOURISTE',33,'Descente seulement',18);
 INSERT INTO "arrets_autobus" VALUES(60997,747,'74701E','Aéroport International Montréal-Trudeau','','',0);
-INSERT INTO "arrets_autobus" VALUES(54182,747,'74701E','Station Lionel-Groulx',36,'',1);
+INSERT INTO "arrets_autobus" VALUES(61332,747,'74701E','Station Lionel-Groulx / Saint-Jacques',36,'',1);
 INSERT INTO "arrets_autobus" VALUES(52326,747,'74701E','Guy / René-Lévesque','','',2);
 INSERT INTO "arrets_autobus" VALUES(52437,747,'74701E','René-Lévesque / Drummond','','',3);
 INSERT INTO "arrets_autobus" VALUES(52485,747,'74701E','René-Lévesque / Peel','','',4);
@@ -58,8 +58,9 @@ INSERT INTO "arrets_autobus" VALUES(52529,747,'74701O','René-Lévesque / Mansfi
 INSERT INTO "arrets_autobus" VALUES(52483,747,'74701O','René-Lévesque / Peel','','',7);
 INSERT INTO "arrets_autobus" VALUES(52416,747,'74701O','René-Lévesque / de la Montagne','','',8);
 INSERT INTO "arrets_autobus" VALUES(52373,747,'74701O','René-Lévesque / Bishop','','',9);
-INSERT INTO "arrets_autobus" VALUES(54190,747,'74701O','Atwater / Delisle',36,'',10);
-INSERT INTO "arrets_autobus" VALUES(60997,747,'74701O','Aéroport International Montréal-Trudeau','','Descente seulement',11);
+INSERT INTO "arrets_autobus" VALUES(61334,747,'74701O','Station Lionel-Groulx / Atwater',36,'',10);
+INSERT INTO "arrets_autobus" VALUES(61261,747,'74701O','Roméo-Vachon / ','','',11);
+INSERT INTO "arrets_autobus" VALUES(60997,747,'74701O','Aéroport International Montréal-Trudeau','','Descente seulement',12);
 INSERT INTO "arrets_autobus" VALUES(54335,767,'76701E','Station Jean-Drapeau','','',0);
 INSERT INTO "arrets_autobus" VALUES(53839,767,'76701E','La Ronde',45,'Descente seulement',1);
 INSERT INTO "arrets_autobus" VALUES(53839,767,'76701O','La Ronde',45,'',0);
