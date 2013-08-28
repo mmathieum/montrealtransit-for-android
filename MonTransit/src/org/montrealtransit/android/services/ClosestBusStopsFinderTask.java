@@ -119,12 +119,13 @@ public class ClosestBusStopsFinderTask extends AsyncTask<Location, String, Close
 			// do it the hard long way
 			allBusStopsWithLoc = StmManager.findAllBusStopLocationList(context.getContentResolver());
 		}
-		for (BusStop busStop : allBusStopsWithLoc) {
-			if (aresult.containsKey(busStop.getUID())) {
-				continue;
+		if (allBusStopsWithLoc != null) {
+			for (BusStop busStop : allBusStopsWithLoc) {
+				if (aresult.containsKey(busStop.getUID())) {
+					continue;
+				}
+				aresult.put(busStop.getUID(), new ABusStop(busStop)); // filters on UID
 			}
-			ABusStop stop = new ABusStop(busStop);
-			aresult.put(busStop.getUID(), stop); // filters on UID
 		}
 		LocationUtils.updateDistance(context, aresult, location);
 		return new ArrayList<ABusStop>(aresult.values());
