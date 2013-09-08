@@ -28,10 +28,7 @@
         <!-- BUS LINE NUMBER -->
         <TextView
             android:id="@+id/line_number"
-            style="@style/BusLineNumber"
-            android:layout_width="66dip"
-            android:layout_height="44dip"
-            android:textSize="33sp"
+            style="@style/BusLineNumberSmall"
             android:text="@string/default_line_number" />
         <!-- BUS LINE DIRECTION -->
         <TextView
