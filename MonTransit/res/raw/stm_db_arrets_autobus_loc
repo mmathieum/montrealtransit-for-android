@@ -3728,7 +3728,7 @@ INSERT INTO "arrets_autobus_loc" VALUES('53836','Ridgewood / No 3440','45.493887
 INSERT INTO "arrets_autobus_loc" VALUES('53837','Côte-des-Neiges / entrée du cimetière','45.496029','-73.608323');
 INSERT INTO "arrets_autobus_loc" VALUES('53838','Remembrance / Poste de Police','45.5021','-73.597185');
 INSERT INTO "arrets_autobus_loc" VALUES('53839','La Ronde','45.521555','-73.535888');
-INSERT INTO "arrets_autobus_loc" VALUES('53840','privé la Ronde / ','45.519678','-73.533383');
+INSERT INTO "arrets_autobus_loc" VALUES('53840','La Ronde / Tour-De-L''Isle','45.519678','-73.533383');
 INSERT INTO "arrets_autobus_loc" VALUES('53841','Papineau / Pont Jacques-Cartier','45.524411','-73.556037');
 INSERT INTO "arrets_autobus_loc" VALUES('53842','Docteur-Penfield / Côte-des-Neiges','45.496699','-73.586261');
 INSERT INTO "arrets_autobus_loc" VALUES('53843','Docteur-Penfield / No 855','45.504529','-73.578291');
@@ -9362,7 +9362,7 @@ INSERT INTO "arrets_autobus_loc" VALUES('61256','Pierrefonds / Winnie-Wakefield'
 INSERT INTO "arrets_autobus_loc" VALUES('61257','Rinaldo-Lemme / du Palomino','45.455238','-73.905594');
 INSERT INTO "arrets_autobus_loc" VALUES('61258','Rinaldo-Lemme / du Palomino','45.455681','-73.905701');
 INSERT INTO "arrets_autobus_loc" VALUES('61260','Herron / Dumont','45.448345','-73.752068');
-INSERT INTO "arrets_autobus_loc" VALUES('61261','Roméo-Vachon / ','45.448563','-73.742523');
+INSERT INTO "arrets_autobus_loc" VALUES('61261','Roméo-Vachon / Aéroport De Montréal','45.448563','-73.742523');
 INSERT INTO "arrets_autobus_loc" VALUES('61262','Saint-Jean / Gare Cedar Park','45.441540','-73.814897');
 INSERT INTO "arrets_autobus_loc" VALUES('61263','Station Angrignon / Terminus','45.446554','-73.604390');
 INSERT INTO "arrets_autobus_loc" VALUES('61268','Henri-Bourassa Est / No 3663','45.590981','-73.646849');
@@ -9395,4 +9395,4 @@ INSERT INTO "arrets_autobus_loc" VALUES('61336','Station Lionel-Groulx / Greene'
 INSERT INTO "arrets_autobus_loc" VALUES('61337','Station Lionel-Groulx / Greene','45.482372','-73.580856');
 INSERT INTO "arrets_autobus_loc" VALUES('61338','Station Lionel-Groulx / Greene','45.482655','-73.581314');
 INSERT INTO "arrets_autobus_loc" VALUES('61339','Saint-Jacques / Marin','45.482086,-73.579498');
-INSERT INTO "arrets_autobus_loc" VALUES('61340','Transcanadienne /','45.455425,-73.845139');
+INSERT INTO "arrets_autobus_loc" VALUES('61340','Transcanadienne / Edmond','45.455425,-73.845139');

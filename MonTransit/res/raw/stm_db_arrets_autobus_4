@@ -501,7 +501,7 @@ INSERT INTO "arrets_autobus" VALUES(58392,419,'41901E','Transcanadienne / Montro
 INSERT INTO "arrets_autobus" VALUES(58394,419,'41901E','Transcanadienne / Daniel','','',14);
 INSERT INTO "arrets_autobus" VALUES(58395,419,'41901E','Transcanadienne / Mountain View','','',15);
 INSERT INTO "arrets_autobus" VALUES(60124,419,'41901E','Transcanadienne / No 16800','','',16);
-INSERT INTO "arrets_autobus" VALUES(61340,419,'41901E','Transcanadienne /','','',17);
+INSERT INTO "arrets_autobus" VALUES(61340,419,'41901E','Transcanadienne / Edmond','','',17);
 INSERT INTO "arrets_autobus" VALUES(57792,419,'41901E','Saint-Jean / Maxi','','',18);
 INSERT INTO "arrets_autobus" VALUES(57767,419,'41901E','Revcon / Place Frontenac','','',19);
 INSERT INTO "arrets_autobus" VALUES(60415,419,'41901E','Terminus Fairview / Brunswick','','Descente seulement',20);
