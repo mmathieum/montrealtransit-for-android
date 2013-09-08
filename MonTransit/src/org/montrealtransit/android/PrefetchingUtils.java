@@ -29,14 +29,14 @@ public class PrefetchingUtils {
 	public static Executor getExecutor() {
 		if (executor == null) {
 			int numCore = 1;
-			try {
-				numCore = getNumCores();
-			} catch (Throwable t) {
-				MyLog.w(TAG, t, "Error while reading number of core!");
-			}
-			if (numCore > 1) {
-				numCore--; // keep 1 core for the rest of the app
-			}
+			// try {
+			// numCore = getNumCores(); // 1 core is plenty enough for now and multiple core sometimes give bad data
+			// } catch (Throwable t) {
+			// MyLog.w(TAG, t, "Error while reading number of core!");
+			// }
+			// if (numCore > 1) {
+			// numCore--; // keep 1 core for the rest of the app
+			// }
 			executor = new ThreadPoolExecutor(1, numCore, 0, TimeUnit.SECONDS, SupportFactory.get().getNewBlockingQueue(), new RejectedExecutionHandler() {
 
 				@Override
@@ -73,7 +73,7 @@ public class PrefetchingUtils {
 	 * Gets the number of cores available in this device, across all processors. Requires: Ability to peruse the filesystem at "/sys/devices/system/cpu"
 	 * @return The number of cores, or 1 if failed to get result
 	 */
-	private static int getNumCores() {
+	public static int getNumCores() {
 		// Private Class to display only CPU devices in the directory listing
 		class CpuFilter implements FileFilter {
 			@Override
