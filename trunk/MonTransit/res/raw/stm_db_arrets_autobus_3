@@ -2641,7 +2641,7 @@ INSERT INTO "arrets_autobus" VALUES(57496,376,'37601E','Transcanadienne / No 130
 INSERT INTO "arrets_autobus" VALUES(55792,376,'37601E','Transcanadienne / Abrams','','',33);
 INSERT INTO "arrets_autobus" VALUES(55366,376,'37601E','Transcanadienne / Halpern','','',34);
 INSERT INTO "arrets_autobus" VALUES(55343,376,'37601E','Transcanadienne Sud / No 9300 -A','','',35);
-INSERT INTO "arrets_autobus" VALUES(55889,376,'37601E','Transcanadienne / No 8150 /','','',36);
+INSERT INTO "arrets_autobus" VALUES(55889,376,'37601E','Transcanadienne / No 8150','','',36);
 INSERT INTO "arrets_autobus" VALUES(55452,376,'37601E','Transcanadienne / McArthur','','',37);
 INSERT INTO "arrets_autobus" VALUES(55469,376,'37601E','Transcanadienne / Locke','','',38);
 INSERT INTO "arrets_autobus" VALUES(56120,376,'37601E','Côte-de-Liesse / No 5430','','',39);

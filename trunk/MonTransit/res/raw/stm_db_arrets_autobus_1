@@ -1488,7 +1488,7 @@ INSERT INTO "arrets_autobus" VALUES(55532,126,'12601O','Grenet / Deguire','','',
 INSERT INTO "arrets_autobus" VALUES(55542,126,'12601O','Deguire / Crevier','','',6);
 INSERT INTO "arrets_autobus" VALUES(55569,126,'12601O','Crevier / Tassé','','',7);
 INSERT INTO "arrets_autobus" VALUES(55551,126,'12601O','Thimens / Marcel-Laurin','','',8);
-INSERT INTO "arrets_autobus" VALUES(55344,126,'12601O','privé Polyvalente Émile-Legault / ','','Descente seulement',9);
+INSERT INTO "arrets_autobus" VALUES(55344,126,'12601O','Polyvalente Émile-Legault ','','Descente seulement',9);
 INSERT INTO "arrets_autobus" VALUES(55796,128,'12801S','Muir / Fortier','','',0);
 INSERT INTO "arrets_autobus" VALUES(55711,128,'12801S','Montpellier / Côte-Vertu','','',1);
 INSERT INTO "arrets_autobus" VALUES(55795,128,'12801S','Muir / Robertson','','',2);
