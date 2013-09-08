@@ -9394,5 +9394,5 @@ INSERT INTO "arrets_autobus_loc" VALUES('61335','Station Lionel-Groulx / Atwater
 INSERT INTO "arrets_autobus_loc" VALUES('61336','Station Lionel-Groulx / Greene','45.482216','-73.580742');
 INSERT INTO "arrets_autobus_loc" VALUES('61337','Station Lionel-Groulx / Greene','45.482372','-73.580856');
 INSERT INTO "arrets_autobus_loc" VALUES('61338','Station Lionel-Groulx / Greene','45.482655','-73.581314');
-INSERT INTO "arrets_autobus_loc" VALUES('61339','Saint-Jacques / Marin','45.482086,-73.579498');
-INSERT INTO "arrets_autobus_loc" VALUES('61340','Transcanadienne / Edmond','45.455425,-73.845139');
+INSERT INTO "arrets_autobus_loc" VALUES('61339','Saint-Jacques / Marin','45.482086','-73.579498');
+INSERT INTO "arrets_autobus_loc" VALUES('61340','Transcanadienne / Edmond','45.455425','-73.845139');

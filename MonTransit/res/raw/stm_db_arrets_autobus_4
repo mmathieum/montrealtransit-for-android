@@ -1064,7 +1064,7 @@ INSERT INTO "arrets_autobus" VALUES(54080,444,'44401N','Sherbrooke / station Rad
 INSERT INTO "arrets_autobus" VALUES(60191,444,'44401N','Louis-H. Lafontaine / Ravenel','','',1);
 INSERT INTO "arrets_autobus" VALUES(54381,444,'44401N','Cégep Marie-Victorin','','Descente seulement',2);
 INSERT INTO "arrets_autobus" VALUES(54381,444,'44401S','Cégep Marie-Victorin','','',0);
-INSERT INTO "arrets_autobus" VALUES(60231,444,'44401S','Albert-Hudon / Henri-Bourassa'','','',1);
+INSERT INTO "arrets_autobus" VALUES(60231,444,'44401S','Albert-Hudon / Henri-Bourassa','','',1);
 INSERT INTO "arrets_autobus" VALUES(53196,444,'44401S','Sherbrooke / des Groseilliers',19,'Descente seulement',2);
 INSERT INTO "arrets_autobus" VALUES(54387,448,'44801O','Maurice-Duplessis / 70e Avenue','','',0);
 INSERT INTO "arrets_autobus" VALUES(54270,448,'44801O','Maurice-Duplessis / 62e Avenue','','',1);
