@@ -3617,7 +3617,7 @@ INSERT INTO "arrets_autobus" VALUES(53565,186,'18601E','Sherbrooke / No 15400','
 INSERT INTO "arrets_autobus" VALUES(53574,186,'18601E','Sherbrooke / 81e Avenue','','',40);
 INSERT INTO "arrets_autobus" VALUES(54316,186,'18601E','Sherbrooke / Famille Dubreuil','','',41);
 INSERT INTO "arrets_autobus" VALUES(60550,186,'18601E','Terminus Sherbrooke / Gouin','','',42);
-INSERT INTO "arrets_autobus" VALUES(53914,186,'18601E','Collège Saint-Jean-Vianney / Gouin'','','Descente seulement',43);
+INSERT INTO "arrets_autobus" VALUES(53914,186,'18601E','Collège Saint-Jean-Vianney / Gouin','','Descente seulement',43);
 INSERT INTO "arrets_autobus" VALUES(60550,186,'18601O','Terminus Sherbrooke / Gouin','','',0);
 INSERT INTO "arrets_autobus" VALUES(54315,186,'18601O','Sherbrooke / Famille Dubreuil','','',1);
 INSERT INTO "arrets_autobus" VALUES(53573,186,'18601O','Sherbrooke / 81e Avenue','','',2);
