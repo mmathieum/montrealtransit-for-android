@@ -34,7 +34,8 @@ Ce tableau montre *tous* les revenus générés par l'application.
 || Mai-2013 || 12.61 || 87.43 || 0 || *100.04* ||
 || Juin-2013 || 12.60 || 100.38 || 0 || *112.98* ||
 || Juillet-2013 || 8.40 || 88.06 || 0 || *96.46* ||
-|| *TOTAL* || *388.93* || *1332.02* || *5.22* || *1726.17* ||
+|| Aout-2013 || 2.10 || 104.89 || 0 || *106.99* ||
+|| *TOTAL* || *391.03* || *1436.91* || *5.22* || *1833.16* ||
 
 _Les revenus de l'Android Market n'incluent pas les 30% de Google._
 
