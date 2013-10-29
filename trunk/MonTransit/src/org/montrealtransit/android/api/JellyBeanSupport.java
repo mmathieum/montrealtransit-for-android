@@ -19,4 +19,9 @@ public class JellyBeanSupport extends IceCreamSandwichSupport {
 	 */
 	public JellyBeanSupport() {
 	}
+
+	@Override
+	public int getNbClosestPOIDisplay() {
+		return 100; // super.getNbClosestPOIDisplay();
+	}
 }

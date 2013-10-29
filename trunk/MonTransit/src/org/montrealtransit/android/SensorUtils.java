@@ -1,7 +1,7 @@
 package org.montrealtransit.android;
 
-import org.montrealtransit.android.LocationUtils.POI;
 import org.montrealtransit.android.api.SupportFactory;
+import org.montrealtransit.android.data.POI;
 import org.montrealtransit.android.data.Pair;
 
 import android.app.Activity;
@@ -388,6 +388,7 @@ public final class SensorUtils {
 
 	public static void updateCompass(final boolean force, final Location currentLocation, final float orientation, final long now, final int scrollState,
 			final long lastCompassChanged, final int lastCompassInDegree, final SensorTaskCompleted callback) {
+		// MyLog.d(TAG, "updateCompass()");
 		if (currentLocation == null /* || pois == null */|| orientation == 0) {
 			// MyLog.d(TAG, "updateCompass() > no location (%s) or no POI (%s) or no orientation (%s)", (currentLocation == null), (pois == null), orientation);
 			callback.onSensorTaskCompleted(false);

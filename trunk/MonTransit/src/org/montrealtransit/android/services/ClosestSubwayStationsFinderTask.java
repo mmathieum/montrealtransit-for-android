@@ -2,6 +2,7 @@ package org.montrealtransit.android.services;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -13,8 +14,8 @@ import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.ASubwayStation;
 import org.montrealtransit.android.data.ClosestPOI;
+import org.montrealtransit.android.data.POI;
 import org.montrealtransit.android.data.Pair;
-import org.montrealtransit.android.data.SubwayStationDistancesComparator;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore.SubwayLine;
 import org.montrealtransit.android.provider.StmStore.SubwayStation;
@@ -76,9 +77,9 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 			publishProgress(this.context.getString(R.string.processing));
 			result = new ClosestPOI<ASubwayStation>(location);
 			// create a list of all stations with lines and location
-			List<ASubwayStation> stationsWithOtherLines = getAllStationsWithLines(location, maxResult);
+			List<ASubwayStation> stationsWithOtherLines = getAllStationsWithLines(context, location, maxResult);
 			// order the stations list by distance (closest first)
-			Collections.sort(stationsWithOtherLines, new SubwayStationDistancesComparator());
+			Collections.sort(stationsWithOtherLines, new POI.POIDistanceComparator());
 			result.setPoiList(stationsWithOtherLines);
 		}
 		return result;
@@ -89,37 +90,60 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 	 * @param currentLocation the location
 	 * @return the list of localized stations
 	 */
-	private List<ASubwayStation> getAllStationsWithLines(Location currentLocation, int maxResult) {
+	public static List<ASubwayStation> getAllStationsWithLines(Context context, Location location, int maxResult) {
 		Map<String, ASubwayStation> aresult = new HashMap<String, ASubwayStation>();
 		// try the short way with location hack
-		List<Pair<SubwayLine, SubwayStation>> subwayStationsWithLoc = StmManager.findAllSubwayStationsAndLinesLocationList(context.getContentResolver(),
-				currentLocation);
+		List<Pair<SubwayLine, SubwayStation>> stationsWithLoc = StmManager.findAllSubwayStationsAndLinesLocationList(context, location.getLatitude(),
+				location.getLongitude());
 		// MyLog.d(TAG, "1st try: " + Utils.getCollectionSize(subwayStationsWithLoc));
-		if (Utils.getCollectionSize(subwayStationsWithLoc) == 0) { // if no value return
+		if (Utils.getCollectionSize(stationsWithLoc) == 0) { // if no value return
 			// do it the hard long way
-			subwayStationsWithLoc = StmManager.findSubwayStationsAndLinesList(context.getContentResolver());
+			stationsWithLoc = StmManager.findSubwayStationsAndLinesList(context);
 		}
 		// FOR each subway line + station combinations DO
-		for (Pair<SubwayLine, SubwayStation> lineStation : subwayStationsWithLoc) {
+		for (Pair<SubwayLine, SubwayStation> lineStation : stationsWithLoc) {
 			// read subway line number
 			SubwayLine subwayLine = lineStation.first;
 			// read subway station ID
 			SubwayStation subwayStation = lineStation.second;
 			// IF this is the 1st line of the station DO
 			if (!aresult.containsKey(subwayStation.getId())) {
-				ASubwayStation station = new ASubwayStation(subwayStation);
-				aresult.put(subwayStation.getId(), station);
+				aresult.put(subwayStation.getId(), new ASubwayStation(subwayStation));
 			}
 			// add the subway line number
 			aresult.get(subwayStation.getId()).addOtherLineId(subwayLine.getNumber());
 		}
 		List<ASubwayStation> lresult = new ArrayList<ASubwayStation>(aresult.values());
-		if (maxResult > 0) {
-			maxResult = aresult.size() < maxResult ? aresult.size() : maxResult; // use size if max result too big
+		if (maxResult > 0 && aresult.size() > maxResult) {
 			lresult = lresult.subList(0, maxResult);
 		}
-		LocationUtils.updateDistance(context, lresult, currentLocation);
+		LocationUtils.updateDistanceWithString(context, lresult, location);
 		return lresult;
+	}
+
+	public static Collection<ASubwayStation> getAllStationsWithLines(Context context, double lat, double lng) {
+		// try the short way with location hack
+		List<Pair<SubwayLine, SubwayStation>> stationsWithLoc = StmManager.findAllSubwayStationsAndLinesLocationList(context, lat, lng);
+		// MyLog.d(TAG, "1st try: " + Utils.getCollectionSize(subwayStationsWithLoc));
+		if (Utils.getCollectionSize(stationsWithLoc) == 0) { // if no value return
+			// do it the hard long way
+			stationsWithLoc = StmManager.findSubwayStationsAndLinesList(context);
+		}
+		Map<String, ASubwayStation> aresult = new HashMap<String, ASubwayStation>();
+		// FOR each subway line + station combinations DO
+		for (Pair<SubwayLine, SubwayStation> lineStation : stationsWithLoc) {
+			// read subway line number
+			SubwayLine subwayLine = lineStation.first;
+			// read subway station ID
+			SubwayStation subwayStation = lineStation.second;
+			// IF this is the 1st line of the station DO
+			if (!aresult.containsKey(subwayStation.getId())) {
+				aresult.put(subwayStation.getId(), new ASubwayStation(subwayStation));
+			}
+			// add the subway line number
+			aresult.get(subwayStation.getId()).addOtherLineId(subwayLine.getNumber());
+		}
+		return aresult.values();
 	}
 
 	@Override
@@ -130,6 +154,8 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 		ClosestSubwayStationsFinderListener fromWR = this.from == null ? null : this.from.get();
 		if (fromWR != null) {
 			fromWR.onClosestStationsProgress(values[0]);
+		} else {
+			MyLog.d(TAG, "listener null!");
 		}
 		super.onProgressUpdate(values);
 	}
@@ -140,6 +166,8 @@ public class ClosestSubwayStationsFinderTask extends AsyncTask<Location, String,
 		ClosestSubwayStationsFinderListener fromWR = this.from == null ? null : this.from.get();
 		if (fromWR != null) {
 			fromWR.onClosestStationsDone(result);
+		} else {
+			MyLog.d(TAG, "listener null!");
 		}
 		super.onPostExecute(result);
 	}

@@ -7,9 +7,10 @@ import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.PrefetchingUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.BusStopHours;
+import org.montrealtransit.android.data.RouteTripStop;
+import org.montrealtransit.android.data.TripStop;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore.Cache;
-import org.montrealtransit.android.provider.StmStore.BusStop;
 import org.montrealtransit.android.services.nextstop.IStmInfoTask;
 import org.montrealtransit.android.services.nextstop.NextStopListener;
 
@@ -26,7 +27,7 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 
 	private Context context;
 
-	private BusStop busStop;
+	private RouteTripStop routeTripStop;
 
 	private NextStopListener from;
 
@@ -36,10 +37,10 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 
 	private IStmInfoTask wwwTask;
 
-	public LoadNextBusStopIntoCacheTask(Context context, BusStop busStop, NextStopListener from, boolean prefetch, boolean force) {
+	public LoadNextBusStopIntoCacheTask(Context context, RouteTripStop routeTripStop, NextStopListener from, boolean prefetch, boolean force) {
 		MyLog.d(TAG, "LoadNextBusStopIntoCacheTask()");
 		this.context = context;
-		this.busStop = busStop;
+		this.routeTripStop = routeTripStop;
 		this.from = from;
 		this.prefetch = prefetch;
 		this.force = force;
@@ -60,18 +61,18 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 			}
 		}
 		if (!force && recentDataAlreadyInCache()) {
-			MyLog.d(TAG, "bus stop already in cache (%s)", this.busStop.getUID());
+			MyLog.d(TAG, "bus stop already in cache (%s)", this.routeTripStop.getUID());
 			return null;
 		}
-		MyLog.d(TAG, "Loading bus stop %s data...", this.busStop.getUID());
-		this.wwwTask = new IStmInfoTask(this.context, this, this.busStop);
+		MyLog.d(TAG, "Loading bus stop %s data...", this.routeTripStop.getUID());
+		this.wwwTask = new IStmInfoTask(this.context, this, this.routeTripStop);
 		this.wwwTask.execute();
 		return null;
 	}
 
 	private boolean recentDataAlreadyInCache() {
 		// load cache from database
-		Cache cache = DataManager.findCache(context.getContentResolver(), Cache.KEY_TYPE_VALUE_BUS_STOP, busStop.getUID());
+		Cache cache = DataManager.findCache(context.getContentResolver(), Cache.KEY_TYPE_VALUE_BUS_STOP, routeTripStop.getUID());
 		// compute the too old date
 		int tooOld = Utils.currentTimeSec() - BusUtils.CACHE_NOT_USEFUL_IN_SEC;
 		// IF the cache is too old DO
@@ -120,7 +121,7 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 						// MyLog.d(TAG, "onNextStopsLoaded() > %s result hours to store in cache.", (busStopHours == null ? null :
 						// busStopHours.getSHours().size()));
 						if (busStopHours != null && busStopHours.getSHours().size() > 0) {
-							saveToCache(LoadNextBusStopIntoCacheTask.this.busStop.getCode(), lineNumber, busStopHours);
+							saveToCache(LoadNextBusStopIntoCacheTask.this.routeTripStop.stop.code, lineNumber, busStopHours);
 						}
 					}
 				}
@@ -132,9 +133,9 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 
 	private void saveToCache(String stopCode, String lineNumber, BusStopHours busStopHours) {
 		// MyLog.v(TAG, "saveToCache(%s,%s)", stopCode, lineNumber);
-		Cache newCache = new Cache(Cache.KEY_TYPE_VALUE_BUS_STOP, BusStop.getUID(stopCode, lineNumber), busStopHours.serialized());
+		Cache newCache = new Cache(Cache.KEY_TYPE_VALUE_BUS_STOP, TripStop.getUID(stopCode, lineNumber) /*BusStop.getUID(stopCode, lineNumber)*/, busStopHours.serialized());
 		// remove existing cache for this bus stop
-		DataManager.deleteCacheIfExist(context.getContentResolver(), Cache.KEY_TYPE_VALUE_BUS_STOP, BusStop.getUID(stopCode, lineNumber));
+		DataManager.deleteCacheIfExist(context.getContentResolver(), Cache.KEY_TYPE_VALUE_BUS_STOP,  TripStop.getUID(stopCode, lineNumber)/* BusStop.getUID(stopCode, lineNumber)*/);
 		// save the new value to cache
 		DataManager.addCache(context.getContentResolver(), newCache);
 	}

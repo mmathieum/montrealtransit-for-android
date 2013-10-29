@@ -2,15 +2,13 @@ package org.montrealtransit.android.activity.v4;
 
 import java.util.List;
 
-import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.activity.BusLineInfo;
-import org.montrealtransit.android.api.SupportFactory;
+import org.montrealtransit.android.data.Route;
 import org.montrealtransit.android.dialog.BusLineSelectDirection;
-import org.montrealtransit.android.provider.StmManager;
-import org.montrealtransit.android.provider.StmStore.BusLine;
+import org.montrealtransit.android.provider.StmBusManager;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -96,7 +94,7 @@ public class BusTabLinesGridFragment extends Fragment {
 	/**
 	 * The list of the bus lines.
 	 */
-	protected List<BusLine> busLines;
+	protected List<Route> busLines;
 
 	private void showAll() {
 		GridView busLinesGrid = (GridView) getLastView().findViewById(R.id.bus_lines);
@@ -106,11 +104,8 @@ public class BusTabLinesGridFragment extends Fragment {
 				MyLog.v(TAG, "onItemClick(%s, %s,%s,%s)", parent.getId(), view.getId(), position, id);
 				if (BusTabLinesGridFragment.this.busLines != null && position < BusTabLinesGridFragment.this.busLines.size()
 						&& BusTabLinesGridFragment.this.busLines.get(position) != null) {
-					BusLine selectedLine = BusTabLinesGridFragment.this.busLines.get(position);
-					Intent intent = new Intent(BusTabLinesGridFragment.this.getLastActivity(), SupportFactory.get().getBusLineInfoClass());
-					intent.putExtra(BusLineInfo.EXTRA_LINE_NUMBER, selectedLine.getNumber());
-					intent.putExtra(BusLineInfo.EXTRA_LINE_NAME, selectedLine.getName());
-					intent.putExtra(BusLineInfo.EXTRA_LINE_TYPE, selectedLine.getType());
+					Route selectedLine = BusTabLinesGridFragment.this.busLines.get(position);
+					Intent intent = BusLineInfo.newInstance(BusTabLinesGridFragment.this.getLastActivity(), selectedLine, null, null);
 					startActivity(intent);
 				}
 			}
@@ -121,9 +116,8 @@ public class BusTabLinesGridFragment extends Fragment {
 				MyLog.v(TAG, "onItemClick(%s, %s,%s,%s)", parent.getId(), view.getId(), position, id);
 				if (BusTabLinesGridFragment.this.busLines != null && position < BusTabLinesGridFragment.this.busLines.size()
 						&& BusTabLinesGridFragment.this.busLines.get(position) != null) {
-					BusLine selectedLine = BusTabLinesGridFragment.this.busLines.get(position);
-					new BusLineSelectDirection(BusTabLinesGridFragment.this.getLastActivity(), selectedLine.getNumber(), selectedLine.getName(), selectedLine
-							.getType()).showDialog();
+					Route selectedLine = BusTabLinesGridFragment.this.busLines.get(position);
+					new BusLineSelectDirection(BusTabLinesGridFragment.this.getLastActivity(), selectedLine).showDialog();
 					return true;
 				}
 				return false;
@@ -142,14 +136,14 @@ public class BusTabLinesGridFragment extends Fragment {
 	 */
 	private void refreshBusLinesFromDB() {
 		MyLog.v(TAG, "refreshBusLinesFromDB()");
-		new AsyncTask<Void, Void, List<BusLine>>() {
+		new AsyncTask<Void, Void, List<Route>>() {
 			@Override
-			protected List<BusLine> doInBackground(Void... params) {
-				return StmManager.findAllBusLinesList(getLastActivity().getContentResolver());
+			protected List<Route> doInBackground(Void... params) {
+				return StmBusManager.findAllRoutesList(getLastActivity());
 			}
 
 			@Override
-			protected void onPostExecute(List<BusLine> result) {
+			protected void onPostExecute(List<Route> result) {
 				BusTabLinesGridFragment.this.busLines = result;
 				View view = BusTabLinesGridFragment.this.getLastView();
 				if (view == null) { // should never happen
@@ -170,7 +164,7 @@ public class BusTabLinesGridFragment extends Fragment {
 	/**
 	 * A custom array adapter with custom {@link BusLineArrayAdapter#getView(int, View, ViewGroup)}
 	 */
-	private class BusLineArrayAdapter extends ArrayAdapter<BusLine> {
+	private class BusLineArrayAdapter extends ArrayAdapter<Route> {
 
 		/**
 		 * The layout inflater.
@@ -198,12 +192,12 @@ public class BusTabLinesGridFragment extends Fragment {
 		}
 
 		@Override
-		public int getPosition(BusLine item) {
+		public int getPosition(Route item) {
 			return BusTabLinesGridFragment.this.busLines.indexOf(item);
 		}
 
 		@Override
-		public BusLine getItem(int position) {
+		public Route getItem(int position) {
 			return BusTabLinesGridFragment.this.busLines.get(position);
 		}
 
@@ -219,50 +213,15 @@ public class BusTabLinesGridFragment extends Fragment {
 			} else {
 				holder = (ViewHolder) convertView.getTag();
 			}
-			BusLine busLine = getItem(position);
+			Route busLine = getItem(position);
 			if (busLine != null) {
 				// bus line number
-				holder.lineNumberTv.setText(busLine.getNumber());
+				holder.lineNumberTv.setText(busLine.shortName);
 				// bus line color
-				holder.lineNumberTv.setBackgroundColor(BusUtils.getBusLineTypeBgColor(busLine.getType(), busLine.getNumber()));
+				holder.lineNumberTv.setBackgroundColor(Utils.parseColor(busLine.color));
+				holder.lineNumberTv.setTextColor(Utils.parseColor(busLine.textColor));
 			}
 			return convertView;
 		}
-	}
-
-	@Override
-	public void onStart() {
-		MyLog.v(TAG, "onStart()");
-		super.onStart();
-	}
-
-	@Override
-	public void onResume() {
-		MyLog.v(TAG, "onResume()");
-		super.onResume();
-	}
-
-	@Override
-	public void onPause() {
-		MyLog.v(TAG, "onPause()");
-		super.onPause();
-	}
-
-	@Override
-	public void onStop() {
-		MyLog.v(TAG, "onStop()");
-		super.onStop();
-	}
-
-	@Override
-	public void onDestroy() {
-		MyLog.v(TAG, "onDestroy()");
-		super.onDestroy();
-	}
-
-	@Override
-	public void onDetach() {
-		MyLog.v(TAG, "onDetach()");
-		super.onDetach();
 	}
 }

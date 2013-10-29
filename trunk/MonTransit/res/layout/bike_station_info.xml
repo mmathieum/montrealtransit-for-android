@@ -4,7 +4,7 @@
     android:layout_height="fill_parent" >
     <!-- ADs -->
     <include
-        android:id="@id/ad_layout"
+        android:id="@+id/ad_layout"
         layout="@layout/ad_layout" />
     <LinearLayout
         android:layout_width="fill_parent"
@@ -190,37 +190,32 @@
                 </RelativeLayout>
                 <!-- OTHER BIKE STATIONS -->
                 <RelativeLayout
-                    android:id="@+id/closest_bike_stations"
+                    android:id="@+id/nearby_title"
                     android:layout_width="fill_parent"
                     android:layout_height="25dip"
                     android:background="@drawable/dark_header_dither"
-                    android:visibility="visible" >
+                    android:visibility="gone" >
                     <ImageView
-                        android:id="@+id/bike_station_logo"
+                        android:id="@+id/nearby_title_logo"
                         android:layout_width="wrap_content"
                         android:layout_height="fill_parent"
                         android:layout_alignParentLeft="true"
                         android:focusable="false"
                         android:gravity="center_vertical"
-                        android:src="@drawable/ic_btn_bike" />
+                        android:src="@drawable/ic_btn_location" />
                     <TextView
-                        android:id="@+id/bus_line_text"
+                        android:id="@+id/nearby_title_text"
                         android:layout_width="wrap_content"
                         android:layout_height="fill_parent"
-                        android:layout_toRightOf="@id/bike_station_logo"
+                        android:layout_toRightOf="@id/nearby_title_logo"
                         android:gravity="center_vertical"
-                        android:text="@string/closest_bike_stations"
+                        android:text="@string/nearby"
                         android:textColor="?android:attr/textColorSecondary"
                         android:textSize="14sp"
                         android:textStyle="bold" />
                 </RelativeLayout>
-                <include
-                    android:id="@+id/closest_stations_loading"
-                    android:layout_width="fill_parent"
-                    android:layout_height="?android:attr/listPreferredItemHeight"
-                    layout="@layout/loading_small_layout" />
                 <LinearLayout
-                    android:id="@+id/closest_stations"
+                    android:id="@+id/nearby_list"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"

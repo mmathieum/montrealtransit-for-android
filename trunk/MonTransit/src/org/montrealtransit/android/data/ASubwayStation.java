@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.montrealtransit.android.LocationUtils.POI;
 import org.montrealtransit.android.provider.StmStore.SubwayStation;
 
 /**
@@ -57,7 +56,7 @@ public class ASubwayStation extends SubwayStation implements POI {
 	/**
 	 * @return the current subway line ID.
 	 */
-	public int getLineId() {
+	public Integer getLineId() {
 		return lineId;
 	}
 
@@ -115,5 +114,15 @@ public class ASubwayStation extends SubwayStation implements POI {
 	 */
 	public float getDistance() {
 		return distance;
+	}
+
+	@Override
+	public String getUID() {
+		return getId();
+	}
+
+	@Override
+	public int getType() {
+		return POI.ITEM_VIEW_TYPE_SUBWAY;
 	}
 }

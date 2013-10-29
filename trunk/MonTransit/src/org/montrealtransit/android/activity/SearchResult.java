@@ -1,34 +1,36 @@
 package org.montrealtransit.android.activity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.montrealtransit.android.AnalyticsUtils;
-import org.montrealtransit.android.BusUtils;
+import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
-import org.montrealtransit.android.api.SupportFactory;
-import org.montrealtransit.android.provider.StmManager;
-import org.montrealtransit.android.provider.StmStore;
-import org.montrealtransit.android.provider.StmStore.BusStop;
+import org.montrealtransit.android.data.POIArrayAdapter;
+import org.montrealtransit.android.data.RouteTripStop;
+import org.montrealtransit.android.provider.DataManager;
+import org.montrealtransit.android.provider.DataStore;
+import org.montrealtransit.android.provider.DataStore.Fav;
+import org.montrealtransit.android.provider.StmBusManager;
 
 import android.app.ListActivity;
 import android.app.SearchManager;
 import android.content.Intent;
-import android.database.Cursor;
+import android.location.Location;
+import android.location.LocationListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.RelativeLayout;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 /**
  * This activity shows the search results.
  * @author Mathieu Méa
  */
-public class SearchResult extends ListActivity {
+public class SearchResult extends ListActivity implements LocationListener {
 
 	/**
 	 * The log tag.
@@ -39,11 +41,6 @@ public class SearchResult extends ListActivity {
 	 */
 	private static final String TRACKER_TAG = "/SearchResult";
 
-	/**
-	 * The bus line number index in the the view.
-	 */
-	private static final int LINE_NUMBER_VIEW_INDEX = 1;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		MyLog.v(TAG, "onCreate()");
@@ -51,19 +48,11 @@ public class SearchResult extends ListActivity {
 		// set the UI
 		setContentView(R.layout.search_result);
 
-		getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			@Override
-			public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-				MyLog.v(TAG, "onItemClick(%s, %s, %s, %s)", l.getId(), v.getId(), position, id);
-				if (id > 0) {
-					Intent intent = new Intent(SearchResult.this, BusStopInfo.class);
-					TextView lineNumberTextView = (TextView) ((RelativeLayout) v).getChildAt(LINE_NUMBER_VIEW_INDEX);
-					intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, lineNumberTextView.getText().toString());
-					intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, String.valueOf(id));
-					startActivity(intent);
-				}
-			}
-		});
+		this.adapter = new POIArrayAdapter(this);
+		getListView().setOnItemClickListener(this.adapter);
+		getListView().setOnScrollListener(this.adapter);
+		getListView().setAdapter(this.adapter);
+
 		processIntent();
 	}
 
@@ -75,22 +64,17 @@ public class SearchResult extends ListActivity {
 		super.onNewIntent(intent);
 	}
 
-	@Override
-	protected void onResume() {
-		MyLog.v(TAG, "onResume()");
-		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
-		super.onResume();
-	}
-
 	/**
 	 * Process the intent of the activity.
 	 */
 	private void processIntent() {
+		// MyLog.v(TAG, "processIntent()");
 		if (getIntent() != null) {
 			if (Intent.ACTION_VIEW.equals(getIntent().getAction())) {
 				// MyLog.d(TAG, "ACTION_VIEW");
 				// from click on search results
-				showBusStop(getIntent().getData().getPathSegments().get(0));
+				String uid = getIntent().getData().getPathSegments().get(0);
+				startActivity(BusStopInfo.newInstance(this, RouteTripStop.getStopCodeFromUID(uid), RouteTripStop.getRouteShortNameFromUID(uid)));
 				finish();
 			} else if (Intent.ACTION_SEARCH.equals(getIntent().getAction())) {
 				// MyLog.d(TAG, "ACTION_SEARCH");
@@ -98,74 +82,80 @@ public class SearchResult extends ListActivity {
 				String searchTerm = getIntent().getStringExtra(SearchManager.QUERY);
 				// MyLog.d(TAG, "search: " + searchTerm);
 				setTitle(getString(R.string.search_result_for_and_keyword, searchTerm));
-				// setListAdapter(getAdapter(searchTerm));
-				getListView().setAdapter(null);
+				((TextView) findViewById(R.id.main_msg)).setText(R.string.please_wait);
+				this.adapter.setPois(null);
 				new LoadSearchResultTask().execute(searchTerm);
 			}
 		}
 	}
 
 	/**
+	 * The bus stops list adapter.
+	 */
+	private POIArrayAdapter adapter;
+
+	/**
+	 * Is the location updates enabled?
+	 */
+	private boolean locationUpdatesEnabled = false;
+	/**
+	 * Store the device location.
+	 */
+	private Location location;
+	/**
+	 * True if the activity has the focus, false otherwise.
+	 */
+	private boolean hasFocus = true;
+	private boolean paused = false;
+
+	/**
 	 * This task create load the search results cursor.
 	 * @author Mathieu Méa
 	 */
-	private class LoadSearchResultTask extends AsyncTask<String, String, Cursor> {
-		@Override
-		protected Cursor doInBackground(String... arg0) {
-			return StmManager.searchResult(SearchResult.this.getContentResolver(), arg0[0]);
-		}
+	private class LoadSearchResultTask extends AsyncTask<String, String, Void> {
 
 		@Override
-		protected void onPostExecute(Cursor result) {
-			setAdapter(result);
-			super.onPostExecute(result);
-		}
-
-	}
-
-	/**
-	 * Set the list view adapter.
-	 * @param cursor the cursor used to create the adapter
-	 */
-	private void setAdapter(Cursor cursor) {
-		String[] from = new String[] { StmStore.BusStop.STOP_CODE, StmStore.BusStop.STOP_PLACE, StmStore.BusStop.STOP_LINE_NUMBER, StmStore.BusStop.LINE_NAME,
-				StmStore.BusStop.STOP_DIRECTION_ID };
-		int[] to = new int[] { R.id.stop_code, R.id.label, R.id.line_number, R.id.line_name, R.id.line_direction };
-		SimpleCursorAdapter adapter = SupportFactory.get().newSimpleCursorAdapter(this, R.layout.search_result_bus_stop_item, cursor, from, to, 0);
-		adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
-			@Override
-			public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-				switch (view.getId()) {
-				case R.id.line_direction:
-					String simpleDirectionId = cursor.getString(columnIndex);
-					((TextView) view).setText(BusUtils.getBusLineSimpleDirection(simpleDirectionId));
-					return true;
-				case R.id.label:
-					String busStopPlace = cursor.getString(cursor.getColumnIndex(StmStore.BusStop.STOP_PLACE));
-					((TextView) view).setText(BusUtils.cleanBusStopPlace(busStopPlace));
-					return true;
-				default:
-					return false;
-				}
+		protected Void doInBackground(String... arg0) {
+			// MyLog.v(TAG, "LoadSearchResultTask>doInBackground()");
+			final String searchTerm = arg0[0];
+			List<RouteTripStop> searchRouteTripStopList = StmBusManager.searchRouteTripStopList(SearchResult.this, searchTerm);
+			if (searchRouteTripStopList == null) {
+				searchRouteTripStopList = new ArrayList<RouteTripStop>(); // null == loading
 			}
-		});
-		getListView().setAdapter(adapter);
+			SearchResult.this.adapter.setPois(searchRouteTripStopList);
+			SearchResult.this.adapter.updateDistancesNow(getLocation());
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			// MyLog.v(TAG, "LoadSearchResultTask>onPostExecute()");
+			if (SearchResult.this.adapter.getPois() == null) {
+				((TextView) findViewById(R.id.main_msg)).setText(R.string.please_wait);
+			} else {
+				((TextView) findViewById(R.id.main_msg)).setText(R.string.search_no_result);
+			}
+			refreshFavoriteUIDsFromDB();
+			SearchResult.this.adapter.notifyDataSetChanged(true);
+		}
+
 	}
 
 	/**
-	 * Launch the view bus stop info activity.
-	 * @param selectedSearchResultId the selected search result
+	 * Find favorites bus stops UIDs.
 	 */
-	private void showBusStop(String selectedSearchResultId) {
-		MyLog.v(TAG, "showBusStop(%s)", selectedSearchResultId);
-		String busStopCode = BusStop.getCodeFromUID(selectedSearchResultId);
-		String busLineNumber = BusStop.getLineNumberFromUID(selectedSearchResultId);
-		if (busStopCode != null && busLineNumber != null) {
-			Intent intent = new Intent(this, BusStopInfo.class);
-			intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, busLineNumber);
-			intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, busStopCode);
-			startActivity(intent);
-		}
+	private void refreshFavoriteUIDsFromDB() {
+		new AsyncTask<Void, Void, List<Fav>>() {
+			@Override
+			protected List<Fav> doInBackground(Void... params) {
+				return DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
+			}
+
+			@Override
+			protected void onPostExecute(List<Fav> result) {
+				SearchResult.this.adapter.setFavs(result);
+			};
+		}.execute();
 	}
 
 	@Override
@@ -177,4 +167,133 @@ public class SearchResult extends ListActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		return MenuUtils.handleCommonMenuActions(this, item);
 	}
+
+	@Override
+	public void onProviderEnabled(String provider) {
+		// MyLog.v(TAG, "onProviderEnabled(%s)", provider);
+	}
+
+	@Override
+	public void onProviderDisabled(String provider) {
+		// MyLog.v(TAG, "onProviderDisabled(%s)", provider);
+	}
+
+	@Override
+	public void onStatusChanged(String provider, int status, Bundle extras) {
+		// MyLog.v(TAG, "onStatusChanged(%s, %s)", provider, status);
+	}
+
+	@Override
+	public void onPause() {
+		MyLog.v(TAG, "onPause()");
+		this.paused = true;
+		this.locationUpdatesEnabled = LocationUtils.disableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled);
+		this.adapter.onPause();
+		super.onPause();
+	}
+
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		MyLog.v(TAG, "onWindowFocusChanged(%s)", hasFocus);
+		// IF the activity just regained the focus DO
+		if (!this.hasFocus && hasFocus) {
+			onResumeWithFocus();
+		}
+		this.hasFocus = hasFocus;
+	}
+
+	@Override
+	protected void onResume() {
+		MyLog.v(TAG, "onResume()");
+		this.paused = false;
+		// IF the activity has the focus DO
+		if (this.hasFocus) {
+			onResumeWithFocus();
+		}
+		super.onResume();
+	}
+
+	/**
+	 * {@link #onResume()} when activity has the focus
+	 */
+	public void onResumeWithFocus() {
+		MyLog.v(TAG, "onResumeWithFocus()");
+		// IF location updates should be enabled DO
+		if (!this.locationUpdatesEnabled) {
+			new AsyncTask<Void, Void, Location>() {
+				@Override
+				protected Location doInBackground(Void... params) {
+					// MyLog.v(TAG, "onResumeWithFocus() > doInBackground()");
+					return LocationUtils.getBestLastKnownLocation(SearchResult.this);
+				}
+
+				@Override
+				protected void onPostExecute(Location result) {
+					// MyLog.v(TAG, "onResumeWithFocus() > onPostExecute(%s)", result);
+					// IF there is a valid last know location DO
+					if (result != null) {
+						// set the new distance
+						setLocation(result);
+					}
+					// re-enable
+					SearchResult.this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(SearchResult.this, SearchResult.this,
+							SearchResult.this.locationUpdatesEnabled, SearchResult.this.paused);
+
+				};
+
+			}.execute();
+		}
+		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
+		refreshFavoriteUIDsFromDB();
+	}
+
+	/**
+	 * @return the location
+	 */
+	public Location getLocation() {
+		// MyLog.v(TAG, "getLocation()");
+		if (this.location == null) {
+			new AsyncTask<Void, Void, Location>() {
+				@Override
+				protected Location doInBackground(Void... params) {
+					// MyLog.v(TAG, "getLocation() > doInBackground()");
+					return LocationUtils.getBestLastKnownLocation(SearchResult.this);
+				}
+
+				@Override
+				protected void onPostExecute(Location result) {
+					// MyLog.v(TAG, "getLocation() > onPostExecute(%s)", result);
+					if (result != null) {
+						setLocation(result);
+					}
+					// enable location updates if necessary
+					SearchResult.this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(SearchResult.this, SearchResult.this,
+							SearchResult.this.locationUpdatesEnabled, SearchResult.this.paused);
+				}
+
+			}.execute();
+		}
+		return this.location;
+	}
+
+	/**
+	 * @param newLocation the new location
+	 */
+	private void setLocation(Location newLocation) {
+		MyLog.v(TAG, "setLocation()");
+		if (newLocation != null) {
+			// MyLog.d(TAG, "new location: %s.", LocationUtils.locationToString(newLocation));
+			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
+				this.location = newLocation;
+				this.adapter.setLocation(this.location);
+			}
+		}
+	}
+
+	@Override
+	public void onLocationChanged(Location location) {
+		MyLog.v(TAG, "onLocationChanged()");
+		this.setLocation(location);
+	}
+
 }

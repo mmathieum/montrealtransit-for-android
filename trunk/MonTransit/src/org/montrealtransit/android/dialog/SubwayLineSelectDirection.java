@@ -51,7 +51,7 @@ public class SubwayLineSelectDirection implements View.OnClickListener, SubwayLi
 		MyLog.v(TAG, "SubwayLineSelectDirection(%s)", subwayLineId);
 		this.context = context;
 		this.listener = this;
-		this.subwayLine = StmManager.findSubwayLine(context.getContentResolver(), subwayLineId);
+		this.subwayLine = StmManager.findSubwayLine(context, subwayLineId);
 	}
 
 	/**
@@ -62,7 +62,7 @@ public class SubwayLineSelectDirection implements View.OnClickListener, SubwayLi
 	 */
 	public SubwayLineSelectDirection(Context context, int subwayLineId, SubwayLineSelectDirectionDialogListener listener) {
 		MyLog.v(TAG, "SubwayLineSelectDirection(%s, listener)", subwayLineId);
-		this.subwayLine = StmManager.findSubwayLine(context.getContentResolver(), subwayLineId);
+		this.subwayLine = StmManager.findSubwayLine(context, subwayLineId);
 		this.context = context;
 		this.listener = listener;
 	}
@@ -118,11 +118,11 @@ public class SubwayLineSelectDirection implements View.OnClickListener, SubwayLi
 	 */
 	private String[] getItems() {
 		MyLog.v(TAG, "getItems()");
-		StmStore.SubwayStation firstSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(this.context.getContentResolver(),
-				this.subwayLine.getNumber(), StmStore.SubwayStation.NATURAL_SORT_ORDER);
+		StmStore.SubwayStation firstSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(this.context, this.subwayLine.getNumber(),
+				StmStore.SubwayStation.NATURAL_SORT_ORDER);
 		// MyTrace.d(TAG, "First station: " + firstSubwayStationDirection.getName());
-		StmStore.SubwayStation lastSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(this.context.getContentResolver(),
-				this.subwayLine.getNumber(), StmStore.SubwayStation.NATURAL_SORT_ORDER_DESC);
+		StmStore.SubwayStation lastSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(this.context, this.subwayLine.getNumber(),
+				StmStore.SubwayStation.NATURAL_SORT_ORDER_DESC);
 		// MyTrace.d(TAG, "Last station: " + lastSubwayStationDirection.getName());
 
 		String[] items = new String[2];

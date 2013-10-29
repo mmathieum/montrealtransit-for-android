@@ -6,6 +6,7 @@ import java.util.List;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.Utils;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
@@ -48,11 +49,11 @@ public class DataStore {
 		/**
 		 * The MIME type of {@link #CONTENT_URI} providing a directory of favorite entries.
 		 */
-		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd." + AUTHORITY + ".provider.favs";
+		public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd." + AUTHORITY + ".provider.favs";
 		/**
 		 * The MIME type of a {@link #CONTENT_URI} sub-directory of a single favorite entry.
 		 */
-		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY + ".provider.favs";
+		public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd." + AUTHORITY + ".provider.favs";
 		/**
 		 * The default sort order for favorite.
 		 */
@@ -311,11 +312,11 @@ public class DataStore {
 		/**
 		 * The MIME type of {@link #CONTENT_URI} providing a directory of history entries.
 		 */
-		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd." + AUTHORITY + ".provider.history";
+		public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd." + AUTHORITY + ".provider.history";
 		/**
 		 * The MIME type of a {@link #CONTENT_URI} sub-directory of a single history entry.
 		 */
-		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY + ".provider.history";
+		public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd." + AUTHORITY + ".provider.history";
 		/**
 		 * The default order for history.
 		 */
@@ -404,11 +405,11 @@ public class DataStore {
 		/**
 		 * The MIME type of {@link #CONTENT_URI} providing a directory of Twitter API entries.
 		 */
-		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd." + AUTHORITY + ".provider.twitterapi";
+		public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd." + AUTHORITY + ".provider.twitterapi";
 		/**
 		 * The MIME type of a {@link #CONTENT_URI} sub-directory of a single Twitter API entry.
 		 */
-		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY + ".provider.twitterapi";
+		public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd." + AUTHORITY + ".provider.twitterapi";
 		/**
 		 * The default order for Twitter API.
 		 */
@@ -504,11 +505,11 @@ public class DataStore {
 		/**
 		 * The MIME type of {@link #CONTENT_URI} providing a directory of service status entries.
 		 */
-		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd." + AUTHORITY + ".provider.servicestatus";
+		public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd." + AUTHORITY + ".provider.servicestatus";
 		/**
 		 * The MIME type of a {@link #CONTENT_URI} sub-directory of a single service status entry.
 		 */
-		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY + ".provider.servicestatus";
+		public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd." + AUTHORITY + ".provider.servicestatus";
 		/**
 		 * The default order for service status.
 		 */
@@ -741,11 +742,11 @@ public class DataStore {
 		/**
 		 * The MIME type of {@link #CONTENT_URI} providing a directory of cache entries.
 		 */
-		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd." + AUTHORITY + ".provider.cache";
+		public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd." + AUTHORITY + ".provider.cache";
 		/**
 		 * The MIME type of a {@link #CONTENT_URI} sub-directory of a single cache entry.
 		 */
-		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY + ".provider.cache";
+		public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd." + AUTHORITY + ".provider.cache";
 		/**
 		 * The default sort order for cache.
 		 */

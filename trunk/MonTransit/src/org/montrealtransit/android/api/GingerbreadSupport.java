@@ -44,7 +44,7 @@ public class GingerbreadSupport extends FroyoSupport {
 
 	@Override
 	public int getNbClosestPOIDisplay() {
-		return 100;
+		return super.getNbClosestPOIDisplay(); //100;
 	}
 
 	@Override

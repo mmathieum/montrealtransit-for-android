@@ -28,13 +28,6 @@ public class DonutSupport extends CupcakeSupport {
 	}
 
 	@Override
-	public boolean isScreenHeightSmall(Configuration configuration) {
-		final int sizeMask = getScreenLayoutSize(configuration);
-		final boolean smallScreen = sizeMask == Configuration.SCREENLAYOUT_SIZE_SMALL || sizeMask == Configuration.SCREENLAYOUT_SIZE_NORMAL;
-		return configuration.orientation == Configuration.ORIENTATION_LANDSCAPE && smallScreen;
-	}
-
-	@Override
 	public Class<?> getBusLineInfoClass() {
 		return org.montrealtransit.android.activity.v4.BusLineInfo.class;
 	}

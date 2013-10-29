@@ -4,7 +4,7 @@
     android:layout_height="fill_parent" >
     <!-- ADs -->
     <include
-        android:id="@id/ad_layout"
+        android:id="@+id/ad_layout"
         layout="@layout/ad_layout" />
     <LinearLayout
         android:layout_width="fill_parent"
@@ -16,9 +16,9 @@
             android:id="@+id/banner"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:minHeight="?android:attr/listPreferredItemHeight"
             android:background="@android:drawable/title_bar"
             android:gravity="fill_horizontal"
+            android:minHeight="?android:attr/listPreferredItemHeight"
             android:orientation="horizontal"
             android:paddingBottom="0dip"
             android:paddingLeft="0dip"
@@ -101,8 +101,8 @@
                 android:layout_alignParentBottom="false"
                 android:layout_alignWithParentIfMissing="true"
                 android:layout_below="@id/bus_stop_place"
-                android:gravity="top"
                 android:layout_toLeftOf="@id/star"
+                android:gravity="top"
                 android:text="@string/ellipsis"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:visibility="invisible" />
@@ -123,6 +123,7 @@
                 android:visibility="invisible" />
         </RelativeLayout>
         <ScrollView
+            android:id="@+id/scrollview"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" >
             <LinearLayout
@@ -193,8 +194,8 @@
                     android:id="@+id/next_stops_group"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:minHeight="?android:attr/listPreferredItemHeight"
                     android:gravity="bottom"
+                    android:minHeight="?android:attr/listPreferredItemHeight"
                     android:visibility="gone" >
                     <TextView
                         android:id="@+id/next_stops"
@@ -261,35 +262,38 @@
                         android:orientation="horizontal"
                         android:padding="2dip" />
                 </HorizontalScrollView>
-                <!-- SUBWAY STATION -->
+                <!-- NEARBY -->
                 <RelativeLayout
-                    android:id="@+id/subway_station"
+                    android:id="@+id/nearby_title"
                     android:layout_width="fill_parent"
                     android:layout_height="25dip"
                     android:background="@drawable/dark_header_dither"
-                    android:visibility="gone" >
+                    android:visibility="visible" >
                     <ImageView
-                        android:id="@+id/subway_station_logo"
+                        android:id="@+id/nearby_logo"
                         android:layout_width="wrap_content"
                         android:layout_height="fill_parent"
                         android:layout_alignParentLeft="true"
                         android:focusable="false"
                         android:gravity="center_vertical"
-                        android:src="@drawable/ic_btn_subway" />
+                        android:src="@drawable/ic_btn_location" />
                     <TextView
-                        android:id="@+id/subway_station_text"
+                        android:id="@+id/nearby_text"
                         android:layout_width="wrap_content"
                         android:layout_height="fill_parent"
-                        android:layout_toRightOf="@id/subway_station_logo"
+                        android:layout_toRightOf="@id/nearby_logo"
                         android:gravity="center_vertical"
-                        android:text="@string/subway_station"
+                        android:text="@string/nearby"
                         android:textColor="?android:attr/textColorSecondary"
                         android:textSize="14sp"
                         android:textStyle="bold" />
                 </RelativeLayout>
-                <include
-                    android:id="@+id/the_subway_station"
-                    layout="@layout/bus_stop_info_subway_line_list_item" />
+                <LinearLayout
+                    android:id="@+id/nearby_list"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone" />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>

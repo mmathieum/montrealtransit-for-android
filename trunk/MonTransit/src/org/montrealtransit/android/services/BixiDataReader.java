@@ -82,7 +82,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 	 * @param waitFor time to wait before actually refreshing the data (in seconds)
 	 */
 	public BixiDataReader(Context context, BixiDataReaderListener from, int waitFor) {
-		this.from = new WeakReference<BixiDataReader.BixiDataReaderListener>(from);
+		this.from = new WeakReference<BixiDataReaderListener>(from);
 		this.context = context;
 		this.waitFor = waitFor;
 	}
@@ -117,6 +117,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 				break; // found all
 			}
 		}
+		// MyLog.d(TAG, "doInBackground() > DONE"); 
 		return result;
 	}
 
@@ -303,6 +304,8 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 		BixiDataReaderListener fromWR = from == null ? null : from.get();
 		if (fromWR != null) {
 			fromWR.onBixiDataProgress(values[0]);
+		} else {
+			MyLog.d(TAG, "Listener null!");
 		}
 	}
 
@@ -312,6 +315,8 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 		BixiDataReaderListener fromWR = this.from == null ? null : this.from.get();
 		if (fromWR != null) {
 			fromWR.onBixiDataLoaded(newBikeStations, (newUpdate > lastUpdate));
+		} else {
+			MyLog.d(TAG, "Listener null!");
 		}
 	}
 
@@ -324,6 +329,8 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 		BixiDataReaderListener fromWR = this.from == null ? null : this.from.get();
 		if (fromWR != null) {
 			fromWR.onBixiDataProgress(values[0]);
+		} else {
+			MyLog.d(TAG, "Listener null!");
 		}
 	}
 

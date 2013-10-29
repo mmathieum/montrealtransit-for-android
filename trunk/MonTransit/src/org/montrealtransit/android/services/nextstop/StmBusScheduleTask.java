@@ -9,8 +9,8 @@ import java.util.Map;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.data.BusStopHours;
+import org.montrealtransit.android.data.RouteTripStop;
 import org.montrealtransit.android.provider.StmBusScheduleManager;
-import org.montrealtransit.android.provider.StmStore.BusStop;
 
 import android.content.Context;
 import android.os.Environment;
@@ -19,7 +19,7 @@ public class StmBusScheduleTask extends AbstractNextStopProvider {
 
 	public static final String TAG = StmBusScheduleTask.class.getSimpleName();
 
-	public StmBusScheduleTask(Context context, NextStopListener from, BusStop busStop) {
+	public StmBusScheduleTask(Context context, NextStopListener from, RouteTripStop busStop) {
 		super(context, from, busStop);
 	}
 
@@ -28,7 +28,7 @@ public class StmBusScheduleTask extends AbstractNextStopProvider {
 
 	@Override
 	protected Map<String, BusStopHours> doInBackground(Void... params) {
-		if (this.busStop == null) {
+		if (this.routeTripStop == null) {
 			return null;
 		}
 		if (!StmBusScheduleManager.isContentProviderAvailable(this.context)) {
@@ -53,14 +53,14 @@ public class StmBusScheduleTask extends AbstractNextStopProvider {
 			cal.add(Calendar.DATE, +1);
 			// MyLog.d(TAG, "timeYesterday: " + timeYesterday);
 			publishProgress(loadingFrom);
-			List<String> sHours = StmBusScheduleManager.findBusScheduleList(context.getContentResolver(), busStop.getLineNumber(), busStop.getCode(),
+			List<String> sHours = StmBusScheduleManager.findBusScheduleList(context.getContentResolver(), routeTripStop.route.shortName, routeTripStop.stop.code,
 					yesterday, timeYesterday);
 			// MyLog.d(TAG, "provider result: " + sHours);
 			publishProgress(processingData);
 			appendToBusStopHours(sHours, busStopHours);
 			// 2nd - check today schedule (provider date/time)
 			publishProgress(loadingFrom);
-			sHours = StmBusScheduleManager.findBusScheduleList(context.getContentResolver(), busStop.getLineNumber(), busStop.getCode(), null, null);
+			sHours = StmBusScheduleManager.findBusScheduleList(context.getContentResolver(), routeTripStop.route.shortName, routeTripStop.stop.code, null, null);
 			// MyLog.d(TAG, "provider result: " + sHours);
 			publishProgress(processingData);
 			appendToBusStopHours(sHours, busStopHours);
@@ -71,7 +71,7 @@ public class StmBusScheduleTask extends AbstractNextStopProvider {
 				cal.add(Calendar.DATE, -1);
 				String afterMidnight = "000000";
 				publishProgress(loadingFrom);
-				sHours = StmBusScheduleManager.findBusScheduleList(context.getContentResolver(), busStop.getLineNumber(), busStop.getCode(), tomorrow,
+				sHours = StmBusScheduleManager.findBusScheduleList(context.getContentResolver(), routeTripStop.route.shortName, routeTripStop.stop.code, tomorrow,
 						afterMidnight);
 				// MyLog.d(TAG, "provider result: " + sHours);
 				publishProgress(processingData);
@@ -81,7 +81,7 @@ public class StmBusScheduleTask extends AbstractNextStopProvider {
 			cal.add(Calendar.HOUR, -1);
 			String oneHourAgo = TIME_FORMAT.format(cal.getTime());
 			cal.add(Calendar.HOUR, +1);
-			sHours = StmBusScheduleManager.findBusScheduleList(context.getContentResolver(), busStop.getLineNumber(), busStop.getCode(), null, oneHourAgo);
+			sHours = StmBusScheduleManager.findBusScheduleList(context.getContentResolver(), routeTripStop.route.shortName, routeTripStop.stop.code, null, oneHourAgo);
 			// MyLog.d(TAG, "provider result: " + sHours);
 			if (sHours != null && sHours.size() > 0) {
 				for (int i = sHours.size() - 1; i >= 0; i--) {
@@ -94,12 +94,12 @@ public class StmBusScheduleTask extends AbstractNextStopProvider {
 					}
 				}
 			}
-			hours.put(busStop.getLineNumber(), busStopHours);
+			hours.put(routeTripStop.route.shortName, busStopHours);
 			if (hours.size() == 0) {
 				// no information
-				errorMessage = this.context.getString(R.string.bus_stop_no_info_and_source, this.busStop.getLineNumber(), getSourceName());
+				errorMessage = this.context.getString(R.string.bus_stop_no_info_and_source, this.routeTripStop.route.shortName, getSourceName());
 				publishProgress(errorMessage);
-				hours.put(this.busStop.getLineNumber(), new BusStopHours(getSourceName(), errorMessage));
+				hours.put(this.routeTripStop.route.shortName, new BusStopHours(getSourceName(), errorMessage));
 				// AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BUS_STOP_REMOVED, this.busStop.getUID(),
 				// context.getPackageManager().getPackageInfo(Constant.PKG, 0).versionCode);
 			}
@@ -107,7 +107,7 @@ public class StmBusScheduleTask extends AbstractNextStopProvider {
 		} catch (Exception e) {
 			MyLog.e(TAG, e, "INTERNAL ERROR: Unknown Exception");
 			publishProgress(errorMessage);
-			hours.put(this.busStop.getLineNumber(), new BusStopHours(getSourceName(), this.context.getString(R.string.error)));
+			hours.put(this.routeTripStop.route.shortName, new BusStopHours(getSourceName(), this.context.getString(R.string.error)));
 			return hours;
 		}
 	}

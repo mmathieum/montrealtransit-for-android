@@ -33,7 +33,6 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -203,12 +202,7 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 						toast.show();
 						// return; why not?
 					}
-					Intent intent = new Intent(activity, SubwayStationInfo.class);
-					String subwayStationId = SubwayLineDirectionFragment.this.stations.get(position).getId();
-					String subwayStationName = SubwayLineDirectionFragment.this.stations.get(position).getName();
-					intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, subwayStationId);
-					intent.putExtra(SubwayStationInfo.EXTRA_STATION_NAME, subwayStationName);
-					startActivity(intent);
+					startActivity(SubwayStationInfo.newInstance(activity, SubwayLineDirectionFragment.this.stations.get(position)));
 				}
 			}
 		});
@@ -262,11 +256,10 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 				String stationId = params[1];
 				String orderId = getSortOrderFromOrderPref(SubwayLineDirectionFragment.this.subwayLineDirectionId);
 				SubwayLineInfo activity = SubwayLineDirectionFragment.this.getSubwayLineInfoActivity();
-				List<SubwayStation> subwayStationsList = StmManager.findSubwayLineStationsList(activity.getContentResolver(), lineNumber, orderId);
+				List<SubwayStation> subwayStationsList = StmManager.findSubwayLineStationsList(activity, lineNumber, orderId);
 				// preparing other stations lines data
 				Map<String, Set<Integer>> stationsWithOtherLines = new HashMap<String, Set<Integer>>();
-				for (Pair<SubwayLine, SubwayStation> lineStation : StmManager.findSubwayLineStationsWithOtherLinesList(activity.getContentResolver(),
-						lineNumber)) {
+				for (Pair<SubwayLine, SubwayStation> lineStation : StmManager.findSubwayLineStationsWithOtherLinesList(activity, lineNumber)) {
 					int subwayLineNumber = lineStation.first.getNumber();
 					String subwayStationId = lineStation.second.getId();
 					if (stationsWithOtherLines.get(subwayStationId) == null) {
@@ -290,7 +283,7 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 				}
 				SubwayLineDirectionFragment.this.stations = stations;
 				// force update all subway stations with location
-				LocationUtils.updateDistance(activity, SubwayLineDirectionFragment.this.stations, activity.getLocation());
+				LocationUtils.updateDistanceWithString(activity, SubwayLineDirectionFragment.this.stations, activity.getLocation());
 				return null;
 			}
 
@@ -391,10 +384,7 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 		Activity activity = getLastActivity();
 		if (activity != null && !TextUtils.isEmpty(this.closestStationId)) {
 			Toast.makeText(activity, R.string.shake_closest_subway_line_station_selected, Toast.LENGTH_SHORT).show();
-			Intent intent = new Intent(activity, SubwayStationInfo.class);
-			intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, this.closestStationId);
-			intent.putExtra(SubwayStationInfo.EXTRA_STATION_NAME, findStationName(this.closestStationId));
-			startActivity(intent);
+			startActivity(SubwayStationInfo.newInstance(activity, this.closestStationId, findStationName(this.closestStationId)));
 			return true;
 		}
 		return false;

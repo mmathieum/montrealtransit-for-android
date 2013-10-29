@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.data.BusStopHours;
-import org.montrealtransit.android.provider.StmStore.BusStop;
+import org.montrealtransit.android.data.RouteTripStop;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -26,17 +26,17 @@ public abstract class AbstractNextStopProvider extends AsyncTask<Void, String, M
 	/**
 	 * The bus stop.
 	 */
-	protected BusStop busStop;
+	protected RouteTripStop routeTripStop;
 
 	/**
 	 * Default constructor.
 	 * @param context the context
 	 * @param from the class asking for the info
 	 */
-	public AbstractNextStopProvider(Context context, NextStopListener from, BusStop busStop) {
+	public AbstractNextStopProvider(Context context, NextStopListener from, RouteTripStop routeTripStop) {
 		this.context = context;
 		this.from = from;
-		this.busStop = busStop;
+		this.routeTripStop = routeTripStop;
 	}
 
 	/**
