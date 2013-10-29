@@ -118,6 +118,7 @@
 	<string name="bike_station_status_hour">Availability (%s)</string>
 	<string name="bike_station_not_installed">Not installed!</string>
 	<string name="bike_station_locked">Locked!</string>
+	<string name="nearby">Nearby</string>
 	
 	<string name="beta_pref_cat_title">BETA</string>
 	<string name="bus_stop_loc_pref_title">Bus Stops Location</string>
@@ -367,11 +368,13 @@
     <string name="init_dialog_message">Please wait while initializing MonTransit&#8230;</string>
     <string name="init_message_starting">Initialization&#8230;</string>
     <string name="init_message_starting_and_version">Initialization&#8230; (v%s)</string>
+    <string name="init_message_starting_and_label">Initialization&#8230; (%s)</string>
     <string name="init_message_done">Initialization finished.</string>
     <string name="update_dialog_title">Update</string>
     <string name="update_dialog_message">Please wait while updating MonTransit&#8230;</string>
     <string name="update_message_starting">Update&#8230;</string>
     <string name="update_message_starting_and_version">Update&#8230; (v%s)</string>
+    <string name="update_message_starting_and_label">Update&#8230; (%s)</string>
     <string name="update_message_done">Update finished.</string>
     <string name="reset_dialog_title">Re-Initialization</string>
     <string name="reset_dialog_message">Please wait while re-initializing MonTransit&#8230;</string>
@@ -389,4 +392,7 @@
     
     <string name="default_line_number">000</string>
     <string name="default_bus_stop_code">00000</string>
+    
+    <string name="ca_mtl_stm_subway_label">STM Subway</string>
+    <string name="ca_mtl_stm_bus_label">STM Bus</string>
 </resources>

@@ -157,7 +157,7 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 					if (SubwayLineInfo.this.subwayLine != null && SubwayLineInfo.this.subwayLine.getNumber() == params[0].intValue()) {
 						return null;
 					}
-					SubwayLineInfo.this.subwayLine = StmManager.findSubwayLine(getContentResolver(), params[0]);
+					SubwayLineInfo.this.subwayLine = StmManager.findSubwayLine(SubwayLineInfo.this, params[0]);
 					if (newOrderPref == null) {
 						SubwayLineInfo.this.currentSubwayLineDirectionId = UserPreferences.getPrefDefault(SubwayLineInfo.this,
 								UserPreferences.getPrefsSubwayStationsOrder(SubwayLineInfo.this.subwayLine.getNumber()),
@@ -389,7 +389,7 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 			@Override
 			protected Void doInBackground(Void... params) {
 				for (int i = 0; i < subwayLineDirections.length; i++) {
-					subwayLineDirectionsStations[i] = StmManager.findSubwayLineLastSubwayStation(getContentResolver(),
+					subwayLineDirectionsStations[i] = StmManager.findSubwayLineLastSubwayStation(SubwayLineInfo.this,
 							SubwayLineInfo.this.subwayLine.getNumber(), getSortOrderFromOrderPref(subwayLineDirections[i]));
 				}
 				return null;

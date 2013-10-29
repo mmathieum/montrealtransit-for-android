@@ -3,7 +3,6 @@ package org.montrealtransit.android.services;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -14,6 +13,7 @@ import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.activity.UserPreferences;
 import org.montrealtransit.android.data.ABikeStation;
 import org.montrealtransit.android.data.ClosestPOI;
+import org.montrealtransit.android.data.POI;
 import org.montrealtransit.android.provider.BixiManager;
 import org.montrealtransit.android.provider.BixiStore.BikeStation;
 import org.montrealtransit.android.services.BixiDataReader.BixiDataReaderListener;
@@ -136,12 +136,12 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Double, String, Clo
 	}
 
 	/**
-	 * Converts {@link BikeStation} list to {@link ABikeStation} list and add distance, sort by distance and set distance string.
+	 * Converts {@link BikeStation} list to {@link ABikeStation} list and add distance, sort by distance
 	 * @param bikeStations the {@link BikeStation} list
 	 * @param maxResult the maximum number of result or {@link #NO_LIMIT}
 	 * @return the {@link ABikeStation} list
 	 */
-	private static List<ABikeStation> getABikeStations(List<BikeStation> bikeStations, double lat, double lng, int maxResult) {
+	public static List<ABikeStation> getABikeStations(List<BikeStation> bikeStations, double lat, double lng, int maxResult) {
 		// MyLog.v(TAG, "getABikeStations(%s, %s)", Utils.getCollectionSize(bikeStations), currentLocation);
 		List<ABikeStation> aresult = new ArrayList<ABikeStation>();
 		for (BikeStation bikeStation : bikeStations) {
@@ -151,32 +151,21 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Double, String, Clo
 			aresult.add(astation);
 		}
 		// sort the bike stations
-		sortBikeStations(aresult);
-		if (maxResult > 0) {
-			maxResult = aresult.size() < maxResult ? aresult.size() : maxResult; // use size if max result too big
-			aresult = aresult.subList(0, maxResult);
+		Collections.sort(aresult, new POI.POIDistanceComparator());
+		if (maxResult > 0 && aresult.size() > maxResult) {
+			return aresult.subList(0, maxResult);
+		} else {
+			return aresult;
+		}
+	}
+	
+	public static List<ABikeStation> getABikeStations(List<BikeStation> bikeStations) {
+		// MyLog.v(TAG, "getABikeStations(%s, %s)", Utils.getCollectionSize(bikeStations), currentLocation);
+		List<ABikeStation> aresult = new ArrayList<ABikeStation>();
+		for (BikeStation bikeStation : bikeStations) {
+			aresult.add(new ABikeStation(bikeStation));
 		}
 		return aresult;
-	}
-
-	/**
-	 * Sort {@link ABikeStation} list by distance.
-	 */
-	public static void sortBikeStations(List<ABikeStation> aresult) {
-		Collections.sort(aresult, new Comparator<ABikeStation>() {
-			@Override
-			public int compare(ABikeStation lhs, ABikeStation rhs) {
-				float d1 = lhs.getDistance();
-				float d2 = rhs.getDistance();
-				if (d1 > d2) {
-					return +1;
-				} else if (d1 < d2) {
-					return -1;
-				} else {
-					return 0;
-				}
-			}
-		});
 	}
 
 	@Override
@@ -198,7 +187,7 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Double, String, Clo
 		if (values.length <= 0) {
 			return;
 		}
-		ClosestBikeStationsFinderListener fromWR = this.from == null ? null : this.from.get();
+		final ClosestBikeStationsFinderListener fromWR = this.from == null ? null : this.from.get();
 		if (fromWR != null) {
 			fromWR.onClosestBikeStationsProgress(values[0]);
 		}
@@ -208,9 +197,11 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Double, String, Clo
 	@Override
 	protected void onPostExecute(ClosestPOI<ABikeStation> result) {
 		MyLog.v(TAG, "onPostExecute()");
-		ClosestBikeStationsFinderListener fromWR = this.from == null ? null : this.from.get();
+		final ClosestBikeStationsFinderListener fromWR = this.from == null ? null : this.from.get();
 		if (fromWR != null) {
 			fromWR.onClosestBikeStationsDone(result);
+		} else {
+			MyLog.v(TAG, "onPostExecute() ? listener null!");
 		}
 		super.onPostExecute(result);
 	}

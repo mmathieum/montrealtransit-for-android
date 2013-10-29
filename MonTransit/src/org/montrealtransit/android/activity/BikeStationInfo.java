@@ -1,8 +1,6 @@
 package org.montrealtransit.android.activity;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 import org.montrealtransit.android.AdsUtils;
@@ -20,6 +18,8 @@ import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.ABikeStation;
 import org.montrealtransit.android.data.ClosestPOI;
+import org.montrealtransit.android.data.POI;
+import org.montrealtransit.android.data.POIArrayAdapter;
 import org.montrealtransit.android.provider.BixiManager;
 import org.montrealtransit.android.provider.BixiStore.BikeStation;
 import org.montrealtransit.android.provider.DataManager;
@@ -31,6 +31,7 @@ import org.montrealtransit.android.services.ClosestBikeStationsFinderTask;
 import org.montrealtransit.android.services.ClosestBikeStationsFinderTask.ClosestBikeStationsFinderListener;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
@@ -46,12 +47,13 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.CheckBox;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -70,15 +72,11 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	/**
 	 * The extra ID for the bike station terminal name.
 	 */
-	public static final String EXTRA_STATION_TERMINAL_NAME = "extra_bike_station_terminal_name";
+	private static final String EXTRA_STATION_TERMINAL_NAME = "extra_bike_station_terminal_name";
 	/**
 	 * The extra ID for the bike station name (optional).
 	 */
-	public static final String EXTRA_STATION_NAME = "extra_bike_station_name";
-	/**
-	 * The number of closest bike station displayed.
-	 */
-	private static final int NB_CLOSEST_BIKE_STATIONS = 7;
+	private static final String EXTRA_STATION_NAME = "extra_bike_station_name";
 	/**
 	 * The bike station.
 	 */
@@ -87,10 +85,6 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	 * The terminal name of the bike station for which the current closest station are.
 	 */
 	private String closestBikeStationTerminalName;
-	/**
-	 * The other bus lines.
-	 */
-	protected List<ABikeStation> closestBikeStations;
 	/**
 	 * The task used to load the closest bike stations.
 	 */
@@ -131,10 +125,25 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	 * The last {@link #updateCompass(float[])} time-stamp in milliseconds.
 	 */
 	private long lastCompassChanged = -1;
-	/**
-	 * The favorites bike station terminal names.
-	 */
-	private List<String> favTerminalNames;
+
+	private POIArrayAdapter adapter;
+
+	public static Intent newInstance(Context context, String stationTerminalName) {
+		return newInstance(context, stationTerminalName, null);
+	}
+
+	public static Intent newInstance(Context context, BikeStation bikeStation) {
+		return newInstance(context, bikeStation.getTerminalName(), bikeStation.getName());
+	}
+
+	public static Intent newInstance(Context context, String stationTerminalName, String stationName) {
+		Intent intent = new Intent(context, BikeStationInfo.class);
+		intent.putExtra(EXTRA_STATION_TERMINAL_NAME, stationTerminalName);
+		if (stationName != null) {
+			intent.putExtra(EXTRA_STATION_NAME, stationName);
+		}
+		return intent;
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -142,6 +151,12 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		super.onCreate(savedInstanceState);
 		// set the UI
 		setContentView(R.layout.bike_station_info);
+
+		this.adapter = new POIArrayAdapter(this);
+		this.adapter.setShowData(true);
+		this.adapter.setManualLayout((ViewGroup) findViewById(R.id.nearby_list));
+		this.adapter.setManualScrollView((ScrollView) findViewById(R.id.scrollview));
+
 		if (Utils.isVersionOlderThan(Build.VERSION_CODES.DONUT)) {
 			onCreatePreDonut();
 		}
@@ -164,6 +179,13 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 				addOrRemoveFavorite(v);
 			}
 		});
+	}
+
+	@Override
+	protected void onNewIntent(Intent intent) {
+		MyLog.v(TAG, "onNewIntent()");
+		super.onNewIntent(intent);
+		setIntent(intent);
 	}
 
 	/**
@@ -204,7 +226,6 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			if (LocationUtils.getBestLastKnownLocation(this) != null) {
 				// set the new distance
 				setLocation(LocationUtils.getBestLastKnownLocation(this));
-				updateDistancesWithNewLocation();
 			}
 			// re-enable
 			this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled, this.paused);
@@ -250,7 +271,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 					@Override
 					public void onSensorTaskCompleted(boolean result) {
 						if (result) {
-							if (BikeStationInfo.this.bikeStation != null && BikeStationInfo.this.closestBikeStations != null) {
+							if (BikeStationInfo.this.bikeStation != null) {
 								BikeStationInfo.this.lastCompassInDegree = (int) orientation;
 								BikeStationInfo.this.lastCompassChanged = now;
 							}
@@ -265,48 +286,21 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 									compassImg.setVisibility(View.INVISIBLE);
 								}
 							}
-							if (BikeStationInfo.this.closestBikeStations != null) {
-								final View closestStations = findViewById(R.id.closest_stations);
-								for (ABikeStation station : BikeStationInfo.this.closestBikeStations) {
-									if (station == null) {
-										continue;
-									}
-									View stationView = closestStations.findViewWithTag(getStationViewTag(station));
-									if (stationView == null) {
-										continue;
-									}
-									ImageView compassImg = (ImageView) stationView.findViewById(R.id.compass);
-									if (location.getAccuracy() <= bikeStation.getDistance()) {
-										float compassRotation = SensorUtils.getCompassRotationInDegree(BikeStationInfo.this.location, station,
-												BikeStationInfo.this.lastCompassInDegree, BikeStationInfo.this.locationDeclination);
-										SupportFactory.get().rotateImageView(compassImg, compassRotation, BikeStationInfo.this);
-										compassImg.setVisibility(View.VISIBLE);
-									} else {
-										compassImg.setVisibility(View.INVISIBLE);
-									}
-								}
-							}
 						}
 					}
 				});
 	}
-
-	/**
-	 * The time-stamp of the last data refresh from www.
-	 */
-	private int lastSuccessfulRefresh = -1;
 
 	private float locationDeclination;
 
 	/**
 	 * Update the distance with the latest device location.
 	 */
-	private void updateDistancesWithNewLocation() {
-		Location currentLocation = getLocation();
+	private void updateDistancesWithNewLocation(Location currentLocation) {
 		MyLog.v(TAG, "updateDistancesWithNewLocation(%s)", currentLocation);
 		if (currentLocation != null && this.bikeStation != null) {
 			// distance & accuracy
-			LocationUtils.updateDistance(this, this.bikeStation, currentLocation, new LocationTaskCompleted() {
+			LocationUtils.updateDistanceWithString(this, this.bikeStation, currentLocation, new LocationTaskCompleted() {
 
 				@Override
 				public void onLocationTaskCompleted() {
@@ -316,43 +310,6 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 				}
 			});
 		}
-		// update other stations
-		if (currentLocation != null && this.closestBikeStations != null) {
-			// update the list distances
-			LocationUtils.updateDistance(this, this.closestBikeStations, currentLocation, new LocationTaskCompleted() {
-
-				@Override
-				public void onLocationTaskCompleted() {
-					// update the view
-					refreshClosestStationsDistancesList();
-				}
-			});
-
-		}
-	}
-
-	/**
-	 * Refresh the closest stations <b>distances</b> ONLY in the list.
-	 */
-	private void refreshClosestStationsDistancesList() {
-		MyLog.v(TAG, "refreshClosestStationsDistancesList()");
-		findViewById(R.id.closest_stations).setVisibility(View.VISIBLE);
-		for (ABikeStation station : this.closestBikeStations) {
-			View stationView = findViewById(R.id.closest_stations).findViewWithTag(getStationViewTag(station));
-			if (stationView != null && !TextUtils.isEmpty(station.getDistanceString())) {
-				TextView distanceTv = (TextView) stationView.findViewById(R.id.distance);
-				distanceTv.setText(station.getDistanceString());
-				distanceTv.setVisibility(View.VISIBLE);
-			}
-		}
-	}
-
-	/**
-	 * @param station the station (for terminal name)
-	 * @return the station view tab with this index
-	 */
-	private static String getStationViewTag(BikeStation station) {
-		return "station" + station.getTerminalName();
 	}
 
 	/**
@@ -379,11 +336,13 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			// MyLog.d(TAG, "new location: '%s'.", LocationUtils.locationToString(newLocation));
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
+				this.adapter.setLocation(this.location);
 				this.locationDeclination = SensorUtils.getLocationDeclination(this.location);
 				if (!this.compassUpdatesEnabled) {
 					SensorUtils.registerCompassListener(this, this);
 					this.compassUpdatesEnabled = true;
 				}
+				updateDistancesWithNewLocation(this.location);
 			}
 		}
 	}
@@ -392,7 +351,6 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	public void onLocationChanged(Location location) {
 		MyLog.v(TAG, "onLocationChanged()");
 		this.setLocation(location);
-		updateDistancesWithNewLocation();
 	}
 
 	@Override
@@ -411,7 +369,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	}
 
 	private void setBikeStationFromIntent(Intent intent, Bundle savedInstanceState) {
-		MyLog.v(TAG, "setBusStopFromIntent()");
+		// MyLog.v(TAG, "setBikeStationFromIntent()");
 		if (intent != null) {
 			String bikeStationTerminalName;
 			String bikeStationName = null;
@@ -453,18 +411,18 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	@Override
 	public void onBixiDataProgress(String progress) {
 		MyLog.v(TAG, "onBixiDataProgress(%s)", progress);
-		this.lastBixiDataMessage = progress;
+		BikeStationInfo.this.lastBixiDataMessage = progress;
 		// nothing
 	}
 
 	@Override
 	public void onBixiDataLoaded(List<BikeStation> newBikeStations, boolean isNew) {
-		// MyLog.v(TAG, "onBixiDataLoaded(%s,%s)", Utils.getCollectionSize(newBikeStations), isNew);
+		MyLog.v(TAG, "onBixiDataLoaded(%s,%s)", Utils.getCollectionSize(newBikeStations), isNew);
 		// IF the bike station was returned as expected DO
 		if (Utils.getCollectionSize(newBikeStations) == 1) {
-			this.lastSuccessfulRefresh = UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, 0);
+			this.adapter.setLastSuccessfulRefresh(UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, -1));
 			this.bikeStation = new ABikeStation(newBikeStations.get(0));
-			updateDistancesWithNewLocation();
+			updateDistancesWithNewLocation(getLocation());
 			showNewBikeStationStatus();
 			showNewClosestBikeStationsStatus();
 			setStatusNotLoading();
@@ -476,41 +434,29 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 
 	private void showNewClosestBikeStationsStatus() {
 		MyLog.v(TAG, "showNewClosestBikeStationsStatus()");
-		if (this.closestBikeStations == null) {
+		if (this.adapter.getPois() == null) {
 			return;
 		}
 		// load new closest stations data
-		Map<String, BikeStation> newStations = BixiManager.findBikeStationsMap(getContentResolver(), getTerminalNames(this.closestBikeStations));
+		Map<String, BikeStation> newStations = BixiManager.findBikeStationsMap(getContentResolver(), getTerminalNamesFromPOI(this.adapter.getPois()));
 		if (newStations == null) {
 			return;
 		}
-		LinearLayout closestStationsLayout = (LinearLayout) findViewById(R.id.closest_stations);
-		ListIterator<ABikeStation> it = this.closestBikeStations.listIterator();
-		while (it.hasNext()) {
-			ABikeStation station = it.next();
-			BikeStation newStation = newStations.get(station.getTerminalName());
-			if (newStation == null) {
-				continue;
-			}
-			// update data
-			station.setLatestUpdateTime(newStation.getLatestUpdateTime());
-			station.setNbBikes(newStation.getNbBikes());
-			station.setNbEmptyDocks(newStation.getNbEmptyDocks());
-			// TODO more ?
-			// update UI
-			View stationView = closestStationsLayout.findViewWithTag(getStationViewTag(station));
-			if (stationView == null) {
-				continue;
-			}
-			final int lastUpdate = this.lastSuccessfulRefresh > 0 ? this.lastSuccessfulRefresh : getLastUpdateTime();
-			setBikeStationStatus(station, stationView, lastUpdate);
-			if (location != null && lastCompassInDegree != 0) {
-				ImageView compassImg = (ImageView) stationView.findViewById(R.id.compass);
-				float compassRotation = SensorUtils.getCompassRotationInDegree(location, bikeStation, lastCompassInDegree, locationDeclination);
-				SupportFactory.get().rotateImageView(compassImg, compassRotation, this);
-				compassImg.setVisibility(View.VISIBLE);
+		for (POI poi : this.adapter.getPois()) {
+			if (poi instanceof ABikeStation) {
+				ABikeStation station = (ABikeStation) poi;
+				BikeStation newStation = newStations.get(station.getTerminalName());
+				if (newStation == null) {
+					continue;
+				}
+				// update data
+				station.setLatestUpdateTime(newStation.getLatestUpdateTime());
+				station.setNbBikes(newStation.getNbBikes());
+				station.setNbEmptyDocks(newStation.getNbEmptyDocks());
+				// TODO more ?
 			}
 		}
+		this.adapter.notifyDataSetChanged(true);
 	}
 
 	/**
@@ -524,6 +470,19 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 				sb.append("+");
 			}
 			sb.append(station.getTerminalName());
+		}
+		return sb.toString();
+	}
+
+	public static String getTerminalNamesFromPOI(List<? extends POI> pois) {
+		StringBuilder sb = new StringBuilder();
+		for (POI poi : pois) {
+			if (poi instanceof ABikeStation) {
+				if (sb.length() > 0) {
+					sb.append("+");
+				}
+				sb.append(((ABikeStation) poi).getTerminalName());
+			}
 		}
 		return sb.toString();
 	}
@@ -604,6 +563,9 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			((TextView) findViewById(R.id.station_name)).setText(Utils.cleanBikeStationName(newBikeStationName));
 		}
 		findViewById(R.id.star).setVisibility(View.INVISIBLE);
+		findViewById(R.id.nearby_title).setVisibility(View.GONE);
+		findViewById(R.id.nearby_list).setVisibility(View.GONE);
+		this.adapter.setPois(null);
 
 		if (BikeStationInfo.this.bikeStation == null || !BikeStationInfo.this.bikeStation.getTerminalName().equals(newBikeStationTerminalName)) {
 			findViewById(R.id.availability).setVisibility(View.GONE);
@@ -656,12 +618,11 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		MyLog.v(TAG, "setUpUI()");
 		refreshBikeStationInfo();
 		showBikeStationStatus();
-		refreshClosestBikeStations(false);
+		refreshNearby(false);
 		// IF there is a valid last know location DO
 		if (LocationUtils.getBestLastKnownLocation(this) != null) {
 			// set the distance before showing the station
 			setLocation(LocationUtils.getBestLastKnownLocation(this));
-			updateDistancesWithNewLocation();
 		}
 		// IF location updates are not already enabled DO
 		this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled, this.paused);
@@ -670,36 +631,19 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	/**
 	 * Refresh closest bike stations.
 	 */
-	private void refreshClosestBikeStations(boolean force) {
-		MyLog.v(TAG, "refreshClosestBikeStations(%s)", force);
+	private void refreshNearby(boolean force) {
+		MyLog.v(TAG, "refreshNearby(%s)", force);
 		// IF refresh required DO
-		if (Utils.getCollectionSize(this.closestBikeStations) == 0 || this.closestBikeStationTerminalName == null
+		if (force || BikeStationInfo.this.adapter.getPoisCount() == 0 || this.closestBikeStationTerminalName == null
 				|| !this.closestBikeStationTerminalName.equals(this.bikeStation.getTerminalName())) {
 			// stop current task is running
 			if (this.closestBikeStationsTask != null) {
 				this.closestBikeStationsTask.cancel(true);
-				this.closestBikeStations = null;
+				this.adapter.setPois(null);
 			}
-			setClosestStationsAsLoading(); // set as loading
-			this.closestBikeStationsTask = new ClosestBikeStationsFinderTask(this, this, NB_CLOSEST_BIKE_STATIONS + 1, force);
+			this.closestBikeStationsTask = new ClosestBikeStationsFinderTask(this, this, Utils.NB_NEARBY_LIST + 1, force);
 			this.closestBikeStationsTask.execute(this.bikeStation.getLat(), this.bikeStation.getLng());
 		}
-	}
-
-	/**
-	 * Set closest stations as loading.
-	 */
-	public void setClosestStationsAsLoading() {
-		findViewById(R.id.closest_stations).setVisibility(View.GONE);
-		findViewById(R.id.closest_stations_loading).setVisibility(View.VISIBLE);
-	}
-
-	/**
-	 * Set closest stations as not loading.
-	 */
-	public void setClosestStationsAsNotLoading() {
-		findViewById(R.id.closest_stations_loading).setVisibility(View.GONE);
-		findViewById(R.id.closest_stations).setVisibility(View.VISIBLE);
 	}
 
 	@Override
@@ -712,20 +656,17 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	public void onClosestBikeStationsDone(ClosestPOI<ABikeStation> result) {
 		MyLog.v(TAG, "onClosestBikeStationsDone()");
 		if (result != null && result.getPoiListSize() > 0) {
-			this.closestBikeStations = result.getPoiList().subList(1, result.getPoiList().size());
-			this.lastSuccessfulRefresh = UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, 0);
+			// MyLog.d(TAG, "onClosestBikeStationsDone() > result not empty");
+			this.adapter.setPois(result.getPoiList().subList(1, result.getPoiList().size()));
+			this.adapter.setLastSuccessfulRefresh(UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, -1));
 			refreshFavoriteTerminalNamesFromDB();
 			// set location
-			LocationUtils.updateDistance(this, this.closestBikeStations, getLocation(), new LocationTaskCompleted() {
-				@Override
-				public void onLocationTaskCompleted() {
-					// show the result
-					showNewClosestStations();
-					// hide loading
-					setClosestStationsAsNotLoading();
-				}
-			});
-			updateCompass(this.lastCompassInDegree, true);
+			this.adapter.updateDistancesNow(getLocation());
+			this.adapter.initManual();
+			findViewById(R.id.nearby_title).setVisibility(View.VISIBLE);
+			findViewById(R.id.nearby_list).setVisibility(View.VISIBLE);
+			// } else {
+			// MyLog.d(TAG, "onClosestBikeStationsDone() > result null or empty");
 		}
 	}
 
@@ -741,92 +682,10 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 
 			@Override
 			protected void onPostExecute(List<Fav> result) {
-				boolean newFav = false; // don't trigger update if favorites are the same
-				if (Utils.getCollectionSize(result) != Utils.getCollectionSize(BikeStationInfo.this.favTerminalNames)) {
-					newFav = true; // different size => different favorites
-				}
-				List<String> newfavTerminalNames = new ArrayList<String>();
-				for (Fav bikeStationFav : result) {
-					if (BikeStationInfo.this.favTerminalNames == null || !BikeStationInfo.this.favTerminalNames.contains(bikeStationFav.getFkId())) {
-						newFav = true; // new favorite
-					}
-					newfavTerminalNames.add(bikeStationFav.getFkId()); // store terminal name
-				}
-				BikeStationInfo.this.favTerminalNames = newfavTerminalNames;
-				// trigger change if necessary
-				if (newFav) {
-					// notifyDataSetChanged(true);
-					if (BikeStationInfo.this.closestBikeStations != null) {
-						final View closestStations = findViewById(R.id.closest_stations);
-						for (ABikeStation station : BikeStationInfo.this.closestBikeStations) {
-							View stationView = closestStations.findViewWithTag(getStationViewTag(station));
-							if (stationView != null) {
-								if (BikeStationInfo.this.favTerminalNames != null && BikeStationInfo.this.favTerminalNames.contains(station.getTerminalName())) {
-									stationView.findViewById(R.id.fav_img).setVisibility(View.VISIBLE);
-								} else {
-									stationView.findViewById(R.id.fav_img).setVisibility(View.GONE);
-								}
-							}
-						}
-					}
-				}
+				MyLog.v(TAG, "refreshFavoriteTerminalNamesFromDB()>onPostExecute()");
+				BikeStationInfo.this.adapter.setFavs(result);
 			};
 		}.execute();
-	}
-
-	/**
-	 * Show new closest stations.
-	 */
-	private void showNewClosestStations() {
-		MyLog.v(TAG, "showNewClosestStations()");
-		LinearLayout closestStationsLayout = (LinearLayout) findViewById(R.id.closest_stations);
-		// clear the previous list
-		closestStationsLayout.removeAllViews();
-		// show stations list
-		for (ABikeStation station : this.closestBikeStations) {
-			// list view divider
-			if (closestStationsLayout.getChildCount() > 0) {
-				closestStationsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, closestStationsLayout, false));
-			}
-			// create view
-			View view = getLayoutInflater().inflate(R.layout.bike_station_info_closest_stations_list_item, closestStationsLayout, false);
-			view.setTag(getStationViewTag(station));
-			// bike station name
-			TextView stationNameTv = (TextView) view.findViewById(R.id.station_name);
-			stationNameTv.setText(Utils.cleanBikeStationName(station.getName()));
-			// status (not installed, locked..)
-			if (!station.isInstalled() || station.isLocked()) {
-				stationNameTv.setTextColor(Utils.getTextColorSecondary(BikeStationInfo.this));
-			} else {
-				stationNameTv.setTextColor(Utils.getTextColorPrimary(BikeStationInfo.this));
-			}
-			// bike station distance
-			TextView distanceTv = (TextView) view.findViewById(R.id.distance);
-			if (!TextUtils.isEmpty(station.getDistanceString())) {
-				distanceTv.setText(station.getDistanceString());
-				distanceTv.setVisibility(View.VISIBLE);
-			}
-			// favorite
-			if (BikeStationInfo.this.favTerminalNames != null && BikeStationInfo.this.favTerminalNames.contains(station.getTerminalName())) {
-				view.findViewById(R.id.fav_img).setVisibility(View.VISIBLE);
-			} else {
-				view.findViewById(R.id.fav_img).setVisibility(View.GONE);
-			}
-			// status
-			final int lastUpdate = this.lastSuccessfulRefresh != 0 ? this.lastSuccessfulRefresh : getLastUpdateTime();
-			setBikeStationStatus(station, view, lastUpdate);
-			// add click listener
-			final String terminalName = station.getTerminalName();
-			final String name = station.getName();
-			view.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					MyLog.v(TAG, "onClick(%s)", v.getId());
-					showNewBikeStation(terminalName, name);
-				}
-			});
-			closestStationsLayout.addView(view);
-		}
 	}
 
 	/**
@@ -835,11 +694,13 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	 * @param lastUpdate last update time (in second)
 	 */
 	public void setBikeStationStatus(ABikeStation station, View view, final int lastUpdate) {
+		MyLog.v(TAG, "setBikeStationStatus(%s)", lastUpdate);
 		ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
 		TextView dockTv = (TextView) view.findViewById(R.id.progress_dock);
 		TextView bikeTv = (TextView) view.findViewById(R.id.progress_bike);
 		int waitFor = Utils.currentTimeSec() - BikeUtils.CACHE_NOT_USEFUL_IN_SEC - lastUpdate;
 		if (waitFor < 0) {
+			// MyLog.d(TAG, "Cache useful (closest).");
 			if (!station.isInstalled()) {
 				bikeTv.setText(R.string.bike_station_not_installed);
 				bikeTv.setTypeface(Typeface.DEFAULT_BOLD);
@@ -902,13 +763,13 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 	 * @return the last update time
 	 */
 	public int getLastUpdateTime() {
-		if (this.lastSuccessfulRefresh < 0) {
-			this.lastSuccessfulRefresh = UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, 0);
+		if (this.adapter.getLastSuccessfulRefresh() < 0) {
+			this.adapter.setLastSuccessfulRefresh(UserPreferences.getPrefLcl(this, UserPreferences.PREFS_LCL_BIXI_LAST_UPDATE, -1));
 		}
-		if (this.lastSuccessfulRefresh == 0) {
+		if (this.adapter.getLastSuccessfulRefresh() < 0) {
 			return Utils.currentTimeSec(); // use device time
 		}
-		return this.lastSuccessfulRefresh;
+		return this.adapter.getLastSuccessfulRefresh();
 	}
 
 	/**
@@ -1003,7 +864,9 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		if (this.closestBikeStationsTask != null) {
 			this.closestBikeStationsTask.cancel(true);
 			this.closestBikeStationsTask = null;
-			this.closestBikeStations = null;
+			if (this.adapter != null) {
+				this.adapter.setPois(null);
+			}
 		}
 		if (this.bixiDataReaderTask != null) {
 			this.bixiDataReaderTask.cancel(false);

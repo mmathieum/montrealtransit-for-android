@@ -21,15 +21,15 @@ import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.ABikeStation;
-import org.montrealtransit.android.data.ABusStop;
 import org.montrealtransit.android.data.ASubwayStation;
+import org.montrealtransit.android.data.RouteTripStop;
 import org.montrealtransit.android.provider.BixiManager;
 import org.montrealtransit.android.provider.BixiStore.BikeStation;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.DataStore.Fav;
+import org.montrealtransit.android.provider.StmBusManager;
 import org.montrealtransit.android.provider.StmManager;
-import org.montrealtransit.android.provider.StmStore.BusStop;
 import org.montrealtransit.android.provider.StmStore.SubwayLine;
 import org.montrealtransit.android.provider.StmStore.SubwayStation;
 import org.montrealtransit.android.services.LoadNextBusStopIntoCacheTask;
@@ -37,7 +37,6 @@ import org.montrealtransit.android.services.LoadNextBusStopIntoCacheTask;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -49,10 +48,10 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.AbsListView.OnScrollListener;
 
 /**
  * This activity list the favorite bus stops.
@@ -92,7 +91,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 	/**
 	 * The bus stops.
 	 */
-	private List<ABusStop> busStops;
+	private List<RouteTripStop> routeTripStops;
 	/**
 	 * Store the device location.
 	 */
@@ -210,14 +209,14 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 					@Override
 					public void onSensorTaskCompleted(boolean result) {
 						if (result) {
-							if (FavListTab.this.busStops != null && FavListTab.this.subwayStations != null && FavListTab.this.bikeStations != null) {
+							if (FavListTab.this.routeTripStops != null && FavListTab.this.subwayStations != null && FavListTab.this.bikeStations != null) {
 								FavListTab.this.lastCompassInDegree = (int) orientation;
 								FavListTab.this.lastCompassChanged = now;
 							}
 							// update bus stops compass
-							if (FavListTab.this.busStops != null) {
+							if (FavListTab.this.routeTripStops != null) {
 								View busStopsLayout = findViewById(R.id.bus_stops_list);
-								for (ABusStop busStop : FavListTab.this.busStops) {
+								for (RouteTripStop busStop : FavListTab.this.routeTripStops) {
 									if (busStop == null) {
 										continue;
 									}
@@ -324,7 +323,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 		new AsyncTask<Void, Void, Void>() {
 
 			private List<DataStore.Fav> newBusStopFavList;
-			private List<BusStop> busStopsExtendedList;
+			private List<RouteTripStop> busStopsExtendedList;
 			private List<DataStore.Fav> newSubwayFavList;
 			private List<SubwayStation> subwayStations;
 			private Map<String, List<SubwayLine>> otherSubwayLines;
@@ -339,8 +338,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 				if (FavListTab.this.currentBusStopFavList == null || !Fav.listEquals(FavListTab.this.currentBusStopFavList, this.newBusStopFavList)) {
 					if (Utils.getCollectionSize(this.newBusStopFavList) > 0) {
 						MyLog.d(TAG, "Loading bus stop favorites from DB...");
-						this.busStopsExtendedList = StmManager.findBusStopsExtendedList(getContentResolver(),
-								Utils.extractBusStopIDsFromFavList(this.newBusStopFavList));
+						this.busStopsExtendedList = StmBusManager.findRouteTripStops(FavListTab.this, this.newBusStopFavList);
 						MyLog.d(TAG, "Loading bus stop favorites from DB... DONE");
 					}
 				}
@@ -348,13 +346,12 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 				this.newSubwayFavList = DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
 				if (FavListTab.this.currentSubwayStationFavList == null || !Fav.listEquals(FavListTab.this.currentSubwayStationFavList, this.newSubwayFavList)) {
 					MyLog.d(TAG, "Loading subway station favorites from DB...");
-					this.subwayStations = StmManager.findSubwayStationsList(getContentResolver(),
-							Utils.extractSubwayStationIDsFromFavList(this.newSubwayFavList));
+					this.subwayStations = StmManager.findSubwayStationsList(FavListTab.this, Utils.extractSubwayStationIDsFromFavList(this.newSubwayFavList));
 					this.otherSubwayLines = new HashMap<String, List<SubwayLine>>();
 					if (Utils.getCollectionSize(this.subwayStations) > 0) {
 						for (SubwayStation station : this.subwayStations) {
 							if (station != null) {
-								this.otherSubwayLines.put(station.getId(), StmManager.findSubwayStationLinesList(getContentResolver(), station.getId()));
+								this.otherSubwayLines.put(station.getId(), StmManager.findSubwayStationLinesList(FavListTab.this, station.getId()));
 							}
 						}
 					}
@@ -432,9 +429,9 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 	/**
 	 * Refresh the favorite bus stops UI
 	 * @param newBusStopFavList the new favorite bus stops
-	 * @param busStopsExtendedList the bus stops (extended)
+	 * @param routeTripStops the bus stops (extended)
 	 */
-	private void refreshBusStopsUI(List<DataStore.Fav> newBusStopFavList, List<BusStop> busStopsExtendedList) {
+	private void refreshBusStopsUI(List<DataStore.Fav> newBusStopFavList, List<RouteTripStop> routeTripStops) {
 		// MyLog.v(TAG, "refreshBusStopsUI(%s,%s)", Utils.getCollectionSize(newBusStopFavList), Utils.getCollectionSize(busStopsExtendedList));
 		if (this.currentBusStopFavList == null || this.currentBusStopFavList.size() != newBusStopFavList.size()) {
 			// remove all favorite bus stop views
@@ -442,45 +439,38 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 			busStopsLayout.removeAllViews();
 			// use new favorite bus stops
 			this.currentBusStopFavList = newBusStopFavList;
-			this.busStops = new ArrayList<ABusStop>();
+			this.routeTripStops = new ArrayList<RouteTripStop>();
 			findViewById(R.id.lists).setVisibility(View.VISIBLE);
 			findViewById(R.id.fav_bus_stops).setVisibility(View.VISIBLE);
 			busStopsLayout.setVisibility(View.VISIBLE);
 			// FOR EACH bus stop DO
-			if (busStopsExtendedList != null) {
-				for (final BusStop busStop : busStopsExtendedList) {
+			if (routeTripStops != null) {
+				for (final RouteTripStop routeTripStop : routeTripStops) {
 					// list view divider
 					if (busStopsLayout.getChildCount() > 0) {
 						busStopsLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, busStopsLayout, false));
 					}
 					// create view
 					View view = getLayoutInflater().inflate(R.layout.fav_list_tab_bus_stop_item, busStopsLayout, false);
-					view.setTag(getBusStopViewTag(busStop));
+					view.setTag(getBusStopViewTag(routeTripStop));
 					// bus stop code
-					((TextView) view.findViewById(R.id.stop_code)).setText(busStop.getCode());
+					((TextView) view.findViewById(R.id.stop_code)).setText(routeTripStop.stop.code);
 					// bus stop place
-					String busStopPlace = BusUtils.cleanBusStopPlace(busStop.getPlace());
+					String busStopPlace = BusUtils.cleanBusStopPlace(routeTripStop.stop.name);
 					((TextView) view.findViewById(R.id.label)).setText(busStopPlace);
 					// bus stop line number
 					TextView lineNumberTv = (TextView) view.findViewById(R.id.line_number);
-					lineNumberTv.setText(busStop.getLineNumber());
-					int color = BusUtils.getBusLineTypeBgColor(busStop.getLineTypeOrNull(), busStop.getLineNumber());
-					lineNumberTv.setBackgroundColor(color);
+					lineNumberTv.setText(routeTripStop.route.shortName);
+					lineNumberTv.setBackgroundColor(Utils.parseColor(routeTripStop.route.color));
+					lineNumberTv.setTextColor(Utils.parseColor(routeTripStop.route.textColor));
 					// bus stop line direction
-					int busLineDirection = BusUtils.getBusLineSimpleDirection(busStop.getDirectionId());
-					((TextView) view.findViewById(R.id.line_direction)).setText(getString(busLineDirection).toUpperCase(Locale.getDefault()));
+					((TextView) view.findViewById(R.id.line_direction)).setText(routeTripStop.trip.getHeading(this).toUpperCase(Locale.getDefault()));
 					// add click listener
 					view.setOnClickListener(new View.OnClickListener() {
 						@Override
 						public void onClick(View v) {
 							MyLog.v(TAG, "onClick(%s)", v.getId());
-							Intent intent = new Intent(FavListTab.this, BusStopInfo.class);
-							intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, busStop.getLineNumber());
-							intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NAME, busStop.getLineNameOrNull());
-							intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_TYPE, busStop.getLineTypeOrNull());
-							intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, busStop.getCode());
-							intent.putExtra(BusStopInfo.EXTRA_STOP_PLACE, busStop.getPlace());
-							startActivity(intent);
+							startActivity(BusStopInfo.newInstance(FavListTab.this, routeTripStop));
 						}
 					});
 					// add context menu
@@ -490,7 +480,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 							MyLog.v(TAG, "onLongClick(%s)", v.getId());
 							final View theViewToDelete = v;
 							new AlertDialog.Builder(FavListTab.this)
-									.setTitle(getString(R.string.bus_stop_and_line_short, busStop.getCode(), busStop.getLineNumber()))
+									.setTitle(getString(R.string.bus_stop_and_line_short, routeTripStop.stop.code, routeTripStop.route.shortName))
 									.setItems(
 											new CharSequence[] { getString(R.string.view_bus_stop), getString(R.string.view_bus_stop_line),
 													getString(R.string.remove_fav) }, new DialogInterface.OnClickListener() {
@@ -498,21 +488,11 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 													MyLog.v(TAG, "onClick(%s)", item);
 													switch (item) {
 													case 0:
-														Intent intent = new Intent(FavListTab.this, BusStopInfo.class);
-														intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NUMBER, busStop.getLineNumber());
-														intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_NAME, busStop.getLineNameOrNull());
-														intent.putExtra(BusStopInfo.EXTRA_STOP_LINE_TYPE, busStop.getLineTypeOrNull());
-														intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, busStop.getCode());
-														intent.putExtra(BusStopInfo.EXTRA_STOP_PLACE, busStop.getPlace());
-														startActivity(intent);
+														startActivity(BusStopInfo.newInstance(FavListTab.this, routeTripStop));
 														break;
 													case 1:
-														Intent intent2 = new Intent(FavListTab.this, SupportFactory.get().getBusLineInfoClass());
-														intent2.putExtra(BusLineInfo.EXTRA_LINE_NUMBER, busStop.getLineNumber());
-														intent2.putExtra(BusLineInfo.EXTRA_LINE_NAME, busStop.getLineNameOrNull());
-														intent2.putExtra(BusLineInfo.EXTRA_LINE_TYPE, busStop.getLineTypeOrNull());
-														intent2.putExtra(BusLineInfo.EXTRA_LINE_DIRECTION_ID, busStop.getDirectionId());
-														startActivity(intent2);
+														startActivity(BusLineInfo.newInstance(FavListTab.this, routeTripStop.route,
+																String.valueOf(routeTripStop.trip.id), routeTripStop.stop.code));
 														break;
 													case 2:
 														// remove the view from the UI
@@ -521,7 +501,8 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 														Iterator<Fav> it = FavListTab.this.currentBusStopFavList.iterator();
 														while (it.hasNext()) {
 															DataStore.Fav fav = (DataStore.Fav) it.next();
-															if (fav.getFkId().equals(busStop.getCode()) && fav.getFkId2().equals(busStop.getLineNumber())) {
+															if (fav.getFkId().equals(routeTripStop.stop.code)
+																	&& fav.getFkId2().equals(routeTripStop.route.shortName)) {
 																it.remove();
 																break;
 															}
@@ -532,7 +513,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 																isThereAtLeastOneFavorite());
 														// find the favorite to delete
 														Fav findFav = DataManager.findFav(FavListTab.this.getContentResolver(),
-																DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP, busStop.getCode(), busStop.getLineNumber());
+																DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP, routeTripStop.stop.code, routeTripStop.route.shortName);
 														// delete the favorite
 														if (findFav != null) {
 															DataManager.deleteFav(FavListTab.this.getContentResolver(), findFav.getId());
@@ -547,9 +528,9 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 							return true;
 						}
 					});
-					this.busStops.add(new ABusStop(busStop));
+					this.routeTripStops.add(routeTripStop);
 					busStopsLayout.addView(view);
-					SupportFactory.get().executeOnExecutor(new LoadNextBusStopIntoCacheTask(FavListTab.this, busStop, null, true, false),
+					SupportFactory.get().executeOnExecutor(new LoadNextBusStopIntoCacheTask(FavListTab.this, routeTripStop, null, true, false),
 							PrefetchingUtils.getExecutor());
 				}
 			}
@@ -558,7 +539,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 
 	// private Executor executor = new ;
 
-	private String getBusStopViewTag(BusStop busStop) {
+	private String getBusStopViewTag(RouteTripStop busStop) {
 		return "busStop" + busStop.getUID();
 	}
 
@@ -620,10 +601,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 						@Override
 						public void onClick(View v) {
 							MyLog.v(TAG, "onClick(%s)", v.getId());
-							Intent intent = new Intent(FavListTab.this, SubwayStationInfo.class);
-							intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, subwayStation.getId());
-							intent.putExtra(SubwayStationInfo.EXTRA_STATION_NAME, subwayStation.getName());
-							startActivity(intent);
+							startActivity(SubwayStationInfo.newInstance(FavListTab.this, subwayStation));
 						}
 					});
 					// add context menu
@@ -640,10 +618,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 													MyLog.v(TAG, "onClick(%s)", item);
 													switch (item) {
 													case 0:
-														Intent intent = new Intent(FavListTab.this, SubwayStationInfo.class);
-														intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, subwayStation.getId());
-														intent.putExtra(SubwayStationInfo.EXTRA_STATION_NAME, subwayStation.getName());
-														startActivity(intent);
+														startActivity(SubwayStationInfo.newInstance(FavListTab.this, subwayStation));
 														break;
 													case 1:
 														// remove the view from the UI
@@ -723,10 +698,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 						@Override
 						public void onClick(View v) {
 							MyLog.v(TAG, "onClick(%s)", v.getId());
-							Intent intent = new Intent(FavListTab.this, BikeStationInfo.class);
-							intent.putExtra(BikeStationInfo.EXTRA_STATION_TERMINAL_NAME, bikeStation.getTerminalName());
-							intent.putExtra(BikeStationInfo.EXTRA_STATION_NAME, bikeStation.getName());
-							startActivity(intent);
+							startActivity(BikeStationInfo.newInstance(FavListTab.this, bikeStation));
 						}
 					});
 					// add context menu
@@ -743,10 +715,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 													MyLog.v(TAG, "onClick(%s)", item);
 													switch (item) {
 													case 0:
-														Intent intent = new Intent(FavListTab.this, BikeStationInfo.class);
-														intent.putExtra(BikeStationInfo.EXTRA_STATION_TERMINAL_NAME, bikeStation.getTerminalName());
-														intent.putExtra(BikeStationInfo.EXTRA_STATION_NAME, bikeStation.getName());
-														startActivity(intent);
+														startActivity(BikeStationInfo.newInstance(FavListTab.this, bikeStation));
 														break;
 													case 1:
 														// remove the view from the UI
@@ -802,13 +771,13 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 			return;
 		}
 		// update bus stops
-		LocationUtils.updateDistance(FavListTab.this, FavListTab.this.busStops, currentLocation, new LocationTaskCompleted() {
+		LocationUtils.updateDistance(FavListTab.this, FavListTab.this.routeTripStops, currentLocation, new LocationTaskCompleted() {
 
 			@Override
 			public void onLocationTaskCompleted() {
-				if (FavListTab.this.busStops != null) {
+				if (FavListTab.this.routeTripStops != null) {
 					View busStopsLayout = findViewById(R.id.bus_stops_list);
-					for (ABusStop busStop : FavListTab.this.busStops) {
+					for (RouteTripStop busStop : FavListTab.this.routeTripStops) {
 						if (!busStop.hasLocation()) {
 							continue;
 						}

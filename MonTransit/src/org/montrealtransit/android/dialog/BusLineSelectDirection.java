@@ -3,20 +3,17 @@ package org.montrealtransit.android.dialog;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.activity.BusLineInfo;
-import org.montrealtransit.android.api.SupportFactory;
-import org.montrealtransit.android.provider.StmManager;
-import org.montrealtransit.android.provider.StmStore;
-import org.montrealtransit.android.provider.StmStore.BusLineDirection;
+import org.montrealtransit.android.data.Route;
+import org.montrealtransit.android.data.Trip;
+import org.montrealtransit.android.provider.StmBusManager;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -38,10 +35,8 @@ public class BusLineSelectDirection implements View.OnClickListener, BusLineSele
 	 * The bus line name or null.
 	 */
 	private String lineName;
-	/**
-	 * The bus line type or null.
-	 */
-	private String lineType;
+	private String lineColor;
+	private String lineTextColor;
 	/**
 	 * The activity context calling the selector.
 	 */
@@ -53,15 +48,11 @@ public class BusLineSelectDirection implements View.OnClickListener, BusLineSele
 	/**
 	 * The selected bus line directions ID.
 	 */
-	private List<BusLineDirection> selectedBusLineDirectionIds;
+	private List<Trip> selectedBusLineDirectionIds;
 	/**
 	 * The simple directions ID.
 	 */
-	private List<String> simpleDirectionsIds;
-	/**
-	 * The detailed directions ID.
-	 */
-	private List<String> detailDirectionsIds;
+	private List<Integer> simpleDirectionsIds;
 	/**
 	 * True if the last dialog shown was the second dialog.
 	 */
@@ -71,52 +62,31 @@ public class BusLineSelectDirection implements View.OnClickListener, BusLineSele
 	 */
 	private String currentDirectionId = null;
 
-	/**
-	 * Default constructor that will launch a new activity.
-	 * @param context the caller context
-	 * @param lineNumber the bus line number
-	 */
-	public BusLineSelectDirection(Context context, String lineNumber, String lineName, String lineType) {
+	public BusLineSelectDirection(Context context, String lineNumber, String lineName, String lineColor, String lineTextColor, String currentDirectionId) {
 		this.context = context;
 		this.lineNumber = lineNumber;
 		this.lineName = lineName;
-		this.lineType = lineType;
-		this.listener = this;
-	}
-
-	public BusLineSelectDirection(Context context, String lineNumber, String lineName, String lineType, String currentDirectionId) {
-		this.context = context;
-		this.lineNumber = lineNumber;
-		this.lineName = lineName;
-		this.lineType = lineType;
+		this.lineColor = lineColor;
+		this.lineTextColor = lineTextColor;
 		this.currentDirectionId = currentDirectionId;
 		this.listener = this;
 	}
 
-	/**
-	 * This constructor allow the caller to specify which class will manage the answer of the dialog.
-	 * @param context the caller context
-	 * @param lineNumber the line number
-	 * @param lineName the line name or null
-	 * @param listener the dialog listener
-	 */
-	public BusLineSelectDirection(Context context, String lineNumber, String lineName, String lineType, BusLineSelectDirectionDialogListener listener) {
-		this(context, lineNumber, lineName, lineType, null, listener);
+	public BusLineSelectDirection(Context context, Route line) {
+		this.context = context;
+		this.lineNumber = line.shortName;
+		this.lineName = line.longName;
+		this.lineColor = line.color;
+		this.lineTextColor = line.textColor;
+		this.listener = this;
 	}
 
-	/**
-	 * This constructor allow the caller to specify which class will manage the answer of the dialog.
-	 * @param context the caller context
-	 * @param lineNumber the line number
-	 * @param lineName the line name or null
-	 * @param listener the dialog listener
-	 */
-	public BusLineSelectDirection(Context context, String lineNumber, String lineName, String lineType, String currentDirectionId,
-			BusLineSelectDirectionDialogListener listener) {
+	public BusLineSelectDirection(Context context, Route line, String currentDirectionId, BusLineSelectDirectionDialogListener listener) {
 		this.context = context;
-		this.lineNumber = lineNumber;
-		this.lineName = lineName;
-		this.lineType = lineType;
+		this.lineNumber = line.shortName;
+		this.lineName = line.longName;
+		this.lineColor = line.color;
+		this.lineTextColor = line.textColor;
 		this.currentDirectionId = currentDirectionId;
 		this.listener = listener;
 	}
@@ -156,25 +126,19 @@ public class BusLineSelectDirection implements View.OnClickListener, BusLineSele
 		String[] firstItems = getFirstItems(); // initialize simpleDirectionsIds
 		int indexOf = -1;
 		if (this.currentDirectionId != null && this.simpleDirectionsIds != null) {
-			indexOf = this.simpleDirectionsIds.indexOf(BusLineDirection.toSimpleDirectionId(this.currentDirectionId));
+			indexOf = this.simpleDirectionsIds.indexOf(this.currentDirectionId);
 		}
 		new AlertDialog.Builder(this.context).setTitle(this.context.getString(R.string.select_bus_line_direction_and_number, this.lineNumber))
 				.setSingleChoiceItems(firstItems, indexOf, new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 						// FIRST DIALOG (simple directions)
-						// IF more than 1 detail directions for this simple direction DO
-						if (isMoreThanOneDirectionFor(BusLineSelectDirection.this.simpleDirectionsIds.get(which))) {
-							// show the 2nd dialog
-							showSecondDialog(BusLineSelectDirection.this.simpleDirectionsIds.get(which), dialog);
-						} else {
-							// show the bus line direction
-							String directionId = getDirectionId(BusLineSelectDirection.this.simpleDirectionsIds.get(which));
-							if (!TextUtils.isEmpty(directionId)) {
-								String number = BusLineSelectDirection.this.lineNumber;
-								BusLineSelectDirection.this.listener.showNewLine(number, directionId);
-								dialog.dismiss(); // CLOSE
-							}
+						// show the bus line direction
+						String directionId = getDirectionId(BusLineSelectDirection.this.simpleDirectionsIds.get(which));
+						if (directionId != null && !TextUtils.isEmpty(directionId)) {
+							String number = BusLineSelectDirection.this.lineNumber;
+							BusLineSelectDirection.this.listener.showNewLine(number, directionId);
+							dialog.dismiss(); // CLOSE
 						}
 					}
 				}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -190,16 +154,13 @@ public class BusLineSelectDirection implements View.OnClickListener, BusLineSele
 	 */
 	private String[] getFirstItems() {
 		MyLog.v(TAG, "getFirstItems()");
-		this.simpleDirectionsIds = new ArrayList<String>();
-		for (StmStore.BusLineDirection directionId : getSelectedBusLineDirectionIds()) {
-			if (!this.simpleDirectionsIds.contains(directionId.getSimpleId())) {
-				this.simpleDirectionsIds.add(directionId.getSimpleId());
-			}
-		}
 		List<String> items = new ArrayList<String>();
-		for (String simpleDirectionId : this.simpleDirectionsIds) {
-			// items.add(this.context.getString(BusUtils.getBusLineDirectionStringIdFromId(simpleDirectionId).get(0)));
-			items.add(this.context.getString(BusUtils.getBusLineSimpleDirection(simpleDirectionId)));
+		this.simpleDirectionsIds = new ArrayList<Integer>();
+		for (Trip directionId : getSelectedBusLineDirectionIds()) {
+			if (!this.simpleDirectionsIds.contains(directionId.id)) {
+				this.simpleDirectionsIds.add(directionId.id);
+				items.add(directionId.getHeading(context));
+			}
 		}
 		return items.toArray(new String[] {});
 	}
@@ -207,9 +168,9 @@ public class BusLineSelectDirection implements View.OnClickListener, BusLineSele
 	/**
 	 * @return the direction for the selected bus line (number)
 	 */
-	private List<StmStore.BusLineDirection> getSelectedBusLineDirectionIds() {
+	private List<Trip> getSelectedBusLineDirectionIds() {
 		if (this.selectedBusLineDirectionIds == null) {
-			this.selectedBusLineDirectionIds = StmManager.findBusLineDirections(this.context.getContentResolver(), this.lineNumber);
+			this.selectedBusLineDirectionIds = StmBusManager.findTripsWithRouteIdList(this.context, this.lineNumber);
 		}
 		return this.selectedBusLineDirectionIds;
 	}
@@ -218,111 +179,19 @@ public class BusLineSelectDirection implements View.OnClickListener, BusLineSele
 	 * @param simpleDirectionId the simple direction ID
 	 * @return the first direction ID matching the simple direction ID
 	 */
-	private String getDirectionId(String simpleDirectionId) {
-		for (StmStore.BusLineDirection direction : getSelectedBusLineDirectionIds()) {
-			if (direction.getSimpleId().equalsIgnoreCase(simpleDirectionId)) {
-				return direction.getId();
+	private String getDirectionId(Integer simpleDirectionId) {
+		for (Trip direction : getSelectedBusLineDirectionIds()) {
+			if (direction.id == simpleDirectionId) {
+				return String.valueOf(direction.id);
 			}
 		}
 		return null;
 	}
 
-	/**
-	 * Show the second dialog (detail directions)
-	 * @param simpleDirectionId the simple direction ID
-	 * @param firstDialog 1st dialog
-	 */
-	public void showSecondDialog(String simpleDirectionId, DialogInterface firstDialog) {
-		this.secondDialog = true;
-		showSecondAlertDialog(simpleDirectionId, firstDialog);
-	}
-
-	/**
-	 * @param simpleDirectionId the simple direction ID
-	 * @return the dialog of detail directions ID
-	 */
-	private void showSecondAlertDialog(String simpleDirectionId, final DialogInterface firstDialog) {
-		@SuppressWarnings("deprecation")
-		// show never happen now
-		String title = this.context.getString(R.string.select_bus_line_detail_direction_and_number_and_direction, this.lineNumber,
-				this.context.getString(BusUtils.getBusLineDirectionStringIdFromId(simpleDirectionId).get(0)));
-		String[] secondItems = getSecondItems(simpleDirectionId); // initialize detailDirectionsIds
-		int indexOf = -1;
-		if (this.currentDirectionId != null && this.detailDirectionsIds != null) {
-			indexOf = this.detailDirectionsIds.indexOf(this.currentDirectionId);
-		}
-		new AlertDialog.Builder(this.context).setTitle(title).setSingleChoiceItems(secondItems, indexOf, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				// show the bus line direction
-				String number = BusLineSelectDirection.this.lineNumber;
-				String directionId = BusLineSelectDirection.this.detailDirectionsIds.get(which);
-				BusLineSelectDirection.this.listener.showNewLine(number, directionId);
-				dialog.dismiss(); // CLOSE
-				firstDialog.dismiss(); // also close 1st dialog
-			}
-		}).setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.cancel(); // CANCEL
-				BusLineSelectDirection.this.secondDialog = false;
-				// 1st dialog is still open
-			}
-		}).create().show();
-	}
-
-	/**
-	 * @param simpleDirectionId the simple direction ID
-	 * @return the list of details direction ID
-	 */
-	private String[] getSecondItems(String simpleDirectionId) {
-		this.detailDirectionsIds = new ArrayList<String>();
-		for (StmStore.BusLineDirection directionId : getSelectedBusLineDirectionIds()) {
-			if (directionId.getSimpleId().equalsIgnoreCase(simpleDirectionId)) {
-				if (!this.detailDirectionsIds.contains(directionId.getId())) {
-					this.detailDirectionsIds.add(directionId.getId());
-				}
-			}
-		}
-		List<String> items = new ArrayList<String>();
-		for (String defailDirectionId : this.detailDirectionsIds) {
-			@SuppressWarnings("deprecation")
-			// should never happen now
-			List<Integer> stringIds = BusUtils.getBusLineDirectionStringIdFromId(defailDirectionId);
-			int stringId;
-			if (stringIds.size() >= 2) {
-				stringId = stringIds.get(1);
-			} else {
-				stringId = R.string.regular_route;
-			}
-			items.add(this.context.getString(stringId));
-		}
-		return items.toArray(new String[] {});
-	}
-
-	/**
-	 * @param simpleDirectionId the simple direction ID
-	 * @return true if the there are more than one direction ID matching the simple direction ID
-	 */
-	private boolean isMoreThanOneDirectionFor(String simpleDirectionId) {
-		int nb = 0;
-		for (StmStore.BusLineDirection directionId : getSelectedBusLineDirectionIds()) {
-			if (directionId.getSimpleId().equalsIgnoreCase(simpleDirectionId)) {
-				nb++;
-			}
-		}
-		return nb > 1;
-	}
-
 	@Override
 	public void showNewLine(String lineNumber, String directionId) {
 		MyLog.v(TAG, "showNewLine(%s, %s)", lineNumber, directionId);
-		Intent mIntent = new Intent(this.context, SupportFactory.get().getBusLineInfoClass());
-		mIntent.putExtra(BusLineInfo.EXTRA_LINE_NUMBER, lineNumber);
-		mIntent.putExtra(BusLineInfo.EXTRA_LINE_NAME, this.lineName);
-		mIntent.putExtra(BusLineInfo.EXTRA_LINE_TYPE, this.lineType);
-		mIntent.putExtra(BusLineInfo.EXTRA_LINE_DIRECTION_ID, directionId);
-		this.context.startActivity(mIntent);
+		this.context.startActivity(BusLineInfo.newInstance(this.context, lineNumber, this.lineName, this.lineColor, this.lineTextColor, directionId));
 	}
 
 	/**

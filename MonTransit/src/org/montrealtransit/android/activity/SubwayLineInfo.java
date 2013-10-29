@@ -36,7 +36,6 @@ import org.montrealtransit.android.provider.StmStore.SubwayStation;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -192,12 +191,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 						toast.show();
 						// return; why not?
 					}
-					Intent intent = new Intent(SubwayLineInfo.this, SubwayStationInfo.class);
-					String subwayStationId = SubwayLineInfo.this.stations.get(position).getId();
-					String subwayStationName = SubwayLineInfo.this.stations.get(position).getName();
-					intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, subwayStationId);
-					intent.putExtra(SubwayStationInfo.EXTRA_STATION_NAME, subwayStationName);
-					startActivity(intent);
+					startActivity(SubwayStationInfo.newInstance(SubwayLineInfo.this, SubwayLineInfo.this.stations.get(position)));
 				}
 			}
 		});
@@ -222,7 +216,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 					if (SubwayLineInfo.this.subwayLine != null && SubwayLineInfo.this.subwayLine.getNumber() == params[0].intValue()) {
 						return SubwayLineInfo.this.subwayLine;
 					}
-					return StmManager.findSubwayLine(getContentResolver(), params[0]);
+					return StmManager.findSubwayLine(SubwayLineInfo.this, params[0]);
 				}
 
 				@Override
@@ -324,10 +318,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		MyLog.v(TAG, "showClosestStation()");
 		if (this.hasFocus && !this.shakeHandled && !TextUtils.isEmpty(this.closestStationId)) {
 			Toast.makeText(this, R.string.shake_closest_subway_line_station_selected, Toast.LENGTH_SHORT).show();
-			Intent intent = new Intent(this, SubwayStationInfo.class);
-			intent.putExtra(SubwayStationInfo.EXTRA_STATION_ID, this.closestStationId);
-			intent.putExtra(SubwayStationInfo.EXTRA_STATION_NAME, findStationName(this.closestStationId));
-			startActivity(intent);
+			startActivity(SubwayStationInfo.newInstance(SubwayLineInfo.this, this.closestStationId, findStationName(this.closestStationId)));
 			this.shakeHandled = true;
 		}
 	}
@@ -430,11 +421,10 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 			protected List<ASubwayStation> doInBackground(Integer... params) {
 				int lineNumber = params[0];
 				String orderId = getSortOrderFromOrderPref(lineNumber);
-				List<SubwayStation> subwayStationsList = StmManager.findSubwayLineStationsList(SubwayLineInfo.this.getContentResolver(), lineNumber, orderId);
+				List<SubwayStation> subwayStationsList = StmManager.findSubwayLineStationsList(SubwayLineInfo.this, lineNumber, orderId);
 				// preparing other stations lines data
 				Map<String, Set<Integer>> stationsWithOtherLines = new HashMap<String, Set<Integer>>();
-				for (Pair<SubwayLine, SubwayStation> lineStation : StmManager.findSubwayLineStationsWithOtherLinesList(
-						SubwayLineInfo.this.getContentResolver(), lineNumber)) {
+				for (Pair<SubwayLine, SubwayStation> lineStation : StmManager.findSubwayLineStationsWithOtherLinesList(SubwayLineInfo.this, lineNumber)) {
 					int subwayLineNumber = lineStation.first.getNumber();
 					String subwayStationId = lineStation.second.getId();
 					if (stationsWithOtherLines.get(subwayStationId) == null) {
@@ -511,7 +501,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		new AsyncTask<String, Void, SubwayStation>() {
 			@Override
 			protected SubwayStation doInBackground(String... params) {
-				return StmManager.findSubwayLineLastSubwayStation(getContentResolver(), SubwayLineInfo.this.subwayLine.getNumber(), params[0]);
+				return StmManager.findSubwayLineLastSubwayStation(SubwayLineInfo.this, SubwayLineInfo.this.subwayLine.getNumber(), params[0]);
 			}
 
 			@Override
@@ -602,6 +592,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 		this.closestStationId = orderedStations.get(0).getDistance() > 0 ? orderedStations.get(0).getId() : null;
 	}
 
+	@TargetApi(3)
 	static class ViewHolder {
 		TextView placeTv;
 		TextView stationNameTv;
@@ -616,6 +607,7 @@ public class SubwayLineInfo extends Activity implements SubwayLineSelectDirectio
 	/**
 	 * A custom array adapter with custom {@link ArrayAdapterWithCustomView#getView(int, View, ViewGroup)}
 	 */
+	@TargetApi(3)
 	private class ArrayAdapterWithCustomView extends ArrayAdapter<ASubwayStation> {
 
 		/**

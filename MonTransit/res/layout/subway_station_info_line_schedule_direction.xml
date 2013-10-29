@@ -44,7 +44,6 @@
         android:id="@+id/direction_frequency_string"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_below="@id/direction_station"
         android:text="@string/frequency"
@@ -54,7 +53,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@id/direction_frequency_string"
-        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 </RelativeLayout>

@@ -31,6 +31,7 @@
 		<!-- PROVIDERs -->
 		<provider android:name=".provider.DataProvider" android:authorities="org.montrealtransit.android.data" android:exported="false" />
 		<provider android:name=".provider.StmProvider" android:authorities="org.montrealtransit.android.stm" android:exported="false" />
+		<provider android:name=".provider.stmbus.StmBusProvider" android:authorities="org.montrealtransit.android.stmbus" android:exported="false" />
 		<provider android:name=".provider.BixiProvider" android:authorities="org.montrealtransit.android.bixi" android:exported="false" />
 		<!-- SPLASH SCREEN -->
 		<activity android:name=".activity.SplashScreen"
@@ -68,12 +69,6 @@
 		<activity android:name=".activity.BusStopInfo"
 			android:configChanges="orientation|keyboardHidden"
 			android:launchMode="singleTop">
-			<intent-filter android:label="@string/viewBusStopInfo">
-				<action android:name="android.intent.action.VIEW" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<data
-					android:mimeType="vnd.android.cursor.item/vnd.org.montrealtransit.android.provider.busstopslivefolder" />
-			</intent-filter>
 			<intent-filter android:priority="-101">
 			  <action android:name="android.nfc.action.NDEF_DISCOVERED"/>
 			  <category android:name="android.intent.category.DEFAULT"/>
@@ -88,27 +83,20 @@
 		<activity android:name=".activity.v4.SubwayLineInfo" android:configChanges="orientation|keyboardHidden" />
 		<!-- BIKE STATÍON INFO -->
 		<activity android:name=".activity.BikeStationInfo"
-			android:configChanges="orientation|keyboardHidden" />
+			android:configChanges="orientation|keyboardHidden"
+			android:launchMode="singleTop" />
 		<!-- PREFERENCES -->
 		<activity android:name=".activity.UserPreferences" />
 		<!-- SEARCH RESULT ACTIVITY -->
 		<activity android:name=".activity.SearchResult"
 			android:theme="@android:style/Theme"
+			android:configChanges="orientation|keyboardHidden"
 			android:launchMode="singleTop">
 			<intent-filter>
 				<action android:name="android.intent.action.SEARCH" />
 				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
 			<meta-data android:name="android.app.searchable" android:resource="@xml/searchable" />
-		</activity>
-		<!-- LIVE FOLDER -->
-		<activity android:name=".activity.FavListLiveFolder"
-			android:label="@string/favorite_bus_stop_live_folder_name_in_the_menu"
-			android:icon="@drawable/ic_launcher_folder_live_favorites">
-			<intent-filter>
-				<action android:name="android.intent.action.CREATE_LIVE_FOLDER" />
-				<category android:name="android.intent.category.DEFAULT" />
-			</intent-filter>
 		</activity>
 		<!-- GOOGLE ADMOB ACTIVITY -->
 		<activity android:name="com.google.ads.AdActivity"

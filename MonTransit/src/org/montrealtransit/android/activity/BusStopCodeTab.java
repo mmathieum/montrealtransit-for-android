@@ -11,10 +11,9 @@ import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore;
-import org.montrealtransit.android.provider.StmManager;
+import org.montrealtransit.android.provider.StmBusManager;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -146,8 +145,8 @@ public class BusStopCodeTab extends Activity {
 			new AsyncTask<Void, String, List<String>>() {
 				@Override
 				protected List<String> doInBackground(Void... params) {
-					List<String> numbers = StmManager.findAllBusStopCodeList(BusStopCodeTab.this.getContentResolver());
-					numbers.addAll(StmManager.findAllBusLinesNumbersList(BusStopCodeTab.this.getContentResolver()));
+					List<String> numbers = StmBusManager.findAllStopsCodeList(BusStopCodeTab.this);
+					numbers.addAll(StmBusManager.findAllRoutesShortNameList(BusStopCodeTab.this));
 					return numbers;
 				}
 
@@ -208,9 +207,7 @@ public class BusStopCodeTab extends Activity {
 							}
 						}.execute(search);
 					}
-					Intent intent = new Intent(this, SupportFactory.get().getBusLineInfoClass());
-					intent.putExtra(BusLineInfo.EXTRA_LINE_NUMBER, search);
-					startActivity(intent);
+					startActivity(BusLineInfo.newInstance(this, search));
 				} else {
 					Utils.notifyTheUserLong(this, getString(R.string.wrong_line_number_and_number, search));
 				}
@@ -240,9 +237,7 @@ public class BusStopCodeTab extends Activity {
 	 * @param stopCode the bus stop code
 	 */
 	private void showBusStopInfo(String stopCode) {
-		Intent intent = new Intent(this, BusStopInfo.class);
-		intent.putExtra(BusStopInfo.EXTRA_STOP_CODE, stopCode);
-		startActivity(intent);
+		startActivity(BusStopInfo.newInstance(this, stopCode));
 	}
 
 	@Override

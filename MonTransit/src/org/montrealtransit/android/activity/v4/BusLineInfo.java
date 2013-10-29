@@ -1,23 +1,19 @@
 package org.montrealtransit.android.activity.v4;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import org.montrealtransit.android.AnalyticsUtils;
-import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.SensorUtils;
-import org.montrealtransit.android.SensorUtils.CompassListener;
 import org.montrealtransit.android.SensorUtils.ShakeListener;
 import org.montrealtransit.android.Utils;
-import org.montrealtransit.android.provider.StmManager;
-import org.montrealtransit.android.provider.StmStore.BusLine;
-import org.montrealtransit.android.provider.StmStore.BusLineDirection;
+import org.montrealtransit.android.data.Route;
+import org.montrealtransit.android.data.Trip;
+import org.montrealtransit.android.provider.StmBusManager;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
@@ -36,6 +32,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.text.TextUtils;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -44,7 +42,7 @@ import android.widget.TextView;
 import com.viewpagerindicator.TitlePageIndicator;
 
 @TargetApi(4)
-public class BusLineInfo extends FragmentActivity implements LocationListener, SensorEventListener, ShakeListener, CompassListener, OnPageChangeListener {
+public class BusLineInfo extends FragmentActivity implements LocationListener, SensorEventListener, ShakeListener, /* CompassListener, */OnPageChangeListener {
 
 	/**
 	 * The log tag.
@@ -58,19 +56,19 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 	/**
 	 * The extra ID for the bus line number.
 	 */
-	public static final String EXTRA_LINE_NUMBER = org.montrealtransit.android.activity.BusLineInfo.EXTRA_LINE_NUMBER;
+	public static final String EXTRA_ROUTE_SHORT_NAME = org.montrealtransit.android.activity.BusLineInfo.EXTRA_ROUTE_SHORT_NAME;
 	/**
 	 * Only used to display initial bus line name.
 	 */
-	public static final String EXTRA_LINE_NAME = org.montrealtransit.android.activity.BusLineInfo.EXTRA_LINE_NAME;
-	/**
-	 * Only used to display initial bus line type color.
-	 */
-	public static final String EXTRA_LINE_TYPE = org.montrealtransit.android.activity.BusLineInfo.EXTRA_LINE_TYPE;
+	public static final String EXTRA_ROUTE_LONG_NAME = org.montrealtransit.android.activity.BusLineInfo.EXTRA_ROUTE_LONG_NAME;
+
+	public static final String EXTRA_ROUTE_COLOR = org.montrealtransit.android.activity.BusLineInfo.EXTRA_ROUTE_COLOR;
+
+	public static final String EXTRA_ROUTE_TEXT_COLOR = org.montrealtransit.android.activity.BusLineInfo.EXTRA_ROUTE_TEXT_COLOR;
 	/**
 	 * The extra ID for the bus line direction ID.
 	 */
-	public static final String EXTRA_LINE_DIRECTION_ID = org.montrealtransit.android.activity.BusLineInfo.EXTRA_LINE_DIRECTION_ID;
+	public static final String EXTRA_LINE_TRIP_ID = org.montrealtransit.android.activity.BusLineInfo.EXTRA_LINE_TRIP_ID; // TODO switch to integer
 	/**
 	 * The extra ID for the bus stop code (optional)
 	 */
@@ -79,15 +77,15 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 	/**
 	 * The current bus line.
 	 */
-	private BusLine busLine;
+	private Route busLine;
 	/**
 	 * The bus line directions.
 	 */
-	private List<BusLineDirection> busLineDirections;
+	private List<Trip> busLineDirections;
 	/**
 	 * The bus line directions title.
 	 */
-	private Map<String, String> busLineDirectionsString;
+	private SparseArray<String> busLineDirectionsString;
 	/**
 	 * The current direction ID.
 	 */
@@ -105,9 +103,9 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 	 */
 	private boolean locationUpdatesEnabled = false;
 	/**
-	 * Is the compass updates enabled?
+	 * Is the shake updates enabled?
 	 */
-	private boolean compassUpdatesEnabled = false;
+	private boolean shakeUpdatesEnabled = false;
 	/**
 	 * The acceleration apart from gravity.
 	 */
@@ -125,14 +123,6 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 	 */
 	private boolean shakeHandled = false;
 	/**
-	 * The {@link Sensor#TYPE_ACCELEROMETER} values.
-	 */
-	private float[] accelerometerValues = new float[3];
-	/**
-	 * The {@link Sensor#TYPE_MAGNETIC_FIELD} values.
-	 */
-	private float[] magneticFieldValues = new float[3];
-	/**
 	 * The selected stop code (or null).
 	 */
 	private String currentStopCode;
@@ -145,13 +135,14 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 		setContentView(R.layout.bus_line_info);
 
 		// get the bus line ID and bus line direction ID from the intent.
-		String lineNumber = Utils.getSavedStringValue(getIntent(), savedInstanceState, BusLineInfo.EXTRA_LINE_NUMBER);
-		String lineType = Utils.getSavedStringValue(getIntent(), savedInstanceState, BusLineInfo.EXTRA_LINE_TYPE);
-		String lineName = Utils.getSavedStringValue(getIntent(), savedInstanceState, BusLineInfo.EXTRA_LINE_NAME);
-		String lineDirectionId = Utils.getSavedStringValue(getIntent(), savedInstanceState, BusLineInfo.EXTRA_LINE_DIRECTION_ID);
-		this.currentStopCode = Utils.getSavedStringValue(getIntent(), savedInstanceState, BusLineInfo.EXTRA_LINE_STOP_CODE);
+		String lineNumber = Utils.getSavedStringValue(getIntent(), savedInstanceState, EXTRA_ROUTE_SHORT_NAME);
+		String lineName = Utils.getSavedStringValue(getIntent(), savedInstanceState, EXTRA_ROUTE_LONG_NAME);
+		String lineColor = Utils.getSavedStringValue(getIntent(), savedInstanceState, EXTRA_ROUTE_COLOR);
+		String lineTextColor = Utils.getSavedStringValue(getIntent(), savedInstanceState, EXTRA_ROUTE_TEXT_COLOR);
+		String lineDirectionId = Utils.getSavedStringValue(getIntent(), savedInstanceState, EXTRA_LINE_TRIP_ID);
+		this.currentStopCode = Utils.getSavedStringValue(getIntent(), savedInstanceState, EXTRA_LINE_STOP_CODE);
 		// temporary show the line name & number
-		setLineNumberAndName(lineNumber, lineType, lineName);
+		setLineNumberAndName(lineNumber, lineName, lineColor, lineTextColor);
 		// show bus line
 		showNewLine(lineNumber, lineDirectionId);
 	}
@@ -161,7 +152,6 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 	 */
 	private boolean hasFocus = true;
 	private boolean paused = false;
-	private float locationDeclination;
 
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
@@ -195,7 +185,6 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 			if (LocationUtils.getBestLastKnownLocation(this) != null) {
 				// set the new distance
 				setLocation(LocationUtils.getBestLastKnownLocation(this));
-				updateDistancesWithNewLocation();
 			}
 			// re-enable
 			this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled, this.paused);
@@ -219,7 +208,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 		this.paused = true;
 		this.locationUpdatesEnabled = LocationUtils.disableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled);
 		SensorUtils.unregisterSensorListener(this, this);
-		this.compassUpdatesEnabled = false;
+		this.shakeUpdatesEnabled = false;
 		super.onPause();
 	}
 
@@ -227,7 +216,6 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 	public void onSensorChanged(SensorEvent se) {
 		// MyLog.v(TAG, "onSensorChanged()");
 		SensorUtils.checkForShake(se, this.lastSensorUpdate, this.lastSensorAccelerationIncGravity, this.lastSensorAcceleration, this);
-		SensorUtils.checkForCompass(this, se, this.accelerometerValues, this.magneticFieldValues, this);
 	}
 
 	@Override
@@ -255,39 +243,20 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 		}
 	}
 
-	@Override
-	public void updateCompass(float orientation, boolean force) {
-		// MyLog.v(TAG, "onCompass()");
-		if (this.adapter != null && orientation != 0) {
-			// updateCompass(SensorUtils.calculateOrientation(this, this.accelerometerValues, this.magneticFieldValues));
-			for (int i = 0; i < this.adapter.getCount(); i++) {
-				Fragment f = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.viewpager + ":" + i);
-				if (f != null) {
-					BusLineDirectionFragment df = (BusLineDirectionFragment) f;
-					df.updateCompass(orientation, force);
-				}
-			}
-		}
-	}
-
-	// @Override
 	public void showNewLine(final String newLineNumber, final String newDirectionId) {
 		MyLog.v(TAG, "showNewLine(%s, %s)", newLineNumber, newDirectionId);
 		this.currentBusLineDirectionId = newDirectionId;
-		if ((this.busLine == null /* || this.busLineDirections == null *//* || this.currentBusLineDirectionId == null */)
-				|| (!this.busLine.getNumber().equals(newLineNumber)
-				/* || !this.currentBusLineDirectionId.equals(newDirectionId) */)) {
+		if (this.busLine == null || !this.busLine.shortName.equals(newLineNumber)) {
 			// show loading layout
 			showLoading();
 			new AsyncTask<Void, Void, Void>() {
 				@Override
 				protected Void doInBackground(Void... params) {
-					BusLineInfo.this.busLine = StmManager.findBusLine(BusLineInfo.this.getContentResolver(), newLineNumber);
-					BusLineInfo.this.busLineDirections = StmManager.findBusLineDirections(BusLineInfo.this.getContentResolver(), newLineNumber);
-					BusLineInfo.this.busLineDirectionsString = new HashMap<String, String>();
-					for (BusLineDirection direction : BusLineInfo.this.busLineDirections) {
-						BusLineInfo.this.busLineDirectionsString.put(direction.getId(),
-								BusUtils.getDirectionString(BusLineInfo.this, direction).toUpperCase(Locale.getDefault()));
+					BusLineInfo.this.busLine = StmBusManager.findRoute(BusLineInfo.this, newLineNumber);
+					BusLineInfo.this.busLineDirections = StmBusManager.findTripsWithRouteIdList(BusLineInfo.this, newLineNumber);
+					BusLineInfo.this.busLineDirectionsString = new SparseArray<String>();
+					for (Trip direction : BusLineInfo.this.busLineDirections) {
+						BusLineInfo.this.busLineDirectionsString.put(direction.id, direction.getHeading(BusLineInfo.this).toUpperCase(Locale.getDefault()));
 					}
 					return null;
 				}
@@ -327,7 +296,6 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 		if (LocationUtils.getBestLastKnownLocation(this) != null) {
 			// set the distance before showing the list
 			setLocation(LocationUtils.getBestLastKnownLocation(this));
-			updateDistancesWithNewLocation();
 		}
 		// IF location updates are not already enabled DO
 		this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled, this.paused);
@@ -338,17 +306,23 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 	 */
 	private void refreshBusLineInfo() {
 		// bus line number & name
-		setLineNumberAndName(this.busLine.getNumber(), this.busLine.getType(), this.busLine.getName());
+		setLineNumberAndName(this.busLine.shortName, this.busLine.longName, this.busLine.color, this.busLine.textColor);
 	}
 
 	/**
 	 * Refresh the bus line number UI.
 	 */
-	public void setLineNumberAndName(String lineNumber, String lineType, String lineName) {
-		MyLog.v(TAG, "setLineNumberAndName(%s, %s, %s)", lineNumber, lineType, lineName);
-		((TextView) findViewById(R.id.line_number)).setText(lineNumber);
-		findViewById(R.id.line_number).setBackgroundColor(BusUtils.getBusLineTypeBgColor(lineType, lineNumber));
-		((TextView) findViewById(R.id.line_name)).setText(lineName);
+	public void setLineNumberAndName(String shortName, String longName, String color, String textColor) {
+		// MyLog.v(TAG, "setLineNumberAndName(%s, %s, %s, %s)", shortName, longName, color, textColor);
+		final TextView routeShortNameTv = (TextView) findViewById(R.id.line_number);
+		routeShortNameTv.setText(shortName);
+		if (!TextUtils.isEmpty(textColor)) {
+			routeShortNameTv.setTextColor(Utils.parseColor(textColor));
+		}
+		if (!TextUtils.isEmpty(color)) {
+			routeShortNameTv.setBackgroundColor(Utils.parseColor(color));
+		}
+		((TextView) findViewById(R.id.line_name)).setText(longName);
 		findViewById(R.id.line_name).requestFocus();
 	}
 
@@ -374,7 +348,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 		int index = 0;
 		if (this.busLineDirections != null) {
 			for (int i = 0; i < this.busLineDirections.size(); i++) {
-				if (this.busLineDirections.get(i).getId().equals(this.currentBusLineDirectionId)) {
+				if (String.valueOf(this.busLineDirections.get(i).id).equals(this.currentBusLineDirectionId)) {// TODO burk
 					index = i;
 				}
 			}
@@ -395,7 +369,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 	public void onPageSelected(int position) {
 		MyLog.v(TAG, "onPageSelected(%s)", position);
 		if (this.busLineDirections != null && this.busLineDirections.size() > position) {
-			this.currentBusLineDirectionId = this.busLineDirections.get(position).getId();
+			this.currentBusLineDirectionId = String.valueOf(this.busLineDirections.get(position).id);
 		} else {
 			this.currentBusLineDirectionId = null;
 		}
@@ -407,7 +381,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 	 * @param v the view (not used)
 	 */
 	public void showSTMBusLineMap(View v) {
-		String url = "http://www.stm.info/bus/images/PLAN/lign-" + this.busLine.getNumber() + ".gif";
+		String url = "http://www.stm.info/bus/images/PLAN/lign-" + this.busLine.shortName + ".gif";
 		startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
 	}
 
@@ -418,18 +392,22 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 		if (newLocation != null) {
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
-				this.locationDeclination = SensorUtils.getLocationDeclination(this.location);
-				if (!this.compassUpdatesEnabled) {
+				if (!this.shakeUpdatesEnabled) {
 					SensorUtils.registerShakeAndCompassListener(this, this);
-					this.compassUpdatesEnabled = true;
+					this.shakeUpdatesEnabled = true;
 					this.shakeHandled = false;
+				}
+				if (this.adapter != null) {
+					for (int i = 0; i < this.adapter.getCount(); i++) {
+						Fragment f = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.viewpager + ":" + i);
+						if (f != null) {
+							BusLineDirectionFragment df = (BusLineDirectionFragment) f;
+							df.setLocation(this.location);
+						}
+					}
 				}
 			}
 		}
-	}
-
-	public float getLocationDeclination() {
-		return locationDeclination;
 	}
 
 	/**
@@ -449,25 +427,9 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 	}
 
 	/**
-	 * Update the distances with the latest device location.
-	 */
-	private void updateDistancesWithNewLocation() {
-		// MyLog.v(TAG, "updateDistancesWithNewLocation()");
-		if (this.adapter != null) {
-			for (int i = 0; i < this.adapter.getCount(); i++) {
-				Fragment f = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.viewpager + ":" + i);
-				if (f != null) {
-					BusLineDirectionFragment df = (BusLineDirectionFragment) f;
-					df.updateDistancesWithNewLocation(this);
-				}
-			}
-		}
-	}
-
-	/**
 	 * @return the bus line or null
 	 */
-	public BusLine getBusLine() {
+	public Route getBusLine() {
 		return this.busLine;
 	}
 
@@ -475,7 +437,6 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 	public void onLocationChanged(Location location) {
 		// MyLog.v(TAG, "onLocationChanged()");
 		this.setLocation(location);
-		updateDistancesWithNewLocation();
 	}
 
 	@Override
@@ -537,7 +498,7 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 		@Override
 		public CharSequence getPageTitle(int position) {
 			// MyLog.v(TAG, "getPageTitle(%s)", position);
-			return BusLineInfo.this.busLineDirectionsString.get(BusLineInfo.this.busLineDirections.get(position).getId());
+			return BusLineInfo.this.busLineDirectionsString.get(BusLineInfo.this.busLineDirections.get(position).id);
 		}
 
 		@Override
@@ -549,8 +510,8 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 		@Override
 		public Fragment getItem(int position) {
 			// MyLog.v(TAG, "getItem(%s)", position);
-			return BusLineDirectionFragment.newInstance(BusLineInfo.this.busLineDirections.get(position).getLineId(),
-					BusLineInfo.this.busLineDirections.get(position).getId(), BusLineInfo.this.currentStopCode);
+			return BusLineDirectionFragment.newInstance(BusLineInfo.this.busLine, BusLineInfo.this.busLineDirections.get(position),
+					BusLineInfo.this.currentStopCode);
 		}
 
 	}

@@ -1,6 +1,5 @@
 package org.montrealtransit.android.data;
 
-import org.montrealtransit.android.LocationUtils.POI;
 import org.montrealtransit.android.provider.BixiStore.BikeStation;
 
 /**
@@ -70,5 +69,15 @@ public class ABikeStation extends BikeStation implements POI {
 	 */
 	public float getDistance() {
 		return distance;
+	}
+
+	@Override
+	public String getUID() {
+		return getTerminalName();
+	}
+
+	@Override
+	public int getType() {
+		return POI.ITEM_VIEW_TYPE_BIKE;
 	}
 }

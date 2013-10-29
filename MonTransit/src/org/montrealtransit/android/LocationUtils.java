@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.montrealtransit.android.activity.UserPreferences;
+import org.montrealtransit.android.data.POI;
 
 import android.app.Activity;
 import android.content.Context;
@@ -47,7 +48,7 @@ public class LocationUtils {
 	/**
 	 * How long do we even consider the location? (in milliseconds)
 	 */
-	private static final long MAX_LAST_KNOW_LOCATION_TIME = 10 * 60 * 1000; // 10 minutes
+	private static final long MAX_LAST_KNOW_LOCATION_TIME = 15 * 60 * 1000; // 15 minutes
 	/**
 	 * The range of the location around.
 	 */
@@ -508,7 +509,27 @@ public class LocationUtils {
 		return qb.toString();
 	}
 
-	public static void updateDistance(Context context, Map<?, ? extends POI> pois, Location currentLocation) {
+	public static String genAroundWhere(double lat, double lng, String latTableColumn, String lngTableColumn) {
+		return genAroundWhere(String.valueOf(lat), String.valueOf(lng), latTableColumn, lngTableColumn);
+	}
+
+	public static String genAroundWhere(Location location, String latTableColumn, String lngTableColumn) {
+		return genAroundWhere(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()), latTableColumn, lngTableColumn);
+	}
+
+	public static void updateDistance(Map<?, ? extends POI> pois, double lat, double lng) {
+		if (pois == null) {
+			return;
+		}
+		for (POI poi : pois.values()) {
+			if (!poi.hasLocation()) {
+				continue;
+			}
+			poi.setDistance(distanceTo(lat, lng, poi.getLat(), poi.getLng()));
+		}
+	}
+
+	public static void updateDistanceWithString(Context context, Map<?, ? extends POI> pois, Location currentLocation) {
 		if (pois == null || currentLocation == null) {
 			return;
 		}
@@ -534,6 +555,7 @@ public class LocationUtils {
 
 	public static void updateDistance(final Context context, final List<? extends POI> pois, final Location currentLocation,
 			final LocationTaskCompleted callback) {
+		// MyLog.v(TAG, "updateDistance()");
 		if (pois == null || currentLocation == null) {
 			callback.onLocationTaskCompleted();
 			return;
@@ -542,7 +564,7 @@ public class LocationUtils {
 
 			@Override
 			protected Void doInBackground(Void... params) {
-				updateDistance(context, pois, currentLocation);
+				updateDistanceWithString(context, pois, currentLocation);
 				return null;
 			}
 
@@ -553,7 +575,7 @@ public class LocationUtils {
 		}.execute();
 	}
 
-	public static void updateDistance(Context context, List<? extends POI> pois, Location currentLocation) {
+	public static void updateDistanceWithString(Context context, List<? extends POI> pois, Location currentLocation) {
 		if (pois == null || currentLocation == null) {
 			return;
 		}
@@ -577,7 +599,19 @@ public class LocationUtils {
 		}
 	}
 
-	public static void updateDistance(final Context context, final POI poi, final Location currentLocation, final LocationTaskCompleted callback) {
+	public static void updateDistance(List<? extends POI> pois, double lat, double lng) {
+		if (pois == null) {
+			return;
+		}
+		for (POI poi : pois) {
+			if (!poi.hasLocation()) {
+				continue;
+			}
+			poi.setDistance(distanceTo(lat, lng, poi.getLat(), poi.getLng()));
+		}
+	}
+
+	public static void updateDistanceWithString(final Context context, final POI poi, final Location currentLocation, final LocationTaskCompleted callback) {
 		if (poi == null || currentLocation == null) {
 			callback.onLocationTaskCompleted();
 			return;
@@ -586,7 +620,7 @@ public class LocationUtils {
 
 			@Override
 			protected Void doInBackground(Void... params) {
-				updateDistance(context, poi, currentLocation);
+				updateDistanceWithString(context, poi, currentLocation);
 				return null;
 			}
 
@@ -597,7 +631,7 @@ public class LocationUtils {
 		}.execute();
 	}
 
-	public static void updateDistance(Context context, POI poi, Location currentLocation) {
+	public static void updateDistanceWithString(Context context, POI poi, Location currentLocation) {
 		if (poi == null || currentLocation == null) {
 			return;
 		}
@@ -621,34 +655,6 @@ public class LocationUtils {
 
 	public interface LocationTaskCompleted {
 		void onLocationTaskCompleted();
-	}
-
-	public interface POI {
-		/**
-		 * @param distanceString the new distance string
-		 */
-		public void setDistanceString(String distanceString);
-
-		public Double getLat();
-
-		public Double getLng();
-
-		public boolean hasLocation();
-
-		/**
-		 * @return the distance string
-		 */
-		public String getDistanceString();
-
-		/**
-		 * @param distance the new distance
-		 */
-		public void setDistance(float distance);
-
-		/**
-		 * @return the distance
-		 */
-		public float getDistance();
 	}
 
 	/**

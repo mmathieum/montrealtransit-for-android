@@ -130,6 +130,7 @@
             android:textStyle="bold" />
     </RelativeLayout>
     <ScrollView
+        android:id="@+id/scrollview"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" >
         <LinearLayout
@@ -171,44 +172,38 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
-            <!-- BUS LINES -->
+            <!-- NEARBY -->
             <RelativeLayout
-                android:id="@+id/bus_line"
+                android:id="@+id/nearby_title"
                 android:layout_width="fill_parent"
                 android:layout_height="25dip"
                 android:background="@drawable/dark_header_dither"
                 android:visibility="gone" >
                 <ImageView
-                    android:id="@+id/bus_logo"
+                    android:id="@+id/nearby_logo"
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
                     android:layout_alignParentLeft="true"
                     android:focusable="false"
                     android:gravity="center_vertical"
-                    android:src="@drawable/ic_btn_bus" />
+                    android:src="@drawable/ic_btn_location" />
                 <TextView
-                    android:id="@+id/bus_line_text"
+                    android:id="@+id/nearby_title_text"
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
-                    android:layout_toRightOf="@id/bus_logo"
+                    android:layout_toRightOf="@id/nearby_logo"
                     android:gravity="center_vertical"
-                    android:text="@string/bus_lines_connecting"
+                    android:text="@string/nearby"
                     android:textColor="?android:attr/textColorSecondary"
                     android:textSize="14sp"
                     android:textStyle="bold" />
             </RelativeLayout>
-            <HorizontalScrollView
-                android:id="@+id/bus_lines"
+            <LinearLayout
+                android:id="@+id/nearby_list"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content" >
-                <LinearLayout
-                    android:id="@+id/bus_line_list"
-                    android:layout_width="wrap_content"
-                    android:layout_height="fill_parent"
-                    android:gravity="bottom"
-                    android:orientation="horizontal"
-                    android:padding="2dip" />
-            </HorizontalScrollView>
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone" />
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

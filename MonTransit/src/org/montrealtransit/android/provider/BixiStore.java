@@ -2,6 +2,7 @@ package org.montrealtransit.android.provider;
 
 import org.montrealtransit.android.LocationUtils;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.location.Location;
@@ -38,11 +39,11 @@ public class BixiStore {
 		/**
 		 * The MIME type of {@link #CONTENT_URI} providing a directory of bike station entries.
 		 */
-		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd." + AUTHORITY + ".provider.bikestations";
+		public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd." + AUTHORITY + ".provider.bikestations";
 		/**
 		 * The MIME type of a {@link #CONTENT_URI} sub-directory of a single bike station entry.
 		 */
-		public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd." + AUTHORITY + ".provider.bikestations";
+		public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/vnd." + AUTHORITY + ".provider.bikestations";
 		/**
 		 * The default sort order for bike stations.
 		 */
@@ -157,7 +158,7 @@ public class BixiStore {
 		}
 
 		/**
-		 * @param id the new name
+		 * @param name the new name
 		 */
 		public void setName(String name) {
 			this.name = name;

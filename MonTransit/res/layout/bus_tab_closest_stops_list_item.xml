@@ -18,7 +18,6 @@
         android:scaleType="center"
         android:src="@drawable/star_dark"
         android:visibility="gone" />
-    
     <!-- DISTANCE -->
     <TextView
         android:id="@+id/distance"

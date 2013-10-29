@@ -20,12 +20,13 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.montrealtransit.android.api.SupportFactory;
+import org.montrealtransit.android.data.RouteTripStop;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.DataStore.Fav;
+import org.montrealtransit.android.provider.StmBusManager;
 import org.montrealtransit.android.provider.StmManager;
 import org.montrealtransit.android.provider.StmStore;
-import org.montrealtransit.android.provider.StmStore.BusStop;
 import org.montrealtransit.android.provider.StmStore.SubwayStation;
 
 import android.app.Activity;
@@ -37,6 +38,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -44,6 +46,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.StatFs;
 import android.text.format.DateUtils;
+import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -78,6 +81,10 @@ public class Utils {
 	 * The minimum between 2 {@link BaseAdapter#notifyDataSetChanged()} in milliseconds.
 	 */
 	public static final int ADAPTER_NOTIFY_THRESOLD = 250; // 0.25 seconds
+	/**
+	 * The number of item in a manual POI list.
+	 */
+	public static final int NB_NEARBY_LIST = 20; // 10;
 	/**
 	 * The time after which a POIs list should be refresh if the user is not currently interacting with it (in milliseconds).
 	 */
@@ -255,6 +262,13 @@ public class Utils {
 			return 0;
 		}
 		return collection.size();
+	}
+
+	public static int getCollectionSize(SparseArray<?> sparseArray) {
+		if (sparseArray == null) {
+			return 0;
+		}
+		return sparseArray.size();
 	}
 
 	/**
@@ -524,22 +538,6 @@ public class Utils {
 	}
 
 	/**
-	 * Extract the bus stop IDs (bus stop code - bus line number) from the favorite bus stop list
-	 * @param busStopFavList the favorite bus stop list
-	 * @return the bus stop IDs string
-	 */
-	public static String extractBusStopIDsFromFavList(List<Fav> busStopFavList) {
-		StringBuilder sb = new StringBuilder();
-		for (Fav busStopFav : busStopFavList) {
-			if (sb.length() > 0) {
-				sb.append("+");
-			}
-			sb.append(BusStop.getUID(busStopFav.getFkId(), busStopFav.getFkId2()));
-		}
-		return sb.toString();
-	}
-
-	/**
 	 * Extract the subway station IDs from the favorite subway station list
 	 * @param subwayStationFavList the favorite subway station list
 	 * @return the subway station IDs string
@@ -655,29 +653,29 @@ public class Utils {
 	 * Clean favorites linking to old non-existing bus stops or subway stations. Use after STM DB updates.
 	 * @param contentResolver the content resolver
 	 */
-	public static void cleanFavorites(ContentResolver contentResolver) {
+	public static void cleanFavorites(Context context) {
 		MyLog.v(TAG, "cleanFavorites()");
 		try {
 			// bus stops
-			List<Fav> busStopFavs = DataManager.findFavsByTypeList(contentResolver, DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
-			List<BusStop> busStops = StmManager.findBusStopsList(contentResolver, Utils.extractBusStopIDsFromFavList(busStopFavs));
+			List<Fav> busStopFavs = DataManager.findFavsByTypeList(context.getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
+			List<RouteTripStop> routeTripStops = StmBusManager.findRouteTripStops(context, busStopFavs);
 			for (Fav busStopFav : busStopFavs) {
 				boolean stillInTheDB = false;
-				for (BusStop busStop : busStops) {
-					if (busStopFav.getFkId().equals(busStop.getCode()) && busStopFav.getFkId2().equals(busStop.getLineNumber())) {
+				for (RouteTripStop routeTripStop : routeTripStops) {
+					if (busStopFav.getFkId().equals(routeTripStop.stop.code) && busStopFav.getFkId2().equals(routeTripStop.route.shortName)) {
 						stillInTheDB = true;
 					}
 				}
 				if (!stillInTheDB) {
-					DataManager.deleteFav(contentResolver, busStopFav.getId());
+					DataManager.deleteFav(context.getContentResolver(), busStopFav.getId());
 				}
 			}
 			// subway stations
-			List<Fav> subwayFavs = DataManager.findFavsByTypeList(contentResolver, DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
+			List<Fav> subwayFavs = DataManager.findFavsByTypeList(context.getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
 			for (Fav subwayFav : subwayFavs) {
-				SubwayStation station = StmManager.findSubwayStation(contentResolver, subwayFav.getFkId());
+				SubwayStation station = StmManager.findSubwayStation(context, subwayFav.getFkId());
 				if (station == null) {
-					DataManager.deleteFav(contentResolver, subwayFav.getId());
+					DataManager.deleteFav(context.getContentResolver(), subwayFav.getId());
 				}
 			}
 		} catch (Exception e) {
@@ -864,5 +862,20 @@ public class Utils {
 			reader.close();
 		}
 		return sb.toString();
+	}
+
+	static Map<String, Integer> colorMap = new HashMap<String, Integer>();
+
+	/**
+	 * @param color RRGGBB
+	 * @return color-integer
+	 * @see Color#parseColor(String)
+	 */
+	public static int parseColor(String color) {
+		if (!colorMap.containsKey(color)) {
+			// Logger.d(TAG, "new color parsed: " + color);
+			colorMap.put(color, Color.parseColor("#" + color));
+		}
+		return colorMap.get(color);
 	}
 }
