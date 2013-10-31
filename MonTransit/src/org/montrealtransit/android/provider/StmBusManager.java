@@ -412,7 +412,7 @@ public class StmBusManager {
 		try {
 			String selection = RouteTripStopColumns.T_STOP_K_CODE + " = " + stopCode;
 			cursor = context.getContentResolver().query(ROUTE_TRIP_STOP_URI, PROJECTION_ROUTE_TRIP_STOP, selection, null,
-					RouteTripStopColumns.T_TRIP_STOPS_K_STOP_SEQUENCE + " ASC");
+					RouteTripStopColumns.T_ROUTE_K_SHORT_NAME + ", " + RouteTripStopColumns.T_TRIP_STOPS_K_STOP_SEQUENCE + " ASC");
 			return getRouteTripStops(cursor);
 		} catch (Throwable t) {
 			MyLog.w(TAG, t, "Error!");
