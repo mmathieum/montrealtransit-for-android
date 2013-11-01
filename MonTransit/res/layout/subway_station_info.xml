@@ -198,6 +198,12 @@
                     android:textSize="14sp"
                     android:textStyle="bold" />
             </RelativeLayout>
+            <include
+                android:id="@+id/nearby_loading"
+                android:layout_width="fill_parent"
+                android:layout_height="?android:attr/listPreferredItemHeight"
+                layout="@layout/loading_small_layout"
+                android:visibility="gone" />
             <LinearLayout
                 android:id="@+id/nearby_list"
                 android:layout_width="fill_parent"

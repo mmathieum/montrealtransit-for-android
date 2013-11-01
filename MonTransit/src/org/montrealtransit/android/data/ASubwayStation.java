@@ -23,7 +23,7 @@ public class ASubwayStation extends SubwayStation implements POI {
 	/**
 	 * The distance string.
 	 */
-	private String distanceString = null;
+	private CharSequence distanceString = null;
 	/**
 	 * The distance in meter.
 	 */
@@ -91,14 +91,14 @@ public class ASubwayStation extends SubwayStation implements POI {
 	/**
 	 * @param distanceString the new distance string
 	 */
-	public void setDistanceString(String distanceString) {
+	public void setDistanceString(CharSequence distanceString) {
 		this.distanceString = distanceString;
 	}
 
 	/**
 	 * @return the distance string
 	 */
-	public String getDistanceString() {
+	public CharSequence getDistanceString() {
 		return distanceString;
 	}
 

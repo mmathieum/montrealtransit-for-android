@@ -206,24 +206,16 @@
                         android:scrollHorizontally="true"
                         android:singleLine="true" />
                 </HorizontalScrollView>
-                <HorizontalScrollView
-                    android:id="@+id/next_stops_message"
+                <TextView
+                    android:id="@+id/next_stops_message_text"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:visibility="gone" >
-                    <TextView
-                        android:id="@+id/next_stops_message_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:ellipsize="marquee"
-                        android:focusable="true"
-                        android:focusableInTouchMode="true"
-                        android:marqueeRepeatLimit="marquee_forever"
-                        android:padding="5dp"
-                        android:scrollHorizontally="true"
-                        android:textColor="@android:color/white"
-                        android:textSize="18sp" />
-                </HorizontalScrollView>
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:padding="5dp"
+                    android:textColor="@android:color/white"
+                    android:textSize="18sp"
+                    android:visibility="gone" />
                 <!-- OTHER BUS LINEs -->
                 <RelativeLayout
                     android:id="@+id/other_bus_line_title"
@@ -288,6 +280,12 @@
                         android:textSize="14sp"
                         android:textStyle="bold" />
                 </RelativeLayout>
+                <include
+                    android:id="@+id/nearby_loading"
+                    android:layout_width="fill_parent"
+                    android:layout_height="?android:attr/listPreferredItemHeight"
+                    layout="@layout/loading_small_layout"
+                    android:visibility="gone" />
                 <LinearLayout
                     android:id="@+id/nearby_list"
                     android:layout_width="fill_parent"

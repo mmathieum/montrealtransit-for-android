@@ -72,7 +72,7 @@ public class TripStop implements POI {
 	}
 
 	@Override
-	public void setDistanceString(String distanceString) {
+	public void setDistanceString(CharSequence distanceString) {
 		stop.setDistanceString(distanceString);
 	}
 
@@ -92,7 +92,7 @@ public class TripStop implements POI {
 	}
 
 	@Override
-	public String getDistanceString() {
+	public CharSequence getDistanceString() {
 		return stop.getDistanceString();
 	}
 

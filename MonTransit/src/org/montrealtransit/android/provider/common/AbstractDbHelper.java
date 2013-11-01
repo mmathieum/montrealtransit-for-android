@@ -111,11 +111,17 @@ public abstract class AbstractDbHelper extends SQLiteOpenHelper {
 	 */
 	public static int getCurrentDbVersion(Context context, String dbName) {
 		MyLog.v(TAG, "getCurrentDbVersion()");
+		SQLiteDatabase db = null;
 		try {
-			return SQLiteDatabase.openDatabase(context.getDatabasePath(dbName).getPath(), null, SQLiteDatabase.OPEN_READONLY).getVersion();
+			db = SQLiteDatabase.openDatabase(context.getDatabasePath(dbName).getPath(), null, SQLiteDatabase.OPEN_READONLY);
+			return db.getVersion();
 		} catch (Throwable t) {
 			MyLog.w(TAG, t, "Error while reading current DB version!");
 			return -1;
+		} finally {
+			if (db != null) {
+				db.close();
+			}
 		}
 	}
 

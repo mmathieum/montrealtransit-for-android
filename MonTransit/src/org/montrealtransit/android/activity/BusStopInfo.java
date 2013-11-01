@@ -555,7 +555,9 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 
 	private void refreshNearby() {
 		MyLog.v(TAG, "refreshNearby()");
-		// setNearbyListAsLoading();
+		findViewById(R.id.nearby_title).setVisibility(View.VISIBLE);
+		findViewById(R.id.nearby_list).setVisibility(View.GONE);
+		findViewById(R.id.nearby_loading).setVisibility(View.VISIBLE);
 		new AsyncTask<String, Void, List<POI>>() {
 			@Override
 			protected List<POI> doInBackground(String... params) {
@@ -593,6 +595,7 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 				// show the result
 				BusStopInfo.this.adapter.initManual();
 				findViewById(R.id.nearby_title).setVisibility(View.VISIBLE);
+				findViewById(R.id.nearby_loading).setVisibility(View.GONE);
 				findViewById(R.id.nearby_list).setVisibility(View.VISIBLE);
 			}
 
@@ -651,6 +654,7 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 				MyLog.v(TAG, "refreshOtherBusLinesInfo()>onPostExecute()");
 				BusStopInfo.this.otherBusStopLines = result;
 				refreshOtherBusLinesUI();
+				refreshNearby();
 			}
 		}.execute(this.routeTripStop.stop.code);
 	}
@@ -743,6 +747,7 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 		findViewById(R.id.other_bus_line_title).setVisibility(View.GONE);
 		findViewById(R.id.other_bus_line_list).setVisibility(View.GONE);
 		findViewById(R.id.nearby_title).setVisibility(View.GONE);
+		findViewById(R.id.nearby_loading).setVisibility(View.GONE);
 		findViewById(R.id.nearby_list).setVisibility(View.GONE);
 		// setNearbyListAsLoading();
 		this.adapter.setPois(null);
@@ -904,7 +909,6 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 		refreshBusStopInfo();
 		showNextBusStops();
 		refreshOtherBusLinesInfo();
-		refreshNearby();
 		// IF there is a valid last know location DO
 		if (LocationUtils.getBestLastKnownLocation(this) != null) {
 			// set the distance before showing the station
@@ -1073,9 +1077,8 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 			if (this.hours.getSHours().size() > 0) {
 				// hide loading + messages
 				findViewById(R.id.next_stops_loading).setVisibility(View.GONE);
-				View messageHSV = findViewById(R.id.next_stops_message);
-				TextView messageTv = (TextView) messageHSV.findViewById(R.id.next_stops_message_text);
-				messageHSV.setVisibility(View.GONE);
+				TextView messageTv = (TextView) findViewById(R.id.next_stops_message_text);
+				messageTv.setVisibility(View.GONE);
 				// show next bus stop group
 				HorizontalScrollView stopsHScrollv = (HorizontalScrollView) findViewById(R.id.next_stops_group);
 				if (stopsHScrollv.getVisibility() != View.VISIBLE) {
@@ -1158,10 +1161,10 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 				StringBuilder messageSb = getMessageSb(this.hours);
 				if (messageSb.length() > 0) {
 					messageTv.setText(messageSb);
-					messageHSV.setVisibility(View.VISIBLE);
+					messageTv.setVisibility(View.VISIBLE);
 				} else {
 					messageTv.setText(null);
-					messageHSV.setVisibility(View.GONE);
+					messageTv.setVisibility(View.GONE);
 				}
 			}
 		}
@@ -1279,7 +1282,7 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 		if (this.hours == null) {
 			// set the BIG loading message
 			findViewById(R.id.next_stops_group).setVisibility(View.GONE);
-			findViewById(R.id.next_stops_message).setVisibility(View.GONE);
+			findViewById(R.id.next_stops_message_text).setVisibility(View.GONE);
 			findViewById(R.id.next_stops_loading).setVisibility(View.VISIBLE);
 			// } else { // notify the user ?
 		}
@@ -1318,7 +1321,6 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 			TextView messageTv = (TextView) findViewById(R.id.next_stops_message_text);
 			messageTv.setText(R.string.next_bus_stop_load_cancelled);
 			messageTv.setVisibility(View.VISIBLE);
-			findViewById(R.id.next_stops_message).setVisibility(View.VISIBLE);
 		}
 		setNextStopsNotLoading();
 	}
@@ -1352,12 +1354,11 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 				((TextView) findViewById(R.id.next_stops_string)).setText(getString(R.string.next_bus_stops_and_source, hours.getSourceName()));
 			}
 			// show the BIG cancel message
-			View messageHSV = findViewById(R.id.next_stops_message);
-			TextView messageTv = (TextView) messageHSV.findViewById(R.id.next_stops_message_text);
+			TextView messageTv = (TextView) findViewById(R.id.next_stops_message_text);
 			// hide loading + message 2 + next stops group
 			findViewById(R.id.next_stops_group).setVisibility(View.GONE);
 			findViewById(R.id.next_stops_loading).setVisibility(View.GONE);
-			messageHSV.setVisibility(View.GONE);
+			messageTv.setVisibility(View.GONE);
 			// Show messages
 			StringBuilder messageSb = getMessageSb(hours);
 			if (messageSb.length() == 0) {
@@ -1367,7 +1368,7 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 				messageSb.append(defaultMessage);
 			}
 			messageTv.setText(messageSb);
-			messageHSV.setVisibility(View.VISIBLE);
+			messageTv.setVisibility(View.VISIBLE);
 		}
 		setNextStopsNotLoading();
 	}
