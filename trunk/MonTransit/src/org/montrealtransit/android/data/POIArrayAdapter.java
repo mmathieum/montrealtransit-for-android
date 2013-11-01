@@ -420,8 +420,7 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 				View view = this.manualLayout.getChildAt(i);
 				Object tag = view.getTag();
 				if (tag != null && tag instanceof CommonViewHolder) {
-					updateView(position, view);
-					// updateCommonView(position, view);
+					updateCommonView(position, view);
 					position++;
 				}
 			}
@@ -806,9 +805,11 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 			return;
 		}
 		holder.uid = poi.getUID();
-		// distance
+		// // distance
 		if (!TextUtils.isEmpty(poi.getDistanceString())) {
-			holder.distanceTv.setText(poi.getDistanceString());
+			if (!poi.getDistanceString().equals(holder.distanceTv.getText())) {
+				holder.distanceTv.setText(poi.getDistanceString());
+			}
 			holder.distanceTv.setVisibility(View.VISIBLE);
 		} else {
 			holder.distanceTv.setVisibility(View.INVISIBLE);
@@ -829,24 +830,28 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 			holder.favImg.setVisibility(View.GONE);
 		}
 		// closest POI
-		int index = -1;
-		if (this.closestPOI != null && this.closestPOI.first == poi.getType() && !TextUtils.isEmpty(this.closestPOI.second)
-				&& this.closestPOI.second.equals(poi.getUID())) {
-			index = 0;
-		}
-		switch (index) {
-		case 0:
-			holder.labelTv.setTypeface(Typeface.DEFAULT_BOLD);
-			holder.distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
-			holder.distanceTv.setTextColor(Utils.getTextColorPrimary(getContext()));
-			holder.compassImg.setImageResource(R.drawable.heading_arrow_light);
-			break;
-		default:
-			holder.labelTv.setTypeface(Typeface.DEFAULT);
-			holder.distanceTv.setTypeface(Typeface.DEFAULT);
-			holder.distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
-			holder.compassImg.setImageResource(R.drawable.heading_arrow);
-			break;
+		if (this.shakeEnabled) {
+			final int index;
+			if (this.closestPOI != null && this.closestPOI.first == poi.getType() && !TextUtils.isEmpty(this.closestPOI.second)
+					&& this.closestPOI.second.equals(poi.getUID())) {
+				index = 0;
+			} else {
+				index = -1;
+			}
+			switch (index) {
+			case 0:
+				holder.labelTv.setTypeface(Typeface.DEFAULT_BOLD);
+				holder.distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
+				holder.distanceTv.setTextColor(Utils.getTextColorPrimary(getContext()));
+				holder.compassImg.setImageResource(R.drawable.heading_arrow_light);
+				break;
+			default:
+				holder.labelTv.setTypeface(Typeface.DEFAULT);
+				holder.distanceTv.setTypeface(Typeface.DEFAULT);
+				holder.distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
+				holder.compassImg.setImageResource(R.drawable.heading_arrow);
+				break;
+			}
 		}
 	}
 

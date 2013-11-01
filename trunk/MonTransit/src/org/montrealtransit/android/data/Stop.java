@@ -14,6 +14,10 @@ public class Stop implements POI {
 	public double lat;
 	public double lng;
 
+	private CharSequence distanceString = null;
+
+	private float distance = -1;
+
 	public Stop() {
 	}
 
@@ -50,16 +54,13 @@ public class Stop implements POI {
 		return true;
 	}
 
-	private String distanceString = null;
-	private float distance = -1;
-
 	@Override
-	public String getDistanceString() {
+	public CharSequence getDistanceString() {
 		return distanceString;
 	}
 
 	@Override
-	public void setDistanceString(String distanceString) {
+	public void setDistanceString(CharSequence distanceString) {
 		this.distanceString = distanceString;
 	}
 

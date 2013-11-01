@@ -11,7 +11,7 @@ public interface POI {
 	/**
 	 * @param distanceString the new distance string
 	 */
-	public void setDistanceString(String distanceString);
+	public void setDistanceString(CharSequence distanceString);
 
 	public Double getLat();
 
@@ -22,7 +22,7 @@ public interface POI {
 	/**
 	 * @return the distance string
 	 */
-	public String getDistanceString();
+	public CharSequence getDistanceString();
 
 	/**
 	 * @param distance the new distance

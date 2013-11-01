@@ -564,6 +564,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		}
 		findViewById(R.id.star).setVisibility(View.INVISIBLE);
 		findViewById(R.id.nearby_title).setVisibility(View.GONE);
+		findViewById(R.id.nearby_loading).setVisibility(View.GONE);
 		findViewById(R.id.nearby_list).setVisibility(View.GONE);
 		this.adapter.setPois(null);
 
@@ -641,6 +642,9 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 				this.closestBikeStationsTask.cancel(true);
 				this.adapter.setPois(null);
 			}
+			findViewById(R.id.nearby_title).setVisibility(View.VISIBLE);
+			findViewById(R.id.nearby_list).setVisibility(View.GONE);
+			findViewById(R.id.nearby_loading).setVisibility(View.VISIBLE);
 			this.closestBikeStationsTask = new ClosestBikeStationsFinderTask(this, this, Utils.NB_NEARBY_LIST + 1, force);
 			this.closestBikeStationsTask.execute(this.bikeStation.getLat(), this.bikeStation.getLng());
 		}
@@ -664,6 +668,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			this.adapter.updateDistancesNow(getLocation());
 			this.adapter.initManual();
 			findViewById(R.id.nearby_title).setVisibility(View.VISIBLE);
+			findViewById(R.id.nearby_loading).setVisibility(View.GONE);
 			findViewById(R.id.nearby_list).setVisibility(View.VISIBLE);
 			// } else {
 			// MyLog.d(TAG, "onClosestBikeStationsDone() > result null or empty");

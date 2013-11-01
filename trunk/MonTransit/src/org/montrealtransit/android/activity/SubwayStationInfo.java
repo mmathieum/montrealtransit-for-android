@@ -318,6 +318,9 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 		// temporary set station name
 		((TextView) findViewById(R.id.station_name)).setText(newStationName);
 		findViewById(R.id.star).setVisibility(View.INVISIBLE);
+		findViewById(R.id.nearby_title).setVisibility(View.GONE);
+		findViewById(R.id.nearby_loading).setVisibility(View.GONE);
+		findViewById(R.id.nearby_list).setVisibility(View.GONE);
 		if (this.subwayStation == null || !this.subwayStation.getId().equals(newStationId)) {
 			new AsyncTask<String, Void, Pair<SubwayStation, List<SubwayLine>>>() {
 				@Override
@@ -344,7 +347,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 	private void refreshAll() {
 		refreshSubwayStationInfo();
 		refreshSchedule();
-		refreshNearby();
+		// refreshNearby();
 		// IF there is a valid last know location DO
 		if (LocationUtils.getBestLastKnownLocation(this) != null) {
 			// set the distance before showing the station
@@ -361,7 +364,6 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 		findViewById(R.id.hours_loading).setVisibility(View.VISIBLE);
 		findViewById(R.id.hours_list).setVisibility(View.GONE);
 		new AsyncTask<String, Void, Void>() {
-			private List<StmStore.SubwayLine> subwayLines;
 			private SparseArray<SubwayStation> firstStationDirectionss;
 			private SparseArray<String> firstStationDirFreq;
 			private SparseArray<Pair<String, String>> firstStationDirDeps;
@@ -371,7 +373,6 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 
 			@Override
 			protected Void doInBackground(String... params) {
-				subwayLines = StmManager.findSubwayStationLinesList(SubwayStationInfo.this, params[0]);
 				firstStationDirectionss = new SparseArray<SubwayStation>();
 				firstStationDirFreq = new SparseArray<String>();
 				firstStationDirDeps = new SparseArray<Pair<String, String>>();
@@ -385,23 +386,25 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 				String dayOfTheWeek = Utils.getDayOfTheWeek(now);
 				String time = Utils.getTimeOfTheDay(now);
 				// FOR EACH subway line DO
-				for (StmStore.SubwayLine subwayLine : subwayLines) {
-					// FIRST direction
-					StmStore.SubwayStation firstSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(SubwayStationInfo.this,
-							subwayLine.getNumber(), StmStore.SubwayStation.NATURAL_SORT_ORDER);
-					firstStationDirectionss.put(subwayLine.getNumber(), firstSubwayStationDirection);
-					firstStationDirFreq.put(subwayLine.getNumber(),
-							StmManager.findSubwayDirectionFrequency(SubwayStationInfo.this, firstSubwayStationDirection.getId(), dayOfTheWeek, time));
-					firstStationDirDeps.put(subwayLine.getNumber(), StmManager.findSubwayStationDepartures(SubwayStationInfo.this,
-							SubwayStationInfo.this.subwayStation.getId(), firstSubwayStationDirection.getId(), dayOfTheWeek));
-					// SECOND direction
-					StmStore.SubwayStation lastSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(SubwayStationInfo.this,
-							subwayLine.getNumber(), StmStore.SubwayStation.NATURAL_SORT_ORDER_DESC);
-					lastStationDirections.put(subwayLine.getNumber(), lastSubwayStationDirection);
-					lastStationDirFreq.put(subwayLine.getNumber(),
-							StmManager.findSubwayDirectionFrequency(SubwayStationInfo.this, lastSubwayStationDirection.getId(), dayOfTheWeek, time));
-					lastStationDirDeps.put(subwayLine.getNumber(), StmManager.findSubwayStationDepartures(SubwayStationInfo.this,
-							SubwayStationInfo.this.subwayStation.getId(), lastSubwayStationDirection.getId(), dayOfTheWeek));
+				if (SubwayStationInfo.this.subwayLines != null) {
+					for (StmStore.SubwayLine subwayLine : SubwayStationInfo.this.subwayLines) {
+						// FIRST direction
+						StmStore.SubwayStation firstSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(SubwayStationInfo.this,
+								subwayLine.getNumber(), StmStore.SubwayStation.NATURAL_SORT_ORDER);
+						firstStationDirectionss.put(subwayLine.getNumber(), firstSubwayStationDirection);
+						firstStationDirFreq.put(subwayLine.getNumber(),
+								StmManager.findSubwayDirectionFrequency(SubwayStationInfo.this, firstSubwayStationDirection.getId(), dayOfTheWeek, time));
+						firstStationDirDeps.put(subwayLine.getNumber(), StmManager.findSubwayStationDepartures(SubwayStationInfo.this,
+								SubwayStationInfo.this.subwayStation.getId(), firstSubwayStationDirection.getId(), dayOfTheWeek));
+						// SECOND direction
+						StmStore.SubwayStation lastSubwayStationDirection = StmManager.findSubwayLineLastSubwayStation(SubwayStationInfo.this,
+								subwayLine.getNumber(), StmStore.SubwayStation.NATURAL_SORT_ORDER_DESC);
+						lastStationDirections.put(subwayLine.getNumber(), lastSubwayStationDirection);
+						lastStationDirFreq.put(subwayLine.getNumber(),
+								StmManager.findSubwayDirectionFrequency(SubwayStationInfo.this, lastSubwayStationDirection.getId(), dayOfTheWeek, time));
+						lastStationDirDeps.put(subwayLine.getNumber(), StmManager.findSubwayStationDepartures(SubwayStationInfo.this,
+								SubwayStationInfo.this.subwayStation.getId(), lastSubwayStationDirection.getId(), dayOfTheWeek));
+					}
 				}
 				return null;
 			}
@@ -409,63 +412,70 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 			@Override
 			protected void onPostExecute(Void result) {
 				// FOR EACH subway line DO
-				for (StmStore.SubwayLine subwayLine : subwayLines) {
-					LinearLayout hoursListLayout = (LinearLayout) findViewById(R.id.hours_list);
-					// FIRST direction
-					// IF the direction is not the subway station DO
-					if (!SubwayStationInfo.this.subwayStation.getId().equals(firstStationDirectionss.get(subwayLine.getNumber()).getId())) {
-						// list divider
-						if (hoursListLayout.getChildCount() > 0) {
-							hoursListLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, hoursListLayout, false));
-						}
-						// list view
-						hoursListLayout.addView(getDirectionView(subwayLine, firstStationDirectionss.get(subwayLine.getNumber()), hoursListLayout,
-								firstStationDirFreq.get(subwayLine.getNumber()), firstStationDirDeps.get(subwayLine.getNumber())));
-					}
-					// SECOND direction
-					// IF the direction is not the subway station DO
-					if (!SubwayStationInfo.this.subwayStation.getId().equals(lastStationDirections.get(subwayLine.getNumber()).getId())) {
-						// list divider
-						if (hoursListLayout.getChildCount() > 0) {
-							hoursListLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, hoursListLayout, false));
-						}
-						// list view
-						hoursListLayout.addView(getDirectionView(subwayLine, lastStationDirections.get(subwayLine.getNumber()), hoursListLayout,
-								lastStationDirFreq.get(subwayLine.getNumber()), lastStationDirDeps.get(subwayLine.getNumber())));
-					}
-				}
-				findViewById(R.id.hours_loading).setVisibility(View.GONE);
-				findViewById(R.id.hours_list).setVisibility(View.VISIBLE);
+				refreshScheduleUI();
+				refreshNearby();
 			};
 
-			/**
-			 * @param subwayLine the subway line
-			 * @param subwayStationDir the direction
-			 * @return the direction view for the subway line and the direction
-			 */
-			private View getDirectionView(SubwayLine subwayLine, SubwayStation subwayStationDir, LinearLayout root, String frequency, Pair<String, String> deps) {
-				// MyLog.v(TAG, "getDirectionView(" + subwayLine.getNumber() + ", " + subwayStationDir.getId() + ")");
-				// create view
-				View dView = getLayoutInflater().inflate(R.layout.subway_station_info_line_schedule_direction, root, false);
-				// SUBWAY LINE color
-				int subwayLineImgId = SubwayUtils.getSubwayLineImgId(subwayLine.getNumber());
-				((ImageView) dView.findViewById(R.id.subway_img)).setImageResource(subwayLineImgId);
-				// DIRECTION - SUBWAY STATION name
-				((TextView) dView.findViewById(R.id.direction_station)).setText(subwayStationDir.getName());
-				// FIRST LAST DEPARTURE
-				String firstCleanDep = Utils.formatHours(SubwayStationInfo.this, deps.first);
-				String secondCleanDep = Utils.formatHours(SubwayStationInfo.this, deps.second);
-				((TextView) dView.findViewById(R.id.direction_hours)).setText(firstCleanDep + " - " + secondCleanDep);
-				// FREQUENCY
-				if (frequency != null) {
-					((TextView) dView.findViewById(R.id.direction_frequency)).setText(getString(R.string.minutes_and_minutes, frequency));
-				} else {
-					((TextView) dView.findViewById(R.id.direction_frequency)).setText(R.string.no_service);
+			private void refreshScheduleUI() {
+				if (subwayLines != null) {
+					for (StmStore.SubwayLine subwayLine : subwayLines) {
+						LinearLayout hoursListLayout = (LinearLayout) findViewById(R.id.hours_list);
+						// FIRST direction
+						// IF the direction is not the subway station DO
+						if (!SubwayStationInfo.this.subwayStation.getId().equals(firstStationDirectionss.get(subwayLine.getNumber()).getId())) {
+							// list divider
+							if (hoursListLayout.getChildCount() > 0) {
+								hoursListLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, hoursListLayout, false));
+							}
+							// list view
+							hoursListLayout.addView(getDirectionView(subwayLine, firstStationDirectionss.get(subwayLine.getNumber()), hoursListLayout,
+									firstStationDirFreq.get(subwayLine.getNumber()), firstStationDirDeps.get(subwayLine.getNumber())));
+						}
+						// SECOND direction
+						// IF the direction is not the subway station DO
+						if (!SubwayStationInfo.this.subwayStation.getId().equals(lastStationDirections.get(subwayLine.getNumber()).getId())) {
+							// list divider
+							if (hoursListLayout.getChildCount() > 0) {
+								hoursListLayout.addView(getLayoutInflater().inflate(R.layout.list_view_divider, hoursListLayout, false));
+							}
+							// list view
+							hoursListLayout.addView(getDirectionView(subwayLine, lastStationDirections.get(subwayLine.getNumber()), hoursListLayout,
+									lastStationDirFreq.get(subwayLine.getNumber()), lastStationDirDeps.get(subwayLine.getNumber())));
+						}
+					}
+					findViewById(R.id.hours_loading).setVisibility(View.GONE);
+					findViewById(R.id.hours_list).setVisibility(View.VISIBLE);
 				}
-				return dView;
 			}
 
 		}.execute(this.subwayStation.getId());
+	}
+
+	/**
+	 * @param subwayLine the subway line
+	 * @param subwayStationDir the direction
+	 * @return the direction view for the subway line and the direction
+	 */
+	private View getDirectionView(SubwayLine subwayLine, SubwayStation subwayStationDir, LinearLayout root, String frequency, Pair<String, String> deps) {
+		// MyLog.v(TAG, "getDirectionView(%s, %s), subwayLine.getNumber(), subwayStationDir.getId());
+		// create view
+		View dView = getLayoutInflater().inflate(R.layout.subway_station_info_line_schedule_direction, root, false);
+		// SUBWAY LINE color
+		int subwayLineImgId = SubwayUtils.getSubwayLineImgId(subwayLine.getNumber());
+		((ImageView) dView.findViewById(R.id.subway_img)).setImageResource(subwayLineImgId);
+		// DIRECTION - SUBWAY STATION name
+		((TextView) dView.findViewById(R.id.direction_station)).setText(subwayStationDir.getName());
+		// FIRST LAST DEPARTURE
+		String firstCleanDep = Utils.formatHours(this, deps.first);
+		String secondCleanDep = Utils.formatHours(this, deps.second);
+		((TextView) dView.findViewById(R.id.direction_hours)).setText(firstCleanDep + " - " + secondCleanDep);
+		// FREQUENCY
+		if (frequency != null) {
+			((TextView) dView.findViewById(R.id.direction_frequency)).setText(getString(R.string.minutes_and_minutes, frequency));
+		} else {
+			((TextView) dView.findViewById(R.id.direction_frequency)).setText(R.string.no_service);
+		}
+		return dView;
 	}
 
 	/**
@@ -478,7 +488,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 		// set the favorite icon
 		setTheStar();
 		// subway lines colors
-		if (this.subwayLines.size() > 0) {
+		if (this.subwayLines != null && this.subwayLines.size() > 0) {
 			ImageView lineTypeImg1 = (ImageView) findViewById(R.id.subway_line_1);
 			lineTypeImg1.setVisibility(View.VISIBLE);
 			int subwayLineImg = SubwayUtils.getSubwayLineImgListMiddleId(this.subwayLines.get(0).getNumber());
@@ -636,6 +646,9 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 
 	private void refreshNearby() {
 		MyLog.v(TAG, "refreshNearby()");
+		findViewById(R.id.nearby_title).setVisibility(View.VISIBLE);
+		findViewById(R.id.nearby_list).setVisibility(View.GONE);
+		findViewById(R.id.nearby_loading).setVisibility(View.VISIBLE);
 		new AsyncTask<String, Void, List<POI>>() {
 			@Override
 			protected List<POI> doInBackground(String... params) {
@@ -673,6 +686,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 				// show the result
 				SubwayStationInfo.this.adapter.initManual();
 				findViewById(R.id.nearby_title).setVisibility(View.VISIBLE);
+				findViewById(R.id.nearby_loading).setVisibility(View.GONE);
 				findViewById(R.id.nearby_list).setVisibility(View.VISIBLE);
 			}
 

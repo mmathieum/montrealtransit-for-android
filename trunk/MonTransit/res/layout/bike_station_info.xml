@@ -63,9 +63,9 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:layout_alignWithParentIfMissing="true"
+                android:layout_marginBottom="3dip"
                 android:layout_marginLeft="5dp"
                 android:layout_marginTop="3dp"
-                android:layout_marginBottom="3dip"
                 android:layout_toRightOf="@id/distance"
                 android:scaleType="matrix"
                 android:src="@drawable/heading_arrow_light"
@@ -157,18 +157,18 @@
                     android:id="@+id/availability"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:paddingTop="5dp"
                     android:paddingBottom="5dp"
-                    android:paddingRight="10dp"
                     android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="5dp"
                     android:visibility="gone" >
                     <ProgressBar
                         android:id="@+id/progress_bar"
                         style="@android:style/Widget.ProgressBar.Horizontal"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
-                        android:indeterminate="true"
-                        android:layout_alignParentTop="true" />
+                        android:layout_alignParentTop="true"
+                        android:indeterminate="true" />
                     <TextView
                         android:id="@+id/progress_bike"
                         android:layout_width="wrap_content"
@@ -214,6 +214,12 @@
                         android:textSize="14sp"
                         android:textStyle="bold" />
                 </RelativeLayout>
+                <include
+                    android:id="@+id/nearby_loading"
+                    android:layout_width="fill_parent"
+                    android:layout_height="?android:attr/listPreferredItemHeight"
+                    layout="@layout/loading_small_layout"
+                    android:visibility="gone" />
                 <LinearLayout
                     android:id="@+id/nearby_list"
                     android:layout_width="fill_parent"
