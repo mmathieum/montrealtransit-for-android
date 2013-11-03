@@ -50,6 +50,26 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 	private Location location;
 
 	/**
+	 * The bus stops list adapter.
+	 */
+	private POIArrayAdapter adapter;
+
+	/**
+	 * The task used to find the closest stations.
+	 */
+	private ClosestBusStopsFinderTask closestStopsTask;
+	/**
+	 * The location used to generate the closest stops.
+	 */
+	private Location closestStopsLocation;
+	/**
+	 * The location address used to generate the closest stops.
+	 */
+	protected String closestStopsLocationAddress;
+
+	private boolean paused = false;
+
+	/**
 	 * @return the fragment
 	 */
 	public static Fragment newInstance() {
@@ -122,12 +142,12 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 		if (view.findViewById(R.id.closest_stops) == null) { // IF NOT present/inflated DO
 			((ViewStub) view.findViewById(R.id.closest_stops_stub)).inflate(); // inflate
 		}
-		this.closestStopsAdapter = new POIArrayAdapter(activity);
+		this.adapter = new POIArrayAdapter(activity);
 		ListView closestStopsListView = (ListView) view.findViewById(R.id.closest_stops);
-		closestStopsListView.setOnItemClickListener(this.closestStopsAdapter);
-		closestStopsListView.setOnScrollListener(this.closestStopsAdapter);
-		closestStopsListView.setAdapter(this.closestStopsAdapter);
-		if (this.closestStopsAdapter.getPois() == null) {
+		closestStopsListView.setOnItemClickListener(this.adapter);
+		closestStopsListView.setOnScrollListener(this.adapter);
+		closestStopsListView.setAdapter(this.adapter);
+		if (this.adapter.getPois() == null) {
 			showClosestStops(view, activity);
 			return;
 		}
@@ -146,7 +166,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 		// IF location updates are not already enabled DO
 		this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(activity, this, this.locationUpdatesEnabled, this.paused);
 		// IF there is no closest stops DO
-		if (this.closestStopsAdapter.getPois() == null) {
+		if (this.adapter.getPois() == null) {
 			// look for the closest stops
 			refreshClosestStops();
 		} else {
@@ -165,24 +185,6 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 		MyLog.v(TAG, "onLocationChanged()");
 		this.setLocation(location);
 	}
-
-	/**
-	 * The bus stops list adapter.
-	 */
-	private POIArrayAdapter closestStopsAdapter;
-
-	/**
-	 * The task used to find the closest stations.
-	 */
-	private ClosestBusStopsFinderTask closestStopsTask;
-	/**
-	 * The location used to generate the closest stops.
-	 */
-	private Location closestStopsLocation;
-	/**
-	 * The location address used to generate the closest stops.
-	 */
-	protected String closestStopsLocationAddress;
 
 	/**
 	 * Start the refresh closest stops tasks if necessary.
@@ -247,8 +249,8 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 			setClosestStopsError(view, activity);
 		} else {
 			// get the result
-			this.closestStopsAdapter.setPois(result.getPoiList());
-			this.closestStopsAdapter.prefetchClosests();
+			this.adapter.setPois(result.getPoiList());
+			this.adapter.prefetchClosests();
 			refreshFavoriteUIDsFromDB();
 			// show the result
 			showNewClosestStops(view, activity, LocationUtils.areTheSame(this.closestStopsLocation, result.getLat(), result.getLng()));
@@ -271,7 +273,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 	 */
 	private void showNewClosestStops(View view, Context activity, boolean scroll) {
 		MyLog.v(TAG, "showNewClosestStops(%s)", scroll);
-		if (this.closestStopsAdapter.getPois() != null && view != null && activity != null) {
+		if (this.adapter.getPois() != null && view != null && activity != null) {
 			// set the closest stop title
 			showNewClosestStopsTitle(view, activity);
 			// hide loading
@@ -282,7 +284,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 				((ViewStub) view.findViewById(R.id.closest_stops_stub)).inflate(); // inflate
 			}
 			// show stops list
-			this.closestStopsAdapter.notifyDataSetChanged(true);
+			this.adapter.notifyDataSetChanged(true);
 			ListView closestStopsListView = (ListView) view.findViewById(R.id.closest_stops);
 			if (scroll) {
 				SupportFactory.get().listViewScrollTo(closestStopsListView, 0, 0);
@@ -304,7 +306,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 
 			@Override
 			protected void onPostExecute(List<Fav> result) {
-				BusTabClosestStopsFragment.this.closestStopsAdapter.setFavs(result);
+				BusTabClosestStopsFragment.this.adapter.setFavs(result);
 			};
 		}.execute();
 	}
@@ -315,7 +317,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 	private void setClosestStopsError(View view, Context activity) {
 		MyLog.v(TAG, "setClosestStopsError()");
 		// IF there are already stations DO
-		if (this.closestStopsAdapter.getPois() != null) {
+		if (this.adapter.getPois() != null) {
 			// notify the user but keep showing the old stations
 			Utils.notifyTheUser(activity, getString(R.string.closest_bus_stops_error));
 		} else {
@@ -349,7 +351,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 	private void setClosestStopsLoading(String detailMsg) {
 		MyLog.v(TAG, "setClosestStationsLoading(%s)", detailMsg);
 		View closestStopsLayout = getLastView().findViewById(R.id.closest_stops_layout);
-		if (this.closestStopsAdapter.getPois() == null) {
+		if (this.adapter.getPois() == null) {
 			// set the BIG loading message
 			// remove last location from the list divider
 			((TextView) closestStopsLayout.findViewById(R.id.title_text)).setText(R.string.closest_bus_stops);
@@ -415,16 +417,14 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 			// MyLog.d(TAG, "new location: %s.", LocationUtils.locationToString(newLocation));
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
-				this.closestStopsAdapter.setLocation(this.location);
-				if (this.closestStopsAdapter.getPois() == null) {
+				this.adapter.setLocation(this.location);
+				if (this.adapter.getPois() == null) {
 					// start refreshing if not running.
 					refreshClosestStops();
 				}
 			}
 		}
 	}
-
-	private boolean paused = false;
 
 	@Override
 	public void onProviderEnabled(String provider) {
@@ -446,7 +446,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 		MyLog.v(TAG, "onPause()");
 		this.paused = true;
 		this.locationUpdatesEnabled = LocationUtils.disableLocationUpdatesIfNecessary(getLastActivity(), this, this.locationUpdatesEnabled);
-		this.closestStopsAdapter.onPause();
+		this.adapter.onPause();
 		super.onPause();
 	}
 
@@ -478,7 +478,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 							if (LocationUtils.isMoreRelevant(BusTabClosestStopsFragment.this.closestStopsLocation, result,
 									LocationUtils.SIGNIFICANT_ACCURACY_IN_METERS, Utils.CLOSEST_POI_LIST_PREFER_ACCURACY_OVER_TIME)
 									&& LocationUtils.isTooOld(BusTabClosestStopsFragment.this.closestStopsLocation, Utils.CLOSEST_POI_LIST_TIMEOUT)) {
-								BusTabClosestStopsFragment.this.closestStopsAdapter.setPois(null); // force refresh
+								BusTabClosestStopsFragment.this.adapter.setPois(null); // force refresh
 							}
 						}
 						// set the new distance

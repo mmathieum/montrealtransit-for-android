@@ -28,14 +28,11 @@ import org.montrealtransit.android.data.Stop;
 import org.montrealtransit.android.data.Trip;
 import org.montrealtransit.android.data.TripStop;
 import org.montrealtransit.android.dialog.BusLineSelectDirection;
-import org.montrealtransit.android.dialog.NoRadarInstalled;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore.Cache;
 import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.StmBusManager;
 import org.montrealtransit.android.services.ClosestSubwayStationsFinderTask;
-import org.montrealtransit.android.services.GeocodingTask;
-import org.montrealtransit.android.services.GeocodingTaskListener;
 import org.montrealtransit.android.services.LoadNextBusStopIntoCacheTask;
 import org.montrealtransit.android.services.NfcListener;
 import org.montrealtransit.android.services.nextstop.IStmInfoTask;
@@ -44,17 +41,14 @@ import org.montrealtransit.android.services.nextstop.StmBusScheduleTask;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
-import android.location.Address;
 import android.location.Location;
 import android.location.LocationListener;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Build;
@@ -353,6 +347,7 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 			SensorUtils.unregisterSensorListener(this, this);
 			this.compassUpdatesEnabled = false;
 		}
+		this.adapter.onPause();
 		super.onPause();
 	}
 
@@ -1142,7 +1137,7 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 				}
 				String word = nextStopsSb.toString().toLowerCase(Locale.ENGLISH);
 				for (int index = word.indexOf("am"); index >= 0; index = word.indexOf("am", index + 1)) {
-					if (index < 0) {
+					if (index <= 0) {
 						break;
 					}
 					nextStopsSb.setSpan(new RelativeSizeSpan(0.1f), index - 1, index, Spannable.SPAN_INCLUSIVE_INCLUSIVE); // remove space hack
@@ -1150,7 +1145,7 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 					index += 2;
 				}
 				for (int index = word.indexOf("pm"); index >= 0; index = word.indexOf("pm", index + 1)) {
-					if (index < 0) {
+					if (index <= 0) {
 						break;
 					}
 					nextStopsSb.setSpan(new RelativeSizeSpan(0.1f), index - 1, index, Spannable.SPAN_INCLUSIVE_INCLUSIVE); // remove space hack
@@ -1522,35 +1517,7 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 	 * @param v the view (not used).
 	 */
 	public void showStopInRadar(View v) {
-		// IF the a radar activity is available DO
-		if (!Utils.isIntentAvailable(this, "com.google.android.radar.SHOW_RADAR")) {
-			// tell the user he needs to install a radar library.
-			new NoRadarInstalled(this).showDialog();
-		} else {
-			// Finding the location of the bus stop
-			new GeocodingTask(this, 1, true, new GeocodingTaskListener() {
-				@Override
-				public void processLocation(List<Address> addresses) {
-					if (addresses != null && addresses.size() > 0 && addresses.get(0) != null) {
-						float lat = (float) addresses.get(0).getLatitude();
-						float lng = (float) addresses.get(0).getLongitude();
-						// Launch the radar activity
-						Intent intent = new Intent("com.google.android.radar.SHOW_RADAR");
-						intent.putExtra("latitude", (float) lat);
-						intent.putExtra("longitude", (float) lng);
-						try {
-							startActivity(intent);
-						} catch (ActivityNotFoundException ex) {
-							MyLog.w(TAG, "Radar activity not found.");
-							new NoRadarInstalled(BusStopInfo.this).showDialog();
-						}
-					} else {
-						Utils.notifyTheUser(BusStopInfo.this, getString(R.string.bus_stop_location_not_found));
-					}
-				}
-
-			}).execute(this.routeTripStop.stop.name);
-		}
+		LocationUtils.showPOILocationInRadar(this, this.routeTripStop);
 	}
 
 	/**
@@ -1558,22 +1525,7 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 	 * @param v (not used)
 	 */
 	public void showStopLocationInMaps(View v) {
-		// Finding the location of the bus stop
-		new GeocodingTask(this, 1, true, new GeocodingTaskListener() {
-			@Override
-			public void processLocation(List<Address> addresses) {
-				if (addresses != null && addresses.size() > 0 && addresses.get(0) != null) {
-					double lat = addresses.get(0).getLatitude();
-					double lng = addresses.get(0).getLongitude();
-					// Launch the map activity
-					Uri uri = Uri.parse(String.format("geo:%s,%s", lat, lng));
-					startActivity(new Intent(android.content.Intent.ACTION_VIEW, uri));
-				} else {
-					Utils.notifyTheUser(BusStopInfo.this, getString(R.string.bus_stop_location_not_found));
-				}
-			}
-
-		}).execute(this.routeTripStop.stop.name);
+		LocationUtils.showPOILocationInMap(this, this.routeTripStop);
 	}
 
 	// /**

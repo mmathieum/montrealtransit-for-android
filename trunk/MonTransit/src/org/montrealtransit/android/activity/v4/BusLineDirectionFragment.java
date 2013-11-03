@@ -144,12 +144,6 @@ public class BusLineDirectionFragment extends Fragment {
 		refreshBusStopListFromDB(lineDirectionId, currentStopCode);
 	}
 
-	@Override
-	public void onStart() {
-		MyLog.v(TAG, "onStart()");
-		super.onStart();
-	}
-
 	/**
 	 * Setup list.
 	 * @param list the list
@@ -182,6 +176,13 @@ public class BusLineDirectionFragment extends Fragment {
 		MyLog.v(TAG, "onResumeWithFocus()");
 		this.adapter.setLocation(activity.getLocation());
 		refreshFavoriteStopCodesFromDB(activity.getContentResolver());
+	}
+	
+	@Override
+	public void onPause() {
+		MyLog.v(TAG, "onPause()");
+		this.adapter.onPause();
+		super.onPause();
 	}
 
 	/**
@@ -229,6 +230,7 @@ public class BusLineDirectionFragment extends Fragment {
 					index--; // show 1 more stop on top of the list
 				}
 				SupportFactory.get().listViewScrollTo(listView, index, 50);
+				BusLineDirectionFragment.this.adapter.updateCompassNow();
 			}
 
 		}.execute(lineDirectionId, stopCode);
