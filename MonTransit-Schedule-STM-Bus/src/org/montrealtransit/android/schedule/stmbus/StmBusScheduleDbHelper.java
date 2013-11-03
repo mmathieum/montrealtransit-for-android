@@ -17,7 +17,7 @@ public class StmBusScheduleDbHelper extends SQLiteOpenHelper {
 
 	private static final String RAW_FILE_FORMAT = "ca_mtl_stm_bus_schedules_route_%s";
 
-	public static final int DB_VERSION = 2;
+	public static final int DB_VERSION = 3;
 
 	public static final String T_SCHEDULES = "schedules";
 	// public static final String T_SCHEDULES_K_ID = BaseColumns._ID;
@@ -118,7 +118,6 @@ public class StmBusScheduleDbHelper extends SQLiteOpenHelper {
 				new String[] { "ca_mtl_stm_bus_service_dates" });
 		initDbTableWithRetry(db, T_SCHEDULES, DATABASE_CREATE_T_SCHEDULES, T_SCHEDULES_SQL_INSERT, DATABASE_DROP_T_SCHEDULES,
 				new String[] { String.format(RAW_FILE_FORMAT, this.routeId) });
-		// TODO UserPreferences.savePrefLcl(this.context, UserPreferences.PREFS_LCL_STM_DB_VERSION, DB_VERSION);
 		this.deployingData = false;
 		MyLog.v(TAG, "initAllDbTables() - DONE (route: %s)", routeId);
 	}
