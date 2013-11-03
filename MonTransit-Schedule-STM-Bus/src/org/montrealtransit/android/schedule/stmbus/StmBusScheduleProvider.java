@@ -9,6 +9,7 @@ import java.util.Map;
 import org.montrealtransit.android.MyLog;
 
 import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
@@ -96,7 +97,7 @@ public class StmBusScheduleProvider extends ContentProvider {
 		}
 	}
 
-	public static final String SCHEDULE_CONTENT_TYPE = "vnd.android.cursor.dir/vnd." + AUTHORITY + ".schedule";
+	public static final String SCHEDULE_CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd." + AUTHORITY + ".schedule";
 
 	public static final String SCHEDULE_SORT_ORDER = StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_DEPARTURE + " ASC";
 
