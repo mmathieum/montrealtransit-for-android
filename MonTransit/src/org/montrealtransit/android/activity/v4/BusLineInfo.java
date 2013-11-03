@@ -207,8 +207,10 @@ public class BusLineInfo extends FragmentActivity implements LocationListener, S
 		MyLog.v(TAG, "onPause()");
 		this.paused = true;
 		this.locationUpdatesEnabled = LocationUtils.disableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled);
-		SensorUtils.unregisterSensorListener(this, this);
-		this.shakeUpdatesEnabled = false;
+		if (this.shakeUpdatesEnabled) {
+			SensorUtils.unregisterSensorListener(this, this);
+			this.shakeUpdatesEnabled = false;
+		}
 		super.onPause();
 	}
 

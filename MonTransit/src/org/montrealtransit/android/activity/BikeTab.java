@@ -72,7 +72,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 	/**
 	 * Is the compass update enabled?
 	 */
-	private boolean compassUpdatesEnabled = false;
+	private boolean shakeUpdatesEnabled = false;
 	/**
 	 * The location used to generate the closest bike stations list.
 	 */
@@ -218,10 +218,11 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 		MyLog.v(TAG, "onPause()");
 		this.paused = true;
 		BikeTab.this.locationUpdatesEnabled = LocationUtils.disableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled);
-		if (this.compassUpdatesEnabled) {
+		if (this.shakeUpdatesEnabled) {
 			SensorUtils.unregisterSensorListener(this, this);
-			this.compassUpdatesEnabled = false;
+			this.shakeUpdatesEnabled = false;
 		}
+		this.adapter.onPause();
 		super.onPause();
 	}
 
@@ -265,9 +266,9 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
 				this.adapter.setLocation(this.location);
-				if (!this.compassUpdatesEnabled) {
+				if (!this.shakeUpdatesEnabled) {
 					SensorUtils.registerShakeAndCompassListener(this, this);
-					this.compassUpdatesEnabled = true;
+					this.shakeUpdatesEnabled = true;
 					this.shakeHandled = false;
 				}
 				// updateDistancesWithNewLocation(this.location);

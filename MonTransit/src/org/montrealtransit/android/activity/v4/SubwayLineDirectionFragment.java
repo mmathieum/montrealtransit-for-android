@@ -208,40 +208,11 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 		});
 	}
 
-	@Override
-	public void onResume() {
-		MyLog.v(TAG, "onResume()");
-		super.onResume();
-	}
 
 	public void onResumeWithFocus(SubwayLineInfo activity) {
 		MyLog.v(TAG, "onResumeWithFocus()");
 		updateDistancesWithNewLocation(activity);
 		refreshFavoriteStationIdsFromDB(activity.getContentResolver());
-	}
-
-	@Override
-	public void onPause() {
-		MyLog.v(TAG, "onPause()");
-		super.onPause();
-	}
-
-	@Override
-	public void onStop() {
-		MyLog.v(TAG, "onStop()");
-		super.onStop();
-	}
-
-	@Override
-	public void onDestroy() {
-		MyLog.v(TAG, "onDestroy()");
-		super.onDestroy();
-	}
-
-	@Override
-	public void onDetach() {
-		MyLog.v(TAG, "onDetach()");
-		super.onDetach();
 	}
 
 	/**
@@ -661,7 +632,7 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 					holder.distanceTv.setText(station.getDistanceString());
 					holder.distanceTv.setVisibility(View.VISIBLE);
 				} else {
-					holder.distanceTv.setVisibility(View.INVISIBLE);
+					holder.distanceTv.setVisibility(View.GONE);
 				}
 				// set style for closest subway station
 				int index = -1;
@@ -690,7 +661,7 @@ public class SubwayLineDirectionFragment extends Fragment implements OnScrollLis
 					SupportFactory.get().rotateImageView(holder.compassImg, compassRotation, getLastActivity());
 					holder.compassImg.setVisibility(View.VISIBLE);
 				} else {
-					holder.compassImg.setVisibility(View.INVISIBLE); // never hide once shown
+					holder.compassImg.setVisibility(View.GONE); // never hide once shown
 				}
 			}
 			return convertView;

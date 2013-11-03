@@ -255,6 +255,10 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 		if (this.pois == null) {
 			return null;
 		}
+		if (location >= this.pois.size()) {
+			MyLog.d(TAG, "getPoi(%s) > no item at this position!", location);
+			return null;
+		}
 		return this.pois.get(location);
 	}
 
@@ -500,7 +504,7 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 		// MyLog.v(TAG, "setLocation()");
 		if (newLocation != null) {
 			MyLog.d(TAG, "new location: %s.", LocationUtils.locationToString(newLocation));
-			if (this.location == null) { // TODO check ? LocationUtils.isMoreRelevant(this.location, newLocation)
+			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
 				this.locationDeclination = SensorUtils.getLocationDeclination(this.location);
 				if (!this.compassUpdatesEnabled) {
@@ -514,8 +518,10 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 	}
 
 	public void onPause() {
-		SensorUtils.unregisterSensorListener(this.activity, this);
-		this.compassUpdatesEnabled = false;
+		if (this.compassUpdatesEnabled) {
+			SensorUtils.unregisterSensorListener(this.activity, this);
+			this.compassUpdatesEnabled = false;
+		}
 	}
 
 	public void setLastCompassInDegree(int lastCompassInDegree) {
@@ -812,7 +818,7 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 			}
 			holder.distanceTv.setVisibility(View.VISIBLE);
 		} else {
-			holder.distanceTv.setVisibility(View.INVISIBLE);
+			holder.distanceTv.setVisibility(View.GONE);
 			holder.distanceTv.setText(null);
 		}
 		// compass
@@ -821,7 +827,7 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 			SupportFactory.get().rotateImageView(holder.compassImg, compassRotation, this.activity);
 			holder.compassImg.setVisibility(View.VISIBLE);
 		} else {
-			holder.compassImg.setVisibility(View.INVISIBLE);
+			holder.compassImg.setVisibility(View.GONE);
 		}
 		// favorite
 		if (this.typeFavUIDs != null && this.typeFavUIDs.get(poi.getType()) != null && this.typeFavUIDs.get(poi.getType()).contains(poi.getUID())) {

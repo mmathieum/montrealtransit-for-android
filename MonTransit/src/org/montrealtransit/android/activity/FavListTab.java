@@ -231,7 +231,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 										SupportFactory.get().rotateImageView(compassImg, compassRotation, FavListTab.this);
 										compassImg.setVisibility(View.VISIBLE);
 									} else {
-										compassImg.setVisibility(View.INVISIBLE);
+										compassImg.setVisibility(View.GONE);
 									}
 								}
 							}
@@ -253,7 +253,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 										SupportFactory.get().rotateImageView(compassImg, compassRotation, FavListTab.this);
 										compassImg.setVisibility(View.VISIBLE);
 									} else {
-										compassImg.setVisibility(View.INVISIBLE);
+										compassImg.setVisibility(View.GONE);
 									}
 								}
 							}
@@ -275,7 +275,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 										SupportFactory.get().rotateImageView(compassImg, compassRotation, FavListTab.this);
 										compassImg.setVisibility(View.VISIBLE);
 									} else {
-										compassImg.setVisibility(View.INVISIBLE);
+										compassImg.setVisibility(View.GONE);
 									}
 								}
 							}

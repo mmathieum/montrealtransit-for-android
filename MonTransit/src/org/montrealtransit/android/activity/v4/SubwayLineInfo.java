@@ -95,7 +95,7 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 	/**
 	 * Is the compass updates enabled?
 	 */
-	private boolean compassUpdatesEnabled = false;
+	private boolean shakeUpdatesEnabled = false;
 	/**
 	 * The acceleration apart from gravity.
 	 */
@@ -255,8 +255,10 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 		MyLog.v(TAG, "onPause()");
 		this.paused = true;
 		this.locationUpdatesEnabled = LocationUtils.disableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled);
-		SensorUtils.unregisterSensorListener(this, this);
-		this.compassUpdatesEnabled = false;
+		if (this.shakeUpdatesEnabled) {
+    		SensorUtils.unregisterSensorListener(this, this);
+    		this.shakeUpdatesEnabled = false;
+		}
 		super.onPause();
 	}
 
@@ -448,7 +450,7 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 		if (this.location == null) {
 			Location bestLastKnownLocationOrNull = LocationUtils.getBestLastKnownLocation(this);
 			if (bestLastKnownLocationOrNull != null) {
-				this.setLocation(bestLastKnownLocationOrNull);
+				setLocation(bestLastKnownLocationOrNull);
 			}
 			// enable location updates if necessary
 			this.locationUpdatesEnabled = LocationUtils.enableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled, this.paused);
@@ -464,9 +466,9 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 			if (this.location == null || LocationUtils.isMoreRelevant(this.location, newLocation)) {
 				this.location = newLocation;
 				this.locationDeclination = SensorUtils.getLocationDeclination(this.location);
-				if (!this.compassUpdatesEnabled) {
+				if (!this.shakeUpdatesEnabled) {
 					SensorUtils.registerShakeAndCompassListener(this, this);
-					this.compassUpdatesEnabled = true;
+					this.shakeUpdatesEnabled = true;
 					this.shakeHandled = false;
 				}
 			}
@@ -480,7 +482,7 @@ public class SubwayLineInfo extends FragmentActivity implements LocationListener
 	@Override
 	public void onLocationChanged(Location location) {
 		MyLog.v(TAG, "onLocationChanged()");
-		this.setLocation(location);
+		setLocation(location);
 		updateDistancesWithNewLocation();
 	}
 

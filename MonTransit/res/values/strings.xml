@@ -171,9 +171,11 @@
 	<string name="next_bus_stop_load_cancelled">Loading aborted</string>
 	<string name="show_in_map">View Maps</string>
 	<string name="show_in_map_exp">Maps(BETA)</string>
+	<string name="map_app_not_installed">Maps not installed!</string>
 
 	<string name="geocoding_and_location">Looking for the GPS coordinates of %s&#8230;</string>
 	<string name="bus_stop_location_not_found">Bus stop location not found.</string>
+	<string name="poi_location_not_found">Location not found!</string>
 
 	<string name="use_radar">Radar</string>
 	<string name="no_radar_title">No radar installed.</string>

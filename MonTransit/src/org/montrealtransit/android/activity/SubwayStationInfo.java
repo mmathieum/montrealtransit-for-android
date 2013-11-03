@@ -23,7 +23,6 @@ import org.montrealtransit.android.data.ASubwayStation;
 import org.montrealtransit.android.data.POI;
 import org.montrealtransit.android.data.POIArrayAdapter;
 import org.montrealtransit.android.data.Pair;
-import org.montrealtransit.android.dialog.NoRadarInstalled;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.StmBusManager;
@@ -34,7 +33,6 @@ import org.montrealtransit.android.provider.StmStore.SubwayStation;
 import org.montrealtransit.android.services.ClosestSubwayStationsFinderTask;
 
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
@@ -42,7 +40,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.location.Location;
 import android.location.LocationListener;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -217,8 +214,11 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 		MyLog.v(TAG, "onPause()");
 		this.paused = true;
 		this.locationUpdatesEnabled = LocationUtils.disableLocationUpdatesIfNecessary(this, this, this.locationUpdatesEnabled);
-		SensorUtils.unregisterSensorListener(this, this);
-		this.compassUpdatesEnabled = false;
+		if (this.compassUpdatesEnabled) {
+			SensorUtils.unregisterSensorListener(this, this);
+			this.compassUpdatesEnabled = false;
+		}
+		this.adapter.onPause();
 		super.onPause();
 	}
 
@@ -715,22 +715,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 	 * @param v the view (not used)
 	 */
 	public void showStationInRadar(View v) {
-		// IF the a radar activity is available DO
-		if (!Utils.isIntentAvailable(this, "com.google.android.radar.SHOW_RADAR")) {
-			// tell the user he needs to install a radar library.
-			new NoRadarInstalled(this).showDialog();
-		} else {
-			// Launch the radar activity
-			Intent intent = new Intent("com.google.android.radar.SHOW_RADAR");
-			intent.putExtra("latitude", (double) this.subwayStation.getLat());
-			intent.putExtra("longitude", (double) this.subwayStation.getLng());
-			try {
-				startActivity(intent);
-			} catch (ActivityNotFoundException ex) {
-				MyLog.w(TAG, "Radar activity not found.");
-				new NoRadarInstalled(this).showDialog();
-			}
-		}
+		LocationUtils.showPOILocationInRadar(this, this.subwayStation);
 	}
 
 	/**
@@ -738,8 +723,7 @@ public class SubwayStationInfo extends Activity implements LocationListener, Sen
 	 * @param v the view (not used)
 	 */
 	public void showStationLocationInMaps(View v) {
-		Uri uri = Uri.parse(String.format("geo:%s,%s", this.subwayStation.getLat(), this.subwayStation.getLng()));
-		startActivity(new Intent(android.content.Intent.ACTION_VIEW, uri));
+		LocationUtils.showPOILocationInMap(this, this.subwayStation);
 	}
 
 	@Override

@@ -301,34 +301,36 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			protected void onPostExecute(List<SubwayLine> result) {
 				LinearLayout subwayLinesLayout = (LinearLayout) findViewById(R.id.subway_lines);
 				int i = 0;
-				for (SubwayLine subwayLine : result) {
-					// create view
-					View view = subwayLinesLayout.getChildAt(i++);
-					// subway line type image
-					final int lineNumber = subwayLine.getNumber();
-					// subway line colors
-					int color = SubwayUtils.getSubwayLineColor(lineNumber);
-					view.findViewById(R.id.subway_img_bg).setBackgroundColor(color);
+				if (result != null) {
+					for (SubwayLine subwayLine : result) {
+						// create view
+						View view = subwayLinesLayout.getChildAt(i++);
+						// subway line type image
+						final int lineNumber = subwayLine.getNumber();
+						// subway line colors
+						int color = SubwayUtils.getSubwayLineColor(lineNumber);
+						view.findViewById(R.id.subway_img_bg).setBackgroundColor(color);
 
-					final String subwayLineNumberS = String.valueOf(lineNumber);
-					// add click listener
-					view.setOnClickListener(new View.OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							MyLog.v(TAG, "onClick(%s)", v.getId());
-							Intent intent = new Intent(SubwayTab.this, SupportFactory.get().getSubwayLineInfoClass());
-							intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumberS);
-							startActivity(intent);
-						}
-					});
-					view.setOnLongClickListener(new View.OnLongClickListener() {
-						@Override
-						public boolean onLongClick(View v) {
-							MyLog.v(TAG, "onLongClick(%s)", v.getId());
-							new SubwayLineSelectDirection(SubwayTab.this, lineNumber).showDialog();
-							return true;
-						}
-					});
+						final String subwayLineNumberS = String.valueOf(lineNumber);
+						// add click listener
+						view.setOnClickListener(new View.OnClickListener() {
+							@Override
+							public void onClick(View v) {
+								MyLog.v(TAG, "onClick(%s)", v.getId());
+								Intent intent = new Intent(SubwayTab.this, SupportFactory.get().getSubwayLineInfoClass());
+								intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumberS);
+								startActivity(intent);
+							}
+						});
+						view.setOnLongClickListener(new View.OnLongClickListener() {
+							@Override
+							public boolean onLongClick(View v) {
+								MyLog.v(TAG, "onLongClick(%s)", v.getId());
+								new SubwayLineSelectDirection(SubwayTab.this, lineNumber).showDialog();
+								return true;
+							}
+						});
+					}
 				}
 				findViewById(R.id.subway_lines_loading).setVisibility(View.GONE);
 				findViewById(R.id.subway_lines).setVisibility(View.VISIBLE);
@@ -388,18 +390,17 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			findViewById(R.id.subway_status_loading).setVisibility(View.GONE);
 		}
 		if (this.serviceStatuses != null && this.serviceStatuses.size() > 0) {
-			if (findViewById(R.id.subway_status) == null) { // IF NOT present/inflated DO
+			if (findViewById(R.id.subway_status_message) == null) { // IF NOT present/inflated DO
 				((ViewStub) findViewById(R.id.subway_status_stub)).inflate(); // inflate
 			}
-			View statusLayout = findViewById(R.id.subway_status);
-			TextView statusTv = (TextView) statusLayout.findViewById(R.id.subway_status_message);
+			TextView statusTv = (TextView) findViewById(R.id.subway_status_message);
 			ImageView statusImg = (ImageView) findViewById(R.id.subway_status_title).findViewById(R.id.subway_status_section_logo);
 			// set the status title with the date
 			CharSequence readTime = Utils.formatSameDayDateInSec(this.serviceStatuses.get(0).getReadDate());
 			final String sectionTitle = getString(R.string.subway_status_hour, readTime);
 			((TextView) findViewById(R.id.subway_status_title).findViewById(R.id.subway_status_section)).setText(sectionTitle);
 			// show message
-			statusLayout.setVisibility(View.VISIBLE);
+			statusTv.setVisibility(View.VISIBLE);
 			// set the status message text
 			SpannableStringBuilder sb = new SpannableStringBuilder();
 			boolean allGreen = true;
@@ -562,13 +563,12 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	}
 
 	private void showStatusMessage(String message) {
-		if (findViewById(R.id.subway_status) == null) { // IF NOT present/inflated DO
+		if (findViewById(R.id.subway_status_message) == null) { // IF NOT present/inflated DO
 			((ViewStub) findViewById(R.id.subway_status_stub)).inflate(); // inflate
 		}
-		View statusLayout = findViewById(R.id.subway_status);
-		TextView statusTv = (TextView) statusLayout.findViewById(R.id.subway_status_message);
+		TextView statusTv = (TextView) findViewById(R.id.subway_status_message);
 		statusTv.setText(message);
-		statusLayout.setVisibility(View.VISIBLE);
+		statusTv.setVisibility(View.VISIBLE);
 	}
 
 	/**
@@ -706,7 +706,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			AdsUtils.setupAd(this);
 			// SHOW STATUS
 			findViewById(R.id.subway_status_title).setVisibility(View.VISIBLE);
-			if (findViewById(R.id.subway_status) == null) { // IF NOT present/inflated DO
+			if (findViewById(R.id.subway_status_message) == null) { // IF NOT present/inflated DO
 				((ViewStub) findViewById(R.id.subway_status_stub)).inflate(); // inflate
 			}
 			// if (this.serviceStatuses != null && this.serviceStatuses.size() > 0 && this.serviceStatuses.get(0).getType() != ServiceStatus.STATUS_TYPE_GREEN)
@@ -933,6 +933,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 				this.adapter.setLocation(this.location);
 				if (!this.shakeUpdatesEnabled) {
 					SensorUtils.registerShakeAndCompassListener(this, this);
+					this.shakeUpdatesEnabled = true;
 					this.shakeHandled = false;
 				}
 				if (this.adapter.getPois() == null) {

@@ -10,12 +10,14 @@ import org.montrealtransit.android.data.POI;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 
 /**
@@ -48,7 +50,7 @@ public class LocationUtils {
 	/**
 	 * How long do we even consider the location? (in milliseconds)
 	 */
-	private static final long MAX_LAST_KNOW_LOCATION_TIME = 15 * 60 * 1000; // 15 minutes
+	private static final long MAX_LAST_KNOW_LOCATION_TIME = 30 * 60 * 1000; // 30 minutes
 	/**
 	 * The range of the location around.
 	 */
@@ -672,5 +674,36 @@ public class LocationUtils {
 	 */
 	public static boolean areTheSame(double lat1, double lng1, double lat2, double lng2) {
 		return lat1 == lat2 && lng1 == lng2;
+	}
+
+	public static void showPOILocationInMap(Activity activity, POI poi) {
+		MyLog.d(TAG, "showPOILocationInMap()");
+		if (!poi.hasLocation()) {
+			Utils.notifyTheUser(activity, activity.getString(R.string.poi_location_not_found));
+			return;
+		}
+		Uri uri = Uri.parse(String.format("geo:%s,%s", poi.getLat(), poi.getLng()));
+		final Intent intent = new Intent(android.content.Intent.ACTION_VIEW, uri);
+		if (activity.getPackageManager().queryIntentActivities(intent, 0).size() > 0) {
+			activity.startActivity(intent); // launch the map activity
+		} else {
+			Utils.notifyTheUser(activity, activity.getString(R.string.map_app_not_installed));
+		}
+	}
+
+	public static void showPOILocationInRadar(Activity activity, POI poi) {
+		MyLog.d(TAG, "showPOILocationInRadar()");
+		if (!poi.hasLocation()) {
+			Utils.notifyTheUser(activity, activity.getString(R.string.poi_location_not_found));
+			return;
+		}
+		Intent intent = new Intent("com.google.android.radar.SHOW_RADAR");
+		intent.putExtra("latitude", (double) poi.getLat());
+		intent.putExtra("longitude", (double) poi.getLng());
+		if (activity.getPackageManager().queryIntentActivities(intent, 0).size() > 0) {
+			activity.startActivity(intent); // launch the radar activity
+		} else {
+			Utils.notifyTheUser(activity, activity.getString(R.string.no_radar_title));
+		}
 	}
 }
