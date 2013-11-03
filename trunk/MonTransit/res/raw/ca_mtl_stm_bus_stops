@@ -3638,9 +3638,6 @@
 53836,'53836','Ridgewood / No 3440',45.493887,-73.612565
 53837,'53837','Côte-Des-Neiges / Entrée Du Cimetière',45.496029,-73.608323
 53838,'53838','Remembrance / Poste De Police',45.502412,-73.596042
-53839,'53839','La Ronde',45.521419,-73.533883
-53840,'53840','La Ronde / Tour-De-L''Isle',45.519678,-73.533383
-53841,'53841','Papineau / Pont Jacques-Cartier',45.524267,-73.555805
 53842,'53842','Docteur-Penfield / Côte-Des-Neiges',45.496699,-73.586261
 53843,'53843','Docteur-Penfield / No 855',45.505299,-73.578376
 53844,'53844','Haig / No 2105',45.580540,-73.524828
@@ -3951,7 +3948,6 @@
 54173,'54173','Notre-Dame-De-Grâce / Grand-Boulevard',45.4671,-73.6244
 54174,'54174','Station Langelier (Langelier / Sherbrooke)',45.582789,-73.542878
 54175,'54175','Lucien-L''Allier / René-Lévesque',45.495166,-73.572056
-54177,'54177','La Ronde',45.521555,-73.535888
 54179,'54179','Station Rosemont / Terminus',45.531255,-73.597157
 54180,'54180','Saint-Michel / Robert',45.567760,-73.618272
 54181,'54181','Station Lionel-Groulx (Saint-Jacques / Atwater)',45.482995,-73.578787
@@ -4069,7 +4065,6 @@
 54328,'54328','Lavoie / Lacombe',45.492443,-73.626744
 54329,'54329','Lacombe / Légaré',45.495027,-73.624925
 54330,'54330','Casino De Montréal',45.506223,-73.525370
-54335,'54335','Station Jean-Drapeau',45.512182,-73.532040
 54337,'54337','Notre-Dame / 93e Avenue',45.697082,-73.485290
 54338,'54338','Meilleur / Meilleur',45.540442,-73.666491
 54339,'54339','Tellier / Stationnement SAQ (vers L''Est)',45.585473,-73.521622
@@ -8294,7 +8289,6 @@
 60307,'60307','Léger / Lacordaire',45.615353,-73.630174
 60311,'60311','Rodolphe-Forget / Louis-Dessaulles',45.646006,-73.575224
 60312,'60312','Rodolphe-Forget / Perras',45.649235,-73.578678
-60313,'60313','Île Saint-Hélène / Tour De L''Isle',45.519156,-73.534177
 60314,'60314','Broadway / Forsyth',45.633487,-73.515384
 60315,'60315','58e Avenue / Gouin',45.659173,-73.571177
 60316,'60316','Saint-Jean-Baptiste / Émilie-Du Châtelet',45.659687,-73.541471
