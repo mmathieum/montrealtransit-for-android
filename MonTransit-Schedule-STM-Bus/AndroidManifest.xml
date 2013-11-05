@@ -1,20 +1,49 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.montrealtransit.android.schedule.stmbus"
+    android:installLocation="auto"
     android:versionCode="4"
-    android:versionName="1.0.3"
-    android:installLocation="auto">
+    android:versionName="1.0.3" >
     <!-- external storage works if USB not mounted! -->
     <uses-sdk
         android:minSdkVersion="3"
         android:targetSdkVersion="10" />
-    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
     <application
+        android:description="@string/app_desc"
         android:icon="@drawable/ic_launcher_icon"
-        android:label="@string/app_name"
-        android:description="@string/app_desc" >
+        android:label="@string/app_name" >
         <provider
             android:name=".StmBusScheduleProvider"
             android:authorities="org.montrealtransit.android.schedule.stmbus"
             android:exported="true" />
+        <!-- SPLASH SCREEN -->
+        <activity
+            android:name=".activity.SplashScreen"
+            android:configChanges="orientation|keyboardHidden"
+            android:enabled="true"
+            android:icon="@drawable/ic_launcher_icon"
+            android:label="@string/app_name"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.NoDisplay" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <!-- Not working because the receiver is only started when the application is started.
+        <receiver
+            android:name=".receiver.PackageChangeReceiver"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_INSTALL" />
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <action android:name="android.intent.action.PACKAGE_CHANGED" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+        -->
     </application>
 </manifest>

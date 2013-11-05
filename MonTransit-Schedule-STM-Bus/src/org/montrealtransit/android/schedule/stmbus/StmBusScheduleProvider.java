@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.montrealtransit.android.MyLog;
+import org.montrealtransit.android.schedule.stmbus.activity.SplashScreen;
 
 import android.content.ContentProvider;
 import android.content.ContentResolver;
@@ -62,6 +63,8 @@ public class StmBusScheduleProvider extends ContentProvider {
 	@Override
 	public boolean onCreate() {
 		MyLog.v(TAG, "onCreate()");
+		// remove this app icon
+		SplashScreen.removeLauncherIcon(getContext());
 		return true;
 	}
 
