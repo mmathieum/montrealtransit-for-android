@@ -3,6 +3,7 @@ package org.montrealtransit.android.activity;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.Utils;
+import org.montrealtransit.android.provider.StmBusScheduleManager;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -31,6 +32,7 @@ public class SplashScreen extends Activity {
 		Utils.logAppVersion(this);
 		MyLog.v(TAG, "onCreate()");
 		super.onCreate(savedInstanceState);
+		StmBusScheduleManager.wakeUp(getContentResolver());
 		showMainScreen();
 	}
 

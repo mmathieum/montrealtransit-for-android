@@ -29,6 +29,7 @@ import org.montrealtransit.android.data.Trip;
 import org.montrealtransit.android.data.TripStop;
 import org.montrealtransit.android.dialog.BusLineSelectDirection;
 import org.montrealtransit.android.provider.DataManager;
+import org.montrealtransit.android.provider.StmBusScheduleManager;
 import org.montrealtransit.android.provider.DataStore.Cache;
 import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.StmBusManager;
@@ -237,6 +238,8 @@ public class BusStopInfo extends Activity implements LocationListener, DialogInt
 		super.onCreate(savedInstanceState);
 		// set the UI
 		setContentView(R.layout.bus_stop_info);
+		
+		StmBusScheduleManager.wakeUp(getContentResolver());
 
 		this.adapter = new POIArrayAdapter(this);
 		this.adapter.setManualLayout((ViewGroup) findViewById(R.id.nearby_list));
