@@ -32,11 +32,13 @@ public class StmBusScheduleProvider extends ContentProvider {
 	private static final int ROUTE_STOP_DATE = 4;
 	private static final int ROUTE_STOP_TIME = 5;
 	private static final int ROUTE_STOP_DATE_TIME = 6;
+	private static final int PING = 100;
 
 	private static final HashMap<String, String> SCHEDULE_PROJECTION_MAP;
 	private static final UriMatcher URI_MATCHER;
 	static {
 		URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
+		URI_MATCHER.addURI(AUTHORITY, "ping", PING);
 		URI_MATCHER.addURI(AUTHORITY, "route/#/trip/#/stop/#", ROUTE_TRIP_STOP);
 		URI_MATCHER.addURI(AUTHORITY, "route/#/trip/#/stop/#/date/#/time/#", ROUTE_TRIP_STOP_DATE_TIME);
 		URI_MATCHER.addURI(AUTHORITY, "route/#/stop/#", ROUTE_STOP);
@@ -115,6 +117,8 @@ public class StmBusScheduleProvider extends ContentProvider {
 		case ROUTE_STOP_TIME:
 		case ROUTE_STOP_DATE_TIME:
 			return SCHEDULE_CONTENT_TYPE;
+		case PING:
+			return null;
 		default:
 			throw new IllegalArgumentException(String.format("Unknown URI (type): '%s'", uri));
 		}
@@ -128,6 +132,13 @@ public class StmBusScheduleProvider extends ContentProvider {
 		MyLog.v(TAG, "query(%s, %s, %s, %s, %s)", uri.getPath(), Arrays.toString(projection), selection, Arrays.toString(selectionArgs), sortOrder);
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 		MyLog.i(TAG, "[%s]", uri);
+		switch (URI_MATCHER.match(uri)) {
+		case PING:
+			MyLog.v(TAG, "query>PING");
+			// remove this app icon
+			SplashScreen.removeLauncherIcon(getContext());
+			return null;
+		}
 		String limit = null;
 		String routeId = uri.getPathSegments().get(1);
 		final Date now = new Date();
@@ -228,6 +239,8 @@ public class StmBusScheduleProvider extends ContentProvider {
 			case ROUTE_STOP_DATE_TIME:
 				orderBy = SCHEDULE_SORT_ORDER;
 				break;
+			case PING:
+				return null;
 			default:
 				throw new IllegalArgumentException(String.format("Unknown URI (order): '%s'", uri));
 			}
