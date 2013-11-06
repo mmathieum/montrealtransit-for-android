@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">MonTransit Horaires STM Bus</string>
     <string name="app_desc">Horaires planifiés des bus de la STM enregistrées sur l\'appareil.</string>
-    <string name="opening_main_app_and_removing_icon">Ouverture de l\'application principale et suppression de l\'icône.</string>
-    <string name="please_install_main_app">Merci d\'installer l\'application principale (gratuite).</string>
+    <string name="opening_main_app_and_removing_icon">Ouverture de l\'application ...\n\n(icône du module supprimé)</string>
+    <string name="please_install_main_app">Ouverture de Google Play ...\n\nMerci d\'installer l\'application (gratuite).</string>
 </resources>

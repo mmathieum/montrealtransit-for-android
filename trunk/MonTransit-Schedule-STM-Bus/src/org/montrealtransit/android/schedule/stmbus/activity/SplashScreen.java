@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.widget.Toast;
 
 public class SplashScreen extends Activity {
@@ -23,14 +24,18 @@ public class SplashScreen extends Activity {
 		MyLog.v(TAG, "onCreate()");
 		super.onCreate(savedInstanceState);
 		if (isAppInstalled(MAIN_APP_PACKAGE_NAME)) {
-			Toast.makeText(this, R.string.opening_main_app_and_removing_icon, Toast.LENGTH_SHORT).show();
+			final Toast toast = Toast.makeText(this, R.string.opening_main_app_and_removing_icon, Toast.LENGTH_SHORT);
+			toast.setGravity(Gravity.CENTER, 0, 0);
+			toast.show();
 			// remove this app icon
 			removeLauncherIcon(this);
 			// open the main app
 			openApp(MAIN_APP_PACKAGE_NAME);
 		} else {
 			// open google play store
-			Toast.makeText(this, R.string.please_install_main_app, Toast.LENGTH_LONG).show();
+			final Toast toast = Toast.makeText(this, R.string.please_install_main_app, Toast.LENGTH_LONG);
+			toast.setGravity(Gravity.CENTER, 0, 0);
+			toast.show();
 			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + MAIN_APP_PACKAGE_NAME)));
 		}
 		finish();
