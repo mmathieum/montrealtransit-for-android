@@ -1,6 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">MonTransit STM Bus Schedule</string>
     <string name="app_desc">STM Bus planned schedule stored on the device.</string>
-    <string name="opening_main_app_and_removing_icon">Opening the main app and removing this icon.</string>
-    <string name="please_install_main_app">Please install the main app (free).</string>
+    <string name="opening_main_app_and_removing_icon">Opening the main application...\n\n(module icon removed)</string>
+    <string name="please_install_main_app">Opening Google Play...\n\nPlease install the main application (free).</string>
 </resources>
