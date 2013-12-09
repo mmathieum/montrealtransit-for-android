@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.montrealtransit.android.MyLog;
@@ -26,12 +27,19 @@ public class StmBusScheduleProvider extends ContentProvider {
 
 	public static final String AUTHORITY = "org.montrealtransit.android.schedule.stmbus";
 
+	@Deprecated
 	private static final int ROUTE_TRIP_STOP = 1;
+	@Deprecated
 	private static final int ROUTE_TRIP_STOP_DATE_TIME = 2;
+	@Deprecated
 	private static final int ROUTE_STOP = 3;
+	@Deprecated
 	private static final int ROUTE_STOP_DATE = 4;
+	@Deprecated
 	private static final int ROUTE_STOP_TIME = 5;
+	@Deprecated
 	private static final int ROUTE_STOP_DATE_TIME = 6;
+	private static final int ROUTE_DEPARTURE = 7;
 	private static final int PING = 100;
 
 	private static final HashMap<String, String> SCHEDULE_PROJECTION_MAP;
@@ -39,6 +47,7 @@ public class StmBusScheduleProvider extends ContentProvider {
 	static {
 		URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 		URI_MATCHER.addURI(AUTHORITY, "ping", PING);
+		URI_MATCHER.addURI(AUTHORITY, "route/#/departure", ROUTE_DEPARTURE);
 		URI_MATCHER.addURI(AUTHORITY, "route/#/trip/#/stop/#", ROUTE_TRIP_STOP);
 		URI_MATCHER.addURI(AUTHORITY, "route/#/trip/#/stop/#/date/#/time/#", ROUTE_TRIP_STOP_DATE_TIME);
 		URI_MATCHER.addURI(AUTHORITY, "route/#/stop/#", ROUTE_STOP);
@@ -71,7 +80,9 @@ public class StmBusScheduleProvider extends ContentProvider {
 	}
 
 	private static StmBusScheduleDbHelper getDBHelper(Context context, String routeId) {
+		MyLog.v(TAG, "getDBHelper(%s)", routeId);
 		if (/* stmBusScheduleDbHelper != null && */stmBusScheduleDbHelperRouteId != null && !stmBusScheduleDbHelperRouteId.equals(routeId)) {
+			MyLog.d(TAG, "getDBHelper(%s) > Not current DB helper! (was %s)", routeId, stmBusScheduleDbHelperRouteId);
 			closeDbHelper();
 		}
 		if (stmBusScheduleDbHelper == null) { // initialize
@@ -82,13 +93,13 @@ public class StmBusScheduleProvider extends ContentProvider {
 		} else { // reset
 			try {
 				if (currentDbVersion.containsKey(routeId) || currentDbVersion.get(routeId) != StmBusScheduleDbHelper.DB_VERSION) {
-					MyLog.d(TAG, "Update DB...");
+					MyLog.d(TAG, "Update DB... (deployed version:%s, new version: %s)", currentDbVersion.get(routeId), StmBusScheduleDbHelper.DB_VERSION);
 					closeDbHelper();
 					return getDBHelper(context, routeId);
 				}
 			} catch (Exception e) {
 				// fail if locked, will try again later
-				MyLog.d(TAG, "Can't check DB version!", e);
+				MyLog.d(TAG, e, "Can't check DB version!");
 			}
 		}
 		return stmBusScheduleDbHelper;
@@ -110,6 +121,7 @@ public class StmBusScheduleProvider extends ContentProvider {
 	public String getType(Uri uri) {
 		MyLog.v(TAG, "getType(%s)", uri.getPath());
 		switch (URI_MATCHER.match(uri)) {
+		case ROUTE_DEPARTURE:
 		case ROUTE_TRIP_STOP:
 		case ROUTE_TRIP_STOP_DATE_TIME:
 		case ROUTE_STOP:
@@ -140,16 +152,26 @@ public class StmBusScheduleProvider extends ContentProvider {
 			return null;
 		}
 		String limit = null;
-		String routeId = uri.getPathSegments().get(1);
+		final List<String> pathSegments = uri.getPathSegments();
+		if (pathSegments.size() < 1) {
+			MyLog.w(TAG, "Cannot lookup schedule without route ID!");
+			return null;
+		}
+		String routeId = pathSegments.get(1);
 		final Date now = new Date();
 		switch (URI_MATCHER.match(uri)) {
+		case ROUTE_DEPARTURE:
+			MyLog.v(TAG, "query>DEPARTURE");
+			qb.setTables(SCHEDULE_SERVICE_DATE_JOIN);
+			qb.setProjectionMap(SCHEDULE_PROJECTION_MAP);
+			break;
 		case ROUTE_TRIP_STOP:
 			MyLog.v(TAG, "query>ROUTE_TRIP_STOP");
 			qb.setTables(SCHEDULE_SERVICE_DATE_JOIN);
 			qb.setProjectionMap(SCHEDULE_PROJECTION_MAP);
-			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_TRIP_ID + " = " + uri.getPathSegments().get(3));
+			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_TRIP_ID + " = " + pathSegments.get(3));
 			qb.appendWhere(" AND ");
-			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_STOP_ID + " = " + uri.getPathSegments().get(5));
+			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_STOP_ID + " = " + pathSegments.get(5));
 			qb.appendWhere(" AND ");
 			qb.appendWhere(StmBusScheduleDbHelper.T_SERVICE_DATES + "." + StmBusScheduleDbHelper.T_SERVICE_DATES_K_DATE + " = " + DATE_FORMAT.format(now));
 			qb.appendWhere(" AND ");
@@ -161,11 +183,11 @@ public class StmBusScheduleProvider extends ContentProvider {
 			qb.setProjectionMap(SCHEDULE_PROJECTION_MAP);
 			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_TRIP_ID + " = " + routeId);
 			qb.appendWhere(" AND ");
-			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_STOP_ID + " = " + uri.getPathSegments().get(3));
+			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_STOP_ID + " = " + pathSegments.get(3));
 			qb.appendWhere(" AND ");
-			qb.appendWhere(StmBusScheduleDbHelper.T_SERVICE_DATES + "." + StmBusScheduleDbHelper.T_SERVICE_DATES_K_DATE + " = " + uri.getPathSegments().get(5));
+			qb.appendWhere(StmBusScheduleDbHelper.T_SERVICE_DATES + "." + StmBusScheduleDbHelper.T_SERVICE_DATES_K_DATE + " = " + pathSegments.get(5));
 			qb.appendWhere(" AND ");
-			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_DEPARTURE + " >= " + uri.getPathSegments().get(7));
+			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_DEPARTURE + " >= " + pathSegments.get(7));
 			break;
 		case ROUTE_STOP:
 			MyLog.v(TAG, "query>ROUTE_STOP");
@@ -175,7 +197,7 @@ public class StmBusScheduleProvider extends ContentProvider {
 			// routeId + "00 AND " + routeId + "99");
 			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_TRIP_ID + " LIKE '" + routeId + "%'");
 			qb.appendWhere(" AND ");
-			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_STOP_ID + " = " + uri.getPathSegments().get(3));
+			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_STOP_ID + " = " + pathSegments.get(3));
 			qb.appendWhere(" AND ");
 			qb.appendWhere(StmBusScheduleDbHelper.T_SERVICE_DATES + "." + StmBusScheduleDbHelper.T_SERVICE_DATES_K_DATE + " = " + DATE_FORMAT.format(now));
 			qb.appendWhere(" AND ");
@@ -189,9 +211,9 @@ public class StmBusScheduleProvider extends ContentProvider {
 			// routeId + "00 AND " + routeId + "99");
 			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_TRIP_ID + " LIKE '" + routeId + "%'");
 			qb.appendWhere(" AND ");
-			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_STOP_ID + " = " + uri.getPathSegments().get(3));
+			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_STOP_ID + " = " + pathSegments.get(3));
 			qb.appendWhere(" AND ");
-			qb.appendWhere(StmBusScheduleDbHelper.T_SERVICE_DATES + "." + StmBusScheduleDbHelper.T_SERVICE_DATES_K_DATE + " = " + uri.getPathSegments().get(5));
+			qb.appendWhere(StmBusScheduleDbHelper.T_SERVICE_DATES + "." + StmBusScheduleDbHelper.T_SERVICE_DATES_K_DATE + " = " + pathSegments.get(5));
 			qb.appendWhere(" AND ");
 			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_DEPARTURE + " >= " + TIME_FORMAT.format(now));
 			break;
@@ -203,11 +225,11 @@ public class StmBusScheduleProvider extends ContentProvider {
 			// routeId + "00 AND " + routeId + "99");
 			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_TRIP_ID + " LIKE '" + routeId + "%'");
 			qb.appendWhere(" AND ");
-			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_STOP_ID + " = " + uri.getPathSegments().get(3));
+			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_STOP_ID + " = " + pathSegments.get(3));
 			qb.appendWhere(" AND ");
 			qb.appendWhere(StmBusScheduleDbHelper.T_SERVICE_DATES + "." + StmBusScheduleDbHelper.T_SERVICE_DATES_K_DATE + " = " + DATE_FORMAT.format(now));
 			qb.appendWhere(" AND ");
-			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_DEPARTURE + " >= " + uri.getPathSegments().get(5));
+			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_DEPARTURE + " >= " + pathSegments.get(5));
 			break;
 		case ROUTE_STOP_DATE_TIME:
 			MyLog.v(TAG, "query>ROUTE_STOP_DATE_TIME");
@@ -217,20 +239,21 @@ public class StmBusScheduleProvider extends ContentProvider {
 			// routeId + "00 AND " + routeId + "99");
 			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_TRIP_ID + " LIKE '" + routeId + "%'");
 			qb.appendWhere(" AND ");
-			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_STOP_ID + " = " + uri.getPathSegments().get(3));
+			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_STOP_ID + " = " + pathSegments.get(3));
 			qb.appendWhere(" AND ");
-			qb.appendWhere(StmBusScheduleDbHelper.T_SERVICE_DATES + "." + StmBusScheduleDbHelper.T_SERVICE_DATES_K_DATE + " = " + uri.getPathSegments().get(5));
+			qb.appendWhere(StmBusScheduleDbHelper.T_SERVICE_DATES + "." + StmBusScheduleDbHelper.T_SERVICE_DATES_K_DATE + " = " + pathSegments.get(5));
 			qb.appendWhere(" AND ");
-			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_DEPARTURE + " >= " + uri.getPathSegments().get(7));
+			qb.appendWhere(StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_DEPARTURE + " >= " + pathSegments.get(7));
 			break;
 		default:
 			throw new IllegalArgumentException(String.format("Unknown URI (query): '%s'", uri));
 		}
-		limit = "7"; // limited to the next 7 passages
+		// limit = "7"; // limited to the next 7 passages
 		// If no sort order is specified use the default
 		String orderBy;
 		if (TextUtils.isEmpty(sortOrder)) {
 			switch (URI_MATCHER.match(uri)) {
+			case ROUTE_DEPARTURE:
 			case ROUTE_TRIP_STOP:
 			case ROUTE_TRIP_STOP_DATE_TIME:
 			case ROUTE_STOP:
