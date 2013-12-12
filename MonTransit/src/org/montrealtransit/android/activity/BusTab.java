@@ -18,13 +18,12 @@ import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.ClosestPOI;
 import org.montrealtransit.android.data.Route;
 import org.montrealtransit.android.data.RouteTripStop;
-import org.montrealtransit.android.dialog.BusLineSelectDirection;
+import org.montrealtransit.android.dialog.RouteSelectTripDialog;
 import org.montrealtransit.android.provider.DataManager;
-import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.StmBusManager;
-import org.montrealtransit.android.services.ClosestBusStopsFinderTask;
-import org.montrealtransit.android.services.ClosestBusStopsFinderTask.ClosestBusStopsFinderListener;
+import org.montrealtransit.android.services.ClosestRouteTripStopsFinderTask;
+import org.montrealtransit.android.services.ClosestRouteTripStopsFinderTask.ClosestRouteTripStopsFinderListener;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -62,7 +61,7 @@ import android.widget.TextView;
  * @author Mathieu Méa
  */
 @TargetApi(3)
-public class BusTab extends Activity implements LocationListener, ClosestBusStopsFinderListener, SensorEventListener, CompassListener, OnScrollListener,
+public class BusTab extends Activity implements LocationListener, ClosestRouteTripStopsFinderListener, SensorEventListener, CompassListener, OnScrollListener,
 		OnItemClickListener {
 
 	/**
@@ -101,7 +100,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 	/**
 	 * The task used to find the closest stations.
 	 */
-	private ClosestBusStopsFinderTask closestStopsTask;
+	private ClosestRouteTripStopsFinderTask closestStopsTask;
 	/**
 	 * The {@link Sensor#TYPE_ACCELEROMETER} values.
 	 */
@@ -415,7 +414,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		MyLog.v(TAG, "onItemClick(%s, %s,%s,%s)", parent.getId(), view.getId(), position, id);
 		if (this.closestStops != null && position < this.closestStops.size() && this.closestStops.get(position) != null) {
-			startActivity(BusStopInfo.newInstance(this, this.closestStops.get(position)));
+			startActivity(StopInfo.newInstance(this, this.closestStops.get(position)));
 		}
 	}
 
@@ -666,7 +665,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 				return;
 			}
 			// find the closest stations
-			this.closestStopsTask = new ClosestBusStopsFinderTask(this, this, SupportFactory.get().getNbClosestPOIDisplay());
+			this.closestStopsTask = new ClosestRouteTripStopsFinderTask(this, this, StmBusManager.CONTENT_URI, SupportFactory.get().getNbClosestPOIDisplay());
 			this.closestStopsTask.execute(currentLocation);
 			this.closestStopsLocation = currentLocation;
 			new AsyncTask<Location, Void, Address>() {
@@ -837,7 +836,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 					public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 						MyLog.v(TAG, "onItemClick(%s, %s,%s,%s)", parent.getId(), view.getId(), position, id);
 						if (BusTab.this.busLines != null && position < BusTab.this.busLines.size() && BusTab.this.busLines.get(position) != null) {
-							startActivity(BusLineInfo.newInstance(BusTab.this, BusTab.this.busLines.get(position), null, null));
+							startActivity(RouteInfo.newInstance(BusTab.this, StmBusManager.AUTHORITY, BusTab.this.busLines.get(position), null, null));
 						}
 					}
 				});
@@ -846,7 +845,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 					public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 						MyLog.v(TAG, "onItemClick(%s, %s,%s,%s)", parent.getId(), view.getId(), position, id);
 						if (BusTab.this.busLines != null && position < BusTab.this.busLines.size() && BusTab.this.busLines.get(position) != null) {
-							new BusLineSelectDirection(BusTab.this, BusTab.this.busLines.get(position)).showDialog();
+							new RouteSelectTripDialog(BusTab.this, StmBusManager.AUTHORITY, BusTab.this.busLines.get(position), null, null).showDialog();
 							return true;
 						}
 						return false;
@@ -905,7 +904,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 		new AsyncTask<Void, Void, List<Fav>>() {
 			@Override
 			protected List<Fav> doInBackground(Void... params) {
-				return DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
+				return DataManager.findFavsByTypeList(getContentResolver(), Fav.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP);
 			}
 
 			@Override
@@ -916,7 +915,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 				}
 				List<String> newfavUIDs = new ArrayList<String>();
 				for (Fav busStopFav : result) {
-					String UID = RouteTripStop.getUID(busStopFav.getFkId(), busStopFav.getFkId2());
+					String UID = busStopFav.getFkId();
 					if (BusTab.this.favUIDs == null || !BusTab.this.favUIDs.contains(UID)) {
 						newFav = true; // new favorite
 					}
@@ -953,7 +952,7 @@ public class BusTab extends Activity implements LocationListener, ClosestBusStop
 		// ELSE IF there are closest stations AND new location DO
 		if (this.closestStops != null && currentLocation != null) {
 			// update the list distances
-			LocationUtils.updateDistance(this, this.closestStops, currentLocation, new LocationTaskCompleted() {
+			LocationUtils.updateDistanceWithString(this, this.closestStops, currentLocation, new LocationTaskCompleted() {
 
 				@Override
 				public void onLocationTaskCompleted() {

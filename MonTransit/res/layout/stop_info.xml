@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+    <!-- ADs -->
+    <include
+        android:id="@+id/ad_layout"
+        layout="@layout/ad_layout" />
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_above="@+id/ad_layout"
+        android:orientation="vertical" >
+        <!-- STOP INFORMATIONS -->
+        <RelativeLayout
+            android:id="@+id/banner"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:drawable/title_bar"
+            android:gravity="fill_horizontal"
+            android:minHeight="?android:attr/listPreferredItemHeight"
+            android:orientation="horizontal"
+            android:paddingBottom="0dip"
+            android:paddingLeft="0dip"
+            android:paddingRight="5dip"
+            android:paddingTop="0dip" >
+            <!-- ROUTE TRIP -->
+            <LinearLayout
+                android:id="@+id/route_trip"
+                android:layout_width="wrap_content"
+                android:layout_height="?android:attr/listPreferredItemHeight"
+                android:layout_alignParentLeft="true"
+                android:orientation="vertical"
+                android:paddingRight="5dip" >
+                <FrameLayout
+                    android:id="@+id/route"
+                    android:layout_width="66dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" >
+                    <!-- ROUTE SHORT NAME -->
+                    <TextView
+                        android:id="@+id/route_short_name"
+                        style="@style/RouteShortNameSmall"
+                        android:text="@string/default_route_short_name"
+                        android:visibility="gone" />
+                    <!-- ROUTE TYPE IMG -->
+                    <ImageView
+                        android:id="@+id/route_type_img"
+                        android:layout_width="33dp"
+                        android:layout_height="33dp"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:src="@drawable/subway_white"
+                        android:visibility="gone" />
+                </FrameLayout>
+                <!-- TRIP HEADING -->
+                <TextView
+                    android:id="@+id/trip_heading"
+                    android:layout_width="66dp"
+                    android:layout_height="wrap_content"
+                    android:background="#000000"
+                    android:ellipsize="marquee"
+                    android:gravity="center_vertical|right"
+                    android:paddingRight="2dp"
+                    android:singleLine="true"
+                    android:text="@string/default_trip_heading"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold" />
+            </LinearLayout>
+            <!-- FAVORITE ICON -->
+            <CheckBox
+                android:id="@+id/star"
+                style="?android:attr/starStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:onClick="addOrRemoveFavorite"
+                android:visibility="invisible" />
+            <!-- STOP -->
+            <RelativeLayout
+                android:id="@+id/stop"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@id/star"
+                android:layout_toRightOf="@+id/route_trip"
+                android:paddingTop="10dp" >
+                <!-- STOP NAME -->
+                <TextView
+                    android:id="@+id/stop_name"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="0dp"
+                    android:ellipsize="marquee"
+                    android:gravity="center_vertical|left"
+                    android:paddingLeft="0dp"
+                    android:paddingRight="0dp"
+                    android:paddingTop="0dp"
+                    android:singleLine="true"
+                    android:text="@string/default_stop_name"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textColor="@color/nofocustext"
+                    android:textStyle="bold" />
+                <!-- STOP CODE -->
+                <TextView
+                    android:id="@+id/stop_code"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/stop_name"
+                    android:layout_marginTop="-5dp"
+                    android:paddingLeft="0dip"
+                    android:text="@string/default_stop_code"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="#FFFFFF"
+                    android:textStyle="bold"
+                    android:visibility="visible" />
+                <!-- DISTANCE -->
+                <TextView
+                    android:id="@+id/distance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignWithParentIfMissing="true"
+                    android:layout_below="@id/stop_name"
+                    android:gravity="top"
+                    android:text="@string/ellipsis"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:visibility="invisible" />
+                <!-- COMPASS -->
+                <ImageView
+                    android:id="@+id/compass"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@id/distance"
+                    android:layout_alignWithParentIfMissing="true"
+                    android:layout_marginBottom="3dip"
+                    android:layout_marginLeft="5dip"
+                    android:layout_marginRight="3dip"
+                    android:layout_toLeftOf="@id/distance"
+                    android:scaleType="matrix"
+                    android:src="@drawable/heading_arrow_light"
+                    android:visibility="invisible" />
+            </RelativeLayout>
+        </RelativeLayout>
+        <ScrollView
+            android:id="@+id/scrollview"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" >
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+                <!-- NEXT STOPS -->
+                <RelativeLayout
+                    android:id="@+id/next_stops_title"
+                    android:layout_width="fill_parent"
+                    android:layout_height="25dip"
+                    android:background="@drawable/dark_header_dither" >
+                    <ImageView
+                        android:id="@+id/clock_logo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_alignParentLeft="true"
+                        android:focusable="false"
+                        android:gravity="center_vertical"
+                        android:src="@drawable/ic_btn_clock" />
+                    <ImageView
+                        android:id="@+id/next_stops_refresh"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_alignParentRight="true"
+                        android:background="@android:drawable/list_selector_background"
+                        android:focusable="true"
+                        android:onClick="refreshOrStopRefreshNextStops"
+                        android:src="@drawable/ic_btn_refresh"
+                        android:visibility="visible" />
+                    <ImageView
+                        android:id="@+id/next_stops_section_info"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_toLeftOf="@id/next_stops_refresh"
+                        android:background="@android:drawable/list_selector_background"
+                        android:focusable="true"
+                        android:onClick="showNextStopsInfoDialog"
+                        android:src="@drawable/ic_btn_info_details" />
+                    <TextView
+                        android:id="@+id/next_stops_string"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_toLeftOf="@id/next_stops_section_info"
+                        android:layout_toRightOf="@id/clock_logo"
+                        android:gravity="center_vertical"
+                        android:singleLine="true"
+                        android:text="@string/next_stops"
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                    <ProgressBar
+                        android:id="@+id/progress_bar_next_stop"
+                        style="?android:attr/android:progressBarStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="8dip"
+                        android:layout_marginRight="8dip"
+                        android:indeterminate="true"
+                        android:visibility="invisible" />
+                </RelativeLayout>
+                <include
+                    android:id="@+id/next_stops_loading"
+                    layout="@layout/loading_layout" />
+                <HorizontalScrollView
+                    android:id="@+id/next_stops_group"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="bottom"
+                    android:minHeight="?android:attr/listPreferredItemHeight"
+                    android:visibility="gone" >
+                    <TextView
+                        android:id="@+id/next_stops"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:ellipsize="marquee"
+                        android:padding="5dp"
+                        android:scrollHorizontally="true"
+                        android:singleLine="true" />
+                </HorizontalScrollView>
+                <TextView
+                    android:id="@+id/next_stops_message_text"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:padding="5dp"
+                    android:textColor="@android:color/white"
+                    android:textSize="18sp"
+                    android:visibility="gone" />
+                <!-- OTHER ROUTE TRIPs -->
+                <RelativeLayout
+                    android:id="@+id/other_route_trip_title"
+                    android:layout_width="fill_parent"
+                    android:layout_height="25dip"
+                    android:background="@drawable/dark_header_dither"
+                    android:visibility="gone" >
+                    <ImageView
+                        android:id="@+id/type_logo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_alignParentLeft="true"
+                        android:focusable="false"
+                        android:gravity="center_vertical"
+                        android:src="@drawable/ic_btn_subway" />
+                    <TextView
+                        android:id="@+id/other_route_trip_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_toRightOf="@id/type_logo"
+                        android:gravity="center_vertical"
+                        android:text="@string/other_route_trip"
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </RelativeLayout>
+                <HorizontalScrollView
+                    android:id="@+id/other_route_trip"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content" >
+                    <LinearLayout
+                        android:id="@+id/other_route_trip_list"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:gravity="bottom"
+                        android:orientation="horizontal"
+                        android:padding="2dip" />
+                </HorizontalScrollView>
+                <!-- NEARBY -->
+                <RelativeLayout
+                    android:id="@+id/nearby_title"
+                    android:layout_width="fill_parent"
+                    android:layout_height="25dip"
+                    android:background="@drawable/dark_header_dither"
+                    android:visibility="visible" >
+                    <ImageView
+                        android:id="@+id/nearby_logo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_alignParentLeft="true"
+                        android:focusable="false"
+                        android:gravity="center_vertical"
+                        android:src="@drawable/ic_btn_location" />
+                    <TextView
+                        android:id="@+id/nearby_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="fill_parent"
+                        android:layout_toRightOf="@id/nearby_logo"
+                        android:gravity="center_vertical"
+                        android:text="@string/nearby"
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                </RelativeLayout>
+                <include
+                    android:id="@+id/nearby_loading"
+                    android:layout_width="fill_parent"
+                    android:layout_height="?android:attr/listPreferredItemHeight"
+                    layout="@layout/loading_small_layout"
+                    android:visibility="gone" />
+                <LinearLayout
+                    android:id="@+id/nearby_list"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+</RelativeLayout>

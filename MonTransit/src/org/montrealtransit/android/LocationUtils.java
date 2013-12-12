@@ -1,7 +1,9 @@
 package org.montrealtransit.android;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 
@@ -52,9 +54,17 @@ public class LocationUtils {
 	 */
 	private static final long MAX_LAST_KNOW_LOCATION_TIME = 30 * 60 * 1000; // 30 minutes
 	/**
-	 * The range of the location around.
+	 * The minimum range of the location around.
 	 */
-	public static final double AROUND_DIFF = 0.02;
+	public static final double MIN_AROUND_DIFF = 0.02;
+	/**
+	 * The increment of the range of the location around.
+	 */
+	public static final double INC_AROUND_DIFF = 0.01;
+	/**
+	 * The maximum range of the location around.
+	 */
+	public static final double MAX_AROUND_DIFF = 0.10;
 	/**
 	 * The string formatter to truncate around location.
 	 */
@@ -485,6 +495,31 @@ public class LocationUtils {
 		}
 	}
 
+	public static float getAroundCoveredDistance(double lat, double lng, double AROUND_DIFF) {
+		MyLog.v(TAG, "getAroundCoveredDistance(%s, %s)", lat, lng);
+		// latitude
+		double latTrunc = lat;
+		double latBefore = Double.valueOf(truncAround(latTrunc - AROUND_DIFF));
+		double latAfter = Double.valueOf(truncAround(latTrunc + AROUND_DIFF));
+		// MyLog.d(TAG, "lat: " + latBefore + " - " + latAfter);
+		// longitude
+		double lngTrunc = lng;
+		double lngBefore = Double.valueOf(truncAround(lngTrunc - AROUND_DIFF));
+		double lngAfter = Double.valueOf(truncAround(lngTrunc + AROUND_DIFF));
+		// MyLog.d(TAG, "lng: " + lngBefore + " - " + lngAfter);
+		final float distanceToNorth = distanceTo(lat, lng, latAfter, lng);
+		// MyLog.d(TAG, "north: " + distanceToNorth);
+		final float distanceToSouth = distanceTo(lat, lng, latBefore, lng);
+		// MyLog.d(TAG, "south: " + distanceToSouth);
+		final float distanceToWest = distanceTo(lat, lng, lat, lngBefore);
+		// MyLog.d(TAG, "west: " + distanceToWest);
+		final float distanceToEast = distanceTo(lat, lng, lat, lngAfter);
+		// MyLog.d(TAG, "east: " + distanceToEast);
+		float[] distances = new float[] { distanceToNorth, distanceToSouth, distanceToWest, distanceToEast };
+		Arrays.sort(distances);
+		return distances[0]; // return the closest
+	}
+
 	/**
 	 * @param lat latitude
 	 * @param lng longitude
@@ -492,31 +527,31 @@ public class LocationUtils {
 	 * @param lngTableColumn longitude SQL table column
 	 * @return the SQL where clause
 	 */
-	public static String genAroundWhere(String lat, String lng, String latTableColumn, String lngTableColumn) {
-		// MyLog.v(TAG, "genAroundWhere(%s, %s, %s. %s)", lat, lng, latTableColumn, lngTableColumn);
+	public static String genAroundWhere(String lat, String lng, String latTableColumn, String lngTableColumn, double aroundDiff) {
+		// MyLog.v(TAG, "genAroundWhere(%s, %s, %s, %s)", lat, lng, latTableColumn, lngTableColumn);
 		StringBuilder qb = new StringBuilder();
 		// latitude
 		double latTrunc = truncAround(lat);
-		String latBefore = truncAround(latTrunc - AROUND_DIFF);
-		String latAfter = truncAround(latTrunc + AROUND_DIFF);
+		String latBefore = truncAround(latTrunc - aroundDiff);
+		String latAfter = truncAround(latTrunc + aroundDiff);
 		// MyLog.d(TAG, "lat: " + latBefore + " - " + latAfter);
 		qb.append(latTableColumn).append(" BETWEEN ").append(latBefore).append(" AND ").append(latAfter);
 		qb.append(" AND ");
 		// longitude
 		double lngTrunc = truncAround(lng);
-		String lngBefore = truncAround(lngTrunc - AROUND_DIFF);
-		String lngAfter = truncAround(lngTrunc + AROUND_DIFF);
+		String lngBefore = truncAround(lngTrunc - aroundDiff);
+		String lngAfter = truncAround(lngTrunc + aroundDiff);
 		// MyLog.d(TAG, "lng: " + lngBefore + " - " + lngAfter);
 		qb.append(lngTableColumn).append(" BETWEEN ").append(lngBefore).append(" AND ").append(lngAfter);
 		return qb.toString();
 	}
 
-	public static String genAroundWhere(double lat, double lng, String latTableColumn, String lngTableColumn) {
-		return genAroundWhere(String.valueOf(lat), String.valueOf(lng), latTableColumn, lngTableColumn);
+	public static String genAroundWhere(double lat, double lng, String latTableColumn, String lngTableColumn, double aroundDiff) {
+		return genAroundWhere(String.valueOf(lat), String.valueOf(lng), latTableColumn, lngTableColumn, aroundDiff);
 	}
 
-	public static String genAroundWhere(Location location, String latTableColumn, String lngTableColumn) {
-		return genAroundWhere(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()), latTableColumn, lngTableColumn);
+	public static String genAroundWhere(Location location, String latTableColumn, String lngTableColumn, double aroundDiff) {
+		return genAroundWhere(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()), latTableColumn, lngTableColumn, aroundDiff);
 	}
 
 	public static void updateDistance(Map<?, ? extends POI> pois, double lat, double lng) {
@@ -555,7 +590,7 @@ public class LocationUtils {
 		}
 	}
 
-	public static void updateDistance(final Context context, final List<? extends POI> pois, final Location currentLocation,
+	public static void updateDistanceWithString(final Context context, final List<? extends POI> pois, final Location currentLocation,
 			final LocationTaskCompleted callback) {
 		// MyLog.v(TAG, "updateDistance()");
 		if (pois == null || currentLocation == null) {
@@ -704,6 +739,23 @@ public class LocationUtils {
 			activity.startActivity(intent); // launch the radar activity
 		} else {
 			Utils.notifyTheUser(activity, activity.getString(R.string.no_radar_title));
+		}
+	}
+
+	public static void removeTooFar(List<? extends POI> pois, float maxDistance) {
+		MyLog.d(TAG, "removeTooFar(%s)", maxDistance);
+		if (pois != null) {
+			ListIterator<? extends POI> it = pois.listIterator();
+			while (it.hasNext()) {
+				POI poi = it.next();
+				if (poi.getDistance() > maxDistance) {
+					// MyLog.d(TAG, "removeTooFar() filtering on distance... (skiping %s)", poi.getUID());
+					it.remove();
+					continue;
+					// } else {
+					// MyLog.d(TAG, "removeTooFar() filtering on distance... (not skiping %s)", poi.getUID());
+				}
+			}
 		}
 	}
 }

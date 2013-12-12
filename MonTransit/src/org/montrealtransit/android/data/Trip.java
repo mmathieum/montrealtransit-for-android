@@ -30,6 +30,16 @@ public class Trip {
 		return trip;
 	}
 
+	@Override
+	public String toString() {
+		return new StringBuilder().append(Trip.class.getSimpleName()).append(":[") //
+				.append("id:").append(id).append(',') //
+				.append("headsignType:").append(headsignType).append(',') //
+				.append("headsignValue:").append(headsignValue).append(',') //
+				.append("routeId:").append(routeId) //
+				.append(']').toString();
+	}
+
 	private String heading = null;
 
 	public String getHeading(Context context) {

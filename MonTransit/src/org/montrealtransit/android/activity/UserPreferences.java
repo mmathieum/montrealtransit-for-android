@@ -27,6 +27,7 @@ import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.widget.Toast;
 
 /**
  * The user preferences activity.
@@ -139,18 +140,22 @@ public class UserPreferences extends PreferenceActivity {
 	 * The preference key for the subway line stations display order. <b>WARNING:</b> To be used with the subway line number at the end. Use
 	 * {@link UserPreferences#getPrefsSubwayStationsOrder(int)} to get the key.
 	 */
+	@Deprecated
 	private static final String PREFS_SUBWAY_STATIONS_ORDER = "pSubwayStationOrder";
 	/**
 	 * The preference value for the natural order 1.
 	 */
+	@Deprecated
 	public static final String PREFS_SUBWAY_STATIONS_ORDER_NATURAL = "asc";
 	/**
 	 * The preference value for the natural order 2.
 	 */
+	@Deprecated
 	public static final String PREFS_SUBWAY_STATIONS_ORDER_NATURAL_DESC = "desc";
 	/**
 	 * The default value for the subway stations order.
 	 */
+	@Deprecated
 	public static final String PREFS_SUBWAY_STATIONS_ORDER_DEFAULT = PREFS_SUBWAY_STATIONS_ORDER_NATURAL;
 
 	/**
@@ -276,7 +281,7 @@ public class UserPreferences extends PreferenceActivity {
 					// download the code of the app an block ads in the source
 					// code
 					// or donate to support the development of the application
-					Utils.notifyTheUserLong(UserPreferences.this, UserPreferences.this.getString(R.string.donate_to_remove_ads));
+					Toast.makeText(UserPreferences.this, UserPreferences.this.getString(R.string.donate_to_remove_ads), Toast.LENGTH_LONG).show();
 					UserPreferences.this.adsCheckBox.setChecked(true);
 
 					Uri appMarketURI = Uri.parse("market://search?q=pub:\"Mathieu Méa\"");
@@ -298,6 +303,8 @@ public class UserPreferences extends PreferenceActivity {
 				DataManager.deleteAllCache(getContentResolver());
 				Utils.notifyTheUser(getApplicationContext(), UserPreferences.this.getString(R.string.clear_cache_complete));
 				setClearCachePref();
+				// WARNING DANGEROUS UserPreferences.this.getDatabasePath(StmSubwayDbHelper.DB_NAME);
+				// WARNING DANGEROUS UserPreferences.this.deleteDatabase(StmSubwayDbHelper.DB_NAME);
 				return false;
 			}
 		});
@@ -384,6 +391,7 @@ public class UserPreferences extends PreferenceActivity {
 	 * @param number the subway line number
 	 * @return the PREFS_SUBWAY_STATIONS_ORDER+number key.
 	 */
+	@Deprecated
 	public static String getPrefsSubwayStationsOrder(int number) {
 		return PREFS_SUBWAY_STATIONS_ORDER + number;
 	}

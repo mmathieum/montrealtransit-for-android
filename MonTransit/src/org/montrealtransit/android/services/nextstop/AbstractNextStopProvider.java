@@ -1,19 +1,18 @@
 package org.montrealtransit.android.services.nextstop;
 
-import java.util.Map;
-
 import org.montrealtransit.android.MyLog;
-import org.montrealtransit.android.data.BusStopHours;
 import org.montrealtransit.android.data.RouteTripStop;
+import org.montrealtransit.android.data.StopTimes;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.SparseArray;
 
 /**
- * Abstract task for next bus stop services.
+ * Abstract task for next stop services.
  * @author Mathieu Méa
  */
-public abstract class AbstractNextStopProvider extends AsyncTask<Void, String, Map<String, BusStopHours>> {
+public abstract class AbstractNextStopProvider extends AsyncTask<Void, String, SparseArray<StopTimes>> {
 
 	/**
 	 * The class that will handle the response.
@@ -24,7 +23,7 @@ public abstract class AbstractNextStopProvider extends AsyncTask<Void, String, M
 	 */
 	protected Context context;
 	/**
-	 * The bus stop.
+	 * The stop.
 	 */
 	protected RouteTripStop routeTripStop;
 
@@ -47,7 +46,7 @@ public abstract class AbstractNextStopProvider extends AsyncTask<Void, String, M
 	public abstract String getSourceName();
 
 	@Override
-	protected void onPostExecute(Map<String, BusStopHours> results) {
+	protected void onPostExecute(SparseArray<StopTimes> results) {
 		MyLog.v(getTag(), "onPostExecute()");
 		// MyLog.d(getTag(), "results null?: " + (results == null));
 		// if (results == null) {

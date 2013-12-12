@@ -20,14 +20,14 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.montrealtransit.android.api.SupportFactory;
+import org.montrealtransit.android.data.Route;
+import org.montrealtransit.android.data.RouteStop;
 import org.montrealtransit.android.data.RouteTripStop;
+import org.montrealtransit.android.data.Stop;
 import org.montrealtransit.android.provider.DataManager;
-import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.StmBusManager;
-import org.montrealtransit.android.provider.StmManager;
-import org.montrealtransit.android.provider.StmStore;
-import org.montrealtransit.android.provider.StmStore.SubwayStation;
+import org.montrealtransit.android.provider.StmSubwayManager;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -40,6 +40,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -80,6 +81,10 @@ public class Utils {
 	 * The minimum between 2 {@link BaseAdapter#notifyDataSetChanged()} in milliseconds.
 	 */
 	public static final int ADAPTER_NOTIFY_THRESOLD = 250; // 0.25 seconds
+	/**
+	 * The minimum number of item in a manual POI list.
+	 */
+	public static final int MIN_NEARBY_LIST = 10; // 0;
 	/**
 	 * The number of item in a manual POI list.
 	 */
@@ -172,19 +177,19 @@ public class Utils {
 	}
 
 	/**
-	 * Format the hours according to the device settings.
+	 * Format the times according to the device settings.
 	 * @param context the context used to get the device settings
-	 * @param noFormatHour the original hours string
-	 * @return the formatted hour string
+	 * @param noFormatTime the original times string
+	 * @return the formatted time string
 	 */
-	public static String formatHours(Context context, String noFormatHour) {
-		// MyLog.v(TAG, "formatHours(%s)", noFormatHour);
+	public static String formatTimes(Context context, String noFormatTime) {
+		// MyLog.v(TAG, "formatTimes(%s)", noFormatTime);
 		String result = "";
 		try {
-			result = getTimeFormatter(context).format(simpleDateFormatter.parse(noFormatHour.replace("h", ":")));
+			result = getTimeFormatter(context).format(simpleDateFormatter.parse(noFormatTime.replace("h", ":")));
 		} catch (Exception e) {
-			MyLog.w(TAG, e, "Error while formatting '%s'.", noFormatHour);
-			result = noFormatHour;
+			MyLog.w(TAG, e, "Error while formatting '%s'.", noFormatTime);
+			result = noFormatTime;
 		}
 		return result;
 	}
@@ -230,26 +235,6 @@ public class Utils {
 			dateFormatter = android.text.format.DateFormat.getTimeFormat(context);
 		}
 		return dateFormatter;
-	}
-
-	/**
-	 * Format a string containing 2 hours strings.
-	 * @param context the context use by the {@link Utils#formatHours(Context, String)} method
-	 * @param noFormatHours the 2 hours string to format
-	 * @param splitBy the separator between the 2 hours string in the source string
-	 * @return the formatted 2 hours string
-	 */
-	public static String getFormatted2Hours(Context context, String noFormatHours, String splitBy) {
-		// MyLog.v(TAG, "getFormatted2Hours(%s, %s)", noFormatHour, splitBy);
-		try {
-			int indexOfH = noFormatHours.indexOf(splitBy);
-			String noFormatHour1 = noFormatHours.substring(0, indexOfH);
-			String noFormatHour2 = noFormatHours.substring(indexOfH + splitBy.length());
-			return Utils.formatHours(context, noFormatHour1) + " - " + Utils.formatHours(context, noFormatHour2);
-		} catch (Exception e) {
-			MyLog.w(TAG, e, "Error while formatting '%s'.", noFormatHours);
-			return noFormatHours;
-		}
 	}
 
 	/**
@@ -328,56 +313,50 @@ public class Utils {
 	 */
 	public static String getSavedStringValue(Intent intent, Bundle savedInstanceState, String id) {
 		MyLog.v(TAG, "getSavedStringValue(%s)", id);
-		String result = savedInstanceState != null ? savedInstanceState.getString(id) : null;
+		String result = savedInstanceState != null && savedInstanceState.containsKey(id) ? savedInstanceState.getString(id) : null;
 		// IF the activity was already launch, get the last id
 		if (result == null) {
 			// get the extras bundles from the intent
 			Bundle extras = intent.getExtras();
-			// IF there is extras, get the line id
-			result = extras != null ? extras.getString(id) : null;
+			// IF there is extras, get the string
+			result = extras != null && extras.containsKey(id) ? extras.getString(id) : null;
 		}
 		if (result == null) {
-			MyLog.w(TAG, "Can't find the saved string value for string ID '%s' (returned null)", id);
+			MyLog.w(TAG, "Can't find the saved string value for ID '%s' (returned null)", id);
+		}
+		return result;
+	}
+
+	public static Integer getSavedIntValue(Intent intent, Bundle savedInstanceState, String id) {
+		MyLog.v(TAG, "getSavedIntValue(%s)", id);
+		Integer result = savedInstanceState != null && savedInstanceState.containsKey(id) ? savedInstanceState.getInt(id) : null;
+		// IF the activity was already launch, get the last id
+		if (result == null) {
+			// get the extras bundles from the intent
+			Bundle extras = intent.getExtras();
+			// IF there is extras, get the int
+			result = extras != null && extras.containsKey(id) ? extras.getInt(id) : null;
+		}
+		if (result == null) {
+			MyLog.w(TAG, "Can't find the saved int value for ID '%s' (returned null)", id);
 		}
 		return result;
 	}
 
 	public static float getSavedFloatValue(Intent intent, Bundle savedInstanceState, String id) {
 		MyLog.v(TAG, "getSavedFloatValue(%s)", id);
-		Float result = savedInstanceState != null ? savedInstanceState.getFloat(id) : null;
+		Float result = savedInstanceState != null && savedInstanceState.containsKey(id) ? savedInstanceState.getFloat(id) : null;
 		// IF the activity was already launch, get the last id
 		if (result == null) {
 			// get the extras bundles from the intent
 			Bundle extras = intent.getExtras();
 			// IF there is extras, get the line id
-			result = extras != null ? extras.getFloat(id) : null;
+			result = extras != null && extras.containsKey(id) ? extras.getFloat(id) : null;
 		}
 		if (result == null) {
-			MyLog.w(TAG, "Can't find the saved float value for string ID '%s' (returned null)", id);
+			MyLog.w(TAG, "Can't find the saved float value for ID '%s' (returned null)", id);
 		}
 		return result;
-	}
-
-	/**
-	 * @return the day of the week value in the DB
-	 */
-	public static String getDayOfTheWeek() {
-		return getDayOfTheWeek(Calendar.getInstance());
-	}
-
-	/**
-	 * @param calendar the date
-	 * @return the day of the week value in the DB
-	 */
-	public static String getDayOfTheWeek(Calendar calendar) {
-		switch (calendar.get(Calendar.DAY_OF_WEEK)) {
-		case Calendar.SATURDAY:
-			return StmStore.SubwayLine.FREQUENCES_K_DAY_SATURDAY;
-		case Calendar.SUNDAY:
-			return StmStore.SubwayLine.FREQUENCES_K_DAY_SUNDAY;
-		default:
-			return StmStore.SubwayLine.FREQUENCES_K_DAY_WEEK;
-		}
 	}
 
 	/**
@@ -459,15 +438,6 @@ public class Utils {
 	 */
 	public static void notifyTheUser(Context context, String message) {
 		Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-	}
-
-	/**
-	 * Simple method to display a <b>long</b> message (toast) to the user. {@link Toast}
-	 * @param context the activity displaying the message
-	 * @param message the message to display.
-	 */
-	public static void notifyTheUserLong(Context context, String message) {
-		Toast.makeText(context, message, Toast.LENGTH_LONG).show();
 	}
 
 	/**
@@ -636,29 +606,31 @@ public class Utils {
 	 * Clean favorites linking to old non-existing bus stops or subway stations. Use after STM DB updates.
 	 * @param contentResolver the content resolver
 	 */
+	@SuppressWarnings("deprecation")
 	public static void cleanFavorites(Context context) {
 		MyLog.v(TAG, "cleanFavorites()");
+		final ContentResolver contentResolver = context.getContentResolver();
 		try {
 			// bus stops
-			List<Fav> busStopFavs = DataManager.findFavsByTypeList(context.getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
-			List<RouteTripStop> routeTripStops = StmBusManager.findRouteTripStops(context, busStopFavs);
+			List<Fav> busStopFavs = DataManager.findFavsByTypeList(contentResolver, Fav.KEY_TYPE_VALUE_BUS_STOP);
+			List<RouteTripStop> routeTripStops = StmBusManager.findRouteTripStops(context, busStopFavs, false);
 			for (Fav busStopFav : busStopFavs) {
 				boolean stillInTheDB = false;
 				for (RouteTripStop routeTripStop : routeTripStops) {
-					if (busStopFav.getFkId().equals(routeTripStop.stop.code) && busStopFav.getFkId2().equals(routeTripStop.route.shortName)) {
+					if (busStopFav.getFkId().equals(routeTripStop.stop.id) && busStopFav.getFkId2().equals(routeTripStop.route.id)) {
 						stillInTheDB = true;
 					}
 				}
 				if (!stillInTheDB) {
-					DataManager.deleteFav(context.getContentResolver(), busStopFav.getId());
+					DataManager.deleteFav(contentResolver, busStopFav.getId());
 				}
 			}
 			// subway stations
-			List<Fav> subwayFavs = DataManager.findFavsByTypeList(context.getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
+			List<Fav> subwayFavs = DataManager.findFavsByTypeList(contentResolver, Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
 			for (Fav subwayFav : subwayFavs) {
-				SubwayStation station = StmManager.findSubwayStation(context, subwayFav.getFkId());
-				if (station == null) {
-					DataManager.deleteFav(context.getContentResolver(), subwayFav.getId());
+				Stop stop = StmSubwayManager.findStopWithId(context, Integer.valueOf(subwayFav.getFkId()));
+				if (stop == null) {
+					DataManager.deleteFav(contentResolver, subwayFav.getId());
 				}
 			}
 		} catch (Exception e) {
@@ -667,13 +639,108 @@ public class Utils {
 	}
 
 	/**
+	 * Update favorites bus stops into route stops.
+	 */
+	@SuppressWarnings("deprecation")
+	public static void updateBusStopsToRouteStops(Context context) {
+		MyLog.v(TAG, "updateBusStopsToRouteStops()");
+		final ContentResolver contentResolver = context.getContentResolver();
+		List<Fav> busStopFavs = DataManager.findFavsByTypeList(contentResolver, Fav.KEY_TYPE_VALUE_BUS_STOP);
+		MyLog.d(TAG, "Favorite bus stops to upgrade: %s", (busStopFavs == null ? null : busStopFavs.size()));
+		if (busStopFavs != null) {
+			for (Fav busStopFav : busStopFavs) {
+				try {
+					final int stopId = Integer.valueOf(busStopFav.getFkId());
+					final int routeId = Integer.valueOf(busStopFav.getFkId2());
+					final String uid = RouteStop.getUID(StmBusManager.AUTHORITY, stopId, routeId);
+					Fav newRouteStopFav = new Fav();
+					newRouteStopFav.setType(Fav.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP);
+					newRouteStopFav.setFkId(uid);
+					final boolean alreadyFavorite = DataManager.findFav(contentResolver, Fav.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP, uid) != null;
+					if (alreadyFavorite) {
+						MyLog.d(TAG, "Favorite bus stop %s already migrated.", busStopFav);
+					} else {
+						final boolean added = DataManager.addFav(contentResolver, newRouteStopFav) != null;
+						if (!added) {
+							MyLog.d(TAG, "Favorite bus stop %s not converted to route stop!", busStopFav);
+							continue; // don't remove not migrated
+						}
+					}
+					final boolean deleted = DataManager.deleteFav(contentResolver, busStopFav.getId());
+					if (!deleted) {
+						MyLog.d(TAG, "Old favorite bus stop %s migrated but not deleted!", busStopFav);
+					}
+				} catch (Throwable t) {
+					MyLog.w(TAG, t, "Error while migrating favorite bus stop %s to route stop!", busStopFav);
+				}
+			}
+		}
+		MyLog.d(TAG, "updateBusStopsToRouteStops() > DONE");
+	}
+
+	/**
+	 * Update favorites subway stations into route stops.
+	 */
+	@SuppressWarnings("deprecation")
+	public static void updateSubwayStationsToRouteStops(Context context) {
+		MyLog.v(TAG, "updateSubwayStationsToRouteStops()");
+		final ContentResolver contentResolver = context.getContentResolver();
+		List<Fav> subwayStationFavs = DataManager.findFavsByTypeList(contentResolver, Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
+		MyLog.d(TAG, "Favorite subway stations to upgrade: %s", (subwayStationFavs == null ? null : subwayStationFavs.size()));
+		if (subwayStationFavs != null) {
+			for (Fav subwayStationFav : subwayStationFavs) {
+				try {
+					boolean allStopRoutesMigrated = true;
+					final int stopId = Integer.valueOf(subwayStationFav.getFkId());
+					List<Route> stopRoutes = StmSubwayManager.findRoutesWithStopIdList(context, stopId);
+					if (stopRoutes == null || stopRoutes.size() == 0) {
+						MyLog.d(TAG, "Favorite subway station %s route(s) not found!", subwayStationFav);
+						allStopRoutesMigrated = false; // no stop routes!
+					}
+					if (stopRoutes != null) {
+						for (Route stopRoute : stopRoutes) {
+							final int routeId = stopRoute.id;
+							final String uid = RouteStop.getUID(StmSubwayManager.AUTHORITY, stopId, routeId);
+							Fav newRouteStopFav = new Fav();
+							newRouteStopFav.setType(Fav.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP);
+							newRouteStopFav.setFkId(uid);
+							final boolean alreadyFavorite = DataManager.findFav(contentResolver, Fav.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP, uid) != null;
+							if (alreadyFavorite) {
+								MyLog.d(TAG, "Favorite subway station %s already migrated.", newRouteStopFav);
+							} else {
+								final boolean added = DataManager.addFav(contentResolver, newRouteStopFav) != null;
+								if (!added) {
+									MyLog.d(TAG, "Favorite subway station %s not converted to route stop!", subwayStationFav);
+									allStopRoutesMigrated = false;
+								}
+							}
+						}
+
+					}
+					if (!allStopRoutesMigrated) {
+						MyLog.d(TAG, "Favorite subway station %s not converted to route stop!", subwayStationFav);
+						continue; // don't remove not migrated
+					}
+					final boolean deleted = DataManager.deleteFav(contentResolver, subwayStationFav.getId());
+					if (!deleted) {
+						MyLog.d(TAG, "Old favorite subway station %s migrated but not deleted!", subwayStationFav);
+					}
+				} catch (Throwable t) {
+					MyLog.w(TAG, t, "Error while migrating favorite subway station %s to route stop!", subwayStationFav);
+				}
+			}
+		}
+		MyLog.d(TAG, "updateSubwayStationsToRouteStops() > DONE");
+	}
+
+	/**
 	 * Update favorites bus lines to match January 2012 bus lines number changes.
 	 * @param contentResolver the content resolver
 	 */
+	@SuppressWarnings("deprecation")
 	public static void updateFavoritesJan2012(ContentResolver contentResolver) {
 		MyLog.v(TAG, "updateFavoritesJan2012()");
 		try {
-
 			Map<String, String> update = new HashMap<String, String>();
 			update.put("77", "444");
 			update.put("120", "495");
@@ -702,8 +769,7 @@ public class Utils {
 			update.put("506", "406");
 			update.put("515", "715");
 			update.put("535", "435");
-
-			List<Fav> busStopFavs = DataManager.findFavsByTypeList(contentResolver, DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
+			List<Fav> busStopFavs = DataManager.findFavsByTypeList(contentResolver, Fav.KEY_TYPE_VALUE_BUS_STOP);
 			for (Fav busStopFav : busStopFavs) {
 				String busStopLineNumber = busStopFav.getFkId2();
 				// IF the bus stop line number need to be updated DO
@@ -717,7 +783,7 @@ public class Utils {
 				}
 			}
 		} catch (Exception e) {
-			MyLog.w(TAG, e, "Unknow error while cleaning favorite.");
+			MyLog.w(TAG, e, "Unknow error while updating favorites.");
 		}
 	}
 
@@ -728,26 +794,19 @@ public class Utils {
 	public static void setDemoMode(Context context) {
 		// set favorites
 		Fav newFav = new Fav();
-		newFav.setType(Fav.KEY_TYPE_VALUE_BUS_STOP);
-		newFav.setFkId("54321");
-		newFav.setFkId2("10");
+		newFav.setType(Fav.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP);
+		newFav.setFkId(RouteStop.getUID(StmBusManager.AUTHORITY, 54321, 10));
 		DataManager.addFav(context.getContentResolver(), newFav);
-		newFav.setFkId("52509");
-		newFav.setFkId2("24");
+		newFav.setFkId(RouteStop.getUID(StmBusManager.AUTHORITY, 52509, 24));
 		DataManager.addFav(context.getContentResolver(), newFav);
-		newFav.setFkId("55140");
-		newFav.setFkId2("48");
+		newFav.setFkId(RouteStop.getUID(StmBusManager.AUTHORITY, 55140, 48));
 		DataManager.addFav(context.getContentResolver(), newFav);
-		newFav.setType(Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
-		newFav.setFkId("11"); // Berri-UQAM
-		newFav.setFkId2(null);
+		newFav.setFkId(RouteStop.getUID(StmBusManager.AUTHORITY, 11, 1)); // Berri-UQAM - Verte
 		DataManager.addFav(context.getContentResolver(), newFav);
-		newFav.setFkId("9"); // Mont-Royal
-		newFav.setFkId2(null);
+		newFav.setFkId(RouteStop.getUID(StmBusManager.AUTHORITY, 9, 2)); // Mont-Royal - Orange
 		DataManager.addFav(context.getContentResolver(), newFav);
 		newFav.setType(Fav.KEY_TYPE_VALUE_BIKE_STATIONS);
 		newFav.setFkId("6415"); // Wilson / Sherbrooke
-		newFav.setFkId2(null);
 		DataManager.addFav(context.getContentResolver(), newFav);
 		SupportFactory.get().backupManagerDataChanged(context);
 	}
@@ -860,5 +919,9 @@ public class Utils {
 			colorMap.put(color, Color.parseColor("#" + color));
 		}
 		return colorMap.get(color);
+	}
+
+	public static Uri newContentUri(String authority) {
+		return Uri.parse("content://" + authority + "/");
 	}
 }

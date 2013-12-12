@@ -2,6 +2,8 @@ package org.montrealtransit.android.activity;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.montrealtransit.android.AdsUtils;
 import org.montrealtransit.android.AnalyticsUtils;
@@ -14,24 +16,21 @@ import org.montrealtransit.android.SensorUtils.ShakeListener;
 import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.api.SupportFactory;
-import org.montrealtransit.android.data.ASubwayStation;
 import org.montrealtransit.android.data.ClosestPOI;
 import org.montrealtransit.android.data.POIArrayAdapter;
-import org.montrealtransit.android.dialog.SubwayLineSelectDirection;
+import org.montrealtransit.android.data.Route;
+import org.montrealtransit.android.data.RouteStop;
+import org.montrealtransit.android.dialog.RouteSelectTripDialog;
 import org.montrealtransit.android.provider.DataManager;
-import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.DataStore.ServiceStatus;
-import org.montrealtransit.android.provider.StmManager;
-import org.montrealtransit.android.provider.StmStore.SubwayLine;
-import org.montrealtransit.android.services.ClosestSubwayStationsFinderTask;
-import org.montrealtransit.android.services.ClosestSubwayStationsFinderTask.ClosestSubwayStationsFinderListener;
+import org.montrealtransit.android.provider.StmSubwayManager;
+import org.montrealtransit.android.services.ClosestRouteStopsFinderTask;
 import org.montrealtransit.android.services.StmInfoStatusApiReader;
 import org.montrealtransit.android.services.StmInfoStatusReaderListener;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.hardware.Sensor;
@@ -64,8 +63,8 @@ import android.widget.Toast;
  * Display a list of subway lines.
  * @author Mathieu Méa
  */
-public class SubwayTab extends Activity implements LocationListener, StmInfoStatusReaderListener, ClosestSubwayStationsFinderListener, SensorEventListener,
-		ShakeListener {
+public class SubwayTab extends Activity implements LocationListener, StmInfoStatusReaderListener, ClosestRouteStopsFinderTask.ClosestRouteStopsFinderListener,
+		SensorEventListener, ShakeListener {
 
 	/**
 	 * The log tag.
@@ -111,7 +110,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	/**
 	 * The task used to find the closest stations.
 	 */
-	private ClosestSubwayStationsFinderTask closestStationsTask;
+	private ClosestRouteStopsFinderTask closestStationsTask;
 	/**
 	 * The current service status.
 	 */
@@ -291,42 +290,35 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	 * Refresh the subway lines.
 	 */
 	private void refreshSubwayLinesFromDB() {
-		new AsyncTask<Void, Void, List<SubwayLine>>() {
+		new AsyncTask<Void, Void, List<Route>>() {
 			@Override
-			protected List<SubwayLine> doInBackground(Void... params) {
-				return StmManager.findAllSubwayLinesList(SubwayTab.this);
+			protected List<Route> doInBackground(Void... params) {
+				return StmSubwayManager.findAllRoutesList(SubwayTab.this);
 			}
 
 			@Override
-			protected void onPostExecute(List<SubwayLine> result) {
+			protected void onPostExecute(List<Route> routes) {
 				LinearLayout subwayLinesLayout = (LinearLayout) findViewById(R.id.subway_lines);
 				int i = 0;
-				if (result != null) {
-					for (SubwayLine subwayLine : result) {
+				if (routes != null) {
+					for (final Route route : routes) {
 						// create view
 						View view = subwayLinesLayout.getChildAt(i++);
-						// subway line type image
-						final int lineNumber = subwayLine.getNumber();
 						// subway line colors
-						int color = SubwayUtils.getSubwayLineColor(lineNumber);
-						view.findViewById(R.id.subway_img_bg).setBackgroundColor(color);
-
-						final String subwayLineNumberS = String.valueOf(lineNumber);
+						view.findViewById(R.id.subway_img_bg).setBackgroundColor(Utils.parseColor(route.color));
 						// add click listener
 						view.setOnClickListener(new View.OnClickListener() {
 							@Override
 							public void onClick(View v) {
 								MyLog.v(TAG, "onClick(%s)", v.getId());
-								Intent intent = new Intent(SubwayTab.this, SupportFactory.get().getSubwayLineInfoClass());
-								intent.putExtra(SubwayLineInfo.EXTRA_LINE_NUMBER, subwayLineNumberS);
-								startActivity(intent);
+								startActivity(RouteInfo.newInstance(SubwayTab.this, StmSubwayManager.AUTHORITY, route.id));
 							}
 						});
 						view.setOnLongClickListener(new View.OnLongClickListener() {
 							@Override
 							public boolean onLongClick(View v) {
 								MyLog.v(TAG, "onLongClick(%s)", v.getId());
-								new SubwayLineSelectDirection(SubwayTab.this, lineNumber).showDialog();
+								new RouteSelectTripDialog(SubwayTab.this, StmSubwayManager.AUTHORITY, route, null, null).showDialog();
 								return true;
 							}
 						});
@@ -427,44 +419,66 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	private CharSequence colorize(CharSequence message) {
+		// message = "Arret prolongé ligne ORANGE entre Côte-Vertu et Snowdon. Incident. Reprive prévue vers 18h40."; // TEST
+		// message = "Service normal du métro sur la ligne BLEUE"; // TEST
+		// message = "Normal métro service on BLUE line."; // TEST
+		// message = "Shutdown BLUE line between Côte-Vertu and Parc. Equipment problem. Service expected to resume at 18:10."; // TEST
 		SpannableStringBuilder sb = new SpannableStringBuilder(message);
-		String messageS = message.toString().toLowerCase(Locale.ENGLISH);
-		String green = getString(R.string.green_line_short).toLowerCase(Locale.ENGLISH);
-		String orange = getString(R.string.orange_line_short).toLowerCase(Locale.ENGLISH);
-		String yellow = getString(R.string.yellow_line_short).toLowerCase(Locale.ENGLISH);
-		String blue = getString(R.string.blue_line_short).toLowerCase(Locale.ENGLISH);
-		if (messageS.contains(green)) {
-			final ForegroundColorSpan fcs = new ForegroundColorSpan(SubwayUtils.getSubwayLineColor(SubwayUtils
-					.findSubwayLineNumberFromShortName(R.string.green_line_short)));
-			int start = messageS.indexOf(green);
-			int end = start + green.length();
-			sb.setSpan(fcs, start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-			sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+		try {
+			// apply subway route color
+			String messageS = message.toString().toLowerCase(Locale.ENGLISH);
+			List<Route> allRoutes = StmSubwayManager.findAllRoutesList(this);
+			if (allRoutes != null) {
+				for (Route route : allRoutes) {
+					// TODO find data in DB instead of deprecated methods: can't use route.longName because not localized
+					final String longName = getString(SubwayUtils.getSubwayLineNameShort(route.id)).toLowerCase(Locale.ENGLISH);
+					if (messageS.contains(longName)) {
+						final ForegroundColorSpan fcs = new ForegroundColorSpan(Utils.parseColor(route.color));
+						int start = messageS.indexOf(longName);
+						int end = start + longName.length();
+						sb.setSpan(fcs, start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+						sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+					}
+				}
+			}
+		} catch (Throwable t) { // too bad
+			MyLog.w(TAG, t, "Error while applying subway route color in status message!");
 		}
-		if (messageS.contains(orange)) {
-			final ForegroundColorSpan fcs = new ForegroundColorSpan(SubwayUtils.getSubwayLineColor(SubwayUtils
-					.findSubwayLineNumberFromShortName(R.string.orange_line_short)));
-			int start = messageS.indexOf(orange);
-			int end = start + orange.length();
-			sb.setSpan(fcs, start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-			sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+		try {
+			// highlight subway stops
+			String betweenRegex = getString(R.string.status_between_station_and_station_regex);
+			Matcher matcher = Pattern.compile(betweenRegex).matcher(sb);
+			if (matcher.find()) {
+				if (matcher.groupCount() == 3) {
+					int startFirstStation = matcher.start(1);
+					int endFirstStation = matcher.end(1);
+					sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startFirstStation, endFirstStation, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+					int startSecondStation = matcher.start(2);
+					int endSecondStation = matcher.end(2);
+					sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startSecondStation, endSecondStation, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+				}
+			}
+		} catch (Throwable t) { // too bad
+			MyLog.w(TAG, t, "Error while highlighting subway stops in status message!");
 		}
-		if (messageS.contains(yellow)) {
-			final ForegroundColorSpan fcs = new ForegroundColorSpan(SubwayUtils.getSubwayLineColor(SubwayUtils
-					.findSubwayLineNumberFromShortName(R.string.yellow_line_short)));
-			int start = messageS.indexOf(yellow);
-			int end = start + yellow.length();
-			sb.setSpan(fcs, start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-			sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-		}
-		if (messageS.contains(blue)) {
-			final ForegroundColorSpan fcs = new ForegroundColorSpan(SubwayUtils.getSubwayLineColor(SubwayUtils
-					.findSubwayLineNumberFromShortName(R.string.blue_line_short)));
-			int start = messageS.indexOf(blue);
-			int end = start + blue.length();
-			sb.setSpan(fcs, start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-			sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), start, end, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+		try {
+			// highlight and format time
+			String timeRegex = "([\\d]{2}[:|h][\\d]{2})";
+			Matcher matcher = Pattern.compile(timeRegex).matcher(sb);
+			if (matcher.find()) {
+				String time = matcher.group();
+				final int startTime = matcher.start();
+				final int endTime = matcher.end();
+				final String fTime = Utils.formatTimes(this, time);
+				sb.replace(startTime, endTime, fTime);
+				final int endNewTime = startTime + fTime.length();
+				sb.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), startTime, endNewTime, Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+			}
+
+		} catch (Throwable t) { // too bad
+			MyLog.w(TAG, t, "Error while highlighting and formating time int status message!");
 		}
 		return sb;
 	}
@@ -739,7 +753,8 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			Location currentLocation = getLocation();
 			if (currentLocation != null) {
 				// find the closest stations
-				this.closestStationsTask = new ClosestSubwayStationsFinderTask(this, this, SupportFactory.get().getNbClosestPOIDisplay());
+				this.closestStationsTask = new ClosestRouteStopsFinderTask(this, this, StmSubwayManager.CONTENT_URI, SupportFactory.get()
+						.getNbClosestPOIDisplay());
 				this.closestStationsTask.execute(currentLocation);
 				this.closestStationsLocation = currentLocation;
 				new AsyncTask<Location, Void, String>() {
@@ -770,8 +785,8 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	}
 
 	@Override
-	public void onClosestStationsProgress(String progress) {
-		MyLog.v(TAG, "onClosestStationsProgress(%s)", progress);
+	public void onClosestStopsProgress(String progress) {
+		MyLog.v(TAG, "onClosestStopsProgress(%s)", progress);
 		if (this.adapter.getPois() == null) { // notify the user ?
 			// update the BIG message
 			findViewById(R.id.closest_stations_loading).setVisibility(View.VISIBLE);
@@ -782,8 +797,8 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 	}
 
 	@Override
-	public void onClosestStationsDone(ClosestPOI<ASubwayStation> result) {
-		MyLog.v(TAG, "onClosestStationsDone()");
+	public void onClosestStopsDone(ClosestPOI<RouteStop> result) {
+		MyLog.v(TAG, "onClosestStopsDone()");
 		if (result == null || result.getPoiListOrNull() == null) {
 			// show the error
 			setClosestStationsError();
@@ -791,7 +806,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			// get the result
 			// this.closestStations = result.getPoiList();
 			this.adapter.setPois(result.getPoiList());
-			this.adapter.updateClosestPoi();
+			this.adapter.updateDistancesNow(this.location);
 			this.adapter.updateCompassNow();
 			// updateCompass(this.lastCompassInDegree, true);
 			// generateOrderedStationsIds();
@@ -912,7 +927,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		new AsyncTask<Void, Void, List<Fav>>() {
 			@Override
 			protected List<Fav> doInBackground(Void... params) {
-				return DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION);
+				return DataManager.findFavsByTypeList(getContentResolver(), Fav.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP);
 			}
 
 			@Override

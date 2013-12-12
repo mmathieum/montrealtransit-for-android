@@ -20,7 +20,6 @@ import org.montrealtransit.android.data.ABikeStation;
 import org.montrealtransit.android.data.ClosestPOI;
 import org.montrealtransit.android.data.POIArrayAdapter;
 import org.montrealtransit.android.provider.DataManager;
-import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.services.ClosestBikeStationsFinderTask;
 import org.montrealtransit.android.services.ClosestBikeStationsFinderTask.ClosestBikeStationsFinderListener;
@@ -123,9 +122,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 		this.adapter = new POIArrayAdapter(this);
 		this.adapter.setShakeEnabled(true);
 		this.adapter.setShowData(true);
-		list.setAdapter(this.adapter);
-		list.setOnItemClickListener(this.adapter);
-		list.setOnScrollListener(this.adapter);
+		this.adapter.setListView(list);
 		showClosestBikeStations();
 	}
 
@@ -621,7 +618,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 		new AsyncTask<Void, Void, List<Fav>>() {
 			@Override
 			protected List<Fav> doInBackground(Void... params) {
-				return DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BIKE_STATIONS);
+				return DataManager.findFavsByTypeList(getContentResolver(), Fav.KEY_TYPE_VALUE_BIKE_STATIONS);
 			}
 
 			@Override

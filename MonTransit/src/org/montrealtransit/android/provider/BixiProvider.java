@@ -33,6 +33,7 @@ public class BixiProvider extends ContentProvider {
 	private static final int BIKE_STATION = 1;
 	private static final int BIKE_STATION_ID = 2;
 	private static final int BIKE_STATION_IDS = 3;
+	@Deprecated
 	private static final int BIKE_STATION_LOC_LAT_LNG = 4;
 
 	/**
@@ -118,7 +119,7 @@ public class BixiProvider extends ContentProvider {
 			qb.setTables(BixiDbHelper.T_BIKE_STATIONS);
 			String[] latlng = uri.getPathSegments().get(1).split("\\+");
 			qb.appendWhere(LocationUtils.genAroundWhere(latlng[0], latlng[1], BixiDbHelper.T_BIKE_STATIONS + "." + BixiDbHelper.T_BIKE_STATIONS_K_LAT,
-					BixiDbHelper.T_BIKE_STATIONS + "." + BixiDbHelper.T_BIKE_STATIONS_K_LNG));
+					BixiDbHelper.T_BIKE_STATIONS + "." + BixiDbHelper.T_BIKE_STATIONS_K_LNG, LocationUtils.MIN_AROUND_DIFF));
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI (query) :" + uri);

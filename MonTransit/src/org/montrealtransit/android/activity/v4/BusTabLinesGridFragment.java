@@ -5,9 +5,9 @@ import java.util.List;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
-import org.montrealtransit.android.activity.BusLineInfo;
+import org.montrealtransit.android.activity.RouteInfo;
 import org.montrealtransit.android.data.Route;
-import org.montrealtransit.android.dialog.BusLineSelectDirection;
+import org.montrealtransit.android.dialog.RouteSelectTripDialog;
 import org.montrealtransit.android.provider.StmBusManager;
 
 import android.annotation.TargetApi;
@@ -105,7 +105,7 @@ public class BusTabLinesGridFragment extends Fragment {
 				if (BusTabLinesGridFragment.this.busLines != null && position < BusTabLinesGridFragment.this.busLines.size()
 						&& BusTabLinesGridFragment.this.busLines.get(position) != null) {
 					Route selectedLine = BusTabLinesGridFragment.this.busLines.get(position);
-					Intent intent = BusLineInfo.newInstance(BusTabLinesGridFragment.this.getLastActivity(), selectedLine, null, null);
+					Intent intent = RouteInfo.newInstance(BusTabLinesGridFragment.this.getLastActivity(), StmBusManager.AUTHORITY, selectedLine, null, null);
 					startActivity(intent);
 				}
 			}
@@ -117,7 +117,7 @@ public class BusTabLinesGridFragment extends Fragment {
 				if (BusTabLinesGridFragment.this.busLines != null && position < BusTabLinesGridFragment.this.busLines.size()
 						&& BusTabLinesGridFragment.this.busLines.get(position) != null) {
 					Route selectedLine = BusTabLinesGridFragment.this.busLines.get(position);
-					new BusLineSelectDirection(BusTabLinesGridFragment.this.getLastActivity(), selectedLine).showDialog();
+					new RouteSelectTripDialog(BusTabLinesGridFragment.this.getLastActivity(), StmBusManager.AUTHORITY, selectedLine, null, null).showDialog();
 					return true;
 				}
 				return false;

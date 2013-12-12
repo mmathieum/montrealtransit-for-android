@@ -1,8 +1,5 @@
 package org.montrealtransit.android;
 
-import org.montrealtransit.android.provider.StmBusManager;
-
-import android.content.Context;
 
 /**
  * Some useful method for buses.
@@ -77,26 +74,6 @@ public class BusUtils {
 		}
 		// TODO MORE ?
 		return result;
-	}
-
-	/**
-	 * Check if a bus stop code is in the database.
-	 * @param context the activity
-	 * @param stopCode the bus stop code
-	 * @return true if the bus stop code exist
-	 */
-	public static boolean isStopCodeValid(Context context, String stopCode) {
-		return StmBusManager.findStopWithCode(context, stopCode) != null;
-	}
-
-	/**
-	 * Check if a bus line number is in the database.
-	 * @param context the activity
-	 * @param lineNumber the bus line number
-	 * @return true if the bus line exist
-	 */
-	public static boolean isBusLineNumberValid(Context context, String lineNumber) {
-		return StmBusManager.findRoute(context, lineNumber) != null;
 	}
 
 }

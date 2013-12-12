@@ -40,6 +40,17 @@ public class Stop implements POI {
 	}
 
 	@Override
+	public String toString() {
+		return new StringBuilder().append(Stop.class.getSimpleName()).append(":[") //
+				.append("id:").append(id).append(',') //
+				.append("code:").append(code).append(',') //
+				.append("name:").append(name).append(',') //
+				.append("lat:").append(lat).append(',') //
+				.append("lng:").append(lng) //
+				.append(']').toString();
+	}
+
+	@Override
 	public Double getLat() {
 		return this.lat;
 	}
@@ -82,7 +93,7 @@ public class Stop implements POI {
 
 	@Override
 	public int getType() {
-		return POI.ITEM_VIEW_TYPE_BUS;
+		return POI.ITEM_VIEW_TYPE_STOP;
 	}
 
 }

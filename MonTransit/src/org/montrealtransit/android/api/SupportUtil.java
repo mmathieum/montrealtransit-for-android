@@ -117,14 +117,9 @@ public interface SupportUtil {
 	boolean isScreenHeightSmall(Configuration configuration);
 
 	/**
-	 * @return the bus line info class
+	 * @return the route info class
 	 */
-	Class<?> getBusLineInfoClass();
-
-	/**
-	 * @return the subway line info class
-	 */
-	Class<?> getSubwayLineInfoClass();
+	Class<?> getRouteInfoClass();
 
 	/**
 	 * @return the bus tab class
@@ -148,6 +143,6 @@ public interface SupportUtil {
 	void rotateImageView(ImageView img, float rotation, Activity activity);
 
 	long getStatFsAvailableBlocksLong(StatFs statFs);
-	
+
 	long getStatFsBlockSizeLong(StatFs statFs);
 }

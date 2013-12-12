@@ -28,13 +28,8 @@ public class DonutSupport extends CupcakeSupport {
 	}
 
 	@Override
-	public Class<?> getBusLineInfoClass() {
-		return org.montrealtransit.android.activity.v4.BusLineInfo.class;
-	}
-
-	@Override
-	public Class<?> getSubwayLineInfoClass() {
-		return org.montrealtransit.android.activity.v4.SubwayLineInfo.class;
+	public Class<?> getRouteInfoClass() {
+		return org.montrealtransit.android.activity.v4.RouteInfo.class;
 	}
 
 	@Override

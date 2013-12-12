@@ -34,7 +34,7 @@ public class DataManager {
 	/**
 	 * Represents the fields the content provider will return for a favorite entry.
 	 */
-	private static final String[] PROJECTION_FAVS = new String[] { DataStore.Fav._ID, DataStore.Fav.FAV_FK_ID, DataStore.Fav.FAV_FK_ID2, DataStore.Fav.FAV_TYPE };
+	private static final String[] PROJECTION_FAVS = new String[] { Fav._ID, Fav.FAV_FK_ID, Fav.FAV_FK_ID2, Fav.FAV_TYPE };
 
 	/**
 	 * Represents the fields the content provider will return for a Twitter API entry.
@@ -54,7 +54,18 @@ public class DataManager {
 	 * @return true if one (or more) favorite have been deleted.
 	 */
 	public static boolean deleteFav(ContentResolver contentResolver, int favId) {
-		int count = contentResolver.delete(Uri.withAppendedPath(DataStore.Fav.CONTENT_URI, String.valueOf(favId)), null, null);
+		int count = contentResolver.delete(Uri.withAppendedPath(Fav.CONTENT_URI, String.valueOf(favId)), null, null);
+		return count > 0;
+	}
+
+	/**
+	 * Delete all favorite entries with this fkId.
+	 * @return true if one (or more) favorite(s) have been deleted
+	 */
+	@Deprecated
+	public static boolean deleteFav(ContentResolver contentResolver, String fkId, String fkId2, int type) {
+		String[] selectionArgs = new String[] { fkId, fkId2, String.valueOf(type) };
+		int count = contentResolver.delete(Fav.CONTENT_URI, null, selectionArgs); // TODO not how selectionArgs are supposed to be used!
 		return count > 0;
 	}
 
@@ -93,7 +104,7 @@ public class DataManager {
 	 * @return all favorite entries
 	 */
 	public static Cursor findAllFavs(ContentResolver contentResolver) {
-		return contentResolver.query(DataStore.Fav.CONTENT_URI, PROJECTION_FAVS, null, null, null);
+		return contentResolver.query(Fav.CONTENT_URI, PROJECTION_FAVS, null, null, null);
 	}
 
 	/**
@@ -142,16 +153,16 @@ public class DataManager {
 	 * @return all the favorite entries in a list OR <b>NULL</b>
 	 * @see DataManager#findAllFavs(ContentResolver)
 	 */
-	public static List<DataStore.Fav> findAllFavsList(ContentResolver contentResolver) {
-		List<DataStore.Fav> result = null;
+	public static List<Fav> findAllFavsList(ContentResolver contentResolver) {
+		List<Fav> result = null;
 		Cursor cursor = null;
 		try {
 			cursor = findAllFavs(contentResolver);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
-					result = new ArrayList<DataStore.Fav>();
+					result = new ArrayList<Fav>();
 					do {
-						result.add(DataStore.Fav.fromCursor(cursor));
+						result.add(Fav.fromCursor(cursor));
 					} while (cursor.moveToNext());
 				}
 			}
@@ -192,15 +203,15 @@ public class DataManager {
 	 * @param uri the favorite entry URI
 	 * @return the favorite or <b>NULL</b>
 	 */
-	private static DataStore.Fav findFav(ContentResolver contentResolver, Uri uri) {
+	private static Fav findFav(ContentResolver contentResolver, Uri uri) {
 		MyLog.v(TAG, "findFav(%s)", uri.getPath());
-		DataStore.Fav fav = null;
+		Fav fav = null;
 		Cursor cursor = null;
 		try {
 			cursor = contentResolver.query(uri, null, null, null, null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
-					fav = DataStore.Fav.fromCursor(cursor);
+					fav = Fav.fromCursor(cursor);
 				}
 			}
 		} finally {
@@ -286,16 +297,17 @@ public class DataManager {
 	 * @param fkId2 the favorite FK_ID2 or <b>NULL</b> if N/A
 	 * @return the favorite entry matching the parameter.
 	 */
-	public static DataStore.Fav findFav(ContentResolver contentResolver, int type, String fkId, String fkId2) {
+	@Deprecated
+	public static Fav findFav(ContentResolver contentResolver, int type, String fkId, String fkId2) {
 		MyLog.v(TAG, "findFav(%s, %s, %s)", type, fkId, fkId2);
-		DataStore.Fav fav = null;
+		Fav fav = null;
 		Cursor cursor = null;
 		try {
-			Uri uri = Uri.withAppendedPath(DataStore.Fav.CONTENT_URI, fkId + "+" + fkId2 + "+" + type);
+			Uri uri = getFavUri(type, fkId, fkId2);
 			cursor = contentResolver.query(uri, null, null, null, null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
-					fav = DataStore.Fav.fromCursor(cursor);
+					fav = Fav.fromCursor(cursor);
 				}
 			}
 		} finally {
@@ -303,6 +315,15 @@ public class DataManager {
 				cursor.close();
 		}
 		return fav;
+	}
+
+	public static Uri getFavUri(int type, String fkId, String fkId2) {
+		return Uri.withAppendedPath(Fav.CONTENT_URI, fkId + "+" + fkId2 + "+" + type);
+	}
+
+	public static Fav findFav(ContentResolver contentResolver, int type, String fkId) {
+		MyLog.v(TAG, "findFav(%s, %s)", type, fkId);
+		return findFav(contentResolver, type, fkId, null);
 	}
 
 	/**
@@ -375,18 +396,18 @@ public class DataManager {
 	 * @param type the favorite type
 	 * @return the favorites (never NULL)
 	 */
-	public static List<DataStore.Fav> findFavsByTypeList(ContentResolver contentResolver, int type) {
+	public static List<Fav> findFavsByTypeList(ContentResolver contentResolver, int type) {
 		MyLog.v(TAG, "findFavsByTypeList(%s)", type);
-		List<DataStore.Fav> result = new ArrayList<DataStore.Fav>();
+		List<Fav> result = new ArrayList<Fav>();
 		Cursor cursor = null;
 		try {
-			Uri favTypeUri = ContentUris.withAppendedId(DataStore.Fav.CONTENT_URI, type);
-			Uri uri = Uri.withAppendedPath(favTypeUri, DataStore.Fav.URI_TYPE);
+			Uri favTypeUri = ContentUris.withAppendedId(Fav.CONTENT_URI, type);
+			Uri uri = Uri.withAppendedPath(favTypeUri, Fav.URI_TYPE);
 			cursor = contentResolver.query(uri, PROJECTION_FAVS, null, null, null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					do {
-						result.add(DataStore.Fav.fromCursor(cursor));
+						result.add(Fav.fromCursor(cursor));
 					} while (cursor.moveToNext());
 				}
 			}
@@ -404,8 +425,8 @@ public class DataManager {
 	 * @param newFav the new favorite entry to add
 	 * @return the added favorite entry or <b>NULL</b>
 	 */
-	public static DataStore.Fav addFav(ContentResolver contentResolver, Fav newFav) {
-		final Uri uri = contentResolver.insert(DataStore.Fav.CONTENT_URI, newFav.getContentValues());
+	public static Fav addFav(ContentResolver contentResolver, Fav newFav) {
+		final Uri uri = contentResolver.insert(Fav.CONTENT_URI, newFav.getContentValues());
 		if (uri != null) {
 			return findFav(contentResolver, uri);
 		} else {
