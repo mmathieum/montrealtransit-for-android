@@ -5,4 +5,4 @@
     style="@style/BusLineNumber"
     android:layout_width="fill_parent"
     android:layout_height="55dp"
-    android:text="@string/default_line_number" />
+    android:text="@string/default_route_short_name" />

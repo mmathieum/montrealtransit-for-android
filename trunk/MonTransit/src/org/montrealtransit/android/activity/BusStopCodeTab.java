@@ -3,12 +3,13 @@ package org.montrealtransit.android.activity;
 import java.util.List;
 
 import org.montrealtransit.android.AnalyticsUtils;
-import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.api.SupportFactory;
+import org.montrealtransit.android.data.Route;
+import org.montrealtransit.android.data.Stop;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.StmBusManager;
@@ -28,6 +29,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * This activity display a search text box for entering bus stop code. The user can also enter a bus line number. In the future, this activity will have the
@@ -196,7 +198,8 @@ public class BusStopCodeTab extends Activity {
 		} else {
 			if (search.length() <= 3) {
 				// search for a bus line number
-				if (BusUtils.isBusLineNumberValid(this, search)) {
+				final Route route = StmBusManager.findRouteWithShortName(this, search);
+				if (route != null) {
 					if (saveToHistory) {
 						// save to the history
 						new AsyncTask<String, Void, Void>() {
@@ -207,13 +210,14 @@ public class BusStopCodeTab extends Activity {
 							}
 						}.execute(search);
 					}
-					startActivity(BusLineInfo.newInstance(this, search));
+					startActivity(RouteInfo.newInstance(this, StmBusManager.AUTHORITY, route, null, null));
 				} else {
-					Utils.notifyTheUserLong(this, getString(R.string.wrong_line_number_and_number, search));
+					Toast.makeText(this, getString(R.string.wrong_line_number_and_number, search), Toast.LENGTH_LONG).show();
 				}
 			} else if (search.length() == 5) {
 				// search for a bus stop code
-				if (BusUtils.isStopCodeValid(this, search)) {
+				final Stop stop = StmBusManager.findStopWithCode(this, search);
+				if (stop != null) {
 					if (saveToHistory) {
 						// save to the history
 						new AsyncTask<String, Void, Void>() {
@@ -224,20 +228,12 @@ public class BusStopCodeTab extends Activity {
 							}
 						}.execute(search);
 					}
-					showBusStopInfo(search);
+					startActivity(StopInfo.newInstance(this, StmBusManager.AUTHORITY, stop));
 				} else {
-					Utils.notifyTheUserLong(this, getString(R.string.wrong_stop_code_and_code, search));
+					Toast.makeText(this, getString(R.string.wrong_stop_code_and_code, search), Toast.LENGTH_LONG).show();
 				}
 			}
 		}
-	}
-
-	/**
-	 * Redirect the user to the bus stop info activity.
-	 * @param stopCode the bus stop code
-	 */
-	private void showBusStopInfo(String stopCode) {
-		startActivity(BusStopInfo.newInstance(this, stopCode));
 	}
 
 	@Override

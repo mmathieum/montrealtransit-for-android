@@ -68,7 +68,7 @@
         android:layout_alignParentLeft="true"
         android:layout_below="@id/label"
         android:layout_marginRight="3dip"
-        android:text="@string/default_line_number"
+        android:text="@string/default_route_short_name"
         android:textSize="20sp"
         android:textStyle="bold" />
     <!-- BUS LINE DIRECTION -->
@@ -89,7 +89,7 @@
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@id/line_number"
         android:layout_toRightOf="@id/line_direction"
-        android:text="@string/default_bus_stop_code"
+        android:text="@string/default_stop_code"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textStyle="bold" />
 </RelativeLayout>

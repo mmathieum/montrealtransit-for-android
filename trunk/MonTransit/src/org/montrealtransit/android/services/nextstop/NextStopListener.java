@@ -1,11 +1,11 @@
 package org.montrealtransit.android.services.nextstop;
 
-import java.util.Map;
+import org.montrealtransit.android.data.StopTimes;
 
-import org.montrealtransit.android.data.BusStopHours;
+import android.util.SparseArray;
 
 /**
- * This interface have to be implemented by any class that want handle next bus services response.
+ * This interface have to be implemented by any class that want handle next services response.
  * @author Mathieu Méa
  */
 public interface NextStopListener {
@@ -20,6 +20,6 @@ public interface NextStopListener {
 	 * Methods calls after the execution of the task.
 	 * @param results the results
 	 */
-	void onNextStopsLoaded(Map<String, BusStopHours> results);
+	void onNextStopsLoaded(SparseArray<StopTimes> results);
 
 }

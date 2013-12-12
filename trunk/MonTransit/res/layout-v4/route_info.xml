@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res/org.montrealtransit.android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:baselineAligned="false"
+    android:orientation="vertical" >
+    <!-- ROUTE INFORMATIONS -->
+    <LinearLayout
+        android:id="@+id/banner"
+        android:layout_width="fill_parent"
+        android:layout_height="55dip"
+        android:background="@android:drawable/title_bar"
+        android:orientation="horizontal"
+        android:padding="0dp" >
+        <!-- ROUTE SHORT NAME -->
+        <FrameLayout
+            android:id="@+id/route"
+            android:layout_width="77dp"
+            android:layout_height="fill_parent" >
+            <!-- ROUTE SHORT NAME -->
+            <TextView
+                android:id="@+id/route_short_name"
+                style="@style/RouteShortName"
+                android:text="@string/default_route_short_name"
+                android:visibility="gone" />
+            <!-- ROUTE TYPE IMG -->
+            <ImageView
+                android:id="@+id/route_type_img"
+                android:layout_width="33dp"
+                android:layout_height="33dp"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:src="@drawable/subway_white"
+                android:visibility="visible" />
+        </FrameLayout>
+        <!-- ROUTE LONG NAME -->
+        <TextView
+            android:id="@+id/route_long_name"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:ellipsize="marquee"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center_vertical|left"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:singleLine="true"
+            android:text="@string/default_route_long_name"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/nofocustext"
+            android:textStyle="bold" />
+    </LinearLayout>
+    <include
+        android:id="@+id/route_stops_loading"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        layout="@layout/loading_small_layout"
+        android:visibility="visible" />
+    <LinearLayout
+        android:id="@+id/route_stops"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical"
+        android:visibility="gone" >
+        <!-- ROUTE STOPS TITLE -->
+        <com.viewpagerindicator.TitlePageIndicator
+            android:id="@+id/indicator"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/dark_header_dither"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textSize="14sp"
+            app:footerColor="#FFFFFF"
+            app:footerIndicatorStyle="triangle"
+            app:linePosition="top"
+            app:selectedBold="true"
+            app:selectedColor="#FFFFFF" />
+        <!-- ROUTE STOPS LIST -->
+        <android.support.v4.view.ViewPager
+            android:id="@+id/viewpager"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+    </LinearLayout>
+</LinearLayout>

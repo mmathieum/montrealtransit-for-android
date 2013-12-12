@@ -61,11 +61,17 @@ public class DataStore {
 		/**
 		 * The favorite type value for bus stops.
 		 */
+		@Deprecated
 		public static final int KEY_TYPE_VALUE_BUS_STOP = DataDbHelper.KEY_FAVS_TYPE_VALUE_BUS_STOP;
 		/**
 		 * The favorite type value for subway stations.
 		 */
+		@Deprecated
 		public static final int KEY_TYPE_VALUE_SUBWAY_STATION = DataDbHelper.KEY_FAVS_TYPE_VALUE_SUBWAY_STATION;
+		/**
+		 * The favorite type value for route stop.
+		 */
+		public static final int KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP = DataDbHelper.KEY_FAVS_TYPE_VALUE_AUTHORITY_ROUTE_STOP;
 		/**
 		 * The favorite type value for bike stations.
 		 */
@@ -81,6 +87,7 @@ public class DataStore {
 		/**
 		 * The favorite FK ID2.
 		 */
+		@Deprecated
 		private String fkId2;
 		/**
 		 * The favorite type.
@@ -131,6 +138,7 @@ public class DataStore {
 		/**
 		 * @param fkId2 the new FK ID2
 		 */
+		@Deprecated
 		public void setFkId2(String fkId2) {
 			this.fkId2 = fkId2;
 		}
@@ -138,6 +146,7 @@ public class DataStore {
 		/**
 		 * @return the FK ID
 		 */
+		@Deprecated
 		public String getFkId2() {
 			return fkId2;
 		}
@@ -173,15 +182,15 @@ public class DataStore {
 		 */
 		public static String serializeFav(Fav fav) {
 			// MyLog.v(TAG, "serializeFav()");
-			String result = ""; // TODO use StringBuilder!
-			result += fav.getType();
-			result += "-";
-			result += fav.getFkId();
+			StringBuilder resultSb = new StringBuilder();
+			resultSb.append(fav.getType());
+			resultSb.append("-");
+			resultSb.append(fav.getFkId());
 			if (!TextUtils.isEmpty(fav.getFkId2())) {
-				result += "-";
-				result += fav.getFkId2();
+				resultSb.append("-");
+				resultSb.append(fav.getFkId2());
 			}
-			return result;
+			return resultSb.toString();
 		}
 
 		/**
@@ -203,6 +212,7 @@ public class DataStore {
 					fav.setFkId2(keys[2]);
 				case Fav.KEY_TYPE_VALUE_SUBWAY_STATION:
 				case Fav.KEY_TYPE_VALUE_BIKE_STATIONS:
+				case Fav.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP:
 					fav.setFkId(keys[1]);
 				}
 				return fav;
@@ -277,16 +287,29 @@ public class DataStore {
 		 */
 		public static String serializeFavs(List<Fav> favs) {
 			// MyLog.v(TAG, "serializeFavs()");
-			String favS = "";
+			StringBuilder favSb = new StringBuilder();
 			if (favs != null) {
 				for (Fav currentFav : favs) {
-					if (favS.length() > 0) {
-						favS += "+";
+					if (favSb.length() > 0) {
+						favSb.append('+');
 					}
-					favS += Fav.serializeFav(currentFav);
+					favSb.append(Fav.serializeFav(currentFav));
 				}
 			}
-			return favS;
+			return favSb.toString();
+		}
+
+		@Override
+		public String toString() {
+			return new StringBuilder().append(Fav.class.getSimpleName()).append(':').append('[') //
+					.append("id:").append(this.id) //
+					.append(',') //
+					.append("type:").append(this.type) //
+					.append(',') //
+					.append("fkId:").append(this.fkId) //
+					.append(',') //
+					.append("fkId2:").append(this.fkId2) //
+					.append(']').toString();
 		}
 	}
 
@@ -752,9 +775,9 @@ public class DataStore {
 		 */
 		public static final String DEFAULT_SORT_ORDER = DataDbHelper.T_CACHE_K_DATE + " DESC";
 		/**
-		 * The cache type value for bus stops.
+		 * The cache type value for route stops.
 		 */
-		public static final int KEY_TYPE_VALUE_BUS_STOP = DataDbHelper.KEY_CACHE_TYPE_VALUE_BUS_STOP;
+		public static final int KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP = DataDbHelper.KEY_CACHE_TYPE_VALUE_AUTHORITY_ROUTE_STOP;
 		/**
 		 * The cache ID.
 		 */

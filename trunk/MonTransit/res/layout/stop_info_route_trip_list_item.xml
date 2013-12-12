@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ROUTE TRIP -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/route_trip"
+    android:layout_width="wrap_content"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:layout_alignParentLeft="true"
+    android:orientation="vertical"
+    android:paddingRight="5dip" >
+    <FrameLayout
+        android:id="@+id/route"
+        android:layout_width="66dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" >
+        <!-- ROUTE SHORT NAME -->
+        <TextView
+            android:id="@+id/route_short_name"
+            style="@style/RouteShortNameSmall"
+            android:text="@string/default_route_short_name"
+            android:visibility="gone" />
+        <!-- ROUTE TYPE IMG -->
+        <ImageView
+            android:id="@+id/route_type_img"
+            android:layout_width="33dp"
+            android:layout_height="33dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:src="@drawable/subway_white"
+            android:visibility="gone" />
+    </FrameLayout>
+    <!-- TRIP HEADING -->
+    <TextView
+        android:id="@+id/trip_heading"
+        android:layout_width="66dp"
+        android:layout_height="wrap_content"
+        android:background="#000000"
+        android:ellipsize="marquee"
+        android:gravity="center_vertical|right"
+        android:paddingRight="2dp"
+        android:singleLine="true"
+        android:text="@string/ellipsis"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold" />
+</LinearLayout>

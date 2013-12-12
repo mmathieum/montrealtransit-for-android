@@ -54,15 +54,21 @@ public class DataDbHelper extends SQLiteOpenHelper {
 	/**
 	 * The favorite type value for bus stops.
 	 */
+	@Deprecated
 	public static final int KEY_FAVS_TYPE_VALUE_BUS_STOP = 1;
 	/**
 	 * The favorite type value for subway stations.
 	 */
+	@Deprecated
 	public static final int KEY_FAVS_TYPE_VALUE_SUBWAY_STATION = 2;
 	/**
 	 * The favorite type value for bike stations.
 	 */
 	public static final int KEY_FAVS_TYPE_VALUE_BIKE_STATION = 3;
+	/**
+	 * The favorite type value for route stops.
+	 */
+	public static final int KEY_FAVS_TYPE_VALUE_AUTHORITY_ROUTE_STOP = 4;
 
 	/**
 	 * The history table.
@@ -167,9 +173,9 @@ public class DataDbHelper extends SQLiteOpenHelper {
 	public static final String T_CACHE_K_OBJECT = "object";
 
 	/**
-	 * The cache type value for bus stops hours.
+	 * The cache type value for stops times.
 	 */
-	public static final int KEY_CACHE_TYPE_VALUE_BUS_STOP = 1;
+	public static final int KEY_CACHE_TYPE_VALUE_AUTHORITY_ROUTE_STOP = 2;
 
 	/**
 	 * Database creation SQL statement for the favorite table.

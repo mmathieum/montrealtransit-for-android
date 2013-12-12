@@ -6,10 +6,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -18,12 +16,13 @@ import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.Utils;
-import org.montrealtransit.android.data.BusStopHours;
 import org.montrealtransit.android.data.RouteTripStop;
+import org.montrealtransit.android.data.StopTimes;
 import org.montrealtransit.android.provider.StmBusScheduleManager;
 
 import android.content.Context;
 import android.os.Environment;
+import android.util.SparseArray;
 
 public class IStmInfoTask extends AbstractNextStopProvider {
 
@@ -42,28 +41,28 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 	 */
 	// http://i-www.stm.info/en/lines/97/stops/52084/arrivals?direction=E&limit=5
 	// d=20130702&t=1002
-	private static final String URL_PART_1_BEFORE_LANG = "http://i-www.stm.info/";
-	private static final String URL_PART_2_BEFORE_BUS_LINE = "/lines/";
-	private static final String URL_PART_3_BEFORE_BUS_STOP = "/stops/";
-	private static final String URL_PART_4_BEFORE_DIRECTION = "/arrivals?direction=";
-	private static final String URL_PART_5_BEFORE_LIMIT = "&limit=";
-	private static final String URL_PART_6_BEFORE_TIME = "&t=";
+	public static final String URL_PART_1_BEFORE_LANG = "http://i-www.stm.info/";
+	public static final String URL_PART_2_BEFORE_ROUTE_ID = "/lines/";
+	public static final String URL_PART_3_BEFORE_STOP_CODE = "/stops/";
+	public static final String URL_PART_4_BEFORE_TRIP_HEADSIGN_VALUE = "/arrivals?direction=";
+	public static final String URL_PART_5_BEFORE_LIMIT = "&limit=";
+	public static final String URL_PART_6_BEFORE_TIME = "&t=";
 
 	public IStmInfoTask(Context context, NextStopListener from, RouteTripStop busStop) {
 		super(context, from, busStop);
 	}
 
 	@Override
-	protected Map<String, BusStopHours> doInBackground(Void... params) {
+	protected SparseArray<StopTimes> doInBackground(Void... params) {
 		if (this.routeTripStop == null) {
 			return null;
 		}
 		String errorMessage = this.context.getString(R.string.error); // set the default error message
-		Map<String, BusStopHours> hours = new HashMap<String, BusStopHours>();
+		SparseArray<StopTimes> hours = new SparseArray<StopTimes>();
 		// if (!Utils.isConnectedOrConnecting(this.context)) {
 		// MyLog.d(TAG, "No Internet Connection!");
 		// publishProgress(this.context.getString(R.string.no_internet));
-		// hours.put(this.busStop.getLineNumber(), new BusStopHours(SOURCE_NAME, this.context.getString(R.string.no_internet)));
+		// hours.put(this.busStop.getLineNumber(), new StopTimes(SOURCE_NAME, this.context.getString(R.string.no_internet)));
 		// return hours;
 		// }
 		String noInternetMsg = this.context.getString(R.string.no_internet);
@@ -79,7 +78,7 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 			publishProgress(context.getString(R.string.downloading_data_from_and_source, SOURCE_NAME));
 			URL url = new URL(getUrlString());
 			URLConnection urlc = url.openConnection();
-			// MyLog.d(TAG, "URL created: '%s'", url.toString());
+			MyLog.d(TAG, "URL created: '%s'", url.toString());
 			HttpURLConnection httpUrlConnection = (HttpURLConnection) urlc;
 			switch (httpUrlConnection.getResponseCode()) {
 			case HttpURLConnection.HTTP_OK:
@@ -89,21 +88,21 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 				JSONObject jResponse = new JSONObject(json);
 				JSONArray jResults = jResponse.getJSONArray("result");
 				if (jResults.length() > 0) {
-					BusStopHours busStopHours = new BusStopHours(SOURCE_NAME);
+					StopTimes stopTimes = new StopTimes(SOURCE_NAME);
 					for (int i = 0; i < jResults.length(); i++) {
 						JSONObject jResult = jResults.getJSONObject(i);
 						// TODO String note = jResult.getString("note");
-						busStopHours.addSHour(formatHour(jResult.getString("time")));
+						stopTimes.addSTime(formatHour(jResult.getString("time")));
 					}
-					busStopHours.setPreviousHour(tryToLoadPreviousHour(jResults.getJSONObject(0).getString("time"), busStopHours.getSHours()));
+					stopTimes.setPreviousTime(tryToLoadPreviousHour(jResults.getJSONObject(0).getString("time"), stopTimes.getSTimes()));
 					JSONArray jMessages = jResponse.getJSONArray("messages");
 					if (jMessages.length() > 0) {
-						busStopHours.addMessageString(jMessages.getJSONObject(0).getString("text"));
+						stopTimes.addMessageString(jMessages.getJSONObject(0).getString("text"));
 						if (jMessages.length() > 1) {
-							busStopHours.addMessage2String(jMessages.getJSONObject(1).getString("text"));
+							stopTimes.addMessage2String(jMessages.getJSONObject(1).getString("text"));
 						}
 					}
-					hours.put(this.routeTripStop.route.shortName, busStopHours);
+					hours.put(this.routeTripStop.route.id, stopTimes);
 				} else {
 					// provider error
 					JSONObject jStatus = jResponse.getJSONObject("status");
@@ -113,21 +112,21 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 						if ("NoResultsDate".equalsIgnoreCase(code)) {
 							errorMessage = this.context.getString(R.string.bus_stop_no_results_date, this.routeTripStop.route.shortName);
 							publishProgress(errorMessage);
-							hours.put(this.routeTripStop.route.shortName, new BusStopHours(SOURCE_NAME, errorMessage));
+							hours.put(this.routeTripStop.route.id, new StopTimes(SOURCE_NAME, errorMessage));
 						} else if ("LastStop".equalsIgnoreCase(code)) {
 							errorMessage = this.context.getString(R.string.descent_only);
 							publishProgress(errorMessage);
-							hours.put(this.routeTripStop.route.shortName, new BusStopHours(SOURCE_NAME, errorMessage));
+							hours.put(this.routeTripStop.route.id, new StopTimes(SOURCE_NAME, errorMessage));
 						}
-						AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BUS_STOP_SOURCE_ERROR, code,
+						AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_STOP_SOURCE_ERROR, this.routeTripStop.getUID(),
 								this.routeTripStop.stop.id);
 					}
 					if (hours.size() == 0) {
 						// no information
 						errorMessage = this.context.getString(R.string.bus_stop_no_info_and_source, this.routeTripStop.route.shortName, SOURCE_NAME);
 						publishProgress(errorMessage);
-						hours.put(this.routeTripStop.route.shortName, new BusStopHours(SOURCE_NAME, errorMessage));
-						AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_BUS_STOP_REMOVED, this.routeTripStop.getUID(),
+						hours.put(this.routeTripStop.route.id, new StopTimes(SOURCE_NAME, errorMessage));
+						AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_STOP_SOURCE_ERROR, this.routeTripStop.getUID(),
 								context.getPackageManager().getPackageInfo(Constant.PKG, 0).versionCode);
 					}
 				}
@@ -141,23 +140,23 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 						httpUrlConnection.getResponseMessage());
 				AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_HTTP_ERROR, SOURCE_NAME,
 						httpUrlConnection.getResponseCode());
-				hours.put(this.routeTripStop.route.shortName, new BusStopHours(SOURCE_NAME, errorMessage));
+				hours.put(this.routeTripStop.route.id, new StopTimes(SOURCE_NAME, errorMessage));
 				return hours;
 			}
 		} catch (UnknownHostException uhe) {
 			MyLog.w(TAG, uhe, "No Internet Connection!");
 			publishProgress(noInternetMsg);
-			hours.put(this.routeTripStop.route.shortName, new BusStopHours(SOURCE_NAME, noOfflineSchedule, noInternetMsg));
+			hours.put(this.routeTripStop.route.id, new StopTimes(SOURCE_NAME, noOfflineSchedule, noInternetMsg));
 			return hours;
 		} catch (SocketException se) {
 			MyLog.w(TAG, se, "No Internet Connection!");
 			publishProgress(noInternetMsg);
-			hours.put(this.routeTripStop.route.shortName, new BusStopHours(SOURCE_NAME, noOfflineSchedule, noInternetMsg));
+			hours.put(this.routeTripStop.route.id, new StopTimes(SOURCE_NAME, noOfflineSchedule, noInternetMsg));
 			return hours;
 		} catch (Exception e) {
 			MyLog.e(TAG, e, "INTERNAL ERROR: Unknown Exception");
 			publishProgress(errorMessage);
-			hours.put(this.routeTripStop.route.shortName, new BusStopHours(SOURCE_NAME, this.context.getString(R.string.error)));
+			hours.put(this.routeTripStop.route.id, new StopTimes(SOURCE_NAME, this.context.getString(R.string.error)));
 			return hours;
 		}
 	}
@@ -231,20 +230,20 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 	public String getUrlString() {
 		return new StringBuilder() //
 				.append(URL_PART_1_BEFORE_LANG).append(Utils.getSupportedUserLocale().equals(Locale.FRENCH.toString()) ? "fr" : "en") // lang
-				.append(URL_PART_2_BEFORE_BUS_LINE).append(this.routeTripStop.route.shortName) // line number
-				.append(URL_PART_3_BEFORE_BUS_STOP).append(this.routeTripStop.stop.code) // stop code
-				.append(URL_PART_4_BEFORE_DIRECTION).append(this.routeTripStop.trip.headsignValue) // line direction
-				.append(URL_PART_5_BEFORE_LIMIT).append(7) //
+				.append(URL_PART_2_BEFORE_ROUTE_ID).append(this.routeTripStop.route.id) // line number
+				.append(URL_PART_3_BEFORE_STOP_CODE).append(this.routeTripStop.stop.id) // stop code
+				.append(URL_PART_4_BEFORE_TRIP_HEADSIGN_VALUE).append(this.routeTripStop.trip.headsignValue) // line direction
+				.append(URL_PART_5_BEFORE_LIMIT).append(100) // without limit, return all schedule for the day
 				.toString();
 	}
 
 	public String getUrlStringWithHour(int time) {
 		return new StringBuilder() //
 				.append(URL_PART_1_BEFORE_LANG).append(Utils.getSupportedUserLocale().equals(Locale.FRENCH.toString()) ? "fr" : "en") // lang
-				.append(URL_PART_2_BEFORE_BUS_LINE).append(this.routeTripStop.route.shortName) // line number
-				.append(URL_PART_3_BEFORE_BUS_STOP).append(this.routeTripStop.stop.code) // stop code
-				.append(URL_PART_4_BEFORE_DIRECTION).append(this.routeTripStop.trip.headsignValue) // line direction
-				.append(URL_PART_5_BEFORE_LIMIT).append(30) //
+				.append(URL_PART_2_BEFORE_ROUTE_ID).append(this.routeTripStop.route.id) // line number
+				.append(URL_PART_3_BEFORE_STOP_CODE).append(this.routeTripStop.stop.id) // stop code
+				.append(URL_PART_4_BEFORE_TRIP_HEADSIGN_VALUE).append(this.routeTripStop.trip.headsignValue) // line direction
+				.append(URL_PART_5_BEFORE_LIMIT).append(100) // without limit, return all schedule for the day
 				.append(URL_PART_6_BEFORE_TIME).append(time) // time
 				.toString();
 	}

@@ -29,7 +29,7 @@
         <TextView
             android:id="@+id/line_number"
             style="@style/BusLineNumberSmall"
-            android:text="@string/default_line_number" />
+            android:text="@string/default_route_short_name" />
         <!-- BUS LINE DIRECTION -->
         <TextView
             android:id="@+id/line_direction"
@@ -95,7 +95,7 @@
         android:layout_below="@+id/label"
         android:layout_marginTop="-5dip"
         android:paddingLeft="0dip"
-        android:text="@string/default_bus_stop_code"
+        android:text="@string/default_stop_code"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textStyle="bold" />
 </RelativeLayout>

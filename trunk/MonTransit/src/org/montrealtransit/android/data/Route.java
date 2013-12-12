@@ -23,4 +23,15 @@ public class Route {
 		return route;
 	}
 
+	@Override
+	public String toString() {
+		return new StringBuilder().append(Route.class.getSimpleName()).append(":[") //
+				.append("id:").append(id).append(',') //
+				.append("shortName:").append(shortName).append(',') //
+				.append("longName:").append(longName).append(',') //
+				.append("color:").append(color).append(',') //
+				.append("textColor:").append(textColor) //
+				.append(']').toString();
+	}
+
 }

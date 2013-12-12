@@ -11,10 +11,10 @@ import org.montrealtransit.android.data.ClosestPOI;
 import org.montrealtransit.android.data.POIArrayAdapter;
 import org.montrealtransit.android.data.RouteTripStop;
 import org.montrealtransit.android.provider.DataManager;
-import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.DataStore.Fav;
-import org.montrealtransit.android.services.ClosestBusStopsFinderTask;
-import org.montrealtransit.android.services.ClosestBusStopsFinderTask.ClosestBusStopsFinderListener;
+import org.montrealtransit.android.provider.StmBusManager;
+import org.montrealtransit.android.services.ClosestRouteTripStopsFinderTask;
+import org.montrealtransit.android.services.ClosestRouteTripStopsFinderTask.ClosestRouteTripStopsFinderListener;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -34,7 +34,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 @TargetApi(4)
-public class BusTabClosestStopsFragment extends Fragment implements LocationListener, ClosestBusStopsFinderListener {
+public class BusTabClosestStopsFragment extends Fragment implements LocationListener, ClosestRouteTripStopsFinderListener {
 	/**
 	 * The log tag.
 	 */
@@ -57,7 +57,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 	/**
 	 * The task used to find the closest stations.
 	 */
-	private ClosestBusStopsFinderTask closestStopsTask;
+	private ClosestRouteTripStopsFinderTask closestStopsTask;
 	/**
 	 * The location used to generate the closest stops.
 	 */
@@ -144,9 +144,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 		}
 		this.adapter = new POIArrayAdapter(activity);
 		ListView closestStopsListView = (ListView) view.findViewById(R.id.closest_stops);
-		closestStopsListView.setOnItemClickListener(this.adapter);
-		closestStopsListView.setOnScrollListener(this.adapter);
-		closestStopsListView.setAdapter(this.adapter);
+		this.adapter.setListView(closestStopsListView);
 		if (this.adapter.getPois() == null) {
 			showClosestStops(view, activity);
 			return;
@@ -201,7 +199,8 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 				return;
 			}
 			// find the closest stations
-			this.closestStopsTask = new ClosestBusStopsFinderTask(this, getLastActivity(), SupportFactory.get().getNbClosestPOIDisplay());
+			this.closestStopsTask = new ClosestRouteTripStopsFinderTask(this, getLastActivity(), StmBusManager.CONTENT_URI, SupportFactory.get()
+					.getNbClosestPOIDisplay());
 			this.closestStopsTask.execute(currentLocation);
 			this.closestStopsLocation = currentLocation;
 			new AsyncTask<Location, Void, String>() {
@@ -301,7 +300,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 		new AsyncTask<Void, Void, List<Fav>>() {
 			@Override
 			protected List<Fav> doInBackground(Void... params) {
-				return DataManager.findFavsByTypeList(getLastActivity().getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
+				return DataManager.findFavsByTypeList(getLastActivity().getContentResolver(), Fav.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP);
 			}
 
 			@Override

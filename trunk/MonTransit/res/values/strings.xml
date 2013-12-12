@@ -50,8 +50,12 @@
 	<string name="blue_line_short">Blue</string>
 	<string name="select_subway_direction">Direction</string>
 	<string name="select_subway_direction_and_name">%s line - Direction</string>
+	<string name="select_route_trip_and_route_name">%s - Direction</string>
 	<string name="first_trains">First trains</string>
 	<string name="last_trains">Last trains</string>
+	<string name="next_stops">Next passages</string>
+	<string name="other_route_trip">Other line(s)</string>
+	<string name="next_stops_message_and_source">MonTransit retrieves the next stops passages in real time from %s.</string>
 	<string name="next_bus_stops">Next passages</string>
 	<string name="next_bus_stops_and_source">Next passages (%s)</string>
 	<string name="next_bus_stops_message_and_source">MonTransit retrieves the next bus stops passages in real time from %s.</string>
@@ -72,6 +76,9 @@
 	<string name="closest_subway_stations_error">Error while searching for closest stations.</string>
 	<string name="reload_closest_stations">Closest stations</string>
 	<string name="descent_only">Descent only</string>
+	<string name="stops_short">Stops</string>
+	<string name="stops_short_and_direction">Stops (Direction %s)</string>
+	<string name="stop_no_info_and_source">No information on %2$s about the line %1$s at this stop.</string>
 	<string name="bus_stops">Bus stops</string>
 	<string name="bus_stops_short">Stops</string>
 	<string name="bus_stops_short_and_direction">Stops (Direction %s)</string>
@@ -90,6 +97,7 @@
 	<string name="subway_status_updating">Updating service status&#8230;</string>
 	<string name="subway_status_done">Service status updated.</string>
 	<string name="subway_status_loading_cancelled">Update of the service status cancelled.</string>
+	<string name="shake_closest_stop_selected">Closest stop selected</string>
 	<string name="shake_closest_bus_line_stop_selected">Closest bus line stop selected</string>
 	<string name="shake_closest_subway_line_station_selected">Closest subway line station selected</string>
 	<string name="shake_closest_subway_station_selected">Closest subway station selected</string>
@@ -194,7 +202,7 @@
     <string name="no">No</string>
     <string name="warning">Warning</string>
     
-    <string name="wrong_stop_code_and_code">The bus stop code \'%s\' is not registered in the application.</string>
+    <string name="wrong_stop_code_and_code">The stop code \'%s\' is not registered in the application.</string>
     <string name="wrong_stop_code_internet">Do you want to try to load the next stops from Internet?</string>
     <string name="wrong_line_number_and_number">The bus line number \'%s\' doesn\'t exist.</string>
     
@@ -241,12 +249,15 @@
 	<string name="no_service">No service.</string>
 	<string name="no_more_stops_for_this_bus_line">No service for bus line %s.</string>
 	
+	<string name="view_stop">View stop</string>
+	<string name="view_stop_route">View stop route</string>
 	<string name="view_bus_stop">View bus stop</string>
 	<string name="view_bus_stop_line">View bus line</string>
 	<string name="view_subway_station">View subway station</string>
 	<string name="view_subway_station_line">View subway line</string>
 	<string name="view_bike_station">View bike station</string>
 	<string name="view_fav">View favorite</string>
+	<string name="add_fav">Add to favorites</string>
     <string name="remove_fav">Remove from favorites</string>
     <string name="no_fav">No favorites.</string>
     <string name="no_fav_message">No favorites.\nQuick access your favorites bus stop, subway station and bike stations. Tap the star to add a favorite.</string>
@@ -392,9 +403,14 @@
     <string name="demo_title">DEMO</string>
     <string name="demo_message">Do you want to set-up demo mode? This will erase all your current settings!</string>
     
-    <string name="default_line_number">000</string>
-    <string name="default_bus_stop_code">00000</string>
+    <string name="default_route_short_name">000</string>
+    <string name="default_route_long_name">Route long name</string>
+    <string name="default_stop_code">00000</string>
+    <string name="default_stop_name">Name</string>
+    <string name="default_trip_heading">DIRECTION</string>
     
     <string name="ca_mtl_stm_subway_label">STM Subway</string>
     <string name="ca_mtl_stm_bus_label">STM Bus</string>
+    
+    <string name="status_between_station_and_station_regex">between ([A-Za-z\u00C0-\u017F-]*) and ([A-Za-z\u00C0-\u017F-]*)(.*)</string>
 </resources>

@@ -50,8 +50,12 @@
 	<string name="blue_line_short">Bleue</string>
 	<string name="select_subway_direction">Direction</string>
 	<string name="select_subway_direction_and_name">Ligne %s - Direction</string>
+	<string name="select_route_trip_and_route_name">%s - Direction</string>
 	<string name="first_trains">Premiers départs</string>
 	<string name="last_trains">Derniers départs</string>
+	<string name="next_stops">Prochains passages</string>
+	<string name="other_route_trip">Autre(s) Ligne(s)</string>
+	<string name="next_stops_message_and_source">MonTransit récupére les horaires des prochains passages en temps réel depuis %s.</string>
 	<string name="next_bus_stops">Prochains passages</string>
 	<string name="next_bus_stops_and_source">Prochains passages (%s)</string>
 	<string name="next_bus_stops_message_and_source">MonTransit récupére les horaires des prochains passages en temps réel depuis %s.</string>
@@ -72,6 +76,9 @@
 	<string name="closest_subway_stations_error">Erreur pendant la recherche des stations proches.</string>
 	<string name="reload_closest_stations">Stations proches</string>
 	<string name="descent_only">Descente seulement</string>
+	<string name="stops_short">Arrêts</string>
+	<string name="stops_short_and_direction">Arrêts (Direction %s)</string>
+	<string name="stop_no_info_and_source">Aucune information sur %2$s à propos de la ligne %1$s à cet arrêt.</string>
 	<string name="bus_stops">Arrêts de bus</string>
 	<string name="bus_stops_short">Arrêts</string>
 	<string name="bus_stops_short_and_direction">Arrêts (Direction %s)</string>
@@ -90,6 +97,7 @@
     <string name="subway_status_updating">Mise à jour de l\'état du service &#8230;</string>
     <string name="subway_status_done">État du service mis à jour.</string>
     <string name="subway_status_loading_cancelled">Mise à jour de l\'état du service annulée.</string>
+    <string name="shake_closest_stop_selected">Arrêt le plus proche sélectionné</string>
     <string name="shake_closest_bus_line_stop_selected">Arrêt le plus proche de la ligne de bus sélectionné</string>
     <string name="shake_closest_subway_line_station_selected">Station la plus proche de ligne de métro sélectionée</string>
     <string name="shake_closest_subway_station_selected">Station de métro la plus proche sélectionée</string>
@@ -241,12 +249,15 @@
 	<string name="no_service">Pas de service.</string>
 	<string name="no_more_stops_for_this_bus_line">Pas de service pour la ligne de bus %s.</string>
     
+	<string name="view_stop">Afficher l\'arrêt</string>
+	<string name="view_stop_route">Afficher la ligne</string>
     <string name="view_bus_stop">Afficher l\'arrêt</string>
     <string name="view_bus_stop_line">Afficher la ligne</string>
 	<string name="view_subway_station">Afficher la station</string>
 	<string name="view_subway_station_line">Afficher la ligne</string>
 	<string name="view_bike_station">Afficher la station</string>
     <string name="view_fav">Afficher le favori</string>
+    <string name="add_fav">Ajouter aux favoris</string>
     <string name="remove_fav">Supprimer des favoris</string>
     <string name="no_fav">Pas de favoris.</string>
     <string name="no_fav_message">Aucun favori.\nPour ajouter un favori, parcourez les arrêts de bus et les stations de métro et ensuite, cliquez l\'étoile pour ajouter le favori.</string>
@@ -392,9 +403,14 @@
     <string name="demo_title">DEMO</string>
     <string name="demo_message">Voulez-vous configurer le mode de démonstration ? Cela va supprimer tous les paramètres actuels !</string>
     
-    <string name="default_line_number">000</string>
-    <string name="default_bus_stop_code">00000</string>
+    <string name="default_route_short_name">000</string>
+    <string name="default_route_long_name">Long nom de route</string>
+    <string name="default_stop_code">00000</string>
+    <string name="default_stop_name">Nom</string>
+    <string name="default_trip_heading">DIRECTION</string>
     
     <string name="ca_mtl_stm_subway_label">Métro STM</string>
     <string name="ca_mtl_stm_bus_label">Autobus STM</string>
+    
+    <string name="status_between_station_and_station_regex">entre ([A-Za-z\u00C0-\u017F-]*) et ([A-Za-z\u00C0-\u017F-]*)(.*)</string>
 </resources>

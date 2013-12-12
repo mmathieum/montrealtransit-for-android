@@ -11,9 +11,8 @@ import org.montrealtransit.android.R;
 import org.montrealtransit.android.data.POIArrayAdapter;
 import org.montrealtransit.android.data.RouteTripStop;
 import org.montrealtransit.android.provider.DataManager;
-import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.DataStore.Fav;
-import org.montrealtransit.android.provider.StmBusManager;
+import org.montrealtransit.android.provider.common.AbstractManager;
 
 import android.app.ListActivity;
 import android.app.SearchManager;
@@ -49,9 +48,7 @@ public class SearchResult extends ListActivity implements LocationListener {
 		setContentView(R.layout.search_result);
 
 		this.adapter = new POIArrayAdapter(this);
-		getListView().setOnItemClickListener(this.adapter);
-		getListView().setOnScrollListener(this.adapter);
-		getListView().setAdapter(this.adapter);
+		this.adapter.setListView(getListView());
 
 		processIntent();
 	}
@@ -74,7 +71,8 @@ public class SearchResult extends ListActivity implements LocationListener {
 				// MyLog.d(TAG, "ACTION_VIEW");
 				// from click on search results
 				String uid = getIntent().getData().getPathSegments().get(0);
-				startActivity(BusStopInfo.newInstance(this, RouteTripStop.getStopCodeFromUID(uid), RouteTripStop.getRouteShortNameFromUID(uid)));
+				startActivity(StopInfo.newInstance(this, RouteTripStop.getAuthorityFromUID(uid), RouteTripStop.getStopIdFromUID(uid),
+						RouteTripStop.getRouteIdFromUID(uid)));
 				finish();
 			} else if (Intent.ACTION_SEARCH.equals(getIntent().getAction())) {
 				// MyLog.d(TAG, "ACTION_SEARCH");
@@ -118,7 +116,7 @@ public class SearchResult extends ListActivity implements LocationListener {
 		protected Void doInBackground(String... arg0) {
 			// MyLog.v(TAG, "LoadSearchResultTask>doInBackground()");
 			final String searchTerm = arg0[0];
-			List<RouteTripStop> searchRouteTripStopList = StmBusManager.searchRouteTripStopList(SearchResult.this, searchTerm);
+			List<RouteTripStop> searchRouteTripStopList = AbstractManager.searchRouteTripStopList(SearchResult.this, searchTerm, true);
 			if (searchRouteTripStopList == null) {
 				searchRouteTripStopList = new ArrayList<RouteTripStop>(); // null == loading
 			}
@@ -148,7 +146,7 @@ public class SearchResult extends ListActivity implements LocationListener {
 		new AsyncTask<Void, Void, List<Fav>>() {
 			@Override
 			protected List<Fav> doInBackground(Void... params) {
-				return DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP);
+				return DataManager.findFavsByTypeList(getContentResolver(), Fav.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP);
 			}
 
 			@Override

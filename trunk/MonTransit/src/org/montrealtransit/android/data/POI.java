@@ -4,8 +4,7 @@ import java.util.Comparator;
 
 public interface POI {
 
-	public static final int ITEM_VIEW_TYPE_BUS = 0;
-	public static final int ITEM_VIEW_TYPE_SUBWAY = 1;
+	public static final int ITEM_VIEW_TYPE_STOP = 0;
 	public static final int ITEM_VIEW_TYPE_BIKE = 2;
 
 	/**
@@ -50,6 +49,19 @@ public interface POI {
 			if (lhs instanceof RouteTripStop && rhs instanceof RouteTripStop) {
 				RouteTripStop alhs = (RouteTripStop) lhs;
 				RouteTripStop arhs = (RouteTripStop) rhs;
+				// IF same stop DO
+				if (alhs.stop.id == arhs.stop.id) {
+					// compare route shortName as integer
+					try {
+						return Integer.valueOf(alhs.route.shortName) - Integer.valueOf(arhs.route.shortName);
+					} catch (NumberFormatException nfe) {
+						// compare route short name as string
+						return alhs.route.shortName.compareTo(arhs.route.shortName);
+					}
+				}
+			} else if (lhs instanceof RouteStop && rhs instanceof RouteStop) {
+				RouteStop alhs = (RouteStop) lhs;
+				RouteStop arhs = (RouteStop) rhs;
 				// IF same stop DO
 				if (alhs.stop.id == arhs.stop.id) {
 					// compare route shortName as integer

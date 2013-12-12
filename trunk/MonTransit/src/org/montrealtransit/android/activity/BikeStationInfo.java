@@ -23,7 +23,6 @@ import org.montrealtransit.android.data.POIArrayAdapter;
 import org.montrealtransit.android.provider.BixiManager;
 import org.montrealtransit.android.provider.BixiStore.BikeStation;
 import org.montrealtransit.android.provider.DataManager;
-import org.montrealtransit.android.provider.DataStore;
 import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.services.BixiDataReader;
 import org.montrealtransit.android.services.BixiDataReader.BixiDataReaderListener;
@@ -535,7 +534,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			return;
 		}
 		// try to find the existing favorite
-		Fav findFav = DataManager.findFav(getContentResolver(), Fav.KEY_TYPE_VALUE_BIKE_STATIONS, this.bikeStation.getTerminalName(), null);
+		Fav findFav = DataManager.findFav(getContentResolver(), Fav.KEY_TYPE_VALUE_BIKE_STATIONS, this.bikeStation.getTerminalName());
 		// IF the favorite exist DO
 		if (findFav != null) {
 			// delete the favorite
@@ -685,7 +684,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		new AsyncTask<Void, Void, List<Fav>>() {
 			@Override
 			protected List<Fav> doInBackground(Void... params) {
-				return DataManager.findFavsByTypeList(getContentResolver(), DataStore.Fav.KEY_TYPE_VALUE_BIKE_STATIONS);
+				return DataManager.findFavsByTypeList(getContentResolver(), Fav.KEY_TYPE_VALUE_BIKE_STATIONS);
 			}
 
 			@Override
@@ -845,7 +844,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			@Override
 			protected Fav doInBackground(Void... params) {
 				return DataManager.findFav(BikeStationInfo.this.getContentResolver(), Fav.KEY_TYPE_VALUE_BIKE_STATIONS,
-						BikeStationInfo.this.bikeStation.getTerminalName(), null);
+						BikeStationInfo.this.bikeStation.getTerminalName());
 			}
 
 			protected void onPostExecute(Fav result) {

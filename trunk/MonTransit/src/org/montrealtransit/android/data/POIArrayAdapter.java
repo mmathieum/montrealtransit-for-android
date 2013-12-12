@@ -15,18 +15,20 @@ import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.SensorUtils;
 import org.montrealtransit.android.SensorUtils.CompassListener;
-import org.montrealtransit.android.SubwayUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.activity.BikeStationInfo;
-import org.montrealtransit.android.activity.BusStopInfo;
-import org.montrealtransit.android.activity.SubwayStationInfo;
+import org.montrealtransit.android.activity.RouteInfo;
+import org.montrealtransit.android.activity.StopInfo;
+import org.montrealtransit.android.activity.UserPreferences;
 import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.provider.BixiStore.BikeStation;
+import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore.Fav;
-import org.montrealtransit.android.provider.StmStore.SubwayStation;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
@@ -44,13 +46,16 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListener, OnItemClickListener, SensorEventListener, OnScrollListener {
+public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListener, OnItemClickListener, OnItemLongClickListener, SensorEventListener,
+		OnScrollListener {
 
 	public static final String TAG = POIArrayAdapter.class.getSimpleName();
 
@@ -152,10 +157,8 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 	public View getView(int position, View convertView, ViewGroup parent) {
 		// MyLog.v(TAG, "getView(%s)", position);
 		switch (getItemViewType(position)) {
-		case POI.ITEM_VIEW_TYPE_BUS:
-			return getBusView(position, convertView, parent);
-		case POI.ITEM_VIEW_TYPE_SUBWAY:
-			return getSubwayView(position, convertView, parent);
+		case POI.ITEM_VIEW_TYPE_STOP:
+			return getRouteTripStopView(position, convertView, parent);
 		case POI.ITEM_VIEW_TYPE_BIKE:
 			return getBikeView(position, convertView, parent);
 		default:
@@ -167,10 +170,8 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 	public View updateView(int position, View convertView) {
 		// MyLog.v(TAG, "updateView(%s)", position);
 		switch (getItemViewType(position)) {
-		case POI.ITEM_VIEW_TYPE_BUS:
-			return updateBusView(position, convertView);
-		case POI.ITEM_VIEW_TYPE_SUBWAY:
-			return updateSubwayView(position, convertView);
+		case POI.ITEM_VIEW_TYPE_STOP:
+			return updateRouteTripStopView(position, convertView);
 		case POI.ITEM_VIEW_TYPE_BIKE:
 			return updateBikeView(position, convertView);
 		default:
@@ -196,6 +197,12 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 		showPoiViewerActivity(position);
 	}
 
+	@Override
+	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+		MyLog.v(TAG, "onItemLongClick(%s,%s)", position, id);
+		return showPoiMenu(position);
+	}
+
 	public boolean showClosestPOI() {
 		if (!hasClosestPOI()) {
 			return false;
@@ -211,6 +218,14 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 		return false;
 	}
 
+	public boolean showPoiMenu(int position) {
+		MyLog.v(TAG, "showPoiMenu(%s)", position);
+		if (this.pois != null && position < this.pois.size() && this.pois.get(position) != null) {
+			return showPoiMenu(this.pois.get(position));
+		}
+		return false;
+	}
+
 	public boolean showPoiViewerActivity(final POI poi) {
 		MyLog.v(TAG, "showPoiViewerActivity(%s)", poi);
 		if (poi == null) {
@@ -218,15 +233,16 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 		}
 		final Intent intent;
 		switch (getItemViewType(poi)) {
-		case POI.ITEM_VIEW_TYPE_BUS:
+		case POI.ITEM_VIEW_TYPE_STOP:
 			if (poi instanceof RouteTripStop) {
-				intent = BusStopInfo.newInstance(this.activity, (RouteTripStop) poi);
-			} else {
-				intent = BusStopInfo.newInstance(this.activity, (TripStop) poi);
+				intent = StopInfo.newInstance(this.activity, (RouteTripStop) poi);
+			} else if (poi instanceof RouteStop) {
+				intent = StopInfo.newInstance(this.activity, (RouteStop) poi);
+			} else { // if (poi instanceof TripStop) {
+				intent = StopInfo.newInstance(this.activity, (TripStop) poi);
+				// } else {
+				// intent = StopInfo.newInstance(this.activity, (Stop) poi);
 			}
-			break;
-		case POI.ITEM_VIEW_TYPE_SUBWAY:
-			intent = SubwayStationInfo.newInstance(this.activity, (SubwayStation) poi);
 			break;
 		case POI.ITEM_VIEW_TYPE_BIKE:
 			intent = BikeStationInfo.newInstance(this.activity, (BikeStation) poi);
@@ -242,6 +258,100 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 		return true;
 	}
 
+	public boolean showPoiMenu(final POI poi) {
+		MyLog.v(TAG, "showPoiMenu(%s)", poi);
+		if (poi == null) {
+			return false;
+		}
+		switch (getItemViewType(poi)) {
+		case POI.ITEM_VIEW_TYPE_STOP:
+			final Route route;
+			final Trip trip;
+			final Stop stop;
+			final String authority;
+			if (poi instanceof RouteTripStop) {
+				final RouteTripStop routeTripStop = (RouteTripStop) poi;
+				route = routeTripStop.route;
+				trip = routeTripStop.trip;
+				stop = routeTripStop.stop;
+				authority = routeTripStop.authority;
+			} else if (poi instanceof RouteStop) {
+				final RouteStop routeStop = (RouteStop) poi;
+				route = routeStop.route;
+				trip = routeStop.trip; // already null
+				stop = routeStop.stop;
+				authority = routeStop.authority;
+			} else if (poi instanceof TripStop) {
+				final TripStop tripStop = (TripStop) poi;
+				route = null;
+				trip = tripStop.trip;
+				stop = tripStop.stop;
+				authority = tripStop.authority;
+			} else {
+				return false;
+			}
+			StringBuilder title = new StringBuilder(stop.name);
+			if (!TextUtils.isEmpty(stop.code)) {
+				title.append(" (").append(stop.code).append(")");
+			}
+			final Integer routeId = route == null ? (trip == null ? null : trip.routeId) : route.id;
+			final Integer tripId = trip == null ? null : trip.id;
+			final Integer stopId = stop == null ? null : stop.id;
+			final Fav findFav = DataManager.findFav(this.activity.getContentResolver(), Fav.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP, poi.getUID());
+			final boolean isFav = findFav != null;
+			new AlertDialog.Builder(this.activity)
+					.setTitle(title)
+					.setItems(
+							new CharSequence[] { this.activity.getString(R.string.view_stop), this.activity.getString(R.string.view_stop_route),
+									isFav ? this.activity.getString(R.string.remove_fav) : this.activity.getString(R.string.add_fav) },
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int item) {
+									MyLog.v(TAG, "onClick(%s)", item);
+									switch (item) {
+									case 0:
+										showPoiViewerActivity(poi);
+										break;
+									case 1:
+										POIArrayAdapter.this.activity.startActivity(RouteInfo.newInstance(POIArrayAdapter.this.activity, authority, routeId,
+												tripId, stopId));
+										break;
+									case 2:
+										if (isFav) { // remove favorite
+											boolean success = DataManager.deleteFav(POIArrayAdapter.this.activity.getContentResolver(), findFav.getId());
+											if (success) {
+												Utils.notifyTheUser(POIArrayAdapter.this.activity,
+														POIArrayAdapter.this.activity.getString(R.string.favorite_removed));
+											} else {
+												MyLog.w(TAG, "Favorite not deleted!");
+											}
+										} else { // add favorite
+											Fav newFav = new Fav();
+											newFav.setType(Fav.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP);
+											newFav.setFkId(poi.getUID());
+											boolean success = DataManager.addFav(POIArrayAdapter.this.activity.getContentResolver(), newFav) != null;
+											if (success) {
+												Utils.notifyTheUser(POIArrayAdapter.this.activity,
+														POIArrayAdapter.this.activity.getString(R.string.favorite_added));
+												UserPreferences.savePrefLcl(POIArrayAdapter.this.activity, UserPreferences.PREFS_LCL_IS_FAV, true);
+											} else {
+												MyLog.w(TAG, "Favorite not added!");
+											}
+										}
+										SupportFactory.get().backupManagerDataChanged(POIArrayAdapter.this.activity);
+										notifyDataSetChanged(true);
+										break;
+									default:
+										break;
+									}
+								}
+							}).create().show();
+			return true;
+		default:
+			MyLog.w(TAG, "Unknow view type for poi %s!", poi);
+			return false;
+		}
+	}
+
 	public void setPois(List<? extends POI> pois) {
 		MyLog.v(TAG, "setPois(%s)", pois == null ? null : pois.size());
 		this.pois = pois;
@@ -251,15 +361,15 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 		return pois;
 	}
 
-	public POI getPoi(int location) {
+	public POI getPoi(int position) {
 		if (this.pois == null) {
 			return null;
 		}
-		if (location >= this.pois.size()) {
-			MyLog.d(TAG, "getPoi(%s) > no item at this position!", location);
+		if (position >= this.pois.size()) {
+			MyLog.d(TAG, "getPoi(%s) > no item at this position!", position);
 			return null;
 		}
-		return this.pois.get(location);
+		return this.pois.get(position);
 	}
 
 	public int getPoisCount() {
@@ -273,7 +383,7 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 		return getPoisCount() > 0;
 	}
 
-	public void updateClosestPoi() {
+	private void updateClosestPoi() {
 		MyLog.v(TAG, "updateClosestPoi()");
 		if (!this.shakeEnabled) {
 			this.closestPOI = null;
@@ -301,11 +411,11 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 		return closestPOI != null && closestPOI.first != null && closestPOI.second != null;
 	}
 
-	public boolean isClosestPOI(int location) {
+	public boolean isClosestPOI(int position) {
 		if (this.closestPOI == null) {
 			return false;
 		}
-		final POI poi = getPoi(location);
+		final POI poi = getPoi(position);
 		if (poi == null) {
 			return false;
 		}
@@ -349,9 +459,9 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 			return;
 		}
 		// TODO for (String code : this.favStopCodes) {
-		// RouteTripStop busStop = new RouteTripStop(null, null, null);
-		// busStop.stop.code = code;
-		// busStop.route.shortName = this.busLineNumber;
+		// RouteTripStop routeTripStop = new RouteTripStop(null, null, null);
+		// routeTripStop.stop.code = code;
+		// routeTripStop.route.shortName = this.busLineNumber;
 		// SupportFactory.get().executeOnExecutor(new LoadNextBusStopIntoCacheTask(getLastActivity(), busStop, null, true, false),
 		// PrefetchingUtils.getExecutor());
 		// }
@@ -365,7 +475,7 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 		MyLog.v(TAG, "updateDistances()");
 		// MyLog.d(TAG, "updateDistances() > currentLocation: %s", currentLocation);
 		if (this.pois != null && currentLocation != null) {
-			LocationUtils.updateDistance(this.activity, this.pois, currentLocation, new LocationTaskCompleted() {
+			LocationUtils.updateDistanceWithString(this.activity, this.pois, currentLocation, new LocationTaskCompleted() {
 
 				@Override
 				public void onLocationTaskCompleted() {
@@ -382,9 +492,14 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 
 	public void updateDistancesNow(Location currentLocation) {
 		MyLog.v(TAG, "updateDistancesNow()");
+		// MyLog.d(TAG, "updateDistancesNow() > location: %s", this.location);
+		// MyLog.d(TAG, "updateDistancesNow() > compassUpdatesEnabled: %s", this.compassUpdatesEnabled);
 		if (this.pois != null && currentLocation != null) {
 			LocationUtils.updateDistanceWithString(this.activity, this.pois, currentLocation);
 			updateClosestPoi();
+		}
+		if (this.location == null) { // TODO always?
+			setLocation(currentLocation);
 		}
 	}
 
@@ -431,6 +546,13 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 		}
 	}
 
+	public void setListView(ListView listView) {
+		listView.setOnItemClickListener(this);
+		listView.setOnItemLongClickListener(this);
+		listView.setOnScrollListener(this);
+		listView.setAdapter(this);
+	}
+
 	public void initManual() {
 		MyLog.v(TAG, "initManual()");
 		if (this.manualLayout != null && hasPois()) {
@@ -449,9 +571,16 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 				view.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						MyLog.v(TAG, "onClick(%s)", v.getId());
-						// showNewBikeStation(terminalName, name);
+						MyLog.v(TAG, "onClick(%s)", position);
 						showPoiViewerActivity(position);
+					}
+				});
+				view.setOnLongClickListener(new View.OnLongClickListener() {
+
+					@Override
+					public boolean onLongClick(View v) {
+						MyLog.v(TAG, "onLongClick(%s)", position);
+						return showPoiMenu(position);
 					}
 				});
 				this.manualLayout.addView(view);
@@ -524,9 +653,18 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 		}
 	}
 
-	public void setLastCompassInDegree(int lastCompassInDegree) {
-		this.lastCompassInDegree = lastCompassInDegree;
+	public void onResume() {
+		if (!this.compassUpdatesEnabled) {
+			// shake handled on the activity level (1 shake / activity)
+			SensorUtils.registerCompassListener(this.activity, this);
+			this.compassUpdatesEnabled = true;
+		}
 	}
+
+	// public void setLastCompassInDegree(int lastCompassInDegree) {
+	// MyLog.v(TAG, "setLastCompassInDegree(%s)", lastCompassInDegree);
+	// this.lastCompassInDegree = lastCompassInDegree;
+	// }
 
 	/**
 	 * Update the compass image(s).
@@ -576,7 +714,7 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 			convertView = this.layoutInflater.inflate(R.layout.poi_list_bike_station_item, parent, false);
 			BikeViewHolder holder = new BikeViewHolder();
 			holder.uid = null;
-			holder.labelTv = (TextView) convertView.findViewById(R.id.station_name);
+			holder.stopNameTv = (TextView) convertView.findViewById(R.id.station_name);
 			holder.favImg = (ImageView) convertView.findViewById(R.id.fav_img);
 			holder.distanceTv = (TextView) convertView.findViewById(R.id.distance);
 			holder.compassImg = (ImageView) convertView.findViewById(R.id.compass);
@@ -599,12 +737,12 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 		if (poi != null) {
 			ABikeStation bikeStation = (ABikeStation) poi;
 			// bike station name
-			holder.labelTv.setText(Utils.cleanBikeStationName(bikeStation.getName()));
+			holder.stopNameTv.setText(Utils.cleanBikeStationName(bikeStation.getName()));
 			// status (not installed, locked..)
 			if (!bikeStation.isInstalled() || bikeStation.isLocked()) {
-				holder.labelTv.setTextColor(Utils.getTextColorSecondary(getContext()));
+				holder.stopNameTv.setTextColor(Utils.getTextColorSecondary(getContext()));
 			} else {
-				holder.labelTv.setTextColor(Utils.getTextColorPrimary(getContext()));
+				holder.stopNameTv.setTextColor(Utils.getTextColorPrimary(getContext()));
 			}
 			// availability
 			if (showData) {
@@ -674,97 +812,37 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 		return lastSuccessfulRefresh;
 	}
 
-	private View getSubwayView(int position, View convertView, ViewGroup parent) {
-		// MyLog.v(TAG, "getSubwayView(%s)", position);
-		SubwayViewHolder holder;
+	private View getRouteTripStopView(int position, View convertView, ViewGroup parent) {
+		// MyLog.v(TAG, "getRouteTripStopView(%s)", position);
+		RouteTripStopViewHolder holder;
 		if (convertView == null) {
-			convertView = this.layoutInflater.inflate(R.layout.poi_list_subway_station_item, parent, false);
-			holder = new SubwayViewHolder();
+			convertView = this.layoutInflater.inflate(R.layout.poi_list_route_trip_stop_item, parent, false);
+			holder = new RouteTripStopViewHolder();
 			holder.uid = null;
-			holder.labelTv = (TextView) convertView.findViewById(R.id.station_name);
-			holder.favImg = (ImageView) convertView.findViewById(R.id.fav_img);
-			holder.distanceTv = (TextView) convertView.findViewById(R.id.distance);
-			holder.compassImg = (ImageView) convertView.findViewById(R.id.compass);
-			holder.subwayImg1 = (ImageView) convertView.findViewById(R.id.subway_img_1);
-			holder.subwayImg2 = (ImageView) convertView.findViewById(R.id.subway_img_2);
-			holder.subwayImg3 = (ImageView) convertView.findViewById(R.id.subway_img_3);
-			convertView.setTag(holder);
-		}
-		updateSubwayView(position, convertView);
-		return convertView;
-	}
-
-	private View updateSubwayView(int position, View convertView) {
-		// MyLog.v(TAG, "updateSubwayView(%s)", position);
-		if (convertView == null) {
-			return convertView;
-		}
-		SubwayViewHolder holder = (SubwayViewHolder) convertView.getTag();
-		POI poi = getItem(position);
-		if (poi != null) {
-			ASubwayStation subwayStation = (ASubwayStation) poi;
-			// station name
-			holder.labelTv.setText(subwayStation.getName());
-			// station lines color
-			// TODO manage main route ID and other routes ... or not ?
-			if (subwayStation.getOtherLinesId() != null && subwayStation.getOtherLinesId().size() > 0) {
-				int subwayLineImg1 = SubwayUtils.getSubwayLineImgId(subwayStation.getOtherLinesId().get(0));
-				holder.subwayImg1.setVisibility(View.VISIBLE);
-				holder.subwayImg1.setImageResource(subwayLineImg1);
-				if (subwayStation.getOtherLinesId().size() > 1) {
-					int subwayLineImg2 = SubwayUtils.getSubwayLineImgId(subwayStation.getOtherLinesId().get(1));
-					holder.subwayImg2.setVisibility(View.VISIBLE);
-					holder.subwayImg2.setImageResource(subwayLineImg2);
-					if (subwayStation.getOtherLinesId().size() > 2) {
-						int subwayLineImg3 = SubwayUtils.getSubwayLineImgId(subwayStation.getOtherLinesId().get(2));
-						holder.subwayImg3.setVisibility(View.VISIBLE);
-						holder.subwayImg3.setImageResource(subwayLineImg3);
-					} else {
-						holder.subwayImg3.setVisibility(View.GONE);
-					}
-				} else {
-					holder.subwayImg2.setVisibility(View.GONE);
-					holder.subwayImg3.setVisibility(View.GONE);
-				}
-			} else {
-				holder.subwayImg1.setVisibility(View.GONE);
-				holder.subwayImg2.setVisibility(View.GONE);
-				holder.subwayImg3.setVisibility(View.GONE);
-			}
-			// setup distance, compass, favorite, closest
-			updateCommonView(holder, poi);
-		}
-		return convertView;
-	}
-
-	private View getBusView(int position, View convertView, ViewGroup parent) {
-		// MyLog.v(TAG, "getBusView(%s)", position);
-		BusStopViewHolder holder;
-		if (convertView == null) {
-			convertView = this.layoutInflater.inflate(R.layout.poi_list_bus_stop_item, parent, false);
-			holder = new BusStopViewHolder();
-			holder.uid = null;
-			holder.labelTv = (TextView) convertView.findViewById(R.id.label);
+			holder.stopNameTv = (TextView) convertView.findViewById(R.id.stop_name);
 			holder.favImg = (ImageView) convertView.findViewById(R.id.fav_img);
 			holder.distanceTv = (TextView) convertView.findViewById(R.id.distance);
 			holder.compassImg = (ImageView) convertView.findViewById(R.id.compass);
 			holder.stopCodeTv = (TextView) convertView.findViewById(R.id.stop_code);
-			holder.lineNumberTv = (TextView) convertView.findViewById(R.id.line_number);
-			holder.lineDirectionTv = (TextView) convertView.findViewById(R.id.line_direction);
+			holder.routeFL = convertView.findViewById(R.id.route);
+			holder.routeShortNameTv = (TextView) convertView.findViewById(R.id.route_short_name);
+			holder.routeTypeImg = (ImageView) convertView.findViewById(R.id.route_type_img);
+			holder.tripHeadingTv = (TextView) convertView.findViewById(R.id.trip_heading);
 			convertView.setTag(holder);
 		}
-		updateBusView(position, convertView);
+		updateRouteTripStopView(position, convertView);
 		return convertView;
 	}
 
-	private View updateBusView(int position, View convertView) {
-		// MyLog.v(TAG, "updateBusView(%s)", position);
+	private View updateRouteTripStopView(int position, View convertView) {
+		// MyLog.v(TAG, "updateRouteTripStopView(%s)", position);
 		if (convertView == null) {
 			return convertView;
 		}
-		BusStopViewHolder holder = (BusStopViewHolder) convertView.getTag();
+		RouteTripStopViewHolder holder = (RouteTripStopViewHolder) convertView.getTag();
 		final POI poi = getItem(position);
 		if (poi != null) {
+			final boolean isSubway;
 			final Route route;
 			final Trip trip;
 			final Stop stop;
@@ -773,31 +851,56 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 				route = routeTripStop.route;
 				trip = routeTripStop.trip;
 				stop = routeTripStop.stop;
+				isSubway = routeTripStop.authority.contains("subway");
+			} else if (poi instanceof RouteStop) {
+				final RouteStop routeStop = (RouteStop) poi;
+				route = routeStop.route;
+				trip = routeStop.trip; // already null
+				stop = routeStop.stop;
+				isSubway = routeStop.authority.contains("subway");
 			} else if (poi instanceof TripStop) {
 				final TripStop tripStop = (TripStop) poi;
 				route = null;
 				trip = tripStop.trip;
 				stop = tripStop.stop;
+				isSubway = tripStop.authority.contains("subway");
 			} else {
 				route = null;
 				trip = null;
 				stop = (Stop) poi;
+				isSubway = false;
 			}
 			// bus stop code
-			holder.stopCodeTv.setText(stop.code);
-			// bus stop place
-			holder.labelTv.setText(BusUtils.cleanBusStopPlace(stop.name));
-			// bus stop line number
-			if (route == null || trip == null) {
-				holder.lineNumberTv.setVisibility(View.GONE);
-				holder.lineDirectionTv.setVisibility(View.GONE);
+			if (TextUtils.isEmpty(stop.code)) {
+				holder.stopCodeTv.setVisibility(View.GONE);
 			} else {
-				holder.lineNumberTv.setText(route.shortName);
-				holder.lineNumberTv.setBackgroundColor(Utils.parseColor(route.color));
-				holder.lineNumberTv.setTextColor(Utils.parseColor(route.textColor));
-				holder.lineDirectionTv.setText(trip.getHeading(this.activity).toUpperCase(Locale.getDefault()));
-				holder.lineNumberTv.setVisibility(View.VISIBLE);
-				holder.lineDirectionTv.setVisibility(View.VISIBLE);
+				holder.stopCodeTv.setText(stop.code);
+				holder.stopCodeTv.setVisibility(View.VISIBLE);
+			}
+			// bus stop place
+			holder.stopNameTv.setText(BusUtils.cleanBusStopPlace(stop.name));
+			// bus stop line number
+			if (route == null) {
+				holder.routeFL.setVisibility(View.GONE);
+				holder.tripHeadingTv.setVisibility(View.GONE);
+			} else {
+				if (TextUtils.isEmpty(route.shortName)) {
+					holder.routeShortNameTv.setVisibility(View.GONE);
+					holder.routeTypeImg.setVisibility(View.VISIBLE);
+				} else {
+					holder.routeTypeImg.setVisibility(View.GONE);
+					holder.routeShortNameTv.setText(route.shortName);
+					holder.routeShortNameTv.setTextColor(Utils.parseColor(route.textColor));
+					holder.routeShortNameTv.setVisibility(View.VISIBLE);
+				}
+				holder.routeFL.setBackgroundColor(Utils.parseColor(route.color));
+				holder.routeFL.setVisibility(View.VISIBLE);
+				if (trip == null || isSubway) {
+					holder.tripHeadingTv.setVisibility(View.GONE);
+				} else {
+					holder.tripHeadingTv.setText(trip.getHeading(this.activity).toUpperCase(Locale.getDefault()));
+					holder.tripHeadingTv.setVisibility(View.VISIBLE);
+				}
 			}
 			// setup distance, compass, favorite, closest
 			updateCommonView(holder, poi);
@@ -846,13 +949,13 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 			}
 			switch (index) {
 			case 0:
-				holder.labelTv.setTypeface(Typeface.DEFAULT_BOLD);
+				holder.stopNameTv.setTypeface(Typeface.DEFAULT_BOLD);
 				holder.distanceTv.setTypeface(Typeface.DEFAULT_BOLD);
 				holder.distanceTv.setTextColor(Utils.getTextColorPrimary(getContext()));
 				holder.compassImg.setImageResource(R.drawable.heading_arrow_light);
 				break;
 			default:
-				holder.labelTv.setTypeface(Typeface.DEFAULT);
+				holder.stopNameTv.setTypeface(Typeface.DEFAULT);
 				holder.distanceTv.setTypeface(Typeface.DEFAULT);
 				holder.distanceTv.setTextColor(Utils.getTextColorSecondary(getContext()));
 				holder.compassImg.setImageResource(R.drawable.heading_arrow);
@@ -871,26 +974,16 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 		if (favs != null) {
 			for (Fav fav : favs) {
 				switch (fav.getType()) {
-				case Fav.KEY_TYPE_VALUE_BUS_STOP:
-					if (newTypeFavUIDs.get(POI.ITEM_VIEW_TYPE_BUS) == null) {
-						newTypeFavUIDs.put(POI.ITEM_VIEW_TYPE_BUS, new HashSet<String>());
+				case Fav.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP:
+					if (newTypeFavUIDs.get(POI.ITEM_VIEW_TYPE_STOP) == null) {
+						newTypeFavUIDs.put(POI.ITEM_VIEW_TYPE_STOP, new HashSet<String>());
 					}
-					final String uid = TripStop.getUID(fav.getFkId(), fav.getFkId2());
-					if (this.typeFavUIDs != null && this.typeFavUIDs.get(POI.ITEM_VIEW_TYPE_BUS) != null
-							&& !this.typeFavUIDs.get(POI.ITEM_VIEW_TYPE_BUS).contains(uid)) {
+					final String uid = fav.getFkId();
+					if (this.typeFavUIDs != null && this.typeFavUIDs.get(POI.ITEM_VIEW_TYPE_STOP) != null
+							&& !this.typeFavUIDs.get(POI.ITEM_VIEW_TYPE_STOP).contains(uid)) {
 						newFav = true;
 					}
-					newTypeFavUIDs.get(POI.ITEM_VIEW_TYPE_BUS).add(uid);
-					break;
-				case Fav.KEY_TYPE_VALUE_SUBWAY_STATION:
-					if (newTypeFavUIDs.get(POI.ITEM_VIEW_TYPE_SUBWAY) == null) {
-						newTypeFavUIDs.put(POI.ITEM_VIEW_TYPE_SUBWAY, new HashSet<String>());
-					}
-					if (this.typeFavUIDs != null && this.typeFavUIDs.get(POI.ITEM_VIEW_TYPE_SUBWAY) != null
-							&& !this.typeFavUIDs.get(POI.ITEM_VIEW_TYPE_SUBWAY).contains(fav.getFkId())) {
-						newFav = true;
-					}
-					newTypeFavUIDs.get(POI.ITEM_VIEW_TYPE_SUBWAY).add(fav.getFkId());
+					newTypeFavUIDs.get(POI.ITEM_VIEW_TYPE_STOP).add(uid);
 					break;
 				case Fav.KEY_TYPE_VALUE_BIKE_STATIONS:
 					if (newTypeFavUIDs.get(POI.ITEM_VIEW_TYPE_BIKE) == null) {
@@ -916,12 +1009,15 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 		}
 	}
 
-	public static class BusStopViewHolder extends CommonViewHolder {
+	public static class RouteTripStopViewHolder extends CommonViewHolder {
 		TextView stopCodeTv;
-		TextView lineNumberTv;
-		TextView lineDirectionTv;
+		TextView routeShortNameTv;
+		View routeFL;
+		ImageView routeTypeImg;
+		TextView tripHeadingTv;
 	}
 
+	@Deprecated
 	public static class SubwayViewHolder extends CommonViewHolder {
 		ImageView subwayImg1;
 		ImageView subwayImg2;
@@ -936,7 +1032,7 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 
 	public static class CommonViewHolder {
 		String uid;
-		TextView labelTv;
+		TextView stopNameTv;
 		TextView distanceTv;
 		ImageView favImg;
 		ImageView compassImg;

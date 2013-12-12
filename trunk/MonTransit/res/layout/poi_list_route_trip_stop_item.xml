@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:background="@android:drawable/list_selector_background"
+    android:clipChildren="false" >
+    <!-- FAVORITE IMG -->
+    <ImageView
+        android:id="@+id/fav_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_marginBottom="-18dip"
+        android:layout_marginRight="-16dip"
+        android:scaleType="center"
+        android:src="@drawable/star_dark"
+        android:visibility="gone" />
+    <!-- ROUTE TRIP -->
+    <LinearLayout
+        android:id="@+id/route_trip"
+        android:layout_width="wrap_content"
+        android:layout_height="?android:attr/listPreferredItemHeight"
+        android:layout_alignParentLeft="true"
+        android:orientation="vertical"
+        android:paddingRight="5dip" >
+        <!-- ROUTE -->
+        <FrameLayout
+            android:id="@+id/route"
+            android:layout_width="66dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" >
+            <!-- ROUTE SHORT NAME -->
+            <TextView
+                android:id="@+id/route_short_name"
+                style="@style/RouteShortNameSmall"
+                android:text="@string/default_route_short_name"
+                android:visibility="gone" />
+            <!-- ROUTE TYPE IMG -->
+            <ImageView
+                android:id="@+id/route_type_img"
+                android:layout_width="33dp"
+                android:layout_height="33dp"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:src="@drawable/subway_white"
+                android:visibility="gone" />
+        </FrameLayout>
+        <!-- TRIP HEADING -->
+        <TextView
+            android:id="@+id/trip_heading"
+            android:layout_width="66dp"
+            android:layout_height="wrap_content"
+            android:background="#000000"
+            android:ellipsize="marquee"
+            android:gravity="center_vertical|right"
+            android:paddingRight="2dp"
+            android:singleLine="true"
+            android:text="@string/ellipsis"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold" />
+    </LinearLayout>
+    <!-- DISTANCE -->
+    <TextView
+        android:id="@+id/distance"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentRight="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_centerVertical="true"
+        android:gravity="center_vertical"
+        android:paddingRight="5dip"
+        android:text="@string/ellipsis"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:visibility="gone" />
+    <!-- COMPASS -->
+    <ImageView
+        android:id="@+id/compass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+        android:layout_marginTop="3dp"
+        android:layout_toLeftOf="@id/distance"
+        android:scaleType="matrix"
+        android:src="@drawable/heading_arrow"
+        android:visibility="gone" />
+    <LinearLayout
+        android:id="@+id/stop"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@id/compass"
+        android:layout_toRightOf="@+id/route_trip"
+        android:orientation="vertical" >
+        <!-- STOP NAME -->
+        <TextView
+            android:id="@+id/stop_name"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginTop="0dp"
+            android:ellipsize="marquee"
+            android:gravity="center_vertical|left"
+            android:paddingLeft="0dip"
+            android:paddingTop="0dp"
+            android:singleLine="true"
+            android:text="@string/ellipsis"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+        <!-- STOP CODE -->
+        <TextView
+            android:id="@+id/stop_code"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-5dp"
+            android:paddingLeft="0dip"
+            android:text="@string/default_stop_code"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textStyle="bold"
+            android:visibility="visible" />
+    </LinearLayout>
+</RelativeLayout>

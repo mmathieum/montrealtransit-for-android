@@ -32,6 +32,8 @@ public class SplashScreen extends Activity {
 		Utils.logAppVersion(this);
 		MyLog.v(TAG, "onCreate()");
 		super.onCreate(savedInstanceState);
+		Utils.updateBusStopsToRouteStops(this);
+		Utils.updateSubwayStationsToRouteStops(this);
 		StmBusScheduleManager.wakeUp(getContentResolver());
 		showMainScreen();
 	}
@@ -49,6 +51,6 @@ public class SplashScreen extends Activity {
 	private void showMainScreen() {
 		MyLog.v(TAG, "showMainScreen()");
 		startActivity(new Intent(this, MainScreen.class));
-		this.finish();
+		finish();
 	}
 }

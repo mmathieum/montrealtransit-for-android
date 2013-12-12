@@ -60,15 +60,21 @@ public class AnalyticsUtils {
 	/**
 	 * Action for removed bus stops.
 	 */
+	@Deprecated
 	public static final String ACTION_BUS_STOP_REMOVED = "bus_stop_removed";
+	public static final String ACTION_STOP_REMOVED = "stop_removed";
 	/**
 	 * Action for no info for bus stops.
 	 */
+	@Deprecated
 	public static final String ACTION_BUS_STOP_NO_INFO = "bus_stop_no_info";
+	public static final String ACTION_STOP_NO_INFO = "stop_no_info";
 	/**
 	 * Action for bus stop source error code.
 	 */
+	@Deprecated
 	public static final String ACTION_BUS_STOP_SOURCE_ERROR = "bus_stop_source_error";
+	public static final String ACTION_STOP_SOURCE_ERROR = "stop_source_error";
 	/**
 	 * Action for DB initialization fail.
 	 */

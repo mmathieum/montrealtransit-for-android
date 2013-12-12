@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.MyLog;
+import org.montrealtransit.android.provider.DataStore.Fav;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -112,15 +113,18 @@ public class DataProvider extends ContentProvider {
 			String fkId2 = ids[1];
 			int favType = Integer.valueOf(ids[2]);
 			String where = null;
-			if (favType == DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP) {
-				where = DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND " + DataDbHelper.T_FAVS + "."
-						+ DataDbHelper.T_FAVS_K_FK_ID_2 + "=" + fkId2 + " AND " + DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_TYPE + "=" + favType;
-			} else if (favType == DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION) {
-				where = DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND " + DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_TYPE
-						+ "=" + favType;
-			} else if (favType == DataStore.Fav.KEY_TYPE_VALUE_BIKE_STATIONS) {
-				where = DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND " + DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_TYPE
-						+ "=" + favType;
+			switch (favType) {
+			case Fav.KEY_TYPE_VALUE_BUS_STOP:
+				where = DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_FK_ID + "=\"" + fkId + "\" AND " + DataDbHelper.T_FAVS + "."
+						+ DataDbHelper.T_FAVS_K_FK_ID_2 + "=\"" + fkId2 + "\" AND " + DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_TYPE + "=" + favType;
+				break;
+			case Fav.KEY_TYPE_VALUE_SUBWAY_STATION:
+			case Fav.KEY_TYPE_VALUE_BIKE_STATIONS:
+			case Fav.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP:
+			default:
+				where = DataDbHelper.T_FAVS + "." + DataDbHelper.T_FAVS_K_FK_ID + "=\"" + fkId + "\" AND " + DataDbHelper.T_FAVS + "."
+						+ DataDbHelper.T_FAVS_K_TYPE + "=" + favType;
+				break;
 			}
 			qb.appendWhere(where);
 			break;
@@ -175,12 +179,10 @@ public class DataProvider extends ContentProvider {
 			ids = uri.getPathSegments().get(1).split("\\+");
 			fkId = ids[0];
 			int type = Integer.valueOf(ids[1]);
-			where = null;
-			if (type == DataStore.Cache.KEY_TYPE_VALUE_BUS_STOP) {
-				where = DataDbHelper.T_CACHE + "." + DataDbHelper.T_CACHE_K_FK_ID + "='" + fkId + "' AND " + DataDbHelper.T_CACHE + "."
-						+ DataDbHelper.T_CACHE_K_TYPE + "=" + type;
+			if (type == DataStore.Cache.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP) {
+				qb.appendWhere(DataDbHelper.T_CACHE + "." + DataDbHelper.T_CACHE_K_FK_ID + "=\"" + fkId + "\" AND " + DataDbHelper.T_CACHE + "."
+						+ DataDbHelper.T_CACHE_K_TYPE + "=" + type);
 			}
-			qb.appendWhere(where);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI (query) :" + uri);
@@ -195,7 +197,7 @@ public class DataProvider extends ContentProvider {
 			case FAVS_IDS:
 			case FAVS_TYPE_ID:
 			case LIVE_FOLDER_FAVS:
-				orderBy = DataStore.Fav.DEFAULT_SORT_ORDER;
+				orderBy = Fav.DEFAULT_SORT_ORDER;
 				break;
 			case HISTORY:
 			case HISTORY_ID:
@@ -237,9 +239,9 @@ public class DataProvider extends ContentProvider {
 		case FAVS:
 		case FAVS_IDS:
 		case FAVS_TYPE_ID:
-			return DataStore.Fav.CONTENT_TYPE;
+			return Fav.CONTENT_TYPE;
 		case FAV_ID:
-			return DataStore.Fav.CONTENT_ITEM_TYPE;
+			return Fav.CONTENT_ITEM_TYPE;
 		case HISTORY:
 		case HISTORY_IDS:
 			return DataStore.History.CONTENT_TYPE;
@@ -271,17 +273,17 @@ public class DataProvider extends ContentProvider {
 
 		int count = 0;
 		switch (URI_MATCHER.match(uri)) {
-		case FAVS:
+		case FAVS: // TODO not how selectionArgs are supposed to be used!
 			MyLog.v(TAG, "DELETE>FAVS");
 			String fkId = selectionArgs[0];
 			String fkId2 = selectionArgs[1];
 			int favType = Integer.valueOf(selectionArgs[2]);
 			String whereClause = null;
-			if (favType == DataStore.Fav.KEY_TYPE_VALUE_BUS_STOP) {
-				whereClause = DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND " + DataDbHelper.T_FAVS_K_FK_ID_2 + "=" + fkId2 + " AND "
+			if (favType == Fav.KEY_TYPE_VALUE_BUS_STOP || favType == Fav.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP) {
+				whereClause = DataDbHelper.T_FAVS_K_FK_ID + "=\"" + fkId + "\" AND " + DataDbHelper.T_FAVS_K_FK_ID_2 + "=\"" + fkId2 + "\" AND "
 						+ DataDbHelper.T_FAVS_K_TYPE + "=" + favType;
-			} else if (favType == DataStore.Fav.KEY_TYPE_VALUE_SUBWAY_STATION || favType == DataStore.Fav.KEY_TYPE_VALUE_BIKE_STATIONS) {
-				whereClause = DataDbHelper.T_FAVS_K_FK_ID + "=" + fkId + " AND " + DataDbHelper.T_FAVS_K_TYPE + "=" + favType;
+			} else if (favType == Fav.KEY_TYPE_VALUE_SUBWAY_STATION || favType == Fav.KEY_TYPE_VALUE_BIKE_STATIONS) {
+				whereClause = DataDbHelper.T_FAVS_K_FK_ID + "=\"" + fkId + "\" AND " + DataDbHelper.T_FAVS_K_TYPE + "=" + favType;
 			}
 			count = db.delete(DataDbHelper.T_FAVS, whereClause, null);
 			break;
@@ -335,7 +337,7 @@ public class DataProvider extends ContentProvider {
 		case FAVS:
 			long rowId = db.insert(DataDbHelper.T_FAVS, DataDbHelper.T_FAVS_K_TITLE, values);
 			if (rowId > 0) {
-				insertUri = ContentUris.withAppendedId(DataStore.Fav.CONTENT_URI, rowId);
+				insertUri = ContentUris.withAppendedId(Fav.CONTENT_URI, rowId);
 			}
 			break;
 		case HISTORY:
