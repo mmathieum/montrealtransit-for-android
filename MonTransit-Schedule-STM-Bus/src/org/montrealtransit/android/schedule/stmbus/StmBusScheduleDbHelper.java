@@ -2,6 +2,9 @@ package org.montrealtransit.android.schedule.stmbus;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.montrealtransit.android.MyLog;
 
@@ -116,8 +119,20 @@ public class StmBusScheduleDbHelper extends SQLiteOpenHelper {
 		// service dates
 		initDbTableWithRetry(db, T_SERVICE_DATES, DATABASE_CREATE_T_SERVICE_DATES, T_SERVICE_DATES_SQL_INSERT, DATABASE_DROP_T_SERVICE_DATES,
 				new String[] { "ca_mtl_stm_bus_service_dates" });
+		final String startingWith = String.format(RAW_FILE_FORMAT, this.routeId);
+		List<String> rawFileNames = new ArrayList<String>();
+		try {
+			Field[] fields = R.raw.class.getFields();
+			for (Field f : fields) {
+				if (f.getName().startsWith(startingWith)) {
+					rawFileNames.add(f.getName());
+				}
+			}
+		} catch (Exception e) {
+			MyLog.w(TAG, e, "Error while listing raw files for route %s!", this.routeId);
+		}
 		initDbTableWithRetry(db, T_SCHEDULES, DATABASE_CREATE_T_SCHEDULES, T_SCHEDULES_SQL_INSERT, DATABASE_DROP_T_SCHEDULES,
-				new String[] { String.format(RAW_FILE_FORMAT, this.routeId) });
+				rawFileNames.toArray(new String[] {}));
 		this.deployingData = false;
 		MyLog.v(TAG, "initAllDbTables() - DONE (route: %s)", routeId);
 	}
