@@ -16,6 +16,8 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.StatFs;
 import android.view.Surface;
+import android.view.ViewTreeObserver;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -145,4 +147,6 @@ public interface SupportUtil {
 	long getStatFsAvailableBlocksLong(StatFs statFs);
 
 	long getStatFsBlockSizeLong(StatFs statFs);
+
+	void removeOnGlobalLayoutListener(ViewTreeObserver viewTreeObserver, OnGlobalLayoutListener onGlobalLayoutListener);
 }

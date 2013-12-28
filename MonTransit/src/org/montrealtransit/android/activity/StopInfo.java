@@ -1,7 +1,5 @@
 package org.montrealtransit.android.activity;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
@@ -18,7 +16,7 @@ import org.montrealtransit.android.SensorUtils;
 import org.montrealtransit.android.SensorUtils.CompassListener;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.api.SupportFactory;
-import org.montrealtransit.android.data.POI;
+import org.montrealtransit.android.data.ClosestPOI;
 import org.montrealtransit.android.data.POIArrayAdapter;
 import org.montrealtransit.android.data.Route;
 import org.montrealtransit.android.data.RouteStop;
@@ -34,6 +32,8 @@ import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.common.AbstractLiveScheduleManager;
 import org.montrealtransit.android.provider.common.AbstractManager;
 import org.montrealtransit.android.provider.common.AbstractScheduleManager;
+import org.montrealtransit.android.services.ClosestRouteTripStopsFinderTask.ClosestRouteTripStopsFinderListener;
+import org.montrealtransit.android.services.ClosestRouteTripStopsFinderTaskAndFilter;
 import org.montrealtransit.android.services.LoadNextBusStopIntoCacheTask;
 import org.montrealtransit.android.services.nextstop.IStmInfoTask;
 import org.montrealtransit.android.services.nextstop.NextStopListener;
@@ -54,17 +54,21 @@ import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TextAppearanceSpan;
 import android.util.SparseArray;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.CheckBox;
 import android.widget.HorizontalScrollView;
@@ -77,7 +81,8 @@ import android.widget.TextView;
  * This activity show information about a stop.
  * @author Mathieu Méa
  */
-public class StopInfo extends Activity implements LocationListener, DialogInterface.OnClickListener, /* NfcListener, */SensorEventListener, CompassListener {
+public class StopInfo extends Activity implements LocationListener, DialogInterface.OnClickListener, /* NfcListener, */SensorEventListener, CompassListener,
+		ClosestRouteTripStopsFinderListener {
 
 	/**
 	 * The log tag.
@@ -134,7 +139,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 	/**
 	 * Store the current hours (including messages).
 	 */
-	private StopTimes hours;
+	private StopTimes stopTimes;
 	/**
 	 * The cache for the current stop (stop ID + route ID).
 	 */
@@ -191,6 +196,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 	private boolean hasFocus = true;
 	private boolean paused = false;
 	private float locationDeclination;
+	private ClosestRouteTripStopsFinderTaskAndFilter nearbyTask;
 
 	public static Intent newInstance(Context context, String authority, Stop stop, Route route) {
 		MyLog.v(TAG, "newInstance(%s,%s,%s)", authority, stop, route);
@@ -551,7 +557,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 	@Override
 	public Object onRetainNonConfigurationInstance() {
 		// save the current hours
-		return this.hours != null ? this.hours : null;
+		return this.stopTimes != null ? this.stopTimes : null;
 	}
 
 	/**
@@ -563,7 +569,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 	public void showNextStopsInfoDialog(View v) {
 		MyLog.v(TAG, "showNextStopsInfoDialog()");
 		String message;
-		if (this.hours != null) {
+		if (this.stopTimes != null) {
 			message = getString(R.string.next_stops_message_and_source, IStmInfoTask.SOURCE_NAME);
 		} else {
 			message = getString(R.string.next_stops_message_and_source, IStmInfoTask.SOURCE_NAME);
@@ -613,7 +619,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 			routeShortNameTv.setVisibility(View.VISIBLE);
 		}
 		findViewById(R.id.route).setBackgroundColor(Utils.parseColor(this.routeTripStop.route.color));
-		((TextView) findViewById(R.id.trip_heading)).setText(this.routeTripStop.trip.getHeading(this).toUpperCase(Locale.getDefault()));
+		setTripHeading(this.routeTripStop.trip.getHeading(this));
 		// set listener
 		findViewById(R.id.route_trip).setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -628,80 +634,79 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 
 	private void refreshNearby() {
 		MyLog.v(TAG, "refreshNearby()");
+		if (this.nearbyTask != null && this.nearbyTask.getStatus() == Status.RUNNING) {
+			this.nearbyTask.cancel(true);
+			this.nearbyTask = null;
+		}
+		setNearbyAsLoading();
+		this.nearbyTask = new ClosestRouteTripStopsFinderTaskAndFilter(this, this, AbstractManager.AUTHORITIES, Utils.NB_NEARBY_LIST, this.routeTripStop);
+		this.nearbyTask.execute(this.routeTripStop.getLat(), this.routeTripStop.getLng());
+	}
+
+	public void setNearbyAsLoading() {
 		findViewById(R.id.nearby_title).setVisibility(View.VISIBLE);
 		findViewById(R.id.nearby_list).setVisibility(View.GONE);
 		findViewById(R.id.nearby_loading).setVisibility(View.VISIBLE);
-		new AsyncTask<String, Void, List<POI>>() {
-			@Override
-			protected List<POI> doInBackground(String... params) {
-				MyLog.v(TAG, "refreshNearby()>doInBackground()");
-				List<POI> result = new ArrayList<POI>();
-				final Double lat = StopInfo.this.routeTripStop.getLat();
-				final Double lng = StopInfo.this.routeTripStop.getLng();
-				// TODO asynchronous from all content providers
-				List<RouteTripStop> routeTripStops = AbstractManager.findRouteTripStopsWithLatLngList(StopInfo.this, lat, lng, true);
-				ListIterator<RouteTripStop> routeTripStopsIt = routeTripStops.listIterator();
-				while (routeTripStopsIt.hasNext()) {
-					RouteTripStop routeTripStop = routeTripStopsIt.next();
-					// IF same stop DO
-					if (routeTripStop.stop.id == StopInfo.this.routeTripStop.stop.id) {
-						routeTripStopsIt.remove();
-						continue;
-					}
-					// TODO slow // IF last stop of the trip DO
-					// final TripStop lastTripStop = AbstractManager.findTripLastTripStop(StopInfo.this, Utils.newContentUri(authority),
-					// routeTripStop.trip.id);
-					// if (lastTripStop != null && routeTripStop.stop.id == lastTripStop.stop.id) {
-					// it.remove();
-					// continue;
-					// }
+	}
+
+	@Override
+	public void onClosestStopsProgress(String message) {
+		MyLog.v(TAG, "onClosestStopsProgress(%s)", message);
+	}
+
+	@Override
+	public void onClosestStopsDone(ClosestPOI<RouteTripStop> result) {
+		MyLog.v(TAG, "onClosestStopsDone(%s)", (result == null ? null : result.getPoiListSize()));
+		List<RouteTripStop> routeTripStops = result.getPoiListOrNull();
+		if (routeTripStops != null) {
+			ListIterator<RouteTripStop> routeTripStopsIt = routeTripStops.listIterator();
+			while (routeTripStopsIt.hasNext()) {
+				RouteTripStop routeTripStop = routeTripStopsIt.next();
+				// IF same stop DO
+				if (routeTripStop.stop.id == this.routeTripStop.stop.id) {
+					routeTripStopsIt.remove();
+					continue;
 				}
-				result.addAll(routeTripStops);
+				// TODO slow // IF last stop of the trip DO
+				// final TripStop lastTripStop = AbstractManager.findTripLastTripStop(StopInfo.this, Utils.newContentUri(authority),
+				// routeTripStop.trip.id);
+				// if (lastTripStop != null && routeTripStop.stop.id == lastTripStop.stop.id) {
+				// it.remove();
+				// continue;
 				// }
-				// TODO add bikes?
-				LocationUtils.updateDistance(result, lat, lng);
-				Collections.sort(result, new POI.POIDistanceComparator());
-				if (Utils.NB_NEARBY_LIST > 0 && result.size() > Utils.NB_NEARBY_LIST) {
-					result = result.subList(0, Utils.NB_NEARBY_LIST);
-				}
-				MyLog.d(TAG, "refreshNearby()> result size: %s", result.size());
-				// remove last trip stops now (because all nearby list takes too long)
-				ListIterator<POI> resultIt = result.listIterator();
-				while (resultIt.hasNext()) {
-					final POI poi = resultIt.next();
-					if (poi == null || !(poi instanceof RouteTripStop)) {
-						// MyLog.d(TAG, "refreshNearby()>Null or not Route Trip Stop! %s", poi);
-						continue;
-					}
-					final RouteTripStop routeTripStop = (RouteTripStop) poi;
-					// IF last stop of the trip DO
-					final TripStop lastTripStop = AbstractManager.findTripLastTripStop(StopInfo.this, Utils.newContentUri(routeTripStop.authority),
-							routeTripStop.trip.id);
-					if (lastTripStop != null && routeTripStop.stop.id == lastTripStop.stop.id) {
-						resultIt.remove();
-						// MyLog.d(TAG, "refreshNearby()>REMOVED %s", routeTripStop.stop);
-						continue;
-					}
-					// MyLog.d(TAG, "refreshNearby()>NOT REMOVED");
-				}
-				// MyLog.d(TAG, "refreshNearby()> result size: %s", result.size());
-				return result;
 			}
-
-			@Override
-			protected void onPostExecute(List<POI> result) {
-				MyLog.v(TAG, "refreshNearby()>onPostExecute()");
-				StopInfo.this.adapter.setPois(result);
-				StopInfo.this.adapter.updateDistancesNow(getLocation());
-				refreshFavoriteIDsFromDB();
-				// show the result
-				StopInfo.this.adapter.initManual();
-				findViewById(R.id.nearby_title).setVisibility(View.VISIBLE);
-				findViewById(R.id.nearby_loading).setVisibility(View.GONE);
-				findViewById(R.id.nearby_list).setVisibility(View.VISIBLE);
+			// remove last trip stops now (because all nearby list takes too long)
+			ListIterator<RouteTripStop> resultIt = routeTripStops.listIterator();
+			while (resultIt.hasNext()) {
+				final RouteTripStop routeTripStop = resultIt.next();
+				if (routeTripStop == null) { // || !(poi instanceof RouteTripStop)) {
+					// MyLog.d(TAG, "refreshNearby()>Null or not Route Trip Stop! %s", poi);
+					continue;
+				}
+				// IF last stop of the trip DO
+				final TripStop lastTripStop = AbstractManager.findTripLastTripStop(this, Utils.newContentUri(routeTripStop.authority), routeTripStop.trip.id);
+				if (lastTripStop != null && routeTripStop.stop.id == lastTripStop.stop.id) {
+					resultIt.remove();
+					// MyLog.d(TAG, "refreshNearby()>REMOVED %s", routeTripStop.stop);
+					continue;
+				}
+				// MyLog.d(TAG, "refreshNearby()>NOT REMOVED");
 			}
+		}
+		// MyLog.d(TAG, "refreshNearby()> result size: %s", result.size());
+		this.adapter.setPois(routeTripStops);
+		this.adapter.updateDistancesNow(this.location);
+		refreshFavoriteIDsFromDB();
+		// show the result
+		this.adapter.initManual();
+		setNearbyAsNotLoading();
 
-		}.execute();
+	}
+
+	public void setNearbyAsNotLoading() {
+		findViewById(R.id.nearby_title).setVisibility(View.VISIBLE);
+		findViewById(R.id.nearby_loading).setVisibility(View.GONE);
+		findViewById(R.id.nearby_list).setVisibility(View.VISIBLE);
 	}
 
 	private void refreshFavoriteIDsFromDB() {
@@ -732,25 +737,27 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 			protected List<RouteTripStop> doInBackground(Integer... params) {
 				MyLog.v(TAG, "refreshOtherRouteTripsInfo()>doInBackground(%s)", params[0]);
 				List<RouteTripStop> result = AbstractManager.findRouteTripStopWithStopIdList(StopInfo.this, StopInfo.this.contentUri, params[0], false);
-				// remove all routes with the same route ID
-				ListIterator<RouteTripStop> it = result.listIterator();
-				while (it.hasNext()) {
-					final RouteTripStop routeTripStop = it.next();
-					// IF same trip DO
-					if (routeTripStop.trip.id == StopInfo.this.routeTripStop.trip.id) {
-						it.remove();
-						continue;
-					}
-					// // IF same route DO // TODO really?
-					// if (routeTripStop.trip.routeId == StopInfo.this.routeTripStop.trip.routeId) {
-					// it.remove();
-					// continue;
-					// }
-					// IF last stop of the trip DO
-					final TripStop lastTripStop = AbstractManager.findTripLastTripStop(StopInfo.this, StopInfo.this.contentUri, routeTripStop.trip.id);
-					if (lastTripStop != null && routeTripStop.stop.id == lastTripStop.stop.id) {
-						it.remove();
-						continue;
+				if (result != null) {
+					// remove all routes with the same route ID
+					ListIterator<RouteTripStop> it = result.listIterator();
+					while (it.hasNext()) {
+						final RouteTripStop routeTripStop = it.next();
+						// IF same trip DO
+						if (routeTripStop.trip.id == StopInfo.this.routeTripStop.trip.id) {
+							it.remove();
+							continue;
+						}
+						// // IF same route DO // TODO really?
+						// if (routeTripStop.trip.routeId == StopInfo.this.routeTripStop.trip.routeId) {
+						// it.remove();
+						// continue;
+						// }
+						// IF last stop of the trip DO
+						final TripStop lastTripStop = AbstractManager.findTripLastTripStop(StopInfo.this, StopInfo.this.contentUri, routeTripStop.trip.id);
+						if (lastTripStop != null && routeTripStop.stop.id == lastTripStop.stop.id) {
+							it.remove();
+							continue;
+						}
 					}
 				}
 				return result;
@@ -818,6 +825,44 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 		otherRouteTripsLayout.setVisibility(View.VISIBLE);
 	};
 
+	private void setTripHeading(String newTripHeading) {
+		MyLog.v(TAG, "setTripHeading(%s)", newTripHeading);
+		final TextView tripHeadingTv = (TextView) findViewById(R.id.trip_heading);
+		if (TextUtils.isEmpty(newTripHeading)) {
+			tripHeadingTv.setText(getString(R.string.ellipsis));
+			return;
+		}
+		final String tripHeadingStr = newTripHeading.toUpperCase(Locale.ENGLISH);
+		// MyLog.d(TAG, "setTripHeading() > new string ? : " + tripHeadingStr + " == " + tripHeadingTv.getText());
+		if (!tripHeadingStr.equals(tripHeadingTv.getText())) {
+			// MyLog.d(TAG, "setTripHeading() > NEW STRING!");
+			tripHeadingTv.setText(tripHeadingStr);
+			// MyLog.d(TAG, "setTripHeading() > tripHeadingTv.getLayout() null ? " + (tripHeadingTv.getLayout() == null));
+			if (tripHeadingTv.getLayout() != null) {
+				// MyLog.d(TAG, "setTripHeading() > ELLIPSIZE:" + tripHeadingTv.getLayout().getEllipsisCount(0));
+				if (tripHeadingTv.getLayout().getEllipsisCount(0) > 0) {
+					tripHeadingTv.setGravity(Gravity.CENTER_VERTICAL);
+				} else { // no "..."
+					tripHeadingTv.setGravity(Gravity.CENTER_VERTICAL | Gravity.RIGHT);
+				}
+			} else { // wait for layout
+				tripHeadingTv.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+					@Override
+					public void onGlobalLayout() {
+						// TextView tripHeadingTv = (TextView) findViewById(R.id.trip_heading);
+						// MyLog.d(TAG, "setTripHeading() > onGlobalLayout() > ELLIPSIZE:" + tripHeadingTv.getLayout().getEllipsisCount(0));
+						if (tripHeadingTv.getLayout().getEllipsisCount(0) > 0) {
+							tripHeadingTv.setGravity(Gravity.CENTER_VERTICAL);
+						} else { // no "..."
+							tripHeadingTv.setGravity(Gravity.CENTER_VERTICAL | Gravity.RIGHT);
+						}
+						SupportFactory.get().removeOnGlobalLayoutListener(tripHeadingTv.getViewTreeObserver(), this);
+					}
+				});
+			}
+		}
+	}
+
 	/**
 	 * Show the new stop information.
 	 */
@@ -838,11 +883,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 		if (!TextUtils.isEmpty(newRouteTextColor)) {
 			routeShortNameTv.setTextColor(Utils.parseColor(newRouteTextColor));
 		}
-		if (TextUtils.isEmpty(newTripHeading)) {
-			((TextView) findViewById(R.id.trip_heading)).setText(getString(R.string.ellipsis));
-		} else {
-			((TextView) findViewById(R.id.trip_heading)).setText(newTripHeading);
-		}
+		setTripHeading(newTripHeading);
 		// set as loading
 		((TextView) findViewById(R.id.next_stops_string)).setText(getString(R.string.next_stops));
 		// hide unknown data
@@ -856,14 +897,14 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 		// setNearbyListAsLoading();
 		this.adapter.setPois(null);
 		findViewById(R.id.star).setVisibility(View.INVISIBLE);
-		this.hours = null;
+		this.stopTimes = null;
 		setNextStopsLoading();
 
-		new AsyncTask<String, Void, Void>() {
+		new AsyncTask<String, Void, Boolean>() {
 			private boolean isNewStop;
 
 			@Override
-			protected Void doInBackground(String... params) {
+			protected Boolean doInBackground(String... params) {
 				isNewStop = StopInfo.this.routeTripStop == null || StopInfo.this.routeTripStop.stop.id != newStopId
 						|| StopInfo.this.routeTripStop.route.id != newRouteId || StopInfo.this.routeTripStop.trip.id != newTripId;
 				if (isNewStop) {
@@ -893,29 +934,29 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 						}
 					}
 					if (newRouteTripStop == null) {
-						stopNotFound(String.valueOf(newStopId));
-					} else {
-						StopInfo.this.contentUri = Utils.newContentUri(newAuthority);
-						StopInfo.this.routeTripStop = newRouteTripStop;
-						StopInfo.this.otherRouteTrips = null; // reset
-						StopInfo.this.hours = null; // clear current stop hours
-						StopInfo.this.memCache = null; // clear the cache for the new stop
-						if (StopInfo.this.wwwTask != null) {
-							StopInfo.this.wwwTask.cancel(true);
-							StopInfo.this.wwwTask = null;
-						}
-						if (StopInfo.this.localTask != null) {
-							StopInfo.this.localTask.cancel(true);
-							StopInfo.this.localTask = null;
-						}
+						return false; // no stop found
 					}
+					StopInfo.this.contentUri = Utils.newContentUri(newAuthority);
+					StopInfo.this.routeTripStop = newRouteTripStop;
+					StopInfo.this.otherRouteTrips = null; // reset
+					StopInfo.this.stopTimes = null; // clear current stop hours
+					StopInfo.this.memCache = null; // clear the cache for the new stop
+					cancelWwwTask();
+					cancelLocalTask();
+					cancelNearbyTask();
+					return true; // new stop found
+				} else {
+					return true; // same stop
 				}
-				return null;
 			}
 
 			@Override
-			protected void onPostExecute(Void result) {
-				setUpUI();
+			protected void onPostExecute(Boolean result) {
+				if (Boolean.FALSE.equals(result)) {
+					stopNotFound(String.valueOf(newStopId));
+				} else {
+					setUpUI();
+				}
 			};
 		}.execute();
 	}
@@ -949,7 +990,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 	private void setUpUI() {
 		refreshStopInfo();
 		showNextStops();
-		refreshOtherRouteTripsInfo();
+		// refreshOtherRouteTripsInfo();
 		// IF there is a valid last know location DO
 		if (LocationUtils.getBestLastKnownLocation(this) != null) {
 			// set the distance before showing the station
@@ -971,7 +1012,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 			@Override
 			protected Void doInBackground(Void... params) {
 				MyLog.v(TAG, "showNextStops()>doInBackground()");
-				if (StopInfo.this.hours == null) {
+				if (StopInfo.this.stopTimes == null) {
 					// check cache
 					// IF no local cache DO
 					if (StopInfo.this.memCache == null) {
@@ -992,12 +1033,12 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 								MyLog.w(TAG, e, "Can't clean the cache!");
 							}
 						} else if (Utils.currentTimeSec() - BusUtils.CACHE_TOO_OLD_IN_SEC >= StopInfo.this.memCache.getDate()) {
-							refreshAsync = true;
+							this.refreshAsync = true;
 						}
 					}
 					if (StopInfo.this.memCache != null) {
 						// use cache
-						StopInfo.this.hours = StopTimes.deserialized(StopInfo.this.memCache.getObject());
+						StopInfo.this.stopTimes = StopTimes.deserialized(StopInfo.this.memCache.getObject());
 					}
 				}
 				return null;
@@ -1005,7 +1046,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 
 			@Override
 			protected void onPostExecute(Void result) {
-				if (StopInfo.this.hours == null) {
+				if (StopInfo.this.stopTimes == null) {
 					// try to load from local schedule
 					loadNextStopsFromLocalSchedule();
 					// load from the web
@@ -1013,7 +1054,8 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 				} else {
 					showNewNextStops();
 					setNextStopsNotLoading();
-					if (refreshAsync) {
+					refreshOtherRouteTripsInfo();
+					if (this.refreshAsync) {
 						loadNextStopsFromWeb();
 					}
 				}
@@ -1047,28 +1089,23 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 				MyLog.v(TAG, "loadNextStopsFromLocalSchedule()>onNextStopsLoaded(%s)", results == null ? null : results.size());
 				if (StopInfo.this.localTask == null || StopInfo.this.localTask.isCancelled()) {
 					MyLog.d(TAG, "Task cancelled!");
-					return; // task cancelled
+					setLocalTaskAsCompleted();
+					return;
 				}
-				if (StopInfo.this.hours != null && StopInfo.this.hours.getSourceName().equals(IStmInfoTask.SOURCE_NAME)) {
+				if (StopInfo.this.stopTimes != null && StopInfo.this.stopTimes.getSourceName().equals(IStmInfoTask.SOURCE_NAME)) {
 					MyLog.d(TAG, "Local DB too late");
-					if (!StopInfo.this.wwwTaskRunning) {
-						setNextStopsNotLoading(); // www task completed
-					}
+					setLocalTaskAsCompleted();
 					return;
 				}
 				if (results == null) {
 					MyLog.d(TAG, "Local DB no result!");
-					if (!StopInfo.this.wwwTaskRunning) {
-						setNextStopsNotLoading(); // www task completed
-					}
+					setLocalTaskAsCompleted();
 					return;
 				}
 				// MyLog.d(TAG, "%s:%s", results.keySet(), results.values());
 				if (results.get(StopInfo.this.routeTripStop.trip.id) == null) {
 					MyLog.d(TAG, "Local DB no result for this trip!");
-					if (!StopInfo.this.wwwTaskRunning) {
-						setNextStopsNotLoading(); // www task completed
-					}
+					setLocalTaskAsCompleted();
 					return;
 				}
 				// IF error DO
@@ -1088,21 +1125,24 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 					} else {
 						setNextStopsError(result);
 					}
-					if (!StopInfo.this.wwwTaskRunning) {
-						setNextStopsNotLoading(); // www task completed
-					}
+					setLocalTaskAsCompleted();
 					return;
 				}
 				// get the result
-				if (StopInfo.this.hours == null || StopInfo.this.hours.getSourceName().equals(result.getSourceName())) {
-					StopInfo.this.hours = result;
+				if (StopInfo.this.stopTimes == null || StopInfo.this.stopTimes.getSourceName().equals(result.getSourceName())) {
+					StopInfo.this.stopTimes = result;
 					// show the result
 					showNewNextStops();
 				} else {
-					MyLog.d(TAG, "Local results ignored because hours already known from another source (%s)", StopInfo.this.hours.getSourceName());
+					MyLog.d(TAG, "Local results ignored because hours already known from another source (%s)", StopInfo.this.stopTimes.getSourceName());
 				}
+				setLocalTaskAsCompleted();
+			}
+
+			public void setLocalTaskAsCompleted() {
 				if (!StopInfo.this.wwwTaskRunning) {
 					setNextStopsNotLoading(); // www task completed
+					refreshOtherRouteTripsInfo();
 				}
 			}
 		}, this.routeTripStop);
@@ -1111,15 +1151,16 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 
 	/**
 	 * Show the new next bus stops.
-	 * @param hours the new next bus stops
+	 * @param stopTimes the new next bus stops
 	 */
 	private void showNewNextStops() {
 		MyLog.v(TAG, "showNewNextStops()");
-		if (this.hours != null) {
+		final StopTimes currentStopTimes = this.stopTimes;
+		if (currentStopTimes != null) {
 			// set next stop header with source name
-			((TextView) findViewById(R.id.next_stops_string)).setText(getString(R.string.next_bus_stops_and_source, this.hours.getSourceName()));
+			((TextView) findViewById(R.id.next_stops_string)).setText(getString(R.string.next_bus_stops_and_source, currentStopTimes.getSourceName()));
 			// IF there next stops found DO
-			if (this.hours.getSTimes().size() > 0) {
+			if (currentStopTimes.getSTimes().size() > 0) {
 				// hide loading + messages
 				findViewById(R.id.next_stops_loading).setVisibility(View.GONE);
 				TextView messageTv = (TextView) findViewById(R.id.next_stops_message_text);
@@ -1130,13 +1171,13 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 					stopsHScrollv.smoothScrollTo(0, 0); // reset scroll
 					stopsHScrollv.setVisibility(View.VISIBLE);
 				}
-				List<String> fHours = this.hours.getFormattedTimes(this);
+				List<String> fHours = currentStopTimes.getFormattedTimes(this);
 				// show the next bus stops
 				SpannableStringBuilder nextStopsSb = new SpannableStringBuilder();
 				// previous stop
 				int startPreviousStop = nextStopsSb.length();
-				if (this.hours.hasPreviousTime()) {
-					nextStopsSb.append(Utils.formatTimes(this, this.hours.getPreviousTime())).append(' ');
+				if (currentStopTimes.hasPreviousTime()) {
+					nextStopsSb.append(Utils.formatTimes(this, currentStopTimes.getPreviousTime())).append(' ');
 				}
 				int endPreviousStop = nextStopsSb.length();
 				// 1st stop
@@ -1203,9 +1244,11 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 				}
 				((TextView) findViewById(R.id.next_stops)).setText(nextStopsSb);
 				// show messages
-				StringBuilder messageSb = getMessageSb(this.hours);
+				SpannableStringBuilder messageSb = getMessageSb(currentStopTimes);
 				if (messageSb.length() > 0) {
-					messageTv.setText(messageSb);
+					// Linkify.addLinks(messageSb, Linkify.WEB_URLS);
+					messageTv.setText(Html.fromHtml(messageSb.toString()));
+					messageTv.setMovementMethod(LinkMovementMethod.getInstance());
 					messageTv.setVisibility(View.VISIBLE);
 				} else {
 					messageTv.setText(null);
@@ -1247,11 +1290,12 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 			public void onNextStopsLoaded(SparseArray<StopTimes> results) {
 				MyLog.v(TAG, "loadNextStopsFromWeb()>onNextStopsLoaded(%s)", results == null ? null : results.size());
 				if (StopInfo.this.wwwTask == null || StopInfo.this.wwwTask.isCancelled()) {
+					setWebTaskAsCompleted(true);
 					return; // task cancelled
 				}
 				if (results != null) {
 					for (int i = 0; i < results.size(); i++) {
-						int routeId = results.keyAt(i);
+						final int routeId = results.keyAt(i);
 						StopTimes stopTimes = results.get(routeId);
 						// for (Integer routeId : results.keySet()) {
 						// StopTimes stopTimes = results.get(routeId);
@@ -1275,19 +1319,23 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 					} else {
 						setNextStopsError(result);
 					}
-					if (StopInfo.this.localTask == null || StopInfo.this.localTask.getStatus() != Status.RUNNING) {
-						setNextStopsNotLoading();
-					}
-					StopInfo.this.wwwTaskRunning = false;
+					setWebTaskAsCompleted(true);
 					return;
 				}
 				// get the result
-				StopInfo.this.hours = result;
+				StopInfo.this.stopTimes = result;
 				// show the result
 				showNewNextStops();
-				setNextStopsNotLoading();
-				StopInfo.this.wwwTaskRunning = false;
+				setWebTaskAsCompleted(false);
 				cancelLocalTask();
+			}
+
+			public void setWebTaskAsCompleted(boolean checkLocalTaskStatus) {
+				if (!checkLocalTaskStatus || StopInfo.this.localTask == null || StopInfo.this.localTask.getStatus() != Status.RUNNING) {
+					setNextStopsNotLoading();
+					refreshOtherRouteTripsInfo();
+				}
+				StopInfo.this.wwwTaskRunning = false;
 			}
 		}, false, true);
 		this.wwwTask.execute();
@@ -1298,7 +1346,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 		if (TextUtils.isEmpty(progress)) {
 			return;
 		}
-		if (this.hours != null) {
+		if (this.stopTimes != null) {
 			// notify the user ?
 			return;
 		}
@@ -1332,7 +1380,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 	 */
 	private void setNextStopsLoading() {
 		MyLog.v(TAG, "setNextStopsLoading()");
-		if (this.hours == null) {
+		if (this.stopTimes == null) {
 			// set the BIG loading message
 			findViewById(R.id.next_stops_group).setVisibility(View.GONE);
 			findViewById(R.id.next_stops_message_text).setVisibility(View.GONE);
@@ -1362,7 +1410,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 	 */
 	private void setNextStopsCancelled() {
 		MyLog.v(TAG, "setClosestStationsCancelled()");
-		if (this.hours != null) {
+		if (this.stopTimes != null) {
 			// notify the user but keep showing the old stations
 			Utils.notifyTheUser(this, getString(R.string.next_bus_stop_load_cancelled));
 		} else {
@@ -1385,20 +1433,21 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 	private void setNextStopsError(StopTimes hours) {
 		MyLog.v(TAG, "setNextStopsError(%s)", hours);
 		// IF there are hours to show DO
-		if (this.hours != null) {
+		if (this.stopTimes != null) {
 			// notify the user but keep showing the old stations
 			if (hours != null && !TextUtils.isEmpty(hours.getError())) {
-				Utils.notifyTheUser(this, hours.getError());
+				Utils.notifyTheUserTop(this, hours.getError());
 			} else if (hours != null && !TextUtils.isEmpty(hours.getMessage())) {
-				Utils.notifyTheUser(this, hours.getMessage());
+				Utils.notifyTheUserTop(this, hours.getMessage());
 			} else if (hours != null && !TextUtils.isEmpty(hours.getMessage2())) {
-				Utils.notifyTheUser(this, hours.getMessage2());
+				Utils.notifyTheUserTop(this, hours.getMessage2());
 			} else {
 				MyLog.w(TAG, "no next stop or message or error for %s %s!", this.routeTripStop.stop.code, this.routeTripStop.route.shortName);
 				// DEFAULT MESSAGE > no more bus stop for this bus line
 				String defaultMessage = getString(R.string.no_more_stops_for_this_bus_line, this.routeTripStop.route.shortName);
-				Utils.notifyTheUser(this, defaultMessage);
+				Utils.notifyTheUserTop(this, defaultMessage);
 			}
+
 		} else {
 			// set next stop header with source name
 			if (hours == null || TextUtils.isEmpty(hours.getSourceName())) {
@@ -1413,22 +1462,24 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 			findViewById(R.id.next_stops_loading).setVisibility(View.GONE);
 			messageTv.setVisibility(View.GONE);
 			// Show messages
-			StringBuilder messageSb = getMessageSb(hours);
-			if (messageSb.length() == 0) {
+			SpannableStringBuilder messageSb = getMessageSb(hours);
+			if (messageSb == null || messageSb.length() == 0) {
 				MyLog.w(TAG, "no next stop or message or error for %s %s!", this.routeTripStop.stop.code, this.routeTripStop.route.shortName);
 				// DEFAULT MESSAGE > no more bus stop for this bus line
-				String defaultMessage = getString(R.string.no_more_stops_for_this_bus_line, this.routeTripStop.route.shortName);
+				final String defaultMessage = getString(R.string.no_more_stops_for_this_bus_line, this.routeTripStop.route.shortName);
 				messageSb.append(defaultMessage);
 			}
-			messageTv.setText(messageSb);
+			// Linkify.addLinks(messageSb, Linkify.WEB_URLS);
+			messageTv.setText(Html.fromHtml(messageSb.toString()));
+			messageTv.setMovementMethod(LinkMovementMethod.getInstance());
 			messageTv.setVisibility(View.VISIBLE);
 		}
 		setNextStopsNotLoading();
 	}
 
-	private StringBuilder getMessageSb(StopTimes hours) {
+	private SpannableStringBuilder getMessageSb(StopTimes hours) {
 		MyLog.v(TAG, "getMessageSb()");
-		StringBuilder messageSb = new StringBuilder();
+		SpannableStringBuilder messageSb = new SpannableStringBuilder();
 		if (hours != null) {
 			if (!TextUtils.isEmpty(hours.getError())) {
 				// MyLog.d(TAG, "getMessageSb() > hours.getError(): " + hours.getError());
@@ -1617,13 +1668,25 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 	@Override
 	protected void onDestroy() {
 		MyLog.v(TAG, "onDestroy()");
+		cancelWwwTask();
+		cancelLocalTask();
+		cancelNearbyTask();
+		AdsUtils.destroyAd(this);
+		super.onDestroy();
+	}
+
+	public void cancelNearbyTask() {
+		if (this.nearbyTask != null) {
+			this.nearbyTask.cancel(true);
+			this.nearbyTask = null;
+		}
+	}
+
+	public void cancelWwwTask() {
 		if (this.wwwTask != null) {
 			this.wwwTask.cancel(true);
 			this.wwwTask = null;
 		}
-		cancelLocalTask();
-		AdsUtils.destroyAd(this);
-		super.onDestroy();
 	}
 
 	private void cancelLocalTask() {

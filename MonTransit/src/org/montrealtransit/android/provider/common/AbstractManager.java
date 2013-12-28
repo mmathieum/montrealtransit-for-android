@@ -476,10 +476,107 @@ public class AbstractManager {
 		return Uri.withAppendedPath(contentUri, STOP_CONTENT_DIRECTORY);
 	}
 
-	/**
-	 * From all {@link AbstractManager#AUTHORITIES} !
-	 */
-	public static List<RouteTripStop> findRouteTripStopsWithLatLngList(Context context, double lat, double lng, boolean filterByUID) {
+	public static List<RouteStop> findRouteStopsWithLocationList(Context context, String[] authorities, Location location, boolean filterByUID) {
+		MyLog.v(TAG, "findRouteStopsWithLocationList(%s)", LocationUtils.locationToString(location));
+		List<RouteStop> routeStops = null;
+		double aroundDiff = LocationUtils.MIN_AROUND_DIFF;
+		do {
+			// MyLog.d(TAG, "findRouteStopsWithLocationList() > try with: %s", aroundDiff);
+			// load route trip stops with location (square)
+			routeStops = new ArrayList<RouteStop>();
+			for (String authority : authorities) {
+				final List<RouteStop> newRouteStops = findRouteStopsWithLocationList(context, Utils.newContentUri(authority), location, aroundDiff, filterByUID);
+				if (newRouteStops != null) {
+					routeStops.addAll(newRouteStops);
+				}
+			}
+			// update route trip stops distance
+			LocationUtils.updateDistance(routeStops, location.getLatitude(), location.getLongitude());
+			// find maximum distance covered (circle)
+			float maxDistance = LocationUtils.getAroundCoveredDistance(location.getLatitude(), location.getLongitude(), aroundDiff);
+			// remove items out of the covered circle
+			LocationUtils.removeTooFar(routeStops, maxDistance);
+			// increment around for next try
+			aroundDiff += LocationUtils.INC_AROUND_DIFF;
+		} while (Utils.getCollectionSize(routeStops) <= Utils.MIN_NEARBY_LIST && aroundDiff < LocationUtils.MAX_AROUND_DIFF);
+		// MyLog.d(TAG, "findRouteStopsWithLocationList() > result count: %s", (routeStops == null ? null : routeStops.size()));
+		return routeStops;
+	}
+
+	public static List<RouteStop> findRouteStopsWithLatLngList(Context context, String[] authorities, double lat, double lng, boolean filterByUID) {
+		MyLog.v(TAG, "findRouteStopsWithLatLngList(%s,%s)", lat, lng);
+		List<RouteStop> routeStops = null;
+		double aroundDiff = LocationUtils.MIN_AROUND_DIFF;
+		do {
+			// MyLog.d(TAG, "findRouteStopsWithLocationList() > try with: %s", aroundDiff);
+			// load route trip stops with location (square)
+			routeStops = new ArrayList<RouteStop>();
+			for (String authority : authorities) {
+				final List<RouteStop> newRouteStops = findRouteStopsWithLatLngList(context, Utils.newContentUri(authority), lat, lng, aroundDiff, filterByUID);
+				if (newRouteStops != null) {
+					routeStops.addAll(newRouteStops);
+				}
+			}
+			// update route trip stops distance
+			LocationUtils.updateDistance(routeStops, lat, lng);
+			// find maximum distance covered (circle)
+			float maxDistance = LocationUtils.getAroundCoveredDistance(lat, lng, aroundDiff);
+			// remove items out of the covered circle
+			LocationUtils.removeTooFar(routeStops, maxDistance);
+			// increment around for next try
+			aroundDiff += LocationUtils.INC_AROUND_DIFF;
+		} while (Utils.getCollectionSize(routeStops) <= Utils.MIN_NEARBY_LIST && aroundDiff < LocationUtils.MAX_AROUND_DIFF);
+		// MyLog.d(TAG, "findRouteStopsWithLocationList() > result count: %s", (routeStops == null ? null : routeStops.size()));
+		return routeStops;
+	}
+
+	private static List<RouteStop> findRouteStopsWithLatLngList(Context context, Uri contentUri, double lat, double lng, double aroundDiff, boolean filterByUID) {
+		// MyLog.v(TAG, "findRouteStopsWithLatLngList(%s,%s)", lat, lng);
+		showSetupRequiredIfNecessary(context, contentUri);
+		Cursor cursor = null;
+		try {
+			String selection = LocationUtils.genAroundWhere(lat, lng, RouteTripStopColumns.T_STOP_K_LAT, RouteTripStopColumns.T_STOP_K_LNG, aroundDiff);
+			cursor = context.getContentResolver().query(getRouteTripStopUri(contentUri), PROJECTION_ROUTE_TRIP_STOP, selection, null,
+					RouteTripStopColumns.T_TRIP_STOPS_K_STOP_SEQUENCE + " ASC");
+			return getRouteStops(cursor, contentUri.getAuthority(), filterByUID);
+		} catch (Throwable t) {
+			MyLog.w(TAG, t, "Error!");
+			return null;
+		} finally {
+			if (cursor != null)
+				cursor.close();
+		}
+	}
+
+	public static List<RouteTripStop> findRouteTripStopsWithLocationList(Context context, String[] authorities, Location location, boolean filterByUID) {
+		MyLog.v(TAG, "findRouteTripStopsWithLocationList(%s)", LocationUtils.locationToString(location));
+		List<RouteTripStop> routeTripStops = null;
+		double aroundDiff = LocationUtils.MIN_AROUND_DIFF;
+		do {
+			// MyLog.d(TAG, "findRouteTripStopsWithLocationList() > try with: %s", aroundDiff);
+			// load route trip stops with location (square)
+			routeTripStops = new ArrayList<RouteTripStop>();
+			for (String authority : authorities) {
+				final List<RouteTripStop> newRouteTripStops = findRouteTripStopsWithLocationList(context, Utils.newContentUri(authority), location, aroundDiff,
+						filterByUID);
+				if (newRouteTripStops != null) {
+					routeTripStops.addAll(newRouteTripStops);
+				}
+			}
+			// update route trip stops distance
+			LocationUtils.updateDistance(routeTripStops, location.getLatitude(), location.getLongitude());
+			// find maximum distance covered (circle)
+			float maxDistance = LocationUtils.getAroundCoveredDistance(location.getLatitude(), location.getLongitude(), aroundDiff);
+			// remove items out of the covered circle
+			LocationUtils.removeTooFar(routeTripStops, maxDistance);
+			// increment around for next try
+			aroundDiff += LocationUtils.INC_AROUND_DIFF;
+		} while (Utils.getCollectionSize(routeTripStops) <= Utils.MIN_NEARBY_LIST && aroundDiff < LocationUtils.MAX_AROUND_DIFF);
+		// MyLog.d(TAG, "findRouteTripStopsWithLocationList() > result count: %s", (routeTripStops == null ? null : routeTripStops.size()));
+		return routeTripStops;
+	}
+
+	public static List<RouteTripStop> findRouteTripStopsWithLatLngList(Context context, String[] authorities, double lat, double lng, boolean filterByUID) {
 		MyLog.v(TAG, "findRouteTripStopsWithLatLngList(%s,%s)", lat, lng);
 		List<RouteTripStop> routeTripStops = null;
 		double aroundDiff = LocationUtils.MIN_AROUND_DIFF;
@@ -487,8 +584,12 @@ public class AbstractManager {
 			// MyLog.d(TAG, "findRouteTripStopsWithLatLngList() > try with: %s", aroundDiff);
 			// load route trip stops with location (square)
 			routeTripStops = new ArrayList<RouteTripStop>();
-			for (String authority : AbstractManager.AUTHORITIES) {
-				routeTripStops.addAll(findRouteTripStopsWithLatLngList(context, Utils.newContentUri(authority), lat, lng, aroundDiff, filterByUID));
+			for (String authority : authorities) {
+				final List<RouteTripStop> newRouteTripStops = findRouteTripStopsWithLatLngList(context, Utils.newContentUri(authority), lat, lng, aroundDiff,
+						filterByUID);
+				if (newRouteTripStops != null) {
+					routeTripStops.addAll(newRouteTripStops);
+				}
 			}
 			// update route trip stops distance
 			LocationUtils.updateDistance(routeTripStops, lat, lng);
@@ -589,6 +690,7 @@ public class AbstractManager {
 			String selection = RouteTripStopColumns.T_STOP_K_ID + " = " + stopId;
 			cursor = context.getContentResolver().query(getRouteTripStopUri(contentUri), PROJECTION_ROUTE_TRIP_STOP, selection, null,
 					RouteTripStopColumns.T_ROUTE_K_ID + ", " + RouteTripStopColumns.T_TRIP_STOPS_K_STOP_SEQUENCE + " ASC");
+			// TODO ERROR: Cannot perform this operation because the connection pool has been closed.
 			// should be RouteTripStopColumns.T_ROUTE_K_SHORT_NAME but text sorting doesn't work well with integers
 			return getRouteTripStops(cursor, contentUri.getAuthority(), filterByUID);
 		} catch (Throwable t) {

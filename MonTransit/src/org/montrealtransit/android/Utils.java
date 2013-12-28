@@ -48,6 +48,7 @@ import android.os.StatFs;
 import android.text.format.DateUtils;
 import android.util.SparseArray;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
@@ -97,6 +98,10 @@ public class Utils {
 	 * How long do we prefer accuracy over time? (in milliseconds)
 	 */
 	public static final long CLOSEST_POI_LIST_PREFER_ACCURACY_OVER_TIME = 2 * 60 * 1000; // 2 minutes
+	/**
+	 * Vertical offset for top toast.
+	 */
+	public static final int TOAST_Y_OFFSET = 200;
 
 	/**
 	 * Read the input stream and write the stream to the output stream file.
@@ -437,7 +442,14 @@ public class Utils {
 	 * @param message the message to display.
 	 */
 	public static void notifyTheUser(Context context, String message) {
-		Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+		final Toast makeText = Toast.makeText(context, message, Toast.LENGTH_SHORT);
+		makeText.show();
+	}
+	
+	public static void notifyTheUserTop(Context context, String message) {
+		final Toast makeText = Toast.makeText(context, message, Toast.LENGTH_SHORT);
+		makeText.setGravity(Gravity.TOP, 0, TOAST_Y_OFFSET);
+		makeText.show();
 	}
 
 	/**

@@ -2,8 +2,12 @@ package org.montrealtransit.android.provider.stmsubway.schedule;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.montrealtransit.android.MyLog;
+import org.montrealtransit.android.R;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -116,8 +120,20 @@ public class StmSubwayScheduleDbHelper extends SQLiteOpenHelper {
 		// service dates
 		initDbTableWithRetry(db, T_SERVICE_DATES, DATABASE_CREATE_T_SERVICE_DATES, T_SERVICE_DATES_SQL_INSERT, DATABASE_DROP_T_SERVICE_DATES,
 				new String[] { "ca_mtl_stm_subway_service_dates" });
+		final String startingWith = String.format(RAW_FILE_FORMAT, this.routeId);
+		List<String> rawFileNames = new ArrayList<String>();
+		try {
+			Field[] fields = R.raw.class.getFields();
+			for (Field f : fields) {
+				if (f.getName().startsWith(startingWith)) {
+					rawFileNames.add(f.getName());
+				}
+			}
+		} catch (Exception e) {
+			MyLog.w(TAG, e, "Error while listing raw files for route %s!", this.routeId);
+		}
 		initDbTableWithRetry(db, T_SCHEDULES, DATABASE_CREATE_T_SCHEDULES, T_SCHEDULES_SQL_INSERT, DATABASE_DROP_T_SCHEDULES,
-				new String[] { String.format(RAW_FILE_FORMAT, this.routeId) });
+				rawFileNames.toArray(new String[] {}));
 		this.deployingData = false;
 		MyLog.v(TAG, "initAllDbTables() - DONE (route: %s)", routeId);
 	}
@@ -140,6 +156,7 @@ public class StmSubwayScheduleDbHelper extends SQLiteOpenHelper {
 		MyLog.v(TAG, "initDbTable(%s)", table);
 		BufferedReader br = null;
 		String line = null;
+		String fileName = null;
 		try {
 			db.beginTransaction();
 			// MyLog.d(TAG, "create tables");
@@ -147,7 +164,8 @@ public class StmSubwayScheduleDbHelper extends SQLiteOpenHelper {
 			db.execSQL(sqlDrop); // drop if exists
 			db.execSQL(sqlCreate); // create if not exists
 			// deploy data
-			for (String fileName : fileNames) {
+			for (int i = 0; i < fileNames.length; i++) {
+				fileName = fileNames[i];
 				// MyLog.d(TAG, "deploy data from " + fileId);
 				br = new BufferedReader(new InputStreamReader(this.context.getResources().openRawResource(
 						this.context.getResources().getIdentifier(fileName, "raw", this.context.getPackageName())), "UTF8"), 8192);
@@ -159,7 +177,7 @@ public class StmSubwayScheduleDbHelper extends SQLiteOpenHelper {
 			db.setTransactionSuccessful();
 			return true;
 		} catch (Exception e) {
-			MyLog.w(TAG, e, "ERROR while copying the database file! (line: %s)", line);
+			MyLog.w(TAG, e, "ERROR while copying the database file! (fileName: %s, line: %s)", fileName, line);
 			// AnalyticsUtils
 			// .trackEvent(this.context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_DB_INIT_FAIL, e.getClass().getSimpleName(), DB_VERSION);
 			// TODO handles no space left on the device

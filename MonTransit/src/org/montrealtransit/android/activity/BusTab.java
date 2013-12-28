@@ -665,8 +665,9 @@ public class BusTab extends Activity implements LocationListener, ClosestRouteTr
 				return;
 			}
 			// find the closest stations
-			this.closestStopsTask = new ClosestRouteTripStopsFinderTask(this, this, StmBusManager.CONTENT_URI, SupportFactory.get().getNbClosestPOIDisplay());
-			this.closestStopsTask.execute(currentLocation);
+			this.closestStopsTask = new ClosestRouteTripStopsFinderTask(this, this, new String[] { StmBusManager.AUTHORITY }, SupportFactory.get()
+					.getNbClosestPOIDisplay());
+			this.closestStopsTask.execute(currentLocation.getLatitude(), currentLocation.getLongitude());
 			this.closestStopsLocation = currentLocation;
 			new AsyncTask<Location, Void, Address>() {
 
@@ -686,6 +687,29 @@ public class BusTab extends Activity implements LocationListener, ClosestRouteTr
 
 			}.execute(this.closestStopsLocation);
 			// ELSE wait for location...
+		}
+	}
+
+	@Override
+	public void onClosestStopsProgress(String message) {
+		MyLog.v(TAG, "onClosestStopsProgress(%s)", message);
+		// do nothing
+	}
+
+	@Override
+	public void onClosestStopsDone(ClosestPOI<RouteTripStop> result) {
+		MyLog.v(TAG, "onClosestStopsDone(%s)", result == null ? null : result.getPoiListSize());
+		if (result == null || result.getPoiListOrNull() == null) {
+			// show the error
+			setClosestStopsError();
+		} else {
+			// get the result
+			this.closestStops = result.getPoiList();
+			// generateOrderedStopCodes();
+			refreshFavoriteUIDsFromDB();
+			// shot the result
+			showNewClosestStops();
+			setClosestStopsNotLoading();
 		}
 	}
 
@@ -871,29 +895,6 @@ public class BusTab extends Activity implements LocationListener, ClosestRouteTr
 			this.closestStopsTask = null;
 		} else {
 			refreshClosestStops();
-		}
-	}
-
-	@Override
-	public void onClosestStopsProgress(String message) {
-		MyLog.v(TAG, "onClosestStopsProgress(%s)", message);
-		// do nothing
-	}
-
-	@Override
-	public void onClosestStopsDone(ClosestPOI<RouteTripStop> result) {
-		MyLog.v(TAG, "onClosestStopsDone(%s)", result == null ? null : result.getPoiListSize());
-		if (result == null || result.getPoiListOrNull() == null) {
-			// show the error
-			setClosestStopsError();
-		} else {
-			// get the result
-			this.closestStops = result.getPoiList();
-			// generateOrderedStopCodes();
-			refreshFavoriteUIDsFromDB();
-			// shot the result
-			showNewClosestStops();
-			setClosestStopsNotLoading();
 		}
 	}
 

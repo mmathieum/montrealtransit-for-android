@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit;
 import org.montrealtransit.android.AdsUtils;
 import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.BikeUtils;
-import org.montrealtransit.android.Constant;
 import org.montrealtransit.android.LocationUtils;
 import org.montrealtransit.android.MenuUtils;
 import org.montrealtransit.android.MyLog;
@@ -37,7 +36,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -420,9 +418,7 @@ public class BikeTab extends Activity implements LocationListener, ClosestBikeSt
 		// IF there are already stations DO
 		if (Utils.getCollectionSize(this.adapter.getPois()) > 0) {
 			// notify the user but keep showing the old stations
-			Toast toast = Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT);
-			toast.setGravity(Gravity.TOP, 0, Constant.TOAST_Y_OFFSET);
-			toast.show();
+			Utils.notifyTheUserTop(this, errorMessage);
 		} else {
 			// show the error message
 			View loadingLayout = findViewById(R.id.closest_bike_stations_list_loading);

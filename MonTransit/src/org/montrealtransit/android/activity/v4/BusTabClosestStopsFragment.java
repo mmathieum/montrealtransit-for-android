@@ -199,9 +199,9 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 				return;
 			}
 			// find the closest stations
-			this.closestStopsTask = new ClosestRouteTripStopsFinderTask(this, getLastActivity(), StmBusManager.CONTENT_URI, SupportFactory.get()
+			this.closestStopsTask = new ClosestRouteTripStopsFinderTask(this, getLastActivity(), new String[] { StmBusManager.AUTHORITY }, SupportFactory.get()
 					.getNbClosestPOIDisplay());
-			this.closestStopsTask.execute(currentLocation);
+			this.closestStopsTask.execute(currentLocation.getLatitude(), currentLocation.getLongitude());
 			this.closestStopsLocation = currentLocation;
 			new AsyncTask<Location, Void, String>() {
 
@@ -249,6 +249,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 		} else {
 			// get the result
 			this.adapter.setPois(result.getPoiList());
+			this.adapter.updateDistancesNow(this.location);
 			this.adapter.prefetchClosests();
 			refreshFavoriteUIDsFromDB();
 			// show the result

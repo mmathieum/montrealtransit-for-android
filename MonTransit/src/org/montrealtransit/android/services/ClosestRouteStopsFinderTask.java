@@ -14,15 +14,13 @@ import org.montrealtransit.android.data.RouteStop;
 import org.montrealtransit.android.provider.common.AbstractManager;
 
 import android.content.Context;
-import android.location.Location;
-import android.net.Uri;
 import android.os.AsyncTask;
 
 /**
  * Find the closest {@link RouteStop}.
  * @author Mathieu Méa
  */
-public class ClosestRouteStopsFinderTask extends AsyncTask<Location, String, ClosestPOI<RouteStop>> {
+public class ClosestRouteStopsFinderTask extends AsyncTask<Double, String, ClosestPOI<RouteStop>> {
 
 	/**
 	 * The log tag.
@@ -46,42 +44,43 @@ public class ClosestRouteStopsFinderTask extends AsyncTask<Location, String, Clo
 	 */
 	private WeakReference<ClosestRouteStopsFinderListener> from;
 
-	private Uri contentUri;
+	private String[] authorities;
 
 	/**
 	 * The default constructor.
 	 * @param from the class handling the result and progress
 	 * @param context the context
 	 */
-	public ClosestRouteStopsFinderTask(ClosestRouteStopsFinderListener from, Context context, Uri contentUri, int maxResult) {
+	public ClosestRouteStopsFinderTask(ClosestRouteStopsFinderListener from, Context context, String[] authorities, int maxResult) {
 		this.from = new WeakReference<ClosestRouteStopsFinderTask.ClosestRouteStopsFinderListener>(from);
 		this.context = context;
-		this.contentUri = contentUri;
+		this.authorities = authorities;
 		this.maxResult = maxResult;
 	}
 
 	@Override
-	protected ClosestPOI<RouteStop> doInBackground(Location... params) {
+	protected ClosestPOI<RouteStop> doInBackground(Double... params) {
 		MyLog.v(TAG, "doInBackground()");
 		ClosestPOI<RouteStop> result = null;
 		// read last (not too old) location
-		Location location = params[0];
+		Double lat = params[0];
+		Double lng = params[1];
 		// MyLog.d(TAG, "currentLocation:" + currentLocation);
 		// IF location available DO
-		if (location != null) {
+		if (lat != null && lng != null) {
 			publishProgress(this.context.getString(R.string.processing));
-			result = new ClosestPOI<RouteStop>(location);
+			result = new ClosestPOI<RouteStop>(lat, lng);
 			// read location accuracy
 			// create a list of all stops with lines and location
-			List<RouteStop> stopsWithOtherLines = AbstractManager.findRouteStopsWithLocationList(context, this.contentUri, location, true);
+			List<RouteStop> routeStops = AbstractManager.findRouteStopsWithLatLngList(this.context, this.authorities, lat, lng, true);
 			// set stops distance
-			LocationUtils.updateDistanceWithString(this.context, stopsWithOtherLines, location);
+			LocationUtils.updateDistance(routeStops, lat, lng);
 			// sort by distance
-			Collections.sort(stopsWithOtherLines, new POI.POIDistanceComparator());
-			if (Utils.getCollectionSize(stopsWithOtherLines) > maxResult) {
-				result.setPoiList(stopsWithOtherLines.subList(0, maxResult));
+			Collections.sort(routeStops, new POI.POIDistanceComparator());
+			if (Utils.getCollectionSize(routeStops) > this.maxResult) {
+				result.setPoiList(routeStops.subList(0, this.maxResult));
 			} else {
-				result.setPoiList(stopsWithOtherLines);
+				result.setPoiList(routeStops);
 			}
 		}
 		return result;

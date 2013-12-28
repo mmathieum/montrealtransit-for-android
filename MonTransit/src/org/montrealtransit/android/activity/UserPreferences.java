@@ -305,6 +305,10 @@ public class UserPreferences extends PreferenceActivity {
 				setClearCachePref();
 				// WARNING DANGEROUS UserPreferences.this.getDatabasePath(StmSubwayDbHelper.DB_NAME);
 				// WARNING DANGEROUS UserPreferences.this.deleteDatabase(StmSubwayDbHelper.DB_NAME);
+				// WARNING DANGEROUS UserPreferences.this.getDatabasePath(String.format(StmSubwayScheduleDbHelper.DB_NAME_FORMAT,1));
+				// WARNING DANGEROUS UserPreferences.this.getDatabasePath(String.format(StmSubwayScheduleDbHelper.DB_NAME_FORMAT,2));
+				// WARNING DANGEROUS UserPreferences.this.getDatabasePath(String.format(StmSubwayScheduleDbHelper.DB_NAME_FORMAT,4));
+				// WARNING DANGEROUS UserPreferences.this.getDatabasePath(String.format(StmSubwayScheduleDbHelper.DB_NAME_FORMAT,5));
 				return false;
 			}
 		});
