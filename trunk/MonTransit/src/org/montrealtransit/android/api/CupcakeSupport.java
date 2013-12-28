@@ -18,6 +18,7 @@ import android.database.Cursor;
 import android.graphics.Matrix;
 import android.os.StatFs;
 import android.view.Surface;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -171,5 +172,11 @@ public class CupcakeSupport implements SupportUtil {
 	@Override
 	public long getStatFsBlockSizeLong(StatFs statFs) {
 		return (long) statFs.getBlockSize();
+	}
+	
+	@SuppressWarnings("deprecation")
+	@Override
+	public void removeOnGlobalLayoutListener(ViewTreeObserver viewTreeObserver, ViewTreeObserver.OnGlobalLayoutListener onGlobalLayoutListener) {
+		viewTreeObserver.removeGlobalOnLayoutListener(onGlobalLayoutListener);
 	}
 }

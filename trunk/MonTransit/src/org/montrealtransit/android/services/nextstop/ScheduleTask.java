@@ -52,10 +52,10 @@ public class ScheduleTask extends AbstractNextStopProvider {
 			StopTimes stopHours = new StopTimes(getSourceName());
 			final Uri contentUri = Utils.newContentUri(authority);
 			final Calendar now = Calendar.getInstance();
-			// now.set(Calendar.HOUR_OF_DAY, 00); // TEST
-			// now.set(Calendar.MINUTE, 11); // TEST
-			// now.set(Calendar.DAY_OF_MONTH, 24); // TEST
-			// now.set(Calendar.MONTH, Calendar.NOVEMBER); // TEST
+			// now.set(Calendar.HOUR_OF_DAY, 23); // TEST
+			// now.set(Calendar.MINUTE, 59); // TEST
+			// now.set(Calendar.DAY_OF_MONTH, 21); // TEST
+			// now.set(Calendar.MONTH, Calendar.DECEMBER); // TEST
 			// now.set(Calendar.YEAR, 2013); // TEST
 			// MyLog.d(TAG, "Now: %s", now);
 			// 1st - check if yesterday schedule is over (based on user device date/time)

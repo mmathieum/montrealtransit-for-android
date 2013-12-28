@@ -102,8 +102,4 @@ public class Constant {
 	 * The number of meter necessary to make 1 KM.
 	 */
 	public static float METER_PER_KM = 1000f;
-	/**
-	 * Vertical offset for top toast.
-	 */
-	public static final int TOAST_Y_OFFSET = 200;
 }

@@ -1,6 +1,7 @@
 package org.montrealtransit.android.api;
 
 import android.annotation.TargetApi;
+import android.view.ViewTreeObserver;
 
 /**
  * Features available for Android 4.1 Jelly Bean (API Level 16) and higher.
@@ -23,5 +24,10 @@ public class JellyBeanSupport extends IceCreamSandwichSupport {
 	@Override
 	public int getNbClosestPOIDisplay() {
 		return 100; // super.getNbClosestPOIDisplay();
+	}
+	
+	@Override
+	public void removeOnGlobalLayoutListener(ViewTreeObserver viewTreeObserver, ViewTreeObserver.OnGlobalLayoutListener onGlobalLayoutListener) {
+		viewTreeObserver.removeOnGlobalLayoutListener(onGlobalLayoutListener);
 	}
 }

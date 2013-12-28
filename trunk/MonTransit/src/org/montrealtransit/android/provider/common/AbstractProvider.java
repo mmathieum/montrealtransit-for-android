@@ -238,9 +238,9 @@ public abstract class AbstractProvider extends ContentProvider {
 					dbHelper = null;
 					return getDBHelper(context);
 				}
-			} catch (Exception e) {
+			} catch (Throwable t) {
 				// fail if locked, will try again later
-				MyLog.d(TAG, e, "Can't check DB version!");
+				MyLog.d(TAG, t, "Can't check DB version!");
 			}
 		}
 		return dbHelper;
@@ -249,118 +249,123 @@ public abstract class AbstractProvider extends ContentProvider {
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		MyLog.v(TAG, "query(%s, %s, %s, %s, %s)", uri.getPath(), Arrays.toString(projection), selection, Arrays.toString(selectionArgs), sortOrder);
-		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-		// MyLog.i(TAG, "[%s]", uri);
-		String limit = null;
-		switch (getURIMATCHER().match(uri)) {
-		case DB_VERSION:
-			MyLog.v(TAG, "query>DB_VERSION");
-			return getDbVersion();
-		case DB_LABEL:
-			MyLog.v(TAG, "query>DB_LABEL");
-			return getDbLabel();
-		case DB_DEPLOYED:
-			MyLog.v(TAG, "query>DB_DEPLOYED");
-			return isDbDeployed();
-		case DB_SETUP_REQUIRED:
-			MyLog.v(TAG, "query>DB_SETUP_REQUIRED");
-			return isDbSetupRequired();
-		case ROUTES:
-			MyLog.v(TAG, "query>ROUTES");
-			qb.setTables(AbstractDbHelper.T_ROUTE);
-			qb.setProjectionMap(ROUTE_PROJECTION_MAP);
-			break;
-		case TRIPS:
-			MyLog.v(TAG, "query>TRIPS");
-			qb.setTables(AbstractDbHelper.T_TRIP);
-			qb.setProjectionMap(TRIP_PROJECTION_MAP);
-			break;
-		case STOPS:
-			MyLog.v(TAG, "query>STOPS");
-			qb.setTables(AbstractDbHelper.T_STOP);
-			qb.setProjectionMap(STOP_PROJECTION_MAP);
-			break;
-		case ROUTES_TRIPS_STOPS:
-			MyLog.v(TAG, "query>ROUTES_TRIPS_STOPS");
-			qb.setTables(ROUTE_TRIP_TRIP_STOPS_STOP_JOIN);
-			qb.setProjectionMap(ROUTE_TRIP_STOP_PROJECTION_MAP);
-			break;
-		case ROUTES_TRIPS_STOPS_SEARCH:
-			MyLog.v(TAG, "query>ROUTES_TRIPS_STOPS_SEARCH");
-			qb.setTables(ROUTE_TRIP_TRIP_STOPS_STOP_JOIN);
-			qb.setProjectionMap(ROUTE_TRIP_STOP_PROJECTION_MAP);
-			appendRouteTripStopSearch(uri, qb);
-			break;
-		case ROUTES_TRIPS:
-			MyLog.v(TAG, "query>ROUTES_TRIPS");
-			qb.setTables(ROUTE_TRIP_JOIN);
-			qb.setProjectionMap(ROUTE_TRIP_PROJECTION_MAP);
-			break;
-		case TRIPS_STOPS:
-			MyLog.v(TAG, "query>TRIPS_STOPS");
-			qb.setTables(TRIP_TRIP_STOPS_STOP_JOIN);
-			qb.setProjectionMap(TRIP_STOP_PROJECTION_MAP);
-			break;
-		case SEARCH_NO_KEYWORD:
-			MyLog.v(TAG, "query>SEARCH_NO_KEYWORD");
-			// TODO store & show most recent
-			// TODO show more than just stops
-			qb.setTables(ROUTE_TRIP_TRIP_STOPS_STOP_JOIN);
-			qb.setProjectionMap(SEARCH_ROUTE_TRIP_STOP_PROJECTION_MAP);
-			limit = "7";
-			break;
-		case SEARCH_WITH_KEYWORD:
-			MyLog.v(TAG, "query>SEARCH_WITH_KEYWORD");
-			// TODO show more than just stops
-			qb.setTables(ROUTE_TRIP_TRIP_STOPS_STOP_JOIN);
-			qb.setProjectionMap(SEARCH_ROUTE_TRIP_STOP_PROJECTION_MAP);
-			appendRouteTripStopSearch(uri, qb);
-			break;
-		default:
-			throw new IllegalArgumentException(String.format("Unknown URI (query): '%s'", uri));
-		}
-		// If no sort order is specified use the default
-		if (TextUtils.isEmpty(sortOrder)) {
+		try {
+			SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+			// MyLog.i(TAG, "[%s]", uri);
+			String limit = null;
 			switch (getURIMATCHER().match(uri)) {
+			case DB_VERSION:
+				MyLog.v(TAG, "query>DB_VERSION");
+				return getDbVersion();
+			case DB_LABEL:
+				MyLog.v(TAG, "query>DB_LABEL");
+				return getDbLabel();
+			case DB_DEPLOYED:
+				MyLog.v(TAG, "query>DB_DEPLOYED");
+				return isDbDeployed();
+			case DB_SETUP_REQUIRED:
+				MyLog.v(TAG, "query>DB_SETUP_REQUIRED");
+				return isDbSetupRequired();
 			case ROUTES:
-				sortOrder = ROUTE_SORT_ORDER;
+				MyLog.v(TAG, "query>ROUTES");
+				qb.setTables(AbstractDbHelper.T_ROUTE);
+				qb.setProjectionMap(ROUTE_PROJECTION_MAP);
 				break;
 			case TRIPS:
-				sortOrder = TRIP_SORT_ORDER;
+				MyLog.v(TAG, "query>TRIPS");
+				qb.setTables(AbstractDbHelper.T_TRIP);
+				qb.setProjectionMap(TRIP_PROJECTION_MAP);
 				break;
 			case STOPS:
-				sortOrder = STOP_SORT_ORDER;
+				MyLog.v(TAG, "query>STOPS");
+				qb.setTables(AbstractDbHelper.T_STOP);
+				qb.setProjectionMap(STOP_PROJECTION_MAP);
 				break;
 			case ROUTES_TRIPS_STOPS:
-			case ROUTES_TRIPS_STOPS_SEARCH:
-				sortOrder = ROUTE_TRIP_STOP_SORT_ORDER;
+				MyLog.v(TAG, "query>ROUTES_TRIPS_STOPS");
+				qb.setTables(ROUTE_TRIP_TRIP_STOPS_STOP_JOIN);
+				qb.setProjectionMap(ROUTE_TRIP_STOP_PROJECTION_MAP);
 				break;
-			case TRIPS_STOPS:
-				sortOrder = TRIP_STOP_SORT_ORDER;
+			case ROUTES_TRIPS_STOPS_SEARCH:
+				MyLog.v(TAG, "query>ROUTES_TRIPS_STOPS_SEARCH");
+				qb.setTables(ROUTE_TRIP_TRIP_STOPS_STOP_JOIN);
+				qb.setProjectionMap(ROUTE_TRIP_STOP_PROJECTION_MAP);
+				appendRouteTripStopSearch(uri, qb);
 				break;
 			case ROUTES_TRIPS:
-				sortOrder = ROUTE_TRIP_SORT_ORDER;
+				MyLog.v(TAG, "query>ROUTES_TRIPS");
+				qb.setTables(ROUTE_TRIP_JOIN);
+				qb.setProjectionMap(ROUTE_TRIP_PROJECTION_MAP);
+				break;
+			case TRIPS_STOPS:
+				MyLog.v(TAG, "query>TRIPS_STOPS");
+				qb.setTables(TRIP_TRIP_STOPS_STOP_JOIN);
+				qb.setProjectionMap(TRIP_STOP_PROJECTION_MAP);
 				break;
 			case SEARCH_NO_KEYWORD:
+				MyLog.v(TAG, "query>SEARCH_NO_KEYWORD");
+				// TODO store & show most recent
+				// TODO show more than just stops
+				qb.setTables(ROUTE_TRIP_TRIP_STOPS_STOP_JOIN);
+				qb.setProjectionMap(SEARCH_ROUTE_TRIP_STOP_PROJECTION_MAP);
+				limit = "7";
+				break;
 			case SEARCH_WITH_KEYWORD:
-			case DB_DEPLOYED:
-			case DB_LABEL:
-			case DB_VERSION:
-			case DB_SETUP_REQUIRED:
-				sortOrder = null;
+				MyLog.v(TAG, "query>SEARCH_WITH_KEYWORD");
+				// TODO show more than just stops
+				qb.setTables(ROUTE_TRIP_TRIP_STOPS_STOP_JOIN);
+				qb.setProjectionMap(SEARCH_ROUTE_TRIP_STOP_PROJECTION_MAP);
+				appendRouteTripStopSearch(uri, qb);
 				break;
 			default:
-				throw new IllegalArgumentException(String.format("Unknown URI (order): '%s'", uri));
+				throw new IllegalArgumentException(String.format("Unknown URI (query): '%s'", uri));
 			}
+			// If no sort order is specified use the default
+			if (TextUtils.isEmpty(sortOrder)) {
+				switch (getURIMATCHER().match(uri)) {
+				case ROUTES:
+					sortOrder = ROUTE_SORT_ORDER;
+					break;
+				case TRIPS:
+					sortOrder = TRIP_SORT_ORDER;
+					break;
+				case STOPS:
+					sortOrder = STOP_SORT_ORDER;
+					break;
+				case ROUTES_TRIPS_STOPS:
+				case ROUTES_TRIPS_STOPS_SEARCH:
+					sortOrder = ROUTE_TRIP_STOP_SORT_ORDER;
+					break;
+				case TRIPS_STOPS:
+					sortOrder = TRIP_STOP_SORT_ORDER;
+					break;
+				case ROUTES_TRIPS:
+					sortOrder = ROUTE_TRIP_SORT_ORDER;
+					break;
+				case SEARCH_NO_KEYWORD:
+				case SEARCH_WITH_KEYWORD:
+				case DB_DEPLOYED:
+				case DB_LABEL:
+				case DB_VERSION:
+				case DB_SETUP_REQUIRED:
+					sortOrder = null;
+					break;
+				default:
+					throw new IllegalArgumentException(String.format("Unknown URI (order): '%s'", uri));
+				}
+			}
+			// MyLog.d(TAG, "sortOrder: " + sortOrder);
+			Cursor cursor = qb.query(getDBHelper(getContext()).getReadableDatabase(), projection, selection, selectionArgs, null, null, sortOrder, limit);
+			if (cursor != null) {
+				cursor.setNotificationUri(getContext().getContentResolver(), uri);
+			}
+			// closeDbHelper();
+			// MyLog.d(TAG, "query(%s, %s, %s, %s, %s) DONE", uri.getPath(), Arrays.toString(projection), selection, Arrays.toString(selectionArgs), sortOrder);
+			return cursor;
+		} catch (Throwable t) {
+			MyLog.w(TAG, "Error while resolving query %s!", uri);
+			return null;
 		}
-		// MyLog.d(TAG, "sortOrder: " + sortOrder);
-		Cursor cursor = qb.query(getDBHelper(getContext()).getReadableDatabase(), projection, selection, selectionArgs, null, null, sortOrder, limit);
-		if (cursor != null) {
-			cursor.setNotificationUri(getContext().getContentResolver(), uri);
-		}
-		// closeDbHelper();
-		// MyLog.d(TAG, "query(%s, %s, %s, %s, %s) DONE", uri.getPath(), Arrays.toString(projection), selection, Arrays.toString(selectionArgs), sortOrder);
-		return cursor;
 	}
 
 	private Cursor getDbVersion() {

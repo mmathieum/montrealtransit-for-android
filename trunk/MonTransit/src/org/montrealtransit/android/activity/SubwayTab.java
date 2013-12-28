@@ -753,9 +753,9 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			Location currentLocation = getLocation();
 			if (currentLocation != null) {
 				// find the closest stations
-				this.closestStationsTask = new ClosestRouteStopsFinderTask(this, this, StmSubwayManager.CONTENT_URI, SupportFactory.get()
+				this.closestStationsTask = new ClosestRouteStopsFinderTask(this, this, new String[] { StmSubwayManager.AUTHORITY}, SupportFactory.get()
 						.getNbClosestPOIDisplay());
-				this.closestStationsTask.execute(currentLocation);
+				this.closestStationsTask.execute(currentLocation.getLatitude(), currentLocation.getLongitude());
 				this.closestStationsLocation = currentLocation;
 				new AsyncTask<Location, Void, String>() {
 
