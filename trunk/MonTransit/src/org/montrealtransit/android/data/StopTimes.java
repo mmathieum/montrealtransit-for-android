@@ -88,6 +88,10 @@ public class StopTimes {
 		return this.sTimes;
 	}
 
+	public boolean hasSTimes() {
+		return this.sTimes != null && this.sTimes.size() > 0;
+	}
+
 	public void setPreviousTime(String previousTime) {
 		this.previousTime = previousTime;
 	}

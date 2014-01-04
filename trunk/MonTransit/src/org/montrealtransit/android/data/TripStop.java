@@ -50,17 +50,23 @@ public class TripStop implements POI {
 
 	@Override
 	public String getUID() {
-		// TODO include agency
 		return getUID(authority, stop.id, trip.routeId);
 	}
 
 	/**
-	 * @param stopCode stop code (should be stop ID)
-	 * @param routeShortName route short name (TODO should be route ID? trip ID?)
+	 * @param stopCode stop ID
+	 * @param routeShortName route ID (TODO should use trip ID?)
 	 */
 	public static String getUID(String authority, int stopId, int routeId) {
-		// TODO include agency
 		return authority + UID_SEPARATOR + stopId + UID_SEPARATOR + routeId;
+	}
+
+	public String getUUID() {
+		return getUUID(authority, trip.routeId, trip.id, stop.id);
+	}
+
+	public static String getUUID(String authority, int routeId, int tripId, int stopId) {
+		return authority + UID_SEPARATOR + routeId + UID_SEPARATOR + tripId + UID_SEPARATOR + stopId;
 	}
 
 	public static String getAuthorityFromUID(String uid) {

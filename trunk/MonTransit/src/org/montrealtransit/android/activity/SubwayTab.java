@@ -401,7 +401,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 					if (sb.length() > 0) {
 						sb.append("\n");
 					}
-					sb.append(status.getMessage().replaceAll("\\.\\ ", ".\n"));
+					sb.append(colorize(status.getMessage().replaceAll("\\.\\ ", ".\n")));
 				}
 				if (status.getType() == ServiceStatus.STATUS_TYPE_GREEN) {
 					break; // only 1 green
@@ -409,8 +409,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 					allGreen = false; // only non-green
 				}
 			}
-			final CharSequence message = colorize(sb);
-			statusTv.setText(message);
+			statusTv.setText(sb);
 			if (allGreen) {
 				statusImg.setImageResource(R.drawable.ic_btn_info_details);
 			} else {
@@ -428,7 +427,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		SpannableStringBuilder sb = new SpannableStringBuilder(message);
 		try {
 			// apply subway route color
-			String messageS = message.toString().toLowerCase(Locale.ENGLISH);
+			String messageS = sb.toString().toLowerCase(Locale.ENGLISH);
 			List<Route> allRoutes = StmSubwayManager.findAllRoutesList(this);
 			if (allRoutes != null) {
 				for (Route route : allRoutes) {
@@ -753,7 +752,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			Location currentLocation = getLocation();
 			if (currentLocation != null) {
 				// find the closest stations
-				this.closestStationsTask = new ClosestRouteStopsFinderTask(this, this, new String[] { StmSubwayManager.AUTHORITY}, SupportFactory.get()
+				this.closestStationsTask = new ClosestRouteStopsFinderTask(this, this, new String[] { StmSubwayManager.AUTHORITY }, SupportFactory.get()
 						.getNbClosestPOIDisplay());
 				this.closestStationsTask.execute(currentLocation.getLatitude(), currentLocation.getLongitude());
 				this.closestStationsLocation = currentLocation;

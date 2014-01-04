@@ -175,7 +175,7 @@ public class DataDbHelper extends SQLiteOpenHelper {
 	/**
 	 * The cache type value for stops times.
 	 */
-	public static final int KEY_CACHE_TYPE_VALUE_AUTHORITY_ROUTE_STOP = 2;
+	public static final int KEY_CACHE_TYPE_VALUE_AUTHORITY_ROUTE_TRIP_STOP = 3;
 
 	/**
 	 * Database creation SQL statement for the favorite table.

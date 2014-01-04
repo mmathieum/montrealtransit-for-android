@@ -1,12 +1,13 @@
 package org.montrealtransit.android.services;
 
+import java.util.Map;
+
 import org.montrealtransit.android.BusUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.PrefetchingUtils;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.data.RouteTripStop;
 import org.montrealtransit.android.data.StopTimes;
-import org.montrealtransit.android.data.TripStop;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore.Cache;
 import org.montrealtransit.android.services.nextstop.IStmInfoTask;
@@ -15,7 +16,6 @@ import org.montrealtransit.android.services.nextstop.NextStopListener;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Process;
-import android.util.SparseArray;
 
 /**
  * Load next bus stops into cache in not in cache.
@@ -60,10 +60,10 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 			}
 		}
 		if (!force && recentDataAlreadyInCache()) {
-			MyLog.d(TAG, "bus stop already in cache (%s)", this.routeTripStop.getUID());
+			MyLog.d(TAG, "bus stop already in cache (%s)", this.routeTripStop.getUUID());
 			return null;
 		}
-		MyLog.d(TAG, "Loading bus stop %s data...", this.routeTripStop.getUID());
+		MyLog.d(TAG, "Loading bus stop %s data...", this.routeTripStop.getUUID());
 		this.wwwTask = new IStmInfoTask(this.context, this, this.routeTripStop);
 		this.wwwTask.execute();
 		return null;
@@ -71,7 +71,7 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 
 	private boolean recentDataAlreadyInCache() {
 		// load cache from database
-		Cache cache = DataManager.findCache(context.getContentResolver(), Cache.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP, routeTripStop.getUID());
+		Cache cache = DataManager.findCache(context.getContentResolver(), Cache.KEY_TYPE_VALUE_AUTHORITY_ROUTE_TRIP_STOP, routeTripStop.getUUID());
 		// compute the too old date
 		int tooOld = Utils.currentTimeSec() - BusUtils.CACHE_NOT_USEFUL_IN_SEC;
 		// IF the cache is too old DO
@@ -97,7 +97,7 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 	}
 
 	@Override
-	public void onNextStopsLoaded(final SparseArray<StopTimes> results) {
+	public void onNextStopsLoaded(final Map<String, StopTimes> results) {
 		MyLog.v(TAG, "onNextStopsLoaded()");
 		// if (results == null || results.size() <= 0) {
 		// MyLog.d(TAG, "onNextStopsLoaded() > no result!");
@@ -115,13 +115,9 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 				// MyLog.d(TAG, "onNextStopsLoaded() > %s results to store in cache.", results.size());
 				// store in cache
 				if (results != null) {
-					for (int i = 0; i < results.size(); i++) {
-						final int routeId = results.keyAt(i);
-						final StopTimes stopTimes = results.get(routeId);
-						if (stopTimes != null && stopTimes.getSTimes().size() > 0) {
-							saveToCache(LoadNextBusStopIntoCacheTask.this.routeTripStop.authority, LoadNextBusStopIntoCacheTask.this.routeTripStop.stop.id,
-									routeId, stopTimes);
-						}
+					for (final String uuid : results.keySet()) {
+						final StopTimes stopTimes = results.get(uuid);
+						saveToCache(LoadNextBusStopIntoCacheTask.this.context, uuid, stopTimes);
 					}
 				}
 				return null;
@@ -130,11 +126,14 @@ public class LoadNextBusStopIntoCacheTask extends AsyncTask<Void, Void, Void> im
 		}.execute();
 	}
 
-	private void saveToCache(String authority, Integer stopId, Integer routeId, StopTimes stopTimes) {
-		MyLog.v(TAG, "saveToCache(%s,%s,%s)", authority, stopId, routeId);
-		Cache newCache = new Cache(Cache.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP, TripStop.getUID(authority, stopId, routeId), stopTimes.serialized());
+	public static void saveToCache(Context context, String uuid, StopTimes stopTimes) {
+		MyLog.v(TAG, "saveToCache(%s,%s)", uuid, stopTimes);
+		if (stopTimes == null || stopTimes.getSTimes().size() == 0) {
+			return;
+		}
+		Cache newCache = new Cache(Cache.KEY_TYPE_VALUE_AUTHORITY_ROUTE_TRIP_STOP, uuid, stopTimes.serialized());
 		// remove existing cache for this bus stop
-		DataManager.deleteCacheIfExist(context.getContentResolver(), Cache.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP, TripStop.getUID(authority, stopId, routeId));
+		DataManager.deleteCacheIfExist(context.getContentResolver(), Cache.KEY_TYPE_VALUE_AUTHORITY_ROUTE_TRIP_STOP, uuid);
 		// save the new value to cache
 		DataManager.addCache(context.getContentResolver(), newCache);
 	}

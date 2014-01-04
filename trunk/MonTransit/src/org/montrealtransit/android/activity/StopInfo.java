@@ -1,8 +1,12 @@
 package org.montrealtransit.android.activity;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
+import java.util.Map;
 
 import org.montrealtransit.android.AdsUtils;
 import org.montrealtransit.android.AnalyticsUtils;
@@ -62,7 +66,6 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TextAppearanceSpan;
-import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -143,7 +146,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 	/**
 	 * The cache for the current stop (stop ID + route ID).
 	 */
-	private Cache memCache;
+	private Map<String, Cache> memCache = new HashMap<String, Cache>();
 	/**
 	 * The task used to load the next stops.
 	 */
@@ -618,7 +621,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 			routeShortNameTv.setTextColor(Utils.parseColor(this.routeTripStop.route.textColor));
 			routeShortNameTv.setVisibility(View.VISIBLE);
 		}
-		findViewById(R.id.route).setBackgroundColor(Utils.parseColor(this.routeTripStop.route.color));
+		findViewById(R.id.banner).findViewById(R.id.route).setBackgroundColor(Utils.parseColor(this.routeTripStop.route.color));
 		setTripHeading(this.routeTripStop.trip.getHeading(this));
 		// set listener
 		findViewById(R.id.route_trip).setOnClickListener(new View.OnClickListener() {
@@ -780,10 +783,16 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 		MyLog.v(TAG, "refreshOtherRouteTripsUI()");
 		LinearLayout otherRouteTripsLayout = (LinearLayout) findViewById(R.id.other_route_trip_list);
 		otherRouteTripsLayout.removeAllViews();
+		final View otherRouteTripsTitle = findViewById(R.id.other_route_trip_title);
 		if (this.otherRouteTrips == null || this.otherRouteTrips.size() == 0) {
-			findViewById(R.id.other_route_trip_title).setVisibility(View.GONE);
+			otherRouteTripsTitle.setVisibility(View.GONE);
 			otherRouteTripsLayout.setVisibility(View.GONE);
 			return;
+		}
+		if (this.routeTripStop.authority.contains("subway")) {
+			((ImageView) otherRouteTripsTitle.findViewById(R.id.type_logo)).setImageResource(R.drawable.ic_btn_subway);
+		} else {
+			((ImageView) otherRouteTripsTitle.findViewById(R.id.type_logo)).setImageResource(R.drawable.ic_btn_bus);
 		}
 		for (final RouteTripStop routeTripStop : this.otherRouteTrips) {
 			// MyLog.d(TAG, "refreshOtherRouteTripsUI()> routeTrip: %s", routeTrip);
@@ -806,10 +815,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 				@Override
 				public void onClick(View v) {
 					MyLog.v(TAG, "onClick()");
-					// TODO just switch RouteTripStop and update next passages and other route trips
-					showNewStop(StopInfo.this.contentUri.getAuthority(), routeTripStop.stop.id, routeTripStop.stop.code, routeTripStop.stop.name,
-							routeTripStop.route.id, routeTripStop.route.shortName, routeTripStop.route.color, routeTripStop.route.textColor,
-							routeTripStop.trip.id, routeTripStop.trip.getHeading(StopInfo.this));
+					switchToOtherStop(routeTripStop);
 				}
 			});
 			view.setOnLongClickListener(new View.OnLongClickListener() {
@@ -821,9 +827,37 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 			});
 			otherRouteTripsLayout.addView(view);
 		}
-		findViewById(R.id.other_route_trip_title).setVisibility(View.VISIBLE);
+		otherRouteTripsTitle.setVisibility(View.VISIBLE);
 		otherRouteTripsLayout.setVisibility(View.VISIBLE);
 	};
+
+	private void switchToOtherStop(RouteTripStop otherStop) {
+		MyLog.v(TAG, "switchToOtherStop(%s)", otherStop);
+		cancelWwwTask();
+		cancelLocalTask();
+		this.stopTimes = null;
+		this.otherRouteTrips.remove(otherStop);
+		this.otherRouteTrips.add(this.routeTripStop);
+		Collections.sort(this.otherRouteTrips, new Comparator<RouteTripStop>() {
+			@Override
+			public int compare(RouteTripStop lhs, RouteTripStop rhs) {
+				if (lhs == null || rhs == null) {
+					return lhs == null ? +1 : -1;
+				}
+				try {
+					return Integer.valueOf(lhs.route.shortName) - Integer.valueOf(rhs.route.shortName);
+				} catch (NumberFormatException nfe) {
+					// compare route short name as string
+					return lhs.route.shortName.compareTo(rhs.route.shortName);
+				}
+			}
+		});
+		this.routeTripStop = otherStop;
+		refreshStopInfo();
+		refreshOtherRouteTripsUI();
+		setNextStopsLoading();
+		showNextStops();
+	}
 
 	private void setTripHeading(String newTripHeading) {
 		MyLog.v(TAG, "setTripHeading(%s)", newTripHeading);
@@ -876,12 +910,21 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 			((TextView) findViewById(R.id.stop_name)).setText(BusUtils.cleanBusStopPlace(newStopName));
 		}
 		TextView routeShortNameTv = (TextView) findViewById(R.id.route_short_name);
-		routeShortNameTv.setText(newRouteShortName);
-		if (!TextUtils.isEmpty(newRouteColor)) {
-			routeShortNameTv.setBackgroundColor(Utils.parseColor(newRouteColor));
+		if (!TextUtils.isEmpty(newAuthority)) {
+			if (newAuthority.contains("subway")) {
+				routeShortNameTv.setVisibility(View.GONE);
+				findViewById(R.id.route_type_img).setVisibility(View.VISIBLE);
+			} else {
+				findViewById(R.id.route_type_img).setVisibility(View.GONE);
+				routeShortNameTv.setVisibility(View.VISIBLE);
+				routeShortNameTv.setText(newRouteShortName);
+				if (!TextUtils.isEmpty(newRouteTextColor)) {
+					routeShortNameTv.setTextColor(Utils.parseColor(newRouteTextColor));
+				}
+			}
 		}
-		if (!TextUtils.isEmpty(newRouteTextColor)) {
-			routeShortNameTv.setTextColor(Utils.parseColor(newRouteTextColor));
+		if (!TextUtils.isEmpty(newRouteColor)) {
+			findViewById(R.id.banner).findViewById(R.id.route).setBackgroundColor(Utils.parseColor(newRouteColor));
 		}
 		setTripHeading(newTripHeading);
 		// set as loading
@@ -940,7 +983,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 					StopInfo.this.routeTripStop = newRouteTripStop;
 					StopInfo.this.otherRouteTrips = null; // reset
 					StopInfo.this.stopTimes = null; // clear current stop hours
-					StopInfo.this.memCache = null; // clear the cache for the new stop
+					// StopInfo.this.memCache = null; // clear the cache for the new stop
 					cancelWwwTask();
 					cancelLocalTask();
 					cancelNearbyTask();
@@ -1014,31 +1057,34 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 				MyLog.v(TAG, "showNextStops()>doInBackground()");
 				if (StopInfo.this.stopTimes == null) {
 					// check cache
+					final String uuid = StopInfo.this.routeTripStop.getUUID();
 					// IF no local cache DO
-					if (StopInfo.this.memCache == null) {
+					if (!StopInfo.this.memCache.containsKey(uuid)) {
 						// load cache from database
-						StopInfo.this.memCache = DataManager.findCache(getContentResolver(), Cache.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP,
-								StopInfo.this.routeTripStop.getUID());
+						StopInfo.this.memCache.put(uuid, DataManager.findCache(getContentResolver(), Cache.KEY_TYPE_VALUE_AUTHORITY_ROUTE_TRIP_STOP, uuid));
 					}
-					if (StopInfo.this.memCache != null) {
+					Cache cache = StopInfo.this.memCache.get(uuid);
+					// IF local cache DO
+					if (cache != null) {
 						// IF the cache is too old DO
 						final int tooOld = Utils.currentTimeSec() - BusUtils.CACHE_NOT_USEFUL_IN_SEC;
-						if (tooOld >= StopInfo.this.memCache.getDate()) {
+						if (cache.getDate() <= tooOld) {
 							// don't use the cache
-							StopInfo.this.memCache = null;
-							// delete all too old cache
+							cache = null;
+							// delete all too old cache (memory + disk)
 							try {
+								StopInfo.this.memCache.remove(uuid);
 								DataManager.deleteCacheOlderThan(getContentResolver(), tooOld);
 							} catch (Exception e) {
 								MyLog.w(TAG, e, "Can't clean the cache!");
 							}
-						} else if (Utils.currentTimeSec() - BusUtils.CACHE_TOO_OLD_IN_SEC >= StopInfo.this.memCache.getDate()) {
+						} else if (cache.getDate() <= Utils.currentTimeSec() - BusUtils.CACHE_TOO_OLD_IN_SEC) {
 							this.refreshAsync = true;
 						}
 					}
-					if (StopInfo.this.memCache != null) {
+					if (cache != null) {
 						// use cache
-						StopInfo.this.stopTimes = StopTimes.deserialized(StopInfo.this.memCache.getObject());
+						StopInfo.this.stopTimes = StopTimes.deserialized(cache.getObject());
 					}
 				}
 				return null;
@@ -1056,7 +1102,11 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 					setNextStopsNotLoading();
 					refreshOtherRouteTripsInfo();
 					if (this.refreshAsync) {
-						loadNextStopsFromWeb();
+						if (AbstractLiveScheduleManager.authoritiesToLiveScheduleAuthorities.get(StopInfo.this.contentUri.getAuthority()) != null) {
+							loadNextStopsFromWeb();
+						} else {
+							loadNextStopsFromLocalSchedule();
+						}
 					}
 				}
 			};
@@ -1085,7 +1135,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 			}
 
 			@Override
-			public void onNextStopsLoaded(SparseArray<StopTimes> results) {
+			public void onNextStopsLoaded(Map<String, StopTimes> results) {
 				MyLog.v(TAG, "loadNextStopsFromLocalSchedule()>onNextStopsLoaded(%s)", results == null ? null : results.size());
 				if (StopInfo.this.localTask == null || StopInfo.this.localTask.isCancelled()) {
 					MyLog.d(TAG, "Task cancelled!");
@@ -1103,18 +1153,18 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 					return;
 				}
 				// MyLog.d(TAG, "%s:%s", results.keySet(), results.values());
-				if (results.get(StopInfo.this.routeTripStop.trip.id) == null) {
+				if (results.get(StopInfo.this.routeTripStop.getUUID()) == null) {
 					MyLog.d(TAG, "Local DB no result for this trip!");
 					setLocalTaskAsCompleted();
 					return;
 				}
 				// IF error DO
-				StopTimes result = results.get(StopInfo.this.routeTripStop.trip.id);
+				StopTimes result = results.get(StopInfo.this.routeTripStop.getUUID());
 				// MyLog.d(TAG, "result:%s", result);
 				if (result == null || result.getSTimes().size() <= 0) {
 					MyLog.d(TAG, "Local DB no hours in result");
 					// process the error
-					if (StopInfo.this.wwwTask != null && StopInfo.this.wwwTask.getStatus() == Status.RUNNING) {
+					if (StopInfo.this.wwwTaskRunning) {
 						if (result != null && !TextUtils.isEmpty(result.getError())) {
 							StopInfo.this.onNextStopsProgress(result.getError());
 						} else if (result != null && !TextUtils.isEmpty(result.getMessage())) {
@@ -1130,6 +1180,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 				}
 				// get the result
 				if (StopInfo.this.stopTimes == null || StopInfo.this.stopTimes.getSourceName().equals(result.getSourceName())) {
+					saveToMemCache(StopInfo.this.routeTripStop.getUUID(), result);
 					StopInfo.this.stopTimes = result;
 					// show the result
 					showNewNextStops();
@@ -1140,6 +1191,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 			}
 
 			public void setLocalTaskAsCompleted() {
+				// MyLog.v(TAG, "setLocalTaskAsCompleted()");
 				if (!StopInfo.this.wwwTaskRunning) {
 					setNextStopsNotLoading(); // www task completed
 					refreshOtherRouteTripsInfo();
@@ -1287,25 +1339,20 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 			}
 
 			@Override
-			public void onNextStopsLoaded(SparseArray<StopTimes> results) {
+			public void onNextStopsLoaded(Map<String, StopTimes> results) {
 				MyLog.v(TAG, "loadNextStopsFromWeb()>onNextStopsLoaded(%s)", results == null ? null : results.size());
 				if (StopInfo.this.wwwTask == null || StopInfo.this.wwwTask.isCancelled()) {
 					setWebTaskAsCompleted(true);
 					return; // task cancelled
 				}
 				if (results != null) {
-					for (int i = 0; i < results.size(); i++) {
-						final int routeId = results.keyAt(i);
-						StopTimes stopTimes = results.get(routeId);
-						// for (Integer routeId : results.keySet()) {
-						// StopTimes stopTimes = results.get(routeId);
-						if (stopTimes != null && stopTimes.getSTimes().size() > 0) {
-							saveToMemCache(StopInfo.this.routeTripStop.authority, StopInfo.this.routeTripStop.stop.id, routeId, stopTimes);
-						}
+					for (final String uuid : results.keySet()) {
+						final StopTimes stopTimes = results.get(uuid);
+						saveToMemCache(uuid, stopTimes);
 					}
 				}
 				// IF error DO
-				StopTimes result = results == null ? null : results.get(StopInfo.this.routeTripStop.route.id);
+				StopTimes result = results == null ? null : results.get(StopInfo.this.routeTripStop.getUUID());
 				if (result == null || result.getSTimes().size() <= 0) {
 					// process the error
 					if (StopInfo.this.localTask != null && StopInfo.this.localTask.getStatus() == Status.RUNNING) {
@@ -1322,12 +1369,12 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 					setWebTaskAsCompleted(true);
 					return;
 				}
+				cancelLocalTask();
 				// get the result
 				StopInfo.this.stopTimes = result;
 				// show the result
 				showNewNextStops();
 				setWebTaskAsCompleted(false);
-				cancelLocalTask();
 			}
 
 			public void setWebTaskAsCompleted(boolean checkLocalTaskStatus) {
@@ -1474,7 +1521,6 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 			messageTv.setMovementMethod(LinkMovementMethod.getInstance());
 			messageTv.setVisibility(View.VISIBLE);
 		}
-		setNextStopsNotLoading();
 	}
 
 	private SpannableStringBuilder getMessageSb(StopTimes hours) {
@@ -1508,17 +1554,17 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 	}
 
 	/**
-	 * Save the bus stop hours for the line number into the local cache.
-	 * @param routeId the bus stop line number
+	 * Save the stop times for the UUID into the local cache.
+	 * @param uuid the stop UUID
 	 * @param stopTimes the stop hours
 	 */
-	private void saveToMemCache(String authority, Integer stopId, Integer routeId, StopTimes stopTimes) {
-		// MyLog.v(TAG, "saveToMemCache(%s,%s)", stopCode, routeId);
-		Cache newCache = new Cache(Cache.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP, TripStop.getUID(authority, stopId, routeId), stopTimes.serialized());
-		// remove existing cache for this bus stop
-		if (this.routeTripStop != null && routeId.equals(this.routeTripStop.route.id)) {
-			this.memCache = newCache;
+	private void saveToMemCache(String uuid, StopTimes stopTimes) {
+		// MyLog.v(TAG, "saveToMemCache(%s,%s)", uuid, stopTimes);
+		if (stopTimes == null || stopTimes.getSTimes().size() == 0) {
+			return;
 		}
+		final Cache newCache = new Cache(Cache.KEY_TYPE_VALUE_AUTHORITY_ROUTE_TRIP_STOP, uuid, stopTimes.serialized());
+		this.memCache.put(uuid, newCache);
 	}
 
 	/**
