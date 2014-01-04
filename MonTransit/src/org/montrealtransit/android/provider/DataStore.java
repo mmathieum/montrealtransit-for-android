@@ -777,7 +777,7 @@ public class DataStore {
 		/**
 		 * The cache type value for route stops.
 		 */
-		public static final int KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP = DataDbHelper.KEY_CACHE_TYPE_VALUE_AUTHORITY_ROUTE_STOP;
+		public static final int KEY_TYPE_VALUE_AUTHORITY_ROUTE_TRIP_STOP = DataDbHelper.KEY_CACHE_TYPE_VALUE_AUTHORITY_ROUTE_TRIP_STOP;
 		/**
 		 * The cache ID.
 		 */

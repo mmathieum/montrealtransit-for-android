@@ -2,7 +2,9 @@ package org.montrealtransit.android.services.nextstop;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
@@ -14,7 +16,6 @@ import org.montrealtransit.android.provider.common.AbstractScheduleManager;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
-import android.util.SparseArray;
 
 public class ScheduleTask extends AbstractNextStopProvider {
 
@@ -28,7 +29,7 @@ public class ScheduleTask extends AbstractNextStopProvider {
 	private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HHmmss");
 
 	@Override
-	protected SparseArray<StopTimes> doInBackground(Void... params) {
+	protected Map<String, StopTimes> doInBackground(Void... params) {
 		MyLog.v(TAG, "doInBackground()");
 		if (this.routeTripStop == null) {
 			MyLog.w(TAG, "No stop available!");
@@ -47,9 +48,9 @@ public class ScheduleTask extends AbstractNextStopProvider {
 		String errorMessage = this.context.getString(R.string.error); // set the default error message
 		final String loadingFrom = this.context.getString(R.string.downloading_data_from_and_source, getSourceName());
 		final String processingData = this.context.getResources().getString(R.string.processing_data);
-		SparseArray<StopTimes> hours = new SparseArray<StopTimes>();
+		Map<String, StopTimes> stopTimes = new HashMap<String, StopTimes>();
 		try {
-			StopTimes stopHours = new StopTimes(getSourceName());
+			StopTimes stopTime = new StopTimes(getSourceName());
 			final Uri contentUri = Utils.newContentUri(authority);
 			final Calendar now = Calendar.getInstance();
 			// now.set(Calendar.HOUR_OF_DAY, 23); // TEST
@@ -72,7 +73,7 @@ public class ScheduleTask extends AbstractNextStopProvider {
 					routeTripStop.trip.id, routeTripStop.stop.id, dateYesterday, timeYesterday);
 			// MyLog.d(TAG, "provider result: " + sHours);
 			publishProgress(processingData);
-			appendToStopHours(sHours, stopHours);
+			appendToStopTimes(sHours, stopTime);
 			MyLog.d(TAG, "Checking if yesterday schedule is over... DONE");
 			// 2nd - check today schedule (provider date/time)
 			MyLog.d(TAG, "Checking today schedule...");
@@ -85,7 +86,7 @@ public class ScheduleTask extends AbstractNextStopProvider {
 					routeTripStop.stop.id, dateNow, timeNow);
 			// MyLog.d(TAG, "provider result: " + sHours);
 			publishProgress(processingData);
-			appendToStopHours(sHours, stopHours);
+			appendToStopTimes(sHours, stopTime);
 			MyLog.d(TAG, "Checking today schedule... DONE");
 			// 4th - look for last schedule
 			MyLog.d(TAG, "Checking last schedule...");
@@ -102,9 +103,9 @@ public class ScheduleTask extends AbstractNextStopProvider {
 				for (int i = sHours.size() - 1; i >= 0; i--) {
 					final String formattedHour = formatHour(sHours.get(i));
 					// MyLog.d(TAG, "fHour : " + formattedHour);
-					if (!stopHours.getSTimes().contains(formattedHour)) {
+					if (!stopTime.getSTimes().contains(formattedHour)) {
 						// MyLog.d(TAG, "fHour previous : " + formattedHour);
-						stopHours.setPreviousTime(formattedHour);
+						stopTime.setPreviousTime(formattedHour);
 						break;
 					}
 				}
@@ -124,34 +125,35 @@ public class ScheduleTask extends AbstractNextStopProvider {
 					routeTripStop.stop.id, tomorrowDate, afterMidnightHour);
 			// MyLog.d(TAG, "provider result: " + sHours);
 			publishProgress(processingData);
-			appendToStopHours(sHours, stopHours);
+			appendToStopTimes(sHours, stopTime);
 			MyLog.d(TAG, "Checking tomorrow schedule... DONE");
 			// }
-			hours.put(routeTripStop.trip.id, stopHours);
-			if (hours.size() == 0) {
+			if (stopTime.hasSTimes()) {
+				stopTimes.put(this.routeTripStop.getUUID(), stopTime);
+			} else {
 				// no information
 				errorMessage = this.context.getString(R.string.stop_no_info_and_source, this.routeTripStop.route.shortName, getSourceName());
 				publishProgress(errorMessage);
-				hours.put(this.routeTripStop.trip.id, new StopTimes(getSourceName(), errorMessage));
+				stopTimes.put(this.routeTripStop.getUUID(), new StopTimes(getSourceName(), errorMessage));
 				// AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_STOP_REMOVED, this.stop.getUID(),
 				// context.getPackageManager().getPackageInfo(Constant.PKG, 0).versionCode);
 			}
-			return hours;
+			return stopTimes;
 		} catch (Exception e) {
 			MyLog.e(TAG, e, "INTERNAL ERROR: Unknown Exception");
 			publishProgress(errorMessage);
-			hours.put(this.routeTripStop.trip.id, new StopTimes(getSourceName(), this.context.getString(R.string.error)));
-			return hours;
+			stopTimes.put(this.routeTripStop.getUUID(), new StopTimes(getSourceName(), this.context.getString(R.string.error)));
+			return stopTimes;
 		}
 	}
 
-	private void appendToStopHours(List<String> sHours, StopTimes stopHours) {
-		MyLog.v(TAG, "appendToStopHours(%s)", sHours);
+	private void appendToStopTimes(List<String> sHours, StopTimes stopTimes) {
+		MyLog.v(TAG, "appendToStopTimes(%s)", sHours);
 		if (sHours != null) {
 			for (String sHour : sHours) {
 				final String formattedHour = formatHour(sHour);
 				// MyLog.d(TAG, "fHour : %s", formattedHour);
-				stopHours.addSTime(formattedHour);
+				stopTimes.addSTime(formattedHour);
 			}
 		}
 	}

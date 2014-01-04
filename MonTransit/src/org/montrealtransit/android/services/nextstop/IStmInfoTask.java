@@ -6,8 +6,10 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,7 +24,6 @@ import org.montrealtransit.android.provider.StmBusScheduleManager;
 
 import android.content.Context;
 import android.os.Environment;
-import android.util.SparseArray;
 
 public class IStmInfoTask extends AbstractNextStopProvider {
 
@@ -53,12 +54,12 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 	}
 
 	@Override
-	protected SparseArray<StopTimes> doInBackground(Void... params) {
+	protected Map<String, StopTimes> doInBackground(Void... params) {
 		if (this.routeTripStop == null) {
 			return null;
 		}
 		String errorMessage = this.context.getString(R.string.error); // set the default error message
-		SparseArray<StopTimes> hours = new SparseArray<StopTimes>();
+		Map<String, StopTimes> hours = new HashMap<String, StopTimes>();
 		// if (!Utils.isConnectedOrConnecting(this.context)) {
 		// MyLog.d(TAG, "No Internet Connection!");
 		// publishProgress(this.context.getString(R.string.no_internet));
@@ -102,7 +103,7 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 							stopTimes.addMessage2String(jMessages.getJSONObject(1).getString("text"));
 						}
 					}
-					hours.put(this.routeTripStop.route.id, stopTimes);
+					hours.put(this.routeTripStop.getUUID(), stopTimes);
 				} else {
 					// provider error
 					JSONObject jStatus = jResponse.getJSONObject("status");
@@ -112,11 +113,11 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 						if ("NoResultsDate".equalsIgnoreCase(code)) {
 							errorMessage = this.context.getString(R.string.bus_stop_no_results_date, this.routeTripStop.route.shortName);
 							publishProgress(errorMessage);
-							hours.put(this.routeTripStop.route.id, new StopTimes(SOURCE_NAME, errorMessage));
+							hours.put(this.routeTripStop.getUUID(), new StopTimes(SOURCE_NAME, errorMessage));
 						} else if ("LastStop".equalsIgnoreCase(code)) {
 							errorMessage = this.context.getString(R.string.descent_only);
 							publishProgress(errorMessage);
-							hours.put(this.routeTripStop.route.id, new StopTimes(SOURCE_NAME, errorMessage));
+							hours.put(this.routeTripStop.getUUID(), new StopTimes(SOURCE_NAME, errorMessage));
 						}
 						AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_STOP_SOURCE_ERROR, this.routeTripStop.getUID(),
 								this.routeTripStop.stop.id);
@@ -125,7 +126,7 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 						// no information
 						errorMessage = this.context.getString(R.string.bus_stop_no_info_and_source, this.routeTripStop.route.shortName, SOURCE_NAME);
 						publishProgress(errorMessage);
-						hours.put(this.routeTripStop.route.id, new StopTimes(SOURCE_NAME, errorMessage));
+						hours.put(this.routeTripStop.getUUID(), new StopTimes(SOURCE_NAME, errorMessage));
 						AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_STOP_SOURCE_ERROR, this.routeTripStop.getUID(),
 								context.getPackageManager().getPackageInfo(Constant.PKG, 0).versionCode);
 					}
@@ -140,23 +141,23 @@ public class IStmInfoTask extends AbstractNextStopProvider {
 						httpUrlConnection.getResponseMessage());
 				AnalyticsUtils.trackEvent(context, AnalyticsUtils.CATEGORY_ERROR, AnalyticsUtils.ACTION_HTTP_ERROR, SOURCE_NAME,
 						httpUrlConnection.getResponseCode());
-				hours.put(this.routeTripStop.route.id, new StopTimes(SOURCE_NAME, errorMessage));
+				hours.put(this.routeTripStop.getUUID(), new StopTimes(SOURCE_NAME, errorMessage));
 				return hours;
 			}
 		} catch (UnknownHostException uhe) {
 			MyLog.w(TAG, uhe, "No Internet Connection!");
 			publishProgress(noInternetMsg);
-			hours.put(this.routeTripStop.route.id, new StopTimes(SOURCE_NAME, noOfflineSchedule, noInternetMsg));
+			hours.put(this.routeTripStop.getUUID(), new StopTimes(SOURCE_NAME, noOfflineSchedule, noInternetMsg));
 			return hours;
 		} catch (SocketException se) {
 			MyLog.w(TAG, se, "No Internet Connection!");
 			publishProgress(noInternetMsg);
-			hours.put(this.routeTripStop.route.id, new StopTimes(SOURCE_NAME, noOfflineSchedule, noInternetMsg));
+			hours.put(this.routeTripStop.getUUID(), new StopTimes(SOURCE_NAME, noOfflineSchedule, noInternetMsg));
 			return hours;
 		} catch (Exception e) {
 			MyLog.e(TAG, e, "INTERNAL ERROR: Unknown Exception");
 			publishProgress(errorMessage);
-			hours.put(this.routeTripStop.route.id, new StopTimes(SOURCE_NAME, this.context.getString(R.string.error)));
+			hours.put(this.routeTripStop.getUUID(), new StopTimes(SOURCE_NAME, this.context.getString(R.string.error)));
 			return hours;
 		}
 	}
