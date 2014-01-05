@@ -28,7 +28,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	/**
 	 * The database version use to manage database changes.
 	 */
-	public static final int DB_VERSION = 26;
+	public static final int DB_VERSION = 26; // 2014-01-06 (end of life)
 
 	/**
 	 * The default constructor.
@@ -69,6 +69,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	 * @param context the context
 	 * @return true if the DB exists, false if it doesn't
 	 */
+	@Deprecated
 	public static boolean isDbExist(Context context) {
 		return Arrays.asList(context.databaseList()).contains(DB_NAME);
 	}
@@ -76,6 +77,7 @@ public class StmDbHelper extends SQLiteOpenHelper {
 	/**
 	 * @return current DB version w/o creating/upgrading or -1
 	 */
+	@Deprecated
 	public static int getCurrentDbVersion(Context context) {
 		MyLog.v(TAG, "getCurrentDbVersion()");
 		SQLiteDatabase db = null;
