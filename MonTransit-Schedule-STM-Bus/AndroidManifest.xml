@@ -1,8 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.montrealtransit.android.schedule.stmbus"
     android:installLocation="auto"
-    android:versionCode="4"
-    android:versionName="1.0.3" >
+    android:versionCode="5"
+    android:versionName="1.0.4" >
     <!-- external storage works if USB not mounted! -->
     <uses-sdk
         android:minSdkVersion="3"
@@ -14,6 +14,7 @@
         android:description="@string/app_desc"
         android:icon="@drawable/ic_launcher_icon"
         android:label="@string/app_name" >
+        <!-- TODO org.montrealtransit.android.stmbus.schedule -->
         <provider
             android:name=".StmBusScheduleProvider"
             android:authorities="org.montrealtransit.android.schedule.stmbus"
