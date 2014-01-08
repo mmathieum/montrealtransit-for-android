@@ -1412,7 +1412,7 @@
 51530,'51530','Jarry / Pie-IX',45.571724,-73.602635
 51531,'51531','Pie-IX / Jarry',45.571693,-73.603428
 51532,'51532','Jarry / Pie-IX',45.571214,-73.602772
-51533,'51533','Station Beaubien (de Chateaubriand / Beaubien)',45.535458,-73.603923
+51533,'51533','Station Beaubien (Chateaubriand / Beaubien)',45.535458,-73.603923
 51534,'51534','Papineau / Bélanger',45.546365,-73.603361
 51535,'51535','Bélanger / Papineau',45.546520,-73.603520
 51536,'51536','Papineau / Bélanger',45.546326,-73.603757
@@ -1946,8 +1946,8 @@
 52080,'52080','Saint-Joseph / De Lanaudière',45.532785,-73.582021
 52081,'52081','Saint-Joseph / De Lanaudière',45.532404,-73.581948
 52082,'52082','Saint-Patrick / No 3826',45.468988,-73.583891
-52083,'52083','Station Mont-Royal (du Mont-Royal / Berri)',45.524655,-73.582256
-52084,'52084','Station Mont-Royal (du Mont-Royal / Berri)',45.524798,-73.582067
+52083,'52083','Station Mont-Royal (Mont-Royal / Berri)',45.524655,-73.582256
+52084,'52084','Station Mont-Royal (Mont-Royal / Berri)',45.524798,-73.582067
 52085,'52085','Atwater / René-Lévesque',45.487665,-73.582399
 52086,'52086','Atwater / Dorchester',45.488237,-73.583494
 52087,'52087','De Lorimier / Masson',45.539398,-73.581264
@@ -2844,7 +2844,7 @@
 53012,'53012','Hochelaga / Davidson',45.544792,-73.552497
 53014,'53014','Station Frontenac (Frontenac / Ontario)',45.532795,-73.552058
 53015,'53015','Station Frontenac (Ontario / Havre)',45.533349,-73.552244
-53016,'53016','Station Frontenac (du Havre / Ontario)',45.533158,-73.551484
+53016,'53016','Station Frontenac (Havre / Ontario)',45.533158,-73.551484
 53017,'53017','Station Pie-IX (Pie-IX / Pierre-De-Coubertin)',45.553866,-73.551740
 53018,'53018','Station Pie-IX (Pie-IX / Pierre-De-Coubertin)',45.553612,-73.551954
 53019,'53019','Station Pie-IX (Pie-IX / Pierre-De-Coubertin)',45.554088,-73.552578
@@ -2908,7 +2908,7 @@
 53078,'53078','Sherbrooke / Lacordaire',45.574563,-73.548025
 53079,'53079','Sainte-Catherine / Parthenais',45.526026,-73.549073
 53081,'53081','Chauveau / Assomption',45.569831,-73.547818
-53083,'53083','Station Assomption (de L''Assomption / Chauveau)',45.569166,-73.546766
+53083,'53083','Station Assomption (Assomption / Chauveau)',45.569166,-73.546766
 53084,'53084','Joliette / Rouen',45.545897,-73.548306
 53085,'53085','Pie-IX / Hochelaga',45.552576,-73.547925
 53086,'53086','Hochelaga / Pie-IX',45.552748,-73.548291
@@ -2921,9 +2921,9 @@
 53094,'53094','Sainte-Catherine / Fullum',45.527034,-73.548149
 53096,'53096','Langelier / Senneville',45.583978,-73.546534
 53097,'53097','Langelier / Senneville',45.583739,-73.546542
-53098,'53098','Station Cadillac (de Cadillac / Sherbrooke)',45.576786,-73.546292
+53098,'53098','Station Cadillac (Cadillac / Sherbrooke)',45.576786,-73.546292
 53099,'53099','Station Cadillac (Sherbrooke / De Cadillac)',45.577016,-73.546791
-53100,'53100','Station Cadillac (de Cadillac / Sherbrooke)',45.576911,-73.546935
+53100,'53100','Station Cadillac (Cadillac / Sherbrooke)',45.576911,-73.546935
 53101,'53101','Station Cadillac (Sherbrooke / De Cadillac)',45.576715,-73.546595
 53102,'53102','Station Cadillac (Sherbrooke / De Cadillac)',45.577118,-73.546320
 53103,'53103','Station Cadillac (Sherbrooke / De Cadillac)',45.576642,-73.547058
@@ -3828,7 +3828,7 @@
 54037,'54037','Station Sauvé Sud (Sauvé / Berri)',45.550968,-73.656873
 54038,'54038','Station Frontenac (Frontenac / Ontario)',45.532976,-73.552376
 54039,'54039','Station Frontenac (Frontenac / Ontario)',45.532741,-73.551885
-54040,'54040','Station Frontenac (du Havre / Ontario)',45.533275,-73.551792
+54040,'54040','Station Frontenac (Havre / Ontario)',45.533275,-73.551792
 54041,'54041','René-Lévesque / Berri',45.513408,-73.557389
 54042,'54042','Amherst / Sainte-Catherine',45.517443,-73.556879
 54043,'54043','Sainte-Catherine / Dorion',45.523563,-73.551437
@@ -4042,7 +4042,7 @@
 54302,'54302','2e Avenue / Jean-Rivard',45.561878,-73.615475
 54303,'54303','2e Avenue / Cirque Du Soleil',45.561696,-73.614852
 54305,'54305','Papineau / Jacques-Casault',45.555402,-73.624173
-54306,'54306','Station Assomption (de L''Assomption / Chauveau)',45.569311,-73.547083
+54306,'54306','Station Assomption (Assomption / Chauveau)',45.569311,-73.547083
 54307,'54307','Sucrerie / Grand Trunk',45.483341,-73.560076
 54308,'54308','Guy / Paxton',45.490338,-73.567881
 54309,'54309','Ontario / Aird',45.555533,-73.537723
@@ -5379,8 +5379,8 @@
 55701,'55701','Saint-Louis / Crevier',45.505845,-73.675213
 55702,'55702','Saint-Louis / Crevier',45.505580,-73.675222
 55703,'55703','Station Du Collège Nord (Décarie / Collège)',45.509398,-73.674743
-55704,'55704','Station Du Collège Nord (du Collège / Décarie)',45.509593,-73.674981
-55705,'55705','Station Du Collège Nord (du Collège / Décarie)',45.509310,-73.675076
+55704,'55704','Station Du Collège Nord (Collège / Décarie)',45.509593,-73.674981
+55705,'55705','Station Du Collège Nord (Collège / Décarie)',45.509310,-73.675076
 55706,'55706','Station Du Collège Nord (Décarie / Collège)',45.509126,-73.674787
 55707,'55707','Côte-Vertu / Champigny',45.520782,-73.674459
 55708,'55708','Muir / Rochon',45.524379,-73.674005
@@ -6318,12 +6318,12 @@
 56680,'56680','Chemin Du Golf / No 1060',45.462835,-73.554863
 56681,'56681','Marguerite-Bourgeoys / Club-Marin',45.461223,-73.553536
 56683,'56683','Place Du Commerce / Centre Le Village',45.467753,-73.542831
-56685,'56685','Station Verdun (de Verdun / Willibrord)',45.459163,-73.5716
-56686,'56686','Station Verdun (de Verdun / Willibrord)',45.459140,-73.571830
+56685,'56685','Station Verdun (Verdun / Willibrord)',45.459163,-73.5716
+56686,'56686','Station Verdun (Verdun / Willibrord)',45.459140,-73.571830
 56687,'56687','Station LaSalle',45.470612,-73.567646
 56688,'56688','Station LaSalle',45.470739,-73.567194
 56689,'56689','Galt / Champlain',45.462405,-73.578592
-56690,'56690','Station De L''Église (de L''Église / Ross)',45.462798,-73.565794
+56690,'56690','Station De L''Église (Église / Ross)',45.462798,-73.565794
 56691,'56691','Berlioz / Terry-Fox',45.465336,-73.538935
 56692,'56692','René-Lévesque / No 3000',45.466469,-73.540910
 56693,'56693','Verdun / Brault',45.447708,-73.572631
@@ -8574,7 +8574,7 @@
 60841,'60841','Frederick-Banting / Marie-Curie',45.481948,-73.767974
 60843,'60843','Gare Roxboro-Pierrefonds',45.509782,-73.811469
 60844,'60844','Station Joliette (Hochelaga / Joliette)',45.546550,-73.551714
-60848,'60848','Station Du Collège Nord (du Collège / Décarie)',45.509062,-73.675420
+60848,'60848','Station Du Collège Nord (Collège / Décarie)',45.509062,-73.675420
 60853,'60853','Thimens / No 2405',45.505167,-73.703003
 60855,'60855','Thimens / No 2650',45.504572,-73.703192
 60856,'60856','Guénette / Dobrin',45.499771,-73.728111
