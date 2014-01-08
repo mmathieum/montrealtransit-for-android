@@ -551,7 +551,7 @@ public class RouteInfo extends FragmentActivity implements LocationListener, Sen
 		@Override
 		public int getCount() {
 			// MyLog.v(TAG, "getCount()");
-			return RouteInfo.this.routeTrips.size();
+			return RouteInfo.this.routeTrips == null ? 0 : RouteInfo.this.routeTrips.size();
 		}
 
 		@Override
