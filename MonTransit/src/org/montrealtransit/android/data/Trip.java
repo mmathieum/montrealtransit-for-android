@@ -1,5 +1,7 @@
 package org.montrealtransit.android.data;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.R;
 import org.montrealtransit.android.provider.common.TripColumns;
@@ -38,6 +40,33 @@ public class Trip {
 				.append("headsignValue:").append(headsignValue).append(',') //
 				.append("routeId:").append(routeId) //
 				.append(']').toString();
+	}
+
+	public static JSONObject toJSON(Trip trip) {
+		try {
+			return new JSONObject() //
+					.put("id", trip.id) //
+					.put("headsignType", trip.headsignType) //
+					.put("headsignValue", trip.headsignValue) //
+					.put("routeId", trip.routeId);
+		} catch (JSONException jsone) {
+			MyLog.w(TAG, jsone, "Error while converting to JSON (%s)!", trip);
+			return null;
+		}
+	}
+
+	public static Trip fromJSON(JSONObject jTrip) {
+		try {
+			final Trip trip = new Trip();
+			trip.id = jTrip.getInt("id");
+			trip.headsignType = jTrip.getInt("headsignType");
+			trip.headsignValue = jTrip.getString("headsignValue");
+			trip.routeId = jTrip.getInt("routeId");
+			return trip;
+		} catch (JSONException jsone) {
+			MyLog.w(TAG, jsone, "Error while parsing JSON '%s'!", jTrip);
+			return null;
+		}
 	}
 
 	private String heading = null;

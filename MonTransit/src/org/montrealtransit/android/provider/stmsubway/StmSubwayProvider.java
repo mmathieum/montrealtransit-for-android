@@ -30,7 +30,7 @@ public class StmSubwayProvider extends AbstractProvider {
 	}
 
 	@Override
-	public int getLabel() {
+	public int getProviderLabel() {
 		return StmSubwayDbHelper.LABEL;
 	}
 

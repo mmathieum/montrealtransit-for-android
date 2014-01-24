@@ -1,5 +1,8 @@
 package org.montrealtransit.android.data;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.provider.common.RouteTripStopColumns;
 
 import android.database.Cursor;
@@ -50,6 +53,45 @@ public class RouteTripStop extends TripStop {
 				.append(trip).append(',') //
 				.append(stop) //
 				.append(']').toString();
+	}
+
+	public JSONObject toJSON() {
+		return toJSON(this);
+	}
+
+	public static JSONObject toJSON(RouteTripStop routeTripStop) {
+		try {
+			return new JSONObject() //
+					.put("authority", routeTripStop.authority) //
+					.put("route", Route.toJSON(routeTripStop.route)) //
+					.put("trip", Trip.toJSON(routeTripStop.trip)) //
+					.put("stop", Stop.toJSON(routeTripStop.stop));
+		} catch (JSONException jsone) {
+			MyLog.w(TAG, jsone, "Error while converting to JSON (%s)!", routeTripStop);
+			return null;
+		}
+	}
+
+	public static RouteTripStop fromJSON(String json) {
+		try {
+			return fromJSON(new JSONObject(json));
+		} catch (JSONException jsone) {
+			MyLog.w(TAG, jsone, "Error while parsing JSON '%s'!", json);
+			return null;
+		}
+	}
+
+	public static RouteTripStop fromJSON(JSONObject jRouteTripStop) {
+		try {
+			return new RouteTripStop( //
+					jRouteTripStop.getString("authority"),//
+					Route.fromJSON(jRouteTripStop.getJSONObject("route")), //
+					Trip.fromJSON(jRouteTripStop.getJSONObject("trip")), //
+					Stop.fromJSON(jRouteTripStop.getJSONObject("stop")));
+		} catch (JSONException jsone) {
+			MyLog.w(TAG, jsone, "Error while parsing JSON '%s'!", jRouteTripStop);
+			return null;
+		}
 	}
 
 	@Override

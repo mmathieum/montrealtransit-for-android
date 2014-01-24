@@ -179,7 +179,7 @@ public class DataProvider extends ContentProvider {
 			ids = uri.getPathSegments().get(1).split("\\+");
 			fkId = ids[0];
 			int type = Integer.valueOf(ids[1]);
-			if (type == DataStore.Cache.KEY_TYPE_VALUE_AUTHORITY_ROUTE_TRIP_STOP) {
+			if (type == DataStore.Cache.KEY_TYPE_VALUE_AUTHORITY_ROUTE_TRIP_STOP_JSON) {
 				qb.appendWhere(DataDbHelper.T_CACHE + "." + DataDbHelper.T_CACHE_K_FK_ID + "=\"" + fkId + "\" AND " + DataDbHelper.T_CACHE + "."
 						+ DataDbHelper.T_CACHE_K_TYPE + "=" + type);
 			}

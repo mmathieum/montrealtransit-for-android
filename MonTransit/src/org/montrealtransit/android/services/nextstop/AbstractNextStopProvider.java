@@ -13,7 +13,7 @@ import android.os.AsyncTask;
  * Abstract task for next stop services.
  * @author Mathieu Méa
  */
-public abstract class AbstractNextStopProvider extends AsyncTask<Void, String, Map<String,StopTimes>> {
+public abstract class AbstractNextStopProvider extends AsyncTask<Void, String, Map<String, StopTimes>> {
 
 	/**
 	 * The class that will handle the response.
@@ -27,16 +27,21 @@ public abstract class AbstractNextStopProvider extends AsyncTask<Void, String, M
 	 * The stop.
 	 */
 	protected RouteTripStop routeTripStop;
+	/**
+	 * The schedule provider authority.
+	 */
+	protected String scheduleAuthority;
 
 	/**
 	 * Default constructor.
 	 * @param context the context
 	 * @param from the class asking for the info
 	 */
-	public AbstractNextStopProvider(Context context, NextStopListener from, RouteTripStop routeTripStop) {
+	public AbstractNextStopProvider(Context context, NextStopListener from, RouteTripStop routeTripStop, String scheduleAuthority) {
 		this.context = context;
 		this.from = from;
 		this.routeTripStop = routeTripStop;
+		this.scheduleAuthority = scheduleAuthority;
 	}
 
 	/**
@@ -47,7 +52,7 @@ public abstract class AbstractNextStopProvider extends AsyncTask<Void, String, M
 	public abstract String getSourceName();
 
 	@Override
-	protected void onPostExecute(Map<String,StopTimes> results) {
+	protected void onPostExecute(Map<String, StopTimes> results) {
 		MyLog.v(getTag(), "onPostExecute()");
 		// MyLog.d(getTag(), "results null?: " + (results == null));
 		// if (results == null) {
@@ -55,7 +60,7 @@ public abstract class AbstractNextStopProvider extends AsyncTask<Void, String, M
 		// return;
 		// }
 		if (this.from != null) {
-			this.from.onNextStopsLoaded(results);
+			this.from.onNextStopsLoaded(this.scheduleAuthority, results);
 		} else {
 			MyLog.d(getTag(), "onPostExecute() > no listener!");
 		}
@@ -68,7 +73,7 @@ public abstract class AbstractNextStopProvider extends AsyncTask<Void, String, M
 			return;
 		}
 		if (this.from != null) {
-			this.from.onNextStopsProgress(values[0]);
+			this.from.onNextStopsProgress(this.scheduleAuthority, values[0]);
 		}
 		super.onProgressUpdate(values);
 	}

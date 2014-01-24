@@ -41,10 +41,10 @@ public abstract class AbstractProvider extends ContentProvider {
 	protected static final int TRIPS_STOPS = 7;
 	protected static final int SEARCH_NO_KEYWORD = 8;
 	protected static final int SEARCH_WITH_KEYWORD = 9;
-	protected static final int DB_VERSION = 100;
-	protected static final int DB_DEPLOYED = 101;
-	protected static final int DB_LABEL = 102;
-	protected static final int DB_SETUP_REQUIRED = 103;
+	protected static final int VERSION = 100;
+	protected static final int DEPLOYED = 101;
+	protected static final int LABEL = 102;
+	protected static final int SETUP_REQUIRED = 103;
 
 	private static final Map<String, String> ROUTE_PROJECTION_MAP;
 	private static final Map<String, String> TRIP_PROJECTION_MAP;
@@ -254,18 +254,18 @@ public abstract class AbstractProvider extends ContentProvider {
 			// MyLog.i(TAG, "[%s]", uri);
 			String limit = null;
 			switch (getURIMATCHER().match(uri)) {
-			case DB_VERSION:
-				MyLog.v(TAG, "query>DB_VERSION");
-				return getDbVersion();
-			case DB_LABEL:
-				MyLog.v(TAG, "query>DB_LABEL");
-				return getDbLabel();
-			case DB_DEPLOYED:
-				MyLog.v(TAG, "query>DB_DEPLOYED");
-				return isDbDeployed();
-			case DB_SETUP_REQUIRED:
-				MyLog.v(TAG, "query>DB_SETUP_REQUIRED");
-				return isDbSetupRequired();
+			case VERSION:
+				MyLog.v(TAG, "query>VERSION");
+				return getVersion();
+			case LABEL:
+				MyLog.v(TAG, "query>LABEL");
+				return getLabel();
+			case DEPLOYED:
+				MyLog.v(TAG, "query>DEPLOYED");
+				return isDeployed();
+			case SETUP_REQUIRED:
+				MyLog.v(TAG, "query>SETUP_REQUIRED");
+				return isSetupRequired();
 			case ROUTES:
 				MyLog.v(TAG, "query>ROUTES");
 				qb.setTables(AbstractDbHelper.T_ROUTE);
@@ -344,10 +344,10 @@ public abstract class AbstractProvider extends ContentProvider {
 					break;
 				case SEARCH_NO_KEYWORD:
 				case SEARCH_WITH_KEYWORD:
-				case DB_DEPLOYED:
-				case DB_LABEL:
-				case DB_VERSION:
-				case DB_SETUP_REQUIRED:
+				case DEPLOYED:
+				case LABEL:
+				case VERSION:
+				case SETUP_REQUIRED:
 					sortOrder = null;
 					break;
 				default:
@@ -368,25 +368,25 @@ public abstract class AbstractProvider extends ContentProvider {
 		}
 	}
 
-	private Cursor getDbVersion() {
+	private Cursor getVersion() {
 		MatrixCursor matrixCursor = new MatrixCursor(new String[] { "version" });
 		matrixCursor.addRow(new Object[] { getCurrentDbVersion() });
 		return matrixCursor;
 	}
 
-	private Cursor getDbLabel() {
+	private Cursor getLabel() {
 		MatrixCursor matrixCursor = new MatrixCursor(new String[] { "label" });
-		matrixCursor.addRow(new Object[] { getContext().getString(getLabel()) });
+		matrixCursor.addRow(new Object[] { getContext().getString(getProviderLabel()) });
 		return matrixCursor;
 	}
 
-	private Cursor isDbDeployed() {
+	private Cursor isDeployed() {
 		MatrixCursor matrixCursor = new MatrixCursor(new String[] { "deployed" });
 		matrixCursor.addRow(new Object[] { AbstractDbHelper.isDbExist(getContext(), getDbName()) ? 1 : 0 });
 		return matrixCursor;
 	}
 
-	private Cursor isDbSetupRequired() {
+	private Cursor isSetupRequired() {
 		MatrixCursor matrixCursor = new MatrixCursor(new String[] { "setuprequired" });
 		boolean setupRequired = false;
 		if (currentDbVersion > 0 && currentDbVersion != getCurrentDbVersion()) {
@@ -462,10 +462,10 @@ public abstract class AbstractProvider extends ContentProvider {
 		case SEARCH_NO_KEYWORD:
 		case SEARCH_WITH_KEYWORD:
 			return SearchManager.SUGGEST_MIME_TYPE;
-		case DB_DEPLOYED:
-		case DB_LABEL:
-		case DB_VERSION:
-		case DB_SETUP_REQUIRED:
+		case DEPLOYED:
+		case LABEL:
+		case VERSION:
+		case SETUP_REQUIRED:
 			return null;
 		default:
 			throw new IllegalArgumentException(String.format("Unknown URI (type): '%s'", uri));
@@ -495,10 +495,10 @@ public abstract class AbstractProvider extends ContentProvider {
 
 	public static UriMatcher getNewUriMatcher(String authority) {
 		UriMatcher URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
-		URI_MATCHER.addURI(authority, "version", DB_VERSION);
-		URI_MATCHER.addURI(authority, "deployed", DB_DEPLOYED);
-		URI_MATCHER.addURI(authority, "label", DB_LABEL);
-		URI_MATCHER.addURI(authority, "setuprequired", DB_SETUP_REQUIRED);
+		URI_MATCHER.addURI(authority, "version", VERSION);
+		URI_MATCHER.addURI(authority, "deployed", DEPLOYED);
+		URI_MATCHER.addURI(authority, "label", LABEL);
+		URI_MATCHER.addURI(authority, "setuprequired", SETUP_REQUIRED);
 		URI_MATCHER.addURI(authority, "route", ROUTES);
 		URI_MATCHER.addURI(authority, "trip", TRIPS);
 		URI_MATCHER.addURI(authority, "stop", STOPS);
@@ -517,7 +517,7 @@ public abstract class AbstractProvider extends ContentProvider {
 
 	public abstract int getCurrentDbVersion();
 
-	public abstract int getLabel();
+	public abstract int getProviderLabel();
 
 	public abstract String getDbName();
 

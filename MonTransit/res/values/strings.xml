@@ -55,7 +55,8 @@
 	<string name="last_trains">Last trains</string>
 	<string name="next_stops">Next passages</string>
 	<string name="other_route_trip">Other line(s)</string>
-	<string name="next_stops_message_and_source">MonTransit retrieves the next stops passages in real time from %s.</string>
+	<string name="next_stops_message">MonTransit displays the planned schedule (when available) and then retrieves the schedule in real time from the official website of the transit agency.</string>
+	<string name="next_stops_message_and_source">MonTransit displays the planned schedule (when available) and then retrieves the schedule in real time from %s.</string>
 	<string name="next_bus_stops">Next passages</string>
 	<string name="next_bus_stops_and_source">Next passages (%s)</string>
 	<string name="next_bus_stops_message_and_source">MonTransit retrieves the next bus stops passages in real time from %s.</string>

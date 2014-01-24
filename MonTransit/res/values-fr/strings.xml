@@ -55,7 +55,8 @@
 	<string name="last_trains">Derniers départs</string>
 	<string name="next_stops">Prochains passages</string>
 	<string name="other_route_trip">Autre(s) Ligne(s)</string>
-	<string name="next_stops_message_and_source">MonTransit récupére les horaires des prochains passages en temps réel depuis %s.</string>
+	<string name="next_stops_message">MonTransit affiche les horaires planifiées (si elles sont disponibles) puis récupére les horaires en temps réel sur le site Internet officiel de l\'agence de transport.</string>
+	<string name="next_stops_message_and_source">MonTransit affiche les horaires planifiées (si elles sont disponibles) puis récupére les horaires en temps réel sur %s.</string>
 	<string name="next_bus_stops">Prochains passages</string>
 	<string name="next_bus_stops_and_source">Prochains passages (%s)</string>
 	<string name="next_bus_stops_message_and_source">MonTransit récupére les horaires des prochains passages en temps réel depuis %s.</string>

@@ -1,10 +1,15 @@
 package org.montrealtransit.android.data;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.provider.common.RouteColumns;
 
 import android.database.Cursor;
 
 public class Route {
+
+	public static final String TAG = Route.class.getSimpleName();
 
 	public int id;
 	public String shortName;
@@ -32,6 +37,35 @@ public class Route {
 				.append("color:").append(color).append(',') //
 				.append("textColor:").append(textColor) //
 				.append(']').toString();
+	}
+
+	public static JSONObject toJSON(Route route) {
+		try {
+			return new JSONObject() //
+					.put("id", route.id) //
+					.put("shortName", route.shortName) //
+					.put("longName", route.longName) //
+					.put("color", route.color) //
+					.put("textColor", route.textColor);
+		} catch (JSONException jsone) {
+			MyLog.w(TAG, jsone, "Error while converting to JSON (%s)!", route);
+			return null;
+		}
+	}
+
+	public static Route fromJSON(JSONObject jRoute) {
+		try {
+			final Route route = new Route();
+			route.id = jRoute.getInt("id");
+			route.shortName = jRoute.getString("shortName");
+			route.longName = jRoute.getString("longName");
+			route.color = jRoute.getString("color");
+			route.textColor = jRoute.getString("textColor");
+			return route;
+		} catch (JSONException jsone) {
+			MyLog.w(TAG, jsone, "Error while parsing JSON '%s'!", jRoute);
+			return null;
+		}
 	}
 
 }
