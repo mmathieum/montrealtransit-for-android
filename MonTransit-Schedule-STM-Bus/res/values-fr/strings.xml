@@ -4,4 +4,7 @@
     <string name="app_desc">Horaires planifiés des bus de la STM enregistrées sur l\'appareil.</string>
     <string name="opening_main_app_and_removing_icon">Ouverture de l\'application ...\n\n(icône du module supprimé)</string>
     <string name="please_install_main_app">Ouverture de Google Play ...\n\nMerci d\'installer l\'application (gratuite).</string>
+
+    <string name="stop_no_info_and_source">Aucune information sur %2$s à propos de la ligne %1$s à cet arrêt.</string>
+    <string name="offline_schedule">Horaires planifiées</string>
 </resources>
