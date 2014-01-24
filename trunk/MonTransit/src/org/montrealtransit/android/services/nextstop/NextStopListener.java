@@ -12,14 +12,16 @@ public interface NextStopListener {
 
 	/**
 	 * Update the progress status.
+	 * @param authority the schedule provider authority
 	 * @param progress the progress message
 	 */
-	void onNextStopsProgress(String progress);
+	void onNextStopsProgress(String authority, String progress);
 
 	/**
 	 * Methods calls after the execution of the task.
+	 * @param authority the schedule provider authority
 	 * @param results the results
 	 */
-	void onNextStopsLoaded(Map<String,StopTimes> results);
+	void onNextStopsLoaded(String authority, Map<String,StopTimes> results);
 
 }

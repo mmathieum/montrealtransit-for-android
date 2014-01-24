@@ -1,10 +1,15 @@
 package org.montrealtransit.android.data;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.provider.common.StopColumns;
 
 import android.database.Cursor;
 
 public class Stop implements POI {
+
+	private static final String TAG = Stop.class.getSimpleName();
 
 	public int id;
 
@@ -48,6 +53,35 @@ public class Stop implements POI {
 				.append("lat:").append(lat).append(',') //
 				.append("lng:").append(lng) //
 				.append(']').toString();
+	}
+
+	public static JSONObject toJSON(Stop stop) {
+		try {
+			return new JSONObject() //
+					.put("id", stop.id) //
+					.put("code", stop.code) //
+					.put("name", stop.name) //
+					.put("lat", stop.lat) //
+					.put("lng", stop.lng);
+		} catch (JSONException jsone) {
+			MyLog.w(TAG, jsone, "Error while converting to JSON (%s)!", stop);
+			return null;
+		}
+	}
+
+	public static Stop fromJSON(JSONObject jStop) {
+		try {
+			final Stop stop = new Stop();
+			stop.id = jStop.getInt("id");
+			stop.code = jStop.getString("code");
+			stop.name = jStop.getString("name");
+			stop.lat = jStop.getDouble("lat");
+			stop.lng = jStop.getDouble("lng");
+			return stop;
+		} catch (JSONException jsone) {
+			MyLog.w(TAG, jsone, "Error while parsing JSON '%s'!", jStop);
+			return null;
+		}
 	}
 
 	@Override

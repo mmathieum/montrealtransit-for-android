@@ -445,7 +445,7 @@ public class Utils {
 		final Toast makeText = Toast.makeText(context, message, Toast.LENGTH_SHORT);
 		makeText.show();
 	}
-	
+
 	public static void notifyTheUserTop(Context context, String message) {
 		final Toast makeText = Toast.makeText(context, message, Toast.LENGTH_SHORT);
 		makeText.setGravity(Gravity.TOP, 0, TOAST_Y_OFFSET);
@@ -935,5 +935,28 @@ public class Utils {
 
 	public static Uri newContentUri(String authority) {
 		return Uri.parse("content://" + authority + "/");
+	}
+
+	public static boolean isContentProviderAvailable(Context context, String authority) {
+		return context.getPackageManager().resolveContentProvider(authority, 0) != null;
+	}
+
+	public static boolean isAppInstalled(Context context, String providerAppPackage) {
+		return Utils.isPackageExists(context, providerAppPackage);
+	}
+
+	public static final long RECENT_IN_MILLIS = 1000 * 60 * 60; // 1 hour
+
+	/**
+	 * @return time-stamp for now minus some time considered as recent (ex: 1 hour)
+	 */
+	public static long recentTimeMillis() {
+		return System.currentTimeMillis() - RECENT_IN_MILLIS;
+	}
+
+	public static long currentTimeToTheMinuteMillis() {
+		long currentTime = System.currentTimeMillis();
+		currentTime -= currentTime % (60 * 1000);
+		return currentTime;
 	}
 }

@@ -1,10 +1,15 @@
 package org.montrealtransit.android.data;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.Utils;
 
@@ -48,6 +53,8 @@ public class StopTimes {
 	 */
 	private String error;
 
+	private boolean realtime;
+
 	/**
 	 * The private constructor.
 	 */
@@ -58,8 +65,9 @@ public class StopTimes {
 	 * The default constructor.
 	 * @param sourceName the source name.
 	 */
-	public StopTimes(String sourceName) {
+	public StopTimes(String sourceName, boolean realtime) {
 		this.sourceName = sourceName;
+		this.realtime = realtime;
 	}
 
 	/**
@@ -67,13 +75,15 @@ public class StopTimes {
 	 * @param sourceName the source name
 	 * @param error the error message (<b>null</b> if no error)
 	 */
-	public StopTimes(String sourceName, String error) {
+	public StopTimes(String sourceName, boolean realtime, String error) {
 		this.sourceName = sourceName;
+		this.realtime = realtime;
 		this.error = error;
 	}
 
-	public StopTimes(String sourceName, String message, String message2) {
+	public StopTimes(String sourceName, boolean realtime, String message, String message2) {
 		this.sourceName = sourceName;
+		this.realtime = realtime;
 		this.message = message;
 		this.message2 = message2;
 	}
@@ -149,6 +159,7 @@ public class StopTimes {
 	}
 
 	private static final String SOURCE = "source";
+	private static final String REAL_TIME = "realtime";
 	private static final String TIMES = "hours";
 	private static final String MESSAGE = "message";
 	private static final String MESSAGE2 = "message2";
@@ -162,6 +173,7 @@ public class StopTimes {
 		MyLog.v(TAG, "serialized()");
 		String result = "";
 		result += "${" + SOURCE + ":" + getSourceName() + "},";
+		result += "${" + REAL_TIME + ":" + isRealtime() + "},";
 		for (String sTime : this.getSTimes()) {
 			result += "${" + TIMES + ":" + sTime + "},";
 		}
@@ -199,6 +211,8 @@ public class StopTimes {
 			String value = matcher.group().substring(separator + 1, matcher.group().length() - 1);
 			if (SOURCE.equals(property)) {
 				result.setSourceName(value);
+			} else if (REAL_TIME.equals(property)) {
+				result.setRealtime(Boolean.parseBoolean(value));
 			} else if (PREVIOUS_TIME.equals(property)) {
 				result.setPreviousTime(value);
 			} else if (TIMES.equals(property)) {
@@ -219,6 +233,7 @@ public class StopTimes {
 		StringBuilder sb = new StringBuilder();
 		sb.append(StopTimes.class.getSimpleName()).append(':').append('{');
 		sb.append(SOURCE).append(':').append(this.sourceName).append(',');
+		sb.append(REAL_TIME).append(':').append(this.realtime).append(',');
 		sb.append(PREVIOUS_TIME).append(':').append(this.previousTime).append(',');
 		sb.append(TIMES).append(':').append('[');
 		for (String sTime : getSTimes()) {
@@ -285,5 +300,58 @@ public class StopTimes {
 	 */
 	public void setError(String error) {
 		this.error = error;
+	}
+
+	public void setRealtime(boolean realtime) {
+		this.realtime = realtime;
+	}
+
+	public boolean isRealtime() {
+		return realtime;
+	}
+
+	public static final SimpleDateFormat OUTPUT_FORMAT = new SimpleDateFormat("HH'h'mm");
+
+	public static StopTimes parseJSON(String json) {
+		StopTimes stopTimes = new StopTimes();
+		try {
+			JSONObject jStopTimes = new JSONObject(json);
+			stopTimes.setSourceName(jStopTimes.getString("source"));
+			stopTimes.setRealtime(jStopTimes.getBoolean("realtime"));
+			JSONArray jTimestamps = jStopTimes.getJSONArray("timestamps");
+			long now = Utils.currentTimeToTheMinuteMillis();
+			for (int i = 0; i < jTimestamps.length(); i++) {
+				Long jTimestamp = jTimestamps.getLong(i);
+				if (jTimestamp != null) {
+					final String formattedTime = OUTPUT_FORMAT.format(new Date(jTimestamp));
+					if (jTimestamp.longValue() < now) {
+						stopTimes.setPreviousTime(formattedTime);
+					} else {
+						stopTimes.addSTime(formattedTime);
+					}
+				}
+			}
+			// if (jStopTimes.has("error")) {
+			stopTimes.setError(jStopTimes.optString("error"));
+			// }
+			JSONArray jMessages = jStopTimes.optJSONArray("messages");
+			if (jMessages != null) {
+				// for (int i = 0; i < jMessages.length(); i++) {
+				// String jMessage = jMessages.getString(i);
+				// if (!TextUtils.isEmpty(jMessage)) {
+				// stopTimes.addMessageString(jMessage);
+				// }
+				// }
+				if (jMessages.length() > 0) {
+					stopTimes.addMessageString(jMessages.getString(0));
+					if (jMessages.length() > 1) {
+						stopTimes.addMessage2String(jMessages.getString(1));
+					}
+				}
+			}
+		} catch (JSONException jsone) {
+			MyLog.w(TAG, jsone, "Error while parsing JSON '%s'", json);
+		}
+		return stopTimes;
 	}
 }

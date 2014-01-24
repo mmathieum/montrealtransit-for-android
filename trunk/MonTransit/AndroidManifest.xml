@@ -33,6 +33,7 @@
 		<provider android:name=".provider.stmbus.StmBusProvider" android:authorities="org.montrealtransit.android.stmbus" android:exported="false" />
 		<provider android:name=".provider.stmsubway.StmSubwayProvider" android:authorities="org.montrealtransit.android.stmsubway" android:exported="false" />
 		<provider android:name=".provider.stmsubway.schedule.StmSubwayScheduleProvider" android:authorities="org.montrealtransit.android.schedule.stmsubway" android:exported="false" />
+		<provider android:name=".provider.stmbus.schedule.StmBusLiveScheduleProvider" android:authorities="org.montrealtransit.android.live.stmbus" android:exported="false" />
 		<provider android:name=".provider.BixiProvider" android:authorities="org.montrealtransit.android.bixi" android:exported="false" />
 		<!-- SPLASH SCREEN -->
 		<activity android:name=".activity.SplashScreen"

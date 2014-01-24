@@ -1,7 +1,5 @@
 package org.montrealtransit.android.provider;
 
-import java.util.List;
-
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.provider.common.AbstractScheduleManager;
 
@@ -27,15 +25,11 @@ public class StmBusScheduleManager extends AbstractScheduleManager {
 		AbstractScheduleManager.ping(contentResolver, CONTENT_URI);
 	}
 
-	public static List<String> findBusScheduleList(ContentResolver contentResolver, int routeId, int tripId, int stopId, String date, String time) {
-		return AbstractScheduleManager.findScheduleList(contentResolver, CONTENT_URI, routeId, tripId, stopId, date, time);
-	}
-
 	public static boolean isContentProviderAvailable(Context context) {
-		return AbstractScheduleManager.isContentProviderAvailable(context, AUTHORITY);
+		return Utils.isContentProviderAvailable(context, AUTHORITY);
 	}
 
 	public static boolean isAppInstalled(Context context) {
-		return AbstractScheduleManager.isAppInstalled(context, PROVIDER_APP_PACKAGE);
+		return Utils.isAppInstalled(context, PROVIDER_APP_PACKAGE);
 	}
 }

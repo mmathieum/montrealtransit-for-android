@@ -30,7 +30,7 @@ public class StmBusProvider extends AbstractProvider {
 	}
 
 	@Override
-	public int getLabel() {
+	public int getProviderLabel() {
 		return StmBusDbHelper.LABEL;
 	}
 

@@ -777,7 +777,7 @@ public class DataStore {
 		/**
 		 * The cache type value for route stops.
 		 */
-		public static final int KEY_TYPE_VALUE_AUTHORITY_ROUTE_TRIP_STOP = DataDbHelper.KEY_CACHE_TYPE_VALUE_AUTHORITY_ROUTE_TRIP_STOP;
+		public static final int KEY_TYPE_VALUE_AUTHORITY_ROUTE_TRIP_STOP_JSON = DataDbHelper.KEY_CACHE_TYPE_VALUE_AUTHORITY_ROUTE_TRIP_STOP_JSON;
 		/**
 		 * The cache ID.
 		 */
@@ -875,14 +875,14 @@ public class DataStore {
 		}
 
 		/**
-		 * @return the date
+		 * @return the date in seconds
 		 */
 		public int getDate() {
 			return date;
 		}
 
 		/**
-		 * @param date the new date
+		 * @param date the new date in seconds
 		 */
 		public void setDate(int date) {
 			this.date = date;

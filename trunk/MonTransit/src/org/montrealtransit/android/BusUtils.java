@@ -13,16 +13,6 @@ public class BusUtils {
 	public static final String TAG = BusUtils.class.getSimpleName();
 
 	/**
-	 * The cache is too old to be useful, don't display it.
-	 */
-	public static final int CACHE_NOT_USEFUL_IN_SEC = 60 * 60; // 60 minutes
-
-	/**
-	 * The validity of the cache (in seconds), try to refresh it (display it).
-	 */
-	public static final int CACHE_TOO_OLD_IN_SEC = 1 * 60; // 1 minute
-
-	/**
 	 * TODO still useful? Clean the bus stop place.
 	 * @param uncleanStopPlace the original bus stop place
 	 * @return the cleaned bus stop place

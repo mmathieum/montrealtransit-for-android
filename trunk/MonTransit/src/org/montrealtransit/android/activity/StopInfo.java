@@ -31,15 +31,11 @@ import org.montrealtransit.android.data.Trip;
 import org.montrealtransit.android.data.TripStop;
 import org.montrealtransit.android.dialog.RouteSelectTripDialog;
 import org.montrealtransit.android.provider.DataManager;
-import org.montrealtransit.android.provider.DataStore.Cache;
 import org.montrealtransit.android.provider.DataStore.Fav;
-import org.montrealtransit.android.provider.common.AbstractLiveScheduleManager;
 import org.montrealtransit.android.provider.common.AbstractManager;
 import org.montrealtransit.android.provider.common.AbstractScheduleManager;
 import org.montrealtransit.android.services.ClosestRouteTripStopsFinderTask.ClosestRouteTripStopsFinderListener;
 import org.montrealtransit.android.services.ClosestRouteTripStopsFinderTaskAndFilter;
-import org.montrealtransit.android.services.LoadNextBusStopIntoCacheTask;
-import org.montrealtransit.android.services.nextstop.IStmInfoTask;
 import org.montrealtransit.android.services.nextstop.NextStopListener;
 import org.montrealtransit.android.services.nextstop.ScheduleTask;
 
@@ -85,7 +81,7 @@ import android.widget.TextView;
  * @author Mathieu Méa
  */
 public class StopInfo extends Activity implements LocationListener, DialogInterface.OnClickListener, /* NfcListener, */SensorEventListener, CompassListener,
-		ClosestRouteTripStopsFinderListener {
+		ClosestRouteTripStopsFinderListener, NextStopListener {
 
 	/**
 	 * The log tag.
@@ -146,12 +142,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 	/**
 	 * The cache for the current stop (stop ID + route ID).
 	 */
-	private Map<String, Cache> memCache = new HashMap<String, Cache>();
-	/**
-	 * The task used to load the next stops.
-	 */
-	@Deprecated
-	private LoadNextBusStopIntoCacheTask wwwTask;
+	private Map<String, StopTimes> memCache = new HashMap<String, StopTimes>();
 	/**
 	 * The other route trip at this stop.
 	 */
@@ -189,9 +180,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 
 	private Uri contentUri;
 
-	private ScheduleTask localTask;
-
-	private boolean wwwTaskRunning;
+	private int nbTaskRunning = 0;
 
 	/**
 	 * True if the activity has the focus, false otherwise.
@@ -566,16 +555,14 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 	/**
 	 * Show the next stops info dialog
 	 * @param v useless - can be null
-	 * @deprecated offline?
 	 */
-	@Deprecated
 	public void showNextStopsInfoDialog(View v) {
 		MyLog.v(TAG, "showNextStopsInfoDialog()");
 		String message;
-		if (this.stopTimes != null) {
-			message = getString(R.string.next_stops_message_and_source, IStmInfoTask.SOURCE_NAME);
+		if (this.stopTimes != null && this.stopTimes.isRealtime()) {
+			message = getString(R.string.next_stops_message_and_source, this.stopTimes.getSourceName());
 		} else {
-			message = getString(R.string.next_stops_message_and_source, IStmInfoTask.SOURCE_NAME);
+			message = getString(R.string.next_stops_message);
 		}
 		new AlertDialog.Builder(this).setTitle(getString(R.string.next_stops)).setIcon(R.drawable.ic_btn_info_details).setMessage(message)
 				.setPositiveButton(getString(android.R.string.ok), null).setCancelable(true).create().show();
@@ -833,8 +820,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 
 	private void switchToOtherStop(RouteTripStop otherStop) {
 		MyLog.v(TAG, "switchToOtherStop(%s)", otherStop);
-		cancelWwwTask();
-		cancelLocalTask();
+		cancelScheduleTasks();
 		this.stopTimes = null;
 		this.otherRouteTrips.remove(otherStop);
 		this.otherRouteTrips.add(this.routeTripStop);
@@ -855,8 +841,9 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 		this.routeTripStop = otherStop;
 		refreshStopInfo();
 		refreshOtherRouteTripsUI();
+		((TextView) findViewById(R.id.next_stops_string)).setText(getString(R.string.next_stops));
 		setNextStopsLoading();
-		showNextStops();
+		showNextStopsFromCacheAndStartLoading();
 	}
 
 	private void setTripHeading(String newTripHeading) {
@@ -984,8 +971,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 					StopInfo.this.otherRouteTrips = null; // reset
 					StopInfo.this.stopTimes = null; // clear current stop hours
 					// StopInfo.this.memCache = null; // clear the cache for the new stop
-					cancelWwwTask();
-					cancelLocalTask();
+					cancelScheduleTasks();
 					cancelNearbyTask();
 					return true; // new stop found
 				} else {
@@ -1023,7 +1009,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 			this.finish(); // close the activity.
 		} else {
 			// try to load the next stop from the web.
-			loadNextStopsFromWeb();
+			loadNextStopsFromSchedule(false);
 		}
 	}
 
@@ -1032,7 +1018,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 	 */
 	private void setUpUI() {
 		refreshStopInfo();
-		showNextStops();
+		showNextStopsFromCacheAndStartLoading();
 		// refreshOtherRouteTripsInfo();
 		// IF there is a valid last know location DO
 		if (LocationUtils.getBestLastKnownLocation(this) != null) {
@@ -1046,11 +1032,9 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 	/**
 	 * Show the next stops (or launch refresh next stops task).
 	 */
-	private void showNextStops() {
-		MyLog.v(TAG, "showNextStops()");
+	private void showNextStopsFromCacheAndStartLoading() {
+		MyLog.v(TAG, "showNextStopsFromCacheAndStartLoading()");
 		new AsyncTask<Void, Void, Void>() {
-
-			private boolean refreshAsync = false;
 
 			@Override
 			protected Void doInBackground(Void... params) {
@@ -1058,33 +1042,25 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 				if (StopInfo.this.stopTimes == null) {
 					// check cache
 					final String uuid = StopInfo.this.routeTripStop.getUUID();
-					// IF no local cache DO
+					// IF not yet in memory cache DO
 					if (!StopInfo.this.memCache.containsKey(uuid)) {
-						// load cache from database
-						StopInfo.this.memCache.put(uuid, DataManager.findCache(getContentResolver(), Cache.KEY_TYPE_VALUE_AUTHORITY_ROUTE_TRIP_STOP, uuid));
-					}
-					Cache cache = StopInfo.this.memCache.get(uuid);
-					// IF local cache DO
-					if (cache != null) {
-						// IF the cache is too old DO
-						final int tooOld = Utils.currentTimeSec() - BusUtils.CACHE_NOT_USEFUL_IN_SEC;
-						if (cache.getDate() <= tooOld) {
-							// don't use the cache
-							cache = null;
-							// delete all too old cache (memory + disk)
-							try {
-								StopInfo.this.memCache.remove(uuid);
-								DataManager.deleteCacheOlderThan(getContentResolver(), tooOld);
-							} catch (Exception e) {
-								MyLog.w(TAG, e, "Can't clean the cache!");
+						// try loading cache from database
+						final String[] scheduleAuthorities = AbstractScheduleManager.authoritiesToScheduleAuthorities.get(StopInfo.this.contentUri
+								.getAuthority());
+						if (scheduleAuthorities != null) {
+							for (String scheduleAuthority : scheduleAuthorities) {
+								final StopTimes stopTime = AbstractScheduleManager.findStopTimes(StopInfo.this.getContentResolver(),
+										Utils.newContentUri(scheduleAuthority), StopInfo.this.routeTripStop, Utils.recentTimeMillis(), true, null);
+								if (stopTime != null) {
+									StopInfo.this.memCache.put(uuid, stopTime);
+									break; // first result is good enough, will check all provider later
+								}
 							}
-						} else if (cache.getDate() <= Utils.currentTimeSec() - BusUtils.CACHE_TOO_OLD_IN_SEC) {
-							this.refreshAsync = true;
 						}
 					}
+					StopTimes cache = StopInfo.this.memCache.get(uuid);
 					if (cache != null) {
-						// use cache
-						StopInfo.this.stopTimes = StopTimes.deserialized(cache.getObject());
+						StopInfo.this.stopTimes = cache;
 					}
 				}
 				return null;
@@ -1092,113 +1068,142 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 
 			@Override
 			protected void onPostExecute(Void result) {
-				if (StopInfo.this.stopTimes == null) {
-					// try to load from local schedule
-					loadNextStopsFromLocalSchedule();
-					// load from the web
-					loadNextStopsFromWeb();
-				} else {
+				if (StopInfo.this.stopTimes != null) {
 					showNewNextStops();
-					setNextStopsNotLoading();
 					refreshOtherRouteTripsInfo();
-					if (this.refreshAsync) {
-						if (AbstractLiveScheduleManager.authoritiesToLiveScheduleAuthorities.get(StopInfo.this.contentUri.getAuthority()) != null) {
-							loadNextStopsFromWeb();
-						} else {
-							loadNextStopsFromLocalSchedule();
-						}
-					}
 				}
-			};
+				loadNextStopsFromSchedule(false);
+			}
 
 		}.execute();
 	}
 
-	private void loadNextStopsFromLocalSchedule() {
-		MyLog.v(TAG, "loadNextStopsFromLocalSchedule()");
-		if (this.localTask != null && this.localTask.getStatus() == Status.RUNNING) {
-			this.localTask.cancel(true);
-			this.localTask = null;
-		}
+	private Map<String, ScheduleTask> scheduleTasks = new HashMap<String, ScheduleTask>();
+
+	private void loadNextStopsFromSchedule(boolean force) {
+		MyLog.v(TAG, "loadNextStopsFromSchedule()");
+		// 1st - cancel all current tasks
+		cancelScheduleTasks();
 		setNextStopsLoading();
-		this.localTask = new ScheduleTask(this, new NextStopListener() {
-
-			@Override
-			public void onNextStopsProgress(String progress) {
-				// MyLog.v(TAG, "loadNextStopsFromLocalSchedule()>onNextStopsProgress(%s)", progress);
-				// IF the task was cancelled DO
-				if (StopInfo.this.localTask == null || StopInfo.this.localTask.isCancelled()) {
-					// MyLog.d(TAG, "Task cancelled!");
-					return; // stop here
-				}
-				StopInfo.this.onNextStopsProgress(progress);
+		// 2nd - start a new loading task for each available provider
+		final String[] scheduleAuthorities = AbstractScheduleManager.authoritiesToScheduleAuthorities.get(this.contentUri.getAuthority());
+		if (scheduleAuthorities != null) {
+			for (String scheduleAuthority : scheduleAuthorities) {
+				ScheduleTask scheduleTask = new ScheduleTask(this, this, this.routeTripStop, scheduleAuthority, force);
+				scheduleTask.execute();
+				this.scheduleTasks.put(scheduleAuthority, scheduleTask);
+				this.nbTaskRunning++;
 			}
+		}
+	}
 
-			@Override
-			public void onNextStopsLoaded(Map<String, StopTimes> results) {
-				MyLog.v(TAG, "loadNextStopsFromLocalSchedule()>onNextStopsLoaded(%s)", results == null ? null : results.size());
-				if (StopInfo.this.localTask == null || StopInfo.this.localTask.isCancelled()) {
-					MyLog.d(TAG, "Task cancelled!");
-					setLocalTaskAsCompleted();
-					return;
-				}
-				if (StopInfo.this.stopTimes != null && StopInfo.this.stopTimes.getSourceName().equals(IStmInfoTask.SOURCE_NAME)) {
-					MyLog.d(TAG, "Local DB too late");
-					setLocalTaskAsCompleted();
-					return;
-				}
-				if (results == null) {
-					MyLog.d(TAG, "Local DB no result!");
-					setLocalTaskAsCompleted();
-					return;
-				}
-				// MyLog.d(TAG, "%s:%s", results.keySet(), results.values());
-				if (results.get(StopInfo.this.routeTripStop.getUUID()) == null) {
-					MyLog.d(TAG, "Local DB no result for this trip!");
-					setLocalTaskAsCompleted();
-					return;
-				}
-				// IF error DO
-				StopTimes result = results.get(StopInfo.this.routeTripStop.getUUID());
-				// MyLog.d(TAG, "result:%s", result);
-				if (result == null || result.getSTimes().size() <= 0) {
-					MyLog.d(TAG, "Local DB no hours in result");
-					// process the error
-					if (StopInfo.this.wwwTaskRunning) {
-						if (result != null && !TextUtils.isEmpty(result.getError())) {
-							StopInfo.this.onNextStopsProgress(result.getError());
-						} else if (result != null && !TextUtils.isEmpty(result.getMessage())) {
-							StopInfo.this.onNextStopsProgress(result.getMessage());
-						} else if (result != null && !TextUtils.isEmpty(result.getMessage2())) {
-							StopInfo.this.onNextStopsProgress(result.getMessage2());
-						}
-					} else {
-						setNextStopsError(result);
-					}
-					setLocalTaskAsCompleted();
-					return;
-				}
-				// get the result
-				if (StopInfo.this.stopTimes == null || StopInfo.this.stopTimes.getSourceName().equals(result.getSourceName())) {
-					saveToMemCache(StopInfo.this.routeTripStop.getUUID(), result);
-					StopInfo.this.stopTimes = result;
-					// show the result
-					showNewNextStops();
-				} else {
-					MyLog.d(TAG, "Local results ignored because hours already known from another source (%s)", StopInfo.this.stopTimes.getSourceName());
-				}
-				setLocalTaskAsCompleted();
-			}
-
-			public void setLocalTaskAsCompleted() {
-				// MyLog.v(TAG, "setLocalTaskAsCompleted()");
-				if (!StopInfo.this.wwwTaskRunning) {
-					setNextStopsNotLoading(); // www task completed
-					refreshOtherRouteTripsInfo();
+	private void cancelScheduleTasks() {
+		MyLog.v(TAG, "cancelScheduleTasks()");
+		if (this.scheduleTasks != null) {
+			for (ScheduleTask scheduleTask : this.scheduleTasks.values()) {
+				if (scheduleTask != null && scheduleTask.getStatus() == Status.RUNNING) {
+					scheduleTask.cancel(true);
 				}
 			}
-		}, this.routeTripStop);
-		this.localTask.execute();
+			this.scheduleTasks.clear();
+		}
+		this.nbTaskRunning = 0;
+	}
+
+	@Override
+	public void onNextStopsProgress(String scheduleAuthority, String progress) {
+		MyLog.v(TAG, "onNextStopsProgress(%s,%s)", scheduleAuthority, progress);
+		ScheduleTask scheduleTask = this.scheduleTasks == null ? null : this.scheduleTasks.get(scheduleAuthority);
+		// IF the task was cancelled DO
+		if (scheduleTask == null || scheduleTask.isCancelled()) {
+			// MyLog.d(TAG, "Task cancelled!");
+			return; // stop here
+		}
+		if (TextUtils.isEmpty(progress)) {
+			return;
+		}
+		if (this.stopTimes != null) {
+			// notify the user ?
+			return;
+		}
+		// update the BIG message
+		TextView detailMsgTv = (TextView) findViewById(R.id.detail_msg);
+		detailMsgTv.setText(progress);
+		detailMsgTv.setVisibility(View.VISIBLE);
+	}
+
+	@Override
+	public void onNextStopsLoaded(String scheduleAuthority, Map<String, StopTimes> results) {
+		MyLog.v(TAG, "onNextStopsLoaded(%s)", results == null ? null : results.size());
+		ScheduleTask scheduleTask = this.scheduleTasks == null ? null : this.scheduleTasks.get(scheduleAuthority);
+		if (scheduleTask == null || scheduleTask.isCancelled()) {
+			MyLog.d(TAG, "Task cancelled! (%s)", scheduleAuthority);
+			setTaskAsCompleted();
+			return;
+		}
+		if (this.stopTimes != null && this.stopTimes.isRealtime()) {
+			MyLog.d(TAG, "Task too late (%s)", scheduleAuthority);
+			setTaskAsCompleted();
+			return;
+		}
+		if (results == null) {
+			MyLog.d(TAG, "No result! (%s)", scheduleAuthority);
+			setTaskAsCompleted();
+			return;
+		}
+		MyLog.d(TAG, "%s:%s", results.keySet(), results.values());
+		StopTimes result = results.get(this.routeTripStop.getUUID());
+		if (result == null) {
+			MyLog.d(TAG, "No result for this trip! (%s)", scheduleAuthority);
+			setTaskAsCompleted();
+			return;
+		}
+		// MyLog.d(TAG, "result:%s", result);
+		// IF error DO
+		if (result == null || result.getSTimes().size() <= 0) {
+			MyLog.d(TAG, "Local DB no hours in result");
+			// process the error
+			// if (this.wwwTaskRunning) {
+			if (this.nbTaskRunning > 1) { // 1?
+				if (result != null && !TextUtils.isEmpty(result.getError())) {
+					onNextStopsProgress(scheduleAuthority, result.getError());
+				} else if (result != null && !TextUtils.isEmpty(result.getMessage())) {
+					onNextStopsProgress(scheduleAuthority, result.getMessage());
+				} else if (result != null && !TextUtils.isEmpty(result.getMessage2())) {
+					onNextStopsProgress(scheduleAuthority, result.getMessage2());
+				}
+			} else {
+				setNextStopsError(result);
+			}
+			setTaskAsCompleted();
+			return;
+		}
+		// show the result
+		if (result.isRealtime()) {
+			cancelScheduleTasks(); // cancel other schedule tasks
+			this.stopTimes = result;
+			showNewNextStops();
+		} else { // not real-time
+			if (this.stopTimes == null || this.stopTimes.getSourceName().equals(result.getSourceName())) {
+				saveToMemCache(this.routeTripStop.getUUID(), result);
+				this.stopTimes = result;
+				showNewNextStops();
+			} else {
+				MyLog.d(TAG, "Results from '%s' ignored because hours already known from '%s'.", result.getSourceName(), this.stopTimes.getSourceName());
+			}
+		}
+		setTaskAsCompleted();
+	}
+
+	public void setTaskAsCompleted() {
+		MyLog.v(TAG, "setLocalTaskAsCompleted()");
+		this.nbTaskRunning--;
+		if (this.nbTaskRunning <= 0) {
+			setNextStopsNotLoading();
+			refreshOtherRouteTripsInfo();
+		} else if (this.stopTimes != null) {
+			refreshOtherRouteTripsInfo();
+		}
 	}
 
 	/**
@@ -1311,114 +1316,19 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 	}
 
 	/**
-	 * Start the next bus stops refresh task if not running.
-	 */
-	private void loadNextStopsFromWeb() {
-		MyLog.v(TAG, "loadNextStopsFromWeb()");
-		if (AbstractLiveScheduleManager.authoritiesToLiveScheduleAuthorities.get(this.contentUri.getAuthority()) == null) {
-			MyLog.d(TAG, "Live schedule not available for this stop %s.", this.routeTripStop);
-			return;
-		}
-		// IF the task is already running DO
-		if (this.wwwTask != null && this.wwwTask.getStatus() == Status.RUNNING) {
-			return; // skip
-		}
-		setNextStopsLoading();
-		// find the next bus stop
-		this.wwwTask = new LoadNextBusStopIntoCacheTask(this, this.routeTripStop, new NextStopListener() {
-
-			@Override
-			public void onNextStopsProgress(String progress) {
-				MyLog.v(TAG, "loadNextStopsFromWeb()>onNextStopsProgress(%s)", progress);
-				// IF the task was cancelled DO
-				if (StopInfo.this.wwwTask == null || StopInfo.this.wwwTask.isCancelled()) {
-					// MyLog.d(TAG, "Task cancelled!");
-					return; // stop here
-				}
-				StopInfo.this.onNextStopsProgress(progress);
-			}
-
-			@Override
-			public void onNextStopsLoaded(Map<String, StopTimes> results) {
-				MyLog.v(TAG, "loadNextStopsFromWeb()>onNextStopsLoaded(%s)", results == null ? null : results.size());
-				if (StopInfo.this.wwwTask == null || StopInfo.this.wwwTask.isCancelled()) {
-					setWebTaskAsCompleted(true);
-					return; // task cancelled
-				}
-				if (results != null) {
-					for (final String uuid : results.keySet()) {
-						final StopTimes stopTimes = results.get(uuid);
-						saveToMemCache(uuid, stopTimes);
-					}
-				}
-				// IF error DO
-				StopTimes result = results == null ? null : results.get(StopInfo.this.routeTripStop.getUUID());
-				if (result == null || result.getSTimes().size() <= 0) {
-					// process the error
-					if (StopInfo.this.localTask != null && StopInfo.this.localTask.getStatus() == Status.RUNNING) {
-						if (result != null && !TextUtils.isEmpty(result.getError())) {
-							StopInfo.this.onNextStopsProgress(result.getError());
-						} else if (result != null && !TextUtils.isEmpty(result.getMessage())) {
-							StopInfo.this.onNextStopsProgress(result.getMessage());
-						} else if (result != null && !TextUtils.isEmpty(result.getMessage2())) {
-							StopInfo.this.onNextStopsProgress(result.getMessage2());
-						}
-					} else {
-						setNextStopsError(result);
-					}
-					setWebTaskAsCompleted(true);
-					return;
-				}
-				cancelLocalTask();
-				// get the result
-				StopInfo.this.stopTimes = result;
-				// show the result
-				showNewNextStops();
-				setWebTaskAsCompleted(false);
-			}
-
-			public void setWebTaskAsCompleted(boolean checkLocalTaskStatus) {
-				if (!checkLocalTaskStatus || StopInfo.this.localTask == null || StopInfo.this.localTask.getStatus() != Status.RUNNING) {
-					setNextStopsNotLoading();
-					refreshOtherRouteTripsInfo();
-				}
-				StopInfo.this.wwwTaskRunning = false;
-			}
-		}, false, true);
-		this.wwwTask.execute();
-		this.wwwTaskRunning = true;
-	}
-
-	private void onNextStopsProgress(String progress) {
-		if (TextUtils.isEmpty(progress)) {
-			return;
-		}
-		if (this.stopTimes != null) {
-			// notify the user ?
-			return;
-		}
-		// update the BIG message
-		TextView detailMsgTv = (TextView) findViewById(R.id.detail_msg);
-		detailMsgTv.setText(progress);
-		detailMsgTv.setVisibility(View.VISIBLE);
-	}
-
-	/**
 	 * Refresh or stop refresh the next bus stop depending on the current status of the task.
 	 * @param v the view (not used)
 	 */
 	public void refreshOrStopRefreshNextStops(View v) {
 		MyLog.v(TAG, "refreshOrStopRefreshNextStops()");
 		// IF the task is running DO
-		if (this.wwwTask != null && this.wwwTask.getStatus().equals(AsyncTask.Status.RUNNING)) {
+		if (this.nbTaskRunning > 0) {
 			// stopping the task
-			this.wwwTask.cancel(true);
-			this.wwwTask = null;
+			cancelScheduleTasks();
 			setNextStopsCancelled();
 		} else {
-			// this.hours = null;
-			loadNextStopsFromLocalSchedule();
-			loadNextStopsFromWeb();
+			this.stopTimes = null; // TODO really?
+			loadNextStopsFromSchedule(true);
 		}
 	}
 
@@ -1563,8 +1473,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 		if (stopTimes == null || stopTimes.getSTimes().size() == 0) {
 			return;
 		}
-		final Cache newCache = new Cache(Cache.KEY_TYPE_VALUE_AUTHORITY_ROUTE_TRIP_STOP, uuid, stopTimes.serialized());
-		this.memCache.put(uuid, newCache);
+		this.memCache.put(uuid, stopTimes);
 	}
 
 	/**
@@ -1714,8 +1623,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 	@Override
 	protected void onDestroy() {
 		MyLog.v(TAG, "onDestroy()");
-		cancelWwwTask();
-		cancelLocalTask();
+		cancelScheduleTasks();
 		cancelNearbyTask();
 		AdsUtils.destroyAd(this);
 		super.onDestroy();
@@ -1725,20 +1633,6 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 		if (this.nearbyTask != null) {
 			this.nearbyTask.cancel(true);
 			this.nearbyTask = null;
-		}
-	}
-
-	public void cancelWwwTask() {
-		if (this.wwwTask != null) {
-			this.wwwTask.cancel(true);
-			this.wwwTask = null;
-		}
-	}
-
-	private void cancelLocalTask() {
-		if (this.localTask != null) {
-			this.localTask.cancel(true);
-			this.localTask = null;
 		}
 	}
 }

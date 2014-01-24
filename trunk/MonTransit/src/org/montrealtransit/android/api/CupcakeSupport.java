@@ -5,7 +5,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 
 import org.montrealtransit.android.SensorUtils;
-import org.montrealtransit.android.services.LoadNextBusStopIntoCacheTask;
 import org.montrealtransit.android.services.NfcListener;
 
 import android.annotation.TargetApi;
@@ -16,6 +15,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Matrix;
+import android.os.AsyncTask;
 import android.os.StatFs;
 import android.view.Surface;
 import android.view.ViewTreeObserver;
@@ -145,8 +145,9 @@ public class CupcakeSupport implements SupportUtil {
 		listView.setSelectionFromTop(position, offset);
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public void executeOnExecutor(LoadNextBusStopIntoCacheTask task, Executor executor) {
+	public void executeOnExecutor(AsyncTask task, Executor executor) {
 		task.execute();
 	}
 

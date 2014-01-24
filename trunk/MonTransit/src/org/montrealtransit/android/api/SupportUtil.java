@@ -3,7 +3,6 @@ package org.montrealtransit.android.api;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 
-import org.montrealtransit.android.services.LoadNextBusStopIntoCacheTask;
 import org.montrealtransit.android.services.NfcListener;
 
 import android.app.Activity;
@@ -138,7 +137,8 @@ public interface SupportUtil {
 	 */
 	void listViewScrollTo(ListView listView, int position, int offset);
 
-	void executeOnExecutor(LoadNextBusStopIntoCacheTask task, Executor executor);
+	@SuppressWarnings("rawtypes")
+	void executeOnExecutor(AsyncTask task, Executor executor);
 
 	BlockingQueue<Runnable> getNewBlockingQueue();
 

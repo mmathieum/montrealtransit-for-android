@@ -796,8 +796,9 @@ public class AbstractManager {
 		} catch (Throwable t) {
 			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return tripStop;
 	}

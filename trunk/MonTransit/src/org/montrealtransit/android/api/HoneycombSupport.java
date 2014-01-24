@@ -2,12 +2,11 @@ package org.montrealtransit.android.api;
 
 import java.util.concurrent.Executor;
 
-import org.montrealtransit.android.services.LoadNextBusStopIntoCacheTask;
-
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
 import android.os.StrictMode.VmPolicy;
@@ -48,8 +47,9 @@ public class HoneycombSupport extends GingerbreadSupport {
 		super.listViewScrollTo(listView, position, offset);
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public void executeOnExecutor(LoadNextBusStopIntoCacheTask task, Executor executor) {
+	public void executeOnExecutor(AsyncTask task, Executor executor) {
 		task.executeOnExecutor(executor);
 	}
 
