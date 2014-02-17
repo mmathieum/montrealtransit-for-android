@@ -97,7 +97,6 @@ public abstract class AbstractScheduleProvider extends ContentProvider {
 			Cache cache = getDataAlreadyInCacheIfStillUseful(cacheUUID);
 			// IF cache only DO return cache OR nothing
 			if (cacheOnly) {
-				// Cache cache = getDataAlreadyInCacheIfStillUseful(cacheUUID);
 				JSONObject jResult = null;
 				if (cache != null) {
 					try {
