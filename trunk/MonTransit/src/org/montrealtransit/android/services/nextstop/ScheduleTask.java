@@ -31,19 +31,26 @@ public class ScheduleTask extends AbstractNextStopProvider {
 			return null;
 		}
 		if (!Utils.isContentProviderAvailable(this.context, this.scheduleAuthority)) {
+			String errorMessage;
 			if (!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-				publishProgress(this.context.getString(R.string.no_offline_schedule_or_sd_card_not_mounted));
+				errorMessage = this.context.getString(R.string.no_offline_schedule_or_sd_card_not_mounted);
 			} else {
-				publishProgress(this.context.getString(R.string.no_offline_schedule));
+				errorMessage = this.context.getString(R.string.no_offline_schedule);
 			}
-			MyLog.w(TAG, "No content provider available!");
-			return null;
+			MyLog.w(TAG, "Content provider '%s' not available!", this.scheduleAuthority);
+			Map<String, StopTimes> stopTimes = new HashMap<String, StopTimes>();
+			stopTimes.put(this.routeTripStop.getUUID(), new StopTimes(this.context.getString(R.string.offline_schedule), false, errorMessage));
+			return stopTimes;
 		}
 		publishProgress(this.context.getString(R.string.downloading_data_from_and_source, getSourceName()));
 		Integer cacheValidityInSec = force ? -1 : null;
 		final StopTimes stopTime = AbstractScheduleManager.findStopTimes(this.context.getContentResolver(), Utils.newContentUri(this.scheduleAuthority),
 				routeTripStop, Utils.recentTimeMillis(), false, cacheValidityInSec);
 		// MyLog.d(TAG, "stopTime: %s", stopTime);
+		if (stopTime == null) {
+			MyLog.w(TAG, "No stop times found for stop '%s' in provider '%s'!", this.routeTripStop, this.scheduleAuthority);
+			// stopTime = new StopTimes(null, false, this.context.getString(R.string.error));
+		}
 		Map<String, StopTimes> stopTimes = new HashMap<String, StopTimes>();
 		stopTimes.put(this.routeTripStop.getUUID(), stopTime);
 		return stopTimes;
