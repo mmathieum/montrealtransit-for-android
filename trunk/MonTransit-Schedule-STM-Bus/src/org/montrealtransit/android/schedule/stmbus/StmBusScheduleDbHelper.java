@@ -20,7 +20,7 @@ public class StmBusScheduleDbHelper extends SQLiteOpenHelper {
 
 	private static final String RAW_FILE_FORMAT = "ca_mtl_stm_bus_schedules_route_%s";
 
-	public static final int DB_VERSION = 4; // 2014-01-06
+	public static final int DB_VERSION = 5; // 2014-03-07
 
 	public static final String T_SCHEDULES = "schedules";
 	// public static final String T_SCHEDULES_K_ID = BaseColumns._ID;
