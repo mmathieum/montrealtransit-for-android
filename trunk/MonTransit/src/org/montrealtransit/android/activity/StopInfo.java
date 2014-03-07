@@ -1081,7 +1081,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 	private Map<String, ScheduleTask> scheduleTasks = new HashMap<String, ScheduleTask>();
 
 	private void loadNextStopsFromSchedule(boolean force) {
-		MyLog.v(TAG, "loadNextStopsFromSchedule()");
+		MyLog.v(TAG, "loadNextStopsFromSchedule(%s)", force);
 		// 1st - cancel all current tasks
 		cancelScheduleTasks();
 		setNextStopsLoading();
