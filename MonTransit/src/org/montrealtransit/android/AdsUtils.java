@@ -164,8 +164,8 @@ public class AdsUtils {
 	@SuppressWarnings("deprecation")
 	public static boolean isShowingAds(Context context) {
 		MyLog.v(TAG, "isShowingAds()");
-		if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.FROYO) {
-			return false; // no ads before 2.2 (limited support)
+		if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.GINGERBREAD) {
+			return false; // no ads before 2.3 (limited support)
 		}
 		if (AdsUtils.showingAds == null) {
 			// IF the user is generous DO
