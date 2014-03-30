@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="org.montrealtransit.android" android:versionName="1.7.8.3"
-	android:versionCode="956" android:installLocation="auto">
-	<!-- v1.7.8.2 (r945) is v1.7.8.1 (r936) with the right keys.xml file -->
+	package="org.montrealtransit.android" android:versionName="1.7.8.4"
+	android:versionCode="968" android:installLocation="auto">
 
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
