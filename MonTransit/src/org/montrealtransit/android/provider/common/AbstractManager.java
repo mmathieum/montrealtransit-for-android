@@ -981,11 +981,17 @@ public class AbstractManager {
 				}
 				final int stopId = TripStop.getStopIdFromUID(tripStopFav.getFkId());
 				final int routeId = TripStop.getRouteIdFromUID(tripStopFav.getFkId());
+				if (stopId < 0 || routeId < 0) {
+					continue; // invalid favorite
+				}
 				selection.append("(");
 				selection.append(RouteTripStopColumns.T_STOP_K_ID).append(" = ").append(stopId);
 				selection.append(" AND ");
 				selection.append(RouteTripStopColumns.T_TRIP_K_ROUTE_ID).append(" = ").append(routeId);
 				selection.append(")");
+			}
+			if (selection == null || selection.length() == 0) {
+				return null; // no favorites
 			}
 			final String sortOrder = RouteTripStopColumns.T_ROUTE_K_ID + ", " + RouteTripStopColumns.T_STOP_K_CODE + ", "
 			// + RouteTripStopColumns.T_STOP_K_NAME + ", "
@@ -997,8 +1003,9 @@ public class AbstractManager {
 			MyLog.w(TAG, t, "Error!");
 			return null;
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 	}
 
