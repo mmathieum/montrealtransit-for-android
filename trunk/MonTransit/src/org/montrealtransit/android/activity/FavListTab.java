@@ -307,6 +307,23 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 						MyLog.d(TAG, "Loading bus stop favorites from DB...");
 						this.busStopsList = AbstractManager.findRouteTripStops(FavListTab.this, StmBusManager.CONTENT_URI, this.newBusStopFavList, true);
 						MyLog.d(TAG, "Loading bus stop favorites from DB... DONE");
+						if (this.busStopsList == null || this.busStopsList.size() != this.newBusStopFavList.size()) {
+							MyLog.d(TAG, "Cleaning bus stop favorites from DB...");
+							Iterator<Fav> it = this.newBusStopFavList.iterator();
+							while (it.hasNext()) {
+								Fav newBusStopFav = (Fav) it.next();
+								final int stopId = TripStop.getStopIdFromUID(newBusStopFav.getFkId());
+								final int routeId = TripStop.getRouteIdFromUID(newBusStopFav.getFkId());
+								final RouteTripStop rts = AbstractManager.findRouteTripStop(FavListTab.this, StmBusManager.CONTENT_URI, stopId, routeId);
+								if (rts == null) {
+									if (DataManager.deleteFav(getContentResolver(), newBusStopFav.getId())) {
+										MyLog.d(TAG, "Cleaning bus stop favorites from DB... (1 favorite removed)");
+									}
+									it.remove();
+								}
+							}
+							MyLog.d(TAG, "Cleaning bus stop favorites from DB... DONE");
+						}
 					}
 				}
 				// SUBWAY STATIONs
@@ -314,6 +331,23 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 					MyLog.d(TAG, "Loading subway station favorites from DB...");
 					this.subwayStationsList = AbstractManager.findRouteTripStops(FavListTab.this, StmSubwayManager.CONTENT_URI, this.newSubwayFavList, true);
 					MyLog.d(TAG, "Loading subway station favorites from DB... DONE");
+					if (this.subwayStationsList == null || this.subwayStationsList.size() != this.newSubwayFavList.size()) {
+						MyLog.d(TAG, "Cleaning subway station favorites from DB...");
+						Iterator<Fav> it = this.newSubwayFavList.iterator();
+						while (it.hasNext()) {
+							Fav newSubwayFav = (Fav) it.next();
+							final int stopId = TripStop.getStopIdFromUID(newSubwayFav.getFkId());
+							final int routeId = TripStop.getRouteIdFromUID(newSubwayFav.getFkId());
+							final RouteTripStop rts = AbstractManager.findRouteTripStop(FavListTab.this, StmSubwayManager.CONTENT_URI, stopId, routeId);
+							if (rts == null) {
+								if (DataManager.deleteFav(getContentResolver(), newSubwayFav.getId())) {
+									MyLog.d(TAG, "Cleaning subway station favorites from DB... (1 favorite removed)");
+								}
+								it.remove();
+							}
+						}
+						MyLog.d(TAG, "Cleaning subway station favorites from DB... DONE");
+					}
 				}
 				// BIKE STATIONs
 				this.newBikeFavList = DataManager.findFavsByTypeList(getContentResolver(), Fav.KEY_TYPE_VALUE_BIKE_STATIONS);
@@ -390,7 +424,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 	 * @param busStops the bus stops (extended)
 	 */
 	private void refreshBusStopsUI(List<Fav> newBusStopFavList, List<RouteTripStop> busStops) {
-		// MyLog.v(TAG, "refreshBusStopsUI(%s)", Utils.getCollectionSize(newBusStopFavList));
+		// MyLog.v(TAG, "refreshBusStopsUI(%s,%s)", Utils.getCollectionSize(newBusStopFavList), Utils.getCollectionSize(newBusStopFavList));
 		if (this.currentBusStopFavList == null || this.currentBusStopFavList.size() != newBusStopFavList.size()) {
 			this.currentBusStopFavList = newBusStopFavList;
 			this.busAdapter.setPois(busStops);
@@ -409,7 +443,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 	 * @param otherLines the new favorite subway stations "other lines"
 	 */
 	private void refreshSubwayStationsUI(List<Fav> newSubwayFavList, List<RouteTripStop> stations) {
-		// MyLog.v(TAG, "refreshSubwayStationsUI(%s)", Utils.getCollectionSize(stations));
+		// MyLog.v(TAG, "refreshSubwayStationsUI(%s,%s)", Utils.getCollectionSize(newSubwayFavList), Utils.getCollectionSize(stations));
 		if (this.currentSubwayStationFavList == null || this.currentSubwayStationFavList.size() != newSubwayFavList.size()) {
 			this.currentSubwayStationFavList = newSubwayFavList;
 			this.subwayAdapter.setPois(stations);
