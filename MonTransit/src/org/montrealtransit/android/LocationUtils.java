@@ -164,12 +164,18 @@ public class LocationUtils {
 	 * @param activity the activity
 	 * @param listener the listener
 	 */
-	private static void enableLocationUpdates(Activity activity, LocationListener listener) {
+	private static void enableLocationUpdates(final Activity activity, final LocationListener listener) {
 		// MyLog.v(TAG, "enableLocationUpdates()");
 		// enable location updates
-		for (String provider : getProviders(activity)) {
-			getLocationManager(activity).requestLocationUpdates(provider, MIN_TIME, MIN_DISTANCE, listener);
-		}
+		activity.runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				for (String provider : getProviders(activity)) {
+					getLocationManager(activity).requestLocationUpdates(provider, MIN_TIME, MIN_DISTANCE, listener);
+				}
+			}
+		});
 	}
 
 	public static boolean enableLocationUpdatesIfNecessary(Activity activity, LocationListener listener, boolean updatesEnabled, boolean paused) {
