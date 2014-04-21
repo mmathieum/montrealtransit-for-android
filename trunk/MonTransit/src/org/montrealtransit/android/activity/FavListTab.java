@@ -276,86 +276,48 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 		MyLog.v(TAG, "loadFavoritesFromDB()");
 		new AsyncTask<Void, Void, Void>() {
 
-			private List<Fav> newRouteStopFavList;
-			private List<Fav> newBusStopFavList;
 			private List<RouteTripStop> busStopsList;
-			private List<Fav> newSubwayFavList;
 			private List<RouteTripStop> subwayStationsList;
-			private List<Fav> newBikeFavList;
 			private Map<String, BikeStation> bikeStations;
 
 			@Override
 			protected Void doInBackground(Void... params) {
 				MyLog.v(TAG, "loadFavoritesFromDB() > doInBackground()");
-				this.newRouteStopFavList = DataManager.findFavsByTypeList(getContentResolver(), Fav.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP);
-				this.newBusStopFavList = new ArrayList<Fav>();
-				this.newSubwayFavList = new ArrayList<Fav>();
-				for (Fav newRouteStopFav : this.newRouteStopFavList) {
+				List<Fav> newRouteStopFavList = DataManager.findFavsByTypeList(getContentResolver(), Fav.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP);
+				List<Fav> newBusStopFavList = new ArrayList<Fav>();
+				List<Fav> newSubwayFavList = new ArrayList<Fav>();
+				for (Fav newRouteStopFav : newRouteStopFavList) {
 					String authority = TripStop.getAuthorityFromUID(newRouteStopFav.getFkId());
 					if (TextUtils.isEmpty(authority)) {
 						continue;
 					}
 					if (authority.contains("bus")) {
-						this.newBusStopFavList.add(newRouteStopFav);
+						newBusStopFavList.add(newRouteStopFav);
 					} else if (authority.contains("subway")) {
-						this.newSubwayFavList.add(newRouteStopFav);
+						newSubwayFavList.add(newRouteStopFav);
 					}
 				}
 				// BUS STOPs
-				if (FavListTab.this.currentBusStopFavList == null || !Fav.listEquals(FavListTab.this.currentBusStopFavList, this.newBusStopFavList)) {
-					if (Utils.getCollectionSize(this.newBusStopFavList) > 0) {
+				if (FavListTab.this.currentBusStopFavList == null || !Fav.listEquals(FavListTab.this.currentBusStopFavList, newBusStopFavList)) {
+					if (Utils.getCollectionSize(newBusStopFavList) > 0) {
 						MyLog.d(TAG, "Loading bus stop favorites from DB...");
-						this.busStopsList = AbstractManager.findRouteTripStops(FavListTab.this, StmBusManager.CONTENT_URI, this.newBusStopFavList, true);
+						this.busStopsList = AbstractManager.findRouteTripStops(FavListTab.this, StmBusManager.CONTENT_URI, newBusStopFavList, true);
 						MyLog.d(TAG, "Loading bus stop favorites from DB... DONE");
-						if (this.busStopsList == null || this.busStopsList.size() != this.newBusStopFavList.size()) {
-							MyLog.d(TAG, "Cleaning bus stop favorites from DB...");
-							Iterator<Fav> it = this.newBusStopFavList.iterator();
-							while (it.hasNext()) {
-								Fav newBusStopFav = (Fav) it.next();
-								final int stopId = TripStop.getStopIdFromUID(newBusStopFav.getFkId());
-								final int routeId = TripStop.getRouteIdFromUID(newBusStopFav.getFkId());
-								final RouteTripStop rts = AbstractManager.findRouteTripStop(FavListTab.this, StmBusManager.CONTENT_URI, stopId, routeId);
-								if (rts == null) {
-									if (DataManager.deleteFav(getContentResolver(), newBusStopFav.getId())) {
-										MyLog.d(TAG, "Cleaning bus stop favorites from DB... (1 favorite removed)");
-									}
-									it.remove();
-								}
-							}
-							MyLog.d(TAG, "Cleaning bus stop favorites from DB... DONE");
-						}
 					}
 				}
 				// SUBWAY STATIONs
-				if (FavListTab.this.currentSubwayStationFavList == null || !Fav.listEquals(FavListTab.this.currentSubwayStationFavList, this.newSubwayFavList)) {
+				if (FavListTab.this.currentSubwayStationFavList == null || !Fav.listEquals(FavListTab.this.currentSubwayStationFavList, newSubwayFavList)) {
 					MyLog.d(TAG, "Loading subway station favorites from DB...");
-					this.subwayStationsList = AbstractManager.findRouteTripStops(FavListTab.this, StmSubwayManager.CONTENT_URI, this.newSubwayFavList, true);
+					this.subwayStationsList = AbstractManager.findRouteTripStops(FavListTab.this, StmSubwayManager.CONTENT_URI, newSubwayFavList, true);
 					MyLog.d(TAG, "Loading subway station favorites from DB... DONE");
-					if (this.subwayStationsList == null || this.subwayStationsList.size() != this.newSubwayFavList.size()) {
-						MyLog.d(TAG, "Cleaning subway station favorites from DB...");
-						Iterator<Fav> it = this.newSubwayFavList.iterator();
-						while (it.hasNext()) {
-							Fav newSubwayFav = (Fav) it.next();
-							final int stopId = TripStop.getStopIdFromUID(newSubwayFav.getFkId());
-							final int routeId = TripStop.getRouteIdFromUID(newSubwayFav.getFkId());
-							final RouteTripStop rts = AbstractManager.findRouteTripStop(FavListTab.this, StmSubwayManager.CONTENT_URI, stopId, routeId);
-							if (rts == null) {
-								if (DataManager.deleteFav(getContentResolver(), newSubwayFav.getId())) {
-									MyLog.d(TAG, "Cleaning subway station favorites from DB... (1 favorite removed)");
-								}
-								it.remove();
-							}
-						}
-						MyLog.d(TAG, "Cleaning subway station favorites from DB... DONE");
-					}
 				}
 				// BIKE STATIONs
-				this.newBikeFavList = DataManager.findFavsByTypeList(getContentResolver(), Fav.KEY_TYPE_VALUE_BIKE_STATIONS);
-				if (FavListTab.this.currentBikeStationFavList == null || !Fav.listEquals(FavListTab.this.currentBikeStationFavList, this.newBikeFavList)) {
-					if (Utils.getCollectionSize(this.newBikeFavList) > 0) {
+				List<Fav> newBikeFavList = DataManager.findFavsByTypeList(getContentResolver(), Fav.KEY_TYPE_VALUE_BIKE_STATIONS);
+				if (FavListTab.this.currentBikeStationFavList == null || !Fav.listEquals(FavListTab.this.currentBikeStationFavList, newBikeFavList)) {
+					if (Utils.getCollectionSize(newBikeFavList) > 0) {
 						MyLog.d(TAG, "Loading bike station favorites from DB...");
 						this.bikeStations = BixiManager.findBikeStationsMap(getContentResolver(),
-								Utils.extractBikeStationTerminNamesFromFavList(this.newBikeFavList));
+								Utils.extractBikeStationTerminNamesFromFavList(newBikeFavList));
 						MyLog.d(TAG, "Loading bike station favorites from DB... DONE");
 					}
 				}
@@ -365,14 +327,14 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 			@Override
 			protected void onPostExecute(Void result) {
 				MyLog.v(TAG, "loadFavoritesFromDB() > onPostExecute()");
-				if (newBusStopFavList != null) { // IF favorite bus stop list was refreshed DO update the UI
-					refreshBusStopsUI(this.newBusStopFavList, this.busStopsList);
+				if (this.busStopsList != null) { // IF favorite bus stop list was refreshed DO update the UI
+					refreshBusStopsUI(this.busStopsList);
 				}
-				if (newSubwayFavList != null) { // IF favorite subway station list was refreshed DO update the UI
-					refreshSubwayStationsUI(this.newSubwayFavList, this.subwayStationsList);
+				if (this.subwayStationsList != null) { // IF favorite subway station list was refreshed DO update the UI
+					refreshSubwayStationsUI(this.subwayStationsList);
 				}
-				if (newBikeFavList != null) { // IF favorite bike station list was refreshed DO update the UI
-					refreshBikeStationsUI(this.newBikeFavList, this.bikeStations);
+				if (this.bikeStations != null) { // IF favorite bike station list was refreshed DO update the UI
+					refreshBikeStationsUI(this.bikeStations);
 				}
 				updateDistancesWithNewLocation(); // show distance if location found
 				updateCompass(FavListTab.this.lastCompassInDegree, true); // show compass if available
@@ -420,11 +382,19 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 
 	/**
 	 * Refresh the favorite bus stops UI
-	 * @param newBusStopFavList the new favorite bus stops
 	 * @param busStops the bus stops (extended)
 	 */
-	private void refreshBusStopsUI(List<Fav> newBusStopFavList, List<RouteTripStop> busStops) {
-		// MyLog.v(TAG, "refreshBusStopsUI(%s,%s)", Utils.getCollectionSize(newBusStopFavList), Utils.getCollectionSize(newBusStopFavList));
+	private void refreshBusStopsUI(List<RouteTripStop> busStops) {
+		MyLog.v(TAG, "refreshBusStopsUI(%s)", Utils.getCollectionSize(busStops));
+		List<Fav> newBusStopFavList = new ArrayList<Fav>();
+		if (busStops != null) {
+			for (RouteTripStop busStop : busStops) {
+				Fav newBusStopFav = new Fav();
+				newBusStopFav.setType(Fav.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP);
+				newBusStopFav.setFkId(busStop.getUID());
+				newBusStopFavList.add(newBusStopFav);
+			}
+		}
 		if (this.currentBusStopFavList == null || this.currentBusStopFavList.size() != newBusStopFavList.size()) {
 			this.currentBusStopFavList = newBusStopFavList;
 			this.busAdapter.setPois(busStops);
@@ -438,12 +408,19 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 
 	/**
 	 * Refresh subway station UI.
-	 * @param newSubwayFavList the new favorite subway stations list
 	 * @param stations the new favorite subway stations
-	 * @param otherLines the new favorite subway stations "other lines"
 	 */
-	private void refreshSubwayStationsUI(List<Fav> newSubwayFavList, List<RouteTripStop> stations) {
-		// MyLog.v(TAG, "refreshSubwayStationsUI(%s,%s)", Utils.getCollectionSize(newSubwayFavList), Utils.getCollectionSize(stations));
+	private void refreshSubwayStationsUI(List<RouteTripStop> stations) {
+		MyLog.v(TAG, "refreshSubwayStationsUI(%s)", Utils.getCollectionSize(stations));
+		List<Fav> newSubwayFavList = new ArrayList<Fav>();
+		if (stations != null) {
+			for (RouteTripStop station : stations) {
+				Fav newSubwayFav = new Fav();
+				newSubwayFav.setType(Fav.KEY_TYPE_VALUE_AUTHORITY_ROUTE_STOP);
+				newSubwayFav.setFkId(station.getUID());
+				newSubwayFavList.add(newSubwayFav);
+			}
+		}
 		if (this.currentSubwayStationFavList == null || this.currentSubwayStationFavList.size() != newSubwayFavList.size()) {
 			this.currentSubwayStationFavList = newSubwayFavList;
 			this.subwayAdapter.setPois(stations);
@@ -457,11 +434,19 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 
 	/**
 	 * Refresh bike station UI.
-	 * @param newBikeFavList the new favorite bike stations list
 	 * @param bikeStations the new favorite bike stations
 	 */
-	private void refreshBikeStationsUI(List<Fav> newBikeFavList, Map<String, BikeStation> bikeStations) {
-		// MyLog.v(TAG, "refreshBikeStationsUI(%s,%s)", Utils.getCollectionSize(newBikeFavList), Utils.getMapSize(bikeStations));
+	private void refreshBikeStationsUI(Map<String, BikeStation> bikeStations) {
+		MyLog.v(TAG, "refreshBikeStationsUI(%s)", Utils.getMapSize(bikeStations));
+		List<Fav> newBikeFavList = new ArrayList<Fav>();
+		if (bikeStations != null) {
+			for (BikeStation bikeStation : bikeStations.values()) {
+				Fav newBikeFav = new Fav();
+				newBikeFav.setType(Fav.KEY_TYPE_VALUE_BIKE_STATIONS);
+				newBikeFav.setFkId(bikeStation.getTerminalName());
+				newBikeFavList.add(newBikeFav);
+			}
+		}
 		if (this.currentBikeStationFavList == null || this.currentBikeStationFavList.size() != newBikeFavList.size()) {
 			LinearLayout bikeStationsLayout = (LinearLayout) findViewById(R.id.bike_stations_list);
 			// remove all bike station views
@@ -482,7 +467,7 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 					// create view
 					View view = getLayoutInflater().inflate(R.layout.fav_list_tab_bike_station_item, bikeStationsLayout, false);
 					view.setTag(getBikeStationViewTag(bikeStation));
-					// subway station name
+					// bike station name
 					((TextView) view.findViewById(R.id.station_name)).setText(Utils.cleanBikeStationName(bikeStation.getName()));
 					// add click listener
 					view.setOnClickListener(new View.OnClickListener() {
