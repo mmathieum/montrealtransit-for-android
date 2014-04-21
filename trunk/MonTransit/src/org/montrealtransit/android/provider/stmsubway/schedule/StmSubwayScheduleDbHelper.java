@@ -21,7 +21,7 @@ public class StmSubwayScheduleDbHelper extends SQLiteOpenHelper {
 
 	private static final String RAW_FILE_FORMAT = "ca_mtl_stm_subway_schedules_route_%s";
 
-	public static final int DB_VERSION = 4; // 2014-03-30
+	public static final int DB_VERSION = 5; // 2014-04-21
 
 	public static final String T_SCHEDULES = "schedules";
 	// public static final String T_SCHEDULES_K_ID = BaseColumns._ID;
