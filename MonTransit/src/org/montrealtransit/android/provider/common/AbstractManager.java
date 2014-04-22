@@ -115,6 +115,8 @@ public class AbstractManager {
 					result = cursor.getInt(0) > 0;
 				}
 			}
+		} catch (Throwable t) {
+			MyLog.w(TAG, t, "Error!");
 		} finally {
 			if (cursor != null) {
 				cursor.close();
@@ -134,6 +136,8 @@ public class AbstractManager {
 					result = cursor.getInt(0);
 				}
 			}
+		} catch (Throwable t) {
+			MyLog.w(TAG, t, "Error!");
 		} finally {
 			if (cursor != null) {
 				cursor.close();
@@ -153,6 +157,8 @@ public class AbstractManager {
 					result = cursor.getString(0);
 				}
 			}
+		} catch (Throwable t) {
+			MyLog.w(TAG, t, "Error!");
 		} finally {
 			if (cursor != null) {
 				cursor.close();
@@ -172,6 +178,8 @@ public class AbstractManager {
 					result = cursor.getInt(0) > 0;
 				}
 			}
+		} catch (Throwable t) {
+			MyLog.w(TAG, t, "Error!");
 		} finally {
 			if (cursor != null) {
 				cursor.close();
@@ -198,8 +206,9 @@ public class AbstractManager {
 		} catch (Throwable t) {
 			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return result;
 	}
@@ -250,8 +259,9 @@ public class AbstractManager {
 		} catch (Throwable t) {
 			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return route;
 	}
@@ -272,8 +282,9 @@ public class AbstractManager {
 		} catch (Throwable t) {
 			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return route;
 	}
@@ -298,8 +309,9 @@ public class AbstractManager {
 		} catch (Throwable t) {
 			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return result;
 	}
@@ -327,8 +339,9 @@ public class AbstractManager {
 		} catch (Throwable t) {
 			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return result;
 	}
@@ -372,8 +385,9 @@ public class AbstractManager {
 			MyLog.w(TAG, t, "Error!");
 			return null;
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 	}
 
@@ -543,8 +557,9 @@ public class AbstractManager {
 			MyLog.w(TAG, t, "Error!");
 			return null;
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 	}
 
@@ -618,8 +633,9 @@ public class AbstractManager {
 			MyLog.w(TAG, t, "Error!");
 			return null;
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 	}
 
@@ -657,8 +673,9 @@ public class AbstractManager {
 			MyLog.w(TAG, t, "Error!");
 			return null;
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 	}
 
@@ -677,8 +694,9 @@ public class AbstractManager {
 			MyLog.w(TAG, t, "Error!");
 			return null;
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 	}
 
@@ -697,8 +715,9 @@ public class AbstractManager {
 			MyLog.w(TAG, t, "Error!");
 			return null;
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 	}
 
@@ -716,8 +735,9 @@ public class AbstractManager {
 			MyLog.w(TAG, t, "Error!");
 			return null;
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 	}
 
@@ -751,8 +771,9 @@ public class AbstractManager {
 		} catch (Throwable t) {
 			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return stop;
 	}
@@ -773,8 +794,9 @@ public class AbstractManager {
 		} catch (Throwable t) {
 			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return stop;
 	}
@@ -844,8 +866,9 @@ public class AbstractManager {
 		} catch (Throwable t) {
 			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return stop;
 	}
@@ -867,8 +890,9 @@ public class AbstractManager {
 		} catch (Throwable t) {
 			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return stop;
 	}
@@ -891,8 +915,9 @@ public class AbstractManager {
 		} catch (Throwable t) {
 			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return stop;
 	}
@@ -913,8 +938,9 @@ public class AbstractManager {
 		} catch (Throwable t) {
 			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return trip;
 	}
@@ -936,8 +962,9 @@ public class AbstractManager {
 		} catch (Throwable t) {
 			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return result;
 	}
@@ -960,8 +987,9 @@ public class AbstractManager {
 		} catch (Throwable t) {
 			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return result;
 	}
@@ -1010,7 +1038,7 @@ public class AbstractManager {
 	}
 
 	private static List<RouteTripStop> getRouteTripStops(Cursor cursor, String authority, boolean filterByUID) {
-		MyLog.v(TAG, "getRouteTripStops()");
+		MyLog.v(TAG, "getRouteTripStops(%s,%s)", authority, filterByUID);
 		List<RouteTripStop> result = new ArrayList<RouteTripStop>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
@@ -1029,7 +1057,7 @@ public class AbstractManager {
 	}
 
 	private static List<RouteStop> getRouteStops(Cursor cursor, String authority, boolean filterByUID) {
-		MyLog.v(TAG, "getRouteStops()");
+		MyLog.v(TAG, "getRouteStops(%s,%s)", authority, filterByUID);
 		List<RouteStop> result = new ArrayList<RouteStop>();
 		if (cursor != null && cursor.getCount() > 0) {
 			if (cursor.moveToFirst()) {
@@ -1079,8 +1107,9 @@ public class AbstractManager {
 		} catch (Throwable t) {
 			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return result;
 	}
