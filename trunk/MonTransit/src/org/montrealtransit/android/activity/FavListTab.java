@@ -1,6 +1,7 @@
 package org.montrealtransit.android.activity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -304,12 +305,20 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 						this.busStopsList = AbstractManager.findRouteTripStops(FavListTab.this, StmBusManager.CONTENT_URI, newBusStopFavList, true);
 						MyLog.d(TAG, "Loading bus stop favorites from DB... DONE");
 					}
+					if (this.busStopsList == null) {
+						this.busStopsList = new ArrayList<RouteTripStop>(); // empty but updated
+					}
 				}
 				// SUBWAY STATIONs
 				if (FavListTab.this.currentSubwayStationFavList == null || !Fav.listEquals(FavListTab.this.currentSubwayStationFavList, newSubwayFavList)) {
-					MyLog.d(TAG, "Loading subway station favorites from DB...");
-					this.subwayStationsList = AbstractManager.findRouteTripStops(FavListTab.this, StmSubwayManager.CONTENT_URI, newSubwayFavList, true);
-					MyLog.d(TAG, "Loading subway station favorites from DB... DONE");
+					if (Utils.getCollectionSize(newBusStopFavList) > 0) {
+						MyLog.d(TAG, "Loading subway station favorites from DB...");
+						this.subwayStationsList = AbstractManager.findRouteTripStops(FavListTab.this, StmSubwayManager.CONTENT_URI, newSubwayFavList, true);
+						MyLog.d(TAG, "Loading subway station favorites from DB... DONE");
+					}
+					if (this.subwayStationsList == null) {
+						this.subwayStationsList = new ArrayList<RouteTripStop>(); // empty but updated
+					}
 				}
 				// BIKE STATIONs
 				List<Fav> newBikeFavList = DataManager.findFavsByTypeList(getContentResolver(), Fav.KEY_TYPE_VALUE_BIKE_STATIONS);
@@ -319,6 +328,9 @@ public class FavListTab extends Activity implements LocationListener, SensorEven
 						this.bikeStations = BixiManager.findBikeStationsMap(getContentResolver(),
 								Utils.extractBikeStationTerminNamesFromFavList(newBikeFavList));
 						MyLog.d(TAG, "Loading bike station favorites from DB... DONE");
+					}
+					if (this.bikeStations == null) {
+						this.bikeStations = new HashMap<String, BikeStation>(); // empty but updated
 					}
 				}
 				return null;
