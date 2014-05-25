@@ -486,7 +486,7 @@ public class DataManager {
 	 * @return the new added cache object or <b>NULL</b> if something wrong happen
 	 */
 	public static Cache addCache(ContentResolver contentResolver, Cache newCache) {
-		MyLog.v(TAG, "addCache(%s)", newCache.getObject());
+		MyLog.v(TAG, "addCache()");
 		final Uri uri = contentResolver.insert(Cache.CONTENT_URI, newCache.getContentValues());
 		if (uri != null) {
 			return findCache(contentResolver, uri);
