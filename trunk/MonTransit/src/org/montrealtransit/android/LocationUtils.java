@@ -84,7 +84,7 @@ public class LocationUtils {
 		Criteria criteria = new Criteria();
 		// criteria.setAccuracy(Criteria.ACCURACY_FINE); any accuracy
 		criteria.setAltitudeRequired(false); // no altitude
-		criteria.setBearingRequired(false); // no compass... for now ;)
+		criteria.setBearingRequired(true); // now using compass
 		criteria.setSpeedRequired(false); // no speed required
 		boolean enabledOnly = true; // only enabled location providers
 		List<String> providers = getLocationManager(activity).getProviders(criteria, enabledOnly);
