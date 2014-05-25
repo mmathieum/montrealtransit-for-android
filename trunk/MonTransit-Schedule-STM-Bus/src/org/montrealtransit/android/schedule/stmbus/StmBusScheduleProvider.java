@@ -1,14 +1,14 @@
 package org.montrealtransit.android.schedule.stmbus;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.json.JSONArray;
@@ -16,7 +16,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.data.RouteTripStop;
-import org.montrealtransit.android.data.ScheduleColumns;
 import org.montrealtransit.android.data.ServiceDateColumns;
 import org.montrealtransit.android.schedule.stmbus.activity.SplashScreen;
 
@@ -30,6 +29,7 @@ import android.database.MatrixCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.text.TextUtils;
 
 public class StmBusScheduleProvider extends ContentProvider {
 
@@ -75,14 +75,9 @@ public class StmBusScheduleProvider extends ContentProvider {
 
 	}
 
-	private static final String SCHEDULE_SERVICE_DATE_JOIN = StmBusScheduleDbHelper.T_SCHEDULES + " LEFT OUTER JOIN " + StmBusScheduleDbHelper.T_SERVICE_DATES
-			+ " ON " + StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_SERVICE_ID + "="
-			+ StmBusScheduleDbHelper.T_SERVICE_DATES + "." + StmBusScheduleDbHelper.T_SERVICE_DATES_K_SERVICE_ID;
-
 	private static StmBusScheduleDbHelper stmBusScheduleDbHelper;
-	private static String stmBusScheduleDbHelperRouteId;
 
-	private static Map<String, Integer> currentDbVersion = new HashMap<String, Integer>();
+	private static int currentDbVersion = -1;
 
 	@Override
 	public boolean onCreate() {
@@ -92,44 +87,30 @@ public class StmBusScheduleProvider extends ContentProvider {
 		return true;
 	}
 
-	private static StmBusScheduleDbHelper getDBHelper(Context context, String routeId) {
-		MyLog.v(TAG, "getDBHelper(%s)", routeId);
-		if (stmBusScheduleDbHelperRouteId != null && !stmBusScheduleDbHelperRouteId.equals(routeId)) {
-			MyLog.d(TAG, "getDBHelper(%s) > Not current DB helper! (was %s)", routeId, stmBusScheduleDbHelperRouteId);
-			closeDbHelper();
-		}
+	private StmBusScheduleDbHelper getDBHelper(Context context) {
+		MyLog.v(TAG, "getDBHelper()");
 		if (stmBusScheduleDbHelper == null) { // initialize
 			MyLog.d(TAG, "Initialize DB...");
-			stmBusScheduleDbHelper = new StmBusScheduleDbHelper(context.getApplicationContext(), routeId);
-			stmBusScheduleDbHelperRouteId = routeId;
-			currentDbVersion.put(routeId, StmBusScheduleDbHelper.DB_VERSION);
+			stmBusScheduleDbHelper = new StmBusScheduleDbHelper(context.getApplicationContext());
+			currentDbVersion = StmBusScheduleDbHelper.DB_VERSION;
 		} else { // reset
 			try {
-				if (currentDbVersion.containsKey(routeId) || currentDbVersion.get(routeId) != StmBusScheduleDbHelper.DB_VERSION) {
-					MyLog.d(TAG, "Update DB... (deployed version:%s, new version: %s)", currentDbVersion.get(routeId), StmBusScheduleDbHelper.DB_VERSION);
-					closeDbHelper();
-					return getDBHelper(context, routeId);
+				if (currentDbVersion != StmBusScheduleDbHelper.DB_VERSION) {
+					MyLog.d(TAG, "Update DB...");
+					stmBusScheduleDbHelper.close();
+					stmBusScheduleDbHelper = null;
+					return getDBHelper(context);
 				}
-			} catch (Exception e) {
+			} catch (Throwable t) {
 				// fail if locked, will try again later
-				MyLog.d(TAG, e, "Can't check DB version!");
+				MyLog.d(TAG, t, "Can't check DB version!");
 			}
 		}
 		return stmBusScheduleDbHelper;
 	}
 
-	private static void closeDbHelper() {
-		if (stmBusScheduleDbHelper != null) {
-			stmBusScheduleDbHelper.close();
-			stmBusScheduleDbHelper = null;
-			stmBusScheduleDbHelperRouteId = null;
-		}
-	}
-
 	public static final String SCHEDULE_CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd." + AUTHORITY + ".schedule";
 	public static final String DEPARTURE_CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/vnd." + AUTHORITY + ".departure";
-
-	public static final String SCHEDULE_SORT_ORDER = StmBusScheduleDbHelper.T_SCHEDULES + "." + StmBusScheduleDbHelper.T_SCHEDULES_K_DEPARTURE + " ASC";
 
 	@Override
 	public String getType(Uri uri) {
@@ -423,6 +404,8 @@ public class StmBusScheduleProvider extends ContentProvider {
 								getContext().getString(R.string.offline_schedule)));
 			}
 			// MyLog.d(TAG, "jResult: %s", jResult);
+			// TODO cache // save to cache
+			// TODO cache saveToCache(cacheUUID, jResult);
 			// return result
 			return getDepartureCursor(jResult);
 		} catch (JSONException jsone) {
@@ -440,35 +423,29 @@ public class StmBusScheduleProvider extends ContentProvider {
 		return matrixCursor;
 	}
 
-	private static final String[] PROJECTION_SCHEDULE = new String[] { "departure" };
+	private static final String[] PROJECTION_SERVICE_DATES = new String[] { "service_id" };
+
+	private static final String RAW_FILE_FORMAT = "ca_mtl_stm_bus_schedules_stop_%s";
 
 	private Set<Long> findScheduleList(int routeId, int tripId, int stopId, String dateS, String timeS) {
 		MyLog.v(TAG, "findScheduleList(%s,%s,%s,%s,%s)", routeId, tripId, stopId, dateS, timeS);
+		long timeI = Integer.parseInt(timeS);
 		Set<Long> result = new HashSet<Long>();
+		Set<String> serviceIds = new HashSet<String>();
 		Cursor cursor = null;
 		try {
 			StringBuilder whereSb = new StringBuilder();
-			whereSb.append(ScheduleColumns.T_SCHEDULES_K_TRIP_ID).append("=").append(tripId);
-			whereSb.append(" AND ");
-			whereSb.append(ScheduleColumns.T_SCHEDULES_K_STOP_ID).append("=").append(stopId);
-			if (whereSb.length() > 0) {
-				whereSb.append(" AND ");
-			}
 			whereSb.append(ServiceDateColumns.T_SERVICE_DATES_K_DATE).append("=").append(dateS);
-			if (whereSb.length() > 0) {
-				whereSb.append(" AND ");
-			}
-			whereSb.append(ScheduleColumns.T_SCHEDULES_K_DEPARTURE).append(">=").append(timeS);
-			SQLiteDatabase db = getDBHelper(getContext(), String.valueOf(routeId)).getReadableDatabase();
+			SQLiteDatabase db = getDBHelper(getContext()).getReadableDatabase();
 			SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-			qb.setTables(SCHEDULE_SERVICE_DATE_JOIN);
-			cursor = qb.query(db, PROJECTION_SCHEDULE, whereSb.toString(), null, null, null, SCHEDULE_SORT_ORDER, null);
+			qb.setTables(StmBusScheduleDbHelper.T_SERVICE_DATES);
+			cursor = qb.query(db, PROJECTION_SERVICE_DATES, whereSb.toString(), null, null, null, null, null);
 			if (cursor != null && cursor.getCount() > 0) {
 				if (cursor.moveToFirst()) {
 					do {
-						final Long timestamp = convertToTimestamp(cursor.getString(0), dateS);
-						if (timestamp != null) {
-							result.add(timestamp);
+						final String serviceId = cursor.getString(0);
+						if (!TextUtils.isEmpty(serviceId)) {
+							serviceIds.add(serviceId);
 						}
 					} while (cursor.moveToNext());
 				}
@@ -480,17 +457,70 @@ public class StmBusScheduleProvider extends ContentProvider {
 				cursor.close();
 			}
 		}
+		// MyLog.d(TAG, "findScheduleList() > found %s service(s)", serviceIds.size());
+		// read file
+		BufferedReader br = null;
+		String line = null;
+		String fileName = String.format(RAW_FILE_FORMAT, stopId);
+		try {
+			br = new BufferedReader(new InputStreamReader(getContext().getResources().openRawResource(
+					getContext().getResources().getIdentifier(fileName, "raw", getContext().getPackageName())), "UTF8"), 8192);
+			while ((line = br.readLine()) != null) {
+				// db.execSQL(String.format(sqlInsert, line));
+				try {
+					String[] lineItems = line.split(",");
+					if (lineItems.length != 4) {
+						MyLog.w(TAG, "Cannot parse schedule '%s'!", line);
+						continue;
+					}
+					final String lineServiceId = lineItems[0].substring(1, lineItems[0].length() - 1);
+					if (!serviceIds.contains(lineServiceId)) {
+						// MyLog.d(TAG, "Wrong service id '%s' while looking for service ids '%s'!", lineServiceId, serviceIds);
+						continue;
+					}
+					// MyLog.d(TAG, "GOOD service id '%s' while looking for service ids '%s'!", lineServiceId, serviceIds);
+					final int lineTripId = Integer.parseInt(lineItems[1]);
+					if (tripId != lineTripId) { // TODO LATER other trip ID schedule maybe useful in cache ???
+						// MyLog.d(TAG, "Wrong trip id '%s' while looking for trip id '%s'!", lineTripId, tripId);
+						continue;
+					}
+					final int lineStopId = Integer.parseInt(lineItems[2]);
+					if (stopId != lineStopId) {
+						MyLog.w(TAG, "Wrong stop id '%s' while looking for stop id '%s'!", lineStopId, stopId);
+						continue;
+					}
+					final int lineDeparture = Integer.parseInt(lineItems[3]);
+					if (lineDeparture > timeI) {
+						result.add(convertToTimestamp(lineDeparture, dateS));
+						// } else {
+						// MyLog.d(TAG, "Too soon '%s' (after:%s)!", lineDeparture, timeI);
+					}
+				} catch (Exception e) {
+					MyLog.w(TAG, e, "Cannot parse schedule '%s' (fileName: %s)!", line, fileName);
+				}
+			}
+			// }
+		} catch (Exception e) {
+			MyLog.w(TAG, e, "ERROR while reading stop time from file! (fileName: %s, line: %s)", fileName, line);
+		} finally {
+			try {
+				if (br != null) {
+					br.close();
+				}
+			} catch (Exception e) {
+				MyLog.w(TAG, "ERROR while closing the input stream!", e);
+			}
+		}
 		return result;
 	}
 
 	public static final SimpleDateFormat TO_TIMESTAMP_FORMAT = new SimpleDateFormat("yyyyMMdd" + "HHmmss");
 
-	private Long convertToTimestamp(String dbDepartureLocalTime, String dateS) {
+	private Long convertToTimestamp(int timeInt, String dateS) {
 		try {
-			int timeInt = Integer.valueOf(dbDepartureLocalTime);
 			return TO_TIMESTAMP_FORMAT.parse(dateS + String.format("%06d", timeInt)).getTime();
 		} catch (Exception e) {
-			MyLog.w(TAG, e, "Error while parsing time %s %s!", dateS, dbDepartureLocalTime);
+			MyLog.w(TAG, e, "Error while parsing time %s %s!", dateS, timeInt);
 			return null;
 		}
 	}
