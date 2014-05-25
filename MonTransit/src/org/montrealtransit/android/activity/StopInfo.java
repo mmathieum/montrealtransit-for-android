@@ -1152,7 +1152,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 			setTaskAsCompleted();
 			return;
 		}
-		MyLog.d(TAG, "%s:%s", results.keySet(), results.values());
+		// MyLog.d(TAG, "%s:%s", results.keySet(), results.values());
 		StopTimes result = results.get(this.routeTripStop.getUUID());
 		if (result == null) {
 			MyLog.d(TAG, "No result for this trip! (%s)", scheduleAuthority);

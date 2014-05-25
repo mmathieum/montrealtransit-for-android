@@ -106,12 +106,14 @@ public abstract class AbstractScheduleProvider extends ContentProvider {
 						// cache not valid, returning empty
 					}
 				}
+				// MyLog.d(TAG, "getDeparture() > use cache (only)");
 				return getDepartureCursor(jResult);
 			}
 			// IF cache doesn't have to be refreshed DO return cache
 			int tooOld = Utils.currentTimeSec() - cacheNotRefreshedInSec;
 			if (cache != null && tooOld <= cache.getDate()) {
 				try {
+					// MyLog.d(TAG, "getDeparture() > use cache");
 					return getDepartureCursor(new JSONObject(cache.getObject()));
 				} catch (JSONException jsone) {
 					MyLog.w(TAG, jsone, "Error while parsing JSON from cache!");
@@ -121,6 +123,7 @@ public abstract class AbstractScheduleProvider extends ContentProvider {
 			final Calendar now = Calendar.getInstance();
 			now.setTimeInMillis(timestamp);
 			// get departure from content provider
+			// MyLog.d(TAG, "getDeparture() > NOT use cache, use content provider");
 			return getDeparture(routeTripStop, now, cache, cacheUUID);
 		} catch (JSONException jsone) {
 			MyLog.w(TAG, jsone, "Error while parsing JSON '%s'!", selection);
@@ -158,9 +161,10 @@ public abstract class AbstractScheduleProvider extends ContentProvider {
 	}
 
 	public void saveToCache(String uuid, JSONObject jResult) {
-		MyLog.v(TAG, "saveToCache(%s,%s)", uuid, jResult);
+		MyLog.v(TAG, "saveToCache(%s)", uuid);
 		final JSONArray jTimestamps = jResult == null ? null : jResult.optJSONArray("timestamps");
 		if (jTimestamps == null || jTimestamps.length() == 0) {
+			// MyLog.d(TAG, "saveToCache(%s,%s) > skipped because no timestamp", uuid, jResult);
 			return;
 		}
 		Cache newCache = new Cache(Cache.KEY_TYPE_VALUE_AUTHORITY_ROUTE_TRIP_STOP_JSON, uuid, jResult.toString());
