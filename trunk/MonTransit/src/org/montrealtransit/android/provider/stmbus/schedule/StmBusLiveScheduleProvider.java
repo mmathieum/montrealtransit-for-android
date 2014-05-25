@@ -159,11 +159,15 @@ public class StmBusLiveScheduleProvider extends AbstractScheduleProvider {
 				}
 			} catch (UnknownHostException uhe) {
 				MyLog.w(TAG, uhe, "No Internet Connection!");
-				jMessages.put(noOfflineSchedule);
+				if (!TextUtils.isEmpty(noOfflineSchedule)) {
+					jMessages.put(noOfflineSchedule);
+				}
 				jMessages.put(noInternetMsg);
 			} catch (SocketException se) {
 				MyLog.w(TAG, se, "No Internet Connection!");
-				jMessages.put(noOfflineSchedule);
+				if (!TextUtils.isEmpty(noOfflineSchedule)) {
+					jMessages.put(noOfflineSchedule);
+				}
 				jMessages.put(noInternetMsg);
 			} catch (Exception e) {
 				MyLog.e(TAG, e, "INTERNAL ERROR: Unknown Exception");

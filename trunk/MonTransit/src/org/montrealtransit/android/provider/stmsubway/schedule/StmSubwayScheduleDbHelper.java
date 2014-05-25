@@ -2,12 +2,8 @@ package org.montrealtransit.android.provider.stmsubway.schedule;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.montrealtransit.android.MyLog;
-import org.montrealtransit.android.R;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -17,31 +13,14 @@ public class StmSubwayScheduleDbHelper extends SQLiteOpenHelper {
 
 	public static final String TAG = StmSubwayScheduleDbHelper.class.getSimpleName();
 
-	public static final String DB_NAME_FORMAT = "stmsubwayschedule_route_%s.db";
+	public static final String DB_NAME = "stmsubwayschedule_service_dates.db";
 
-	private static final String RAW_FILE_FORMAT = "ca_mtl_stm_subway_schedules_route_%s";
-
-	public static final int DB_VERSION = 6; // 2014-04-28
-
-	public static final String T_SCHEDULES = "schedules";
-	// public static final String T_SCHEDULES_K_ID = BaseColumns._ID;
-	public static final String T_SCHEDULES_K_SERVICE_ID = "service_id";
-	public static final String T_SCHEDULES_K_TRIP_ID = "trip_id";
-	public static final String T_SCHEDULES_K_STOP_ID = "stop_id";
-	public static final String T_SCHEDULES_K_DEPARTURE = "departure";
+	public static final int DB_VERSION = 7; // 2014-04-28
 
 	public static final String T_SERVICE_DATES = "service_dates";
 	// public static final String T_SERVICE_DATES_K_ID = BaseColumns._ID;
 	public static final String T_SERVICE_DATES_K_SERVICE_ID = "service_id";
 	public static final String T_SERVICE_DATES_K_DATE = "date";
-
-	private static final String DATABASE_CREATE_T_SCHEDULES = "CREATE TABLE IF NOT EXISTS " + T_SCHEDULES + " (" //
-			// + T_SCHEDULES_K_ID + " integer PRIMARY KEY AUTOINCREMENT, " //
-			+ T_SCHEDULES_K_SERVICE_ID + " text, " //
-			+ T_SCHEDULES_K_TRIP_ID + " integer, " //
-			+ T_SCHEDULES_K_STOP_ID + " integer, " //
-			+ T_SCHEDULES_K_DEPARTURE + " integer" //
-			+ ");";
 
 	private static final String DATABASE_CREATE_T_SERVICE_DATES = "CREATE TABLE IF NOT EXISTS " + T_SERVICE_DATES + " (" //
 			// + T_SERVICE_DATES_K_ID + " integer PRIMARY KEY AUTOINCREMENT, " //
@@ -49,27 +28,19 @@ public class StmSubwayScheduleDbHelper extends SQLiteOpenHelper {
 			+ T_SERVICE_DATES_K_DATE + " integer" //
 			+ ");";
 
-	public static final String T_SCHEDULES_SQL_INSERT = "INSERT INTO " + T_SCHEDULES + " (" + T_SCHEDULES_K_SERVICE_ID + "," + T_SCHEDULES_K_TRIP_ID + ","
-			+ T_SCHEDULES_K_STOP_ID + "," + T_SCHEDULES_K_DEPARTURE + ") VALUES(%s)";
-
 	public static final String T_SERVICE_DATES_SQL_INSERT = "INSERT INTO " + T_SERVICE_DATES + " (" + T_SERVICE_DATES_K_SERVICE_ID + ","
 			+ T_SERVICE_DATES_K_DATE + ") VALUES(%s)";
-
-	private static final String DATABASE_DROP_T_SCHEDULES = "DROP TABLE IF EXISTS " + T_SCHEDULES;
 
 	private static final String DATABASE_DROP_T_SERVICE_DATES = "DROP TABLE IF EXISTS " + T_SERVICE_DATES;
 
 	private Context context;
 
-	private String routeId;
-
 	private boolean deployingData = false;
 
-	public StmSubwayScheduleDbHelper(Context context, String routeId) {
-		super(context, String.format(DB_NAME_FORMAT, routeId), null, DB_VERSION);
-		MyLog.v(TAG, "StmSubwayScheduleDbHelper(%s, %s)", String.format(DB_NAME_FORMAT, routeId), DB_VERSION);
+	public StmSubwayScheduleDbHelper(Context context) {
+		super(context, DB_NAME, null, DB_VERSION);
+		MyLog.v(TAG, "StmSubwayScheduleDbHelper(%s, %s)", DB_NAME, DB_VERSION);
 		this.context = context;
-		this.routeId = routeId;
 	}
 
 	@Override
@@ -83,10 +54,27 @@ public class StmSubwayScheduleDbHelper extends SQLiteOpenHelper {
 		MyLog.v(TAG, "onUpgrade(%s, %s)", oldVersion, newVersion);
 		MyLog.d(TAG, "Upgrading database from version %s to %s.", oldVersion, newVersion);
 		switch (oldVersion) {
-		// case X: TODO incremental
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+		case 6: // before version 7, 1 DB per route => deleting those old DB files
+			try {
+				String oldDBNameStartWith = "stmsubwayschedule_route_";
+				for (String dbName : this.context.databaseList()) {
+					if (dbName.startsWith(oldDBNameStartWith)) {
+						if (this.context.deleteDatabase(dbName)) {
+							MyLog.d(TAG, "Deleted old database '%s'.", dbName);
+						}
+					}
+				}
+			} catch (Exception e) {
+				MyLog.w(TAG, "Error while trying to delete old database(s)!");
+			}
+			// TODO case X: incremental
 		default:
 			MyLog.d(TAG, "Old data destroyed!");
-			db.execSQL(DATABASE_DROP_T_SCHEDULES);
 			db.execSQL(DATABASE_DROP_T_SERVICE_DATES);
 			initAllDbTables(db);
 			break;
@@ -98,7 +86,7 @@ public class StmSubwayScheduleDbHelper extends SQLiteOpenHelper {
 		try {
 			// wait until the data is deployed
 			while (this.deployingData) {
-				MyLog.d(TAG, "waiting 1 second before closing route %s DB...", routeId);
+				MyLog.d(TAG, "waiting 1 second before closing DB...");
 				try {
 					Thread.sleep(1 * 1000);
 				} catch (InterruptedException ie) {
@@ -120,22 +108,8 @@ public class StmSubwayScheduleDbHelper extends SQLiteOpenHelper {
 		// service dates
 		initDbTableWithRetry(db, T_SERVICE_DATES, DATABASE_CREATE_T_SERVICE_DATES, T_SERVICE_DATES_SQL_INSERT, DATABASE_DROP_T_SERVICE_DATES,
 				new String[] { "ca_mtl_stm_subway_service_dates" });
-		final String startingWith = String.format(RAW_FILE_FORMAT, this.routeId);
-		List<String> rawFileNames = new ArrayList<String>();
-		try {
-			Field[] fields = R.raw.class.getFields();
-			for (Field f : fields) {
-				if (f.getName().startsWith(startingWith)) {
-					rawFileNames.add(f.getName());
-				}
-			}
-		} catch (Exception e) {
-			MyLog.w(TAG, e, "Error while listing raw files for route %s!", this.routeId);
-		}
-		initDbTableWithRetry(db, T_SCHEDULES, DATABASE_CREATE_T_SCHEDULES, T_SCHEDULES_SQL_INSERT, DATABASE_DROP_T_SCHEDULES,
-				rawFileNames.toArray(new String[] {}));
 		this.deployingData = false;
-		MyLog.v(TAG, "initAllDbTables() - DONE (route: %s)", routeId);
+		MyLog.v(TAG, "initAllDbTables() - DONE");
 	}
 
 	private void initDbTableWithRetry(SQLiteDatabase dataBase, String table, String createSQL, String insertSQL, String dropSQL, String[] fileNames) {
