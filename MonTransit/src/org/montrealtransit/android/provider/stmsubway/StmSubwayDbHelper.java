@@ -13,7 +13,7 @@ public class StmSubwayDbHelper extends AbstractDbHelper {
 
 	public static final String DB_NAME = "stmsubway.db";
 
-	public static final int DB_VERSION = 2; // 2014-01-06
+	public static final int DB_VERSION = 3; // 2014-06-23
 
 	public static final int LABEL = R.string.ca_mtl_stm_subway_label;
 
@@ -33,20 +33,20 @@ public class StmSubwayDbHelper extends AbstractDbHelper {
 		return DB_VERSION;
 	}
 
-	@Override
-	public String getUID() {
-		return StmSubwayProvider.AUTHORITY; // TODO "ca_mtl_stm_subway";
-	}
+	// @Override
+	// public String getUID() {
+	// return StmSubwayProvider.AUTHORITY; // TODO "ca_mtl_stm_subway";
+	// }
 
 	@Override
 	public String getDbName() {
 		return DB_NAME;
 	}
 
-	@Override
-	public int getLabel() {
-		return LABEL;
-	}
+	// @Override
+	// public int getLabel() {
+	// return LABEL;
+	// }
 
 	@Override
 	public int[] getRouteFiles() {
