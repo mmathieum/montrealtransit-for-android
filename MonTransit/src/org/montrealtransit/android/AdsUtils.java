@@ -13,14 +13,12 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.view.View;
 
-import com.google.ads.Ad;
-import com.google.ads.AdListener;
-import com.google.ads.AdRequest;
-import com.google.ads.AdRequest.ErrorCode;
-import com.google.ads.AdView;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 /**
- * This class contains useful methods to interact with AdMob SDK.
+ * This class contains useful methods to interact with Google Mobile Ads SDK.
  * @author Mathieu Méa
  */
 public class AdsUtils {
@@ -68,8 +66,8 @@ public class AdsUtils {
 	@SuppressWarnings("deprecation")
 	public static void setupAd(final Activity activity) {
 		MyLog.v(TAG, "setupAd()");
-		if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.ECLAIR_MR1) {
-			return; // no ads before 2.1 (limited support)
+		if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.GINGERBREAD) {
+			return; // no ads before 2.3 (limited support)
 		}
 		new AsyncTask<Void, Void, Boolean>() {
 			@Override
@@ -79,64 +77,150 @@ public class AdsUtils {
 
 			@Override
 			protected void onPostExecute(Boolean result) {
-				View adLayout = activity.findViewById(R.id.ad_layout);
 				if (result) {
 					// show ads
+					View adLayout = activity.findViewById(R.id.ad_layout);
 					if (adLayout != null) {
-						adLayout.setVisibility(View.VISIBLE);
 						AdView adView = (AdView) adLayout.findViewById(R.id.ad);
 						// IF the ad view is present in the layout AND not already loaded DO
-						if (adView != null && !adView.isReady()) {
-							adView.setVisibility(View.VISIBLE);
-							AdRequest adRequest = new AdRequest();
-							adRequest.setLocation(LocationUtils.getBestLastKnownLocation(activity));
-							adRequest.setKeywords(KEYWORDS);
-							if (DEBUG) {
-								adRequest.addTestDevice(AdRequest.TEST_EMULATOR);
-								adRequest.addTestDevice(activity.getString(R.string.admob_test_device_id));
-								adView.setAdListener(new AdListener() {
-									@Override
-									public void onDismissScreen(Ad ad) {
-										MyLog.v(TAG, "onDismissScreen()");
-									}
+						if (adView != null) {
+							AdRequest.Builder adRequestBd = new AdRequest.Builder();
+							adRequestBd.setLocation(LocationUtils.getBestLastKnownLocation(activity));
+							for (String keyword : KEYWORDS) {
+								adRequestBd.addKeyword(keyword);
+							}
+							adView.setAdListener(new AdListener() {
 
-									@Override
-									public void onFailedToReceiveAd(Ad ad, ErrorCode errorCode) {
-										MyLog.v(TAG, "onFailedToReceiveAd()");
+								@Override
+								public void onAdFailedToLoad(int errorCode) {
+									MyLog.v(TAG, "onAdFailedToLoad(%s)", errorCode);
+									super.onAdFailedToLoad(errorCode);
+									// print error code
+									switch (errorCode) {
+									case AdRequest.ERROR_CODE_INTERNAL_ERROR:
+										MyLog.w(TAG, "Failed to received ad! Internal error code: '%s'.", errorCode);
+										break;
+									case AdRequest.ERROR_CODE_INVALID_REQUEST:
+										MyLog.w(TAG, "Failed to received ad! Invalid request error code: '%s'.", errorCode);
+										break;
+									case AdRequest.ERROR_CODE_NETWORK_ERROR:
+										MyLog.w(TAG, "Failed to received ad! Network error code: '%s'.", errorCode);
+										break;
+									case AdRequest.ERROR_CODE_NO_FILL:
+										MyLog.w(TAG, "Failed to received ad! No fill error code: '%s'.", errorCode);
+										break;
+									default:
 										MyLog.w(TAG, "Failed to received ad! Error code: '%s'.", errorCode);
 									}
+									// hide ads
+									hideAds(activity);
+								}
 
-									@Override
-									public void onLeaveApplication(Ad ad) {
-										MyLog.v(TAG, "onLeaveApplication()");
-									}
+								@Override
+								public void onAdLoaded() {
+									MyLog.v(TAG, "onAdLoaded()");
+									super.onAdLoaded();
+									// show ads
+									showAds(activity);
+								}
 
-									@Override
-									public void onPresentScreen(Ad ad) {
-										MyLog.v(TAG, "onPresentScreen()");
-									}
+								@Override
+								public void onAdClosed() {
+									MyLog.v(TAG, "onAdClosed()");
+									super.onAdClosed();
+								}
 
-									@Override
-									public void onReceiveAd(Ad ad) {
-										MyLog.v(TAG, "onReceiveAd()");
-									}
-								});
+								@Override
+								public void onAdLeftApplication() {
+									MyLog.v(TAG, "onAdLeftApplication()");
+									super.onAdLeftApplication();
+								}
+
+								@Override
+								public void onAdOpened() {
+									MyLog.v(TAG, "onAdOpened()");
+									super.onAdOpened();
+								}
+							});
+							if (DEBUG) {
+								adRequestBd.addTestDevice(AdRequest.DEVICE_ID_EMULATOR);
+								adRequestBd.addTestDevice(activity.getString(R.string.admob_test_device_id));
 							}
-							adView.loadAd(adRequest); // StrictModeDiskReadViolation
+							adView.loadAd(adRequestBd.build()); // StrictModeDiskReadViolation
 						}
 					}
 				} else {
 					// hide ads
-					if (adLayout != null) {
-						adLayout.setVisibility(View.GONE);
-						AdView adView = (AdView) adLayout.findViewById(R.id.ad);
-						if (adView != null) {
-							adView.setVisibility(View.GONE);
-						}
-					}
+					hideAds(activity);
 				}
 			};
 		}.execute();
+	}
+
+	/**
+	 * Show the ads in the activity.
+	 * @param activity the activity
+	 */
+	public static void showAds(Activity activity) {
+		MyLog.v(TAG, "showAds()");
+		View adLayout = activity.findViewById(R.id.ad_layout);
+		if (adLayout != null) {
+			adLayout.setVisibility(View.VISIBLE);
+			AdView adView = (AdView) adLayout.findViewById(R.id.ad);
+			if (adView != null) {
+				adView.setVisibility(View.VISIBLE);
+			}
+		}
+	}
+
+	/**
+	 * Hide the ads in the activity.
+	 * @param activity the activity
+	 */
+	public static void hideAds(Activity activity) {
+		MyLog.v(TAG, "hideAds()");
+		View adLayout = activity.findViewById(R.id.ad_layout);
+		if (adLayout != null) {
+			adLayout.setVisibility(View.GONE);
+			AdView adView = (AdView) adLayout.findViewById(R.id.ad);
+			if (adView != null) {
+				adView.setVisibility(View.GONE);
+			}
+		}
+	}
+
+	/**
+	 * Pause the ad in the activity.
+	 * @param activity the activity
+	 */
+	public static void pauseAd(Activity activity) {
+		MyLog.v(TAG, "pauseAd()");
+		if (AD_ENABLED && isShowingAds(activity)) {
+			View adLayout = activity.findViewById(R.id.ad_layout);
+			if (adLayout != null) {
+				AdView adView = (AdView) adLayout.findViewById(R.id.ad);
+				if (adView != null) {
+					adView.pause();
+				}
+			}
+		}
+	}
+
+	/**
+	 * Resume the ad in the activity.
+	 * @param activity the activity
+	 */
+	public static void resumeAd(Activity activity) {
+		MyLog.v(TAG, "resumeAd()");
+		if (AD_ENABLED && isShowingAds(activity)) {
+			View adLayout = activity.findViewById(R.id.ad_layout);
+			if (adLayout != null) {
+				AdView adView = (AdView) adLayout.findViewById(R.id.ad);
+				if (adView != null) {
+					adView.resume();
+				}
+			}
+		}
 	}
 
 	/**
@@ -144,12 +228,12 @@ public class AdsUtils {
 	 * @param activity the activity
 	 */
 	public static void destroyAd(Activity activity) {
+		MyLog.v(TAG, "destroyAd()");
 		if (AD_ENABLED && isShowingAds(activity)) {
 			View adLayout = activity.findViewById(R.id.ad_layout);
 			if (adLayout != null) {
 				AdView adView = (AdView) adLayout.findViewById(R.id.ad);
 				if (adView != null) {
-					adView.stopLoading();
 					adView.removeAllViews();
 					adView.destroy();
 				}
@@ -164,6 +248,9 @@ public class AdsUtils {
 	@SuppressWarnings("deprecation")
 	public static boolean isShowingAds(Context context) {
 		MyLog.v(TAG, "isShowingAds()");
+		if (!AD_ENABLED) {
+			return false;
+		}
 		if (Integer.parseInt(Build.VERSION.SDK) < Build.VERSION_CODES.GINGERBREAD) {
 			return false; // no ads before 2.3 (limited support)
 		}
@@ -177,7 +264,7 @@ public class AdsUtils {
 				UserPreferences.savePrefDefault(context, UserPreferences.PREFS_ADS, AdsUtils.showingAds);
 			}
 		}
-		return AD_ENABLED ? AdsUtils.showingAds : AD_ENABLED;
+		return AdsUtils.showingAds;
 	}
 
 	/**
