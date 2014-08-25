@@ -229,6 +229,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		refreshFavoriteIDsFromDB();
 		adaptToScreenSize(getResources().getConfiguration());
+		AdsUtils.resumeAd(this);
 	}
 
 	@Override
@@ -270,6 +271,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 			this.shakeUpdatesEnabled = false;
 		}
 		this.adapter.onPause();
+		AdsUtils.pauseAd(this);
 		super.onPause();
 	}
 

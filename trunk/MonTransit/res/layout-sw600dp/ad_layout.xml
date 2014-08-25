@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"
-	android:id="@+id/ad_layout"
-	android:layout_height="wrap_content" android:layout_width="fill_parent"
-	android:layout_alignParentBottom="true"
-	android:visibility="gone">
-	<com.google.ads.AdView android:id="@+id/ad"
-		android:layout_width="wrap_content" android:layout_height="wrap_content"
-		android:visibility="gone"
-		android:layout_centerHorizontal="true"
-		ads:adUnitId="@string/admob_publisher_id" ads:adSize="IAB_BANNER"
-		ads:loadAdOnCreate="false" />
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/ad_layout"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true"
+    android:visibility="gone" >
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/ad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        ads:adSize="IAB_BANNER"
+        ads:adUnitId="@string/admob_publisher_id"
+        android:visibility="gone" />
 </RelativeLayout>

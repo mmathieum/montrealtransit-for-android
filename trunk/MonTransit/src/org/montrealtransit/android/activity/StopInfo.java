@@ -383,6 +383,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 		}
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		AdsUtils.setupAd(this);
+		AdsUtils.resumeAd(this);
 		refreshFavoriteIDsFromDB();
 		setStopFromIntent(getIntent(), null);
 		setIntent(null); // set intent as processed
@@ -403,6 +404,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 			this.compassUpdatesEnabled = false;
 		}
 		this.adapter.onPause();
+		AdsUtils.pauseAd(this);
 		super.onPause();
 	}
 

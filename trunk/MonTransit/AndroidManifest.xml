@@ -6,7 +6,7 @@
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 	<uses-permission android:name="android.permission.INTERNET" />
-	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /><!-- required for Google Analytics & Google AdMob -->
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /><!-- required for Google Analytics & Google Mobile Ads -->
 	<uses-permission android:name="android.permission.NFC" /><!-- required for Android Beam -->
 	<!-- TraceView <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/> /-->
 	<!-- mock location dev uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION" /-->
@@ -95,9 +95,9 @@
 			</intent-filter>
 			<meta-data android:name="android.app.searchable" android:resource="@xml/searchable" />
 		</activity>
-		<!-- GOOGLE ADMOB ACTIVITY -->
-		<activity android:name="com.google.ads.AdActivity"
-			android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
+		<!-- GOOGLE MOBILE ADS ACTIVITY -->
+		<activity android:name="com.google.android.gms.ads.AdActivity"
+			android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"/>
 		<!-- Used for install referrer tracking -->
 		<receiver android:name="com.google.android.apps.analytics.AnalyticsReceiver"
 			android:exported="true">
@@ -105,5 +105,7 @@
 				<action android:name="com.android.vending.INSTALL_REFERRER" />
 			</intent-filter>
 		</receiver>
+		<!-- GOOGLE PLAY SERVICES -->
+		<meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
 	</application>
 </manifest> 

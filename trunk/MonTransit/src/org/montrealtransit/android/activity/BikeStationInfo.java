@@ -228,6 +228,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 		}
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		AdsUtils.setupAd(this);
+		AdsUtils.resumeAd(this);
 		setBikeStationFromIntent(getIntent(), null);
 		setIntent(null); // set intent as processed
 	}
@@ -242,6 +243,7 @@ public class BikeStationInfo extends Activity implements BixiDataReaderListener,
 			this.compassUpdatesEnabled = false;
 		}
 		this.adapter.onPause();
+		AdsUtils.pauseAd(this);
 		super.onPause();
 	}
 
