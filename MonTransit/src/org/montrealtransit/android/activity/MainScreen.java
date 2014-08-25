@@ -96,11 +96,37 @@ public class MainScreen extends ActivityGroup {
 		main.addView(tabHost, layoutParams);
 	}
 
+	/**
+	 * True if the activity has the focus, false otherwise.
+	 */
+	private boolean hasFocus = true;
+
+	@Override
+	public void onWindowFocusChanged(boolean hasFocus) {
+		MyLog.v(TAG, "onWindowFocusChanged(%s)", hasFocus);
+		// IF the activity just regained the focus DO
+		if (!this.hasFocus && hasFocus) {
+			onResumeWithFocus();
+		}
+		this.hasFocus = hasFocus;
+	}
+
 	@Override
 	protected void onResume() {
 		MyLog.v(TAG, "onResume()");
-		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
+		// IF the activity has the focus DO
+		if (this.hasFocus) {
+			onResumeWithFocus();
+		}
 		super.onResume();
+	}
+
+	/**
+	 * {@link #onResume()} when activity has the focus
+	 */
+	public void onResumeWithFocus() {
+		MyLog.v(TAG, "onResumeWithFocus()");
+		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 	}
 
 	// @Override
