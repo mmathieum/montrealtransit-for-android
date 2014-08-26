@@ -98,13 +98,6 @@
 		<!-- GOOGLE MOBILE ADS ACTIVITY -->
 		<activity android:name="com.google.android.gms.ads.AdActivity"
 			android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"/>
-		<!-- Used for install referrer tracking -->
-		<receiver android:name="com.google.android.apps.analytics.AnalyticsReceiver"
-			android:exported="true">
-			<intent-filter>
-				<action android:name="com.android.vending.INSTALL_REFERRER" />
-			</intent-filter>
-		</receiver>
 		<!-- GOOGLE PLAY SERVICES -->
 		<meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
 	</application>
