@@ -209,7 +209,7 @@ public abstract class AbstractDbHelper extends SQLiteOpenHelper {
 
 	public abstract int getDbVersion();
 
-	public abstract String getUID();
+	// public abstract String getUID();
 
 	public abstract int[] getRouteFiles();
 
@@ -219,5 +219,5 @@ public abstract class AbstractDbHelper extends SQLiteOpenHelper {
 
 	public abstract int[] getTripStopsFiles();
 
-	public abstract int getLabel();
+	// public abstract int getLabel();
 }
