@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        ads:adSize="IAB_BANNER"
+        ads:adSize="FULL_BANNER"
         ads:adUnitId="@string/admob_publisher_id"
         android:visibility="gone" />
 </RelativeLayout>
