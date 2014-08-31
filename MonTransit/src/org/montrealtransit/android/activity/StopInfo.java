@@ -937,9 +937,13 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 
 			@Override
 			protected Boolean doInBackground(String... params) {
-				isNewStop = StopInfo.this.routeTripStop == null || StopInfo.this.routeTripStop.stop == null || StopInfo.this.routeTripStop.stop.id != newStopId
-						|| StopInfo.this.routeTripStop.route == null || StopInfo.this.routeTripStop.route.id != newRouteId
-						|| StopInfo.this.routeTripStop.trip == null || StopInfo.this.routeTripStop.trip.id != newTripId;
+				isNewStop = StopInfo.this.routeTripStop == null //
+						|| StopInfo.this.routeTripStop.stop == null //
+						|| StopInfo.this.routeTripStop.stop.id != newStopId //
+						|| StopInfo.this.routeTripStop.route == null //
+						|| StopInfo.this.routeTripStop.route.id != newRouteId //
+						|| StopInfo.this.routeTripStop.trip == null //
+						|| StopInfo.this.routeTripStop.trip.id != newTripId;
 				if (isNewStop) {
 					RouteTripStop newRouteTripStop = null; // reset
 					Uri contentUri = Utils.newContentUri(newAuthority);

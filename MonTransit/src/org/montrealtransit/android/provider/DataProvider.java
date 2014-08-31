@@ -90,6 +90,9 @@ public class DataProvider extends ContentProvider {
 		LIVE_FOLDER_PROJECTION_MAP.put(LiveFolders.DESCRIPTION, DataDbHelper.T_FAVS_K_FK_ID_2 + " AS " + LiveFolders.DESCRIPTION);
 	}
 
+	public DataProvider() {
+	}
+
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		MyLog.v(TAG, "query(%s, %s, %s, %s, %s)", uri.getPath(), Arrays.toString(projection), selection, Arrays.toString(selectionArgs), sortOrder);
