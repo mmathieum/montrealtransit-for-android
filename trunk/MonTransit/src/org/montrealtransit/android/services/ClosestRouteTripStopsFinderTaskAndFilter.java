@@ -39,7 +39,7 @@ public class ClosestRouteTripStopsFinderTaskAndFilter extends ClosestRouteTripSt
 					continue;
 				}
 			}
-			// remove last trip stops now (because all nearby list takes too long)
+			// remove "last trip stop" now (because all nearby list takes too long)
 			ListIterator<RouteTripStop> resultIt = routeTripStops.listIterator();
 			while (resultIt.hasNext()) {
 				final RouteTripStop rts = resultIt.next();

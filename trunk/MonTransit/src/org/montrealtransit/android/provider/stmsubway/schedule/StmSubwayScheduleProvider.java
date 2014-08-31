@@ -168,15 +168,77 @@ public class StmSubwayScheduleProvider extends AbstractScheduleProvider {
 
 	private static final String RAW_FILE_FORMAT = "ca_mtl_stm_subway_schedules_stop_%s";
 
+	private static final int SCHEDULE_COL_SERVICE_IDX = 0;
+	private static final int SCHEDULE_COL_TRIP_IDX = 1;
+	private static final int SCHEDULE_COL_STOP_IDX = 2;
+	private static final int SCHEDULE_COL_DEPARTURE_IDX = 3;
+
 	private Set<Long> findScheduleList(int routeId, int tripId, int stopId, String dateS, String timeS) {
 		MyLog.v(TAG, "findScheduleList(%s,%s,%s,%s,%s)", routeId, tripId, stopId, dateS, timeS);
 		long timeI = Integer.parseInt(timeS);
 		Set<Long> result = new HashSet<Long>();
+		// 1st find date service(s) in DB
+		Set<String> serviceIds = findServices(dateS);
+		// MyLog.d(TAG, "findScheduleList() > found %s service(s)", serviceIds.size());
+		// 2nd read schedule file
+		BufferedReader br = null;
+		String line = null;
+		String fileName = String.format(RAW_FILE_FORMAT, stopId);
+		try {
+			br = new BufferedReader(new InputStreamReader(getContext().getResources().openRawResource(
+					getContext().getResources().getIdentifier(fileName, "raw", getContext().getPackageName())), "UTF8"), 8192);
+			while ((line = br.readLine()) != null) {
+				try {
+					String[] lineItems = line.split(",");
+					if (lineItems.length != 4) {
+						MyLog.w(TAG, "Cannot parse schedule '%s'!", line);
+						continue;
+					}
+					final String lineServiceId = lineItems[SCHEDULE_COL_SERVICE_IDX].substring(1, lineItems[SCHEDULE_COL_SERVICE_IDX].length() - 1);
+					if (!serviceIds.contains(lineServiceId)) {
+						// MyLog.d(TAG, "Wrong service id '%s' while looking for service ids '%s'!", lineServiceId, serviceIds);
+						continue;
+					}
+					// MyLog.d(TAG, "GOOD service id '%s' while looking for service ids '%s'!", lineServiceId, serviceIds);
+					final int lineTripId = Integer.parseInt(lineItems[SCHEDULE_COL_TRIP_IDX]);
+					if (tripId != lineTripId) { // TODO LATER other trip ID schedule maybe useful in cache ???
+						// MyLog.d(TAG, "Wrong trip id '%s' while looking for trip id '%s'!", lineTripId, tripId);
+						continue;
+					}
+					final int lineStopId = Integer.parseInt(lineItems[SCHEDULE_COL_STOP_IDX]);
+					if (stopId != lineStopId) {
+						MyLog.w(TAG, "Wrong stop id '%s' while looking for stop id '%s'!", lineStopId, stopId);
+						continue;
+					}
+					final int lineDeparture = Integer.parseInt(lineItems[SCHEDULE_COL_DEPARTURE_IDX]);
+					if (lineDeparture > timeI) {
+						result.add(convertToTimestamp(lineDeparture, dateS));
+						// } else {
+						// MyLog.d(TAG, "Too soon '%s' (after:%s)!", lineDeparture, timeI);
+					}
+				} catch (Exception e) {
+					MyLog.w(TAG, e, "Cannot parse schedule '%s' (fileName: %s)!", line, fileName);
+				}
+			}
+		} catch (Exception e) {
+			MyLog.w(TAG, e, "ERROR while reading stop time from file! (fileName: %s, line: %s)", fileName, line);
+		} finally {
+			try {
+				if (br != null) {
+					br.close();
+				}
+			} catch (Exception e) {
+				MyLog.w(TAG, "ERROR while closing the input stream!", e);
+			}
+		}
+		return result;
+	}
+
+	public Set<String> findServices(String dateS) {
 		Set<String> serviceIds = new HashSet<String>();
 		Cursor cursor = null;
 		try {
 			StringBuilder whereSb = new StringBuilder();
-
 			whereSb.append(ServiceDateColumns.T_SERVICE_DATES_K_DATE).append("=").append(dateS);
 			SQLiteDatabase db = getDBHelper(getContext()).getReadableDatabase();
 			SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
@@ -199,59 +261,7 @@ public class StmSubwayScheduleProvider extends AbstractScheduleProvider {
 				cursor.close();
 			}
 		}
-		// MyLog.d(TAG, "findScheduleList() > found %s service(s)", serviceIds.size());
-		// read file
-		BufferedReader br = null;
-		String line = null;
-		String fileName = String.format(RAW_FILE_FORMAT, stopId);
-		try {
-			br = new BufferedReader(new InputStreamReader(getContext().getResources().openRawResource(
-					getContext().getResources().getIdentifier(fileName, "raw", getContext().getPackageName())), "UTF8"), 8192);
-			while ((line = br.readLine()) != null) {
-				try {
-					String[] lineItems = line.split(",");
-					if (lineItems.length != 4) {
-						MyLog.w(TAG, "Cannot parse schedule '%s'!", line);
-						continue;
-					}
-					final String lineServiceId = lineItems[0].substring(1, lineItems[0].length() - 1);
-					if (!serviceIds.contains(lineServiceId)) {
-						// MyLog.d(TAG, "Wrong service id '%s' while looking for service ids '%s'!", lineServiceId, serviceIds);
-						continue;
-					}
-					// MyLog.d(TAG, "GOOD service id '%s' while looking for service ids '%s'!", lineServiceId, serviceIds);
-					final int lineTripId = Integer.parseInt(lineItems[1]);
-					if (tripId != lineTripId) { // TODO LATER other trip ID schedule maybe useful in cache ???
-						// MyLog.d(TAG, "Wrong trip id '%s' while looking for trip id '%s'!", lineTripId, tripId);
-						continue;
-					}
-					final int lineStopId = Integer.parseInt(lineItems[2]);
-					if (stopId != lineStopId) {
-						MyLog.w(TAG, "Wrong stop id '%s' while looking for stop id '%s'!", lineStopId, stopId);
-						continue;
-					}
-					final int lineDeparture = Integer.parseInt(lineItems[3]);
-					if (lineDeparture > timeI) {
-						result.add(convertToTimestamp(lineDeparture, dateS));
-						// } else {
-						// MyLog.d(TAG, "Too soon '%s' (after:%s)!", lineDeparture, timeI);
-					}
-				} catch (Exception e) {
-					MyLog.w(TAG, e, "Cannot parse schedule '%s' (fileName: %s)!", line, fileName);
-				}
-			}
-		} catch (Exception e) {
-			MyLog.w(TAG, e, "ERROR while reading stop time from file! (fileName: %s, line: %s)", fileName, line);
-		} finally {
-			try {
-				if (br != null) {
-					br.close();
-				}
-			} catch (Exception e) {
-				MyLog.w(TAG, "ERROR while closing the input stream!", e);
-			}
-		}
-		return result;
+		return serviceIds;
 	}
 
 	public static final SimpleDateFormat TO_TIMESTAMP_FORMAT = new SimpleDateFormat("yyyyMMdd" + "HHmmss");
