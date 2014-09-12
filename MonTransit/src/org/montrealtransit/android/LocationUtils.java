@@ -259,6 +259,12 @@ public class LocationUtils {
 			return true;
 		}
 
+		if (areTheSame(currentLocation, newLocation)) {
+			// same location so new one is not more relevant
+			// MyLog.d(TAG, "New location dropped... because it's the same location. (tag:%s)", tag);
+			return false;
+		}
+
 		// Check whether the new location fix is newer or older
 		long timeDelta = newLocation.getTime() - currentLocation.getTime();
 		boolean isSignificantlyNewer = timeDelta > preferAccuracyOverTime;
@@ -698,6 +704,16 @@ public class LocationUtils {
 
 	public interface LocationTaskCompleted {
 		void onLocationTaskCompleted();
+	}
+
+	public static boolean areTheSame(Location loc1, Location loc2) {
+		if (loc1 == null) {
+			return loc2 == null;
+		}
+		if (loc2 == null) {
+			return false;
+		}
+		return areTheSame(loc1.getLatitude(), loc1.getLongitude(), loc2.getLatitude(), loc2.getLongitude());
 	}
 
 	/**

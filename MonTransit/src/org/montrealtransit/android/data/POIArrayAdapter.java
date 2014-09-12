@@ -446,9 +446,9 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 
 	@Deprecated
 	public void prefetchClosests() {
-		if (this.pois == null) {
-			return;
-		}
+		// if (this.pois == null) {
+		// return;
+		// }
 		// TODO for (int i = 0; i < this.closestStops.size() && i < 5; i++) {
 		// SupportFactory.get().executeOnExecutor(new LoadNextBusStopIntoCacheTask(getLastActivity(), this.closestStops.get(i), null, true, false),
 		// PrefetchingUtils.getExecutor());
@@ -457,9 +457,9 @@ public class POIArrayAdapter extends ArrayAdapter<POI> implements CompassListene
 
 	@Deprecated
 	public void prefetchFavorites() {
-		if (this.pois == null || this.typeFavUIDs == null) {
-			return;
-		}
+		// if (this.pois == null || this.typeFavUIDs == null) {
+		// return;
+		// }
 		// TODO for (String code : this.favStopCodes) {
 		// RouteTripStop routeTripStop = new RouteTripStop(null, null, null);
 		// routeTripStop.stop.code = code;
