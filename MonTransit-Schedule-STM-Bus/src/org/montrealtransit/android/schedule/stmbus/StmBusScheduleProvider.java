@@ -82,9 +82,13 @@ public class StmBusScheduleProvider extends ContentProvider {
 	@Override
 	public boolean onCreate() {
 		MyLog.v(TAG, "onCreate()");
+		ping();
+		return true;
+	}
+
+	private void ping() {
 		// remove this app icon
 		SplashScreen.removeLauncherIcon(getContext());
-		return true;
 	}
 
 	private StmBusScheduleDbHelper getDBHelper(Context context) {
@@ -143,8 +147,7 @@ public class StmBusScheduleProvider extends ContentProvider {
 		switch (URI_MATCHER.match(uri)) {
 		case PING:
 			MyLog.v(TAG, "query>PING");
-			// remove this app icon
-			SplashScreen.removeLauncherIcon(getContext());
+			ping();
 			return null;
 		case DEPARTURE:
 			return getDeparture(selection);
