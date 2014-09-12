@@ -151,7 +151,7 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Double, String, Clo
 			aresult.add(astation);
 		}
 		// sort the bike stations
-		Collections.sort(aresult, new POI.POIDistanceComparator());
+		Collections.sort(aresult, POI.POI_DISTANCE_COMPARATOR);
 		if (maxResult > 0 && aresult.size() > maxResult) {
 			return aresult.subList(0, maxResult);
 		} else {

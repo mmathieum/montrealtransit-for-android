@@ -51,7 +51,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.AsyncTask.Status;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
@@ -626,7 +625,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 
 	private void refreshNearby() {
 		MyLog.v(TAG, "refreshNearby()");
-		if (this.nearbyTask != null && this.nearbyTask.getStatus() == Status.RUNNING) {
+		if (this.nearbyTask != null && this.nearbyTask.getStatus() == AsyncTask.Status.RUNNING) {
 			this.nearbyTask.cancel(true);
 			this.nearbyTask = null;
 		}
@@ -1108,7 +1107,7 @@ public class StopInfo extends Activity implements LocationListener, DialogInterf
 		MyLog.v(TAG, "cancelScheduleTasks()");
 		if (this.scheduleTasks != null) {
 			for (ScheduleTask scheduleTask : this.scheduleTasks.values()) {
-				if (scheduleTask != null && scheduleTask.getStatus() == Status.RUNNING) {
+				if (scheduleTask != null && scheduleTask.getStatus() == AsyncTask.Status.RUNNING) {
 					scheduleTask.cancel(true);
 				}
 			}
