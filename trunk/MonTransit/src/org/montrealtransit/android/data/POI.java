@@ -5,7 +5,7 @@ import java.util.Comparator;
 public interface POI {
 
 	public static final int ITEM_VIEW_TYPE_STOP = 0;
-	public static final int ITEM_VIEW_TYPE_BIKE = 2;
+	public static final int ITEM_VIEW_TYPE_BIKE = 1;
 
 	public static final POIDistanceComparator POI_DISTANCE_COMPARATOR = new POIDistanceComparator();
 

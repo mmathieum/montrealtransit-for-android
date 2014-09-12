@@ -250,7 +250,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 			// get the result
 			this.adapter.setPois(result.getPoiList());
 			this.adapter.updateDistancesNow(this.location);
-			this.adapter.prefetchClosests();
+			// this.adapter.prefetchClosests();
 			refreshFavoriteUIDsFromDB();
 			// show the result
 			showNewClosestStops(view, activity, LocationUtils.areTheSame(this.closestStopsLocation, result.getLat(), result.getLng()));
