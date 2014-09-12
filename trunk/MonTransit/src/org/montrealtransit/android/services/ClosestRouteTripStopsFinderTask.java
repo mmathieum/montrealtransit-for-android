@@ -75,7 +75,7 @@ public class ClosestRouteTripStopsFinderTask extends AsyncTask<Double, String, C
 			// set stops distance
 			LocationUtils.updateDistance(routeTripStops, lat, lng);
 			// sort by distance
-			Collections.sort(routeTripStops, new POI.POIDistanceComparator());
+			Collections.sort(routeTripStops, POI.POI_DISTANCE_COMPARATOR);
 			if (Utils.getCollectionSize(routeTripStops) > maxResult) {
 				routeTripStops = routeTripStops.subList(0, maxResult);
 			}

@@ -141,9 +141,12 @@ public class DataManager {
 					} while (cursor.moveToNext());
 				}
 			}
+		} catch (Throwable t) {
+			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return result;
 	}
@@ -166,9 +169,12 @@ public class DataManager {
 					} while (cursor.moveToNext());
 				}
 			}
+		} catch (Throwable t) {
+			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return result;
 	}
@@ -191,9 +197,12 @@ public class DataManager {
 					} while (cursor.moveToNext());
 				}
 			}
+		} catch (Throwable t) {
+			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return result;
 	}
@@ -214,9 +223,12 @@ public class DataManager {
 					fav = Fav.fromCursor(cursor);
 				}
 			}
+		} catch (Throwable t) {
+			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return fav;
 	}
@@ -237,9 +249,12 @@ public class DataManager {
 					history = DataStore.History.fromCursor(cursor);
 				}
 			}
+		} catch (Throwable t) {
+			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return history;
 	}
@@ -260,9 +275,12 @@ public class DataManager {
 					twitterApi = DataStore.TwitterApi.fromCursor(cursor);
 				}
 			}
+		} catch (Throwable t) {
+			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return twitterApi;
 	}
@@ -283,9 +301,12 @@ public class DataManager {
 					serviceStatus = DataStore.ServiceStatus.fromCursor(cursor);
 				}
 			}
+		} catch (Throwable t) {
+			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return serviceStatus;
 	}
@@ -310,9 +331,12 @@ public class DataManager {
 					fav = Fav.fromCursor(cursor);
 				}
 			}
+		} catch (Throwable t) {
+			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return fav;
 	}
@@ -355,9 +379,12 @@ public class DataManager {
 					return userLanguageStatuses.get(0);
 				}
 			}
+		} catch (Throwable t) {
+			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return serviceStatus;
 	}
@@ -383,9 +410,12 @@ public class DataManager {
 					Collections.sort(serviceStatuses, new ServiceStatusTypeComparator());
 				}
 			}
+		} catch (Throwable t) {
+			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return serviceStatuses;
 	}
@@ -411,12 +441,14 @@ public class DataManager {
 					} while (cursor.moveToNext());
 				}
 			}
+		} catch (Throwable t) {
+			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return result;
-
 	}
 
 	/**
@@ -521,9 +553,12 @@ public class DataManager {
 					} while (cursor.moveToNext());
 				}
 			}
+		} catch (Throwable t) {
+			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return result;
 	}
@@ -545,9 +580,12 @@ public class DataManager {
 					cache = Cache.fromCursor(cursor);
 				}
 			}
+		} catch (Throwable t) {
+			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return cache;
 	}
@@ -571,9 +609,12 @@ public class DataManager {
 					cache = Cache.fromCursor(cursor);
 				}
 			}
+		} catch (Throwable t) {
+			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return cache;
 	}
@@ -603,9 +644,12 @@ public class DataManager {
 					} while (cursor.moveToNext());
 				}
 			}
+		} catch (Throwable t) {
+			MyLog.w(TAG, t, "Error!");
 		} finally {
-			if (cursor != null)
+			if (cursor != null) {
 				cursor.close();
+			}
 		}
 		return caches;
 	}

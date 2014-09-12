@@ -168,10 +168,10 @@ public class StmSubwayScheduleProvider extends AbstractScheduleProvider {
 
 	private static final String RAW_FILE_FORMAT = "ca_mtl_stm_subway_schedules_stop_%s";
 
-	private static final int SCHEDULE_COL_SERVICE_IDX = 0;
-	private static final int SCHEDULE_COL_TRIP_IDX = 1;
-	private static final int SCHEDULE_COL_STOP_IDX = 2;
-	private static final int SCHEDULE_COL_DEPARTURE_IDX = 3;
+	private static final int STOP_SCHEDULE_FILE_COL_SERVICE_IDX = 0;
+	private static final int STOP_SCHEDULE_FILE_COL_TRIP_IDX = 1;
+	private static final int STOP_SCHEDULE_FILE_COL_STOP_IDX = 2;
+	private static final int STOP_SCHEDULE_FILE_COL_DEPARTURE_IDX = 3;
 
 	private Set<Long> findScheduleList(int routeId, int tripId, int stopId, String dateS, String timeS) {
 		MyLog.v(TAG, "findScheduleList(%s,%s,%s,%s,%s)", routeId, tripId, stopId, dateS, timeS);
@@ -194,23 +194,23 @@ public class StmSubwayScheduleProvider extends AbstractScheduleProvider {
 						MyLog.w(TAG, "Cannot parse schedule '%s'!", line);
 						continue;
 					}
-					final String lineServiceId = lineItems[SCHEDULE_COL_SERVICE_IDX].substring(1, lineItems[SCHEDULE_COL_SERVICE_IDX].length() - 1);
+					final String lineServiceId = lineItems[STOP_SCHEDULE_FILE_COL_SERVICE_IDX].substring(1, lineItems[STOP_SCHEDULE_FILE_COL_SERVICE_IDX].length() - 1);
 					if (!serviceIds.contains(lineServiceId)) {
 						// MyLog.d(TAG, "Wrong service id '%s' while looking for service ids '%s'!", lineServiceId, serviceIds);
 						continue;
 					}
 					// MyLog.d(TAG, "GOOD service id '%s' while looking for service ids '%s'!", lineServiceId, serviceIds);
-					final int lineTripId = Integer.parseInt(lineItems[SCHEDULE_COL_TRIP_IDX]);
+					final int lineTripId = Integer.parseInt(lineItems[STOP_SCHEDULE_FILE_COL_TRIP_IDX]);
 					if (tripId != lineTripId) { // TODO LATER other trip ID schedule maybe useful in cache ???
 						// MyLog.d(TAG, "Wrong trip id '%s' while looking for trip id '%s'!", lineTripId, tripId);
 						continue;
 					}
-					final int lineStopId = Integer.parseInt(lineItems[SCHEDULE_COL_STOP_IDX]);
+					final int lineStopId = Integer.parseInt(lineItems[STOP_SCHEDULE_FILE_COL_STOP_IDX]);
 					if (stopId != lineStopId) {
 						MyLog.w(TAG, "Wrong stop id '%s' while looking for stop id '%s'!", lineStopId, stopId);
 						continue;
 					}
-					final int lineDeparture = Integer.parseInt(lineItems[SCHEDULE_COL_DEPARTURE_IDX]);
+					final int lineDeparture = Integer.parseInt(lineItems[STOP_SCHEDULE_FILE_COL_DEPARTURE_IDX]);
 					if (lineDeparture > timeI) {
 						result.add(convertToTimestamp(lineDeparture, dateS));
 						// } else {

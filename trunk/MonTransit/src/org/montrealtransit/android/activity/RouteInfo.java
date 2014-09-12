@@ -806,7 +806,7 @@ public class RouteInfo extends Activity implements LocationListener, SensorEvent
 			return;
 		}
 		List<TripStop> orderedStops = new ArrayList<TripStop>(this.stops);
-		Collections.sort(orderedStops, new POI.POIDistanceComparator());
+		Collections.sort(orderedStops, POI.POI_DISTANCE_COMPARATOR);
 		this.closestStopId = orderedStops.get(0).getDistance() > 0 ? orderedStops.get(0).stop.id : null;
 	}
 
