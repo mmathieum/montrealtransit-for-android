@@ -507,29 +507,36 @@ public class LocationUtils {
 		}
 	}
 
-	public static float getAroundCoveredDistance(double lat, double lng, double AROUND_DIFF) {
-		MyLog.v(TAG, "getAroundCoveredDistance(%s, %s)", lat, lng);
-		// latitude
-		double latTrunc = lat;
-		double latBefore = Double.valueOf(truncAround(latTrunc - AROUND_DIFF));
-		double latAfter = Double.valueOf(truncAround(latTrunc + AROUND_DIFF));
-		// MyLog.d(TAG, "lat: " + latBefore + " - " + latAfter);
-		// longitude
-		double lngTrunc = lng;
-		double lngBefore = Double.valueOf(truncAround(lngTrunc - AROUND_DIFF));
-		double lngAfter = Double.valueOf(truncAround(lngTrunc + AROUND_DIFF));
-		// MyLog.d(TAG, "lng: " + lngBefore + " - " + lngAfter);
-		final float distanceToNorth = distanceTo(lat, lng, latAfter, lng);
-		// MyLog.d(TAG, "north: " + distanceToNorth);
-		final float distanceToSouth = distanceTo(lat, lng, latBefore, lng);
+	public static float getAroundCoveredDistance(double lat, double lng, double aroundDiff) {
+		MyLog.v(TAG, "getAroundCoveredDistance(%s, %s, %s)", lat, lng, aroundDiff);
+		Area area = getArea(lat, lng, aroundDiff);
+		final float distanceToSouth = distanceTo(lat, lng, area.minLat, lng);
 		// MyLog.d(TAG, "south: " + distanceToSouth);
-		final float distanceToWest = distanceTo(lat, lng, lat, lngBefore);
+		final float distanceToNorth = distanceTo(lat, lng, area.maxLat, lng);
+		// MyLog.d(TAG, "north: " + distanceToNorth);
+		final float distanceToWest = distanceTo(lat, lng, lat, area.minLng);
 		// MyLog.d(TAG, "west: " + distanceToWest);
-		final float distanceToEast = distanceTo(lat, lng, lat, lngAfter);
+		final float distanceToEast = distanceTo(lat, lng, lat, area.maxLng);
 		// MyLog.d(TAG, "east: " + distanceToEast);
 		float[] distances = new float[] { distanceToNorth, distanceToSouth, distanceToWest, distanceToEast };
 		Arrays.sort(distances);
 		return distances[0]; // return the closest
+	}
+
+	public static Area getArea(double lat, double lng, double aroundDiff) {
+		// MyLog.v(TAG, "getArea(%s, %s, %s)", lat, lng, aroundDiff);
+		// latitude
+		double latTrunc = Math.abs(lat);
+		double latBefore = Math.signum(lat) * Double.parseDouble(truncAround(latTrunc - aroundDiff));
+		double latAfter = Math.signum(lat) * Double.parseDouble(truncAround(latTrunc + aroundDiff));
+		// MyLog.d(TAG, "lat: " + latBefore + " - " + latAfter);
+		// longitude
+		double lngTrunc = Math.abs(lng);
+		double lngBefore = Math.signum(lng) * Double.parseDouble(truncAround(lngTrunc - aroundDiff));
+		double lngAfter = Math.signum(lng) * Double.parseDouble(truncAround(lngTrunc + aroundDiff));
+		// MyLog.d(TAG, "lng: " + lngBefore + " - " + lngAfter);
+		// return latLngBeforeAfter;
+		return new Area(Math.min(latBefore, latAfter), Math.max(latBefore, latAfter), Math.min(lngBefore, lngAfter), Math.max(lngBefore, lngAfter));
 	}
 
 	/**
@@ -542,19 +549,14 @@ public class LocationUtils {
 	public static String genAroundWhere(String lat, String lng, String latTableColumn, String lngTableColumn, double aroundDiff) {
 		// MyLog.v(TAG, "genAroundWhere(%s, %s, %s, %s)", lat, lng, latTableColumn, lngTableColumn);
 		StringBuilder qb = new StringBuilder();
-		// latitude
 		double latTrunc = truncAround(lat);
-		String latBefore = truncAround(latTrunc - aroundDiff);
-		String latAfter = truncAround(latTrunc + aroundDiff);
-		// MyLog.d(TAG, "lat: " + latBefore + " - " + latAfter);
-		qb.append(latTableColumn).append(" BETWEEN ").append(latBefore).append(" AND ").append(latAfter);
+		double lngTrunc = truncAround(lng);
+		Area area = getArea(latTrunc, lngTrunc, aroundDiff);
+		// latitude
+		qb.append(latTableColumn).append(" BETWEEN ").append(area.minLat).append(" AND ").append(area.maxLat);
 		qb.append(" AND ");
 		// longitude
-		double lngTrunc = truncAround(lng);
-		String lngBefore = truncAround(lngTrunc - aroundDiff);
-		String lngAfter = truncAround(lngTrunc + aroundDiff);
-		// MyLog.d(TAG, "lng: " + lngBefore + " - " + lngAfter);
-		qb.append(lngTableColumn).append(" BETWEEN ").append(lngBefore).append(" AND ").append(lngAfter);
+		qb.append(lngTableColumn).append(" BETWEEN ").append(area.minLng).append(" AND ").append(area.maxLng);
 		return qb.toString();
 	}
 
@@ -778,6 +780,33 @@ public class LocationUtils {
 					// MyLog.d(TAG, "removeTooFar() filtering on distance... (not skiping %s)", poi.getUID());
 				}
 			}
+		}
+	}
+
+	public static class Area {
+		public double minLat;
+		public double maxLat;
+		public double minLng;
+		public double maxLng;
+
+		public Area(double minLat, double maxLat, double minLng, double maxLng) {
+			this.minLat = minLat;
+			this.maxLat = maxLat;
+			this.minLng = minLng;
+			this.maxLng = maxLng;
+		}
+
+		@Override
+		public String toString() {
+			return new StringBuilder(Area.class.getSimpleName()).append('[') //
+					.append(minLat) //
+					.append(',') //
+					.append(maxLat) //
+					.append(',') //
+					.append(minLng) //
+					.append(',') //
+					.append(maxLng) //
+					.append(']').toString();
 		}
 	}
 }

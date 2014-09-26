@@ -26,7 +26,7 @@ public class BixiBikeStationsDataHandler extends DefaultHandler implements Conte
 	 * XML tags.
 	 */
 	private static final String STATIONS = "stations";
-	private static final String STATIONS_LAST_UPDATE = "lastUpdate";
+	// private static final String STATIONS_LAST_UPDATE = "lastUpdate";
 	private static final String STATIONS_VERSION = "version"; // 2.0
 	private static final String STATION = "station";
 	private static final String ID = "id";
@@ -56,10 +56,10 @@ public class BixiBikeStationsDataHandler extends DefaultHandler implements Conte
 	 * The bike stations.
 	 */
 	private List<BikeStation> bikeStations = new ArrayList<BikeStation>();
-	/**
-	 * The bike stations list last update;
-	 */
-	private int lastUpdate = -1;
+	// /**
+	// * The bike stations list last update;
+	// */
+	// private int lastUpdate = -1;
 
 	/**
 	 * The current bike station or null.
@@ -73,17 +73,17 @@ public class BixiBikeStationsDataHandler extends DefaultHandler implements Conte
 		return this.bikeStations;
 	}
 
-	/**
-	 * @return the last update
-	 */
-	public int getLastUpdate() {
-		return lastUpdate;
-	}
+	// /**
+	// * @return the last update
+	// */
+	// public int getLastUpdate() {
+	// return lastUpdate;
+	// }
 
-	@Override
-	public void startDocument() throws SAXException {
-		// MyLog.v(TAG, "startDocument()");
-	}
+	// @Override
+	// public void startDocument() throws SAXException {
+	// MyLog.v(TAG, "startDocument()");
+	// }
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
@@ -97,8 +97,8 @@ public class BixiBikeStationsDataHandler extends DefaultHandler implements Conte
 				MyLog.w(TAG, "XML version '%s' not supported!", version);
 				// TODO abort parsing ?
 			}
-			// read last update attribute
-			this.lastUpdate = Utils.toTimestampInSeconds(Long.valueOf(attributes.getValue(STATIONS_LAST_UPDATE)));
+			// // read last update attribute
+			// this.lastUpdate = Utils.toTimestampInSeconds(Long.valueOf(attributes.getValue(STATIONS_LAST_UPDATE)));
 		} else if (STATION.equals(localName)) {
 			this.currentBikeStation = new BikeStation();
 		}
@@ -146,7 +146,7 @@ public class BixiBikeStationsDataHandler extends DefaultHandler implements Conte
 				MyLog.w(TAG, "Error while parsing '%s'!", e);
 			}
 		}
-		super.characters(ch, start, length);
+		// super.characters(ch, start, length);
 	}
 
 	@Override
@@ -158,10 +158,10 @@ public class BixiBikeStationsDataHandler extends DefaultHandler implements Conte
 		}
 	}
 
-	@Override
-	public void endDocument() throws SAXException {
-		// MyLog.v(TAG, "endDocument()");
-	}
+	// @Override
+	// public void endDocument() throws SAXException {
+	// MyLog.v(TAG, "endDocument()");
+	// }
 
 	@Override
 	public void error(SAXParseException exception) throws SAXException {
