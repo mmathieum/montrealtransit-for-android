@@ -117,7 +117,7 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 				break; // found all
 			}
 		}
-		// MyLog.d(TAG, "doInBackground() > DONE"); 
+		// MyLog.d(TAG, "doInBackground() > DONE");
 		return result;
 	}
 
@@ -243,43 +243,45 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 		}
 	}
 
-	/**
-	 * Update the database.
-	 * @param context the context
-	 * @param newBikeStations the new bike stations to put in the database
-	 * @param forceDBUpdateTerminalNames the list of bike station terminal names to be updated in the database or null
-	 * @deprecated not useful anymore. Use {@link #updateDatabaseAll(Context, List, boolean)} directly.
-	 */
-	@Deprecated
-	public static synchronized void updateDatabase(final Context context, final List<BikeStation> newBikeStations, List<String> forceDBUpdateTerminalNames) {
-		// MyLog.v(TAG, "updateDatabase(%s,%s,%s)", Utils.getCollectionSize(newBikeStations), forceDBUpdate, forceDBUpdateTerminalNames);
-		// IF no bike stations terminal names were provided DO
-		if (Utils.getCollectionSize(forceDBUpdateTerminalNames) == 0) {
-			// synchronously update all
-			updateDatabaseAll(context, newBikeStations);
-		} else {
-			int updated = 0;
-			// synchronously update these bike stations
-			for (BikeStation newBikeStation : newBikeStations) {
-				if (forceDBUpdateTerminalNames.contains(newBikeStation.getTerminalName())) {
-					BixiManager.updateBikeStation(context.getContentResolver(), newBikeStation, newBikeStation.getTerminalName());
-					updated++;
-					// TODO remove updated bike station from list
-				}
-				if (forceDBUpdateTerminalNames.size() == updated) {
-					break; // all forced updates done
-				}
-			}
-			// asynchronously update the rest
-			new AsyncTask<Void, Void, Void>() {
-				@Override
-				protected Void doInBackground(Void... params) {
-					updateDatabaseAll(context, newBikeStations);
-					return null;
-				}
-			}.execute();
-		}
-	}
+	// /**
+	// * Update the database.
+	// * @param context the context
+	// * @param newBikeStations the new bike stations to put in the database
+	// * @param forceDBUpdateTerminalNames the list of bike station terminal names to be updated in the database or null
+	// * @deprecated not useful anymore. Use {@link #updateDatabaseAll(Context, List, boolean)} directly.
+	// */
+	// @SuppressWarnings("unused")
+	// @Deprecated
+	// private static synchronized void updateDatabase(final Context context, final List<BikeStation> newBikeStations, List<String> forceDBUpdateTerminalNames)
+	// {
+	// // MyLog.v(TAG, "updateDatabase(%s,%s,%s)", Utils.getCollectionSize(newBikeStations), forceDBUpdate, forceDBUpdateTerminalNames);
+	// // IF no bike stations terminal names were provided DO
+	// if (Utils.getCollectionSize(forceDBUpdateTerminalNames) == 0) {
+	// // synchronously update all
+	// updateDatabaseAll(context, newBikeStations);
+	// } else {
+	// int updated = 0;
+	// // synchronously update these bike stations
+	// for (BikeStation newBikeStation : newBikeStations) {
+	// if (forceDBUpdateTerminalNames.contains(newBikeStation.getTerminalName())) {
+	// BixiManager.updateBikeStation(context.getContentResolver(), newBikeStation, newBikeStation.getTerminalName());
+	// updated++;
+	// // TODO remove updated bike station from list
+	// }
+	// if (forceDBUpdateTerminalNames.size() == updated) {
+	// break; // all forced updates done
+	// }
+	// }
+	// // asynchronously update the rest
+	// new AsyncTask<Void, Void, Void>() {
+	// @Override
+	// protected Void doInBackground(Void... params) {
+	// updateDatabaseAll(context, newBikeStations);
+	// return null;
+	// }
+	// }.execute();
+	// }
+	// }
 
 	/**
 	 * Update all the database.
