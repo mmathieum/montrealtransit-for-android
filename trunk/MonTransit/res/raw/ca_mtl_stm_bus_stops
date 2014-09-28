@@ -2671,6 +2671,7 @@
 52842,'52842','Papineau / Ontario',45.525882,-73.559607
 52843,'52843','Ontario / Goulet',45.526102,-73.559124
 52844,'52844','Station Berri-UQAM (Berri / Sainte-Catherine)',45.514657,-73.559884
+52845,'52845','Sainte-Catherine / Berri (Berri-UQAM)',45.514473,-73.559744
 52846,'52846','Station Berri-UQAM (Berri / Place Émilie-Gamelin)',45.5149,-73.559940
 52847,'52847','Rosemont / Duquesne',45.581505,-73.558142
 52848,'52848','Rosemont / Duquesne',45.581827,-73.557642
@@ -8732,6 +8733,11 @@
 61374,'61374','Château-Pierrefonds / Oka',45.463214,-73.895488
 61377,'61377','Gohier / Edouard-Laurin',45.513432,-73.683533
 61382,'61382','Norman / Claire',45.448316,-73.679603
+61383,'61383','Jacques-Cartier /',45.524666,-73.521442
+61384,'61384','Jean-Drapeau / McDonald (Île-Sainte-Hélène)',45.511631,-73.531911
+61385,'61385','Jacques-Cartier / Île Sainte-Hélène',45.524630,-73.520098
+61387,'61387','Cartier / Sainte-Catherine',45.523559,-73.552066
+61388,'61388','Sainte-Catherine / Berri',45.514365,-73.559820
 61393,'61393','Gatineau / Queen-Mary',45.495644,-73.618301
 61501,'61501','De Contrecoeur / Sherbrooke',45.611805,-73.526405
 61503,'61503','Robert / Cluny',45.580509,-73.607803
