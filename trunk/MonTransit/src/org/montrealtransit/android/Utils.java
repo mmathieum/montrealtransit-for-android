@@ -77,6 +77,7 @@ public class Utils {
 	/**
 	 * The date formatter use to parse HH:mm into Date.
 	 */
+	// NOT THREAD SAFE
 	private static final SimpleDateFormat simpleDateFormatter = new SimpleDateFormat("HH:mm", Locale.getDefault());
 	/**
 	 * The minimum between 2 {@link BaseAdapter#notifyDataSetChanged()} in milliseconds.

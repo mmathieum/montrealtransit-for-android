@@ -77,7 +77,9 @@ public class StmSubwayScheduleProvider extends AbstractScheduleProvider {
 		return stmSubwayScheduleDbHelper;
 	}
 
+	// NOT THREAD SAFE
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd");
+	// NOT THREAD SAFE
 	private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HHmmss");
 
 	@Override
@@ -264,6 +266,7 @@ public class StmSubwayScheduleProvider extends AbstractScheduleProvider {
 		return serviceIds;
 	}
 
+	// NOT THREAD SAFE
 	public static final SimpleDateFormat TO_TIMESTAMP_FORMAT = new SimpleDateFormat("yyyyMMdd" + "HHmmss");
 
 	private Long convertToTimestamp(int timeInt, String dateS) {

@@ -58,7 +58,9 @@ public class StmBusLiveScheduleProvider extends AbstractScheduleProvider {
 	public static final String URL_PART_7_BEFORE_TIME = "&t=";
 
 	private static final String URL_DATE_FORMAT_PATTERN = "yyyyMMdd";
+	// NOT THREAD SAFE
 	private static final SimpleDateFormat URL_DATE_FORMAT = new SimpleDateFormat(URL_DATE_FORMAT_PATTERN);
+	// NOT THREAD SAFE
 	private static final SimpleDateFormat URL_TIME_FORMAT = new SimpleDateFormat("HHmm");
 
 	@Override
@@ -230,7 +232,9 @@ public class StmBusLiveScheduleProvider extends AbstractScheduleProvider {
 	public static final int CACHE_NOT_REFRESHED_IN_SEC = 5 * 60; // 5 minutes (since it's not actually real time)
 
 	private static final String SOURCE_FORMAT_PATTERN = "HHmm";
+	// NOT THREAD SAFE
 	public static final SimpleDateFormat SOURCE_FORMAT = new SimpleDateFormat(SOURCE_FORMAT_PATTERN);
+	// NOT THREAD SAFE
 	public static final SimpleDateFormat TO_TIMESTAMP_FORMAT = new SimpleDateFormat(URL_DATE_FORMAT_PATTERN + SOURCE_FORMAT_PATTERN);
 
 	public static final int STM_DAYS_ENDS_AT_ON_THE_NEXT_DAY = 500; // 05:00 AM

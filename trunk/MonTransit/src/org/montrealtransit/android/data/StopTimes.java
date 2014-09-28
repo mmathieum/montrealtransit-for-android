@@ -310,6 +310,7 @@ public class StopTimes {
 		return realtime;
 	}
 
+	// NOT THREAD SAFE
 	public static final SimpleDateFormat OUTPUT_FORMAT = new SimpleDateFormat("HH'h'mm");
 
 	public static StopTimes parseJSON(String json) {
