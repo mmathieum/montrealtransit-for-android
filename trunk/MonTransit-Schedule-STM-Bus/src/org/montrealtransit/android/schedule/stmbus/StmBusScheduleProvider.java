@@ -137,7 +137,9 @@ public class StmBusScheduleProvider extends ContentProvider {
 		}
 	}
 
+	// NOT THREAD SAFE
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd");
+	// NOT THREAD SAFE
 	private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("HHmmss");
 
 	@Override
