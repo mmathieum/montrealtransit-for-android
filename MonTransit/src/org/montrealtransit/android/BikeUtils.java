@@ -13,7 +13,7 @@ public final class BikeUtils {
 	/**
 	 * The cache is too old to be useful, don't display it.
 	 */
-	public static final int CACHE_NOT_USEFUL_IN_SEC = 15 * 60; // 15 minutes
+	public static final int CACHE_NOT_USEFUL_IN_SEC = 30 * 60; // 30 minutes
 	/**
 	 * No DDOS on the server!
 	 */
