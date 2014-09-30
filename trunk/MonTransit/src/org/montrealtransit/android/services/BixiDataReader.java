@@ -131,10 +131,11 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 	 */
 	public static List<BikeStation> doInForeground(Context context, WeakReference<BixiDataReaderListener> from, final List<String> forceDBUpdateTerminalNames,
 			int tried) {
-		// MyLog.v(TAG, "doInForeground(%s,%s)", forceDBUpdate, Utils.getCollectionSize(forceDBUpdateTerminalNames));
+		// MyLog.v(TAG, "doInForeground(%s)", Utils.getCollectionSize(forceDBUpdateTerminalNames));
 		try {
 			URL url = new URL(XML_SOURCE);
 			URLConnection urlc = url.openConnection();
+			urlc.addRequestProperty("Cache-Control", "no-cache"); // IMPORTANT!
 			HttpsURLConnection httpsUrlConnection = (HttpsURLConnection) urlc;
 			switch (httpsUrlConnection.getResponseCode()) {
 			case HttpURLConnection.HTTP_OK:
