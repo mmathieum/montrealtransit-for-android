@@ -30,6 +30,7 @@ public class BixiManager {
 	 * @return the number of bike stations deleted
 	 */
 	public static int deleteAllBikeStations(ContentResolver contentResolver) {
+		MyLog.v(TAG, "deleteAllBikeStations()");
 		return contentResolver.delete(BixiStore.BikeStation.CONTENT_URI, null, null);
 	}
 
