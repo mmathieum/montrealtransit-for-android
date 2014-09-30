@@ -107,9 +107,9 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Double, String, Clo
 	}
 
 	public List<BikeStation> getAllBikeStations(double lat, double lng) {
-		MyLog.v(TAG, "getAllBikeStations()");
+		MyLog.v(TAG, "getAllBikeStations(%s,%s)", lat, lng);
 		// try the short way with location hack
-		List<BikeStation> allBikeStationsWithLoc = BixiManager.findAllBikeStationsLocationList(context.getContentResolver(), lat, lng);
+		List<BikeStation> allBikeStationsWithLoc = BixiManager.findAllBikeStationsLocationList(this.context.getContentResolver(), lat, lng);
 		// MyLog.d(TAG, "1st try: " + Utils.getCollectionSize(allBikeStationsWithLoc));
 		if (Utils.getCollectionSize(allBikeStationsWithLoc) == 0) { // if no value return
 			// do it the hard long way
@@ -158,7 +158,7 @@ public class ClosestBikeStationsFinderTask extends AsyncTask<Double, String, Clo
 			return aresult;
 		}
 	}
-	
+
 	public static List<ABikeStation> getABikeStations(List<BikeStation> bikeStations) {
 		// MyLog.v(TAG, "getABikeStations(%s, %s)", Utils.getCollectionSize(bikeStations), currentLocation);
 		List<ABikeStation> aresult = new ArrayList<ABikeStation>();

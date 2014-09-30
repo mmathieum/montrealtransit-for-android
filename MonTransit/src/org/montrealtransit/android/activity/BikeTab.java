@@ -21,7 +21,6 @@ import org.montrealtransit.android.data.POIArrayAdapter;
 import org.montrealtransit.android.provider.DataManager;
 import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.services.ClosestBikeStationsFinderTask;
-import org.montrealtransit.android.services.ClosestBikeStationsFinderTask.ClosestBikeStationsFinderListener;
 
 import android.app.Activity;
 import android.content.res.Configuration;
@@ -47,7 +46,8 @@ import android.widget.Toast;
  * Display a list of bike stations.
  * @author Mathieu Méa
  */
-public class BikeTab extends Activity implements LocationListener, ClosestBikeStationsFinderListener, SensorEventListener, ShakeListener {
+public class BikeTab extends Activity implements LocationListener, ClosestBikeStationsFinderTask.ClosestBikeStationsFinderListener, SensorEventListener,
+		ShakeListener {
 
 	/**
 	 * The log tag.

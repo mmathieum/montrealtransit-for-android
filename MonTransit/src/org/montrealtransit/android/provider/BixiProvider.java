@@ -245,6 +245,7 @@ public class BixiProvider extends ContentProvider {
 		default:
 			throw new IllegalArgumentException("Unknown URI (delete): " + uri);
 		}
+		// MyLog.d(TAG, "delete() > %s row deleted.", count);
 		getContext().getContentResolver().notifyChange(uri, null);
 		return count;
 	}

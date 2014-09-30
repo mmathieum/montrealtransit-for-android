@@ -87,7 +87,7 @@ public class BixiBikeStationsDataHandler extends DefaultHandler implements Conte
 
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-		// MyLog.v(TAG, "startDocument(%s,%s,%s)", uri, localName, qName);
+		// MyLog.v(TAG, "startElement(%s,%s,%s)", uri, localName, qName);
 		this.currentLocalName = localName;
 		if (STATIONS.equals(localName)) {
 			// read version attribute
