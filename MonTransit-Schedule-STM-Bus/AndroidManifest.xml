@@ -1,8 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.montrealtransit.android.schedule.stmbus"
     android:installLocation="auto"
-    android:versionCode="15"
-    android:versionName="1.0.14" >
+    android:versionCode="16"
+    android:versionName="1.0.15" >
     <!-- external storage works if USB not mounted! -->
     <uses-sdk
         android:minSdkVersion="3"
