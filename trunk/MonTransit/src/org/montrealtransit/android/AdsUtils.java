@@ -21,7 +21,7 @@ import com.google.android.gms.ads.AdView;
  * This class contains useful methods to interact with Google Mobile Ads SDK.
  * @author Mathieu Méa
  */
-public class AdsUtils {
+public final class AdsUtils {
 
 	/**
 	 * The log tag.
