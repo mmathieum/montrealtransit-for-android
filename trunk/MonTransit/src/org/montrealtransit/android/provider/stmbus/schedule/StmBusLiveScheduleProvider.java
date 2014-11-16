@@ -58,10 +58,11 @@ public class StmBusLiveScheduleProvider extends AbstractScheduleProvider {
 	public static final String URL_PART_7_BEFORE_TIME = "&t=";
 
 	private static final String URL_DATE_FORMAT_PATTERN = "yyyyMMdd";
+	private static final String URL_TIME_FORMAT_PATTERN = "HHmm";
 	// NOT THREAD SAFE
 	private static final SimpleDateFormat URL_DATE_FORMAT = new SimpleDateFormat(URL_DATE_FORMAT_PATTERN);
 	// NOT THREAD SAFE
-	private static final SimpleDateFormat URL_TIME_FORMAT = new SimpleDateFormat("HHmm");
+	private static final SimpleDateFormat URL_TIME_FORMAT = new SimpleDateFormat(URL_TIME_FORMAT_PATTERN);
 
 	@Override
 	public String getAUTHORITY() {
@@ -255,16 +256,16 @@ public class StmBusLiveScheduleProvider extends AbstractScheduleProvider {
 		}
 	}
 
-	@SuppressWarnings("unused")
-	private static String getUrlString(RouteTripStop routeTripStop) {
-		return new StringBuilder() //
-				.append(URL_PART_1_BEFORE_LANG).append(Utils.getSupportedUserLocale().equals(Locale.FRENCH.toString()) ? "fr" : "en") // lang
-				.append(URL_PART_2_BEFORE_ROUTE_ID).append(routeTripStop.route.id) // line number
-				.append(URL_PART_3_BEFORE_STOP_CODE).append(routeTripStop.stop.id) // stop code
-				.append(URL_PART_4_BEFORE_TRIP_HEADSIGN_VALUE).append(routeTripStop.trip.headsignValue) // line direction
-				.append(URL_PART_5_BEFORE_LIMIT).append(100) // without limit, return all schedule for the day
-				.toString();
-	}
+	// @SuppressWarnings("unused")
+	// private static String getUrlString(RouteTripStop routeTripStop) {
+	// return new StringBuilder() //
+	// .append(URL_PART_1_BEFORE_LANG).append(Utils.getSupportedUserLocale().equals(Locale.FRENCH.toString()) ? "fr" : "en") // lang
+	// .append(URL_PART_2_BEFORE_ROUTE_ID).append(routeTripStop.route.id) // line number
+	// .append(URL_PART_3_BEFORE_STOP_CODE).append(routeTripStop.stop.id) // stop code
+	// .append(URL_PART_4_BEFORE_TRIP_HEADSIGN_VALUE).append(routeTripStop.trip.headsignValue) // line direction
+	// .append(URL_PART_5_BEFORE_LIMIT).append(100) // without limit, return all schedule for the day
+	// .toString();
+	// }
 
 	private static String getUrlStringWithDateAndTime(RouteTripStop routeTripStop, String urlDateS, String urlTimeS) {
 		return new StringBuilder() //
