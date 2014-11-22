@@ -1,8 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="org.montrealtransit.android.schedule.stmbus"
     android:installLocation="auto"
     android:versionCode="16"
-    android:versionName="1.0.15" >
+    android:versionName="1.0.15"
+    tools:ignore="OldTargetApi,UnusedAttribute" >
     <!-- external storage works if USB not mounted! -->
     <uses-sdk
         android:minSdkVersion="3"
@@ -18,7 +21,8 @@
         <provider
             android:name=".StmBusScheduleProvider"
             android:authorities="org.montrealtransit.android.schedule.stmbus"
-            android:exported="true" />
+            android:exported="true"
+            tools:ignore="ExportedContentProvider" />
         <!-- SPLASH SCREEN -->
         <activity
             android:name=".activity.SplashScreen"

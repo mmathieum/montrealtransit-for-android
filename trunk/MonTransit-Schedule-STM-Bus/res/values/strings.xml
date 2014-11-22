@@ -2,8 +2,8 @@
 <resources>
     <string name="app_name">MonTransit STM Bus Schedule</string>
     <string name="app_desc">STM Bus planned schedule stored on the device.</string>
-    <string name="opening_main_app_and_removing_icon">Opening the main application...\n\n(module icon removed)</string>
-    <string name="please_install_main_app">Opening Google Play...\n\nPlease install the main application (free).</string>
+    <string name="opening_main_app_and_removing_icon">Opening the main application&#8230;\n\n(module icon removed)</string>
+    <string name="please_install_main_app">Opening Google Play&#8230;\n\nPlease install the main application (free).</string>
 
     <string name="stop_no_info_and_source">No information on %2$s about the line %1$s at this stop.</string>
     <string name="offline_schedule">Planned schedule</string>
