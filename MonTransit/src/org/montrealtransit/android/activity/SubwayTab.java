@@ -466,7 +466,7 @@ public class SubwayTab extends Activity implements LocationListener, StmInfoStat
 		}
 		try {
 			// highlight and format time
-			String timeRegex = "([\\d]{2}[:|h][\\d]{2})";
+			String timeRegex = "([\\d]{1,2}[:|h][\\d]{2})";
 			Matcher matcher = Pattern.compile(timeRegex).matcher(sb);
 			if (matcher.find()) {
 				String time = matcher.group();
