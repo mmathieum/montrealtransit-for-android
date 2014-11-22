@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="org.montrealtransit.android.schedule.stmbus"
     android:installLocation="auto"
-    android:versionCode="16"
-    android:versionName="1.0.15"
+    android:versionCode="17"
+    android:versionName="1.0.16"
     tools:ignore="OldTargetApi,UnusedAttribute" >
     <!-- external storage works if USB not mounted! -->
     <uses-sdk
