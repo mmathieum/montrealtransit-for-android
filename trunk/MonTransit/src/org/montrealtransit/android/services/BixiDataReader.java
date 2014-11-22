@@ -6,19 +6,12 @@ import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.UnknownHostException;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -210,39 +203,39 @@ public class BixiDataReader extends AsyncTask<String, String, List<BikeStation>>
 		}
 	}
 
-	/**
-	 * Disable SSL certificate validation. WARNING: security issue!
-	 */
-	public static void disableCertificateValidation() {
-		// create a trust manager that does not validate certificate chains
-		TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-			public X509Certificate[] getAcceptedIssuers() {
-				return new X509Certificate[0];
-			}
-
-			public void checkClientTrusted(X509Certificate[] certs, String authType) {
-				// do nothing
-			}
-
-			public void checkServerTrusted(X509Certificate[] certs, String authType) {
-				// do nothing
-			}
-		} };
-		// ignore differences between given host-name and certificate host-name
-		HostnameVerifier hv = new HostnameVerifier() {
-			public boolean verify(String hostname, SSLSession session) {
-				return true;
-			}
-		};
-		// install the all-trusting trust manager
-		try {
-			SSLContext sc = SSLContext.getInstance("SSL");
-			sc.init(null, trustAllCerts, new SecureRandom());
-			HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-			HttpsURLConnection.setDefaultHostnameVerifier(hv);
-		} catch (Exception e) {
-		}
-	}
+	// /**
+	// * Disable SSL certificate validation. WARNING: security issue!
+	// */
+	// private static void disableCertificateValidation() {
+	// // create a trust manager that does not validate certificate chains
+	// TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+	// public X509Certificate[] getAcceptedIssuers() {
+	// return new X509Certificate[0];
+	// }
+	//
+	// public void checkClientTrusted(X509Certificate[] certs, String authType) {
+	// // do nothing
+	// }
+	//
+	// public void checkServerTrusted(X509Certificate[] certs, String authType) {
+	// // do nothing
+	// }
+	// } };
+	// // ignore differences between given host-name and certificate host-name
+	// HostnameVerifier hv = new HostnameVerifier() {
+	// public boolean verify(String hostname, SSLSession session) {
+	// return true;
+	// }
+	// };
+	// // install the all-trusting trust manager
+	// try {
+	// SSLContext sc = SSLContext.getInstance("SSL");
+	// sc.init(null, trustAllCerts, new SecureRandom());
+	// HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+	// HttpsURLConnection.setDefaultHostnameVerifier(hv);
+	// } catch (Exception e) {
+	// }
+	// }
 
 	// /**
 	// * Update the database.

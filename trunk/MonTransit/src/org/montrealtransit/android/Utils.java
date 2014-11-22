@@ -29,6 +29,7 @@ import org.montrealtransit.android.provider.DataStore.Fav;
 import org.montrealtransit.android.provider.StmBusManager;
 import org.montrealtransit.android.provider.StmSubwayManager;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
@@ -328,7 +329,7 @@ public class Utils {
 			result = extras != null && extras.containsKey(id) ? extras.getString(id) : null;
 		}
 		if (result == null) {
-			MyLog.w(TAG, "Can't find the saved string value for ID '%s' (returned null)", id);
+			MyLog.d(TAG, "Can't find the saved string value for ID '%s' (returned null)", id);
 		}
 		return result;
 	}
@@ -344,7 +345,7 @@ public class Utils {
 			result = extras != null && extras.containsKey(id) ? extras.getInt(id) : null;
 		}
 		if (result == null) {
-			MyLog.w(TAG, "Can't find the saved int value for ID '%s' (returned null)", id);
+			MyLog.d(TAG, "Can't find the saved int value for ID '%s' (returned null)", id);
 		}
 		return result;
 	}
@@ -360,7 +361,7 @@ public class Utils {
 			result = extras != null && extras.containsKey(id) ? extras.getFloat(id) : null;
 		}
 		if (result == null) {
-			MyLog.w(TAG, "Can't find the saved float value for ID '%s' (returned null)", id);
+			MyLog.d(TAG, "Can't find the saved float value for ID '%s' (returned null)", id);
 		}
 		return result;
 	}
@@ -542,6 +543,7 @@ public class Utils {
 	 * Show an about dialog.
 	 * @param activity the activity asking for the dialog
 	 */
+	@SuppressLint("InflateParams")
 	public static void showAboutDialog(Activity activity) {
 		String versionName = "";
 		String versionCode = "";

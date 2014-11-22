@@ -4,7 +4,9 @@ import org.montrealtransit.android.api.SupportFactory;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Logger.LogLevel;
+import com.google.android.gms.analytics.HitBuilders.EventBuilder;
+import com.google.android.gms.analytics.HitBuilders.ScreenViewBuilder;
+import com.google.android.gms.analytics.Logger;
 import com.google.android.gms.analytics.Tracker;
 
 import android.content.Context;
@@ -127,8 +129,8 @@ public class AnalyticsUtils {
 			MyLog.v(TAG, "Initializing the Google Analytics tracker...");
 			tracker = GoogleAnalytics.getInstance(context).newTracker(context.getString(R.string.google_analytics_id));
 			if (DEBUG) {
-				GoogleAnalytics.getInstance(context).getLogger().setLogLevel(LogLevel.VERBOSE);
-				// GoogleAnalytics.getInstance(context).setDryRun(true);
+				GoogleAnalytics.getInstance(context).getLogger().setLogLevel(Logger.LogLevel.VERBOSE);
+				GoogleAnalytics.getInstance(context).setDryRun(true);
 			}
 			MyLog.v(TAG, "Initializing the Google Analytics tracker... DONE");
 		}
@@ -138,32 +140,30 @@ public class AnalyticsUtils {
 	/**
 	 * Initialize the Google Analytics tracker with user device properties.
 	 * @param context the context
+	 * @param heb
 	 */
-	private static void initTrackerWithUserData(Context context, Tracker tracker) {
+	private static void initTrackerWithUserData(Context context, HitBuilders.ScreenViewBuilder hsvb, HitBuilders.EventBuilder heb) {
 		// 1 - Application version
 		try {
 			PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
 			String appVersion = packageInfo.versionName;
 			// MyLog.d(TAG, "app_version: '%s'.", appVersion);
-			// tracker.setCustomVar(CUSTOM_VAR_INDEX_APP_VERSION, "version", appVersion, SCOPE_VISITOR_LEVEL);
-			tracker.send(new HitBuilders.ScreenViewBuilder().setCustomDimension(CUSTOM_VAR_INDEX_APP_VERSION, appVersion).build());
-			// getTracker(context).setProductVersion("MonTransit", appVersion);
+			addCustomDimension(CUSTOM_VAR_INDEX_APP_VERSION, appVersion, hsvb, heb);
 		} catch (Exception e) {
+			MyLog.d(TAG, e, "Error while app version!");
 		}
 
 		// 2 - Android version
 		String androidVersion = Build.VERSION.RELEASE;
 		// MyLog.d(TAG, "os_rel: '%s'.", androidVersion);
-		// tracker.setCustomVar(CUSTOM_VAR_INDEX_ANDROID_VERSION, "android", androidVersion, SCOPE_VISITOR_LEVEL);
-		tracker.send(new HitBuilders.ScreenViewBuilder().setCustomDimension(CUSTOM_VAR_INDEX_ANDROID_VERSION, androidVersion).build());
+		addCustomDimension(CUSTOM_VAR_INDEX_ANDROID_VERSION, androidVersion, hsvb, heb);
 
 		// 3 - Android SDK
 		@SuppressWarnings("deprecation")
 		// TODO use Build.VERSION.SDK_INT
 		String sdk = Build.VERSION.SDK;
 		// MyLog.d(TAG, "sdk_version: '%s'.", sdk);
-		// tracker.setCustomVar(CUSTOM_VAR_INDEX_SDK_VERSION, "sdk", sdk, SCOPE_VISITOR_LEVEL);
-		tracker.send(new HitBuilders.ScreenViewBuilder().setCustomDimension(CUSTOM_VAR_INDEX_SDK_VERSION, sdk).build());
+		addCustomDimension(CUSTOM_VAR_INDEX_SDK_VERSION, sdk, hsvb, heb);
 
 		// 4 - Device
 		String device = "";
@@ -172,21 +172,29 @@ public class AnalyticsUtils {
 		}
 		device += Build.MODEL;
 		// MyLog.d(TAG, "device: '%s'.", device);
-		// tracker.setCustomVar(CUSTOM_VAR_INDEX_DEVICE, "device", device, SCOPE_VISITOR_LEVEL);
-		tracker.send(new HitBuilders.ScreenViewBuilder().setCustomDimension(CUSTOM_VAR_INDEX_DEVICE, device).build());
+		addCustomDimension(CUSTOM_VAR_INDEX_DEVICE, device, hsvb, heb);
 
 		// 5 - Network Operator
 		try {
 			TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 			String operator = telephonyManager.getNetworkOperatorName();
 			// MyLog.d(TAG, "operator: '%s'.", operator);
-			// tracker.setCustomVar(CUSTOM_VAR_INDEX_OPERATOR, "operator", operator, SCOPE_VISITOR_LEVEL);
-			tracker.send(new HitBuilders.ScreenViewBuilder().setCustomDimension(CUSTOM_VAR_INDEX_OPERATOR, operator).build());
+			addCustomDimension(CUSTOM_VAR_INDEX_OPERATOR, operator, hsvb, heb);
 		} catch (Exception e) {
+			MyLog.d(TAG, e, "Error while retreiving operator!");
 		}
 		// already provided by Analytics:
 		// user language + country
 		// service provider
+	}
+
+	private static void addCustomDimension(int dimensionIndex, String dimension, ScreenViewBuilder hsvb, EventBuilder heb) {
+		if (hsvb != null) {
+			hsvb.setCustomDimension(dimensionIndex, dimension);
+		}
+		if (heb != null) {
+			heb.setCustomDimension(dimensionIndex, dimension);
+		}
 	}
 
 	/**
@@ -205,8 +213,10 @@ public class AnalyticsUtils {
 				protected Void doInBackground(Context... params) {
 					try {
 						Tracker gaTracker = getGoogleAnalyticsTracker(params[0]);
-						initTrackerWithUserData(params[0], gaTracker);
-						gaTracker.send(new HitBuilders.EventBuilder().setCategory(category).setAction(action).setLabel(label).setValue(value).build());
+						HitBuilders.EventBuilder heb = new HitBuilders.EventBuilder().setCategory(category).setAction(action).setLabel(label).setValue(value);
+						initTrackerWithUserData(params[0], null, heb);
+						MyLog.d(TAG, "Tracking event %s, %s, %s, %s", category, action, label, value);
+						gaTracker.send(heb.build());
 					} catch (Throwable t) {
 						MyLog.w(TAG, t, "Error while tracing view!");
 					}
@@ -229,9 +239,11 @@ public class AnalyticsUtils {
 				protected Void doInBackground(Context... params) {
 					try {
 						Tracker gaTracker = getGoogleAnalyticsTracker(params[0]);
-						initTrackerWithUserData(params[0], gaTracker);
+						HitBuilders.ScreenViewBuilder hsvb = new HitBuilders.ScreenViewBuilder();
 						gaTracker.setScreenName(page);
-						gaTracker.send(new HitBuilders.AppViewBuilder().build());
+						MyLog.d(TAG, "Tracking page view %s", page);
+						initTrackerWithUserData(params[0], hsvb, null);
+						gaTracker.send(hsvb.build());
 					} catch (Throwable t) {
 						MyLog.w(TAG, t, "Error while tracing view!");
 					}
@@ -249,6 +261,7 @@ public class AnalyticsUtils {
 		MyLog.v(TAG, "dispatch()");
 		if (TRACKING) {
 			try {
+				MyLog.d(TAG, "Dispatch local tracking hits.");
 				GoogleAnalytics.getInstance(context).dispatchLocalHits();
 			} catch (Throwable t) {
 				MyLog.w(TAG, t, "Error while dispatching analytics data.");

@@ -1,3 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
+    <issue id="IconMissingDensityFolder" severity="ignore" />
+    <issue id="UnusedResources">
+        <ignore path="res/values/strings.xml" />
+        <ignore path="res/values-fr/strings.xml" />
+        <ignore path="res/raw" />
+    </issue>
+    <issue id="ContentDescription">
+        <ignore path="res/layout" />
+    </issue>
+    <issue id="UnusedAttribute">
+        <ignore path="res" />
+    </issue>
+     <issue id="IconDensities">
+        <ignore path="res" />
+    </issue>
+    <issue id="MergeRootFrame">
+        <ignore path="res" />
+    </issue>
+    <issue id="InconsistentLayout">
+        <ignore path="res" />
+    </issue>
+    <issue id="DuplicateIncludedIds">
+        <ignore path="res" />
+    </issue>
+    <issue id="SimpleDateFormat">
+        <ignore path="src" />
+    </issue>
+    <issue id="ClickableViewAccessibility">
+        <ignore path="src" />
+    </issue>
 </lint>

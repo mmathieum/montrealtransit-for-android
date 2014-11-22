@@ -106,14 +106,14 @@
     <string name="bike">Vélo</string>
 	<string name="bikes">Vélos</string>
 	<plurals name="bikes_nb">
-	    <item quantity="zero">Aucun vélo!</item>
+	    <!-- <item quantity="zero">Aucun vélo!</item> -->
         <item quantity="one">%d vélo</item>
         <item quantity="other">%d vélos</item>
     </plurals>
 	<string name="dock">Emplacement</string>
 	<string name="docks">Emplacements</string>
 	<plurals name="docks_nb">
-	    <item quantity="zero">Aucun emplacement!</item>
+	    <!-- <item quantity="zero">Aucun emplacement!</item> -->
         <item quantity="one">%d emplacement</item>
         <item quantity="other">%d emplacements</item>
     </plurals>
