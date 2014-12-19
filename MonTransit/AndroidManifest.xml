@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-	package="org.montrealtransit.android" android:versionName="1.7.8.16"
-	android:versionCode="1094" android:installLocation="auto"
+	package="org.montrealtransit.android" android:versionName="1.7.8.17"
+	android:versionCode="1105" android:installLocation="auto"
 	tools:ignore="OldTargetApi,UnusedAttribute">
 
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
