@@ -328,13 +328,15 @@ public class LocationUtils {
 	public static Address getLocationAddress(Context context, Location location) {
 		MyLog.v(TAG, "getLocationAddress()");
 		Address result = null;
-		Geocoder geocoder = new Geocoder(context);
 		try {
-			int maxResults = 1;
-			List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), maxResults);
-			if (addresses != null && addresses.size() >= 1) {
-				result = addresses.get(0);
-				// MyLog.d(TAG, "Found address: %s", result.getAddressLine(0));
+			if (Geocoder.isPresent()) {
+				Geocoder geocoder = new Geocoder(context);
+				int maxResults = 1;
+				List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), maxResults);
+				if (addresses != null && addresses.size() >= 1) {
+					result = addresses.get(0);
+					// MyLog.d(TAG, "Found address: %s", result.getAddressLine(0));
+				}
 			}
 		} catch (IOException ioe) {
 			if (MyLog.isLoggable(android.util.Log.DEBUG)) {
