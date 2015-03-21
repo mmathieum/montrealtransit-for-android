@@ -15,7 +15,7 @@ public class StmSubwayScheduleDbHelper extends SQLiteOpenHelper {
 
 	public static final String DB_NAME = "stmsubwayschedule_service_dates.db";
 
-	public static final int DB_VERSION = 16; // 2015-01-05
+	public static final int DB_VERSION = 17; // 2015-03-30
 
 	public static final String T_SERVICE_DATES = "service_dates";
 	// public static final String T_SERVICE_DATES_K_ID = BaseColumns._ID;
