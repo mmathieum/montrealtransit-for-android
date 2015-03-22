@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.montrealtransit.android.activity.UserPreferences;
+import org.montrealtransit.android.api.SupportFactory;
 import org.montrealtransit.android.data.POI;
 
 import android.app.Activity;
@@ -329,7 +330,7 @@ public class LocationUtils {
 		MyLog.v(TAG, "getLocationAddress()");
 		Address result = null;
 		try {
-			if (Geocoder.isPresent()) {
+			if (SupportFactory.get().isGeocoderPresent()) {
 				Geocoder geocoder = new Geocoder(context);
 				int maxResults = 1;
 				List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), maxResults);

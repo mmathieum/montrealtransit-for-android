@@ -149,4 +149,8 @@ public interface SupportUtil {
 	long getStatFsBlockSizeLong(StatFs statFs);
 
 	void removeOnGlobalLayoutListener(ViewTreeObserver viewTreeObserver, OnGlobalLayoutListener onGlobalLayoutListener);
+
+	void showNewAppNotification(Context context);
+
+	boolean isGeocoderPresent();
 }
