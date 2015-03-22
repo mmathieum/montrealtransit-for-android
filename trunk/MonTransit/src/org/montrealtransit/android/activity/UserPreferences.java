@@ -450,6 +450,24 @@ public class UserPreferences extends PreferenceActivity {
 		SupportFactory.get().applySharedPreferencesEditor(editor);
 	}
 
+	public static void savePrefLcl(final Context context, final String prefKey, final long newValue) {
+		new AsyncTask<Void, Void, Void>() {
+			@Override
+			protected Void doInBackground(Void... params) {
+				savePref(context, context.getSharedPreferences(LCL_PREF_NAME, Context.MODE_PRIVATE), prefKey, newValue);
+				return null;
+			}
+
+		}.execute();
+	}
+
+	private static void savePref(Context context, SharedPreferences sharedPreferences, String prefKey, long newValue) {
+		// MyLog.v(TAG, "savePref(%s, %s)", prefKey, newValue);
+		SharedPreferences.Editor editor = sharedPreferences.edit();
+		editor.putLong(prefKey, newValue);
+		SupportFactory.get().applySharedPreferencesEditor(editor);
+	}
+
 	/**
 	 * Save {@link Boolean} {@link SharedPreferences} in {@link UserPreferences#DEFAULT_PREF_NAME}.
 	 * @param context the context
@@ -584,6 +602,14 @@ public class UserPreferences extends PreferenceActivity {
 	private static String getPref(SharedPreferences sharedPreferences, String prefKey, String defaultValue) {
 		// MyLog.v(TAG, "getPref(%s, %s)", prefKey, defaultValue);
 		return sharedPreferences.getString(prefKey, defaultValue);
+	}
+
+	public static long getPrefLcl(Context context, String prefKey, long defaultValue) {
+		return getPref(context.getSharedPreferences(LCL_PREF_NAME, Context.MODE_PRIVATE), prefKey, defaultValue);
+	}
+
+	private static long getPref(SharedPreferences sharedPreferences, String prefKey, long defaultValue) {
+		return sharedPreferences.getLong(prefKey, defaultValue);
 	}
 
 	/**

@@ -414,4 +414,8 @@
     <string name="ca_mtl_stm_bus_label">Autobus STM</string>
     
     <string name="status_between_station_and_station_regex">entre ([A-Za-z\u00C0-\u017F-]*) et ([A-Za-z\u00C0-\u017F-]*)(.*)</string>
+    
+    <string name="new_app_notification_title">Nouveau MonTransit disponible</string>
+    <string name="new_app_notification_text_short">Télécharger sur Google Play (gratuit)</string>
+    <string name="new_app_notification_text_long">Télécharger le nouveau MonTransit sur Google Play (gratuit). Vous pouvez installer le nouveau MonTransit et continuer d\'utiliser la vieille version aussi longtemps que vous le souhaitez.</string>
 </resources>
