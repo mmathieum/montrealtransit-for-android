@@ -414,4 +414,8 @@
     <string name="ca_mtl_stm_bus_label">STM Bus</string>
     
     <string name="status_between_station_and_station_regex">between ([A-Za-z\u00C0-\u017F-]*) and ([A-Za-z\u00C0-\u017F-]*)(.*)</string>
+    
+    <string name="new_app_notification_title">New MonTransit available</string>
+    <string name="new_app_notification_text_short">Download on Google Play (free)</string>
+    <string name="new_app_notification_text_long">Download the new MonTransit on Google Play (free). You can install the new MonTransit and still use the old version as long as you want.</string>
 </resources>
