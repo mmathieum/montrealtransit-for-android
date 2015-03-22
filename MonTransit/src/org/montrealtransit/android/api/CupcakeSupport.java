@@ -180,4 +180,14 @@ public class CupcakeSupport implements SupportUtil {
 	public void removeOnGlobalLayoutListener(ViewTreeObserver viewTreeObserver, ViewTreeObserver.OnGlobalLayoutListener onGlobalLayoutListener) {
 		viewTreeObserver.removeGlobalOnLayoutListener(onGlobalLayoutListener);
 	}
+	
+	@Override
+	public void showNewAppNotification(Context context) {
+		// not supported until Ice Cream Sandwich (API Level 14)
+	}
+	
+	@Override
+	public boolean isGeocoderPresent() {
+		return true; // not provided until Gingerbread (API Level 9)
+	}
 }

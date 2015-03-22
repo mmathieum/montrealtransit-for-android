@@ -5,6 +5,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import android.annotation.TargetApi;
 import android.content.SharedPreferences.Editor;
+import android.location.Geocoder;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
 import android.os.StrictMode.VmPolicy;
@@ -44,11 +45,16 @@ public class GingerbreadSupport extends FroyoSupport {
 
 	@Override
 	public int getNbClosestPOIDisplay() {
-		return super.getNbClosestPOIDisplay(); //100;
+		return super.getNbClosestPOIDisplay(); // 100;
 	}
 
 	@Override
 	public BlockingQueue<Runnable> getNewBlockingQueue() {
 		return new LinkedBlockingDeque<Runnable>(7);
+	}
+
+	@Override
+	public boolean isGeocoderPresent() {
+		return Geocoder.isPresent();
 	}
 }
