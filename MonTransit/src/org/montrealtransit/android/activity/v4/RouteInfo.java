@@ -545,21 +545,35 @@ public class RouteInfo extends FragmentActivity implements LocationListener, Sen
 		@Override
 		public CharSequence getPageTitle(int position) {
 			// MyLog.v(TAG, "getPageTitle(%s)", position);
+			if (RouteInfo.this.routeTrips == null || RouteInfo.this.routeTrips.size() <= position) {
+				return null; // not ready
+			}
+			if (RouteInfo.this.routeTripsStrings == null) {
+				return null; // not ready
+			}
 			return RouteInfo.this.routeTripsStrings.get(RouteInfo.this.routeTrips.get(position).id);
 		}
 
 		@Override
 		public int getCount() {
 			// MyLog.v(TAG, "getCount()");
+			if (RouteInfo.this.route == null) {
+				return 0; // not ready
+			}
 			return RouteInfo.this.routeTrips == null ? 0 : RouteInfo.this.routeTrips.size();
 		}
 
 		@Override
 		public Fragment getItem(int position) {
 			MyLog.v(TAG, "getItem(%s)", position);
+			if (RouteInfo.this.route == null) {
+				return null; // not ready
+			}
+			if (RouteInfo.this.routeTrips == null || RouteInfo.this.routeTrips.size() <= position) {
+				return null; // not ready
+			}
 			return RouteTripFragment.newInstance(RouteInfo.this.contentUri.getAuthority(), RouteInfo.this.route, RouteInfo.this.routeTrips.get(position),
 					RouteInfo.this.currentStopId);
 		}
-
 	}
 }
