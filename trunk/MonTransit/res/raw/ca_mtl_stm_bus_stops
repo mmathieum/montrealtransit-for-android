@@ -1875,7 +1875,7 @@
 52015,'52015','Pie-IX / Saint-Zotique',45.563736,-73.583767
 52016,'52016','Bélanger / 30e Avenue',45.569439,-73.583314
 52017,'52017','Saint-Joseph / Christophe-Colomb',45.530406,-73.584234
-52019,'52019','Saint-Joseph / Christophe-Colomb',45.530102,-73.584103
+52019,'52019','Saint-Joseph / Christophe-Colomb',45.529988,-73.584334
 52020,'52020','Beaubien / 16e Avenue',45.558614,-73.583327
 52021,'52021','Beaubien / 16e Avenue',45.558299,-73.583321
 52022,'52022','Papineau / Masson',45.537243,-73.583733
@@ -2261,7 +2261,7 @@
 52412,'52412','University / Président-Kennedy',45.504480,-73.572239
 52413,'52413','Rosemont / 28e Avenue',45.564088,-73.570737
 52414,'52414','Beaubien / 40e Avenue',45.572850,-73.570648
-52415,'52415','Montagne / René-Lévesque',45.496571,-73.572083
+52415,'52415','Montagne / René-Lévesque',45.496452,-73.571878
 52416,'52416','René-Lévesque / Montagne',45.496763,-73.572366
 52417,'52417','Mont-Royal / Parthenais',45.536595,-73.571190
 52418,'52418','Mont-Royal / Parthenais',45.536172,-73.571364
@@ -2283,7 +2283,7 @@
 52434,'52434','Sainte-Catherine / Mansfield',45.501163,-73.571602
 52435,'52435','Rachel / Fabre',45.529283,-73.570753
 52436,'52436','Rachel / Fabre',45.529074,-73.570738
-52437,'52437','René-Lévesque / Drummond',45.497156,-73.571610
+52437,'52437','René-Lévesque / Drummond',45.497507,-73.571346
 52438,'52438','Président-Kennedy / Aylmer',45.505683,-73.571401
 52439,'52439','Président-Kennedy / Aylmer',45.505746,-73.571114
 52440,'52440','Parc-La Fontaine / Napoléon',45.523960,-73.570661
@@ -2301,7 +2301,7 @@
 52452,'52452','Masson / Orléans',45.557308,-73.569689
 52453,'52453','Mont-Royal / Fullum',45.537553,-73.570182
 52454,'52454','Saint-Patrick / Charlevoix',45.479578,-73.571843
-52455,'52455','Émile-Duployé / Rachel',45.529729,-73.569812
+52455,'52455','Émile-Duployé / Rachel',45.529849,-73.569971
 52456,'52456','De Lorimier / Marie-Anne',45.534098,-73.569948
 52457,'52457','De Lorimier / Marie-Anne',45.534119,-73.570373
 52458,'52458','Sherbrooke / Jeanne-Mance',45.509449,-73.570867
@@ -3601,7 +3601,7 @@
 53810,'53810','Victoria / No 4811',45.486464,-73.619804
 53811,'53811','Notre-Dame / Saint-Sulpice',45.505307,-73.556274
 53812,'53812','Saint-Grégoire / Saint-André',45.531449,-73.591399
-53813,'53813','Papineau / La Fontaine',45.524373,-73.556349
+53813,'53813','Papineau / La Fontaine',45.524689,-73.556914
 53814,'53814','Saint-Jacques / Beaconsfield',45.464395,-73.615754
 53815,'53815','Saint-Jacques / Hingston',45.464433,-73.615228
 53816,'53816','Notre-Dame / Place Saint-Henri',45.477695,-73.584634
@@ -3841,7 +3841,7 @@
 54071,'54071','Frontenac / Mondelet',45.530474,-73.546466
 54072,'54072','Girouard / Notre-Dame-De-Grâce',45.475169,-73.618198
 54073,'54073','Perras / 57e Avenue',45.655747,-73.569541
-54074,'54074','Station Snowdon (Queen-Mary / Westbury)',45.485393,-73.627853
+54074,'54074','Station Snowdon (Queen-Mary / Westbury)',45.485769,-73.627488
 54075,'54075','Laurendeau / D''Arcy-McGee',45.452308,-73.589569
 54077,'54077','Côte-Saint-Luc / Terrebonne',45.479127,-73.624644
 54078,'54078','Ridgewood / No 3280',45.494569,-73.609536
@@ -8384,7 +8384,7 @@
 60576,'60576','Bégin / Poirier',45.498040,-73.719460
 60577,'60577','Poirier / Harfangs',45.510359,-73.708024
 60579,'60579','Prince-Arthur / De La Rousselière',45.670332,-73.509510
-60580,'60580','Notre-Dame / Beausoleil',45.682048,-73.491195
+60580,'60580','Notre-Dame / Beausoleil',45.682630,-73.491172
 60581,'60581','Douglas-B.-Floreani / No 3425',45.497535,-73.764434
 60582,'60582','Gouin / Palomino',45.460443,-73.9055
 60583,'60583','Gouin / Palomino',45.460454,-73.905090
@@ -8667,7 +8667,7 @@
 61301,'61301','Saint-Hubert / Saint-Grégoire',45.530677,-73.591552
 61302,'61302','Saint-Grégoire / Chambord',45.534390,-73.588522
 61309,'61309','Saint-Jean / Brunswick',45.468053,-73.829965
-61311,'61311','Sherbrooke / Stationnement Incitatif',45.668331,-73.505531
+61311,'61311','Sherbrooke / Stationnement Incitatif',45.669105,-73.504905
 61312,'61312','Pierrefonds / Winnie-Wakefield',45.459099,-73.893692
 61315,'61315','Rosemont / Marquette',45.539949,-73.592036
 61320,'61320','Verdun / No 5969',45.447849,-73.572792
@@ -8711,4 +8711,5 @@
 61540,'61540','Arthur-Fecteau / Roméo-Vachon',45.453558,-73.744647
 61541,'61541','Mc Millan / No 555',45.453122,-73.740979
 61542,'61542','Henri-Bourassa / Pie IX',45.595519,-73.642570
+61549,'61549','Saint-Denis / Saint-Denis',45.530882,-73.597834
 61550,'61550','Futailles / Notre-Dame',45.581131,-73.512412
