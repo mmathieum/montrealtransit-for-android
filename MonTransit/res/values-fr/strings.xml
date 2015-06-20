@@ -417,5 +417,5 @@
     
     <string name="new_app_notification_title">Nouveau MonTransit disponible</string>
     <string name="new_app_notification_text_short">Télécharger sur Google Play (gratuit)</string>
-    <string name="new_app_notification_text_long">Télécharger le nouveau MonTransit sur Google Play (gratuit). Vous pouvez installer le nouveau MonTransit et continuer d\'utiliser la vieille version aussi longtemps que vous le souhaitez.</string>
+    <string name="new_app_notification_text_long">Télécharger le nouveau MonTransit sur Google Play (gratuit). Vous pouvez installer le nouveau MonTransit et continuer d\'utiliser l\'ancienne version aussi longtemps que vous le souhaitez.</string>
 </resources>
