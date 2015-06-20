@@ -85,6 +85,7 @@ public class BusTab extends FragmentActivity {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	private void showAll() {
 		MyLog.v(TAG, "showAll()");
 		this.viewPager = (ViewPager) findViewById(R.id.viewpager);
