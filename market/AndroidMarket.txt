@@ -1,0 +1,33 @@
+ * Title EN: MonTransit
+
+ * Description EN:
+MonTransit brings STM buses and subways information in your pocket.
+
+v1.3: add subway status and multiple UI improvements
+
+This app is open-source and not related with the Société de Transport de Montréal.
+
+ * Promo Text EN: STM buses and subways information in your pocket.
+
+ * Title FR: MonTransit
+
+ * Description FR:
+MonTransit apporte l'information sur les bus et les métros de la STM dans votre poche.
+
+v1.3 : statut du métro et plusieurs améliorations de l'UI
+
+Cette application est open-source et n'est pas associée à la Société de Transport de Montréal.
+
+ * Promo Text FR: L'information sur les bus et les métro de la STM dans votre poche.
+
+ * Application Type: Applications
+ * Category: Travel
+ * Price: Free
+
+ * Copy Protection: Off
+
+ * Locations: All locations (including future locations added to Android Market)
+
+ * Website: http://montrealtransit-for-android.googlecode.com/
+ * Email: xxxxxxx.xxx+MonTransit@gmail.com
+ * Phone:
