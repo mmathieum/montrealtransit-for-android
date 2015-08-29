@@ -43,6 +43,7 @@ public class BusTabLinesGridFragment extends Fragment {
 		return new BusTabLinesGridFragment();
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onAttach(Activity activity) {
 		MyLog.v(TAG, "onAttach()");

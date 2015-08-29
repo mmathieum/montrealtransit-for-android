@@ -85,6 +85,7 @@ public class RouteTripFragment extends Fragment implements AdapterView.OnItemCli
 		return f;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onAttach(Activity activity) {
 		MyLog.v(TAG, "onAttach()");

@@ -77,6 +77,7 @@ public class BusTabClosestStopsFragment extends Fragment implements LocationList
 		return new BusTabClosestStopsFragment();
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onAttach(Activity activity) {
 		MyLog.v(TAG, "onAttach()");
