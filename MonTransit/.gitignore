@@ -1,2 +1,5 @@
 /bin/
 /gen/
+/custom_local.properties
+/local.properties
+/keys.properties
