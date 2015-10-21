@@ -27,8 +27,6 @@
     <string name="common_google_play_services_unsupported_title" msgid="6334768798839376943">"Services Google Play"</string>
     <string name="common_google_play_services_unsupported_text" msgid="7682982632307307938">"<xliff:g id="APP_NAME">%1$s</xliff:g> dépend des services Google Play, qui ne sont pas compatibles avec votre appareil. Veuillez contacter le fabricant pour obtenir de l\'aide."</string>
     <string name="common_google_play_services_update_button" msgid="8932944190611227642">"Mettre à jour"</string>
-    <string name="common_signin_button_text" msgid="9071884888741449141">"Connexion"</string>
-    <string name="common_signin_button_text_long" msgid="2429381841831957106">"Se connecter avec Google"</string>
     <string name="common_open_on_phone" msgid="411506735369601515">"Ouvrir sur le téléphone"</string>
     <string name="common_google_play_services_api_unavailable_text" msgid="6534628256897874213">"<xliff:g id="APP_NAME">%1$s</xliff:g> nécessite un ou plusieurs services Google Play qui ne sont pas disponibles actuellement. Veuillez contacter le développeur pour obtenir de l\'aide."</string>
     <string name="common_google_play_services_sign_in_failed_title" msgid="8164948898147532159">"Échec de la connexion"</string>

@@ -93,12 +93,6 @@
     <!-- Button in confirmation dialog for updating Google Play services [CHAR LIMIT=40] -->
     <string name="common_google_play_services_update_button" msgid="6556509956452265614">Update</string>
 
-    <!-- Sign-in button text [CHAR LIMIT=15] -->
-    <string name="common_signin_button_text">Sign in</string>
-
-    <!-- Long form sign-in button text [CHAR LIMIT=30] -->
-    <string name="common_signin_button_text_long">Sign in with Google</string>
-
     <!-- Label for an action to open a notifications content on the phone [CHAR LIMIT=25] -->
     <string name="common_open_on_phone">Open on phone</string>
 
