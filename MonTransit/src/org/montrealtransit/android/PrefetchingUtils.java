@@ -98,6 +98,7 @@ public class PrefetchingUtils {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	public static boolean isConnectedToWifi(Context context) {
 		ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		return connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected();

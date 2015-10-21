@@ -128,12 +128,11 @@ public final class SensorUtils {
 	 * @param values the {@link SensorEvent} values
 	 * @return the acceleration (including gravity)
 	 */
-	@SuppressWarnings("deprecation")
 	public static float extractAcceleration(float[] values) {
 		float x = values[0];
 		float y = values[1];
 		float z = values[2];
-		return android.util.FloatMath.sqrt((x * x + y * y + z * z));
+		return (float) java.lang.Math.sqrt(x * x + y * y + z * z);
 	}
 
 	/**

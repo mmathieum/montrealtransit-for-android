@@ -847,6 +847,7 @@ public class Utils {
 	 * @param resId the resource ID
 	 * @return the theme attribute
 	 */
+	@SuppressWarnings("deprecation")
 	public static int getThemeAttribute(Context context, int resId) {
 		TypedValue tv = new TypedValue();
 		context.getTheme().resolveAttribute(resId, tv, true);
