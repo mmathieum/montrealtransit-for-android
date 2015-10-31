@@ -3305,6 +3305,7 @@
 53504,'53504','Saint-Jean-Baptiste / De Montigny',45.642540,-73.506583
 53505,'53505','Notre-Dame / Lepailleur',45.586328,-73.508116
 53506,'53506','Sherbrooke / 47e Avenue',45.667724,-73.505253
+53507,'53507','Gouin / No 13450',45.699454,-73.505907
 53508,'53508','Sherbrooke / La Rousselière',45.669574,-73.505218
 53509,'53509','Sherbrooke / De La Rousselière',45.669103,-73.504867
 53510,'53510','Sherbrooke / 52e Avenue',45.671500,-73.504221
@@ -3314,6 +3315,7 @@
 53514,'53514','De Montigny / Régnier',45.655725,-73.503926
 53515,'53515','De Montigny / Régnier',45.655469,-73.503851
 53516,'53516','Saint-Jean-Baptiste / Place Pointe-Aux-Trembles',45.642190,-73.504448
+53517,'53517','Gouin / No 13545',45.698866,-73.503836
 53518,'53518','De Montigny / 32e Avenue',45.657679,-73.503287
 53519,'53519','De Montigny / 32e Avenue',45.657462,-73.503195
 53520,'53520','De La Rousselière / Forsyth',45.669052,-73.502675
@@ -3616,9 +3618,6 @@
 53836,'53836','Ridgewood / No 3440',45.493890,-73.612544
 53837,'53837','Côte-Des-Neiges / Entrée Du Cimetière',45.495952,-73.608325
 53838,'53838','Remembrance / Poste De Police',45.502365,-73.596124
-53839,'53839','La Ronde',45.521352,-73.533844
-53840,'53840','La Ronde / Tour-De-L''Isle',45.519536,-73.533278
-53841,'53841','Papineau / Pont Jacques-Cartier',45.524266,-73.555805
 53842,'53842','Docteur-Penfield / Côte-Des-Neiges',45.496707,-73.586311
 53843,'53843','Docteur-Penfield / No 855',45.505324,-73.578395
 53844,'53844','Haig / No 2105',45.580540,-73.524829
@@ -3686,6 +3685,8 @@
 53908,'53908','Gouin / No 12050',45.685092,-73.527758
 53909,'53909','Gouin / No 12050',45.685401,-73.527644
 53910,'53910','Gouin / No 12140',45.687363,-73.526768
+53911,'53911','Gouin / No 13450',45.699590,-73.505420
+53912,'53912','Gouin / No 13545',45.698816,-73.503973
 53913,'53913','Gouin / Collège Saint-Jean-Vianney',45.694346,-73.520837
 53914,'53914','Collège Saint-Jean-Vianney / Gouin',45.694346,-73.520837
 53915,'53915','Gouin / École Saint-Valérien',45.698124,-73.511748
@@ -3918,7 +3919,6 @@
 54173,'54173','Notre-Dame-De-Grâce / Grand Boulevard',45.467020,-73.624457
 54174,'54174','Station Langelier (Langelier / Sherbrooke)',45.582779,-73.542870
 54175,'54175','Lucien-L''Allier / René-Lévesque',45.495165,-73.572056
-54177,'54177','La Ronde',45.521538,-73.536015
 54179,'54179','Station Rosemont / Terminus',45.531255,-73.597158
 54180,'54180','Saint-Michel / Robert',45.567745,-73.618269
 54181,'54181','Station Lionel-Groulx (Saint-Jacques / Atwater)',45.482998,-73.578888
@@ -3985,6 +3985,8 @@
 54260,'54260','Rolland-Jeanneau / 89e Avenue',45.665604,-73.535096
 54261,'54261','Henri-Bourassa / No 10905',45.654437,-73.532249
 54262,'54262','Station Namur (Décarie / Jean-Talon)',45.494913,-73.653153
+54264,'54264','Gouin / Parc Pointe-Aux-Prairies',45.689182,-73.525184
+54265,'54265','Gouin / Parc Pointe-Aux-Prairies',45.689359,-73.525182
 54266,'54266','Saint-Joseph / Messier',45.539399,-73.575634
 54269,'54269','Station Sauvé Sud (Berri / Sauvé)',45.550545,-73.655052
 54270,'54270','Maurice-Duplessis / 62e Avenue',45.651973,-73.558871
@@ -4031,7 +4033,6 @@
 54328,'54328','Lavoie / Isabella',45.492388,-73.626753
 54329,'54329','Lacombe / Légaré',45.494993,-73.624934
 54330,'54330','Casino De Montréal',45.506401,-73.525190
-54335,'54335','Station Jean-Drapeau',45.512182,-73.532041
 54337,'54337','Notre-Dame / 93e Avenue',45.697099,-73.485245
 54338,'54338','Meilleur / Parc Saint-Benoît',45.540426,-73.666529
 54339,'54339','Tellier / Stationnement SAQ (Vers L''Est)',45.585526,-73.521589
@@ -8200,7 +8201,6 @@
 60307,'60307','Léger / Lacordaire',45.615352,-73.630175
 60311,'60311','Rodolphe-Forget / Louis-Dessaulles',45.646070,-73.575289
 60312,'60312','Rodolphe-Forget / Perras',45.649284,-73.578717
-60313,'60313','Île Saint-Hélène / Tour De L''Isle',45.519156,-73.534178
 60314,'60314','Broadway / Forsyth',45.633505,-73.515517
 60315,'60315','58e Avenue / Gouin',45.659218,-73.571233
 60316,'60316','Maurice-Duplessis / Saint-Jean-Baptiste',45.659687,-73.541471
