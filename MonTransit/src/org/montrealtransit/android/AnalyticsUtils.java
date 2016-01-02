@@ -6,7 +6,6 @@ import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.HitBuilders.EventBuilder;
 import com.google.android.gms.analytics.HitBuilders.ScreenViewBuilder;
-import com.google.android.gms.analytics.Logger;
 import com.google.android.gms.analytics.Tracker;
 
 import android.content.Context;
@@ -129,7 +128,9 @@ public class AnalyticsUtils {
 			MyLog.v(TAG, "Initializing the Google Analytics tracker...");
 			tracker = GoogleAnalytics.getInstance(context).newTracker(context.getString(R.string.google_analytics_id));
 			if (DEBUG) {
-				GoogleAnalytics.getInstance(context).getLogger().setLogLevel(Logger.LogLevel.VERBOSE);
+				// adb shell setprop log.tag.GAv4 DEBUG
+				// adb logcat -v time -s GAv4
+				// GoogleAnalytics.getInstance(context).getLogger().setLogLevel(Logger.LogLevel.VERBOSE);
 				GoogleAnalytics.getInstance(context).setDryRun(true);
 			}
 			MyLog.v(TAG, "Initializing the Google Analytics tracker... DONE");
