@@ -13,7 +13,7 @@ public class StmBusDbHelper extends AbstractDbHelper {
 
 	public static final String DB_NAME = "stmbus.db";
 
-	public static final int DB_VERSION = 30; // 2017-03-27
+	public static final int DB_VERSION = 31; // 2017-06-18
 
 	public static final int LABEL = R.string.ca_mtl_stm_bus_label;
 
