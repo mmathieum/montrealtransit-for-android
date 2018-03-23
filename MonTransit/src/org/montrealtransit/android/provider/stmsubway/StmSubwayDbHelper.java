@@ -13,7 +13,7 @@ public class StmSubwayDbHelper extends AbstractDbHelper {
 
 	public static final String DB_NAME = "stmsubway.db";
 
-	public static final int DB_VERSION = 11; // 2017-08-27
+	public static final int DB_VERSION = 12; // 2018-03-26
 
 	public static final int LABEL = R.string.ca_mtl_stm_subway_label;
 
