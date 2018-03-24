@@ -644,9 +644,9 @@
 50753,'50753','Barclay / Lavoie',45.498247,-73.639599
 50754,'50754','Charland / Sackville',45.573362,-73.637540
 50755,'50755','Charland / Sackville',45.573106,-73.637587
-50756,'50756','Saint-Denis / Crémazie',45.545276,-73.638251
-50758,'50758','Station Crémazie Sud (Saint-Denis / Crémazie)',45.545085,-73.638169
-50760,'50760','Station Crémazie (Édicule Nord)',45.546234,-73.639266
+50756,'50756','Station Crémazie (Saint-Denis / Crémazie)',45.545276,-73.638251
+50758,'50758','Station Crémazie (Saint-Denis Sud / Crémazie)',45.545085,-73.638169
+50760,'50760','Station Crémazie (Saint-Denis Nord / Crémazie)',45.546234,-73.639266
 50761,'50761','Fielding / West Hill',45.471853,-73.640031
 50762,'50762','Fielding / West Hill',45.472029,-73.639841
 50763,'50763','Sherbrooke / West Broadway',45.456692,-73.640198
@@ -1725,8 +1725,8 @@
 51859,'51859','Rosemont / De Lorimier',45.543206,-73.589229
 51860,'51860','De Lorimier / Rosemont',45.543075,-73.589482
 51861,'51861','Rosemont / De Lorimier',45.542896,-73.589264
-51862,'51862','Station Laurier Nord (Saint-Denis / Laurier)',45.526968,-73.589289
-51864,'51864','Station Laurier Nord (Saint-Denis / Laurier)',45.526940,-73.589662
+51862,'51862','Station Laurier (Saint-Denis / Laurier)',45.526968,-73.589289
+51864,'51864','Saint-Denis / Laurier',45.526940,-73.589662
 51865,'51865','Laurier / Saint-Denis',45.526812,-73.589498
 51866,'51866','Pie-IX / Bélair',45.565394,-73.588355
 51867,'51867','Pie-IX / Bélair',45.565305,-73.588829
@@ -1749,10 +1749,10 @@
 51884,'51884','Mont-Royal / Jeanne-Mance',45.517194,-73.588838
 51885,'51885','Saint-Antoine / Sainte-Marguerite',45.477377,-73.590379
 51887,'51887','Monk / De La Vérendrye',45.446623,-73.591633
-51888,'51888','Alexis-Carrel / Perras',45.643964,-73.585781
-51889,'51889','Perras / Alexis-Carrel',45.644275,-73.585979
-51890,'51890','Perras / Alexis-Carrel',45.643938,-73.586085
-51891,'51891','Perras / Alexis-Carrel',45.644584,-73.585382
+51888,'51888','Rita-Levi-Montalcini / Perras',45.643964,-73.585781
+51889,'51889','Perras / Rita-Levi-Montalcini',45.644275,-73.585979
+51890,'51890','Perras / Rita-Levi-Montalcini',45.643938,-73.586085
+51891,'51891','Perras / Rita-Levi-Montalcini',45.644584,-73.585382
 51893,'51893','Saint-Grégoire / Chambord',45.534683,-73.588375
 51894,'51894','Atwater / Picquet',45.493311,-73.589719
 51896,'51896','Atwater / Picquet',45.493512,-73.589353
@@ -1817,7 +1817,7 @@
 51959,'51959','Laurendeau / Desmarchais',45.455337,-73.588530
 51960,'51960','Laurendeau / Desmarchais',45.455641,-73.588663
 51961,'51961','Jolicoeur / Laurendeau',45.457318,-73.587940
-51962,'51962','Laurendeau / De Maricourt',45.457589,-73.588482
+51962,'51962','Laurendeau / Jolicoeur',45.457492,-73.588489
 51963,'51963','Jolicoeur / Laurendeau',45.456914,-73.589049
 51964,'51964','Saint-Antoine / Couvent',45.479705,-73.587694
 51965,'51965','Station Laurier Sud (Rivard / Gilford)',45.526517,-73.586813
@@ -1834,8 +1834,8 @@
 51976,'51976','Saint-Grégoire / Marquette',45.537343,-73.585717
 51977,'51977','Laurendeau / Le Caron',45.461828,-73.587949
 51978,'51978','Laurendeau / Le Caron',45.462053,-73.588088
-51980,'51980','Alexis-Carrel / Samuel-Morse',45.641350,-73.583042
-51981,'51981','Alexis-Carrel / Samuel-Morse',45.641463,-73.583336
+51980,'51980','Rita-Levi-Montalcini / Samuel-Morse',45.641350,-73.583042
+51981,'51981','Rita-Levi-Montalcini / Samuel-Morse',45.641463,-73.583336
 51982,'51982','Beaubien / 13e Avenue',45.556491,-73.585130
 51983,'51983','Beaubien / 13e Avenue',45.556255,-73.585135
 51984,'51984','Côte-Des-Neiges / Docteur-Penfield',45.496337,-73.586157
@@ -1921,9 +1921,9 @@
 52068,'52068','Rosemont / 8e Avenue',45.551367,-73.581889
 52069,'52069','Station Atwater (Sainte-Catherine / Atwater)',45.489738,-73.583882
 52070,'52070','Station Atwater (Lambert-Closse / Ste-Catherine)',45.490351,-73.583227
-52071,'52071','Maurice-Duplessis / Alexis-Carrel',45.638733,-73.580140
-52072,'52072','Alexis-Carrel / Maurice-Duplessis',45.638737,-73.580480
-52073,'52073','Maurice-Duplessis / Alexis-Carrel',45.638348,-73.580249
+52071,'52071','Maurice-Duplessis / Rita-Levi-Montalcini',45.638733,-73.580140
+52072,'52072','Rita-Levi-Montalcini / Maurice-Duplessis',45.638737,-73.580480
+52073,'52073','Maurice-Duplessis / Rita-Levi-Montalcini',45.638348,-73.580249
 52074,'52074','Beaubien / 19e Avenue',45.560591,-73.581537
 52075,'52075','Beaubien / 19e Avenue',45.560304,-73.581587
 52076,'52076','Saint-Urbain / Rachel',45.516593,-73.582480
@@ -1998,6 +1998,7 @@
 52147,'52147','Station Guy-Concordia (St-Mathieu/De Maisonneuve)',45.494608,-73.580727
 52148,'52148','Station Guy-Concordia (De Maisonneuve/St-Mathieu)',45.494350,-73.580889
 52149,'52149','René-Lévesque / Sussex',45.489211,-73.580695
+52150,'52150','Sussex / René-Lévesque',45.489191,-73.581152
 52151,'52151','Rachel / Hôtel-De-Ville',45.519934,-73.579963
 52152,'52152','Rachel / Hôtel-De-Ville',45.519700,-73.580012
 52153,'52153','Pins / University',45.508356,-73.580155
@@ -2312,7 +2313,7 @@
 52474,'52474','De Maisonneuve / City Councillors',45.505842,-73.570268
 52476,'52476','Papineau / Rachel',45.530568,-73.569696
 52477,'52477','Rachel / Papineau',45.530748,-73.569208
-52478,'52478','Papineau / Bureau',45.530966,-73.570219
+52478,'52478','Papineau / Rachel',45.530966,-73.570219
 52479,'52479','Parc La Fontaine / Roy',45.523025,-73.568620
 52480,'52480','Saint-Joseph / 9e Avenue',45.548474,-73.569038
 52481,'52481','Saint-Joseph / Henri-Valade',45.548130,-73.568957
@@ -2606,7 +2607,6 @@
 52794,'52794','Beaubien / François-Boivin',45.590535,-73.559412
 52795,'52795','Beaubien / François-Boivin',45.590246,-73.559273
 52796,'52796','Centre / Shearer',45.483026,-73.561995
-52797,'52797','Shearer / Centre',45.482992,-73.562274
 52798,'52798','Centre / Shearer',45.482795,-73.562131
 52799,'52799','Shearer / Clarendon',45.483196,-73.562333
 52800,'52800','Amherst / Robin',45.519149,-73.560609
@@ -3594,6 +3594,8 @@
 53836,'53836','Ridgewood / No 3440',45.493890,-73.612544
 53837,'53837','Cimetière Notre-Dame-Des-Neiges',45.495952,-73.608325
 53838,'53838','Remembrance / Cavalerie Du SPVM',45.502365,-73.596124
+53839,'53839','La Ronde',45.521352,-73.533844
+53841,'53841','Pont Jacques-Cartier (Papineau/Logan)',45.524266,-73.555805
 53842,'53842','Docteur-Penfield / Côte-Des-Neiges',45.496707,-73.586311
 53843,'53843','Docteur-Penfield / Réservoir McTavish',45.505324,-73.578395
 53844,'53844','Haig / No 2105',45.580540,-73.524829
@@ -3675,7 +3677,7 @@
 53926,'53926','Henri-Bourassa / No 8601',45.630520,-73.573726
 53927,'53927','Maurice-Duplessis / Fernand-Gauthier',45.627304,-73.595515
 53928,'53928','Maurice-Duplessis / Fernand-Gauthier',45.626992,-73.595635
-53929,'53929','Alexis-Carrel / Maurice-Duplessis',45.638912,-73.580486
+53929,'53929','Rita-Levi-Montalcini / Maurice-Duplessis',45.638912,-73.580486
 53930,'53930','Cégep Marie-Victorin',45.621145,-73.607383
 53931,'53931','Hôpital Rivière-Des-Prairies (M.-Duplessis/No 7000',45.619660,-73.610240
 53932,'53932','Saint-Jacques / No 6705',45.459056,-73.627138
@@ -3735,7 +3737,7 @@
 53988,'53988','Stade Saputo',45.564019,-73.550718
 53989,'53989','Sherbrooke / Yves-Thériault',45.679205,-73.501719
 53990,'53990','François-Perrault / Michel-Ange',45.562372,-73.602481
-53992,'53992','Lac Aux Castors',45.499445,-73.600504
+53992,'53992','Lac Aux Castors (Remembrance / No 2000)',45.499445,-73.600504
 53994,'53994','Honoré-Beaugrand / Fonteneau',45.598219,-73.540530
 53995,'53995','Honoré-Beaugrand / Fonteneau',45.598282,-73.541087
 53996,'53996','Chénier / Honoré-Beaugrand',45.598978,-73.543773
@@ -3874,7 +3876,6 @@
 54158,'54158','Laurendeau / Jolicoeur',45.456932,-73.588384
 54159,'54159','Mont-Royal / Côte-Sainte-Catherine',45.516031,-73.590152
 54160,'54160','Elmhurst / Sherbrooke',45.454969,-73.641156
-54163,'54163','René-Lévesque / Amesbury',45.492848,-73.575752
 54164,'54164','Sherbrooke / Valois',45.550723,-73.555067
 54165,'54165','Saint-Jacques / Montagne',45.494422,-73.566963
 54166,'54166','De Maisonneuve / Chomedey',45.491496,-73.584240
@@ -3887,6 +3888,7 @@
 54173,'54173','Notre-Dame-De-Grâce / Grand Boulevard',45.467020,-73.624457
 54174,'54174','Station Langelier (Langelier / Sherbrooke)',45.582779,-73.542870
 54175,'54175','Lucien-L''Allier / René-Lévesque',45.495165,-73.572056
+54177,'54177','La Ronde',45.521538,-73.536015
 54179,'54179','Station Rosemont',45.531255,-73.597158
 54180,'54180','Saint-Michel / Robert',45.567745,-73.618269
 54181,'54181','Station Lionel-Groulx (Atwater / L.-Groulx)',45.482998,-73.578888
@@ -3996,6 +3998,7 @@
 54328,'54328','Lavoie / Isabella',45.492388,-73.626753
 54329,'54329','Lacombe / Légaré',45.494993,-73.624934
 54330,'54330','Casino De Montréal',45.506401,-73.525190
+54335,'54335','Station Jean-Drapeau',45.512182,-73.532041
 54337,'54337','Notre-Dame / 93e Avenue',45.697099,-73.485245
 54338,'54338','Parc Saint-Benoît',45.540426,-73.666529
 54339,'54339','Tellier / Futailles',45.585526,-73.521589
@@ -4072,7 +4075,7 @@
 54430,'54430','Broadway / Montigny',45.632404,-73.509587
 54431,'54431','Notre-Dame / Joseph-Versailles',45.614096,-73.509282
 54432,'54432','Notre-Dame / Joseph-Versailles',45.613929,-73.509553
-54433,'54433','Notre-Dame / No 10150',45.617098,-73.508028
+54433,'54433','Notre-Dame / No 10150',45.617583,-73.507824
 54434,'54434','Sainte-Catherine / Durocher',45.628594,-73.508270
 54435,'54435','Durocher / Sainte-Catherine',45.628428,-73.508916
 54436,'54436','Sainte-Catherine / Lelièvre',45.630655,-73.507128
@@ -4684,7 +4687,6 @@
 55071,'55071','Monselet / Plaza',45.587894,-73.640848
 55072,'55072','Henri-Bourassa / Pelletier',45.599017,-73.640198
 55073,'55073','Henri-Bourassa / Pelletier',45.598390,-73.640215
-55076,'55076','Pie-IX / No 11171',45.593623,-73.640036
 55077,'55077','Pie-IX / Arthur-Champoux',45.593684,-73.640490
 55078,'55078','Saint-Michel / Mont-Joli',45.577700,-73.640251
 55079,'55079','Saint-Michel / Mont-Joli',45.577711,-73.640691
@@ -6221,7 +6223,7 @@
 56693,'56693','Verdun / Brault',45.447686,-73.572641
 56694,'56694','LaSalle / Godin',45.446691,-73.572360
 56695,'56695','René-Lévesque / Berlioz',45.467200,-73.537794
-56696,'56696','Hôpital Douglas (LaSalle / No 7875)',45.441431,-73.579110
+56696,'56696','Hôpital Douglas (LaSalle / No 6875)',45.441431,-73.579110
 56697,'56697','Station LaSalle',45.470696,-73.566509
 56698,'56698','Marguerite-Bourgeoys / Marie-Le Ber',45.461175,-73.552066
 56699,'56699','Marguerite-Bourgeoys / Forêt',45.461070,-73.552002
@@ -6576,7 +6578,7 @@
 57060,'57060','Carrefour Angrignon',45.446777,-73.611157
 57061,'57061','Gagné / Centre Lecavalier',45.426118,-73.611029
 57062,'57062','Salley / Dollard',45.424829,-73.623955
-57063,'57063','Hôpital Douglas (LaSalle/No 6875)',45.441091,-73.579084
+57063,'57063','Hôpital Douglas (LaSalle / No 6875)',45.441091,-73.579084
 57064,'57064','LaSalle / Orchard',45.419931,-73.648673
 57065,'57065','Newman / No 9100',45.429785,-73.637318
 57066,'57066','Bergevin / No 411',45.433707,-73.654669
@@ -6864,7 +6866,7 @@
 57362,'57362','Côte-De-Liesse / No 11450',45.458507,-73.727950
 57363,'57363','48e Avenue / René-Huguet',45.441400,-73.709723
 57364,'57364','Neptune / Carson',45.444542,-73.772932
-57365,'57365','Gare Dorval',45.448356,-73.742452
+57365,'57365','Terminus Dorval',45.448356,-73.742452
 57366,'57366','Sources / No 1733',45.462130,-73.782837
 57367,'57367','Sources / Transcanadienne',45.477407,-73.790111
 57368,'57368','Hymus / No 2355',45.477012,-73.788634
@@ -6998,10 +7000,10 @@
 57499,'57499','Carson / Les Jardins Dorval',45.443482,-73.743175
 57500,'57500','Hymus / No 1455',45.485164,-73.771335
 57501,'57501','Hymus / No 1655',45.483010,-73.775798
-57504,'57504','Gare Dorval',45.448564,-73.743687
+57504,'57504','Terminus Dorval',45.448564,-73.743687
 57505,'57505','Terminus Dorval',45.448549,-73.743173
-57506,'57506','Gare Dorval',45.448190,-73.742490
-57507,'57507','Gare Dorval',45.448533,-73.742698
+57506,'57506','Terminus Dorval',45.448190,-73.742490
+57507,'57507','Terminus Dorval',45.448533,-73.742698
 57508,'57508','Aéroport Pierre-Elliott-Trudeau',45.456682,-73.751620
 57509,'57509','Aéroport Pierre-Elliott-Trudeau',45.456743,-73.751622
 57510,'57510','Herron / Centre Commercial Rond Point',45.447541,-73.746892
@@ -7030,11 +7032,11 @@
 57533,'57533','Transcanadienne / No 1255',45.489734,-73.770487
 57534,'57534','Cardinal / Stuart-Graham',45.449910,-73.757079
 57535,'57535','Cardinal / Stuart-Graham',45.449643,-73.757530
-57536,'57536','Gare Dorval',45.448020,-73.742529
-57537,'57537','Gare Dorval',45.448554,-73.743416
-57538,'57538','Gare Dorval',45.448265,-73.743942
-57539,'57539','Gare Dorval',45.448431,-73.743935
-57540,'57540','Gare Dorval',45.448548,-73.742963
+57536,'57536','Terminus Dorval',45.448020,-73.742529
+57537,'57537','Terminus Dorval',45.448554,-73.743416
+57538,'57538','Terminus Dorval',45.448265,-73.743942
+57539,'57539','Terminus Dorval',45.448431,-73.743935
+57540,'57540','Terminus Dorval',45.448548,-73.742963
 57541,'57541','Bord-Du-Lac / McNicoll',45.440792,-73.724303
 57542,'57542','Côte-De-Liesse / No 10525',45.464393,-73.720404
 57543,'57543','Côte-Vertu / Canadair',45.474998,-73.729541
@@ -7117,7 +7119,7 @@
 57634,'57634','Inglewood / Douglas-Shand',45.445737,-73.825909
 57635,'57635','Cartier / No 117',45.434630,-73.825534
 57636,'57636','Hymus / Paprican',45.458443,-73.825468
-57637,'57637','Hymus / Paprican',45.458549,-73.825509
+57637,'57637','Hymus / Paprican',45.458612,-73.825367
 57638,'57638','Selkirk / Brunswick',45.469895,-73.824232
 57639,'57639','Brunswick / Selkirk',45.470197,-73.824262
 57640,'57640','Brunswick / Selkirk',45.469858,-73.824502
@@ -7755,7 +7757,7 @@
 58283,'58283','Gouin / Autoroute 13',45.507455,-73.762478
 58284,'58284','Riverdale / Riviera',45.513174,-73.827325
 58285,'58285','Gouin / Baubigny',45.464779,-73.892150
-58286,'58286','Gouin / Coursol',45.465024,-73.891805
+58286,'58286','Usine De Filtration De Pierrefonds',45.465024,-73.891805
 58287,'58287','Gouin / No 9409',45.507600,-73.762269
 58288,'58288','Sources / Gouin',45.509368,-73.822078
 58289,'58289','René-Émard / Anselme-Lavigne',45.489435,-73.846483
@@ -8167,7 +8169,6 @@
 60367,'60367','Station Henri-Bourassa / Terminus',45.555843,-73.667217
 60383,'60383','Station Côte-Vertu',45.513923,-73.683963
 60384,'60384','Elmslie / Dollard',45.437859,-73.641878
-60385,'60385','Elmslie / Dollard',45.437948,-73.642009
 60386,'60386','Langelier / Léger',45.623933,-73.621826
 60387,'60387','Henri-Bourassa / Henri-Bourassa',45.613139,-73.600380
 60389,'60389','Henri-Bourassa / Renaude-Lapointe',45.613969,-73.599033
@@ -8701,7 +8702,7 @@
 61207,'61207','Station LaSalle',45.470722,-73.566888
 61209,'61209','Charlevoix / Sainte-Cunégonde',45.481445,-73.574062
 61210,'61210','Charlevoix / Fauteux',45.482489,-73.575343
-61216,'61216','De Contrecoeur / Sherbrooke',45.612032,-73.526704
+61216,'61216','De Contrecoeur / Sherbrooke',45.612014,-73.526612
 61217,'61217','De Contrecoeur / De Grosbois',45.612735,-73.530405
 61218,'61218','De Contrecoeur / Rousseau',45.613790,-73.536025
 61219,'61219','De Contrecoeur / Anne-Courtemanche',45.613975,-73.536965
@@ -8750,7 +8751,7 @@
 61311,'61311','Sherbrooke / Stationnement Incitatif',45.668343,-73.505455
 61312,'61312','Pierrefonds / Winnie-Wakefield',45.459129,-73.893575
 61315,'61315','Rosemont / Marquette',45.539949,-73.592037
-61317,'61317','Gare Dorval',45.448104,-73.743943
+61317,'61317','Terminus Dorval',45.448104,-73.743943
 61320,'61320','Verdun / No 5969',45.447872,-73.572812
 61321,'61321','Pierrefonds / Winnie-Wakefield',45.458862,-73.894280
 61323,'61323','Décarie / Côte-Vertu',45.514158,-73.682479
@@ -8846,14 +8847,14 @@
 61604,'61604','Angrignon / Saint-Patrick',45.451108,-73.623680
 61605,'61605','Gare Rivière-Des-Prairies',45.661934,-73.538434
 61606,'61606','Gare Rivière-Des-Prairies',45.661793,-73.538238
-61611,'61611','Station Berri-UQAM (Berri / No 1621)',45.515988,-73.562300
+61611,'61611','Station Berri-UQAM (1621 Rue Berri)',45.515988,-73.562300
 61617,'61617','William-Tremblay / André-Laurendeau',45.543337,-73.564094
 61618,'61618','Sherbrooke / Préfontaine',45.543312,-73.557498
 61619,'61619','Station Préfontaine',45.541962,-73.554292
 61620,'61620','Hochelaga / Dézéry',45.542778,-73.553794
 61621,'61621','Saint-Germain / Sherbrooke',45.544560,-73.556430
 61624,'61624','Louisbourg / Ranger',45.525255,-73.710434
-61625,'61625','Sears / Thimens',45.501661,-73.707814
+61625,'61625','Boucle Thimens',45.501661,-73.707814
 61626,'61626','Aéroport International Pierre-Eliott-Trudeau',45.456847,-73.751615
 61627,'61627','Jarry / Bordeaux',45.555144,-73.617419
 61628,'61628','Station Amos',45.594772,-73.641459
@@ -8911,3 +8912,8 @@
 61698,'61698','Masson / Molson',45.544397,-73.577038
 61699,'61699','Salley / Tittley',45.424319,-73.627494
 61701,'61701','Pie-IX / Ontario',45.550581,-73.541754
+61707,'61707','Sauvé / Papineau',45.566052,-73.647462
+61708,'61708','32e Avenue / Joseph-Dubreuil',45.464971,-73.711900
+61710,'61710','32e Avenue / No 2111',45.462936,-73.709334
+61711,'61711','Dollard / No 2695',45.438052,-73.642824
+61717,'61717','Maurice-Duplessis / 71e Avenue',45.654337,-73.553455
