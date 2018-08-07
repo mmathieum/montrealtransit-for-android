@@ -4,6 +4,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 
+import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.SensorUtils;
 import org.montrealtransit.android.services.NfcListener;
 
@@ -15,6 +16,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Matrix;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.StatFs;
 import android.view.Surface;
@@ -162,30 +164,44 @@ public class CupcakeSupport implements SupportUtil {
 		compassMatrix.postRotate(rotation, SensorUtils.getRotationPx(activity), SensorUtils.getRotationPy(activity));
 		img.setImageMatrix(compassMatrix);
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	@Override
 	public long getStatFsAvailableBlocksLong(StatFs statFs) {
 		return (long) statFs.getAvailableBlocks();
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	@Override
 	public long getStatFsBlockSizeLong(StatFs statFs) {
 		return (long) statFs.getBlockSize();
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	@Override
 	public void removeOnGlobalLayoutListener(ViewTreeObserver viewTreeObserver, ViewTreeObserver.OnGlobalLayoutListener onGlobalLayoutListener) {
 		viewTreeObserver.removeGlobalOnLayoutListener(onGlobalLayoutListener);
 	}
-	
+
 	@Override
 	public void showNewAppNotification(Context context) {
 		// not supported until Ice Cream Sandwich (API Level 14)
 	}
-	
+
+	@Override
+	public void openNewApp(Context context) {
+		// NEW application not supported
+		// => opening STM mobile web site:
+		try {
+			String url = "https://m.stm.info";
+			Intent intent = new Intent(Intent.ACTION_VIEW);
+			intent.setData(Uri.parse(url));
+			context.startActivity(intent);
+		} catch (Exception e) {
+			MyLog.w(CupcakeSupport.class.getSimpleName(), e, "Error while opening web url!");
+		}
+	}
+
 	@Override
 	public boolean isGeocoderPresent() {
 		return true; // not provided until Gingerbread (API Level 9)

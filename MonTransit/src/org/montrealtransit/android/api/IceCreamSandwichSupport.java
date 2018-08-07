@@ -188,4 +188,30 @@ public class IceCreamSandwichSupport extends HoneycombSupport {
 			MyLog.w(TAG, e, "Error while showing new app notification!");
 		}
 	}
+
+	@Override
+	public void openNewApp(Context context) {
+		if (Utils.isAppInstalled(context, NEW_APP_PACKAGE)) {
+			// opening NEW application
+			try {
+				Intent intent = context.getPackageManager().getLaunchIntentForPackage(NEW_APP_PACKAGE);
+				intent.addCategory(Intent.CATEGORY_LAUNCHER);
+				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				context.startActivity(intent);
+			} catch (Exception e) {
+				MyLog.w(TAG, e, "Error while opening new app!");
+			}
+		} else {
+			// opening NEW application Google Play Store page
+			try {
+				Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(STORE_APP + NEW_APP_PACKAGE)); // Google Play Store application
+				if (intent.resolveActivity(context.getPackageManager()) == null) {
+					intent = new Intent(Intent.ACTION_VIEW, Uri.parse(STORE_WWW + NEW_APP_PACKAGE)); // Google Play Store web site
+				}
+				context.startActivity(intent);
+			} catch (Exception e) {
+				MyLog.w(TAG, e, "Error while opening new app Google Play Store page!");
+			}
+		}
+	}
 }

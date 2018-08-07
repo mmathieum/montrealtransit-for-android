@@ -4,10 +4,8 @@ import org.montrealtransit.android.AnalyticsUtils;
 import org.montrealtransit.android.MyLog;
 import org.montrealtransit.android.Utils;
 import org.montrealtransit.android.api.SupportFactory;
-import org.montrealtransit.android.provider.StmBusScheduleManager;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 
 /**
@@ -27,17 +25,11 @@ public class SplashScreen extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		// if (org.montrealtransit.android.BuildConfig.DEBUG) {
-		// org.montrealtransit.android.api.SupportFactory.getInstance().enableStrictMode();
-		// }
 		Utils.logAppVersion(this);
 		MyLog.v(TAG, "onCreate()");
 		super.onCreate(savedInstanceState);
-		Utils.updateBusStopsToRouteStops(this);
-		Utils.updateSubwayStationsToRouteStops(this);
-		StmBusScheduleManager.wakeUp(getContentResolver());
-		SupportFactory.get().showNewAppNotification(this);
-		showMainScreen();
+		SupportFactory.get().openNewApp(this);
+		finish();
 	}
 
 	@Override
@@ -45,14 +37,5 @@ public class SplashScreen extends Activity {
 		MyLog.v(TAG, "onResume()");
 		AnalyticsUtils.trackPageView(this, TRACKER_TAG);
 		super.onResume();
-	}
-
-	/**
-	 * Show the main screen.
-	 */
-	private void showMainScreen() {
-		MyLog.v(TAG, "showMainScreen()");
-		startActivity(new Intent(this, MainScreen.class));
-		finish();
 	}
 }

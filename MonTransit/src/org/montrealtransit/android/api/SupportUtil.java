@@ -152,5 +152,7 @@ public interface SupportUtil {
 
 	void showNewAppNotification(Context context);
 
+	void openNewApp(Context context);
+
 	boolean isGeocoderPresent();
 }
